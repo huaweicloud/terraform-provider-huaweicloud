@@ -12,32 +12,50 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ims"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func getImageCopyResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	region := acceptance.HW_REGION_NAME
+	var (
+		region       = acceptance.HW_REGION_NAME
+		targetRegion = state.Primary.Attributes["target_region"]
+		product      = "ims"
+		httpUrl      = "v2/cloudimages"
+	)
 
-	targetRegion := state.Primary.Attributes["target_region"]
 	if targetRegion != "" {
 		region = targetRegion
 	}
 
-	imsClient, err := cfg.ImageV2Client(region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return nil, fmt.Errorf("error creating IMS v2 client: %s", err)
+		return nil, fmt.Errorf("error creating IMS client: %s", err)
 	}
 
-	imageList, err := ims.GetImageList(imsClient, state.Primary.ID)
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving IMS images: %s", err)
+	getPath := client.Endpoint + httpUrl
+	getPath += fmt.Sprintf("?id=%s", state.Primary.ID)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
 
-	if len(imageList) < 1 {
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving IMS image copy: %s", err)
+	}
+
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return nil, err
+	}
+
+	image := utils.PathSearch("images[0]", getRespBody, nil)
+	// If the list API return empty, then return `404` error code.
+	if image == nil {
 		return nil, golangsdk.ErrDefault404{}
 	}
 
-	return imageList[0], nil
+	return image, nil
 }
 
 func TestAccImageCopy_basic(t *testing.T) {
@@ -268,15 +286,46 @@ func TestAccImageCopy_cross_region_withVaultId_basic(t *testing.T) {
 	})
 }
 
-func testImageCopy_within_region_base(name string) string {
+func testImageCopy_base(name string) string {
 	return fmt.Sprintf(`
 %[1]s
+
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_compute_flavors" "test" {
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  performance_type  = "normal"
+  cpu_core_count    = 2
+  memory_size       = 4
+}
+
+resource "huaweicloud_compute_instance" "test" {
+  name               = "%[2]s"
+  image_name         = "Ubuntu 18.04 server 64bit"
+  flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
+  security_group_ids = [huaweicloud_networking_secgroup.test.id]
+  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
+
+  network {
+    uuid = huaweicloud_vpc_subnet.test.id
+  }
+}
+
+resource "huaweicloud_ims_ecs_system_image" "test" {
+  name        = "%[2]s"
+  instance_id = huaweicloud_compute_instance.test.id
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
 
 resource "huaweicloud_kms_key" "test" {
   key_alias    = "%[2]s"
   pending_days = "7"
 }
-`, testAccEcsSystemImage_basic(name), name)
+`, common.TestBaseNetwork(name), name)
 }
 
 func testImageCopy_within_region_basic(baseImageName, copyImageName string) string {
@@ -296,7 +345,7 @@ resource "huaweicloud_images_image_copy" "test" {
     key2 = "value2"
   }
 }
-`, testImageCopy_within_region_base(baseImageName), copyImageName)
+`, testImageCopy_base(baseImageName), copyImageName)
 }
 
 func testImageCopy_within_region_update(baseImageName, copyImageName, migrateEpsId string, minRAM, maxRAM int) string {
@@ -317,7 +366,7 @@ resource "huaweicloud_images_image_copy" "test" {
     key4 = "value4"
   }
 }
-`, testImageCopy_within_region_base(baseImageName), copyImageName, migrateEpsId, minRAM, maxRAM)
+`, testImageCopy_base(baseImageName), copyImageName, migrateEpsId, minRAM, maxRAM)
 }
 
 func testImageCopy_cross_region_basic(baseImageName, copyImageName string) string {
@@ -337,7 +386,7 @@ resource "huaweicloud_images_image_copy" "test" {
     key1 = "value1"
     key2 = "value2"
   }
-}`, testAccEcsSystemImage_basic(baseImageName), copyImageName, acceptance.HW_DEST_REGION)
+}`, testImageCopy_base(baseImageName), copyImageName, acceptance.HW_DEST_REGION)
 }
 
 func testImageCopy_cross_region_update(baseImageName, copyImageName string, minRAM, maxRAM int) string {
@@ -358,20 +407,32 @@ resource "huaweicloud_images_image_copy" "test" {
     key4 = "value4"
   }
 }
-`, testAccEcsSystemImage_basic(baseImageName), copyImageName, acceptance.HW_DEST_REGION, minRAM, maxRAM)
+`, testImageCopy_base(baseImageName), copyImageName, acceptance.HW_DEST_REGION, minRAM, maxRAM)
 }
 
 func testImageCopy_cross_region_withVaultId_base(baseImageName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-resource "huaweicloud_cbr_vault" "test_replication" {
-  region           = "%[3]s"
-  name             = "%[2]s_replication"
-  type             = "server"
-  consistent_level = "crash_consistent"
-  protection_type  = "replication"
-  size             = 200
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_compute_flavors" "test" {
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  performance_type  = "normal"
+  cpu_core_count    = 2
+  memory_size       = 4
+}
+
+resource "huaweicloud_compute_instance" "test" {
+  name               = "%[2]s"
+  image_name         = "Ubuntu 18.04 server 64bit"
+  flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
+  security_group_ids = [huaweicloud_networking_secgroup.test.id]
+  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
+
+  network {
+    uuid = huaweicloud_vpc_subnet.test.id
+  }
 }
 
 resource "huaweicloud_cbr_vault" "test" {
@@ -387,7 +448,16 @@ resource "huaweicloud_ims_ecs_whole_image" "test" {
   instance_id = huaweicloud_compute_instance.test.id
   vault_id    = huaweicloud_cbr_vault.test.id
 }
-`, testAccEcsSystemImage_base(baseImageName), baseImageName, acceptance.HW_DEST_REGION)
+
+resource "huaweicloud_cbr_vault" "test_replication" {
+  region           = "%[3]s"
+  name             = "%[2]s_replication"
+  type             = "server"
+  consistent_level = "crash_consistent"
+  protection_type  = "replication"
+  size             = 200
+}
+`, common.TestBaseNetwork(baseImageName), baseImageName, acceptance.HW_DEST_REGION)
 }
 
 func testImageCopy_cross_region_withVaultId_basic(baseImageName, copyImageName string) string {
