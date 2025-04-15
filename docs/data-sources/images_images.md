@@ -93,6 +93,12 @@ data "huaweicloud_images_images" "bms_image" {
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID of the image.
   For enterprise users, if omitted, will query the images under all enterprise projects.
 
+* `__support_agent_list` - (Optional, String) Specifies whether the image supports host security or host monitoring.
+  The valid values are as follows:
+  + **hss**: Host security.
+  + **ces**: Host monitoring.
+  + **hss,ces**: Both support.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -158,3 +164,7 @@ The `images` block supports:
 * `created_at` - The creation time of the image, in RFC3339 format.
 
 * `updated_at` - The last update time of the image, in RFC3339 format.
+
+* `__support_agent_list` - Does the image support host security or host monitoring.
+  The valid value is **hss**, **ces**, or **hss,ces**. If it is empty, it means that the image does not support host
+  security or host monitoring.

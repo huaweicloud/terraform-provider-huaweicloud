@@ -115,6 +115,7 @@ func TestAccImagesDataSource_private_basic(t *testing.T) {
 					resource.TestCheckOutput("is_name_filter_useful", "true"),
 					resource.TestCheckOutput("is_flavor_id_filter_useful", "true"),
 					resource.TestCheckOutput("is_tag_filter_useful", "true"),
+					resource.TestCheckOutput("is_support_agent_list_filter_useful", "true"),
 					resource.TestCheckOutput("not_found_validation_pass", "true"),
 				),
 			},
@@ -247,6 +248,16 @@ data "huaweicloud_images_images" "tag_filter" {
 
 output "is_tag_filter_useful" {
   value = length(data.huaweicloud_images_images.tag_filter.images) > 0
+}
+
+# Filter using __support_agent_list.
+data "huaweicloud_images_images" "support_agent_list_filter" {
+  visibility           = "private"
+  __support_agent_list = "hss,ces"
+}
+
+output "is_support_agent_list_filter_useful" {
+  value = length(data.huaweicloud_images_images.support_agent_list_filter.images) > 0
 }
 
 # Filter using non existent name.
