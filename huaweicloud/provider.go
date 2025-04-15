@@ -1254,9 +1254,11 @@ func Provider() *schema.Provider {
 			"huaweicloud_swr_domain_overviews":          swr.DataSourceSwrDomainOverviews(),
 			"huaweicloud_swr_domain_resource_reports":   swr.DataSourceSwrDomainReports(),
 
-			"huaweicloud_tms_resource_types": tms.DataSourceResourceTypes(),
-			"huaweicloud_tms_quotas":         tms.DataSourceTmsQuotas(),
-			"huaweicloud_tms_tags":           tms.DataSourceTmsTags(),
+			"huaweicloud_tms_resource_types":      tms.DataSourceResourceTypes(),
+			"huaweicloud_tms_resource_tag_keys":   tms.DataSourceTmsTagKeys(),
+			"huaweicloud_tms_resource_tag_values": tms.DataSourceTmsTagValues(),
+			"huaweicloud_tms_quotas":              tms.DataSourceTmsQuotas(),
+			"huaweicloud_tms_tags":                tms.DataSourceTmsTags(),
 
 			"huaweicloud_vpc_bandwidth_types":            eip.DataSourceBandwidthTypes(),
 			"huaweicloud_vpc_bandwidth_limits":           eip.DataSourceBandwidthLimits(),

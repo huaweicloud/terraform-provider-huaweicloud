@@ -402,12 +402,12 @@ The following arguments are supported:
 * `enterprise_project_id` - (Optional, String) Specifies a unique ID in UUID format of enterprise project.
 
 * `public_ip` - (Optional, String, ForceNew) Specifies the EIP address which bound to the MapReduce cluster.
-The EIP must have been created and must be in the same region as the cluster.
- Changing this will create a new MapReduce cluster resource.
+  The EIP must have been created and must be in the same region as the cluster.
+  Changing this will create a new MapReduce cluster resource.
 
 * `eip_id` - (Optional, String, ForceNew) Specifies the EIP ID which bound to the MapReduce cluster.
-The EIP must have been created and must be in the same region as the cluster.
- Changing this will create a new MapReduce cluster resource.
+  The EIP must have been created and must be in the same region as the cluster.
+  Changing this will create a new MapReduce cluster resource.
 
 * `log_collection` - (Optional, Bool, ForceNew) Specifies whether logs are collected when cluster installation fails.
   Defaults to true. If `log_collection` set true, the OBS buckets will be created and only used to collect logs that
@@ -433,14 +433,14 @@ The EIP must have been created and must be in the same region as the cluster.
 * `template_id` - (Optional, String, ForceNew) Specifies the template used for node deployment when the cluster type is
   **CUSTOM**. The options are as follows:
   + **mgmt_control_combined_v2**: template for jointly deploying the management and control nodes. The management and
-  control roles are co-deployed on the Master node, and data instances are deployed in the same node group. This
-  deployment mode applies to scenarios where the number of control nodes is less than 100, reducing costs.
+    control roles are co-deployed on the Master node, and data instances are deployed in the same node group. This
+    deployment mode applies to scenarios where the number of control nodes is less than 100, reducing costs.
   + **mgmt_control_separated_v2**: The management and control roles are deployed on different master nodes, and data
-  instances are deployed in the same node group. This deployment mode is applicable to a cluster with 100 to 500 nodes
-  and delivers better performance in high-concurrency load scenarios.
+    instances are deployed in the same node group. This deployment mode is applicable to a cluster with 100 to 500 nodes
+    and delivers better performance in high-concurrency load scenarios.
   + **mgmt_control_data_separated_v2**: The management role and control role are deployed on different Master nodes,
-  and data instances are deployed in different node groups. This deployment mode is applicable to a cluster with more
-  than 500 nodes. Components can be deployed separately, which can be used for a larger cluster scale.
+    and data instances are deployed in different node groups. This deployment mode is applicable to a cluster with more
+    than 500 nodes. Components can be deployed separately, which can be used for a larger cluster scale.
 
 * `analysis_core_nodes` - (Optional, List, ForceNew) Specifies the informations about analysis core nodes in the
   MapReduce cluster.  
@@ -523,7 +523,7 @@ The `master_nodes` block supports:
 
 * `data_volume_type` - (Optional, String, ForceNew) Specifies the data disk flavor of the nodes.
   Required if `data_volume_count` is greater than zero. Changing this will create a new MapReduce cluster resource.
-   The following disk types are supported:
+  The following disk types are supported:
   + **SATA**: common I/O disk.
   + **SAS**: high I/O disk.
   + **SSD**: ultra-high I/O disk.
@@ -533,22 +533,22 @@ The `master_nodes` block supports:
   cluster resource.
 
 * `assigned_roles` - (Optional, List, ForceNew) Specifies the roles deployed in a node group.This argument is mandatory
- when the cluster type is **CUSTOM**. Each character string represents a role expression.
+  when the cluster type is **CUSTOM**. Each character string represents a role expression.
 
   **Role expression definition:**
 
-   + If the role is deployed on all nodes in the node group, set this parameter to role_name, for example: `DataNode`.
-   + If the role is deployed on a specified subscript node in the node group: role_name:index1,index2..., indexN,
- for example: `DataNode:1,2`. The subscript starts from 1.
-   + Some roles support multi-instance deployment (that is, multiple instances of the same role are deployed on a node):
-  role_name[instance_count], for example: `EsNode[9]`.
-  
+  + If the role is deployed on all nodes in the node group, set this parameter to role_name, for example: `DataNode`.
+  + If the role is deployed on a specified subscript node in the node group: role_name:index1,index2..., indexN,
+    for example: `DataNode:1,2`. The subscript starts from 1.
+  + Some roles support multi-instance deployment (that is, multiple instances of the same role are deployed on a node):
+    role_name[instance_count], for example: `EsNode[9]`.
+
   [For details about components](https://support.huaweicloud.com/intl/en-us/productdesc-mrs/mrs_08_0005.html)
 
   [Mapping between roles and components](https://support.huaweicloud.com/intl/en-us/api-mrs/mrs_02_0106.html)
 
   -> `DBService` is a basic component of a cluster. Components such as Hive, Hue, Oozie, Loader, and Redis, and Loader
-   store their metadata in DBService, and provide the metadata backup and restoration functions by using DBService.
+  store their metadata in DBService, and provide the metadata backup and restoration functions by using DBService.
 
 <a name="v2_mapreduce_cluster_core_task_nodes"></a>
 The `analysis_core_nodes`, `streaming_core_nodes`, `analysis_task_nodes` and `streaming_task_nodes` blocks support:
@@ -574,10 +574,10 @@ The `analysis_core_nodes`, `streaming_core_nodes`, `analysis_task_nodes` and `st
   + **streaming_task_nodes**: minimum is one and the maximum is subject to the configuration of the corresponding flavor.
 
   Changing this will create a new MapReduce cluster resource.
-  
+
 * `data_volume_type` - (Optional, String, ForceNew) Specifies the data disk flavor of the nodes.
   Required if `data_volume_count` is greater than zero. Changing this will create a new MapReduce cluster resource.
-   The following disk types are supported:
+  The following disk types are supported:
   + **SATA**: common I/O disk.
   + **SAS**: high I/O disk.
   + **SSD**: ultra-high I/O disk.
@@ -587,22 +587,22 @@ The `analysis_core_nodes`, `streaming_core_nodes`, `analysis_task_nodes` and `st
   cluster resource.
 
 * `assigned_roles` - (Optional, List, ForceNew) Specifies the roles deployed in a node group.This argument is mandatory
- when the cluster type is **CUSTOM**. Each character string represents a role expression.
+  when the cluster type is **CUSTOM**. Each character string represents a role expression.
 
   **Role expression definition:**
 
-   + If the role is deployed on all nodes in the node group, set this parameter to role_name, for example: `DataNode`.
-   + If the role is deployed on a specified subscript node in the node group: role_name:index1,index2..., indexN,
- for example: `DataNode:1,2`. The subscript starts from 1.
-   + Some roles support multi-instance deployment (that is, multiple instances of the same role are deployed on a node):
-  role_name[instance_count], for example: `EsNode[9]`.
-  
+  + If the role is deployed on all nodes in the node group, set this parameter to role_name, for example: `DataNode`.
+  + If the role is deployed on a specified subscript node in the node group: role_name:index1,index2..., indexN,
+    for example: `DataNode:1,2`. The subscript starts from 1.
+  + Some roles support multi-instance deployment (that is, multiple instances of the same role are deployed on a node):
+    role_name[instance_count], for example: `EsNode[9]`.
+
   [For details about components](https://support.huaweicloud.com/intl/en-us/productdesc-mrs/mrs_08_0005.html)
 
   [Mapping between roles and components](https://support.huaweicloud.com/intl/en-us/api-mrs/mrs_02_0106.html)
 
   -> `DBService` is a basic component of a cluster. Components such as Hive, Hue, Oozie, Loader, and Redis, and Loader
-   store their metadata in DBService, and provide the metadata backup and restoration functions by using DBService.
+  store their metadata in DBService, and provide the metadata backup and restoration functions by using DBService.
 
 <a name="v2_mapreduce_cluster_custom_nodes"></a>
 The `custom_nodes` block supports:
@@ -628,7 +628,7 @@ The `custom_nodes` block supports:
 
 * `data_volume_type` - (Optional, String, ForceNew) Specifies the data disk flavor of the nodes.
   Required if `data_volume_count` is greater than zero. Changing this will create a new MapReduce cluster resource.
-   The following disk types are supported:
+  The following disk types are supported:
   + **SATA**: common I/O disk.
   + **SAS**: high I/O disk.
   + **SSD**: ultra-high I/O disk.
@@ -638,22 +638,22 @@ The `custom_nodes` block supports:
   cluster resource.
 
 * `assigned_roles` - (Optional, List, ForceNew) Specifies the roles deployed in a node group.This argument is mandatory
- when the cluster type is **CUSTOM**. Each character string represents a role expression.
+  when the cluster type is **CUSTOM**. Each character string represents a role expression.
 
   **Role expression definition:**
 
-   + If the role is deployed on all nodes in the node group, set this parameter to role_name, for example: `DataNode`.
-   + If the role is deployed on a specified subscript node in the node group: role_name:index1,index2..., indexN,
- for example: `DataNode:1,2`. The subscript starts from 1.
-   + Some roles support multi-instance deployment (that is, multiple instances of the same role are deployed on a node):
-  role_name[instance_count], for example: `EsNode[9]`.
-  
+  + If the role is deployed on all nodes in the node group, set this parameter to role_name, for example: `DataNode`.
+  + If the role is deployed on a specified subscript node in the node group: role_name:index1,index2..., indexN,
+    for example: `DataNode:1,2`. The subscript starts from 1.
+  + Some roles support multi-instance deployment (that is, multiple instances of the same role are deployed on a node):
+    role_name[instance_count], for example: `EsNode[9]`.
+
   [For details about components](https://support.huaweicloud.com/intl/en-us/productdesc-mrs/mrs_08_0005.html)
 
   [Mapping between roles and components](https://support.huaweicloud.com/intl/en-us/api-mrs/mrs_02_0106.html)
 
   -> `DBService` is a basic component of a cluster. Components such as Hive, Hue, Oozie, Loader, and Redis, and Loader
-   store their metadata in DBService, and provide the metadata backup and restoration functions by using DBService.
+  store their metadata in DBService, and provide the metadata backup and restoration functions by using DBService.
 
 <a name="component_configurations"></a>
 The `component_configs` block supports:
@@ -684,18 +684,18 @@ The `external_datasources` block supports:
 
 * `role_type` - (Required, String, ForceNew) Specifies the component role type.
   The options are as follows:
-    + **hive_metastore**: Hive Metastore role.
-    + **ranger_data**: Ranger role.
-  
+  + **hive_metastore**: Hive Metastore role.
+  + **ranger_data**: Ranger role.
+
   Changing this will create a new MapReduce cluster resource.
 
 * `source_type` - (Required, String, ForceNew) Specifies the data connection type.
   The options are as follows:
-    + **LOCAL_DB**: Local metadata.
-    + **RDS_POSTGRES**: RDS PostgreSQL database.
-    + **RDS_MYSQL**: RDS MySQL database.
-    + **gaussdb-mysql**: GaussDB(for MySQL).
-  
+  + **LOCAL_DB**: Local metadata.
+  + **RDS_POSTGRES**: RDS PostgreSQL database.
+  + **RDS_MYSQL**: RDS MySQL database.
+  + **gaussdb-mysql**: GaussDB(for MySQL).
+
   Changing this will create a new MapReduce cluster resource.
 
 * `data_connection_id` - (Optional, String, ForceNew) Specifies the data connection ID.
@@ -710,23 +710,23 @@ The `bootstrap_scripts` block supports:
 
 * `uri` - (Required, String, ForceNew) Specifies the path of a bootstrap action script.
   Set this parameter to an OBS bucket path or a local VM path.
-    + **OBS bucket path**: The path of an OBS file system starts with *s3a://* or *obs://* and end with *.sh*.
-    + **Local VM path**: The script path must start with a slash (/) and end with *.sh*.
-  
+  + **OBS bucket path**: The path of an OBS file system starts with *s3a://* or *obs://* and end with *.sh*.
+  + **Local VM path**: The script path must start with a slash (/) and end with *.sh*.
+
   Changing this will create a new MapReduce cluster resource.
 
 * `nodes` - (Required, List, ForceNew) Specifies names of the node group where the bootstrap action script is executed.
 
 * `fail_action` - (Required, String, ForceNew) Specifies the action after the bootstrap action script fails to be executed.
   The options are as follows:
-    + **continue**: Continue to execute subsequent scripts.
-    + **errorout**: Stop the action.
-  
+  + **continue**: Continue to execute subsequent scripts.
+  + **errorout**: Stop the action.
+
   The default value is **errorout**, indicating that the action is stopped.
   Changing this will create a new MapReduce cluster resource.
 
   -> You are advised to set this parameter to continue in the commissioning phase so that the cluster can
-     continue to be installed and started no matter whether the bootstrap action is successful.
+  continue to be installed and started no matter whether the bootstrap action is successful.
 
 * `parameters` - (Optional, String, ForceNew) Specifies bootstrap action script parameters.
 
@@ -736,9 +736,9 @@ The `bootstrap_scripts` block supports:
 * `before_component_start` - (Optional, Bool, ForceNew) Specifies whether the bootstrap action script is executed
   before component start.
   The options are as follows:
-    + **false**: After component start. The default value is **false**.
-    + **true**: Before component start.
-  
+  + **false**: After component start. The default value is **false**.
+  + **true**: Before component start.
+
   Changing this will create a new MapReduce cluster resource.
 
 * `execute_need_sudo_root` - (Optional, Bool, ForceNew) Specifies whether the bootstrap action script involves root user
@@ -771,7 +771,7 @@ In addition to all arguments above, the following attributes are exported:
   + `host_ips` - The host list of this nodes group in the cluster.
 * `bootstrap_scripts/start_time` - The execution time of one bootstrap action script, in RFC-3339 format.
 * `bootstrap_scripts/state` - The status of one bootstrap action script.
-    The valid value are **PENDING**, **IN_PROGRESS**, **SUCCESS**, and **FAILURE**.
+  The valid value are **PENDING**, **IN_PROGRESS**, **SUCCESS**, and **FAILURE**.
 
 ## Timeouts
 
