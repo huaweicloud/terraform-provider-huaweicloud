@@ -7,23 +7,28 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk/openstack/evs/v2/cloudvolumes"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/evs"
 )
 
 func getVolumeResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	c, err := conf.BlockStorageV2Client(acceptance.HW_REGION_NAME)
+	var (
+		region  = acceptance.HW_REGION_NAME
+		product = "evs"
+	)
+
+	client, err := conf.NewServiceClient(product, region)
 	if err != nil {
-		return nil, fmt.Errorf("error creating block storage v2 client: %s", err)
+		return nil, fmt.Errorf("error creating EVS client: %s", err)
 	}
-	return cloudvolumes.Get(c, state.Primary.ID).Extract()
+
+	return evs.GetVolumeDetail(client, state.Primary.ID)
 }
 
 // This test case is used to test the `GPSSD2` type cloud hard disk, which can be used in cn-north-4.
 func TestAccEvsVolume_postPaidWithoutServer(t *testing.T) {
-	var volume cloudvolumes.Volume
+	var volume interface{}
 	name := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_evs_volume.test"
 
@@ -60,6 +65,23 @@ func TestAccEvsVolume_postPaidWithoutServer(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "iops", "3000"),
 					resource.TestCheckResourceAttr(resourceName, "throughput", "125"),
 					resource.TestCheckResourceAttrSet(resourceName, "wwn"),
+					resource.TestCheckResourceAttrSet(resourceName, "all_metadata.%"),
+					resource.TestCheckResourceAttrSet(resourceName, "bootable"),
+					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
+					resource.TestCheckResourceAttrSet(resourceName, "updated_at"),
+					resource.TestCheckResourceAttrSet(resourceName, "iops_attribute.#"),
+					resource.TestCheckResourceAttrSet(resourceName, "iops_attribute.0.frozened"),
+					resource.TestCheckResourceAttrSet(resourceName, "iops_attribute.0.id"),
+					resource.TestCheckResourceAttrSet(resourceName, "iops_attribute.0.total_val"),
+					resource.TestCheckResourceAttrSet(resourceName, "links.#"),
+					resource.TestCheckResourceAttrSet(resourceName, "links.0.href"),
+					resource.TestCheckResourceAttrSet(resourceName, "links.0.rel"),
+					resource.TestCheckResourceAttrSet(resourceName, "serial_number"),
+					resource.TestCheckResourceAttrSet(resourceName, "service_type"),
+					resource.TestCheckResourceAttrSet(resourceName, "throughput_attribute.#"),
+					resource.TestCheckResourceAttrSet(resourceName, "throughput_attribute.0.frozened"),
+					resource.TestCheckResourceAttrSet(resourceName, "throughput_attribute.0.id"),
+					resource.TestCheckResourceAttrSet(resourceName, "throughput_attribute.0.total_val"),
 				),
 			},
 			{
@@ -184,7 +206,7 @@ resource "huaweicloud_evs_volume" "test" {
 
 // This test case is used to test the `GPSSD` type cloud hard disk, which can be used in cn-north-4.
 func TestAccEvsVolume_postPaidWithServer(t *testing.T) {
-	var volume cloudvolumes.Volume
+	var volume interface{}
 	name := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_evs_volume.test"
 
@@ -224,6 +246,21 @@ func TestAccEvsVolume_postPaidWithServer(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "throughput", "0"),
 					resource.TestCheckResourceAttr(resourceName, "charging_mode", "postPaid"),
 					resource.TestCheckResourceAttrSet(resourceName, "wwn"),
+					resource.TestCheckResourceAttrSet(resourceName, "attachment.#"),
+					resource.TestCheckResourceAttrSet(resourceName, "attachment.0.attached_at"),
+					resource.TestCheckResourceAttrSet(resourceName, "attachment.0.device"),
+					resource.TestCheckResourceAttrSet(resourceName, "attachment.0.id"),
+					resource.TestCheckResourceAttrSet(resourceName, "attachment.0.instance_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "attachment.0.attached_volume_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "attachment.0.volume_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "bootable"),
+					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
+					resource.TestCheckResourceAttrSet(resourceName, "updated_at"),
+					resource.TestCheckResourceAttrSet(resourceName, "links.#"),
+					resource.TestCheckResourceAttrSet(resourceName, "links.0.href"),
+					resource.TestCheckResourceAttrSet(resourceName, "links.0.rel"),
+					resource.TestCheckResourceAttrSet(resourceName, "all_metadata.%"),
+					resource.TestCheckResourceAttrSet(resourceName, "service_type"),
 				),
 			},
 			{
@@ -403,7 +440,7 @@ resource "huaweicloud_evs_volume" "test" {
 
 // This test case is used to test the `GPSSD2` type cloud hard disk, which can be used in cn-north-4.
 func TestAccEvsVolume_prePaidWithoutServer(t *testing.T) {
-	var volume cloudvolumes.Volume
+	var volume interface{}
 	name := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_evs_volume.test"
 
@@ -593,7 +630,7 @@ resource "huaweicloud_evs_volume" "test" {
 
 // This test case is used to test the `GPSSD` type cloud hard disk, which can be used in cn-north-4.
 func TestAccEvsVolume_prePaidWithServer(t *testing.T) {
-	var volume cloudvolumes.Volume
+	var volume interface{}
 	name := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_evs_volume.test"
 
@@ -829,7 +866,7 @@ resource "huaweicloud_evs_volume" "test" {
 // Changing the disk type takes a long time. This test case may take several hours, so a separate test case is provided.
 // Before executing this test case, please submit a work order to apply for public beta qualification to change the disk type.
 func TestAccEvsVolume_postPaidEditDiskType(t *testing.T) {
-	var volume cloudvolumes.Volume
+	var volume interface{}
 	name := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_evs_volume.test"
 
@@ -990,7 +1027,7 @@ resource "huaweicloud_evs_volume" "test" {
 // Changing the disk type takes a long time. This test case may take several hours, so a separate test case is provided.
 // Before executing this test case, please submit a work order to apply for public beta qualification to change the disk type.
 func TestAccEvsVolume_prePaidEditDiskType(t *testing.T) {
-	var volume cloudvolumes.Volume
+	var volume interface{}
 	name := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_evs_volume.test"
 
