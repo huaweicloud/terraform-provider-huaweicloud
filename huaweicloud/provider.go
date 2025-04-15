@@ -2309,6 +2309,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_servicestagev3_application":           servicestage.ResourceV3Application(),
 			"huaweicloud_servicestagev3_component":             servicestage.ResourceV3Component(),
 			"huaweicloud_servicestagev3_configuration":         servicestage.ResourceV3Configuration(),
+			"huaweicloud_servicestagev3_component_action":      servicestage.ResourceV3ComponentAction(),
 			"huaweicloud_servicestagev3_configuration_group":   servicestage.ResourceV3ConfigurationGroup(),
 			"huaweicloud_servicestagev3_environment":           servicestage.ResourceV3Environment(),
 			"huaweicloud_servicestagev3_environment_associate": servicestage.ResourceV3EnvironmentAssociate(),
