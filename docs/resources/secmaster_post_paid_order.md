@@ -51,21 +51,21 @@ The following arguments are supported:
 <a name="product_list"></a>
 The `product_list` block supports:
 
-* `id` - (Optional, String, NonUpdatable) Specifies the identifier, which must be unique.
+* `id` - (Required, String, NonUpdatable) Specifies the identifier, which must be unique.
 
-* `product_id` - (Optional, String, NonUpdatable) Specifies the offering ID,
+* `product_id` - (Required, String, NonUpdatable) Specifies the offering ID,
   which is obtained from the CBC price inquiry.
 
-* `cloud_service_type` - (Optional, String, NonUpdatable) Specifies the cloud service type.
+* `cloud_service_type` - (Required, String, NonUpdatable) Specifies the cloud service type.
   The fixed value is **hws.service.type.sa**.
 
-* `resource_type` - (Optional, String, NonUpdatable) Specifies the resource type of the purchased product.
+* `resource_type` - (Required, String, NonUpdatable) Specifies the resource type of the purchased product.
   For example, the resource type for typical scenarios in SecMaster is **hws.resource.type.secmaster.typical**.
 
-* `resource_spec_code` - (Optional, String, NonUpdatable) Specifies the resource specifications of the purchased
+* `resource_spec_code` - (Required, String, NonUpdatable) Specifies the resource specifications of the purchased
   product. For example, the resource specification for the basic edition in SecMaster is **secmaster.basic**.
 
-* `usage_measure_id` - (Optional, Int, NonUpdatable) Specifies the usage measurement unit.
+* `usage_measure_id` - (Required, Int, NonUpdatable) Specifies the usage measurement unit.
   For example, the resources are billed by hour, the usage value is **1**, and the usage measurement unit is hour.
   The options are:
 
@@ -73,11 +73,11 @@ The `product_list` block supports:
   + **10**: GB, The bandwidth usage is measured by traffic (GB);
   + **11**: MB, The bandwidth usage is measured by traffic (MB);
 
-* `usage_value` - (Optional, Int, NonUpdatable) Specifies the usage value.
+* `usage_value` - (Required, Int, NonUpdatable) Specifies the usage value.
 
-* `resource_size` - (Optional, Int, NonUpdatable) Specifies the number of quotas.
+* `resource_size` - (Required, Int, NonUpdatable) Specifies the number of quotas.
 
-* `usage_factor` - (Optional, String, NonUpdatable) Specifies the usage factor.
+* `usage_factor` - (Required, String, NonUpdatable) Specifies the usage factor.
 
 * `resource_id` - (Optional, String, NonUpdatable) Specifies the resource ID,
   which is transferred only when the quota is added.
