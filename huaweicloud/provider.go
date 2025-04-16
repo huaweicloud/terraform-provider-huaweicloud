@@ -858,7 +858,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_er_route_tables":       er.DataSourceRouteTables(),
 			"huaweicloud_er_tags":               er.DataSourceTags(),
 
-			"huaweicloud_evs_volumes":            evs.DataSourceEvsVolumesV2(),
+			"huaweicloud_evs_volumes":            evs.DataSourceEvsVolumes(),
 			"huaweicloud_evs_snapshots":          evs.DataSourceEvsSnapshots(),
 			"huaweicloud_evs_availability_zones": evs.DataSourceEvsAvailabilityZones(),
 			"huaweicloud_evs_volume_types":       evs.DataSourceEvsVolumeTypes(),
