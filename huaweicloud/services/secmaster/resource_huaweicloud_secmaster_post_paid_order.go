@@ -84,15 +84,15 @@ func ResourcePostPaidOrder() *schema.Resource {
 							Required: true,
 						},
 						"usage_measure_id": {
-							Type:     schema.TypeString,
+							Type:     schema.TypeInt,
 							Required: true,
 						},
 						"usage_value": {
-							Type:     schema.TypeString,
+							Type:     schema.TypeInt,
 							Required: true,
 						},
 						"resource_size": {
-							Type:     schema.TypeString,
+							Type:     schema.TypeInt,
 							Required: true,
 						},
 						"usage_factor": {
@@ -191,7 +191,7 @@ func buildProductListParams(d *schema.ResourceData) []map[string]interface{} {
 			"usage_value":        utils.PathSearch("usage_value", v, nil),
 			"resource_size":      utils.PathSearch("resource_size", v, nil),
 			"usage_factor":       utils.PathSearch("usage_factor", v, nil),
-			"resource_id":        utils.PathSearch("resource_id", v, nil),
+			"resource_id":        utils.ValueIgnoreEmpty(utils.PathSearch("resource_id", v, nil)),
 		}
 	}
 
