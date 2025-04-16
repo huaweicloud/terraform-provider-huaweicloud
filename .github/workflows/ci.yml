@@ -94,11 +94,9 @@ jobs:
           go build -o markdown_check main.go
           ./markdown_check >check_result.log
 
-          # There are three known issues for huaweicloud_mapreduce_cluster
-          ret=$(($?-3))
+          ret=$?
           if [ $ret -gt 0 ]; then
             echo "ERROR: find $ret inconsistencies between schemas and markdown docs"
-            echo -e "please ignore the errors in huaweicloud_mapreduce_cluster\n"
             grep -B1 "\[ERROR\]" check_result.log
           fi
           exit $ret
