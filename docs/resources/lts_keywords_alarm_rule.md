@@ -61,13 +61,18 @@ The following arguments are supported:
 
 * `description` - (Optional, String) Specifies the description of the keywords alarm rule.
 
-* `send_notifications` - (Optional, Bool, ForceNew) Specifies whether to send notifications.
-  Changing this parameter will create a new resource.
+* `send_notifications` - (Optional, Bool) Specifies whether to send notifications.  
   Defaults to **false**.
   
-* `notification_rule` - (Optional, List, ForceNew) Specifies the notification rule.
+* `alarm_action_rule_name` - (Optional, String) Specifies the name of the alarm action rule associated with
+  the keyword alarm rule.  
+  This parameter is available only when `send_notifications` parameter is set to **true**.
+
+  -> This parameter cannot be used together with `notification_save_rule` parameter.
+  
+* `notification_save_rule` - (Optional, List) Specifies the notification rule.
   The [NotificationRule](#KeywordsAlarmRule_NotificationRule) structure is documented below.
-  Changing this parameter will create a new resource.
+  This parameter is available only when `send_notifications` parameter is set to **true**.
 
 * `trigger_condition_count` - (Optional, Int) Specifies the count to trigger the alarm.
   Defaults to `1`.
@@ -81,8 +86,26 @@ The following arguments are supported:
 * `recovery_frequency` - (Optional, Int) Specifies the frequency to recover the alarm.
   Defaults to `3`.
 
-* `status` - (Optional, String) Specifies the status.  
-  The value can be: **RUNNING** and **STOPPING**.  
+* `alarm_rule_alias` - (Optional, String) Specifies the alias name of the keyword alarm rule.  
+  The maximum lanegth is `128` characters, only Chinese characters, letters, digits, hyphens (-) and underscores (_)
+  are allowed.  
+  The name cannot start with and end with a hyphen or a underscore.
+
+* `notification_frequency` - (Optional, Int) Specifies the notification frequency of the keyword alarm rule,
+  in minutes.  
+  Defaults to `0`, `0` means immediately notification.  
+  This parameter is available only when `send_notifications` parameter is set to **true**.
+  The valid values are as follows:
+  + **0**
+  + **5**
+  + **10**
+  + **15**
+  + **30**
+  + **60**
+  + **180**
+  + **360**
+
+* `status` - (Optional, String) Specifies the status. The value can be: **RUNNING** and **STOPPING**.
   Defaults to **RUNNING**.
 
 <a name="KeywordsAlarmRule_KeywordsRequests"></a>
@@ -105,6 +128,10 @@ The `KeywordsRequests` block supports:
 * `search_time_range` - (Required, Int) Specifies the search time range.
   + When the `search_time_range_unit` is **minute**, the value ranges from `1` to `60`.
   + When the `search_time_range_unit` is **hour**, the value ranges from `1` to `24`.
+
+* `log_group_name` - (Optional, String) Specifies the name of the log group.
+
+* `log_stream_name` - (Optional, String) Specifies the name of the log stream.
 
 <a name="KeywordsAlarmRule_Frequency"></a>
 The `Frequency` block supports:
@@ -134,38 +161,29 @@ The `Frequency` block supports:
 <a name="KeywordsAlarmRule_NotificationRule"></a>
 The `NotificationRule` block supports:
 
-* `template_name` - (Required, String, ForceNew) Specifies the notification template name.
-  Changing this parameter will create a new resource.
+* `template_name` - (Required, String) Specifies the notification template name.
 
-* `user_name` - (Required, String, ForceNew) Specifies the user name.
-  Changing this parameter will create a new resource.
+* `user_name` - (Required, String) Specifies the user name.
 
-* `topics` - (Required, List, ForceNew) Specifies the SMN topics.
+* `topics` - (Required, List) Specifies the SMN topics.
   The [Topic](#KeywordsAlarmRule_Topic) structure is documented below.
-  Changing this parameter will create a new resource.
 
-* `timezone` - (Optional, String, ForceNew) Specifies the timezone.
-  Changing this parameter will create a new resource.
+* `timezone` - (Optional, String) Specifies the timezone.
 
-* `language` - (Optional, String, ForceNew) Specifies the notification language.
-  The value can be **zh-cn** and **en-us**.
-  Changing this parameter will create a new resource.
+* `language` - (Optional, String) Specifies the notification language.  
+  The value can be **zh-cn** and **en-us**, defaults to **zh-cn**.
 
 <a name="KeywordsAlarmRule_Topic"></a>
 The `NotificationRuleTopic` block supports:
 
-* `name` - (Required, String, ForceNew) Specifies the topic name.
-  Changing this parameter will create a new resource.
+* `name` - (Required, String) Specifies the topic name.
 
-* `topic_urn` - (Required, String, ForceNew) Specifies the topic URN.
-  Changing this parameter will create a new resource.
+* `topic_urn` - (Required, String) Specifies the topic URN.
 
-* `display_name` - (Optional, String, ForceNew) Specifies the display name.
+* `display_name` - (Optional, String) Specifies the display name.
   This will be shown as the sender of the message.
-  Changing this parameter will create a new resource.
 
-* `push_policy` - (Optional, String, ForceNew) Specifies the push policy.
-  Changing this parameter will create a new resource.
+* `push_policy` - (Optional, Int) Specifies the push policy.
 
 ## Attribute Reference
 
@@ -177,7 +195,9 @@ In addition to all arguments above, the following attributes are exported:
 
 * `created_at` - The creation time of the alarm rule.
 
-* `updated_at` - The latest update time of the alarm rule.
+* `updated_at` - The last update time of the alarm rule.
+
+* `condition_expression` - The condition expression of the keyword alarm rule.
 
 ## Import
 
@@ -188,7 +208,7 @@ $ terraform import huaweicloud_lts_keywords_alarm_rule.test <id>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
-API response. The missing attributes include: `notification_rule`.
+API response. The missing attributes include: `notification_save_rule.0.user_name`, `notification_save_rule.0.timezone,`.
 It is generally recommended running `terraform plan` after importing a certificate.
 You can then decide if changes should be applied to the certificate, or the resource definition should be updated to
 align with the certificate. Also you can ignore changes as below.
@@ -199,7 +219,7 @@ resource "huaweicloud_lts_keywords_alarm_rule" "test" {
 
   lifecycle {
     ignore_changes = [
-      notification_rule,
+      notification_save_rule.0.user_name, notification_save_rule.0.timezone,
     ]
   }
 }
