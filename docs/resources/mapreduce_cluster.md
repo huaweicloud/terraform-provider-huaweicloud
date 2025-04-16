@@ -607,7 +607,7 @@ The `analysis_core_nodes`, `streaming_core_nodes`, `analysis_task_nodes` and `st
 <a name="v2_mapreduce_cluster_custom_nodes"></a>
 The `custom_nodes` block supports:
 
-* `group_name` - (Optional, String, ForceNew) Specifies the name of nodes for the node group.  
+* `group_name` - (Required, String, ForceNew) Specifies the name of nodes for the node group.  
   Changing this will create a new MapReduce cluster resource.
 
 * `flavor` - (Required, String, ForceNew) Specifies the instance specifications for each nodes in node group.
