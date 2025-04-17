@@ -65,6 +65,34 @@ func DataSourceEvsVolumes() *schema.Resource {
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			"dedicated_storage_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"dedicated_storage_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"ids": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"metadata": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"service_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"sort_dir": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"sort_key": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"volumes": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -96,6 +124,18 @@ func DataSourceEvsVolumes() *schema.Resource {
 										Computed: true,
 									},
 									"server_id": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"host_name": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"attached_volume_id": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"volume_id": {
 										Type:     schema.TypeString,
 										Computed: true,
 									},
@@ -167,8 +207,102 @@ func DataSourceEvsVolumes() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"dedicated_storage_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"dedicated_storage_name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"iops_attribute": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem:     datasourceIopsAttributeComputeSchema(),
+						},
+						"throughput_attribute": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem:     datasourceThroughputAttributeComputeSchema(),
+						},
+						"links": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem:     datasourceLinksComputeSchema(),
+						},
+						"metadata": {
+							Type:     schema.TypeMap,
+							Computed: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
+						"serial_number": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"snapshot_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"volume_image_metadata": {
+							Type:     schema.TypeMap,
+							Computed: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
 					},
 				},
+			},
+		},
+	}
+}
+
+func datasourceLinksComputeSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"href": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"rel": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+		},
+	}
+}
+
+func datasourceThroughputAttributeComputeSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"frozened": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+			"id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"total_val": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+		},
+	}
+}
+
+func datasourceIopsAttributeComputeSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"frozened": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+			"id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"total_val": {
+				Type:     schema.TypeInt,
+				Computed: true,
 			},
 		},
 	}
@@ -199,6 +333,27 @@ func buildEvsVolumesQueryParams(d *schema.ResourceData, cfg *config.Config) stri
 	}
 	if v, ok := d.GetOk("shareable"); ok {
 		rst += fmt.Sprintf("&multiattach=%v", v)
+	}
+	if v, ok := d.GetOk("metadata"); ok {
+		rst += fmt.Sprintf("&metadata=%v", v)
+	}
+	if v, ok := d.GetOk("service_type"); ok {
+		rst += fmt.Sprintf("&service_type=%v", v)
+	}
+	if v, ok := d.GetOk("sort_dir"); ok {
+		rst += fmt.Sprintf("&sort_dir=%v", v)
+	}
+	if v, ok := d.GetOk("sort_key"); ok {
+		rst += fmt.Sprintf("&sort_key=%v", v)
+	}
+	if v, ok := d.GetOk("dedicated_storage_id"); ok {
+		rst += fmt.Sprintf("&dedicated_storage_id=%v", v)
+	}
+	if v, ok := d.GetOk("dedicated_storage_name"); ok {
+		rst += fmt.Sprintf("&dedicated_storage_name=%v", v)
+	}
+	if v, ok := d.GetOk("ids"); ok {
+		rst += fmt.Sprintf("&ids=%v", v)
 	}
 
 	if rst != "" {
@@ -281,28 +436,86 @@ func flattenEvsVolumes(allVolumes []interface{}) []interface{} {
 	rst := make([]interface{}, 0, len(allVolumes))
 	for _, v := range allVolumes {
 		rst = append(rst, map[string]interface{}{
-			"id":                    utils.PathSearch("id", v, nil),
-			"attachments":           flattenAttachments(v),
-			"availability_zone":     utils.PathSearch("availability_zone", v, nil),
-			"description":           utils.PathSearch("description", v, nil),
-			"volume_type":           utils.PathSearch("volume_type", v, nil),
-			"iops":                  utils.PathSearch("iops.total_val", v, nil),
-			"throughput":            utils.PathSearch("throughput.total_val", v, nil),
-			"enterprise_project_id": utils.PathSearch("enterprise_project_id", v, nil),
-			"name":                  utils.PathSearch("name", v, nil),
-			"service_type":          utils.PathSearch("service_type", v, nil),
-			"shareable":             utils.PathSearch("multiattach", v, nil),
-			"size":                  utils.PathSearch("size", v, nil),
-			"status":                utils.PathSearch("status", v, nil),
-			"create_at":             utils.PathSearch("created_at", v, nil),
-			"update_at":             utils.PathSearch("updated_at", v, nil),
-			"tags":                  utils.PathSearch("tags", v, nil),
-			"wwn":                   utils.PathSearch("wwn", v, nil),
-			"bootable":              flattenBootable(v),
+			"id":                     utils.PathSearch("id", v, nil),
+			"attachments":            flattenAttachments(v),
+			"availability_zone":      utils.PathSearch("availability_zone", v, nil),
+			"description":            utils.PathSearch("description", v, nil),
+			"volume_type":            utils.PathSearch("volume_type", v, nil),
+			"iops":                   utils.PathSearch("iops.total_val", v, nil),
+			"throughput":             utils.PathSearch("throughput.total_val", v, nil),
+			"enterprise_project_id":  utils.PathSearch("enterprise_project_id", v, nil),
+			"name":                   utils.PathSearch("name", v, nil),
+			"service_type":           utils.PathSearch("service_type", v, nil),
+			"shareable":              utils.PathSearch("multiattach", v, nil),
+			"size":                   utils.PathSearch("size", v, nil),
+			"status":                 utils.PathSearch("status", v, nil),
+			"create_at":              utils.PathSearch("created_at", v, nil),
+			"update_at":              utils.PathSearch("updated_at", v, nil),
+			"tags":                   utils.PathSearch("tags", v, nil),
+			"wwn":                    utils.PathSearch("wwn", v, nil),
+			"dedicated_storage_id":   utils.PathSearch("dedicated_storage_id", v, nil),
+			"dedicated_storage_name": utils.PathSearch("dedicated_storage_name", v, nil),
+			"iops_attribute":         flattenDatasourceIopsAttribute(v),
+			"throughput_attribute":   flattenDatasourceThroughputAttribute(v),
+			"links":                  flattenDatasourceLinksAttribute(v),
+			"metadata": utils.ExpandToStringMap(utils.PathSearch("metadata", v,
+				make(map[string]interface{})).(map[string]interface{})),
+			"volume_image_metadata": utils.ExpandToStringMap(utils.PathSearch("volume_image_metadata", v,
+				make(map[string]interface{})).(map[string]interface{})),
+			"serial_number": utils.PathSearch("serial_number", v, nil),
+			"snapshot_id":   utils.PathSearch("snapshot_id", v, nil),
+			"bootable":      flattenBootable(v),
 		})
 	}
 
 	return rst
+}
+
+func flattenDatasourceLinksAttribute(respBody interface{}) interface{} {
+	linksAttribute := utils.PathSearch("links", respBody, make([]interface{}, 0)).([]interface{})
+	if len(linksAttribute) == 0 {
+		return nil
+	}
+
+	rst := make([]interface{}, 0, len(linksAttribute))
+	for _, v := range linksAttribute {
+		rst = append(rst, map[string]interface{}{
+			"href": utils.PathSearch("href", v, nil),
+			"rel":  utils.PathSearch("rel", v, nil),
+		})
+	}
+
+	return rst
+}
+
+func flattenDatasourceThroughputAttribute(respBody interface{}) interface{} {
+	throughputAttribute := utils.PathSearch("throughput", respBody, nil)
+	if throughputAttribute == nil {
+		return nil
+	}
+
+	return []map[string]interface{}{
+		{
+			"frozened":  utils.PathSearch("frozened", throughputAttribute, nil),
+			"id":        utils.PathSearch("id", throughputAttribute, nil),
+			"total_val": utils.PathSearch("total_val", throughputAttribute, nil),
+		},
+	}
+}
+
+func flattenDatasourceIopsAttribute(respBody interface{}) interface{} {
+	iopsAttribute := utils.PathSearch("iops", respBody, nil)
+	if iopsAttribute == nil {
+		return nil
+	}
+
+	return []map[string]interface{}{
+		{
+			"frozened":  utils.PathSearch("frozened", iopsAttribute, nil),
+			"id":        utils.PathSearch("id", iopsAttribute, nil),
+			"total_val": utils.PathSearch("total_val", iopsAttribute, nil),
+		},
+	}
 }
 
 func flattenBootable(respBody interface{}) bool {
@@ -323,11 +536,14 @@ func flattenAttachments(respBody interface{}) []interface{} {
 	rst := make([]interface{}, 0, len(attachments))
 	for _, v := range attachments {
 		rst = append(rst, map[string]interface{}{
-			"id":            utils.PathSearch("attachment_id", v, nil),
-			"attached_at":   utils.PathSearch("attached_at", v, nil),
-			"attached_mode": attachedMode,
-			"device_name":   utils.PathSearch("device", v, nil),
-			"server_id":     utils.PathSearch("server_id", v, nil),
+			"id":                 utils.PathSearch("attachment_id", v, nil),
+			"attached_at":        utils.PathSearch("attached_at", v, nil),
+			"attached_mode":      attachedMode,
+			"device_name":        utils.PathSearch("device", v, nil),
+			"server_id":          utils.PathSearch("server_id", v, nil),
+			"host_name":          utils.PathSearch("host_name", v, nil),
+			"attached_volume_id": utils.PathSearch("id", v, nil),
+			"volume_id":          utils.PathSearch("volume_id", v, nil),
 		})
 	}
 
