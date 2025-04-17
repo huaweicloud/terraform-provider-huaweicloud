@@ -59,6 +59,7 @@ func testAccSnapshotRollBack_basic() string {
 resource "huaweicloud_evs_snapshot_rollback" "test" {
   volume_id   = huaweicloud_evs_volume.test.id
   snapshot_id = huaweicloud_evs_snapshot.test.id
+  name        = huaweicloud_evs_volume.test.name
 }
 `, testAccSnapshotRollBack_base())
 }

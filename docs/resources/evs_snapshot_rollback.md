@@ -41,6 +41,9 @@ The following arguments are supported:
 * `snapshot_id` - (Required, String, ForceNew) Specifies the ID of the snapshot.
   Changing this parameter will create a new resource.
 
+* `name` - (Optional, String, ForceNew) Specifies the target volume name for snapshot rollback.
+  Changing this parameter will create a new resource.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
