@@ -540,10 +540,11 @@ var (
 	HW_LTS_LOG_CONVERGE_SOURCE_LOG_GROUP_ID  = os.Getenv("HW_LTS_LOG_CONVERGE_SOURCE_LOG_GROUP_ID")
 	HW_LTS_LOG_CONVERGE_SOURCE_LOG_STREAM_ID = os.Getenv("HW_LTS_LOG_CONVERGE_SOURCE_LOG_STREAM_ID")
 
-	HW_LTS_CLUSTER_ID           = os.Getenv("HW_LTS_CLUSTER_ID")
-	HW_LTS_CLUSTER_NAME         = os.Getenv("HW_LTS_CLUSTER_NAME")
-	HW_LTS_CLUSTER_ID_ANOTHER   = os.Getenv("HW_LTS_CLUSTER_ID_ANOTHER")
-	HW_LTS_CLUSTER_NAME_ANOTHER = os.Getenv("HW_LTS_CLUSTER_NAME_ANOTHER")
+	HW_LTS_CLUSTER_ID             = os.Getenv("HW_LTS_CLUSTER_ID")
+	HW_LTS_CLUSTER_NAME           = os.Getenv("HW_LTS_CLUSTER_NAME")
+	HW_LTS_CLUSTER_ID_ANOTHER     = os.Getenv("HW_LTS_CLUSTER_ID_ANOTHER")
+	HW_LTS_CLUSTER_NAME_ANOTHER   = os.Getenv("HW_LTS_CLUSTER_NAME_ANOTHER")
+	HW_LTS_ALARM_ACTION_RULE_NAME = os.Getenv("HW_LTS_ALARM_ACTION_RULE_NAME")
 
 	HW_VPCEP_SERVICE_ID = os.Getenv("HW_VPCEP_SERVICE_ID")
 
@@ -2148,6 +2149,13 @@ func TestAccPreCheckLtsStructConfigCustom(t *testing.T) {
 	if HW_LTS_STRUCT_CONFIG_TEMPLATE_ID == "" || HW_LTS_STRUCT_CONFIG_TEMPLATE_NAME == "" {
 		t.Skip("HW_LTS_STRUCT_CONFIG_TEMPLATE_ID and HW_LTS_STRUCT_CONFIG_TEMPLATE_NAME must be" +
 			" set for LTS struct config custom acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckLtsAlarmActionRuleName(t *testing.T) {
+	if HW_LTS_ALARM_ACTION_RULE_NAME == "" {
+		t.Skip("HW_LTS_ALARM_ACTION_RULE_NAME must be set for the acceptance test")
 	}
 }
 
