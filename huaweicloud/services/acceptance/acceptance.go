@@ -587,6 +587,7 @@ var (
 	HW_SMN_SUBSCRIBED_TOPIC_URN = os.Getenv("HW_SMN_SUBSCRIBED_TOPIC_URN")
 
 	HW_SERVICESTAGE_JAR_PKG_STORAGE_URLS = os.Getenv("HW_SERVICESTAGE_JAR_PKG_STORAGE_URLS")
+	HW_SERVICESTAGE_ZIP_STORAGE_URLS     = os.Getenv("HW_SERVICESTAGE_ZIP_STORAGE_URLS")
 )
 
 // TestAccProviders is a static map containing only the main provider instance.
@@ -3115,5 +3116,12 @@ func TestAccPreCheckIMSImageMetadataID(t *testing.T) {
 func TestAccPreCheckServiceStageJarPkgStorageURLs(t *testing.T, n int) {
 	if len(strings.Split(HW_SERVICESTAGE_JAR_PKG_STORAGE_URLS, ",")) < n {
 		t.Skipf("at least %d URLs for HW_SERVICESTAGE_JAR_PKG_STORAGE_URLS must be set, separated by a comma (,)", n)
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckServiceStageZipStorageURLs(t *testing.T, n int) {
+	if len(strings.Split(HW_SERVICESTAGE_ZIP_STORAGE_URLS, ",")) < n {
+		t.Skipf("at least %d URLs for HW_SERVICESTAGE_ZIP_STORAGE_URLS must be set, separated by a comma (,)", n)
 	}
 }
