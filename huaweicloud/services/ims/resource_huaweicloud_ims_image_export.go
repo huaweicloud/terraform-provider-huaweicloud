@@ -2,14 +2,16 @@ package ims
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/ims/v2/cloudimages"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -71,12 +73,13 @@ func resourceImageExportCreate(ctx context.Context, d *schema.ResourceData, meta
 	var (
 		cfg     = meta.(*config.Config)
 		region  = cfg.GetRegion(d)
+		product = "ims"
 		imageId = d.Get("image_id").(string)
 	)
 
-	client, err := cfg.ImageV1Client(region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating IMS v1 client: %s", err)
+		return diag.Errorf("error creating IMS client: %s", err)
 	}
 
 	createPath := client.Endpoint + "v1/cloudimages/{image_id}/file"
@@ -84,7 +87,7 @@ func resourceImageExportCreate(ctx context.Context, d *schema.ResourceData, meta
 	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
-		JSONBody:         buildCreateImageExportBodyParam(d),
+		JSONBody:         utils.RemoveNil(buildCreateImageExportBodyParam(d)),
 	}
 
 	createResp, err := client.Request("POST", createPath, &createOpt)
@@ -99,10 +102,10 @@ func resourceImageExportCreate(ctx context.Context, d *schema.ResourceData, meta
 
 	jobId := utils.PathSearch("job_id", createRespBody, "").(string)
 	if jobId == "" {
-		return diag.Errorf("error exporting IMS image: job_id is not found in API response")
+		return diag.Errorf("error exporting IMS image: job ID is not found in API response")
 	}
 
-	err = cloudimages.WaitForJobSuccess(client, int(d.Timeout(schema.TimeoutCreate)/time.Second), jobId)
+	err = waitForCreateImageExportJobCompleted(ctx, client, jobId, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.Errorf("error waiting for IMS image export to complete: %s", err)
 	}
@@ -110,6 +113,61 @@ func resourceImageExportCreate(ctx context.Context, d *schema.ResourceData, meta
 	d.SetId(imageId)
 
 	return resourceImageExportRead(ctx, d, meta)
+}
+
+func waitForCreateImageExportJobCompleted(ctx context.Context, client *golangsdk.ServiceClient, jobId string,
+	timeout time.Duration) error {
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      imageExportJobStatusRefreshFunc(jobId, client),
+		Timeout:      timeout,
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+
+	_, err := stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return fmt.Errorf("error waiting for IMS image export job (%s) to succeed: %s", jobId, err)
+	}
+
+	return nil
+}
+
+func imageExportJobStatusRefreshFunc(jobId string, client *golangsdk.ServiceClient) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		getPath := client.Endpoint + "v1/{project_id}/jobs/{job_id}"
+		getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+		getPath = strings.ReplaceAll(getPath, "{job_id}", fmt.Sprintf("%v", jobId))
+		getOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+		}
+
+		getResp, err := client.Request("GET", getPath, &getOpt)
+		if err != nil {
+			return getResp, "ERROR", fmt.Errorf("error retrieving IMS image export job: %s", err)
+		}
+
+		getRespBody, err := utils.FlattenResponse(getResp)
+		if err != nil {
+			return getRespBody, "ERROR", err
+		}
+
+		status := utils.PathSearch("status", getRespBody, "").(string)
+		if status == "SUCCESS" {
+			return getRespBody, "COMPLETED", nil
+		}
+
+		if status == "FAIL" {
+			return getRespBody, "COMPLETED", errors.New("the image export job failed")
+		}
+
+		if status == "" {
+			return getRespBody, "ERROR", errors.New("status field is not found in API response")
+		}
+
+		return getRespBody, "PENDING", nil
+	}
 }
 
 func resourceImageExportRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
