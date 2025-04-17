@@ -41,9 +41,8 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `name` - (Required, String, ForceNew) Specifies the host access name. The name consists of `1` to `64` characters.
+* `name` - (Required, String) Specifies the host access name. The name consists of `1` to `64` characters.
   Only letters, digits, underscores (_), and periods (.) are allowed, and the period cannot be the first or last character.
-  Changing this parameter will create a new resource.
 
 * `log_group_id` - (Required, String, ForceNew) Specifies the log group ID.
   Changing this parameter will create a new resource.
@@ -86,6 +85,24 @@ The following arguments are supported:
   This parameter must be set together with the `demo_log` parameter.  
   This parameter is available when the `processor_type` parameter is specified.
 
+* `binary_collect` - (Optional, Bool, ForceNew) Specifies whether to allow collection of binary log files.  
+  Defaults to **false**.  
+  Changing this parameter will create a new resource.
+
+* `encoding_format` - (Optional, String) Specifies the encoding format log file.  
+  Defaults to **UTF-8**.  
+  The valid values are as follows:
+  + **UTF-8**
+  + **GBK**
+
+* `incremental_collect` - (Optional, Bool) Specifies whether to collect incrementally.  
+  Defaults to **true**.  
+  When incremental collection a new file, ICAgent reads the file from the end of the file.  
+  When full collection a new file, ICAgent reads the file from the beginning of the file.
+
+* `log_split` - (Optional, Bool) Specifies whether to enable log splitting.  
+  Defaults to **false**.
+
 <a name="HostAccessConfigDeatil"></a>
 The `access_config` block supports:
 
@@ -117,6 +134,27 @@ The `access_config` block supports:
 
 * `windows_log_info` - (Optional, List) Specifies the configuration of Windows event logs.
   The [windows_log_info](#HostAccessConfigWindowsLogInfo) structure is documented below.
+
+* `custom_key_value` - (Optional, Map, ForceNew) Specifies the custom key/value pairs of the host access.  
+  Changing this parameter will create a new resource.
+
+* `system_fields` - (Optional, List, ForceNew) Specifies the list of system built-in fields of the host access.  
+  Changing this parameter will create a new resource.  
+  If `custom_key_value` is specified, the value of `system_fields` will be automatically assigned by
+  the system as **pathfile**.  
+  If `system_fields` is specified, **pathFile** must be included.  
+  The valid values are as follows:
+  + **pathFile**
+  + **hostName**
+  + **hostId**
+  + **hostIP**
+  + **hostIPv6**
+
+* `repeat_collect` - (Optional, Bool) Specifies whether to allow repeated flie collection.  
+  Defaults to **false**.
+  + If this parameter is set to **true**, one host log file can be collected to multiple log streams.
+    This function is available only to certain ICAgent versions, please refer to the [documentation](<https://support.huaweicloud.com/intl/en-us/usermanual-lts/lts_02_0014.html#lts_02_0014__section7761151916252>).
+  + If this parameter is set to **false**, the same log file in the same host cannot be collected to different log streams.
 
 <a name="HostAccessConfigSingleLogFormat"></a>
 The `single_log_format` blocks supports:
@@ -201,6 +239,8 @@ In addition to all arguments above, the following attributes are exported:
 * `log_group_name` - The log group name.
 
 * `log_stream_name` - The log stream name.
+
+* `created_at` - The creation time of the host access, in RFC3339 format.
 
 ## Import
 
