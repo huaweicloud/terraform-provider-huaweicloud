@@ -259,6 +259,9 @@ func resourceHostAccessConfigCreate(ctx context.Context, d *schema.ResourceData,
 
 	createHostAccessConfigOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json;charset=UTF-8",
+		},
 	}
 
 	createHostAccessConfigOpt.JSONBody = utils.RemoveNil(buildCreateHostAccessConfigBodyParams(d))
@@ -453,6 +456,9 @@ func resourceHostAccessConfigRead(_ context.Context, d *schema.ResourceData, met
 
 	listHostAccessConfigOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json;charset=UTF-8",
+		},
 	}
 
 	name := d.Get("name").(string)
@@ -585,6 +591,9 @@ func resourceHostAccessConfigUpdate(ctx context.Context, d *schema.ResourceData,
 
 		updateHostAccessConfigOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
+			MoreHeaders: map[string]string{
+				"Content-Type": "application/json;charset=UTF-8",
+			},
 		}
 
 		updateHostAccessConfigOpt.JSONBody = utils.RemoveNil(buildUpdateHostAccessConfigBodyParams(d))
@@ -638,6 +647,9 @@ func resourceHostAccessConfigDelete(_ context.Context, d *schema.ResourceData, m
 
 	deleteHostAccessConfigOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json;charset=UTF-8",
+		},
 	}
 
 	deleteHostAccessConfigOpt.JSONBody = buildDeleteHostAccessConfigBodyParams(d)
