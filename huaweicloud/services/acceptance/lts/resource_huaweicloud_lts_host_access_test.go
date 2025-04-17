@@ -2,6 +2,7 @@ package lts
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -55,15 +56,17 @@ func getHostAccessConfigResourceFunc(cfg *config.Config, state *terraform.Resour
 }
 
 func TestAccHostAccessConfig_basic(t *testing.T) {
-	var obj interface{}
+	var (
+		name       = acceptance.RandomAccResourceName()
+		updateName = acceptance.RandomAccResourceName()
 
-	name := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_lts_host_access.test"
-
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&obj,
-		getHostAccessConfigResourceFunc,
+		hostAccess interface{}
+		rName      = "huaweicloud_lts_host_access.test"
+		rc         = acceptance.InitResourceCheck(
+			rName,
+			&hostAccess,
+			getHostAccessConfigResourceFunc,
+		)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -75,28 +78,45 @@ func TestAccHostAccessConfig_basic(t *testing.T) {
 				Config: testHostAccessConfig_basic_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
+					// Check required Parameter.
 					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "access_config.0.paths.#", "2"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.black_paths.#", "2"),
-					resource.TestCheckResourceAttr(rName, "host_group_ids.#", "0"),
-					resource.TestCheckResourceAttr(rName, "access_type", "AGENT"),
-					resource.TestCheckResourceAttr(rName, "tags.key", "value"),
-					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttrPair(rName, "log_group_id", "huaweicloud_lts_group.test", "id"),
 					resource.TestCheckResourceAttrPair(rName, "log_stream_id", "huaweicloud_lts_stream.test", "id"),
-					resource.TestCheckResourceAttrSet(rName, "log_group_name"),
-					resource.TestCheckResourceAttrSet(rName, "log_stream_name"),
+					resource.TestCheckResourceAttr(rName, "access_config.0.paths.#", "2"),
+					// Check optional Parameter.
+					resource.TestCheckResourceAttr(rName, "access_config.0.black_paths.#", "2"),
+					resource.TestCheckResourceAttr(rName, "access_config.0.repeat_collect", "false"),
+					resource.TestCheckResourceAttr(rName, "access_config.0.custom_key_value.%", "1"),
+					resource.TestCheckResourceAttr(rName, "access_config.0.custom_key_value.flag", "terraform"),
+					resource.TestCheckResourceAttr(rName, "access_config.0.system_fields.0", "pathFile"),
+					resource.TestCheckResourceAttr(rName, "host_group_ids.#", "0"),
+					resource.TestCheckResourceAttr(rName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttrSet(rName, "demo_log"),
 					resource.TestCheckResourceAttr(rName, "demo_fields.#", "2"),
 					resource.TestCheckResourceAttr(rName, "processor_type", "SPLIT"),
+					resource.TestCheckResourceAttr(rName, "binary_collect", "true"),
+					resource.TestCheckResourceAttr(rName, "encoding_format", "GBK"),
+					resource.TestCheckResourceAttr(rName, "incremental_collect", "false"),
+					resource.TestCheckResourceAttr(rName, "log_split", "true"),
+					// Check attributes.
+					resource.TestCheckResourceAttr(rName, "access_type", "AGENT"),
+					resource.TestCheckResourceAttrSet(rName, "log_group_name"),
+					resource.TestCheckResourceAttrSet(rName, "log_stream_name"),
+					resource.TestMatchResourceAttr(rName, "created_at",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
 				),
 			},
 			{
-				Config: testHostAccessConfig_basic_step2(name),
+				Config: testHostAccessConfig_basic_step2(name, updateName),
 				Check: resource.ComposeTestCheckFunc(
+					// Check required Parameter.
+					resource.TestCheckResourceAttr(rName, "name", updateName),
 					resource.TestCheckResourceAttr(rName, "access_config.0.paths.#", "1"),
 					resource.TestCheckResourceAttr(rName, "access_config.0.paths.0", "/var/log/*/*.log"),
+					// Check optional Parameter.
 					resource.TestCheckResourceAttr(rName, "access_config.0.black_paths.0", "/var/log/*/a.log"),
+					resource.TestCheckResourceAttr(rName, "access_config.0.repeat_collect", "true"),
 					resource.TestCheckResourceAttr(rName, "tags.key", "value-updated"),
 					resource.TestCheckResourceAttr(rName, "tags.owner", "terraform"),
 					resource.TestCheckResourceAttr(rName, "host_group_ids.#", "1"),
@@ -106,6 +126,9 @@ func TestAccHostAccessConfig_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "demo_fields.0.name", "field1"),
 					resource.TestCheckResourceAttr(rName, "demo_fields.0.value", "level:warn1"),
 					resource.TestCheckResourceAttr(rName, "processor_type", "SPLIT"),
+					resource.TestCheckResourceAttr(rName, "encoding_format", "UTF-8"),
+					resource.TestCheckResourceAttr(rName, "incremental_collect", "true"),
+					resource.TestCheckResourceAttr(rName, "log_split", "false"),
 				),
 			},
 			{
@@ -140,17 +163,24 @@ func TestAccHostAccessConfig_windows(t *testing.T) {
 				Config: testHostAccessConfig_windows_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
+					// Check required parameters.
 					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttrPair(rName, "log_group_id", "huaweicloud_lts_group.test", "id"),
+					resource.TestCheckResourceAttrPair(rName, "log_stream_id", "huaweicloud_lts_stream.test", "id"),
 					resource.TestCheckResourceAttr(rName, "access_config.0.paths.0", "D:\\data\\log\\*"),
+					// Check optional parameters.
 					resource.TestCheckResourceAttr(rName, "access_config.0.black_paths.0", "D:\\data\\log\\a.log"),
 					resource.TestCheckResourceAttr(rName, "access_config.0.windows_log_info.0.time_offset", "7"),
 					resource.TestCheckResourceAttr(rName, "access_config.0.windows_log_info.0.time_offset_unit", "day"),
 					resource.TestCheckResourceAttr(rName, "host_group_ids.#", "1"),
-					resource.TestCheckResourceAttr(rName, "access_type", "AGENT"),
 					resource.TestCheckResourceAttr(rName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
-					resource.TestCheckResourceAttrPair(rName, "log_group_id", "huaweicloud_lts_group.test", "id"),
-					resource.TestCheckResourceAttrPair(rName, "log_stream_id", "huaweicloud_lts_stream.test", "id"),
+					resource.TestCheckResourceAttr(rName, "binary_collect", "false"),
+					resource.TestCheckResourceAttr(rName, "encoding_format", "UTF-8"),
+					resource.TestCheckResourceAttr(rName, "incremental_collect", "true"),
+					resource.TestCheckResourceAttr(rName, "log_split", "false"),
+					// Check attributes.
+					resource.TestCheckResourceAttr(rName, "access_type", "AGENT"),
 					resource.TestCheckResourceAttrSet(rName, "log_group_name"),
 					resource.TestCheckResourceAttrSet(rName, "log_stream_name"),
 				),
@@ -210,11 +240,16 @@ resource "huaweicloud_lts_host_access" "test" {
   log_stream_id = huaweicloud_lts_stream.test.id
 
   access_config {
-    paths       = ["/var/temp", "/var/log/*"]
-    black_paths = ["/var/temp", "/var/log/*/a.log"]
+    paths          = ["/var/temp", "/var/log/*"]
+    black_paths    = ["/var/temp", "/var/log/*/a.log"]
+    repeat_collect = false
 
     single_log_format {
       mode = "system"
+    }
+
+    custom_key_value = {
+      "flag": "terraform"
     }
   }
 
@@ -256,11 +291,16 @@ resource "huaweicloud_lts_host_access" "test" {
       "keep_source_if_parse_error": false
     })
   }
+
+  binary_collect      = true
+  encoding_format     = "GBK"
+  incremental_collect = false
+  log_split           = true
 }
 `, testHostAccessConfig_base(name), name)
 }
 
-func testHostAccessConfig_basic_step2(name string) string {
+func testHostAccessConfig_basic_step2(name, updateName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -283,6 +323,10 @@ resource "huaweicloud_lts_host_access" "test" {
     multi_log_format {
       mode  = "time"
       value = "YYYY-MM-DD hh:mm:ss"
+    }
+
+    custom_key_value = {
+      "flag": "terraform"
     }
   }
 
@@ -309,8 +353,11 @@ resource "huaweicloud_lts_host_access" "test" {
       "keep_source_if_parse_error": true
     })
   }
+
+  encoding_format  = "UTF-8"
+  binary_collect   = true
 }
-`, testHostAccessConfig_base(name), name)
+`, testHostAccessConfig_base(name), updateName)
 }
 
 func testHostAccessConfig_windows_basic(name string) string {

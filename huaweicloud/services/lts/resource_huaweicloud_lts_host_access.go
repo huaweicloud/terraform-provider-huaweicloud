@@ -49,7 +49,6 @@ func ResourceHostAccessConfig() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"log_group_id": {
 				Type:     schema.TypeString,
@@ -125,6 +124,30 @@ func ResourceHostAccessConfig() *schema.Resource {
 				},
 				Description: `The list of the parsed fields of the example log`,
 			},
+			"binary_collect": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `Whether to allow collection of binary log files.`,
+			},
+			"encoding_format": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `The encoding format log file.`,
+			},
+			// If not specified, the API defaults to true.
+			"incremental_collect": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     true,
+				Description: `Whether to collect logs incrementally.`,
+			},
+			"log_split": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Whether to enable log splitting.`,
+			},
 			"access_type": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -136,6 +159,11 @@ func ResourceHostAccessConfig() *schema.Resource {
 			"log_stream_name": {
 				Type:     schema.TypeString,
 				Computed: true,
+			},
+			"created_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The creation time of the host access, in RFC3339 format.`,
 			},
 		},
 	}
@@ -176,6 +204,27 @@ func hostAccessConfigDeatilSchema(parent string) *schema.Resource {
 				Elem:     hostAccessConfigWindowsLogInfoSchema(),
 				Optional: true,
 				Computed: true,
+			},
+			"custom_key_value": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				ForceNew:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `The custom key/value pairs of the host access.`,
+			},
+			"system_fields": {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `The list of system built-in fields of the host access.`,
+			},
+			"repeat_collect": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     true,
+				Description: `Whether to allow repeated flie collection.`,
 			},
 		},
 	}
@@ -259,6 +308,9 @@ func resourceHostAccessConfigCreate(ctx context.Context, d *schema.ResourceData,
 
 	createHostAccessConfigOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json;charset=UTF-8",
+		},
 	}
 
 	createHostAccessConfigOpt.JSONBody = utils.RemoveNil(buildCreateHostAccessConfigBodyParams(d))
@@ -298,6 +350,10 @@ func buildCreateHostAccessConfigBodyParams(d *schema.ResourceData) map[string]in
 		"processors":           buildHostAccessProcessors(d.Get("processors").([]interface{})),
 		"demo_log":             utils.ValueIgnoreEmpty(d.Get("demo_log")),
 		"demo_fields":          buildHostAccessDemoFields(d.Get("demo_fields").(*schema.Set)),
+		"binary_collect":       d.Get("binary_collect"),
+		"encoding_format":      utils.ValueIgnoreEmpty(d.Get("encoding_format")),
+		"incremental_collect":  d.Get("incremental_collect"),
+		"log_split":            d.Get("log_split"),
 	}
 	return bodyParams
 }
@@ -327,6 +383,9 @@ func buildHostAccessConfigDeatilRequestBody(rawParams interface{}) map[string]in
 			"black_paths":      utils.ValueIgnoreEmpty(raw["black_paths"].(*schema.Set).List()),
 			"format":           buildHostAccessConfigFormatRequestBody(raw),
 			"windows_log_info": buildHostAccessConfigWindowsLogInfoRequestBody(raw["windows_log_info"]),
+			"custom_key_value": utils.ValueIgnoreEmpty(raw["custom_key_value"]),
+			"system_fields":    utils.ValueIgnoreEmpty(raw["system_fields"].(*schema.Set).List()),
+			"repeat_collect":   raw["repeat_collect"],
 		}
 		return params
 	}
@@ -453,6 +512,9 @@ func resourceHostAccessConfigRead(_ context.Context, d *schema.ResourceData, met
 
 	listHostAccessConfigOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json;charset=UTF-8",
+		},
 	}
 
 	name := d.Get("name").(string)
@@ -484,11 +546,8 @@ func resourceHostAccessConfigRead(_ context.Context, d *schema.ResourceData, met
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
 		d.Set("name", utils.PathSearch("access_config_name", listHostAccessConfigRespBody, nil)),
-		d.Set("access_type", utils.PathSearch("access_config_type", listHostAccessConfigRespBody, nil)),
 		d.Set("log_group_id", utils.PathSearch("log_info.log_group_id", listHostAccessConfigRespBody, nil)),
 		d.Set("log_stream_id", utils.PathSearch("log_info.log_stream_id", listHostAccessConfigRespBody, nil)),
-		d.Set("log_group_name", utils.PathSearch("log_info.log_group_name", listHostAccessConfigRespBody, nil)),
-		d.Set("log_stream_name", utils.PathSearch("log_info.log_stream_name", listHostAccessConfigRespBody, nil)),
 		d.Set("host_group_ids", utils.PathSearch("host_group_info.host_group_id_list", listHostAccessConfigRespBody, nil)),
 		d.Set("tags", utils.FlattenTagsToMap(utils.PathSearch("access_config_tag", listHostAccessConfigRespBody, nil))),
 		d.Set("access_config", flattenHostAccessConfigDetail(listHostAccessConfigRespBody)),
@@ -496,7 +555,16 @@ func resourceHostAccessConfigRead(_ context.Context, d *schema.ResourceData, met
 		d.Set("demo_log", utils.PathSearch("demo_log", listHostAccessConfigRespBody, nil)),
 		d.Set("demo_fields",
 			flattenHostAccessDemoFields(utils.PathSearch("demo_fields", listHostAccessConfigRespBody, make([]interface{}, 0)).([]interface{}))),
-	)
+		d.Set("binary_collect", utils.PathSearch("binary_collect", listHostAccessConfigRespBody, nil)),
+		d.Set("encoding_format", utils.PathSearch("encoding_format", listHostAccessConfigRespBody, nil)),
+		d.Set("incremental_collect", utils.PathSearch("incremental_collect", listHostAccessConfigRespBody, nil)),
+		d.Set("log_split", utils.PathSearch("log_split", listHostAccessConfigRespBody, nil)),
+		// Attributes.
+		d.Set("access_type", utils.PathSearch("access_config_type", listHostAccessConfigRespBody, nil)),
+		d.Set("log_group_name", utils.PathSearch("log_info.log_group_name", listHostAccessConfigRespBody, nil)),
+		d.Set("log_stream_name", utils.PathSearch("log_info.log_stream_name", listHostAccessConfigRespBody, nil)),
+		d.Set("created_at", utils.FormatTimeStampRFC3339(int64(utils.PathSearch("create_time", listHostAccessConfigRespBody,
+			float64(0)).(float64))/1000, false)))
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
@@ -509,6 +577,9 @@ func flattenHostAccessConfigDetail(resp interface{}) []map[string]interface{} {
 			"single_log_format": flattenHostAccessConfigLogFormat(utils.PathSearch("access_config_detail.format.single", resp, nil)),
 			"multi_log_format":  flattenHostAccessConfigLogFormat(utils.PathSearch("access_config_detail.format.multi", resp, nil)),
 			"windows_log_info":  flattenHostAccessConfigWindowsLogInfo(utils.PathSearch("access_config_detail.windows_log_info", resp, nil)),
+			"custom_key_value":  utils.PathSearch("access_config_detail.custom_key_value", resp, nil),
+			"system_fields":     utils.PathSearch("access_config_detail.system_fields", resp, nil),
+			"repeat_collect":    utils.PathSearch("access_config_detail.repeat_collect", resp, nil),
 		},
 	}
 }
@@ -561,6 +632,7 @@ func resourceHostAccessConfigUpdate(ctx context.Context, d *schema.ResourceData,
 	region := cfg.GetRegion(d)
 
 	updateHostAccessConfigChanges := []string{
+		"name",
 		"access_config",
 		"host_group_ids",
 		"tags",
@@ -568,6 +640,9 @@ func resourceHostAccessConfigUpdate(ctx context.Context, d *schema.ResourceData,
 		"processors",
 		"demo_log",
 		"demo_fields",
+		"encoding_format",
+		"incremental_collect",
+		"log_split",
 	}
 
 	if d.HasChanges(updateHostAccessConfigChanges...) {
@@ -585,6 +660,9 @@ func resourceHostAccessConfigUpdate(ctx context.Context, d *schema.ResourceData,
 
 		updateHostAccessConfigOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
+			MoreHeaders: map[string]string{
+				"Content-Type": "application/json;charset=UTF-8",
+			},
 		}
 
 		updateHostAccessConfigOpt.JSONBody = utils.RemoveNil(buildUpdateHostAccessConfigBodyParams(d))
@@ -609,15 +687,34 @@ func buildUpdateHostGroupInfoRequestBody(d *schema.ResourceData) map[string]inte
 func buildUpdateHostAccessConfigBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"access_config_id":     d.Id(),
-		"access_config_detail": buildHostAccessConfigDeatilRequestBody(d.Get("access_config")),
+		"access_config_name":   d.Get("name"),
+		"access_config_detail": buildUpdateHostAccessConfigDeatilRequestBody(d.Get("access_config").([]interface{})),
 		"host_group_info":      buildUpdateHostGroupInfoRequestBody(d),
 		"access_config_tag":    utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 		"processor_type":       utils.ValueIgnoreEmpty(d.Get("processor_type")),
 		"processors":           utils.ValueIgnoreEmpty(buildHostAccessProcessors(d.Get("processors").([]interface{}))),
 		"demo_log":             utils.ValueIgnoreEmpty(d.Get("demo_log")),
 		"demo_fields":          utils.ValueIgnoreEmpty(buildHostAccessDemoFields(d.Get("demo_fields").(*schema.Set))),
+		"encoding_format":      utils.ValueIgnoreEmpty(d.Get("encoding_format")),
+		"incremental_collect":  d.Get("incremental_collect"),
+		"log_split":            d.Get("log_split"),
 	}
 	return bodyParams
+}
+
+func buildUpdateHostAccessConfigDeatilRequestBody(accessConfig []interface{}) map[string]interface{} {
+	if len(accessConfig) == 0 {
+		return nil
+	}
+
+	raw := accessConfig[0].(map[string]interface{})
+	return map[string]interface{}{
+		"paths":            utils.ValueIgnoreEmpty(raw["paths"].(*schema.Set).List()),
+		"black_paths":      utils.ValueIgnoreEmpty(raw["black_paths"].(*schema.Set).List()),
+		"format":           buildHostAccessConfigFormatRequestBody(raw),
+		"windows_log_info": buildHostAccessConfigWindowsLogInfoRequestBody(raw["windows_log_info"]),
+		"repeat_collect":   raw["repeat_collect"],
+	}
 }
 
 func resourceHostAccessConfigDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -638,6 +735,9 @@ func resourceHostAccessConfigDelete(_ context.Context, d *schema.ResourceData, m
 
 	deleteHostAccessConfigOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json;charset=UTF-8",
+		},
 	}
 
 	deleteHostAccessConfigOpt.JSONBody = buildDeleteHostAccessConfigBodyParams(d)
