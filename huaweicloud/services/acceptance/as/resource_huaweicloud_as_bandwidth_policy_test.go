@@ -126,6 +126,61 @@ func TestAccASBandWidthPolicy_alarm(t *testing.T) {
 	})
 }
 
+func TestAccASBandWidthPolicy_intervalAlarm(t *testing.T) {
+	var (
+		obj   interface{}
+		name  = acceptance.RandomAccResourceName()
+		rName = "huaweicloud_as_bandwidth_policy.test"
+	)
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&obj,
+		getASBandWidthPolicyResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testASBandWidthPolicy_intervalAlarm_step_1(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "scaling_policy_name", name),
+					resource.TestCheckResourceAttr(rName, "scaling_policy_type", "INTERVAL_ALARM"),
+					resource.TestCheckResourceAttr(rName, "scaling_resource_type", "BANDWIDTH"),
+					resource.TestCheckResourceAttrPair(rName, "bandwidth_id", "huaweicloud_vpc_bandwidth.test", "id"),
+					resource.TestCheckResourceAttrPair(rName, "alarm_id", "huaweicloud_ces_alarmrule.test", "id"),
+					resource.TestCheckResourceAttr(rName, "interval_alarm_actions.#", "2"),
+					resource.TestCheckResourceAttrSet(rName, "create_time"),
+					resource.TestCheckResourceAttrSet(rName, "meta_data.0.metadata_bandwidth_share_type"),
+				),
+			},
+			{
+				Config: testASBandWidthPolicy_intervalAlarm_step_2(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "interval_alarm_actions.#", "1"),
+					resource.TestCheckResourceAttr(rName, "interval_alarm_actions.0.lower_bound", "2"),
+					resource.TestCheckResourceAttr(rName, "interval_alarm_actions.0.upper_bound", "7"),
+					resource.TestCheckResourceAttr(rName, "interval_alarm_actions.0.operation", "REDUCE"),
+					resource.TestCheckResourceAttr(rName, "interval_alarm_actions.0.size", "2"),
+					resource.TestCheckResourceAttr(rName, "interval_alarm_actions.0.limits", "2"),
+				),
+			},
+			{
+				ResourceName:      rName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testASBandWidthPolicy_scheduled(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_vpc_bandwidth" "test" {
@@ -260,4 +315,94 @@ resource "huaweicloud_as_bandwidth_policy" "test" {
   }
 }
 `, name)
+}
+
+func testASBandWidthPolicy_intervalAlarm_base(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_vpc_bandwidth" "test" {
+  name = "%[1]s-b1"
+  size = 5
+}
+
+resource "huaweicloud_ces_alarmrule" "test" {
+  alarm_name           = "%[1]s-rule1"
+  alarm_description    = "autoScaling"
+  alarm_action_enabled = true
+  alarm_enabled        = true
+
+  metric {
+    namespace   = "SYS.VPC"
+    metric_name = "downstream_bandwidth"
+
+    dimensions {
+      name  = "bandwidth_id"
+      value = huaweicloud_vpc_bandwidth.test.id
+    }
+  }
+
+  condition  {
+    period              = 300
+    filter              = "max"
+    comparison_operator = ">"
+    value               = 3600
+    unit                = "bit/s"
+    count               = 5
+    suppress_duration   = 900
+  }
+
+  alarm_actions {
+    type              = "autoscaling"
+    notification_list = []
+  }
+}
+`, name)
+}
+
+func testASBandWidthPolicy_intervalAlarm_step_1(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_as_bandwidth_policy" "test" {
+  scaling_policy_name = "%[2]s"
+  scaling_policy_type = "INTERVAL_ALARM"
+  bandwidth_id        = huaweicloud_vpc_bandwidth.test.id
+  alarm_id            = huaweicloud_ces_alarmrule.test.id
+
+  interval_alarm_actions {
+    lower_bound = "0"
+    upper_bound = "5"
+    operation   = "ADD"
+    size        = 1
+    limits      = 10
+  }
+
+  interval_alarm_actions {
+    lower_bound = "6"
+    upper_bound = "10"
+    operation   = "SET"
+    size        = 2
+  }
+}
+`, testASBandWidthPolicy_intervalAlarm_base(name), name)
+}
+
+func testASBandWidthPolicy_intervalAlarm_step_2(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_as_bandwidth_policy" "test" {
+  scaling_policy_name = "%[2]s"
+  scaling_policy_type = "INTERVAL_ALARM"
+  bandwidth_id        = huaweicloud_vpc_bandwidth.test.id
+  alarm_id            = huaweicloud_ces_alarmrule.test.id
+
+  interval_alarm_actions {
+    lower_bound = "2"
+    upper_bound = "7"
+    operation   = "REDUCE"
+    size        = 2
+    limits      = 2
+  }
+}
+`, testASBandWidthPolicy_intervalAlarm_base(name), name)
 }
