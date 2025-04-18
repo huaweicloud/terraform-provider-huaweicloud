@@ -57,6 +57,7 @@ func ResourceRegisterKafkaInstance() *schema.Resource {
 						"pwd": {
 							Type:        schema.TypeString,
 							Optional:    true,
+							Sensitive:   true,
 							Description: `The password of the SASL_SSL user of the Kafka instance.`,
 						},
 					},
