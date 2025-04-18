@@ -3,6 +3,7 @@ package servicestage
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -17,7 +18,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API ServiceStage GET /v3/{project_id}/cas/applications/{application_id}/components
+// @API ServiceStage GET /v3/{project_id}/cas/components
 func DataSourceV3Components() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceV3ComponentsRead,
@@ -31,7 +32,7 @@ func DataSourceV3Components() *schema.Resource {
 			},
 			"application_id": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
 				Description: `The ID of the application to which the components belong.`,
 			},
 			"components": {
@@ -117,11 +118,6 @@ func DataSourceV3Components() *schema.Resource {
 							},
 							Description: `The configuration of the reference resources.`,
 						},
-						"build": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: `The build configuration of the component, in JSON format.`,
-						},
 						"external_accesses": {
 							Type:     schema.TypeSet,
 							Computed: true,
@@ -154,15 +150,36 @@ func DataSourceV3Components() *schema.Resource {
 							Computed:    true,
 							Description: `The status of the component.`,
 						},
+						// Deprecated attributes.
+						"build": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: utils.SchemaDesc(
+								`The build configuration of the component, in JSON format.`,
+								utils.SchemaDescInput{
+									Deprecated: true,
+								},
+							),
+						},
 						"created_at": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: `The creation time of the component, in RFC3339 format.`,
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: utils.SchemaDesc(
+								`The creation time of the component, in RFC3339 format.`,
+								utils.SchemaDescInput{
+									Deprecated: true,
+								},
+							),
 						},
 						"updated_at": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: `The latest update time of the component, in RFC3339 format.`,
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: utils.SchemaDesc(
+								`The latest update time of the component, in RFC3339 format.`,
+								utils.SchemaDescInput{
+									Deprecated: true,
+								},
+							),
 						},
 					},
 				},
@@ -172,16 +189,17 @@ func DataSourceV3Components() *schema.Resource {
 	}
 }
 
-func queryV3Components(client *golangsdk.ServiceClient, appId string) ([]interface{}, error) {
+func listV3Components(client *golangsdk.ServiceClient) ([]interface{}, error) {
 	var (
-		httpUrl = "v3/{project_id}/cas/applications/{application_id}/components?limit=100"
+		httpUrl = "v3/{project_id}/cas/components?limit={limit}"
+		limit   = 100
 		offset  = 0
 		result  = make([]interface{}, 0)
 	)
 
 	listPath := client.Endpoint + httpUrl
 	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
-	listPath = strings.ReplaceAll(listPath, "{application_id}", appId)
+	listPath = strings.ReplaceAll(listPath, "{limit}", strconv.Itoa(limit))
 
 	opt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -201,10 +219,10 @@ func queryV3Components(client *golangsdk.ServiceClient, appId string) ([]interfa
 			return nil, err
 		}
 		components := utils.PathSearch("components", respBody, make([]interface{}, 0)).([]interface{})
-		if len(components) < 1 {
+		result = append(result, components...)
+		if len(components) < limit {
 			break
 		}
-		result = append(result, components...)
 		offset += len(components)
 	}
 
@@ -243,21 +261,33 @@ func flattenV3Components(components []interface{}) []map[string]interface{} {
 	return result
 }
 
+func filterV3Components(d *schema.ResourceData, components []interface{}) []interface{} {
+	result := components
+
+	if applicationId, ok := d.GetOk("application_id"); ok {
+		result = utils.PathSearch(fmt.Sprintf("[?application_id=='%s']", applicationId),
+			result, make([]interface{}, 0)).([]interface{})
+	}
+
+	return result
+}
+
 func dataSourceV3ComponentsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg    = meta.(*config.Config)
 		region = cfg.GetRegion(d)
-		appId  = d.Get("application_id").(string)
 	)
 	client, err := cfg.NewServiceClient("servicestage", region)
 	if err != nil {
 		return diag.Errorf("error creating ServiceStage client: %s", err)
 	}
 
-	components, err := queryV3Components(client, appId)
+	components, err := listV3Components(client)
 	if err != nil {
 		return diag.Errorf("error getting components: %s", err)
 	}
+
+	components = filterV3Components(d, components)
 
 	uuid, err := uuid.GenerateUUID()
 	if err != nil {
