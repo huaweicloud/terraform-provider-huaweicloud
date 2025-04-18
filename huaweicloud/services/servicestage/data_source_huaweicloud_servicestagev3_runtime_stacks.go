@@ -70,11 +70,11 @@ func DataSourceV3RuntimeStacks() *schema.Resource {
 	}
 }
 
-func queryV3RuntimeStacks(client *golangsdk.ServiceClient) (interface{}, error) {
+func listV3RuntimeStacks(client *golangsdk.ServiceClient) ([]interface{}, error) {
 	httpUrl := "v3/{project_id}/cas/runtimestacks"
 
-	queryPath := client.Endpoint + httpUrl
-	queryPath = strings.ReplaceAll(queryPath, "{project_id}", client.ProjectID)
+	listPath := client.Endpoint + httpUrl
+	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
 
 	opt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -83,12 +83,17 @@ func queryV3RuntimeStacks(client *golangsdk.ServiceClient) (interface{}, error) 
 		},
 	}
 
-	requestResp, err := client.Request("GET", queryPath, &opt)
+	requestResp, err := client.Request("GET", listPath, &opt)
 	if err != nil {
 		return nil, err
 	}
 
-	return utils.FlattenResponse(requestResp)
+	respBody, err := utils.FlattenResponse(requestResp)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.PathSearch("runtime_stacks", respBody, make([]interface{}, 0)).([]interface{}), nil
 }
 
 func flattenV3RuntimeStacks(runtimeStacks []interface{}) []map[string]interface{} {
@@ -120,7 +125,7 @@ func dataSourceV3RuntimeStacksRead(_ context.Context, d *schema.ResourceData, me
 		return diag.Errorf("error creating ServiceStage client: %s", err)
 	}
 
-	respBody, err := queryV3RuntimeStacks(client)
+	runtimeStacks, err := listV3RuntimeStacks(client)
 	if err != nil {
 		return diag.Errorf("error getting runtime stacks: %s", err)
 	}
@@ -133,7 +138,7 @@ func dataSourceV3RuntimeStacksRead(_ context.Context, d *schema.ResourceData, me
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("runtime_stacks", flattenV3RuntimeStacks(utils.PathSearch("runtime_stacks", respBody, make([]interface{}, 0)).([]interface{}))),
+		d.Set("runtime_stacks", flattenV3RuntimeStacks(runtimeStacks)),
 	)
 	return diag.FromErr(mErr.ErrorOrNil())
 }

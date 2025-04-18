@@ -2324,6 +2324,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_servicestagev3_configuration_group":       servicestage.ResourceV3ConfigurationGroup(),
 			"huaweicloud_servicestagev3_environment":               servicestage.ResourceV3Environment(),
 			"huaweicloud_servicestagev3_environment_associate":     servicestage.ResourceV3EnvironmentAssociate(),
+			"huaweicloud_servicestagev3_runtime_stack":             servicestage.ResourceV3RuntimeStack(),
 
 			"huaweicloud_sfs_turbo":            sfsturbo.ResourceSFSTurbo(),
 			"huaweicloud_sfs_turbo_dir":        sfsturbo.ResourceSfsTurboDir(),
