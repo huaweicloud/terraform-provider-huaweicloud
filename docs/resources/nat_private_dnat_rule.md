@@ -2,7 +2,8 @@
 subcategory: "NAT Gateway (NAT)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_nat_private_dnat_rule"
-description: ""
+description: |-
+  Manages a DNAT rule resource of the **private** NAT within HuaweiCloud.
 ---
 
 # huaweicloud_nat_private_dnat_rule
@@ -164,5 +165,5 @@ In addition to all arguments above, the following attributes are exported:
 DNAT rules can be imported using their `id`, e.g.
 
 ```bash
-$ terraform import huaweicloud_nat_private_dnat_rule.test 19e3f4ed-fde0-406a-828d-7e0482400da9
+$ terraform import huaweicloud_nat_private_dnat_rule.test <id>
 ```
