@@ -292,6 +292,6 @@ func isSecurityFields(field string) bool {
 	// request JSON body
 	securityFields := []string{"adminpass", "encrypted_user_data", "nonce", "email", "phone", "phone_number", "phone_num",
 		"sip_number", "signature", "user_passwd", "auth", "cert_content", "private_key", "trusted_root_ca", "sk", "src_sk",
-		"dst_sk"}
+		"dst_sk", "pwd"}
 	return utils.StrSliceContains(securityFields, checkField)
 }
