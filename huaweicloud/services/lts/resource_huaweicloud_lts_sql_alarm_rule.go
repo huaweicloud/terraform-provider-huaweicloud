@@ -81,18 +81,14 @@ func ResourceSQLAlarmRule() *schema.Resource {
 			"send_notifications": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Computed:    true,
-				ForceNew:    true,
 				Description: `Specifies whether to send notifications.`,
 			},
-			"notification_rule": {
+			"notification_save_rule": {
 				Type:        schema.TypeList,
 				MaxItems:    1,
-				Elem:        sqlAlarmRuleNotificationRuleSchema(),
 				Optional:    true,
-				ForceNew:    true,
-				Computed:    true,
-				Description: `Specifies the notification rule.`,
+				Elem:        sqlAlarmRuleNotificationRuleSchema(),
+				Description: `The notification rule of the SQL alarm rule.`,
 			},
 			"trigger_condition_count": {
 				Type:        schema.TypeInt,
@@ -139,6 +135,20 @@ func ResourceSQLAlarmRule() *schema.Resource {
 				Computed:    true,
 				Description: `The last update time of the alarm rule.`,
 			},
+			// Deprecated parameters.
+			"notification_rule": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Elem:     sqlAlarmRuleNotificationRuleSchema(),
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The notification rule of the SQL alarm rule.`,
+					utils.SchemaDescInput{
+						Deprecated: true,
+					},
+				)},
 		},
 	}
 }
@@ -236,33 +246,27 @@ func sqlAlarmRuleNotificationRuleSchema() *schema.Resource {
 			"template_name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the notification template name.`,
 			},
 			"language": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the notification language.`,
 			},
 			"user_name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the user name.`,
 			},
 			"topics": {
 				Type:        schema.TypeList,
 				Elem:        sqlAlarmRuleNotificationRuleTopicSchema(),
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the SMN topics.`,
 			},
 			"timezone": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
-				Computed:    true,
 				Description: `Specifies the timezone.`,
 			},
 		},
@@ -276,27 +280,22 @@ func sqlAlarmRuleNotificationRuleTopicSchema() *schema.Resource {
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the topic name.`,
 			},
 			"topic_urn": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the topic URN.`,
 			},
 			"display_name": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Computed:    true,
 				Description: `Specifies the display name.`,
 			},
 			"push_policy": {
-				Type:        schema.TypeString,
+				Type:        schema.TypeInt,
 				Optional:    true,
-				ForceNew:    true,
-				Computed:    true,
 				Description: `Specifies the push policy.`,
 			},
 		},
@@ -323,10 +322,7 @@ func resourceSQLAlarmRuleCreate(ctx context.Context, d *schema.ResourceData, met
 
 	createSQLAlarmRuleOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: map[string]string{"Content-Type": "application/json"},
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
 	createSQLAlarmRuleOpt.JSONBody = utils.RemoveNil(buildCreateSQLAlarmRuleBodyParams(d, cfg))
@@ -375,15 +371,17 @@ func resourceSQLAlarmRuleCreate(ctx context.Context, d *schema.ResourceData, met
 
 func buildCreateSQLAlarmRuleBodyParams(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"sql_alarm_rule_name":         d.Get("name"),
+		"sql_alarm_rule_name":  d.Get("name"),
+		"sql_requests":         buildSQLAlarmRuleRequestBodySQLRequests(d.Get("sql_requests")),
+		"frequency":            buildSQLAlarmRuleRequestBodyFrequency(d.Get("frequency")),
+		"condition_expression": d.Get("condition_expression"),
+		"sql_alarm_level":      d.Get("alarm_level"),
+		// Optional parameter.
 		"sql_alarm_rule_description":  utils.ValueIgnoreEmpty(d.Get("description")),
-		"sql_requests":                buildSQLAlarmRuleRequestBodySQLRequests(d.Get("sql_requests")),
-		"frequency":                   buildSQLAlarmRuleRequestBodyFrequency(d.Get("frequency")),
-		"condition_expression":        d.Get("condition_expression"),
-		"sql_alarm_level":             d.Get("alarm_level"),
 		"sql_alarm_send":              utils.ValueIgnoreEmpty(d.Get("send_notifications")),
 		"domain_id":                   cfg.DomainID,
 		"notification_rule":           buildSQLAlarmRuleRequestBodyNotificationRule(d.Get("notification_rule")),
+		"notification_save_rule":      buildSQLAlarmRuleRequestBodyNotificationRule(d.Get("notification_save_rule")),
 		"trigger_condition_count":     utils.ValueIgnoreEmpty(d.Get("trigger_condition_count")),
 		"trigger_condition_frequency": utils.ValueIgnoreEmpty(d.Get("trigger_condition_frequency")),
 		"whether_recovery_policy":     utils.ValueIgnoreEmpty(d.Get("send_recovery_notifications")),
@@ -474,7 +472,7 @@ func buildNotificationRuleTopic(rawParams interface{}) []map[string]interface{} 
 				"name":         utils.ValueIgnoreEmpty(raw["name"]),
 				"topic_urn":    utils.ValueIgnoreEmpty(raw["topic_urn"]),
 				"display_name": utils.ValueIgnoreEmpty(raw["display_name"]),
-				"push_policy":  utils.ValueIgnoreEmpty(raw["push_policy"]),
+				"push_policy":  raw["push_policy"],
 			}
 		}
 		return rst
@@ -530,18 +528,21 @@ func resourceSQLAlarmRuleRead(_ context.Context, d *schema.ResourceData, meta in
 		mErr,
 		d.Set("region", region),
 		d.Set("name", utils.PathSearch("sql_alarm_rule_name", getSQLAlarmRuleRespBody, nil)),
-		d.Set("description", utils.PathSearch("sql_alarm_rule_description", getSQLAlarmRuleRespBody, nil)),
 		d.Set("sql_requests", flattenGetSQLAlarmRuleResponseBodySQLRequests(getSQLAlarmRuleRespBody)),
 		d.Set("frequency", flattenGetSQLAlarmRuleResponseBodyFrequency(getSQLAlarmRuleRespBody)),
 		d.Set("condition_expression", utils.PathSearch("condition_expression", getSQLAlarmRuleRespBody, nil)),
 		d.Set("alarm_level", utils.PathSearch("sql_alarm_level", getSQLAlarmRuleRespBody, nil)),
+		// OPtional attributes.
+		d.Set("description", utils.PathSearch("sql_alarm_rule_description", getSQLAlarmRuleRespBody, nil)),
 		d.Set("send_notifications", utils.PathSearch("sql_alarm_send", getSQLAlarmRuleRespBody, nil)),
-		d.Set("domain_id", utils.PathSearch("domain_id", getSQLAlarmRuleRespBody, nil)),
+		d.Set("notification_save_rule", flattenNotificationSaveRule(d, getSQLAlarmRuleRespBody)),
 		d.Set("trigger_condition_count", utils.PathSearch("trigger_condition_count", getSQLAlarmRuleRespBody, nil)),
 		d.Set("trigger_condition_frequency", utils.PathSearch("trigger_condition_frequency", getSQLAlarmRuleRespBody, nil)),
 		d.Set("send_recovery_notifications", utils.PathSearch("whether_recovery_policy", getSQLAlarmRuleRespBody, nil)),
 		d.Set("recovery_frequency", utils.PathSearch("recovery_policy", getSQLAlarmRuleRespBody, nil)),
 		d.Set("status", utils.PathSearch("status", getSQLAlarmRuleRespBody, nil)),
+		// Attributes.
+		d.Set("domain_id", utils.PathSearch("domain_id", getSQLAlarmRuleRespBody, nil)),
 		d.Set("created_at", utils.FormatTimeStampUTC(
 			int64(utils.PathSearch("create_time", getSQLAlarmRuleRespBody, float64(0)).(float64)/1000))),
 		d.Set("updated_at", utils.FormatTimeStampUTC(
@@ -594,7 +595,10 @@ func flattenGetSQLAlarmRuleResponseBodyFrequency(resp interface{}) []interface{}
 
 func resourceSQLAlarmRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
+	client, err := cfg.NewServiceClient("lts", cfg.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("error creating LTS client: %s", err)
+	}
 
 	updateSQLAlarmRuleChanges := []string{
 		"description",
@@ -602,6 +606,8 @@ func resourceSQLAlarmRuleUpdate(ctx context.Context, d *schema.ResourceData, met
 		"frequency",
 		"condition_expression",
 		"alarm_level",
+		"send_notifications",
+		"notification_save_rule",
 		"trigger_condition_count",
 		"trigger_condition_frequency",
 		"send_recovery_notifications",
@@ -609,29 +615,9 @@ func resourceSQLAlarmRuleUpdate(ctx context.Context, d *schema.ResourceData, met
 	}
 
 	if d.HasChanges(updateSQLAlarmRuleChanges...) {
-		// updateSQLAlarmRule: Update the LTS SQLAlarmRule.
-		var (
-			updateSQLAlarmRuleHttpUrl = "v2/{project_id}/lts/alarms/sql-alarm-rule"
-			updateSQLAlarmRuleProduct = "lts"
-		)
-		updateSQLAlarmRuleClient, err := cfg.NewServiceClient(updateSQLAlarmRuleProduct, region)
-		if err != nil {
-			return diag.Errorf("error creating LTS client: %s", err)
-		}
-
-		updateSQLAlarmRulePath := updateSQLAlarmRuleClient.Endpoint + updateSQLAlarmRuleHttpUrl
-		updateSQLAlarmRulePath = strings.ReplaceAll(updateSQLAlarmRulePath, "{project_id}", updateSQLAlarmRuleClient.ProjectID)
-
-		updateSQLAlarmRuleOpt := golangsdk.RequestOpts{
-			KeepResponseBody: true,
-			OkCodes: []int{
-				200,
-			},
-			MoreHeaders: map[string]string{"Content-Type": "application/json"},
-		}
-
-		updateSQLAlarmRuleOpt.JSONBody = utils.RemoveNil(buildUpdateSQLAlarmRuleBodyParams(d, cfg))
-		_, err = updateSQLAlarmRuleClient.Request("PUT", updateSQLAlarmRulePath, &updateSQLAlarmRuleOpt)
+		params := buildUpdateSQLAlarmRuleBodyParams(d, cfg)
+		params["sql_alarm_send_code"] = getAlarmSendCode(d)
+		err = updateSQLAlarmRule(client, params)
 		if err != nil {
 			return diag.Errorf("error updating SQL alarm rule: %s", err)
 		}
@@ -644,15 +630,9 @@ func resourceSQLAlarmRuleUpdate(ctx context.Context, d *schema.ResourceData, met
 		// updateSQLAlarmRuleStatus: Update the LTS SQLAlarmRule status.
 		var (
 			updateSQLAlarmRuleStatusHttpUrl = "v2/{project_id}/lts/alarms/status"
-			updateSQLAlarmRuleStatusProduct = "lts"
 		)
-		updateSQLAlarmRuleStatusClient, err := cfg.NewServiceClient(updateSQLAlarmRuleStatusProduct, region)
-		if err != nil {
-			return diag.Errorf("error creating LTS client: %s", err)
-		}
-
-		updateSQLAlarmRuleStatusPath := updateSQLAlarmRuleStatusClient.Endpoint + updateSQLAlarmRuleStatusHttpUrl
-		updateSQLAlarmRuleStatusPath = strings.ReplaceAll(updateSQLAlarmRuleStatusPath, "{project_id}", updateSQLAlarmRuleStatusClient.ProjectID)
+		updateSQLAlarmRuleStatusPath := client.Endpoint + updateSQLAlarmRuleStatusHttpUrl
+		updateSQLAlarmRuleStatusPath = strings.ReplaceAll(updateSQLAlarmRuleStatusPath, "{project_id}", client.ProjectID)
 
 		updateSQLAlarmRuleStatusOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
@@ -663,7 +643,7 @@ func resourceSQLAlarmRuleUpdate(ctx context.Context, d *schema.ResourceData, met
 		}
 
 		updateSQLAlarmRuleStatusOpt.JSONBody = utils.RemoveNil(buildUpdateSQLAlarmRuleStatusBodyParams(d))
-		_, err = updateSQLAlarmRuleStatusClient.Request("PUT", updateSQLAlarmRuleStatusPath, &updateSQLAlarmRuleStatusOpt)
+		_, err = client.Request("PUT", updateSQLAlarmRuleStatusPath, &updateSQLAlarmRuleStatusOpt)
 		if err != nil {
 			return diag.Errorf("error updating SQL alarm rule: %s", err)
 		}
@@ -671,15 +651,31 @@ func resourceSQLAlarmRuleUpdate(ctx context.Context, d *schema.ResourceData, met
 	return resourceSQLAlarmRuleRead(ctx, d, meta)
 }
 
+func updateSQLAlarmRule(client *golangsdk.ServiceClient, params map[string]interface{}) error {
+	updateHttpUrl := "v2/{project_id}/lts/alarms/sql-alarm-rule"
+	updatePath := client.Endpoint + updateHttpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		JSONBody:         utils.RemoveNil(params),
+	}
+	_, err := client.Request("PUT", updatePath, &updateOpt)
+	return err
+}
+
 func buildUpdateSQLAlarmRuleBodyParams(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"sql_alarm_rule_id":           utils.ValueIgnoreEmpty(d.Id()),
-		"sql_alarm_rule_name":         d.Get("name"),
+		"sql_alarm_rule_id":    utils.ValueIgnoreEmpty(d.Id()),
+		"sql_alarm_rule_name":  d.Get("name"),
+		"sql_requests":         buildSQLAlarmRuleRequestBodySQLRequests(d.Get("sql_requests")),
+		"frequency":            buildSQLAlarmRuleRequestBodyFrequency(d.Get("frequency")),
+		"condition_expression": d.Get("condition_expression"),
+		"sql_alarm_level":      d.Get("alarm_level"),
+		// Optional parameters.
 		"sql_alarm_rule_description":  d.Get("description"),
-		"sql_requests":                buildSQLAlarmRuleRequestBodySQLRequests(d.Get("sql_requests")),
-		"frequency":                   buildSQLAlarmRuleRequestBodyFrequency(d.Get("frequency")),
-		"condition_expression":        d.Get("condition_expression"),
-		"sql_alarm_level":             d.Get("alarm_level"),
+		"notification_save_rule":      buildSQLAlarmRuleRequestBodyNotificationRule(d.Get("notification_save_rule")),
 		"sql_alarm_send":              utils.ValueIgnoreEmpty(d.Get("send_notifications")),
 		"sql_alarm_send_code":         0,
 		"domain_id":                   cfg.DomainID,

@@ -61,12 +61,12 @@ The following arguments are supported:
 
 * `description` - (Optional, String) Specifies the description of the SQL alarm rule.
 
-* `send_notifications` - (Optional, Bool, ForceNew) Specifies whether to send notifications.
-  Changing this parameter will create a new resource.
+* `send_notifications` - (Optional, Bool) Specifies whether to send notifications.  
+  Defaults to **false**.
 
-* `notification_rule` - (Optional, List, ForceNew) Specifies the notification rule.
-  Changing this parameter will create a new resource.
-  The [NotificationRule](#SQLAlarmRule_NotificationRule) structure is documented below.
+* `notification_save_rule` - (Optional, List) Specifies the notification rule.  
+  The [NotificationRule](#SQLAlarmRule_NotificationRule) structure is documented below.  
+  This parameter is available only when `send_notifications` parameter is set to **true**.
 
 * `trigger_condition_count` - (Optional, Int) Specifies the count to trigger the alarm.
   Defaults to `1`.
@@ -130,38 +130,29 @@ The `Frequency` block supports:
 <a name="SQLAlarmRule_NotificationRule"></a>
 The `NotificationRule` block supports:
 
-* `template_name` - (Required, String, ForceNew) Specifies the notification template name.
-  Changing this parameter will create a new resource.
+* `template_name` - (Required, String) Specifies the notification template name.
 
-* `language` - (Required, String, ForceNew) Specifies the notification language.
+* `language` - (Required, String) Specifies the notification language.
   The value can be **zh-cn** and **en-us**.
-  Changing this parameter will create a new resource.
 
-* `user_name` - (Required, String, ForceNew) Specifies the user name.
-  Changing this parameter will create a new resource.
+* `user_name` - (Required, String) Specifies the user name.
 
-* `topics` - (Required, List, ForceNew) Specifies the SMN topics.
+* `topics` - (Required, List) Specifies the SMN topics.
   The [Topic](#SQLAlarmRule_Topic) structure is documented below.
-  Changing this parameter will create a new resource.
 
-* `timezone` - (Optional, String, ForceNew) Specifies the timezone.
-  Changing this parameter will create a new resource.
+* `timezone` - (Optional, String) Specifies the timezone.
 
 <a name="SQLAlarmRule_Topic"></a>
 The `NotificationRuleTopic` block supports:
 
-* `name` - (Required, String, ForceNew) Specifies the topic name.
-  Changing this parameter will create a new resource.
+* `name` - (Required, String) Specifies the topic name.
 
-* `topic_urn` - (Required, String, ForceNew) Specifies the topic URN.
-  Changing this parameter will create a new resource.
+* `topic_urn` - (Required, String) Specifies the topic URN.
 
-* `display_name` - (Optional, String, ForceNew) Specifies the display name.
+* `display_name` - (Optional, String) Specifies the display name.
   This will be shown as the sender of the message.
-  Changing this parameter will create a new resource.
 
-* `push_policy` - (Optional, String, ForceNew) Specifies the push policy.
-  Changing this parameter will create a new resource.
+* `push_policy` - (Optional, Int) Specifies the push policy.
 
 ## Attribute Reference
 
@@ -184,7 +175,7 @@ $ terraform import huaweicloud_lts_sql_alarm_rule.test <id>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
-API response. The missing attributes include: `notification_rule`.
+API response. The missing attributes include: `notification_save_rule.0.user_name` and `notification_save_rule.0.timezone`.
 It is generally recommended running `terraform plan` after importing a certificate.
 You can then decide if changes should be applied to the certificate, or the resource definition should be updated to
 align with the certificate. Also you can ignore changes as below.
@@ -195,7 +186,7 @@ resource "huaweicloud_lts_sql_alarm_rule" "test" {
 
   lifecycle {
     ignore_changes = [
-      notification_rule,
+      notification_save_rule.0.user_name, notification_save_rule.0.timezone,
     ]
   }
 }

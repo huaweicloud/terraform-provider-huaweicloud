@@ -673,7 +673,9 @@ func resourceKeywordsAlarmRuleUpdate(ctx context.Context, d *schema.ResourceData
 	}
 
 	if d.HasChanges(updateKeywordsAlarmRuleChanges...) {
-		err = updateKeywordAlarmRule(client, updateKeywordAlarmRuleParams(d, cfg))
+		params := buildUpdateKeywordsAlarmRuleBodyParams(d, cfg)
+		params["keywords_alarm_send_code"] = getAlarmSendCode(d)
+		err = updateKeywordAlarmRule(client, params)
 		if err != nil {
 			return diag.Errorf("error updating keyword alarm rule (%s): %s", err, keywordAlarmRuleId)
 		}
@@ -688,25 +690,26 @@ func resourceKeywordsAlarmRuleUpdate(ctx context.Context, d *schema.ResourceData
 	return resourceKeywordsAlarmRuleRead(ctx, d, meta)
 }
 
-func updateKeywordAlarmRuleParams(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
-	bodyParams := buildUpdateKeywordsAlarmRuleBodyParams(d, cfg)
+// `0` means do not modify the topics.
+// `1` means add the topics.
+// `2` means modify the topics.
+// `3` means delete the topics.
+func getAlarmSendCode(d *schema.ResourceData) int {
 	if !d.HasChange("notification_save_rule.0.topics") {
-		return bodyParams
+		return 0
 	}
+
 	oRaw, nRaw := d.GetChange("notification_save_rule.0.topics")
 	oTopics := oRaw.([]interface{})
 	nTopics := nRaw.([]interface{})
-	// `1` means add the topics.
-	// `2` means modify the topics.
-	// `3` means delete the topics.
-	bodyParams["keywords_alarm_send_code"] = 2
 	if len(oTopics) == 0 && len(nTopics) != 0 {
-		bodyParams["keywords_alarm_send_code"] = 1
+		return 1
 	}
+
 	if len(nTopics) == 0 && !d.Get("send_notifications").(bool) {
-		bodyParams["keywords_alarm_send_code"] = 3
+		return 3
 	}
-	return bodyParams
+	return 2
 }
 
 func buildUpdateKeywordsAlarmRuleBodyParams(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
