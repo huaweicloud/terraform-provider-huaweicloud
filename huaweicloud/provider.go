@@ -1255,6 +1255,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_swr_domain_resource_reports":   swr.DataSourceSwrDomainReports(),
 
 			"huaweicloud_tms_resource_types":      tms.DataSourceResourceTypes(),
+			"huaweicloud_tms_resource_instances":  tms.DataSourceResourceInstances(),
 			"huaweicloud_tms_resource_tag_keys":   tms.DataSourceTmsTagKeys(),
 			"huaweicloud_tms_resource_tag_values": tms.DataSourceTmsTagValues(),
 			"huaweicloud_tms_quotas":              tms.DataSourceTmsQuotas(),
