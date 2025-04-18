@@ -8,7 +8,7 @@ description: |-
 
 # huaweicloud_evsv3_volume_transfer
 
-Manages an EVS volume transfer resource within HuaweiCloud.
+Manages an EVS volume transfer (V3) resource within HuaweiCloud.
 
 -> The transfer can only be created when the EVS volume is in the **available** state, other constraints that do not
    support transfer are as follows:
