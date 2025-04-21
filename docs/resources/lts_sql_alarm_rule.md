@@ -64,6 +64,11 @@ The following arguments are supported:
 * `send_notifications` - (Optional, Bool) Specifies whether to send notifications.  
   Defaults to **false**.
 
+* `alarm_action_rule_name` - (Optional, String) Specifies the name of the alarm action rule associated with
+  the SQL alarm rule.  
+  This parameter is available only when `send_notifications` parameter is set to **true** and cannot be used
+  together with `notification_save_rule` parameter.
+
 * `notification_save_rule` - (Optional, List) Specifies the notification rule.  
   The [NotificationRule](#SQLAlarmRule_NotificationRule) structure is documented below.  
   This parameter is available only when `send_notifications` parameter is set to **true**.
@@ -74,10 +79,30 @@ The following arguments are supported:
 * `trigger_condition_frequency` - (Optional, Int) Specifies the frequency to trigger the alarm.
   Defaults to `1`.
 
-* `send_recovery_notifications` - (Optional, Bool) Specifies whether to send recovery notifications.
+* `send_recovery_notifications` - (Optional, Bool) Specifies whether to send recovery notifications.  
+  Defaults to **false**
 
 * `recovery_frequency` - (Optional, Int) Specifies the frequency to recover the alarm.
   Defaults to `3`.
+
+* `alarm_rule_alias` - (Optional, String) Specifies the alias name of the SQL alarm rule.  
+  The maximum lanegth is `128` characters, only Chinese characters, letters, digits, hyphens (-) and underscores (_)
+  are allowed.  
+  The name cannot start with and end with a hyphen or a underscore.
+
+* `notification_frequency` - (Optional, Int) Specifies the notification frequency of the SQL alarm rule,
+  in minutes.  
+  Defaults to `0`, `0` means immediately notification.  
+  This parameter is available only when `send_notifications` parameter is set to **true**.
+  The valid values are as follows:
+  + **0**
+  + **5**
+  + **10**
+  + **15**
+  + **30**
+  + **60**
+  + **180**
+  + **360**
 
 * `status` - (Optional, String) Specifies the status. The value can be: **RUNNING** and **STOPPING**.
   Defaults to **RUNNING**
@@ -100,7 +125,12 @@ The `SQLRequests` block supports:
   + When the `search_time_range_unit` is **minute**, the value ranges from `1` to `60`;
   + When the `search_time_range_unit` is **hour**, the value ranges from `1` to `24`;
 
-* `is_time_range_relative` - (Optional, Bool) Specifies the SQL request is relative to time range.
+* `is_time_range_relative` - (Optional, Bool) Specifies the SQL request is relative to time range.  
+  Defaults to **false**.
+
+* `log_group_name` - (Optional, String) Specifies the name of the log group.
+
+* `log_stream_name` - (Optional, String) Specifies the name of the log stream.
 
 <a name="SQLAlarmRule_Frequency"></a>
 The `Frequency` block supports:
