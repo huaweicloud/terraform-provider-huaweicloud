@@ -1,23 +1,22 @@
 ---
 subcategory: "Relational Database Service (RDS)"
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_rds_restore_time_ranges"
+page_title: "HuaweiCloud: huaweicloud_rds_cross_region_restore_time_ranges"
 description: |-
-  Use this data source to get the list of RDS restore time ranges.
+  Use this data source to get the list of RDS cross-region restore time ranges.
 ---
 
-# huaweicloud_rds_restore_time_ranges
+# huaweicloud_rds_cross_region_restore_time_ranges
 
-Use this data source to get the list of RDS restore time ranges.
+Use this data source to get the list of RDS cross-region restore time ranges.
 
 ## Example Usage
 
 ```hcl
 variable "instance_id" {}
 
-data "huaweicloud_rds_restore_time_ranges" "test" {
+data "huaweicloud_rds_cross_region_restore_time_ranges" "test" {
   instance_id = var.instance_id
-  date        = "2024-05-15"
 }
 ```
 
