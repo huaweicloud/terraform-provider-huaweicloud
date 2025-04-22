@@ -1782,6 +1782,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_dds_parameter_template_apply":    dds.ResourceDDSParameterTemplateApply(),
 			"huaweicloud_dds_scheduled_task_cancel":       dds.ResourceDDSScheduledTaskCancel(),
 
+			"huaweicloud_deh_instance": deh.ResourceDehInstance(),
+
 			"huaweicloud_ddm_instance":               ddm.ResourceDdmInstance(),
 			"huaweicloud_ddm_instance_restart":       ddm.ResourceDdmInstanceRestart(),
 			"huaweicloud_ddm_instance_upgrade":       ddm.ResourceDdmInstanceUpgrade(),
