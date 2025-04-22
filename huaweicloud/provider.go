@@ -57,6 +57,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dcs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ddm"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dds"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/deh"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/deprecated"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dew"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dis"
@@ -772,6 +773,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_dds_ssl_cert_download_links":                 dds.DataSourceDdsSslCertDownloadLinks(),
 			"huaweicloud_dds_instant_tasks":                           dds.DataSourceDdsInstantTasks(),
 			"huaweicloud_dds_scheduled_tasks":                         dds.DataSourceDdsScheduledTasks(),
+
+			"huaweicloud_deh_types": deh.DataSourceDehTypes(),
 
 			"huaweicloud_dli_datasource_auths":       dli.DataSourceAuths(),
 			"huaweicloud_dli_datasource_connections": dli.DataSourceConnections(),

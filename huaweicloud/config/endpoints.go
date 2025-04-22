@@ -476,6 +476,11 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version: "v3.1",
 		Product: "DDS",
 	},
+	"deh": {
+		Name:    "deh",
+		Version: "v1.0",
+		Product: "DEH",
+	},
 	"geminidb": {
 		Name:    "gaussdb-nosql",
 		Version: "v3",
