@@ -15,6 +15,8 @@ Manages a ModelArts dedicated resource pool resource within HuaweiCloud.
 
 ```hcl
 variable "modelarts_network_id" {}
+variable "cce_cluster_id" {}
+variable "login_key_pair_name" {}
 
 resource "huaweicloud_modelarts_resource_pool" "test" {
   name        = "demo"
@@ -25,6 +27,44 @@ resource "huaweicloud_modelarts_resource_pool" "test" {
   resources {
     flavor_id = "modelarts.vm.cpu.16u64g.d"
     count     = 1
+    # max_count = 1
+
+    extend_params = jsonencode({
+      "dockerBaseSize": "50",
+      "runtime": "docker"
+    })
+    data_volumes {
+      volume_type   = "SSD"
+      size          = "500Gi"
+      extend_params = jsonencode({
+        "billing": "on",
+        "volumeGroup": "vguser0"
+      })
+    }
+    volume_group_configs {
+      lvm_config {
+        lv_type = "linear"
+      }
+      types = [
+        "local"
+      ]
+      volume_group = "vgpaas"
+    }
+    volume_group_configs {
+      lvm_config {
+        lv_type = "linear"
+        path    = "/data"
+      }
+      volume_group = "vguser0"
+    }
+  }
+
+  clusters {
+    provider_id = var.cce_cluster_id
+  }
+
+  user_login {
+    key_pair_name = var.login_key_pair_name
   }
 }
 ```
@@ -54,7 +94,7 @@ resource "huaweicloud_modelarts_resource_pool" "test" {
   user_login {
     password = var.login_user_password
   }
-  
+
   resources {
     flavor_id          = "modelarts.vm.cpu.8ud"
     count              = 1
@@ -198,8 +238,16 @@ The `resources` block supports:
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the resource pool. It can not be specified
   when `network_id` is specified.
 
-* `post_install` - (Optional, String) Specifies the script to be executed after security. The value should be a Base64
-  encoded string.
+* `extend_params` - (Optional, String) Specifies the extend parameters of the resource pool.
+
+* `root_volume` - (Optional, List) Specifies the root volume of the resource pool nodes.  
+  The [root_volume](#ModelartsResourcePool_Resources_root_volume) structure is documented below.
+
+* `data_volumes` - (Optional, List) Specifies the data volumes of the resource pool nodes.  
+  The [data_volumes](#ModelartsResourcePool_Resources_data_volumes) structure is documented below.
+
+* `volume_group_configs` - (Optional, List) Specifies the extend configurations of the volume groups.  
+  The [volume_group_configs](#ModelartsResourcePool_Resources_volume_group_configs) structure is documented below.
 
 <a name="ModelartsResourcePool_Resources_azs"></a>
 The `azs` block supports:
@@ -217,6 +265,63 @@ The `taints` block supports:
 
 * `effect` - (Required, String) Specifies the effect of the taint. Value options: **NoSchedule**, **PreferNoSchedule**,
   **NoExecute**.
+
+<a name="ModelartsResourcePool_Resources_root_volume"></a>
+The `root_volume` block supports:
+
+* `volume_type` - (Required, String) Specifies the type of the root volume.  
+  The valid values are as follows:
+  + **SSD**
+  + **GPSSD**
+  + **SAS**
+
+* `size` - (Required, String) Specifies the size of the root volume, e.g. **100Gi**.
+
+<a name="ModelartsResourcePool_Resources_data_volumes"></a>
+The `data_volumes` block supports:
+
+* `volume_type` - (Required, String) Specifies the type of the data volume.  
+  The valid values are as follows:
+  + **SSD**
+  + **GPSSD**
+  + **SAS**
+
+* `size` - (Required, String) Specifies the size of the data volume, e.g. **100Gi**.
+
+* `extend_params` - (Optional, String) Specifies the extend parameters of the data volume.
+
+* `count` - (Optional, Int) Specifies the count of the current data volume configuration.
+
+<a name="ModelartsResourcePool_Resources_volume_group_configs"></a>
+The `volume_group_configs` block supports:
+
+* `volume_group` - (Required, String) Specifies the name of the volume group.  
+  The valid values are as follows:
+  + **vgpaas**
+  + **default**
+  + **vguser{num}**
+  + **vg-everest-localvolume-persistent**
+  + **vg-everest-localvolume-ephemeral**
+
+* `docker_thin_pool` - (Optional, Int) Specifies the percentage of container volumes to data volumes on resource pool nodes.
+
+* `lvm_config` - (Optional, List) Specifies the configuration of the LVM management.  
+  The [lvm_config](#ModelartsResourcePool_Resources_volume_group_configs_lvm_config) structure is documented below.
+
+* `types` - (Optional, List) Specifies the storage types of the volume group.  
+  The valid values for the list elements are as follows:
+  + **volume**
+  + **local**
+
+<a name="ModelartsResourcePool_Resources_volume_group_configs_lvm_config"></a>
+The `lvm_config` block supports:
+
+* `lv_type` - (Required, String) Specifies the LVM write mode.  
+  The valid values are as follows:
+  + **linear**
+  + **striped**
+
+* `path` - (Optional, String) Specifies the volume mount path.
 
 <a name="ModelartsResourcePool_Clusters"></a>
 The `clusters` block supports:
