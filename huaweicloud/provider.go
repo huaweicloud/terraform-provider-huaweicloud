@@ -1225,12 +1225,13 @@ func Provider() *schema.Provider {
 			// Querying by Ver.2 APIs
 			"huaweicloud_servicestage_component_runtimes": servicestage.DataSourceComponentRuntimes(),
 			// Querying by Ver.3 APIs
-			"huaweicloud_servicestagev3_applications":         servicestage.DataSourceV3Applications(),
-			"huaweicloud_servicestagev3_components":           servicestage.DataSourceV3Components(),
-			"huaweicloud_servicestagev3_component_records":    servicestage.DataSourceV3ComponentRecords(),
-			"huaweicloud_servicestagev3_environments":         servicestage.DataSourceV3Environments(),
-			"huaweicloud_servicestagev3_inner_runtime_stacks": servicestage.DataSourceV3InnerRuntimeStacks(),
-			"huaweicloud_servicestagev3_runtime_stacks":       servicestage.DataSourceV3RuntimeStacks(),
+			"huaweicloud_servicestagev3_applications":             servicestage.DataSourceV3Applications(),
+			"huaweicloud_servicestagev3_components":               servicestage.DataSourceV3Components(),
+			"huaweicloud_servicestagev3_component_records":        servicestage.DataSourceV3ComponentRecords(),
+			"huaweicloud_servicestagev3_component_used_resources": servicestage.DataSourceV3ComponentUsedResources(),
+			"huaweicloud_servicestagev3_environments":             servicestage.DataSourceV3Environments(),
+			"huaweicloud_servicestagev3_inner_runtime_stacks":     servicestage.DataSourceV3InnerRuntimeStacks(),
+			"huaweicloud_servicestagev3_runtime_stacks":           servicestage.DataSourceV3RuntimeStacks(),
 
 			"huaweicloud_smn_topics":              smn.DataSourceTopics(),
 			"huaweicloud_smn_message_templates":   smn.DataSourceSmnMessageTemplates(),
