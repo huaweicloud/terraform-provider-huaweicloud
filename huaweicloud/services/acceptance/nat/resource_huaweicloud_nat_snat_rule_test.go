@@ -7,26 +7,25 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk/openstack/nat/v2/snats"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/nat"
 )
 
 func getPublicSnatRuleResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := cfg.NatGatewayClient(acceptance.HW_REGION_NAME)
+	region := acceptance.HW_REGION_NAME
+	client, err := cfg.NewServiceClient("nat", region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating NAT v2 client: %s", err)
 	}
 
-	return snats.Get(client, state.Primary.ID)
+	return nat.GetSnatRule(client, state.Primary.ID)
 }
 
 func TestAccPublicSnatRule_basic(t *testing.T) {
 	var (
-		obj snats.Rule
-
+		obj   interface{}
 		rName = "huaweicloud_nat_snat_rule.test"
 		name  = acceptance.RandomAccResourceNameWithDash()
 	)
@@ -131,8 +130,7 @@ resource "huaweicloud_nat_snat_rule" "test" {
 
 func TestAccPublicSnatRule_associatedGlobalEIP(t *testing.T) {
 	var (
-		obj snats.Rule
-
+		obj   interface{}
 		rName = "huaweicloud_nat_snat_rule.test"
 		name  = acceptance.RandomAccResourceNameWithDash()
 	)
@@ -313,8 +311,7 @@ resource "huaweicloud_nat_snat_rule" "test" {
 
 func TestAccPublicSnatRule_netWorkId(t *testing.T) {
 	var (
-		obj snats.Rule
-
+		obj   interface{}
 		rName = "huaweicloud_nat_snat_rule.test"
 		name  = acceptance.RandomAccResourceNameWithDash()
 	)
