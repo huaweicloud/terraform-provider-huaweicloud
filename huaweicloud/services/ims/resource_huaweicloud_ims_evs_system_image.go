@@ -90,6 +90,18 @@ func ResourceEvsSystemImage() *schema.Resource {
 				Computed: true,
 			},
 			// Attributes
+			"file": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"self": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"schema": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -98,7 +110,31 @@ func ResourceEvsSystemImage() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"image_size": {
+			"protected": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+			"container_format": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"updated_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"__os_bit": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"disk_format": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"__isregistered": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"__platform": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -110,15 +146,15 @@ func ResourceEvsSystemImage() *schema.Resource {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-			"disk_format": {
+			"virtual_env_type": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"data_origin": {
+			"__image_source_type": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"active_at": {
+			"__imagetype": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -126,7 +162,135 @@ func ResourceEvsSystemImage() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"updated_at": {
+			"__originalimagename": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"__backup_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"__productcode": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"image_size": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"data_origin": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"__lazyloading": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"active_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"__image_displayname": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"__os_feature_list": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"__support_kvm": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"__support_xen": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"__support_largememory": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"__support_diskintensive": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"__support_highperformance": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"__support_xen_gpu_type": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"__support_kvm_gpu_type": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"__support_xen_hana": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"__support_kvm_infiniband": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"__system_support_market": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+			"__is_offshelved": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"__root_origin": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"__sequence_num": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"__support_fc_inject": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"hw_firmware_type": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"hw_vif_multiqueue_enabled": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"__support_arm": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"__support_agent_list": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"__system__cmkid": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"__account_code": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"__support_amd": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"__support_kvm_hi1822_hisriov": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"__support_kvm_hi1822_hivirtionet": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"os_shutdown_timeout": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -310,16 +474,57 @@ func resourceEvsSystemImageRead(_ context.Context, d *schema.ResourceData, meta 
 		d.Set("min_ram", utils.PathSearch("min_ram", image, nil)),
 		d.Set("tags", flattenIMSImageTags(client, d.Id())),
 		d.Set("enterprise_project_id", utils.PathSearch("enterprise_project_id", image, nil)),
+		d.Set("file", utils.PathSearch("file", image, nil)),
+		d.Set("self", utils.PathSearch("self", image, nil)),
+		d.Set("schema", utils.PathSearch("schema", image, nil)),
 		d.Set("status", utils.PathSearch("status", image, nil)),
 		d.Set("visibility", utils.PathSearch("visibility", image, nil)),
-		d.Set("image_size", utils.PathSearch("__image_size", image, nil)),
+		d.Set("protected", utils.PathSearch("protected", image, nil)),
+		d.Set("container_format", utils.PathSearch("container_format", image, nil)),
+		d.Set("updated_at", utils.PathSearch("updated_at", image, nil)),
+		d.Set("__os_bit", utils.PathSearch("__os_bit", image, nil)),
+		d.Set("disk_format", utils.PathSearch("disk_format", image, nil)),
+		d.Set("__isregistered", utils.PathSearch("__isregistered", image, nil)),
+		d.Set("__platform", utils.PathSearch("__platform", image, nil)),
 		d.Set("os_type", utils.PathSearch("__os_type", image, nil)),
 		d.Set("min_disk", utils.PathSearch("min_disk", image, nil)),
-		d.Set("disk_format", utils.PathSearch("disk_format", image, nil)),
-		d.Set("data_origin", dataOrigin),
-		d.Set("active_at", utils.PathSearch("active_at", image, nil)),
+		d.Set("virtual_env_type", utils.PathSearch("virtual_env_type", image, nil)),
+		d.Set("__image_source_type", utils.PathSearch("__image_source_type", image, nil)),
+		d.Set("__imagetype", utils.PathSearch("__imagetype", image, nil)),
 		d.Set("created_at", utils.PathSearch("created_at", image, nil)),
-		d.Set("updated_at", utils.PathSearch("updated_at", image, nil)),
+		d.Set("__originalimagename", utils.PathSearch("__originalimagename", image, nil)),
+		d.Set("__backup_id", utils.PathSearch("__backup_id", image, nil)),
+		d.Set("__productcode", utils.PathSearch("__productcode", image, nil)),
+		d.Set("image_size", utils.PathSearch("__image_size", image, nil)),
+		d.Set("data_origin", utils.PathSearch("__data_origin", image, nil)),
+		d.Set("__lazyloading", utils.PathSearch("__lazyloading", image, nil)),
+		d.Set("active_at", utils.PathSearch("active_at", image, nil)),
+		d.Set("__image_displayname", utils.PathSearch("__image_displayname", image, nil)),
+		d.Set("__os_feature_list", utils.PathSearch("__os_feature_list", image, nil)),
+		d.Set("__support_kvm", utils.PathSearch("__support_kvm", image, nil)),
+		d.Set("__support_xen", utils.PathSearch("__support_xen", image, nil)),
+		d.Set("__support_largememory", utils.PathSearch("__support_largememory", image, nil)),
+		d.Set("__support_diskintensive", utils.PathSearch("__support_diskintensive", image, nil)),
+		d.Set("__support_highperformance", utils.PathSearch("__support_highperformance", image, nil)),
+		d.Set("__support_xen_gpu_type", utils.PathSearch("__support_xen_gpu_type", image, nil)),
+		d.Set("__support_kvm_gpu_type", utils.PathSearch("__support_kvm_gpu_type", image, nil)),
+		d.Set("__support_xen_hana", utils.PathSearch("__support_xen_hana", image, nil)),
+		d.Set("__support_kvm_infiniband", utils.PathSearch("__support_kvm_infiniband", image, nil)),
+		d.Set("__system_support_market", utils.PathSearch("__system_support_market", image, nil)),
+		d.Set("__is_offshelved", utils.PathSearch("__is_offshelved", image, nil)),
+		d.Set("__root_origin", utils.PathSearch("__root_origin", image, nil)),
+		d.Set("__sequence_num", utils.PathSearch("__sequence_num", image, nil)),
+		d.Set("__support_fc_inject", utils.PathSearch("__support_fc_inject", image, nil)),
+		d.Set("hw_firmware_type", utils.PathSearch("hw_firmware_type", image, nil)),
+		d.Set("hw_vif_multiqueue_enabled", utils.PathSearch("hw_vif_multiqueue_enabled", image, nil)),
+		d.Set("__support_arm", utils.PathSearch("__support_arm", image, nil)),
+		d.Set("__support_agent_list", utils.PathSearch("__support_agent_list", image, nil)),
+		d.Set("__system__cmkid", utils.PathSearch("__system__cmkid", image, nil)),
+		d.Set("__account_code", utils.PathSearch("__account_code", image, nil)),
+		d.Set("__support_amd", utils.PathSearch("__support_amd", image, nil)),
+		d.Set("__support_kvm_hi1822_hisriov", utils.PathSearch("__support_kvm_hi1822_hisriov", image, nil)),
+		d.Set("__support_kvm_hi1822_hivirtionet", utils.PathSearch("__support_kvm_hi1822_hivirtionet", image, nil)),
+		d.Set("os_shutdown_timeout", utils.PathSearch("os_shutdown_timeout", image, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
