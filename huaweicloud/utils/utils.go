@@ -172,6 +172,20 @@ func NormalizeJsonString(jsonString interface{}) (string, error) {
 	return string(bytes[:]), nil
 }
 
+// FindSliceExtraElems returns a list containing the extra keys in source compared to target.
+// In math, means source-target(A-B).
+func FindSliceExtraElems(source, target []interface{}) []interface{} {
+	result := make([]interface{}, 0)
+
+	for _, sv := range source {
+		if !SliceContains(target, sv) {
+			result = append(result, sv)
+		}
+	}
+
+	return result
+}
+
 // SliceContains checks if a target object is present in a slice (the type of the elemetes which same as the target
 // object).
 func SliceContains(slice []interface{}, target interface{}) bool {
