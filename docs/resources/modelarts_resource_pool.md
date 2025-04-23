@@ -364,9 +364,9 @@ The `clusters` block supports:
 
 This resource provides the following timeouts configuration options:
 
-* `create` - Default is 20 minutes.
-* `update` - Default is 20 minutes.
-* `delete` - Default is 20 minutes.
+* `create` - Default is 90 minutes.
+* `update` - Default is 90 minutes.
+* `delete` - Default is 30 minutes.
 
 ## Import
 
