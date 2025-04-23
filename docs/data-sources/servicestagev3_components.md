@@ -12,6 +12,14 @@ Use this data source to query the list of components under specified application
 
 ## Example Usage
 
+### Query all components under specified region
+
+```hcl
+data "huaweicloud_servicestagev3_components" "test" {}
+```
+
+### Query all components under specified application via its ID
+
 ```hcl
 variable "application_id" {}
 
@@ -27,7 +35,7 @@ The following arguments are supported:
 * `region` - (Optional, String) Specifies the region where the components are located.  
   If omitted, the provider-level region will be used.
 
-* `application_id` - (Required, String) Specifies the ID of the application to which the components belong.
+* `application_id` - (Optional, String) Specifies the ID of the application to which the components belong.
 
 ## Attribute Reference
 
@@ -58,9 +66,6 @@ The `components` block supports:
 * `refer_resources` - The configuration of the reference resources.  
   The [refer_resources](#servicestage_v3_components_refer_resources) structure is documented below.
 
-* `build` - The build configuration of the component, in JSON format.  
-  For the keys, please refer to the [documentation](https://support.huaweicloud.com/intl/en-us/api-servicestage/servicestage_06_0076.html#servicestage_06_0076__en-us_topic_0220056060_table7559740).
-
 * `external_accesses` - The configuration of the external accesses.  
   The [external_accesses](#servicestage_v3_components_external_accesses) structure is documented below.
 
@@ -75,10 +80,6 @@ The `components` block supports:
   + **PENDING**
   + **UNKNOWN**
   + **PARTIALLY_FAILED**
-
-* `created_at` - The creation time of the component, in RFC3339 format.
-
-* `updated_at` - The latest update time of the component, in RFC3339 format.
 
 <a name="servicestage_v3_components_runtime_stack"></a>
 The `runtime_stack` block supports:
