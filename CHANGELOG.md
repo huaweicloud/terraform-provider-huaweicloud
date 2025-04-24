@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.73.9 (April 24, 2025)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_modelarts_resource_pool: add volume attaching support [GH-6718]
+
 ## 1.73.8 (April 14, 2025)
 
 BUG FIXES:
