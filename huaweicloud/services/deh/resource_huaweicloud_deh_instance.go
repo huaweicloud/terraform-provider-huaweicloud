@@ -31,6 +31,7 @@ var dehInstanceNonUpdatableParams = []string{
 }
 
 // @API DEH POST /v1.0/{project_id}/dedicated-hosts
+// @API DEH GET /v1/{project_id}/jobs/{job_id}
 // @API DEH GET /v1.0/{project_id}/dedicated-hosts/{dedicated_host_id}
 // @API DEH PUT /v1.0/{project_id}/dedicated-hosts/{dedicated_host_id}
 // @API DEH POST /v1.0/{project_id}/dedicated-host-tags/{dedicated_host_id}/tags/action
