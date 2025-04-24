@@ -1,0 +1,33 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_servicestagev3_component_refresh": {
+          "block": {
+            "attributes": {
+              "application_id": {
+                "type": "string",
+                "description": "The application ID to which the componnet belongs.",
+                "required": true
+              },
+              "component_id": {
+                "type": "string",
+                "description": "The ID of the component to be refreshed.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the component to be refreshed is located.",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

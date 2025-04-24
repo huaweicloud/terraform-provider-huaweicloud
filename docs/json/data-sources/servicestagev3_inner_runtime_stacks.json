@@ -1,0 +1,37 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_servicestagev3_inner_runtime_stacks": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the inner runtime stacks are located.",
+                "computed": true
+              },
+              "runtime_stacks": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "type": "string",
+                      "url": "string"
+                    }
+                  ]
+                ],
+                "description": "All inner runtime stack details.",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

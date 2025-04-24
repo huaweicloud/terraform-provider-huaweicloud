@@ -1,0 +1,31 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_servicestagev3_runtime_stack_batch_release": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the runtime stacks are located.",
+                "computed": true
+              },
+              "runtime_stack_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The runtime stack IDs to be released.",
+                "required": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

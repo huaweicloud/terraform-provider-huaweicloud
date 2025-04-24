@@ -1,0 +1,96 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cciv2_config_map": {
+          "block": {
+            "attributes": {
+              "annotations": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "The annotations of the CCI ConfigMap.",
+                "computed": true
+              },
+              "api_version": {
+                "type": "string",
+                "description": "The API version of the CCI ConfigMap.",
+                "computed": true
+              },
+              "binary_data": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "Specifies the binary data of the CCI ConfigMap.",
+                "optional": true,
+                "computed": true
+              },
+              "creation_timestamp": {
+                "type": "string",
+                "description": "The creation timestamp of the CCI ConfigMap.",
+                "computed": true
+              },
+              "data": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "Specifies the data of the CCI ConfigMap.",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "immutable": {
+                "type": "bool",
+                "description": "The immutable of the CCI ConfigMap.",
+                "computed": true
+              },
+              "kind": {
+                "type": "string",
+                "description": "The kind of the CCI ConfigMap.",
+                "computed": true
+              },
+              "labels": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "The labels of the CCI ConfigMap.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the CCI ConfigMap.",
+                "required": true
+              },
+              "namespace": {
+                "type": "string",
+                "description": "Specifies the namespace.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "resource_version": {
+                "type": "string",
+                "description": "The resource version of the CCI ConfigMap.",
+                "computed": true
+              },
+              "uid": {
+                "type": "string",
+                "description": "The uid of the CCI ConfigMap.",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

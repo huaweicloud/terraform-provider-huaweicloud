@@ -127,6 +127,12 @@
                       "description": "Number of resources of the corresponding flavors.",
                       "required": true
                     },
+                    "extend_params": {
+                      "type": "string",
+                      "description": "The extend parameters of the resource pool.",
+                      "optional": true,
+                      "computed": true
+                    },
                     "flavor_id": {
                       "type": "string",
                       "description": "The resource flavor ID.",
@@ -151,11 +157,6 @@
                       "description": "The name of resource pool nodes.",
                       "optional": true,
                       "computed": true
-                    },
-                    "post_install": {
-                      "type": "string",
-                      "description": "The script to be executed after security.",
-                      "optional": true
                     },
                     "security_group_ids": {
                       "type": [
@@ -207,6 +208,55 @@
                       },
                       "nesting_mode": "list"
                     },
+                    "data_volumes": {
+                      "block": {
+                        "attributes": {
+                          "count": {
+                            "type": "number",
+                            "description": "The count of the current data volume configuration.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "extend_params": {
+                            "type": "string",
+                            "description": "The extend parameters of the data volume.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "size": {
+                            "type": "string",
+                            "description": "The size of the data volume.",
+                            "required": true
+                          },
+                          "volume_type": {
+                            "type": "string",
+                            "description": "The type of the data volume.",
+                            "required": true
+                          }
+                        },
+                        "description": "The data volumes of the resource pool nodes."
+                      },
+                      "nesting_mode": "set"
+                    },
+                    "root_volume": {
+                      "block": {
+                        "attributes": {
+                          "size": {
+                            "type": "string",
+                            "description": "The size of the root volume.",
+                            "required": true
+                          },
+                          "volume_type": {
+                            "type": "string",
+                            "description": "The type of the root volume.",
+                            "required": true
+                          }
+                        },
+                        "description": "The root volume of the resource pool nodes."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
                     "taints": {
                       "block": {
                         "attributes": {
@@ -230,6 +280,56 @@
                         "description": "The taints added to nodes."
                       },
                       "nesting_mode": "list"
+                    },
+                    "volume_group_configs": {
+                      "block": {
+                        "attributes": {
+                          "docker_thin_pool": {
+                            "type": "number",
+                            "description": "The percentage of container volumes to data volumes on resource pool nodes.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "types": {
+                            "type": [
+                              "set",
+                              "string"
+                            ],
+                            "description": "The storage types of the volume group.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "volume_group": {
+                            "type": "string",
+                            "description": "The name of the volume group.",
+                            "required": true
+                          }
+                        },
+                        "block_types": {
+                          "lvm_config": {
+                            "block": {
+                              "attributes": {
+                                "lv_type": {
+                                  "type": "string",
+                                  "description": "The LVM write mode.",
+                                  "required": true
+                                },
+                                "path": {
+                                  "type": "string",
+                                  "description": "The volume mount path.",
+                                  "optional": true,
+                                  "computed": true
+                                }
+                              },
+                              "description": "The configuration of the LVM management."
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          }
+                        },
+                        "description": "The extend configurations of the volume groups."
+                      },
+                      "nesting_mode": "set"
                     }
                   },
                   "description": "List of resource specifications in the resource pool."

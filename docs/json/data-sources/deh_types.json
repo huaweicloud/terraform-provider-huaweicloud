@@ -1,0 +1,42 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_deh_types": {
+          "block": {
+            "attributes": {
+              "availability_zone": {
+                "type": "string",
+                "description": "Specifies the availability zone.",
+                "required": true
+              },
+              "dedicated_host_types": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "host_type": "string",
+                      "host_type_name": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the available DeH types.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

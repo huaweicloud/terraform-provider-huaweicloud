@@ -1,0 +1,48 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_er_resource_tags": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region in which to query the resource tags.",
+                "computed": true
+              },
+              "resource_id": {
+                "type": "string",
+                "description": "The resource ID to which the tags belong that to be queried.",
+                "required": true
+              },
+              "resource_type": {
+                "type": "string",
+                "description": "The resource type to which the tags belong that to be queried.",
+                "required": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "The tags of a specified resource.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "ER",
+            "name": "Enterprise Router",
+            "catalog": "Networking",
+            "name_cn": "企业路由器",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

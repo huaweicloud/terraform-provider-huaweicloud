@@ -1,0 +1,45 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_organizations_policy_attached_entities": {
+          "block": {
+            "attributes": {
+              "attached_entities": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "string",
+                      "name": "string",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the entities that the specified policy is attached to.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "policy_id": {
+                "type": "string",
+                "description": "Specifies the ID of the policy.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "Organizations",
+            "name": "Organizations",
+            "catalog": "Management & Governance",
+            "name_cn": "组织",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

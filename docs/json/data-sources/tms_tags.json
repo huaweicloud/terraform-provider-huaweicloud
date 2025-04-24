@@ -1,0 +1,60 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_tms_tags": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "key": {
+                "type": "string",
+                "description": "Specifies the tag key.",
+                "optional": true
+              },
+              "order_field": {
+                "type": "string",
+                "description": "Specifies the sorting field:",
+                "optional": true
+              },
+              "order_method": {
+                "type": "string",
+                "description": "Specifies the sorting method of the `order_field` field.",
+                "optional": true
+              },
+              "tags": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "key": "string",
+                      "update_time": "string",
+                      "value": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of tags.",
+                "computed": true
+              },
+              "value": {
+                "type": "string",
+                "description": "Specifies the tag value.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "TMS",
+            "name": "Tag Management Service",
+            "catalog": "Management & Governance",
+            "name_cn": "标签管理服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

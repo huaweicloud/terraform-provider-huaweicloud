@@ -46,7 +46,7 @@
                       "optional": true
                     },
                     "resource_size": {
-                      "type": "string",
+                      "type": "number",
                       "required": true
                     },
                     "resource_spec_code": {
@@ -62,11 +62,11 @@
                       "required": true
                     },
                     "usage_measure_id": {
-                      "type": "string",
+                      "type": "number",
                       "required": true
                     },
                     "usage_value": {
-                      "type": "string",
+                      "type": "number",
                       "required": true
                     }
                   }
