@@ -2,7 +2,8 @@
 subcategory: "NAT Gateway (NAT)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_nat_dnat_rule"
-description: ""
+description: |-
+  Manages a DNAT rule resource of the **public** NAT within HuaweiCloud.
 ---
 
 # huaweicloud_nat_dnat_rule
@@ -243,5 +244,5 @@ This resource provides the following timeouts configuration options:
 DNAT rules can be imported using their `id`, e.g.
 
 ```bash
-$ terraform import huaweicloud_nat_dnat_rule.test f4f783a7-b908-4215-b018-724960e5df4a
+$ terraform import huaweicloud_nat_dnat_rule.test <id>
 ```
