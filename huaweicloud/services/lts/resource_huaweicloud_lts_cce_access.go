@@ -258,6 +258,9 @@ func resourceCceAccessConfigCreate(ctx context.Context, d *schema.ResourceData, 
 
 	createCceAccessConfigOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json;charset=UTF-8",
+		},
 	}
 	createCceAccessConfigOpt.JSONBody = utils.RemoveNil(buildCreateCceAccessConfigBodyParams(d))
 	createCceAccessConfigResp, err := ltsClient.Request("POST", createCceAccessConfigPath, &createCceAccessConfigOpt)
@@ -353,6 +356,9 @@ func resourceCceAccessConfigRead(_ context.Context, d *schema.ResourceData, meta
 
 	listCceAccessConfigOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json;charset=UTF-8",
+		},
 	}
 
 	name := d.Get("name").(string)
@@ -448,6 +454,9 @@ func resourceCceAccessConfigUpdate(ctx context.Context, d *schema.ResourceData, 
 
 		updateCceAccessConfigOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
+			MoreHeaders: map[string]string{
+				"Content-Type": "application/json;charset=UTF-8",
+			},
 		}
 
 		updateCceAccessConfigOpt.JSONBody = utils.RemoveNil(buildUpdateCceAccessConfigBodyParams(d))
@@ -497,6 +506,9 @@ func refreshCceAccessID(ltsClient *golangsdk.ServiceClient, d *schema.ResourceDa
 
 	listCceAccessConfigOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json;charset=UTF-8",
+		},
 	}
 
 	name := d.Get("name").(string)
