@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_servicestagev3_component_refresh
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: ServiceStage
+paths:
+    /v3/{project_id}/cas/applications/{application_id}/components/{component_id}/refresh:
+        PUT:
+            tag: ServiceStage

@@ -11,3 +11,6 @@ paths:
     /v2/{project_id}/cloudsnapshots/{snapshot_id}:
         GET:
             tag: EVS
+    /v2/{project_id}/cloudsnapshots/{snapshot_id}/rollback:
+        POST:
+            tag: EVS

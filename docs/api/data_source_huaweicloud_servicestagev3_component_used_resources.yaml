@@ -1,6 +1,6 @@
 info:
     version: ""
-    title: data_source_huaweicloud_servicestagev3_components
+    title: data_source_huaweicloud_servicestagev3_component_used_resources
     description: ""
 schemes:
     - https
@@ -8,6 +8,6 @@ host: huaweicloud.com
 tags:
     - name: ServiceStage
 paths:
-    /v3/{project_id}/cas/components:
+    /v3/{project_id}/cas/components/filterOptions:
         GET:
             tag: ServiceStage
