@@ -52,6 +52,7 @@ func TestAccPrivateTransitIp_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "enterprise_project_id", "0"),
 					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(rName, "tags.key", "value"),
+					resource.TestCheckResourceAttrSet(rName, "status"),
 					resource.TestCheckResourceAttrSet(rName, "created_at"),
 					resource.TestCheckResourceAttrSet(rName, "updated_at"),
 				),
