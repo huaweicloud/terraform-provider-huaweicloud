@@ -2,38 +2,58 @@ package vod
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	vod "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vod/v1/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func getResourceWatermarkTemplate(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := conf.HcVodV1Client(acceptance.HW_REGION_NAME)
+	var (
+		region  = acceptance.HW_REGION_NAME
+		product = "vod"
+		httpUrl = "v1.0/{project_id}/template/watermark"
+	)
+
+	client, err := conf.NewServiceClient(product, region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating VOD client: %s", err)
 	}
 
-	resp, err := client.ListWatermarkTemplate(&vod.ListWatermarkTemplateRequest{Id: &[]string{state.Primary.ID}})
+	requestPath := client.Endpoint + httpUrl
+	requestPath += fmt.Sprintf("?id=%s", state.Primary.ID)
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	resp, err := client.Request("GET", requestPath, &requestOpt)
 	if err != nil {
 		return nil, fmt.Errorf("error retrieving VOD watermark template: %s", err)
 	}
 
-	if resp.Templates == nil || len(*resp.Templates) == 0 {
-		return nil, fmt.Errorf("unable to retrieve VOD watermark template: %s", state.Primary.ID)
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return nil, err
 	}
 
-	templateList := *resp.Templates
-	return templateList[0], nil
+	template := utils.PathSearch("templates|[0]", respBody, nil)
+	if template == nil {
+		return nil, golangsdk.ErrDefault404{}
+	}
+
+	return template, nil
 }
 
 func TestAccWatermarkTemplate_basic(t *testing.T) {
-	var template vod.WatermarkTemplate
+	var template interface{}
 	rName := acceptance.RandomAccResourceName()
 	updateName := rName + "-update"
 	resourceName := "huaweicloud_vod_watermark_template.test"
