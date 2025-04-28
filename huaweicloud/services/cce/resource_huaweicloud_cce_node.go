@@ -298,6 +298,10 @@ func ResourceNode() *schema.Resource {
 					},
 				},
 			},
+			"partition": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -349,11 +353,6 @@ func ResourceNode() *schema.Resource {
 				Type:       schema.TypeString,
 				Optional:   true,
 				Deprecated: "will be removed after v1.26.0",
-			},
-			"partition": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "schema: Internal",
 			},
 		},
 	}
