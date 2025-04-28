@@ -337,13 +337,11 @@ func modelartsResourcePoolResourcesAzsSchema() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"az": {
 				Type:        schema.TypeString,
-				Optional:    true,
 				Computed:    true,
 				Description: `The AZ name.`,
 			},
 			"count": {
 				Type:        schema.TypeInt,
-				Optional:    true,
 				Computed:    true,
 				Description: `Number of nodes.`,
 			},
