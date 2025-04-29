@@ -291,6 +291,22 @@ func modelartsResourcePoolResourceFlavorSchema() *schema.Resource {
 				},
 				Description: `The extend configurations of the volume groups.`,
 			},
+			"os": {
+				Type:        schema.TypeList,
+				Elem:        modelartsResourcePoolResourcesOsSchema(),
+				Optional:    true,
+				Computed:    true,
+				MaxItems:    1,
+				Description: `The image information for the specified OS.`,
+			},
+			"driver": {
+				Type:        schema.TypeList,
+				Elem:        modelartsResourcePoolResourcesDriverSchema(),
+				Optional:    true,
+				Computed:    true,
+				MaxItems:    1,
+				Description: `The driver information.`,
+			},
 			// Deprecated parameter(s).
 			"post_install": {
 				Type:     schema.TypeString,
@@ -401,6 +417,44 @@ func modelartsResourcePoolResourcesDataVolumeSchema() *schema.Resource {
 		},
 	}
 	return &sc
+}
+
+func modelartsResourcePoolResourcesOsSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `The OS name of the image.`,
+			},
+			"image_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `The image ID.`,
+			},
+			"image_type": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `The image type.`,
+			},
+		},
+	}
+}
+
+func modelartsResourcePoolResourcesDriverSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"version": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `The driver version.`,
+			},
+		},
+	}
 }
 
 func modelartsResourcePoolClustersSchema() *schema.Resource {
@@ -724,6 +778,8 @@ func buildResourcePoolSpecResources(d *schema.ResourceData) []map[string]interfa
 					"rootVolume":         buildResourcePoolResourcesRootVolume(raw["root_volume"].([]interface{})),
 					"dataVolumes":        buildResourcePoolResourcesDataVolumes(raw["data_volumes"].(*schema.Set)),
 					"volumeGroupConfigs": buildResourcePoolResourcesVolumeGroupConfigs(raw["volume_group_configs"].(*schema.Set)),
+					"os":                 buildResourcePoolResourcesOsInfo(raw["os"].([]interface{})),
+					"driver":             buildResourcePoolResourcesDriver(raw["driver"].([]interface{})),
 				}
 			}
 		}
@@ -797,7 +853,7 @@ func buildResourcePoolResourcesVolumeGroupConfigs(volumeGroupConfigs *schema.Set
 	for _, volumeGroupConfig := range volumeGroupConfigs.List() {
 		result = append(result, map[string]interface{}{
 			"volumeGroup":    utils.PathSearch("volume_group", volumeGroupConfig, nil),
-			"dockerThinPool": utils.PathSearch("docker_thin_pool", volumeGroupConfig, nil),
+			"dockerThinPool": utils.ValueIgnoreEmpty(utils.PathSearch("docker_thin_pool", volumeGroupConfig, nil)),
 			"lvmConfig": buildResourceVolumeGroupConfigsLvmConfig(utils.PathSearch("lvm_config", volumeGroupConfig,
 				make([]interface{}, 0)).([]interface{})),
 			"types": utils.ValueIgnoreEmpty(utils.ExpandToStringListBySet(utils.PathSearch("types", volumeGroupConfig,
@@ -817,6 +873,32 @@ func buildResourceVolumeGroupConfigsLvmConfig(lvmConfigs []interface{}) map[stri
 	return map[string]interface{}{
 		"lvType": utils.PathSearch("lv_type", lvmConfig, nil),
 		"path":   utils.ValueIgnoreEmpty(utils.PathSearch("path", lvmConfig, nil)),
+	}
+}
+
+func buildResourcePoolResourcesOsInfo(osInfos []interface{}) map[string]interface{} {
+	// All parameters are as the optional behavior.
+	if len(osInfos) < 1 || osInfos[0] == nil {
+		return nil
+	}
+
+	osInfo := osInfos[0]
+	return map[string]interface{}{
+		"name":      utils.ValueIgnoreEmpty(utils.PathSearch("name", osInfo, nil)),
+		"imageId":   utils.ValueIgnoreEmpty(utils.PathSearch("image_id", osInfo, nil)),
+		"imageType": utils.ValueIgnoreEmpty(utils.PathSearch("image_type", osInfo, nil)),
+	}
+}
+
+func buildResourcePoolResourcesDriver(drivers []interface{}) map[string]interface{} {
+	// All parameters are as the optional behavior.
+	if len(drivers) < 1 || drivers[0] == nil {
+		return nil
+	}
+
+	driver := drivers[0]
+	return map[string]interface{}{
+		"version": utils.ValueIgnoreEmpty(utils.PathSearch("version", driver, nil)),
 	}
 }
 
@@ -1017,6 +1099,32 @@ func flattenResourcePoolResourcesVolumeGroupConfigs(volumeGroupConfigs []interfa
 	return result
 }
 
+func flattenResourcePoolResourcesOsInfo(osInfo interface{}) []map[string]interface{} {
+	if osInfo == nil {
+		return nil
+	}
+
+	return []map[string]interface{}{
+		{
+			"name":       utils.PathSearch("name", osInfo, nil),
+			"image_id":   utils.PathSearch("imageId", osInfo, nil),
+			"image_type": utils.PathSearch("iamgeType", osInfo, nil),
+		},
+	}
+}
+
+func flattenResourcePoolResourcesDriver(driver interface{}) []map[string]interface{} {
+	if driver == nil {
+		return nil
+	}
+
+	return []map[string]interface{}{
+		{
+			"version": utils.PathSearch("version", driver, nil),
+		},
+	}
+}
+
 func flattenGetResourcePoolResponseBodyResources(resp interface{}) []interface{} {
 	if resp == nil {
 		return nil
@@ -1043,6 +1151,8 @@ func flattenGetResourcePoolResponseBodyResources(resp interface{}) []interface{}
 				v, make([]interface{}, 0)).([]interface{})),
 			"volume_group_configs": flattenResourcePoolResourcesVolumeGroupConfigs(utils.PathSearch("volumeGroupConfigs",
 				v, make([]interface{}, 0)).([]interface{})),
+			"os":     flattenResourcePoolResourcesOsInfo(utils.PathSearch("os", v, nil)),
+			"driver": flattenResourcePoolResourcesDriver(utils.PathSearch("driver", v, nil)),
 			// Deprecated parameter(s).
 			"post_install": utils.PathSearch("extendParams.post_install", v, nil),
 		})
