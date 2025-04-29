@@ -11,20 +11,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-)
-
-type SourceType int
-
-const (
-	SourceTypeVpc SourceType = 0
-	SourceTypeDc  SourceType = 1
 )
 
 // @API NAT POST /v2/{project_id}/snat_rules
@@ -78,11 +70,7 @@ func ResourcePublicSnatRule() *schema.Resource {
 				Description: "schema: Required; The ID of the gateway to which the SNAT rule belongs.",
 			},
 			"source_type": {
-				Type: schema.TypeInt,
-				ValidateFunc: validation.IntInSlice([]int{
-					int(SourceTypeVpc),
-					int(SourceTypeDc),
-				}),
+				Type:        schema.TypeInt,
 				Optional:    true,
 				ForceNew:    true,
 				Description: "The resource type of the SNAT rule.",

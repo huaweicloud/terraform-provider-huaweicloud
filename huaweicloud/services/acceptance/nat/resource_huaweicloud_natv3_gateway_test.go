@@ -49,7 +49,7 @@ func TestAccPublicGatewayV3_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "spec", string(nat.PublicSpecTypeSmall)),
+					resource.TestCheckResourceAttr(rName, "spec", "1"),
 					resource.TestCheckResourceAttr(rName, "description", "Created by acc test"),
 					resource.TestCheckResourceAttr(rName, "ngport_ip_address", "192.168.0.101"),
 					resource.TestCheckResourceAttr(rName, "session_conf.0.tcp_session_expire_time", "1000"),
@@ -68,7 +68,7 @@ func TestAccPublicGatewayV3_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", updateName),
-					resource.TestCheckResourceAttr(rName, "spec", string(nat.PublicSpecTypeMedium)),
+					resource.TestCheckResourceAttr(rName, "spec", "2"),
 					resource.TestCheckResourceAttr(rName, "description", ""),
 					resource.TestCheckResourceAttr(rName, "ngport_ip_address", "192.168.0.101"),
 					resource.TestCheckResourceAttr(rName, "session_conf.0.tcp_session_expire_time", "900"),
@@ -168,7 +168,7 @@ func TestAccPublicGatewayV3_prepaid(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "spec", string(nat.PublicSpecTypeSmall)),
+					resource.TestCheckResourceAttr(rName, "spec", "1"),
 					resource.TestCheckResourceAttr(rName, "description", "Created by acc test"),
 					resource.TestCheckResourceAttr(rName, "ngport_ip_address", "192.168.0.101"),
 					resource.TestCheckResourceAttr(rName, "enterprise_project_id", "0"),
@@ -188,7 +188,7 @@ func TestAccPublicGatewayV3_prepaid(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "spec", string(nat.PublicSpecTypeSmall)),
+					resource.TestCheckResourceAttr(rName, "spec", "1"),
 					resource.TestCheckResourceAttr(rName, "description", "Created by acc test"),
 					resource.TestCheckResourceAttr(rName, "ngport_ip_address", "192.168.0.101"),
 					resource.TestCheckResourceAttr(rName, "enterprise_project_id", "0"),
