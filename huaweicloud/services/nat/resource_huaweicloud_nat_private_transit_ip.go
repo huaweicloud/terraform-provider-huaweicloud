@@ -64,6 +64,11 @@ func ResourcePrivateTransitIp() *schema.Resource {
 				Computed:    true,
 				Description: "The network interface ID of the transit IP for private NAT.",
 			},
+			"status": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The status of the transit IP.",
+			},
 			"gateway_id": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -176,6 +181,7 @@ func resourcePrivateTransitIpRead(_ context.Context, d *schema.ResourceData, met
 		d.Set("tags", utils.FlattenTagsToMap(utils.PathSearch("transit_ip.tags", respBody, make([]interface{}, 0)))),
 		d.Set("gateway_id", utils.PathSearch("transit_ip.gateway_id", respBody, nil)),
 		d.Set("network_interface_id", utils.PathSearch("transit_ip.network_interface_id", respBody, nil)),
+		d.Set("status", utils.PathSearch("transit_ip.status", respBody, nil)),
 		d.Set("created_at", utils.PathSearch("transit_ip.created_at", respBody, nil)),
 		d.Set("updated_at", utils.PathSearch("transit_ip.updated_at", respBody, nil)),
 	)

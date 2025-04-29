@@ -57,6 +57,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `gateway_id` - The ID of the private NAT gateway to which the transit IP belongs.
 
+* `status` - The status of the transit IP.
+
 * `created_at` - The creation time of the transit IP for private NAT.
 
 * `updated_at` - The latest update time of the transit IP for private NAT.
