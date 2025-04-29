@@ -293,18 +293,18 @@ func modelartsResourcePoolResourceFlavorSchema() *schema.Resource {
 			},
 			"os": {
 				Type:        schema.TypeList,
-				Elem:        modelartsResourcePoolResourcesOsSchema(),
 				Optional:    true,
 				Computed:    true,
 				MaxItems:    1,
+				Elem:        modelartsResourcePoolResourcesOsSchema(),
 				Description: `The image information for the specified OS.`,
 			},
 			"driver": {
 				Type:        schema.TypeList,
-				Elem:        modelartsResourcePoolResourcesDriverSchema(),
 				Optional:    true,
 				Computed:    true,
 				MaxItems:    1,
+				Elem:        modelartsResourcePoolResourcesDriverSchema(),
 				Description: `The driver information.`,
 			},
 			// Deprecated parameter(s).
@@ -805,7 +805,7 @@ func buildResourcePoolResourcesPostInstallBodyParams(rawParam map[string]interfa
 		extendParams["post_install"] = postInstall
 	}
 
-	if objExtendParams := utils.TryMapValueAnalysis(utils.StringToJson(rawParam["extend_params"].(string))); len(extendParams) > 0 {
+	if objExtendParams := utils.TryMapValueAnalysis(utils.StringToJson(rawParam["extend_params"].(string))); len(objExtendParams) > 0 {
 		if len(extendParams) > 0 {
 			objExtendParams["post_install"] = extendParams["post_install"]
 		}
@@ -1394,27 +1394,6 @@ func updateResourcePoolWaitingForStateCompleted(ctx context.Context, d *schema.R
 				return getResourcePoolRespBody, status, nil
 			}
 
-			// check if the resource pool is in the process of expanding capacity
-			if rawArray, ok := d.Get("resources").([]interface{}); ok {
-				if utils.PathSearch("status.resources.abnormal", getResourcePoolRespBody, nil) != nil {
-					return nil, "ERROR", fmt.Errorf("error updating resource pool")
-				}
-
-				for _, v := range rawArray {
-					raw := v.(map[string]interface{})
-					flavor := utils.ValueIgnoreEmpty(raw["flavor_id"])
-					count := utils.ValueIgnoreEmpty(raw["count"])
-
-					searchActiveJsonPath := fmt.Sprintf("length(status.resources.available[?flavor=='%s' && count==`%d`])",
-						flavor, count)
-
-					log.Println("searchActiveJsonPath: ", searchActiveJsonPath)
-					if utils.PathSearch(searchActiveJsonPath, getResourcePoolRespBody, float64(0)).(float64) == 0 {
-						return getResourcePoolRespBody, "PENDING", nil
-					}
-				}
-			}
-
 			// check if the resource pool is in the process of changing scope
 			if rawArray, ok := d.GetOk("scope"); ok {
 				for _, v := range rawArray.(*schema.Set).List() {
@@ -1426,11 +1405,19 @@ func updateResourcePoolWaitingForStateCompleted(ctx context.Context, d *schema.R
 				}
 			}
 
-			return getResourcePoolRespBody, "COMPLETED", nil
+			creating := utils.PathSearch("status.resources.creating", getResourcePoolRespBody, make([]interface{}, 0)).([]interface{})
+			deleting := utils.PathSearch("status.resources.creating", getResourcePoolRespBody, make([]interface{}, 0)).([]interface{})
+			// check if the resource pool is in the process of expanding capacity
+			if len(creating) == 0 && len(deleting) == 0 {
+				return getResourcePoolRespBody, "COMPLETED", nil
+			}
+
+			return getResourcePoolRespBody, "PENDING", nil
 		},
-		Timeout:      t,
-		Delay:        5 * time.Second,
-		PollInterval: 5 * time.Second,
+		Timeout:                   t,
+		Delay:                     5 * time.Second,
+		PollInterval:              5 * time.Second,
+		ContinuousTargetOccurence: 2,
 	}
 	_, err := stateConf.WaitForStateContext(ctx)
 	return err
