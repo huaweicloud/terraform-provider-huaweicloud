@@ -129,6 +129,31 @@ func listenersSchema() *schema.Resource {
 				Computed:    true,
 				Description: "The latest update time of the listener.",
 			},
+			"frozen_info": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `The frozen details of cloud services or resources.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"status": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `The status of a cloud service or resource.`,
+						},
+						"effect": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `The status of the resource after being forzen.`,
+						},
+						"scene": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Description: `The service scenario.`,
+						},
+					},
+				},
+			},
 		},
 	}
 	return &sc
@@ -205,6 +230,7 @@ func flattenListListenersResponseBody(resp interface{}) []interface{} {
 			"tags":            utils.FlattenTagsToMap(utils.PathSearch("tags", v, nil)),
 			"created_at":      utils.PathSearch("created_at", v, nil),
 			"updated_at":      utils.PathSearch("updated_at", v, nil),
+			"frozen_info":     flattenListenerFrozenInfos(utils.PathSearch("frozen_info", v, nil)),
 		})
 	}
 	return rst
@@ -220,6 +246,20 @@ func flattenPortRanges(raw interface{}) []map[string]interface{} {
 		}
 	}
 	return result
+}
+
+func flattenListenerFrozenInfos(resp interface{}) []map[string]interface{} {
+	if resp == nil {
+		return nil
+	}
+
+	frozenInfo := map[string]interface{}{
+		"status": utils.PathSearch("status", resp, nil),
+		"effect": utils.PathSearch("effect", resp, nil),
+		"scene":  utils.PathSearch("scene", resp, []string{}),
+	}
+
+	return []map[string]interface{}{frozenInfo}
 }
 
 func filterListListenersResponseBody(all []interface{}, d *schema.ResourceData) []interface{} {
