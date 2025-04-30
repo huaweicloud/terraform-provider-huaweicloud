@@ -49,7 +49,7 @@ var nodePoolNonUpdatableParams = []string{
 	"extend_params.*.agency_name", "extend_params.*.kube_reserved_mem", "extend_params.*.system_reserved_mem",
 	"extend_params.*.security_reinforcement_type", "extend_params.*.market_type", "extend_params.*.spot_price",
 	"security_groups", "pod_security_groups", "ecs_group_id", "hostname_config", "hostname_config.*.type",
-	"max_pods", "preinstall", "postinstall", "extend_param",
+	"max_pods", "preinstall", "postinstall", "extend_param", "partition",
 }
 
 func ResourceNodePool() *schema.Resource {
@@ -244,6 +244,10 @@ func ResourceNodePool() *schema.Resource {
 						},
 					},
 				},
+			},
+			"partition": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
@@ -542,6 +546,10 @@ func buildNodePoolCreateOpts(d *schema.ResourceData, cfg *config.Config) (*nodep
 		createOpts.Spec.NodeTemplate.RunTime = &nodes.RunTimeSpec{
 			Name: v.(string),
 		}
+	}
+
+	if v, ok := d.GetOk("partition"); ok {
+		createOpts.Spec.NodeTemplate.Partition = v.(string)
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
