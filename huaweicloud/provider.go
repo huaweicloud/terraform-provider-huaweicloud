@@ -774,7 +774,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_dds_instant_tasks":                           dds.DataSourceDdsInstantTasks(),
 			"huaweicloud_dds_scheduled_tasks":                         dds.DataSourceDdsScheduledTasks(),
 
-			"huaweicloud_deh_types": deh.DataSourceDehTypes(),
+			"huaweicloud_deh_types":     deh.DataSourceDehTypes(),
+			"huaweicloud_deh_instances": deh.DataSourceDehInstances(),
 
 			"huaweicloud_dli_datasource_auths":       dli.DataSourceAuths(),
 			"huaweicloud_dli_datasource_connections": dli.DataSourceConnections(),
