@@ -2,7 +2,8 @@
 subcategory: "Global Accelerator (GA)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_ga_accelerators"
-description: ""
+description: |-
+  Use this data source to get the list of accelerators.
 ---
 
 # huaweicloud_ga_accelerators
@@ -68,6 +69,9 @@ The `accelerators` block supports:
 
 * `updated_at` - The latest update time of the accelerator.
 
+* `frozen_info` - The frozen details of cloud services or resources.
+  The [frozen_info](#accelerators_frozen_info) structure is documented below.
+
 <a name="accelerator_ip_sets"></a>
 The `ip_sets` block supports:
 
@@ -76,3 +80,12 @@ The `ip_sets` block supports:
 * `ip_address` - The IP address of the accelerator.
 
 * `area` - The acceleration zone of the accelerator.
+
+<a name="accelerators_frozen_info"></a>
+The `frozen_info` block supports:
+
+* `status` - The status of a cloud service or resource.
+
+* `effect` - The status of the resource after being forzen.
+
+* `scene` - The service scenario.
