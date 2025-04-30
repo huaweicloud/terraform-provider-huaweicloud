@@ -8,7 +8,6 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -19,7 +18,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-var pvcNonUpdatableParams = []string{"name"}
+var pvcNonUpdatableParams = []string{"namespace", "name", "annotations", "labels", "access_modes",
+	"storage_class_name", "volume_mode", "valume_name",
+}
 
 // @API CCI POST /apis/cci/v2/namespaces/{namespace}/persistentvolumeclaims
 // @API CCI GET /apis/cci/v2/namespaces/{namespace}/persistentvolumeclaims/{name}
@@ -33,12 +34,12 @@ func ResourceV2PersistentVolumeClaim() *schema.Resource {
 		DeleteContext: resourceV2PersistentVolumeClaimDelete,
 
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			StateContext: resourceV2PersistentVolumeClaimImportState,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(5 * time.Minute),
-			Delete: schema.DefaultTimeout(3 * time.Minute),
+			Create: schema.DefaultTimeout(10 * time.Minute),
+			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 
 		CustomizeDiff: config.FlexibleForceNew(pvcNonUpdatableParams),
@@ -62,16 +63,89 @@ func ResourceV2PersistentVolumeClaim() *schema.Resource {
 			},
 			"annotations": {
 				Type:        schema.TypeMap,
-				Computed:    true,
+				Optional:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: `The annotations of the persistent volume claim.`,
 			},
 			"labels": {
 				Type:        schema.TypeMap,
-				Computed:    true,
+				Optional:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: `The labels of the persistent volume claim.`,
 			},
+			"access_modes": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `The access modes of the persistent volume claim.`,
+			},
+			"resources": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"limits": {
+							Type:     schema.TypeMap,
+							Optional: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
+						"requests": {
+							Type:     schema.TypeMap,
+							Optional: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
+					},
+				},
+			},
+			"selector": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"match_expressions": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"key": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"operator": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"values": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Elem:     &schema.Schema{Type: schema.TypeString},
+									},
+								},
+							},
+						},
+						"match_labels": {
+							Type:     schema.TypeMap,
+							Optional: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
+					},
+				},
+			},
+			"storage_class_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"volume_mode": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"valume_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+
 			"creation_timestamp": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -128,6 +202,7 @@ func resourceV2PersistentVolumeClaimCreate(ctx context.Context, d *schema.Resour
 
 	createV2PersistentVolumeClaimHttpUrl := "apis/cci/v2/namespaces/{namespace}/persistentvolumeclaims"
 	createV2PersistentVolumeClaimPath := client.Endpoint + createV2PersistentVolumeClaimHttpUrl
+	createV2PersistentVolumeClaimPath = strings.ReplaceAll(createV2PersistentVolumeClaimPath, "{namespace}", d.Get("namespace").(string))
 	createV2PersistentVolumeClaimOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
@@ -149,45 +224,80 @@ func resourceV2PersistentVolumeClaimCreate(ctx context.Context, d *schema.Resour
 	if ns == "" {
 		return diag.Errorf("unable to find V2PersistentVolumeClaim name from API response")
 	}
-	d.SetId(ns)
+	d.SetId(ns + "/" + name)
 
-	err = waitForCreateV2PersistentVolumeClaimStatus(ctx, client, ns, name, d.Timeout(schema.TimeoutCreate))
-	if err != nil {
-		return diag.FromErr(err)
-	}
 	return resourceV2PersistentVolumeClaimRead(ctx, d, meta)
 }
 
 func buildCreateV2PersistentVolumeClaimParams(d *schema.ResourceData) map[string]interface{} {
+
 	bodyParams := map[string]interface{}{
 		"metadata": map[string]interface{}{
-			"name": d.Get("name"),
+			"namespace":   d.Get("namespace"),
+			"name":        d.Get("name"),
+			"annotations": utils.ValueIgnoreEmpty(d.Get("annotations")),
+			"labels":      utils.ValueIgnoreEmpty(d.Get("labels")),
+		},
+		"spec": map[string]interface{}{
+			"accessModes":      d.Get("access_modes"),
+			"resources":        buildCreateV2PVCResources(d),
+			"selector":         buildCreateV2PVCSelector(d),
+			"storageClassName": d.Get("storage_class_name"),
+			"volumeMode":       d.Get("volume_mode"),
+			"valumeName":       d.Get("valume_name"),
 		},
 	}
 
 	return bodyParams
 }
 
-func waitForCreateV2PersistentVolumeClaimStatus(ctx context.Context, client *golangsdk.ServiceClient, ns, name string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
-		Pending: []string{"Pending"},
-		Target:  []string{"Active"},
-		Refresh: func() (interface{}, string, error) {
-			resp, err := GetV2PersistentVolumeClaimDetail(client, ns, name)
-			if err != nil {
-				return nil, "failed", err
-			}
-			return resp, utils.PathSearch("status.phase", resp, "").(string), nil
-		},
-		Timeout:      timeout,
-		PollInterval: 10 * timeout,
-		Delay:        10 * time.Second,
+func buildCreateV2PVCResources(d *schema.ResourceData) map[string]interface{} {
+	resourcs := d.Get("resources").([]interface{})
+	if len(resourcs) == 0 {
+		return nil
 	}
-	_, err := stateConf.WaitForStateContext(ctx)
-	if err != nil {
-		return fmt.Errorf("waiting for the status of the V2PersistentVolumeClaim to complete active timeout: %s", err)
+
+	res := resourcs[0]
+	bodyParams := map[string]interface{}{
+		"limits":   utils.PathSearch("limits", res, nil),
+		"requests": utils.PathSearch("requests", res, nil),
 	}
-	return nil
+
+	return bodyParams
+}
+
+func buildCreateV2PVCSelector(d *schema.ResourceData) map[string]interface{} {
+	selector := d.Get("selector").([]interface{})
+	if len(selector) == 0 {
+		return nil
+	}
+
+	res := selector[0]
+	bodyParams := map[string]interface{}{
+		"matchExpressions": buildCreateV2PVCMatchExpressions(res),
+		"matchLabels":      utils.PathSearch("match_labels", res, nil),
+	}
+
+	return bodyParams
+}
+
+func buildCreateV2PVCMatchExpressions(selector interface{}) []map[string]interface{} {
+	expressions := utils.PathSearch("match_expressions", selector, nil)
+	if expressions == nil {
+		return nil
+	}
+
+	bodyParams := make([]map[string]interface{}, len(expressions.([]interface{})))
+
+	for i, v := range expressions.([]interface{}) {
+		bodyParams[i] = map[string]interface{}{
+			"key":      utils.PathSearch("key", v, nil),
+			"operator": utils.PathSearch("operator", v, nil),
+			"values":   utils.PathSearch("values", v, nil),
+		}
+	}
+
+	return bodyParams
 }
 
 func resourceV2PersistentVolumeClaimRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -210,8 +320,6 @@ func resourceV2PersistentVolumeClaimRead(_ context.Context, d *schema.ResourceDa
 		d.Set("api_version", utils.PathSearch("apiVersion", resp, nil)),
 		d.Set("kind", utils.PathSearch("kind", resp, nil)),
 		d.Set("name", utils.PathSearch("metadata.name", resp, nil)),
-		d.Set("annotations", utils.PathSearch("metadata.annotations", resp, nil)),
-		d.Set("labels", utils.PathSearch("metadata.labels", resp, nil)),
 		d.Set("creation_timestamp", utils.PathSearch("metadata.creationTimestamp", resp, nil)),
 		d.Set("resource_version", utils.PathSearch("metadata.resourceVersion", resp, nil)),
 		d.Set("uid", utils.PathSearch("metadata.uid", resp, nil)),
@@ -238,7 +346,7 @@ func resourceV2PersistentVolumeClaimDelete(ctx context.Context, d *schema.Resour
 
 	deleteV2PersistentVolumeClaimHttpUrl := "apis/cci/v2/namespaces/{namespace}/persistentvolumeclaims/{name}"
 	deleteV2PersistentVolumeClaimPath := client.Endpoint + deleteV2PersistentVolumeClaimHttpUrl
-	deleteV2PersistentVolumeClaimPath = strings.ReplaceAll(deleteV2PersistentVolumeClaimPath, "{namespace", namespace)
+	deleteV2PersistentVolumeClaimPath = strings.ReplaceAll(deleteV2PersistentVolumeClaimPath, "{namespace}", namespace)
 	deleteV2PersistentVolumeClaimPath = strings.ReplaceAll(deleteV2PersistentVolumeClaimPath, "{name}", name)
 	deleteV2PersistentVolumeClaimOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -250,36 +358,6 @@ func resourceV2PersistentVolumeClaimDelete(ctx context.Context, d *schema.Resour
 		return diag.Errorf("error deleting the specifies namespace (%s): %s", namespace, err)
 	}
 
-	err = waitForDeleteV2PersistentVolumeClaimStatus(ctx, client, namespace, name, d.Timeout(schema.TimeoutDelete))
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	return nil
-}
-
-func waitForDeleteV2PersistentVolumeClaimStatus(ctx context.Context, client *golangsdk.ServiceClient, ns, name string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
-		Pending: []string{"Active", "Terminating"},
-		Target:  []string{"DELETED"},
-		Refresh: func() (interface{}, string, error) {
-			resp, err := GetV2PersistentVolumeClaimDetail(client, ns, name)
-			if err != nil {
-				if _, ok := err.(golangsdk.ErrDefault404); ok {
-					return "", "DELETED", nil
-				}
-				return nil, "ERROR", err
-			}
-			return resp, utils.PathSearch("status.phase", resp, "").(string), nil
-		},
-		Timeout:      timeout,
-		PollInterval: 10 * timeout,
-		Delay:        10 * time.Second,
-	}
-	_, err := stateConf.WaitForStateContext(ctx)
-	if err != nil {
-		return fmt.Errorf("waiting for the status of the namespace to complete delete timeout: %s", err)
-	}
 	return nil
 }
 
@@ -299,4 +377,18 @@ func GetV2PersistentVolumeClaimDetail(client *golangsdk.ServiceClient, namespace
 	}
 
 	return utils.FlattenResponse(getV2PersistentVolumeClaimDetailResp)
+}
+
+func resourceV2PersistentVolumeClaimImportState(_ context.Context, d *schema.ResourceData,
+	_ interface{}) ([]*schema.ResourceData, error) {
+	importedId := d.Id()
+	parts := strings.Split(importedId, "/")
+	if len(parts) != 2 {
+		return nil, fmt.Errorf("invalid format specified for import ID, want '<namespace>/<name>', but '%s'", importedId)
+	}
+
+	d.Set("namespace", parts[0])
+	d.Set("name", parts[1])
+
+	return []*schema.ResourceData{d}, nil
 }
