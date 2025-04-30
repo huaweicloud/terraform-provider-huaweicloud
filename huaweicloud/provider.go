@@ -1454,6 +1454,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_organizations_resource_instances":       organizations.DataSourceOrganizationsResourceInstances(),
 			"huaweicloud_organizations_quotas":                   organizations.DataSourceOrganizationsQuotas(),
 			"huaweicloud_organizations_create_account_status":    organizations.DataSourceOrganizationsCreateAccountStatus(),
+			"huaweicloud_organizations_close_account_status":     organizations.DataSourceOrganizationsCloseAccountStatus(),
 
 			// Deprecated ongoing (without DeprecationMessage), used by other providers
 			"huaweicloud_vpc_route":        vpc.DataSourceVpcRouteV2(),
