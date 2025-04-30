@@ -20,10 +20,19 @@
                 "type": "string",
                 "optional": true
               },
+              "dhcp_domain_name": {
+                "type": "string",
+                "optional": true
+              },
               "dhcp_enable": {
                 "type": "bool",
                 "optional": true,
                 "default": true
+              },
+              "dhcp_ipv6_lease_time": {
+                "type": "string",
+                "optional": true,
+                "computed": true
               },
               "dhcp_lease_time": {
                 "type": "string",

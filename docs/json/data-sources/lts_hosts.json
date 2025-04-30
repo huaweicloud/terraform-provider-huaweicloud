@@ -1,0 +1,93 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_lts_hosts": {
+          "block": {
+            "attributes": {
+              "host_id_list": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The list of the host IDs.",
+                "optional": true
+              },
+              "hosts": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "host_id": "string",
+                      "host_ip": "string",
+                      "host_name": "string",
+                      "host_status": "string",
+                      "host_type": "string",
+                      "host_version": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "All hosts that match the filter parameters.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "filter": {
+                "block": {
+                  "attributes": {
+                    "host_ip_list": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The list of the host IPs.",
+                      "optional": true
+                    },
+                    "host_name_list": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The list of the host names.",
+                      "optional": true
+                    },
+                    "host_status": {
+                      "type": "string",
+                      "description": "The status of the host.",
+                      "optional": true
+                    },
+                    "host_version": {
+                      "type": "string",
+                      "description": "The version of the host.",
+                      "optional": true
+                    }
+                  },
+                  "description": "The filtering parameter to query hosts."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "LTS",
+            "name": "Log Tank Service",
+            "catalog": "Management & Governance",
+            "name_cn": "云日志服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

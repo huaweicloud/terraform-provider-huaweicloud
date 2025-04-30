@@ -1,0 +1,227 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cciv2_image_snapshot": {
+          "block": {
+            "attributes": {
+              "annotations": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "Specifies the annotations of the CCI Image Snapshot.",
+                "optional": true,
+                "computed": true
+              },
+              "api_version": {
+                "type": "string",
+                "description": "The API version of the CCI Image Snapshot.",
+                "computed": true
+              },
+              "creation_timestamp": {
+                "type": "string",
+                "description": "The creation timestamp of the CCI Image Snapshot.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "image_snapshot_size": {
+                "type": "number",
+                "description": "Specifies the size of the CCI Image Snapshot.",
+                "optional": true,
+                "computed": true
+              },
+              "kind": {
+                "type": "string",
+                "description": "The kind of the CCI Image Snapshot.",
+                "computed": true
+              },
+              "labels": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "Specifies the annotations of the CCI Image Snapshot.",
+                "optional": true,
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the CCI Image Snapshot.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "resource_version": {
+                "type": "string",
+                "description": "The resource version of the CCI Image Snapshot.",
+                "computed": true
+              },
+              "status": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "expire_date_time": "string",
+                      "images": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "digest": "string",
+                            "image": "string",
+                            "size_bytes": "number"
+                          }
+                        ]
+                      ],
+                      "last_updated_time": "string",
+                      "message": "string",
+                      "phase": "string",
+                      "reason": "string",
+                      "snapshot_id": "string",
+                      "snapshot_name": "string"
+                    }
+                  ]
+                ],
+                "description": "The status.",
+                "computed": true
+              },
+              "ttl_days_after_created": {
+                "type": "number",
+                "description": "The TTL days after created.",
+                "optional": true,
+                "computed": true
+              },
+              "uid": {
+                "type": "string",
+                "description": "The uid of the CCI Image Snapshot.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "building_config": {
+                "block": {
+                  "attributes": {
+                    "auto_create_eip": {
+                      "type": "bool",
+                      "description": "Specifies whether to auto create EIP.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "eip_id": {
+                      "type": "string",
+                      "description": "Specifies the EIP ID.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "namespace": {
+                      "type": "string",
+                      "description": "Specifies the namespace.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "block_types": {
+                    "auto_create_eip_attribute": {
+                      "block": {
+                        "attributes": {
+                          "bandwidth_charge_mode": {
+                            "type": "string",
+                            "description": "Specifies the bandwidth charge mode of EIP.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "bandwidth_id": {
+                            "type": "string",
+                            "description": "Specifies the ID of EIP.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "bandwidth_size": {
+                            "type": "number",
+                            "description": "Specifies the bandwidth size of EIP.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "ip_version": {
+                            "type": "number",
+                            "description": "Specifies the IP version used by pod.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "type": {
+                            "type": "string",
+                            "description": "Specifies the type of EIP.",
+                            "optional": true,
+                            "computed": true
+                          }
+                        },
+                        "description": "Specifies whether to auto create EIP."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    }
+                  },
+                  "description": "Specifies the building config of the CCI Image Snapshot."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "images": {
+                "block": {
+                  "attributes": {
+                    "image": {
+                      "type": "string",
+                      "description": "Specifies the image name.",
+                      "computed": true
+                    }
+                  },
+                  "description": "The images list of references to images to make image snapshot."
+                },
+                "nesting_mode": "list"
+              },
+              "registries": {
+                "block": {
+                  "attributes": {
+                    "image_pull_secret": {
+                      "type": "string",
+                      "description": "Specifies the image pull secret.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "insecure_skip_verify": {
+                      "type": "bool",
+                      "description": "Specifies whether to allow connections to SSL sites without certs.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "plain_http": {
+                      "type": "bool",
+                      "description": "Specifies whether the server uses http protocol.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "server": {
+                      "type": "string",
+                      "description": "Specifies the image repository server.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "Specifies the registries list."
+                },
+                "nesting_mode": "list"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

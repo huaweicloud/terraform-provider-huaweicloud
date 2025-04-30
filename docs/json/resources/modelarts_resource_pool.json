@@ -194,13 +194,11 @@
                           "az": {
                             "type": "string",
                             "description": "The AZ name.",
-                            "optional": true,
                             "computed": true
                           },
                           "count": {
                             "type": "number",
                             "description": "Number of nodes.",
-                            "optional": true,
                             "computed": true
                           }
                         },
@@ -237,6 +235,48 @@
                         "description": "The data volumes of the resource pool nodes."
                       },
                       "nesting_mode": "set"
+                    },
+                    "driver": {
+                      "block": {
+                        "attributes": {
+                          "version": {
+                            "type": "string",
+                            "description": "The driver version.",
+                            "optional": true,
+                            "computed": true
+                          }
+                        },
+                        "description": "The driver information."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "os": {
+                      "block": {
+                        "attributes": {
+                          "image_id": {
+                            "type": "string",
+                            "description": "The image ID.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "image_type": {
+                            "type": "string",
+                            "description": "The image type.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "The OS name of the image.",
+                            "optional": true,
+                            "computed": true
+                          }
+                        },
+                        "description": "The image information for the specified OS."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
                     },
                     "root_volume": {
                       "block": {

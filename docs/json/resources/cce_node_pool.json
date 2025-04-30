@@ -94,6 +94,10 @@
                 "optional": true,
                 "computed": true
               },
+              "partition": {
+                "type": "string",
+                "optional": true
+              },
               "password": {
                 "type": "string",
                 "optional": true,
