@@ -1629,9 +1629,10 @@ func Provider() *schema.Provider {
 			"huaweicloud_cce_cluster_certificate_revoke": cce.ResourceCertificateRevoke(),
 			"huaweicloud_cce_node_pool_scale":            cce.ResourceNodePoolScale(),
 
-			"huaweicloud_cts_tracker":             cts.ResourceCTSTracker(),
-			"huaweicloud_cts_data_tracker":        cts.ResourceCTSDataTracker(),
-			"huaweicloud_cts_notification":        cts.ResourceCTSNotification(),
+			"huaweicloud_cts_tracker":      cts.ResourceCTSTracker(),
+			"huaweicloud_cts_data_tracker": cts.ResourceCTSDataTracker(),
+			"huaweicloud_cts_notification": cts.ResourceCTSNotification(),
+
 			"huaweicloud_cci_namespace":           cci.ResourceCciNamespace(),
 			"huaweicloud_cci_network":             cci.ResourceCciNetworkV1(),
 			"huaweicloud_cci_pvc":                 cci.ResourcePersistentVolumeClaimV1(),
@@ -1642,6 +1643,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cciv2_service":           cci.ResourceV2Service(),
 			"huaweicloud_cciv2_deployment":        cci.ResourceV2Deployment(),
 			"huaweicloud_cciv2_persistent_volume": cci.ResourceV2PersistentVolume(),
+			"huaweicloud_cciv2_image_snapshot":    cci.ResourceV2ImageSnapshot(),
 
 			"huaweicloud_ccm_certificate":                ccm.ResourceCCMCertificate(),
 			"huaweicloud_ccm_certificate_apply":          ccm.ResourceCertificateApply(),
