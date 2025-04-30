@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 1.74.0 (April 30, 2025)
+
+* **New Data Source:**
+  + `huaweicloud_deh_instances` [GH-6728]
+
 ## 1.73.9 (April 24, 2025)
 
 ENHANCEMENTS:
