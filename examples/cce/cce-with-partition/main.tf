@@ -79,3 +79,28 @@ resource "huaweicloud_cce_node" "test" {
     volumetype = "SSD"
   }
 }
+
+resource "huaweicloud_cce_node_pool" "test" {
+  cluster_id               = huaweicloud_cce_cluster.test.id
+  name                     = var.random_resource_name
+  flavor_id                = try(data.huaweicloud_compute_flavors.test.flavors[0].id, "")
+  initial_node_count       = 1
+  availability_zone        = var.iec_availability_zone
+  password                 = "Overlord!!52259"
+  scall_enable             = false
+  min_node_count           = 0
+  max_node_count           = 0
+  scale_down_cooldown_time = 0
+  priority                 = 0
+  type                     = "vm"
+  partition                = huaweicloud_cce_partition.test.id
+
+  root_volume {
+    size       = 40
+    volumetype = "SSD"
+  }
+  data_volumes {
+    size       = 100
+    volumetype = "SSD"
+  }
+}
