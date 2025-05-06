@@ -133,7 +133,7 @@ func buildCreateCbrWholeImageBodyParams(d *schema.ResourceData) map[string]inter
 		"min_ram":               utils.ValueIgnoreEmpty(d.Get("min_ram")),
 		"image_tags":            utils.ExpandResourceTagsMap(d.Get("tags").(map[string]interface{})),
 		"enterprise_project_id": utils.ValueIgnoreEmpty(d.Get("enterprise_project_id")),
-		"whole_image_type":      "CBR",
+		"whole_image_type":      "aaa",
 	}
 
 	return bodyParams
