@@ -2,7 +2,8 @@
 subcategory: "Global Accelerator (GA)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_ga_endpoint"
-description: ""
+description: |-
+  Manages a GA endpoint resource within HuaweiCloud.
 ---
 
 # huaweicloud_ga_endpoint
@@ -69,6 +70,33 @@ In addition to all arguments above, the following attributes are exported:
 * `created_at` - Indicates when the endpoint was created.
 
 * `updated_at` - Indicates when the endpoint was updated.
+
+* `frozen_info` - The frozen details of cloud services or resources.
+  The [frozen_info](#endpoint_frozen_info) structure is documented below.
+
+<a name="endpoint_frozen_info"></a>
+The `frozen_info` block supports:
+
+* `status` - The status of a cloud service or resource.
+  The valid values are as follows:
+  + `0`: unfrozen/normal (The cloud service will recover after being unfrozen.)
+  + `1`: frozen (Resources and data will be retained, but the cloud service cannot be used.)
+  + `2`: deleted/terminated (Both resources and data will be cleared.)
+
+* `effect` - The status of the resource after being forzen.
+  The valid values are as follows:
+  + `1` (default): The resource is frozen and can be released.
+  + `2`: The resource is frozen and cannot be released.
+  + `3`: The resource is frozen and cannot be renewed.
+
+* `scene` - The service scenario.
+  The valid values are as follows:
+  + **ARREAR**: The cloud service is in arrears, including expiration of yearly/monthly resources and fee deduction
+    failure of pay-per-use resources.
+  + **POLICE**: The cloud service is frozen for public security.
+  + **ILLEGAL**: The cloud service is frozen due to violation of laws and regulations.
+  + **VERIFY**: The cloud service is frozen because the user fails to pass the real-name authentication.
+  + **PARTNER**: A partner freezes their customer's resources.
 
 ## Timeouts
 
