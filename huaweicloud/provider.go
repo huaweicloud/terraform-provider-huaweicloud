@@ -1052,6 +1052,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_lts_aom_accesses":                 lts.DataSourceAOMAccesses(),
 			"huaweicloud_lts_cce_accesses":                 lts.DataSourceCceAccesses(),
 			"huaweicloud_lts_groups":                       lts.DataSourceLtsGroups(),
+			"huaweicloud_lts_host_accesses":                lts.DataSourceHostAccesses(),
 			"huaweicloud_lts_hosts":                        lts.DataSourceHosts(),
 			"huaweicloud_lts_host_groups":                  lts.DataSourceLtsHostGroups(),
 			"huaweicloud_lts_notification_templates":       lts.DataSourceLtsNotificationTemplates(),
