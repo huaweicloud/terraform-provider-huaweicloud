@@ -5,10 +5,26 @@
         "huaweicloud_lts_keywords_alarm_rule": {
           "block": {
             "attributes": {
+              "alarm_action_rule_name": {
+                "type": "string",
+                "description": "The name of the alarm action rule associated with the keyword alarm rule.",
+                "optional": true
+              },
               "alarm_level": {
                 "type": "string",
                 "description": "Specifies the alarm level.",
                 "required": true
+              },
+              "alarm_rule_alias": {
+                "type": "string",
+                "description": "Specifies alias name of the keyword alarm rule.",
+                "optional": true,
+                "computed": true
+              },
+              "condition_expression": {
+                "type": "string",
+                "description": "The condition expression of the keyword alarm rule.",
+                "computed": true
               },
               "created_at": {
                 "type": "string",
@@ -35,6 +51,12 @@
                 "required": true,
                 "forcenew": true
               },
+              "notification_frequency": {
+                "type": "number",
+                "description": "The notification frequency of the keyword alarm rule, in minutes.",
+                "optional": true,
+                "computed": true
+              },
               "recovery_frequency": {
                 "type": "number",
                 "description": "Specifies the frequency to recover the alarm.",
@@ -48,9 +70,7 @@
               "send_notifications": {
                 "type": "bool",
                 "description": "Specifies whether to send notifications.",
-                "optional": true,
-                "computed": true,
-                "forcenew": true
+                "optional": true
               },
               "send_recovery_notifications": {
                 "type": "bool",
@@ -146,10 +166,22 @@
                       "description": "Specifies the log group id.",
                       "required": true
                     },
+                    "log_group_name": {
+                      "type": "string",
+                      "description": "The name of the log group.",
+                      "optional": true,
+                      "computed": true
+                    },
                     "log_stream_id": {
                       "type": "string",
                       "description": "Specifies the log stream id.",
                       "required": true
+                    },
+                    "log_stream_name": {
+                      "type": "string",
+                      "description": "The name of the log stream.",
+                      "optional": true,
+                      "computed": true
                     },
                     "number": {
                       "type": "number",
@@ -179,27 +211,22 @@
                       "type": "string",
                       "description": "Specifies the notification language.",
                       "optional": true,
-                      "computed": true,
-                      "forcenew": true
+                      "computed": true
                     },
                     "template_name": {
                       "type": "string",
                       "description": "Specifies the notification template name.",
-                      "required": true,
-                      "forcenew": true
+                      "required": true
                     },
                     "timezone": {
                       "type": "string",
                       "description": "Specifies the timezone.",
-                      "optional": true,
-                      "computed": true,
-                      "forcenew": true
+                      "optional": true
                     },
                     "user_name": {
                       "type": "string",
                       "description": "Specifies the user name.",
-                      "required": true,
-                      "forcenew": true
+                      "required": true
                     }
                   },
                   "block_types": {
@@ -209,41 +236,95 @@
                           "display_name": {
                             "type": "string",
                             "description": "Specifies the display name.",
-                            "optional": true,
-                            "computed": true,
-                            "forcenew": true
+                            "optional": true
                           },
                           "name": {
                             "type": "string",
                             "description": "Specifies the topic name.",
-                            "required": true,
-                            "forcenew": true
+                            "required": true
                           },
                           "push_policy": {
-                            "type": "string",
+                            "type": "number",
                             "description": "Specifies the push policy.",
-                            "optional": true,
-                            "computed": true,
-                            "forcenew": true
+                            "optional": true
                           },
                           "topic_urn": {
                             "type": "string",
                             "description": "Specifies the topic URN.",
-                            "required": true,
-                            "forcenew": true
+                            "required": true
                           }
                         },
                         "description": "Specifies the SMN topics."
                       },
                       "nesting_mode": "list",
-                      "forcenew": true,
                       "min_items": 1
                     }
                   },
-                  "description": "Specifies the notification rule."
+                  "description": "schema:{\"Deprecated\":true};The notification rule of the keyword alarm rule."
                 },
                 "nesting_mode": "list",
                 "forcenew": true,
+                "max_items": 1
+              },
+              "notification_save_rule": {
+                "block": {
+                  "attributes": {
+                    "language": {
+                      "type": "string",
+                      "description": "Specifies the notification language.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "template_name": {
+                      "type": "string",
+                      "description": "Specifies the notification template name.",
+                      "required": true
+                    },
+                    "timezone": {
+                      "type": "string",
+                      "description": "Specifies the timezone.",
+                      "optional": true
+                    },
+                    "user_name": {
+                      "type": "string",
+                      "description": "Specifies the user name.",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "topics": {
+                      "block": {
+                        "attributes": {
+                          "display_name": {
+                            "type": "string",
+                            "description": "Specifies the display name.",
+                            "optional": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "Specifies the topic name.",
+                            "required": true
+                          },
+                          "push_policy": {
+                            "type": "number",
+                            "description": "Specifies the push policy.",
+                            "optional": true
+                          },
+                          "topic_urn": {
+                            "type": "string",
+                            "description": "Specifies the topic URN.",
+                            "required": true
+                          }
+                        },
+                        "description": "Specifies the SMN topics."
+                      },
+                      "nesting_mode": "list",
+                      "min_items": 1
+                    }
+                  },
+                  "description": "The notification rule of the keyword alarm rule."
+                },
+                "nesting_mode": "list",
                 "max_items": 1
               }
             }

@@ -1,0 +1,76 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_servicestagev3_component_records": {
+          "block": {
+            "attributes": {
+              "application_id": {
+                "type": "string",
+                "description": "The ID of the application to which the component belongs.",
+                "required": true
+              },
+              "component_id": {
+                "type": "string",
+                "description": "The ID of the component to which the records belong.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "records": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "begin_time": "string",
+                      "current_used": "bool",
+                      "deploy_type": "string",
+                      "description": "string",
+                      "end_time": "string",
+                      "instance_id": "string",
+                      "jobs": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "job_id": "string",
+                            "job_info": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "first_batch_replica": "number",
+                                  "first_batch_weight": "number",
+                                  "remaining_batch": "number",
+                                  "replica": "number",
+                                  "source_url": "string"
+                                }
+                              ]
+                            ],
+                            "sequence": "number"
+                          }
+                        ]
+                      ],
+                      "status": "string",
+                      "version": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of component execution record.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the components are located.",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -68,6 +68,13 @@ func DataSourcePrivateTransitIps() *schema.Resource {
 				Optional:    true,
 				Description: "The ID of the enterprise project to which the transit IPs belong.",
 			},
+			// This field is not tested due to insufficient testing conditions.
+			"transit_subnet_id": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: "The ID of the the transit subnet.",
+			},
 			"transit_ips": {
 				Type:        schema.TypeList,
 				Elem:        transitIpSchema(),
@@ -106,6 +113,11 @@ func transitIpSchema() *schema.Resource {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Computed:    true,
 				Description: "The key/value pairs to associate the transit IPs used for filter.",
+			},
+			"status": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The status of the transit IP.",
 			},
 			"created_at": {
 				Type:        schema.TypeString,
@@ -200,6 +212,7 @@ func flattenListTransitIpsResponseBody(resp []interface{}) []interface{} {
 			"subnet_id":             utils.PathSearch("virsubnet_id", v, nil),
 			"gateway_id":            utils.PathSearch("gateway_id", v, nil),
 			"tags":                  utils.FlattenTagsToMap(utils.PathSearch("tags", v, nil)),
+			"status":                utils.PathSearch("status", v, nil),
 			"created_at":            utils.PathSearch("created_at", v, nil),
 			"updated_at":            utils.PathSearch("updated_at", v, nil),
 			"network_interface_id":  utils.PathSearch("network_interface_id", v, nil),
@@ -231,6 +244,7 @@ func filterListTransitIpsResponseBody(all []interface{}, d *schema.ResourceData)
 func buildListTransitIpsQueryParams(d *schema.ResourceData, cfg *config.Config) string {
 	res := ""
 	epsID := cfg.GetEnterpriseProjectID(d)
+	transitSubnetId := d.Get("transit_subnet_id").([]interface{})
 
 	if v, ok := d.GetOk("transit_ip_id"); ok {
 		res = fmt.Sprintf("%s&id=%v", res, v)
@@ -246,6 +260,11 @@ func buildListTransitIpsQueryParams(d *schema.ResourceData, cfg *config.Config) 
 	}
 	if v, ok := d.GetOk("network_interface_id"); ok {
 		res = fmt.Sprintf("%s&network_interface_id=%v", res, v)
+	}
+	if len(transitSubnetId) > 0 {
+		for _, v := range transitSubnetId {
+			res = fmt.Sprintf("%s&transit_subnet_id=%v", res, v)
+		}
 	}
 	if epsID != "" {
 		res = fmt.Sprintf("%s&enterprise_project_id=%v", res, epsID)

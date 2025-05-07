@@ -7,20 +7,12 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-)
-
-const (
-	PrivateSpecTypeSmall      string = "Small"
-	PrivateSpecTypeMedium     string = "Medium"
-	PrivateSpecTypeLarge      string = "Large"
-	PrivateSpecTypeExtraLarge string = "Extra-Large"
 )
 
 // @API NAT POST /v3/{project_id}/private-nat/gateways
@@ -68,12 +60,6 @@ func ResourcePrivateGateway() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				Description: "The specification of the private NAT gateway.",
-				ValidateFunc: validation.StringInSlice([]string{
-					PrivateSpecTypeSmall,
-					PrivateSpecTypeMedium,
-					PrivateSpecTypeLarge,
-					PrivateSpecTypeExtraLarge,
-				}, false),
 			},
 			"enterprise_project_id": {
 				Type:        schema.TypeString,

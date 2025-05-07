@@ -1,0 +1,124 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_deh_instances": {
+          "block": {
+            "attributes": {
+              "availability_zone": {
+                "type": "string",
+                "description": "Specifies the AZ to which the dedicated host belongs.",
+                "optional": true
+              },
+              "dedicated_host_id": {
+                "type": "string",
+                "description": "Specifies the ID of the dedicated host.",
+                "optional": true
+              },
+              "dedicated_hosts": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "allocated_at": "string",
+                      "auto_placement": "string",
+                      "availability_zone": "string",
+                      "available_memory": "number",
+                      "available_vcpus": "number",
+                      "dedicated_host_id": "string",
+                      "host_properties": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "available_instance_capacities": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "flavor": "string"
+                                }
+                              ]
+                            ],
+                            "cores": "number",
+                            "host_type": "string",
+                            "host_type_name": "string",
+                            "memory": "number",
+                            "sockets": "number",
+                            "vcpus": "number"
+                          }
+                        ]
+                      ],
+                      "instance_total": "number",
+                      "instance_uuids": [
+                        "list",
+                        "string"
+                      ],
+                      "name": "string",
+                      "state": "string",
+                      "sys_tags": [
+                        "map",
+                        "string"
+                      ],
+                      "tags": [
+                        "map",
+                        "string"
+                      ]
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of dedicated hosts.",
+                "computed": true
+              },
+              "flavor": {
+                "type": "string",
+                "description": "Specifies the flavor ID.",
+                "optional": true
+              },
+              "host_type": {
+                "type": "string",
+                "description": "Specifies the type of the dedicated host.",
+                "optional": true
+              },
+              "host_type_name": {
+                "type": "string",
+                "description": "Specifies the name of the dedicated host type.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_uuid": {
+                "type": "string",
+                "description": "Specifies the ID of the ECS on the dedicated host.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the dedicated host.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "state": {
+                "type": "string",
+                "description": "Specifies the status of the dedicated host.",
+                "optional": true
+              },
+              "tags": {
+                "type": "string",
+                "description": "Specifies the tags of the dedicated host.",
+                "optional": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

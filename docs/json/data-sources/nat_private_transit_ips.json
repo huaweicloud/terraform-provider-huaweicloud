@@ -63,6 +63,7 @@
                       "id": "string",
                       "ip_address": "string",
                       "network_interface_id": "string",
+                      "status": "string",
                       "subnet_id": "string",
                       "tags": [
                         "map",
@@ -74,6 +75,14 @@
                 ],
                 "description": "The list of the transit IPs.",
                 "computed": true
+              },
+              "transit_subnet_id": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The ID of the the transit subnet.",
+                "optional": true
               }
             }
           },

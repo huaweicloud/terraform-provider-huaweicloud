@@ -33,7 +33,7 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `storage_spec_code` - (Required, String, ForceNew) Specifies the storage specification code of the connector.
+* `storage_spec_code` - (Optional, String, ForceNew) Specifies the storage specification code of the connector.
 
   Changing this parameter will create a new resource.
 

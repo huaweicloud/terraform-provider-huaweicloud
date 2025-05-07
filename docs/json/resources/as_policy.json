@@ -19,6 +19,10 @@
                 "optional": true,
                 "computed": true
               },
+              "create_time": {
+                "type": "string",
+                "computed": true
+              },
               "id": {
                 "type": "string",
                 "computed": true

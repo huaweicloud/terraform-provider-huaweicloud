@@ -160,6 +160,12 @@ In addition to all arguments above, the following attributes are exported:
 
 * `category_name` - The category name of the media asset.
 
+## Timeouts
+
+This resource provides the following timeouts configuration options:
+
+* `delete` - Defaults to `60` seconds.
+
 ## Import
 
 The media asset can be imported using the `id`, e.g.

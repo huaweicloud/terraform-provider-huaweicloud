@@ -1,0 +1,535 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cciv2_deployment": {
+          "block": {
+            "attributes": {
+              "annotations": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "computed": true
+              },
+              "api_version": {
+                "type": "string",
+                "computed": true
+              },
+              "creation_timestamp": {
+                "type": "string",
+                "computed": true
+              },
+              "generation": {
+                "type": "number",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "kind": {
+                "type": "string",
+                "computed": true
+              },
+              "min_ready_seconds": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "namespace": {
+                "type": "string",
+                "required": true
+              },
+              "progress_deadline_seconds": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "replicas": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "resource_version": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "conditions": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "last_transition_time": "string",
+                            "last_update_time": "string",
+                            "message": "string",
+                            "reason": "string",
+                            "status": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "observed_generation": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "uid": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "selector": {
+                "block": {
+                  "attributes": {
+                    "match_labels": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "block_types": {
+                    "match_expressions": {
+                      "block": {
+                        "attributes": {
+                          "key": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "operator": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "values": {
+                            "type": [
+                              "set",
+                              "string"
+                            ],
+                            "optional": true,
+                            "computed": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "set"
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "strategy": {
+                "block": {
+                  "attributes": {
+                    "rolling_update": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "optional": true,
+                      "computed": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "template": {
+                "block": {
+                  "block_types": {
+                    "metadata": {
+                      "block": {
+                        "attributes": {
+                          "annotations": {
+                            "type": [
+                              "map",
+                              "string"
+                            ],
+                            "optional": true,
+                            "computed": true
+                          },
+                          "labels": {
+                            "type": [
+                              "map",
+                              "string"
+                            ],
+                            "optional": true,
+                            "computed": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "spec": {
+                      "block": {
+                        "attributes": {
+                          "active_deadline_seconds": {
+                            "type": "number",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "dns_policy": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "hostname": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "node_name": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "overhead": {
+                            "type": [
+                              "map",
+                              "string"
+                            ],
+                            "optional": true,
+                            "computed": true
+                          },
+                          "restart_policy": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "scheduler_name": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "set_hostname_as_pqdn": {
+                            "type": "bool",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "share_process_namespace": {
+                            "type": "bool",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "termination_grace_period_seconds": {
+                            "type": "number",
+                            "optional": true,
+                            "computed": true
+                          }
+                        },
+                        "block_types": {
+                          "affinity": {
+                            "block": {
+                              "block_types": {
+                                "node_affinity": {
+                                  "block": {
+                                    "block_types": {
+                                      "required_during_scheduling_ignored_during_execution": {
+                                        "block": {
+                                          "block_types": {
+                                            "node_selector_terms": {
+                                              "block": {
+                                                "block_types": {
+                                                  "match_expressions": {
+                                                    "block": {
+                                                      "attributes": {
+                                                        "key": {
+                                                          "type": "string",
+                                                          "required": true
+                                                        },
+                                                        "operator": {
+                                                          "type": "string",
+                                                          "required": true
+                                                        },
+                                                        "values": {
+                                                          "type": [
+                                                            "set",
+                                                            "string"
+                                                          ],
+                                                          "optional": true,
+                                                          "computed": true
+                                                        }
+                                                      }
+                                                    },
+                                                    "nesting_mode": "set"
+                                                  }
+                                                }
+                                              },
+                                              "nesting_mode": "set",
+                                              "min_items": 1
+                                            }
+                                          }
+                                        },
+                                        "nesting_mode": "list",
+                                        "max_items": 1
+                                      }
+                                    }
+                                  },
+                                  "nesting_mode": "list",
+                                  "max_items": 1
+                                },
+                                "pod_anti_affinity": {
+                                  "block": {
+                                    "block_types": {
+                                      "preferred_during_scheduling_ignored_during_execution": {
+                                        "block": {
+                                          "attributes": {
+                                            "weight": {
+                                              "type": "number",
+                                              "required": true
+                                            }
+                                          },
+                                          "block_types": {
+                                            "pod_affinity_term": {
+                                              "block": {
+                                                "attributes": {
+                                                  "namespaces": {
+                                                    "type": [
+                                                      "set",
+                                                      "string"
+                                                    ],
+                                                    "optional": true,
+                                                    "computed": true
+                                                  },
+                                                  "topology_key": {
+                                                    "type": "string",
+                                                    "required": true
+                                                  }
+                                                },
+                                                "block_types": {
+                                                  "label_selector": {
+                                                    "block": {
+                                                      "attributes": {
+                                                        "match_labels": {
+                                                          "type": [
+                                                            "map",
+                                                            "string"
+                                                          ],
+                                                          "optional": true,
+                                                          "computed": true
+                                                        }
+                                                      },
+                                                      "block_types": {
+                                                        "match_expressions": {
+                                                          "block": {
+                                                            "attributes": {
+                                                              "key": {
+                                                                "type": "string",
+                                                                "required": true
+                                                              },
+                                                              "operator": {
+                                                                "type": "string",
+                                                                "required": true
+                                                              },
+                                                              "values": {
+                                                                "type": [
+                                                                  "set",
+                                                                  "string"
+                                                                ],
+                                                                "optional": true,
+                                                                "computed": true
+                                                              }
+                                                            }
+                                                          },
+                                                          "nesting_mode": "set"
+                                                        }
+                                                      }
+                                                    },
+                                                    "nesting_mode": "list",
+                                                    "max_items": 1
+                                                  }
+                                                }
+                                              },
+                                              "nesting_mode": "list",
+                                              "min_items": 1,
+                                              "max_items": 1
+                                            }
+                                          }
+                                        },
+                                        "nesting_mode": "set"
+                                      },
+                                      "required_during_scheduling_ignored_during_execution": {
+                                        "block": {
+                                          "attributes": {
+                                            "namespaces": {
+                                              "type": [
+                                                "set",
+                                                "string"
+                                              ],
+                                              "optional": true,
+                                              "computed": true
+                                            },
+                                            "topology_key": {
+                                              "type": "string",
+                                              "required": true
+                                            }
+                                          },
+                                          "block_types": {
+                                            "label_selector": {
+                                              "block": {
+                                                "attributes": {
+                                                  "match_labels": {
+                                                    "type": [
+                                                      "map",
+                                                      "string"
+                                                    ],
+                                                    "optional": true,
+                                                    "computed": true
+                                                  }
+                                                },
+                                                "block_types": {
+                                                  "match_expressions": {
+                                                    "block": {
+                                                      "attributes": {
+                                                        "key": {
+                                                          "type": "string",
+                                                          "required": true
+                                                        },
+                                                        "operator": {
+                                                          "type": "string",
+                                                          "required": true
+                                                        },
+                                                        "values": {
+                                                          "type": [
+                                                            "set",
+                                                            "string"
+                                                          ],
+                                                          "optional": true,
+                                                          "computed": true
+                                                        }
+                                                      }
+                                                    },
+                                                    "nesting_mode": "set"
+                                                  }
+                                                }
+                                              },
+                                              "nesting_mode": "list",
+                                              "max_items": 1
+                                            }
+                                          }
+                                        },
+                                        "nesting_mode": "set"
+                                      }
+                                    }
+                                  },
+                                  "nesting_mode": "list",
+                                  "max_items": 1
+                                }
+                              }
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          },
+                          "containers": {
+                            "block": {
+                              "attributes": {
+                                "image": {
+                                  "type": "string",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "required": true
+                                }
+                              },
+                              "block_types": {
+                                "env": {
+                                  "block": {
+                                    "attributes": {
+                                      "name": {
+                                        "type": "string",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "value": {
+                                        "type": "string",
+                                        "optional": true,
+                                        "computed": true
+                                      }
+                                    }
+                                  },
+                                  "nesting_mode": "set"
+                                },
+                                "resources": {
+                                  "block": {
+                                    "attributes": {
+                                      "limits": {
+                                        "type": [
+                                          "map",
+                                          "string"
+                                        ],
+                                        "optional": true
+                                      },
+                                      "requests": {
+                                        "type": [
+                                          "map",
+                                          "string"
+                                        ],
+                                        "optional": true
+                                      }
+                                    }
+                                  },
+                                  "nesting_mode": "list",
+                                  "max_items": 1
+                                }
+                              }
+                            },
+                            "nesting_mode": "list",
+                            "min_items": 1
+                          },
+                          "image_pull_secrets": {
+                            "block": {
+                              "attributes": {
+                                "name": {
+                                  "type": "string",
+                                  "optional": true,
+                                  "computed": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "set"
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

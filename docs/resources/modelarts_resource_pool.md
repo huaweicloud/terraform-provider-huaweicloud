@@ -249,6 +249,12 @@ The `resources` block supports:
 * `volume_group_configs` - (Optional, List) Specifies the extend configurations of the volume groups.  
   The [volume_group_configs](#ModelartsResourcePool_Resources_volume_group_configs) structure is documented below.
 
+* `os` - (Optional, List) Specifies the image information for the specified OS.  
+  The [os](#ModelartsResourcePool_Resources_os_info) structure is documented below.
+
+* `driver` - (Optional, List) Specifies the driver information.  
+  The [driver](#ModelartsResourcePool_Resources_driver) structure is documented below.
+
 <a name="ModelartsResourcePool_Resources_azs"></a>
 The `azs` block supports:
 
@@ -322,6 +328,20 @@ The `lvm_config` block supports:
   + **striped**
 
 * `path` - (Optional, String) Specifies the volume mount path.
+
+<a name="ModelartsResourcePool_Resources_os_info"></a>
+The `os` block supports:
+
+* `name` - (Optional, String) Specifies the OS name of the image.
+
+* `image_id` - (Optional, String) Specifies the image ID.
+
+* `image_type` - (Optional, String) Specifies the image type.
+
+<a name="ModelartsResourcePool_Resources_driver"></a>
+The `driver` block supports:
+
+* `version` - (Optional, String) Specifies the driver version.
 
 <a name="ModelartsResourcePool_Clusters"></a>
 The `clusters` block supports:

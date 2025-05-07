@@ -1,0 +1,43 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_servicestagev3_component_action": {
+          "block": {
+            "attributes": {
+              "action": {
+                "type": "string",
+                "description": "The action type of the component execution.",
+                "required": true
+              },
+              "application_id": {
+                "type": "string",
+                "description": "The application ID to which the componnet belongs.",
+                "required": true
+              },
+              "component_id": {
+                "type": "string",
+                "description": "The ID of the component to be operated.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "parameters": {
+                "type": "string",
+                "description": "The job parameters.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the component is located.",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

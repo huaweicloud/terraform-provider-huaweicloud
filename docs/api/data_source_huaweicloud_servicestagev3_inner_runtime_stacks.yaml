@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_servicestagev3_inner_runtime_stacks
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: ServiceStage
+paths:
+    /v3/{project_id}/cas/innerimages:
+        GET:
+            tag: ServiceStage

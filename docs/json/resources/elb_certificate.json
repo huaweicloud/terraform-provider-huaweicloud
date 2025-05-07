@@ -9,6 +9,10 @@
                 "type": "string",
                 "required": true
               },
+              "common_name": {
+                "type": "string",
+                "computed": true
+              },
               "create_time": {
                 "type": "string",
                 "computed": true

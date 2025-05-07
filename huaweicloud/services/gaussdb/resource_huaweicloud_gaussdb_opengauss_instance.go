@@ -47,6 +47,7 @@ const (
 // @API BSS POST /v2/orders/subscriptions/resources/autorenew/{instance_id}
 // @API BSS DELETE /v2/orders/subscriptions/resources/autorenew/{instance_id}
 // @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
+// @API EPS POST /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrat
 func ResourceOpenGaussInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceOpenGaussInstanceCreate,

@@ -401,6 +401,10 @@ The following arguments are supported:
   which is supported by clusters of v1.23.6-r0 to v1.25 or clusters of v1.25.2-r0 or later versions.
   The [object](#hostname_config) structure is documented below.
 
+* `partition` - (Optional, String, NonUpdatable) Specifies the partition to which the node belongs. Value options:
+  + **center**: center cloud.
+  + The availability zone ID of the edge station.
+
 <a name="extension_nics"></a>
 The `extension_nics` block supports:
 

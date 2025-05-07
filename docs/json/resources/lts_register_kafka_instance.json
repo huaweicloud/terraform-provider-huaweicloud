@@ -31,7 +31,8 @@
                     "pwd": {
                       "type": "string",
                       "description": "The password of the SASL_SSL user of the Kafka instance.",
-                      "optional": true
+                      "optional": true,
+                      "sensitive": true
                     },
                     "user_name": {
                       "type": "string",

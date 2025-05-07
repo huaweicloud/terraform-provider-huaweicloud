@@ -20,17 +20,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-type (
-	PublicSpecType string
-)
-
-const (
-	PublicSpecTypeSmall      PublicSpecType = "1"
-	PublicSpecTypeMedium     PublicSpecType = "2"
-	PublicSpecTypeLarge      PublicSpecType = "3"
-	PublicSpecTypeExtraLarge PublicSpecType = "4"
-)
-
 // @API NAT POST /v2/{project_id}/nat_gateways
 // @API NAT GET /v2/{project_id}/nat_gateways/{nat_gateway_id}
 // @API NAT PUT /v2/{project_id}/nat_gateways/{nat_gateway_id}

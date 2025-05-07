@@ -2,45 +2,58 @@ package vod
 
 import (
 	"fmt"
-	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	vod "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vod/v1/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func getResourceCategory(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := conf.HcVodV1Client(acceptance.HW_REGION_NAME)
+	var (
+		region  = acceptance.HW_REGION_NAME
+		product = "vod"
+		httpUrl = "v1.0/{project_id}/asset/category"
+	)
+
+	client, err := conf.NewServiceClient(product, region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating VOD client: %s", err)
 	}
 
-	id, err := strconv.ParseInt(state.Primary.ID, 10, 32)
+	requestPath := client.Endpoint + httpUrl
+	requestPath += fmt.Sprintf("?id=%s", state.Primary.ID)
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	resp, err := client.Request("GET", requestPath, &requestOpt)
+	if err != nil {
+		return nil, fmt.Errorf("error creating VOD client: %s", err)
+	}
+
+	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := client.ListAssetCategory(&vod.ListAssetCategoryRequest{Id: int32(id)})
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving VOD media category: %d", id)
+	categoryResp := utils.PathSearch("[0]", respBody, nil)
+	if categoryResp == nil {
+		return nil, golangsdk.ErrDefault404{}
 	}
 
-	categoryList := *resp.Body
-	if len(categoryList) == 0 {
-		return nil, fmt.Errorf("unable to retrieve VOD media category: %d", id)
-	}
-	category := categoryList[0]
-
-	return category, nil
+	return categoryResp, nil
 }
 
 func TestAccMediaCategory_basic(t *testing.T) {
-	var category vod.QueryCategoryRsp
+	var category interface{}
 	rName := acceptance.RandomAccResourceName()
 	updateName := rName + "-update"
 	resourceName := "huaweicloud_vod_media_category.test"

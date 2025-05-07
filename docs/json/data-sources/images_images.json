@@ -5,6 +5,10 @@
         "huaweicloud_images_images": {
           "block": {
             "attributes": {
+              "__support_agent_list": {
+                "type": "string",
+                "optional": true
+              },
               "architecture": {
                 "type": "string",
                 "optional": true
@@ -35,6 +39,7 @@
                   [
                     "object",
                     {
+                      "__support_agent_list": "string",
                       "active_at": "string",
                       "architecture": "string",
                       "backup_id": "string",

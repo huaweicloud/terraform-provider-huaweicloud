@@ -1,0 +1,237 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cciv2_service": {
+          "block": {
+            "attributes": {
+              "annotations": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "Specifies the annotations of the CCI Service.",
+                "optional": true,
+                "computed": true
+              },
+              "api_version": {
+                "type": "string",
+                "description": "The API version of the CCI Service.",
+                "computed": true
+              },
+              "cluster_ip": {
+                "type": "string",
+                "description": "Specifies the cluster IP of the CCI Service.",
+                "computed": true
+              },
+              "cluster_ips": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the cluster IPs of the CCI Service.",
+                "computed": true
+              },
+              "creation_timestamp": {
+                "type": "string",
+                "description": "The creation timestamp of the namespace.",
+                "computed": true
+              },
+              "external_name": {
+                "type": "string",
+                "description": "The external name of the CCI Service.",
+                "computed": true
+              },
+              "finalizers": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The finalizers of the namespace.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ip_families": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The IP families of the CCI Service.",
+                "computed": true
+              },
+              "ip_family_policy": {
+                "type": "string",
+                "description": "The IP family policy of the CCI Service.",
+                "computed": true
+              },
+              "kind": {
+                "type": "string",
+                "description": "The kind of the CCI Service.",
+                "computed": true
+              },
+              "labels": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "Specifies the labels of the CCI Service.",
+                "optional": true,
+                "computed": true
+              },
+              "load_balancer_ip": {
+                "type": "string",
+                "description": "The load balancer IP of the CCI Service.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the CCI Service.",
+                "required": true
+              },
+              "namespace": {
+                "type": "string",
+                "description": "Specifies the namespace of the CCI Service.",
+                "required": true
+              },
+              "publish_not_ready_addresses": {
+                "type": "bool",
+                "description": "Whether the publish is not ready addresses of the CCI Service.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "resource_version": {
+                "type": "string",
+                "description": "The resource version of the namespace.",
+                "computed": true
+              },
+              "selector": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "Specifies the selector of the CCI Service.",
+                "optional": true,
+                "computed": true
+              },
+              "session_affinity": {
+                "type": "string",
+                "description": "The session affinity of the CCI Service.",
+                "computed": true
+              },
+              "status": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "conditions": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "last_transition_time": "string",
+                            "message": "string",
+                            "observe_generation": "string",
+                            "reason": "string",
+                            "status": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "loadbalancer": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "ingress": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "ip": "string",
+                                  "ports": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "error": "string",
+                                        "port": "number",
+                                        "protocol": "string"
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The status of the namespace.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The type of the CCI Service.",
+                "optional": true,
+                "computed": true
+              },
+              "uid": {
+                "type": "string",
+                "description": "The uid of the namespace.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "ports": {
+                "block": {
+                  "attributes": {
+                    "app_protocol": {
+                      "type": "string",
+                      "description": "The app protocol.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "The name.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "port": {
+                      "type": "number",
+                      "description": "The port.",
+                      "required": true
+                    },
+                    "protocol": {
+                      "type": "string",
+                      "description": "The protocol.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "target_port": {
+                      "type": "number",
+                      "description": "The target port.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "Specifies the ports of the CCI Service."
+                },
+                "nesting_mode": "set"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

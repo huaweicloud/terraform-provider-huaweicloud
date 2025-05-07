@@ -1,0 +1,52 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_organizations_create_account_status": {
+          "block": {
+            "attributes": {
+              "create_account_statuses": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "account_id": "string",
+                      "account_name": "string",
+                      "completed_at": "string",
+                      "created_at": "string",
+                      "failure_reason": "string",
+                      "id": "string",
+                      "state": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of create account statuses.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "states": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the list of states.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "Organizations",
+            "name": "Organizations",
+            "catalog": "Management & Governance",
+            "name_cn": "组织",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

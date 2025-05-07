@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_servicestagev3_runtime_stack_batch_release
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: ServiceStage
+paths:
+    /v3/{project_id}/cas/runtimestacks:
+        GET:
+            tag: ServiceStage
+    /v3/{project_id}/cas/runtimestacks/action:
+        POST:
+            tag: ServiceStage

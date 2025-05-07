@@ -291,6 +291,22 @@ func modelartsResourcePoolResourceFlavorSchema() *schema.Resource {
 				},
 				Description: `The extend configurations of the volume groups.`,
 			},
+			"os": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Computed:    true,
+				MaxItems:    1,
+				Elem:        modelartsResourcePoolResourcesOsSchema(),
+				Description: `The image information for the specified OS.`,
+			},
+			"driver": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Computed:    true,
+				MaxItems:    1,
+				Elem:        modelartsResourcePoolResourcesDriverSchema(),
+				Description: `The driver information.`,
+			},
 			// Deprecated parameter(s).
 			"post_install": {
 				Type:     schema.TypeString,
@@ -337,13 +353,11 @@ func modelartsResourcePoolResourcesAzsSchema() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"az": {
 				Type:        schema.TypeString,
-				Optional:    true,
 				Computed:    true,
 				Description: `The AZ name.`,
 			},
 			"count": {
 				Type:        schema.TypeInt,
-				Optional:    true,
 				Computed:    true,
 				Description: `Number of nodes.`,
 			},
@@ -403,6 +417,44 @@ func modelartsResourcePoolResourcesDataVolumeSchema() *schema.Resource {
 		},
 	}
 	return &sc
+}
+
+func modelartsResourcePoolResourcesOsSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `The OS name of the image.`,
+			},
+			"image_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `The image ID.`,
+			},
+			"image_type": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `The image type.`,
+			},
+		},
+	}
+}
+
+func modelartsResourcePoolResourcesDriverSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"version": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `The driver version.`,
+			},
+		},
+	}
 }
 
 func modelartsResourcePoolClustersSchema() *schema.Resource {
@@ -726,6 +778,8 @@ func buildResourcePoolSpecResources(d *schema.ResourceData) []map[string]interfa
 					"rootVolume":         buildResourcePoolResourcesRootVolume(raw["root_volume"].([]interface{})),
 					"dataVolumes":        buildResourcePoolResourcesDataVolumes(raw["data_volumes"].(*schema.Set)),
 					"volumeGroupConfigs": buildResourcePoolResourcesVolumeGroupConfigs(raw["volume_group_configs"].(*schema.Set)),
+					"os":                 buildResourcePoolResourcesOsInfo(raw["os"].([]interface{})),
+					"driver":             buildResourcePoolResourcesDriver(raw["driver"].([]interface{})),
 				}
 			}
 		}
@@ -751,7 +805,7 @@ func buildResourcePoolResourcesPostInstallBodyParams(rawParam map[string]interfa
 		extendParams["post_install"] = postInstall
 	}
 
-	if objExtendParams := utils.TryMapValueAnalysis(utils.StringToJson(rawParam["extend_params"].(string))); len(extendParams) > 0 {
+	if objExtendParams := utils.TryMapValueAnalysis(utils.StringToJson(rawParam["extend_params"].(string))); len(objExtendParams) > 0 {
 		if len(extendParams) > 0 {
 			objExtendParams["post_install"] = extendParams["post_install"]
 		}
@@ -799,7 +853,7 @@ func buildResourcePoolResourcesVolumeGroupConfigs(volumeGroupConfigs *schema.Set
 	for _, volumeGroupConfig := range volumeGroupConfigs.List() {
 		result = append(result, map[string]interface{}{
 			"volumeGroup":    utils.PathSearch("volume_group", volumeGroupConfig, nil),
-			"dockerThinPool": utils.PathSearch("docker_thin_pool", volumeGroupConfig, nil),
+			"dockerThinPool": utils.ValueIgnoreEmpty(utils.PathSearch("docker_thin_pool", volumeGroupConfig, nil)),
 			"lvmConfig": buildResourceVolumeGroupConfigsLvmConfig(utils.PathSearch("lvm_config", volumeGroupConfig,
 				make([]interface{}, 0)).([]interface{})),
 			"types": utils.ValueIgnoreEmpty(utils.ExpandToStringListBySet(utils.PathSearch("types", volumeGroupConfig,
@@ -819,6 +873,32 @@ func buildResourceVolumeGroupConfigsLvmConfig(lvmConfigs []interface{}) map[stri
 	return map[string]interface{}{
 		"lvType": utils.PathSearch("lv_type", lvmConfig, nil),
 		"path":   utils.ValueIgnoreEmpty(utils.PathSearch("path", lvmConfig, nil)),
+	}
+}
+
+func buildResourcePoolResourcesOsInfo(osInfos []interface{}) map[string]interface{} {
+	// All parameters are as the optional behavior.
+	if len(osInfos) < 1 || osInfos[0] == nil {
+		return nil
+	}
+
+	osInfo := osInfos[0]
+	return map[string]interface{}{
+		"name":      utils.ValueIgnoreEmpty(utils.PathSearch("name", osInfo, nil)),
+		"imageId":   utils.ValueIgnoreEmpty(utils.PathSearch("image_id", osInfo, nil)),
+		"imageType": utils.ValueIgnoreEmpty(utils.PathSearch("image_type", osInfo, nil)),
+	}
+}
+
+func buildResourcePoolResourcesDriver(drivers []interface{}) map[string]interface{} {
+	// All parameters are as the optional behavior.
+	if len(drivers) < 1 || drivers[0] == nil {
+		return nil
+	}
+
+	driver := drivers[0]
+	return map[string]interface{}{
+		"version": utils.ValueIgnoreEmpty(utils.PathSearch("version", driver, nil)),
 	}
 }
 
@@ -1019,6 +1099,32 @@ func flattenResourcePoolResourcesVolumeGroupConfigs(volumeGroupConfigs []interfa
 	return result
 }
 
+func flattenResourcePoolResourcesOsInfo(osInfo interface{}) []map[string]interface{} {
+	if osInfo == nil {
+		return nil
+	}
+
+	return []map[string]interface{}{
+		{
+			"name":       utils.PathSearch("name", osInfo, nil),
+			"image_id":   utils.PathSearch("imageId", osInfo, nil),
+			"image_type": utils.PathSearch("iamgeType", osInfo, nil),
+		},
+	}
+}
+
+func flattenResourcePoolResourcesDriver(driver interface{}) []map[string]interface{} {
+	if driver == nil {
+		return nil
+	}
+
+	return []map[string]interface{}{
+		{
+			"version": utils.PathSearch("version", driver, nil),
+		},
+	}
+}
+
 func flattenGetResourcePoolResponseBodyResources(resp interface{}) []interface{} {
 	if resp == nil {
 		return nil
@@ -1045,6 +1151,8 @@ func flattenGetResourcePoolResponseBodyResources(resp interface{}) []interface{}
 				v, make([]interface{}, 0)).([]interface{})),
 			"volume_group_configs": flattenResourcePoolResourcesVolumeGroupConfigs(utils.PathSearch("volumeGroupConfigs",
 				v, make([]interface{}, 0)).([]interface{})),
+			"os":     flattenResourcePoolResourcesOsInfo(utils.PathSearch("os", v, nil)),
+			"driver": flattenResourcePoolResourcesDriver(utils.PathSearch("driver", v, nil)),
 			// Deprecated parameter(s).
 			"post_install": utils.PathSearch("extendParams.post_install", v, nil),
 		})
@@ -1286,27 +1394,6 @@ func updateResourcePoolWaitingForStateCompleted(ctx context.Context, d *schema.R
 				return getResourcePoolRespBody, status, nil
 			}
 
-			// check if the resource pool is in the process of expanding capacity
-			if rawArray, ok := d.Get("resources").([]interface{}); ok {
-				if utils.PathSearch("status.resources.abnormal", getResourcePoolRespBody, nil) != nil {
-					return nil, "ERROR", fmt.Errorf("error updating resource pool")
-				}
-
-				for _, v := range rawArray {
-					raw := v.(map[string]interface{})
-					flavor := utils.ValueIgnoreEmpty(raw["flavor_id"])
-					count := utils.ValueIgnoreEmpty(raw["count"])
-
-					searchActiveJsonPath := fmt.Sprintf("length(status.resources.available[?flavor=='%s' && count==`%d`])",
-						flavor, count)
-
-					log.Println("searchActiveJsonPath: ", searchActiveJsonPath)
-					if utils.PathSearch(searchActiveJsonPath, getResourcePoolRespBody, float64(0)).(float64) == 0 {
-						return getResourcePoolRespBody, "PENDING", nil
-					}
-				}
-			}
-
 			// check if the resource pool is in the process of changing scope
 			if rawArray, ok := d.GetOk("scope"); ok {
 				for _, v := range rawArray.(*schema.Set).List() {
@@ -1318,11 +1405,19 @@ func updateResourcePoolWaitingForStateCompleted(ctx context.Context, d *schema.R
 				}
 			}
 
-			return getResourcePoolRespBody, "COMPLETED", nil
+			creating := utils.PathSearch("status.resources.creating", getResourcePoolRespBody, make([]interface{}, 0)).([]interface{})
+			deleting := utils.PathSearch("status.resources.creating", getResourcePoolRespBody, make([]interface{}, 0)).([]interface{})
+			// check if the resource pool is in the process of expanding capacity
+			if len(creating) == 0 && len(deleting) == 0 {
+				return getResourcePoolRespBody, "COMPLETED", nil
+			}
+
+			return getResourcePoolRespBody, "PENDING", nil
 		},
-		Timeout:      t,
-		Delay:        5 * time.Second,
-		PollInterval: 5 * time.Second,
+		Timeout:                   t,
+		Delay:                     5 * time.Second,
+		PollInterval:              5 * time.Second,
+		ContinuousTargetOccurence: 2,
 	}
 	_, err := stateConf.WaitForStateContext(ctx)
 	return err

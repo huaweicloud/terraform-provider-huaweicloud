@@ -1,0 +1,59 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_servicestagev3_component_used_resources": {
+          "block": {
+            "attributes": {
+              "applications": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "string",
+                      "label": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of applications that component used.",
+                "computed": true
+              },
+              "enterprise_projects": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The ID list of the enterprise projects that component used.",
+                "computed": true
+              },
+              "environments": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "string",
+                      "label": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of environments that component used.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the components are located.",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
