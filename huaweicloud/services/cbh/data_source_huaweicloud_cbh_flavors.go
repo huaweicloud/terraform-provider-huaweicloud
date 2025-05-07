@@ -16,7 +16,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API CBH GET /v2/{project_id}/instance/specification
+// @API CBH GET /v2/{project_id}/cbs/instance/specification
 func DataSourceCbhFlavors() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: datasourceFlavorsRead,
