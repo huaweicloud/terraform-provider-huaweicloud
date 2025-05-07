@@ -24,7 +24,7 @@ func getDmsKafkaSmartConnectResourceFunc(cfg *config.Config, state *terraform.Re
 	)
 	getKafkaSmartConnectClient, err := cfg.NewServiceClient(getKafkaSmartConnectProduct, region)
 	if err != nil {
-		return nil, fmt.Errorf("error creating DMS Client: %s", err)
+		return nil, fmt.Errorf("error creating DMS client: %s", err)
 	}
 
 	instanceID := state.Primary.Attributes["instance_id"]
@@ -74,11 +74,6 @@ func TestAccDmsKafkaSmartConnect_basic(t *testing.T) {
 				Config: testDmsKafkaSmartConnect_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrSet(resourceName, "storage_spec_code"),
-					resource.TestCheckResourceAttrSet(resourceName, "bandwidth"),
-					resource.TestCheckResourceAttrSet(resourceName, "node_count"),
-					resource.TestCheckResourceAttr(resourceName, "storage_spec_code", "dms.physical.storage.high.v2"),
-					resource.TestCheckResourceAttr(resourceName, "bandwidth", "100MB"),
 					resource.TestCheckResourceAttr(resourceName, "node_count", "2"),
 				),
 			},
@@ -98,10 +93,8 @@ func testDmsKafkaSmartConnect_basic(name string) string {
 %s
 
 resource "huaweicloud_dms_kafka_smart_connect" "test" {
-  instance_id       = huaweicloud_dms_kafka_instance.test.id
-  storage_spec_code = "dms.physical.storage.high.v2"
-  node_count        = 2
-  bandwidth         = "100MB"
+  instance_id = huaweicloud_dms_kafka_instance.test.id
+  node_count  = 2
 }
 `, testAccKafkaInstance_newFormat(name))
 }

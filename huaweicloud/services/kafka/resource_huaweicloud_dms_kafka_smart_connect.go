@@ -50,7 +50,7 @@ func ResourceDmsKafkaSmartConnect() *schema.Resource {
 			},
 			"storage_spec_code": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
 				ForceNew:    true,
 				Description: `Specifies the specification code of the smart connect.`,
 			},
@@ -147,8 +147,8 @@ func resourceDmsKafkaSmartConnectCreate(ctx context.Context, d *schema.ResourceD
 
 func buildCreateKafkaSmartConnectBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"spec_code":     d.Get("storage_spec_code"),
-		"specification": d.Get("bandwidth"),
+		"spec_code":     utils.ValueIgnoreEmpty(d.Get("storage_spec_code")),
+		"specification": utils.ValueIgnoreEmpty(d.Get("bandwidth")),
 		"node_cnt":      utils.ValueIgnoreEmpty(d.Get("node_count")),
 	}
 	return bodyParams
@@ -267,7 +267,7 @@ func resourceDmsKafkaSmartConnectDelete(ctx context.Context, d *schema.ResourceD
 		return diag.Errorf("error waiting for instance (%s) to become ready: %s", instanceID, err)
 	}
 
-	return resourceDmsKafkaSmartConnectRead(ctx, d, meta)
+	return nil
 }
 
 func buildDeleteKafkaSmartConnectBodyParams(d *schema.ResourceData) map[string]interface{} {
