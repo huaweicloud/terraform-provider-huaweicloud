@@ -100,6 +100,31 @@ func ResourceEndpoint() *schema.Resource {
 				Computed:    true,
 				Description: `Specifies when the endpoint was updated.`,
 			},
+			"frozen_info": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `The frozen details of cloud services or resources.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"status": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `The status of a cloud service or resource.`,
+						},
+						"effect": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `The status of the resource after being forzen.`,
+						},
+						"scene": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Description: `The service scenario.`,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -255,9 +280,24 @@ func resourceEndpointRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("status", utils.PathSearch("endpoint.status", respBody, nil)),
 		d.Set("updated_at", utils.PathSearch("endpoint.updated_at", respBody, nil)),
 		d.Set("weight", utils.PathSearch("endpoint.weight", respBody, nil)),
+		d.Set("frozen_info", flattenEndpointFrozenInfo(utils.PathSearch("endpoint.frozen_info", respBody, nil))),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func flattenEndpointFrozenInfo(resp interface{}) []map[string]interface{} {
+	if resp == nil {
+		return nil
+	}
+
+	frozenInfo := map[string]interface{}{
+		"status": utils.PathSearch("status", resp, nil),
+		"effect": utils.PathSearch("effect", resp, nil),
+		"scene":  utils.PathSearch("scene", resp, []string{}),
+	}
+
+	return []map[string]interface{}{frozenInfo}
 }
 
 func resourceEndpointUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
