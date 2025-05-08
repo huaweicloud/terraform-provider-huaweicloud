@@ -2,7 +2,8 @@
 subcategory: "Global Accelerator (GA)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_ga_endpoint_groups"
-description: ""
+description: |-
+  Use this data source to get the list of endpoint groups.
 ---
 
 # huaweicloud_ga_endpoint_groups
@@ -63,3 +64,15 @@ The `endpoint_groups` block supports:
 * `created_at` - The creation time of the endpoint group.
 
 * `updated_at` - The latest update time of the endpoint group.
+
+* `frozen_info` - The frozen details of cloud services or resources.
+  The [frozen_info](#endpoint_groups_frozen_info) structure is documented below.
+
+<a name="endpoint_groups_frozen_info"></a>
+The `frozen_info` block supports:
+
+* `status` - The status of a cloud service or resource.
+
+* `effect` - The status of the resource after being forzen.
+
+* `scene` - The service scenario.
