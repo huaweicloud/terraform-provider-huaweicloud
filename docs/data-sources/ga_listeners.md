@@ -2,7 +2,8 @@
 subcategory: "Global Accelerator (GA)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_ga_listeners"
-description: ""
+description: |-
+  Use this data source to get the list of listeners.
 ---
 
 # huaweicloud_ga_listeners
@@ -74,9 +75,21 @@ The `listeners` block supports:
 
 * `updated_at` - The latest update time of the listener.
 
+* `frozen_info` - The frozen details of cloud services or resources.
+  The [frozen_info](#Listeners_frozen_info) structure is documented below.
+
 <a name="listener_port_ranges"></a>
 The `port_ranges` block supports:
 
 * `from_port` - The listening to start port of the listener.
 
 * `to_port` - The listening to end port of the listener.
+
+<a name="Listeners_frozen_info"></a>
+The `frozen_info` block supports:
+
+* `status` - The status of a cloud service or resource.
+
+* `effect` - The status of the resource after being forzen.
+
+* `scene` - The service scenario.
