@@ -551,7 +551,7 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Product: "SMN",
 	},
 	"sms": {
-		Name:             "sms.ap-southeast-1",
+		Name:             "sms.ap-southeast-3",
 		Version:          "v3",
 		Scope:            "global",
 		WithOutProjectID: true,
