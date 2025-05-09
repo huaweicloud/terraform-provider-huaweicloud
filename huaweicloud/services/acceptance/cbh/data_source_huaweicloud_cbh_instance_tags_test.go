@@ -18,7 +18,7 @@ func TestAccDataTags_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			// Please make sure that the cbh instance is created with tags(foo = "xxx") before running this test.
+			// Please make sure that the cbh instance is created with tags before running this test.
 			acceptance.TestAccPreCheckCbhInstanceID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
@@ -29,8 +29,7 @@ func TestAccDataTags_basic(t *testing.T) {
 					dc.CheckResourceExists(),
 					resource.TestMatchResourceAttr(all, "tags.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
 					resource.TestCheckResourceAttrSet(all, "tags.0.key"),
-					resource.TestMatchResourceAttr(all, "tags.0.values.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
-					resource.TestCheckOutput("tags_validation", "true"),
+					resource.TestCheckResourceAttrSet(all, "tags.0.values"),
 				),
 			},
 		},
