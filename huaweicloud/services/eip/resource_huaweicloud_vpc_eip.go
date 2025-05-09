@@ -437,10 +437,10 @@ func eipStatusRefreshFunc(networkingClient *golangsdk.ServiceClient, eipId strin
 				if len(targets) < 1 {
 					return resp, "COMPLETED", nil
 				}
-				return resp, "PENDING", nil
+				return "NOT_FOUND", "ERROR", err
 			}
 
-			return nil, "", err
+			return resp, "PENDING", nil
 		}
 		log.Printf("[DEBUG] The details of the EIP (%s) is: %+v", eipId, resp)
 
