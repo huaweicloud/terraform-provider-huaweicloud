@@ -41,10 +41,5 @@ func TestAccDataTags_basic(t *testing.T) {
 func testAccDataTags_base() string {
 	return `
 data "huaweicloud_cbh_instance_tags" "test" {}
-
-output "tags_validation" {
-  value = length([for t in data.huaweicloud_cbh_instance_tags.test.tags: t.key == "foo" &&
-    alltrue([for k, v in data.huaweicloud_cbh_instance_tags.test.tags: contains(t.values, v) if k == "foo"])]) > 0
-}
 `
 }
