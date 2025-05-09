@@ -44,6 +44,8 @@ type ctxType string
 // @API RDS POST /v3/{project_id}/instances/{instance_id}/action
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/disk-auto-expansion
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/backups/policy
+// @API RDS POST /v3/{project_id}/instances/{instance_id}/action/shutdown
+// @API RDS POST /v3/{project_id}/instances/{instance_id}/action/startup
 // @API RDS GET /v3/{project_id}/instances/{instance_id}/disk-auto-expansion
 // @API RDS GET /v3/{project_id}/instances/{instance_id}/backups/policy
 // @API RDS GET /v3/{project_id}/instances/{instance_id}/configurations
