@@ -112,6 +112,64 @@ func DataSourceCceAccesses() *schema.Resource {
 							Computed:    true,
 							Description: `The type of the log access.`,
 						},
+						"processor_type": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The type of the ICAgent structuring parsing.`,
+						},
+						"processors": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"type": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The type of the parser.`,
+									},
+									"detail": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The configuration of the parser, in JSON format.`,
+									},
+								},
+							},
+							Description: `The list of the ICAgent structuring parsing rules.`,
+						},
+						"demo_log": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The example log of the ICAgent structuring parsing.`,
+						},
+						"demo_fields": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"field_name": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The name of the parsed field.`,
+									},
+									"field_value": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The value of the parsed field.`,
+									},
+								},
+							},
+							Description: `The list of the parsed fields of the example log`,
+						},
+						"encoding_format": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The encoding format log file.`,
+						},
+						"incremental_collect": {
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: `Whether to collect logs incrementally.`,
+						},
 						"created_at": {
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -245,11 +303,21 @@ func dataCceAccessConfigDeatilSchema() *schema.Resource {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: `The container label log tag.`,
 			},
+			"include_labels_logical": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The logical relationship between multiple container label whitelists.`,
+			},
 			"include_labels": {
 				Type:        schema.TypeMap,
 				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: `The container label whitelist.`,
+			},
+			"exclude_labels_logical": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The logical relationship between multiple container label blacklists.`,
 			},
 			"exclude_labels": {
 				Type:        schema.TypeMap,
@@ -263,11 +331,21 @@ func dataCceAccessConfigDeatilSchema() *schema.Resource {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: `The environment variable tag.`,
 			},
+			"include_envs_logical": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The logical relationship between multiple environment variable whitelists.`,
+			},
 			"include_envs": {
 				Type:        schema.TypeMap,
 				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: `The environment variable whitelist.`,
+			},
+			"exclude_envs_logical": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The logical relationship between multiple environment variable blacklists.`,
 			},
 			"exclude_envs": {
 				Type:        schema.TypeMap,
@@ -281,17 +359,44 @@ func dataCceAccessConfigDeatilSchema() *schema.Resource {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: `The kubernetes label log tag.`,
 			},
+			"include_k8s_labels_logical": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The logical relationship between multiple kubernetes label whitelists.`,
+			},
 			"include_k8s_labels": {
 				Type:        schema.TypeMap,
 				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: `The kubernetes label whitelist.`,
 			},
+			"exclude_k8s_labels_logical": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The logical relationship between multiple kubernetes label blacklists.`,
+			},
 			"exclude_k8s_labels": {
 				Type:        schema.TypeMap,
 				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: `The kubernetes label blacklist.`,
+			},
+			"repeat_collect": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Whether to allow repeated file collection.`,
+			},
+			"custom_key_value": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `The custom key/value pairs.`,
+			},
+			"system_fields": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `The list of system built-in fields of the CCE access.`,
 			},
 		},
 	}
@@ -365,21 +470,42 @@ func flattenAccessConfigDetails(accesses []interface{}) []interface{} {
 	result := make([]interface{}, 0, len(accesses))
 	for _, v := range accesses {
 		result = append(result, map[string]interface{}{
-			"id":              utils.PathSearch("access_config_id", v, nil),
-			"name":            utils.PathSearch("access_config_name", v, nil),
-			"log_group_id":    utils.PathSearch("log_info.log_group_id", v, nil),
-			"log_group_name":  utils.PathSearch("log_info.log_group_name", v, nil),
-			"log_stream_id":   utils.PathSearch("log_info.log_stream_id", v, nil),
-			"log_stream_name": utils.PathSearch("log_info.log_stream_name", v, nil),
-			"access_config":   flattenCceAccessConfigDetail(v),
-			"cluster_id":      utils.PathSearch("cluster_id", v, nil),
-			"host_group_ids":  utils.PathSearch("host_group_info.host_group_id_list", v, nil),
-			"tags":            utils.FlattenTagsToMap(utils.PathSearch("access_config_tag", v, nil)),
-			"binary_collect":  utils.PathSearch("binary_collect", v, nil),
-			"log_split":       utils.PathSearch("log_split", v, nil),
-			"access_type":     utils.PathSearch("access_config_type", v, nil),
-			"created_at":      utils.FormatTimeStampRFC3339(int64(utils.PathSearch("create_time", v, float64(0)).(float64))/1000, false),
+			"id":                  utils.PathSearch("access_config_id", v, nil),
+			"name":                utils.PathSearch("access_config_name", v, nil),
+			"log_group_id":        utils.PathSearch("log_info.log_group_id", v, nil),
+			"log_group_name":      utils.PathSearch("log_info.log_group_name", v, nil),
+			"log_stream_id":       utils.PathSearch("log_info.log_stream_id", v, nil),
+			"log_stream_name":     utils.PathSearch("log_info.log_stream_name", v, nil),
+			"access_config":       flattenCceAccessConfigDetail(v),
+			"cluster_id":          utils.PathSearch("cluster_id", v, nil),
+			"host_group_ids":      utils.PathSearch("host_group_info.host_group_id_list", v, nil),
+			"tags":                utils.FlattenTagsToMap(utils.PathSearch("access_config_tag", v, nil)),
+			"binary_collect":      utils.PathSearch("binary_collect", v, nil),
+			"log_split":           utils.PathSearch("log_split", v, nil),
+			"access_type":         utils.PathSearch("access_config_type", v, nil),
+			"processor_type":      utils.PathSearch("processor_type", v, nil),
+			"processors":          flattenCceAccessProcessors(utils.PathSearch("processors", v, make([]interface{}, 0)).([]interface{})),
+			"demo_log":            utils.PathSearch("demo_log", v, nil),
+			"demo_fields":         flattenCceAccessDemoFields(utils.PathSearch("demo_fields", v, make([]interface{}, 0)).([]interface{})),
+			"encoding_format":     utils.PathSearch("encoding_format", v, nil),
+			"incremental_collect": utils.PathSearch("incremental_collect", v, nil),
+			"created_at":          utils.FormatTimeStampRFC3339(int64(utils.PathSearch("create_time", v, float64(0)).(float64))/1000, false),
 		})
+	}
+	return result
+}
+
+func flattenCceAccessProcessors(processors []interface{}) []map[string]interface{} {
+	if len(processors) == 0 {
+		return nil
+	}
+
+	result := make([]map[string]interface{}, len(processors))
+	for i, v := range processors {
+		result[i] = map[string]interface{}{
+			"type":   utils.PathSearch("type", v, nil),
+			"detail": utils.JsonToString(utils.PathSearch("detail", v, nil)),
+		}
 	}
 	return result
 }

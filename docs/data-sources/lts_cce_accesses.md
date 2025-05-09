@@ -77,6 +77,31 @@ The `accesses` block supports:
 
 * `access_type` - The type of the log access.
 
+* `processor_type` - The type of the ICAgent structuring parsing.
+  + **SINGLE_LINE**
+  + **MULTI_LINE**
+  + **REGEX**
+  + **MULTI_REGEX**
+  + **SPLIT**
+  + **JSON**
+  + **NGINX**
+  + **COMPOSE**
+
+* `processors` - The list of the ICAgent structuring parsing rules.  
+  The [processors](#data_cce_accesses_processors) structure is documented below.
+
+* `demo_log` - The example log of the ICAgent structuring parsing.  
+  This parameter is available when the `processor_type` parameter is specified.
+
+* `demo_fields` - The list of the parsed fields of the example log.  
+  The [demo_fields](#data_cce_accesses_demoFields) structure is documented below.
+
+* `encoding_format` - The encoding format log file.
+  + **UTF-8**
+  + **GBK**
+
+* `incremental_collect` - Whether to collect incrementally.
+
 * `created_at` - The creation time of the CCE access, in RFC3339 format.
 
 <a name="data_accesses_elem_access_config"></a>
@@ -112,21 +137,51 @@ The `access_config` block supports:
 
 * `log_labels` - The container label log tag.
 
+* `include_labels_logical` - The logical relationship between multiple container label whitelists.
+  + **and**
+  + **or**
+
 * `include_labels` - The container label whitelist.
+
+* `exclude_labels_logical` - The logical relationship between multiple container label blacklists.
+  + **and**
+  + **or**
 
 * `exclude_labels` - The container label blacklist.
 
 * `log_envs` - The environment variable tag.
 
+* `include_envs_logical` - The logical relationship between multiple environment variable whitelists.
+  + **and**
+  + **or**
+
 * `include_envs` - The environment variable whitelist.
+
+* `exclude_envs_logical` - The logical relationship between multiple environment variable blacklist.
+  + **and**
+  + **or**
 
 * `exclude_envs` - The environment variable blacklist.
 
 * `log_k8s` - The kubernetes label log tag.
 
+* `include_k8s_labels_logical` - The logical relationship between multiple kubernetes label whitelists.
+  + **and**
+  + **or**
+
 * `include_k8s_labels` - The kubernetes label whitelist.
 
+* `exclude_k8s_labels_logical` - The logical relationship between multiple kubernetes label blacklist.
+  + **and**
+  + **or**
+
 * `exclude_k8s_labels` - The kubernetes label blacklist.
+
+* `repeat_collect` - Whether to allow repeated file collection.
+
+* `custom_key_value` - The custom key/value pairs of the CCE access.
+
+* `system_fields` - The list of system built-in fields of the CCE access.
 
 <a name="data_access_config_elem_windows_log_info"></a>
 The `windows_log_info` block supports:
@@ -169,3 +224,24 @@ The `multi_log_format` block supports:
   + **regular**: the regular expression.
 
 * `value` - The value of multi-line log format.
+
+<a name="data_cce_accesses_processors"></a>
+The `processors` block supports:
+
+* `type` - The type of the parser.
+  + **processor_regex**
+  + **processor_split_string**
+  + **processor_json**
+  + **processor_gotime**
+  + **processor_filter_regex**
+  + **processor_drop**
+  + **processor_rename**
+
+* `detail` - The configuration of the parser, in JSON format.
+
+<a name="data_cce_accesses_demoFields"></a>
+The `demo_fields` block supports:
+
+* `field_name` - The name of the parsed field.
+
+* `field_value` - The value of the parsed field.
