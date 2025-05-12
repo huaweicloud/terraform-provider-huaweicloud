@@ -1057,6 +1057,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_lts_groups":                       lts.DataSourceLtsGroups(),
 			"huaweicloud_lts_hosts":                        lts.DataSourceHosts(),
 			"huaweicloud_lts_host_groups":                  lts.DataSourceLtsHostGroups(),
+			"huaweicloud_lts_keyword_alarm_rules":          lts.DataSourceKeywordAlarmRules(),
 			"huaweicloud_lts_notification_templates":       lts.DataSourceLtsNotificationTemplates(),
 			"huaweicloud_lts_search_criteria":              lts.DataSourceLtsSearchCriteria(),
 			"huaweicloud_lts_streams":                      lts.DataSourceLtsStreams(),
