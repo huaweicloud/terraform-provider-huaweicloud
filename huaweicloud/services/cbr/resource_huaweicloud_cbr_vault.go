@@ -137,6 +137,12 @@ func ResourceVault() *schema.Resource {
 				Computed:    true,
 				Description: "Whether to enable auto capacity expansion for the vault.",
 			},
+			"locked": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Computed:    true,
+				Description: "Locked status of the vault.",
+			},
 			"auto_bind": {
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -397,6 +403,7 @@ func buildVaultCreateOpts(cfg *config.Config, d *schema.ResourceData) (map[strin
 		"auto_expand":        isAutoExpand.(bool),
 		"auto_bind":          d.Get("auto_bind").(bool),
 		"backup_name_prefix": utils.ValueIgnoreEmpty(d.Get("backup_name_prefix")),
+		"locked":             d.Get("locked").(bool),
 	}
 
 	bindRulesRaw, ok := d.Get("bind_rules").(map[string]interface{})
@@ -636,6 +643,7 @@ func resourceVaultRead(_ context.Context, d *schema.ResourceData, meta interface
 		d.Set("auto_bind", utils.PathSearch("auto_bind", respBody, nil)),
 		d.Set("enterprise_project_id", utils.PathSearch("enterprise_project_id", respBody, nil)),
 		d.Set("backup_name_prefix", utils.PathSearch("backup_name_prefix", respBody, nil)),
+		d.Set("locked", utils.PathSearch("locked", respBody, nil)),
 		d.Set("is_multi_az", utils.PathSearch("billing.is_multi_az", respBody, nil)),
 		d.Set("tags", utils.FlattenTagsToMap(utils.PathSearch("tags", respBody, nil))),
 		d.Set("bind_rules", utils.FlattenTagsToMap(utils.PathSearch("bind_rules.tags", respBody, nil))),
@@ -892,6 +900,17 @@ func updateBasicParameters(client *golangsdk.ServiceClient, d *schema.ResourceDa
 		billing["size"] = d.Get("size").(int)
 	}
 
+	if d.HasChange("locked") {
+		newLocked := d.Get("locked").(bool)
+		oldLocked, _ := d.GetChange("locked")
+		if oldLocked.(bool) && !newLocked {
+			return fmt.Errorf("cannot unlock a vault that is already locked")
+		}
+		if !oldLocked.(bool) && newLocked {
+			requestBody["locked"] = newLocked
+		}
+	}
+
 	if d.HasChanges("bind_rules") {
 		bindRulesRaw, ok := d.Get("bind_rules").(map[string]interface{})
 		if !ok {
@@ -935,7 +954,7 @@ func resourceVaultUpdate(ctx context.Context, d *schema.ResourceData, meta inter
 		return diag.Errorf("error creating CBR client: %s", err)
 	}
 
-	if d.HasChanges("name", "consistent_level", "size", "auto_expand", "auto_bind", "bind_rules") {
+	if d.HasChanges("name", "consistent_level", "size", "auto_expand", "auto_bind", "bind_rules", "locked") {
 		if err = updateBasicParameters(client, d); err != nil {
 			return diag.FromErr(err)
 		}
