@@ -190,28 +190,31 @@ func modelartsResourcePoolResourceFlavorSchema() *schema.Resource {
 				Description: `The network ID of a subnet.`,
 			},
 			"security_group_ids": {
-				Type:        schema.TypeList,
+				Type:        schema.TypeSet,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Optional:    true,
 				Computed:    true,
 				Description: `The security group IDs.`,
 			},
 			"azs": {
-				Type:        schema.TypeList,
+				Type:        schema.TypeSet,
 				Elem:        modelartsResourcePoolResourcesAzsSchema(),
 				Optional:    true,
+				Computed:    true,
 				Description: `AZs for resource pool nodes.`,
 			},
 			"taints": {
-				Type:        schema.TypeList,
+				Type:        schema.TypeSet,
 				Elem:        modelartsResourcePoolResourcesTaintSchema(),
 				Optional:    true,
+				Computed:    true,
 				Description: `The taints added to nodes.`,
 			},
 			"labels": {
 				Type:        schema.TypeMap,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Optional:    true,
+				Computed:    true,
 				Description: `The labels of resource pool.`,
 			},
 			"tags": common.TagsSchema(),
@@ -235,7 +238,7 @@ func modelartsResourcePoolResourceFlavorSchema() *schema.Resource {
 				Description: `The root volume of the resource pool nodes.`,
 			},
 			"data_volumes": {
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				Elem:        modelartsResourcePoolResourcesDataVolumeSchema(),
 				Optional:    true,
 				Computed:    true,
@@ -281,7 +284,7 @@ func modelartsResourcePoolResourceFlavorSchema() *schema.Resource {
 							Description: `The configuration of the LVM management.`,
 						},
 						"types": {
-							Type:        schema.TypeSet,
+							Type:        schema.TypeList,
 							Optional:    true,
 							Computed:    true,
 							Elem:        &schema.Schema{Type: schema.TypeString},
@@ -306,6 +309,93 @@ func modelartsResourcePoolResourceFlavorSchema() *schema.Resource {
 				MaxItems:    1,
 				Elem:        modelartsResourcePoolResourcesDriverSchema(),
 				Description: `The driver information.`,
+			},
+			// Internal attribute(s).
+			"volume_group_configs_origin": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"volume_group": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: utils.SchemaDesc(
+								`The script configuration value of this change is also the original value used for the new value
+next time in the list build method and reorder. The corresponding parameter name is 'volume_group_configs.volume_group'.`,
+								utils.SchemaDescInput{
+									Internal: true,
+								},
+							),
+						},
+						"docker_thin_pool": {
+							Type:     schema.TypeInt,
+							Computed: true,
+							Description: utils.SchemaDesc(
+								`The script configuration value of this change is also the original value used for the new value
+next time in the list build method and reorder. The corresponding parameter name is 'volume_group_configs.docker_thin_pool'.`,
+								utils.SchemaDescInput{
+									Internal: true,
+								},
+							),
+						},
+						"lvm_config": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"lv_type": {
+										Type:     schema.TypeString,
+										Computed: true,
+										Description: utils.SchemaDesc(
+											`The script configuration value of this change is also the original value used for the new value
+next time in the list build method and reorder. The corresponding parameter name is 'volume_group_configs.lvm_config.lv_type'.`,
+											utils.SchemaDescInput{
+												Internal: true,
+											},
+										),
+									},
+									"path": {
+										Type:     schema.TypeString,
+										Computed: true,
+										Description: utils.SchemaDesc(
+											`The script configuration value of this change is also the original value used for the new value
+next time in the list build method and reorder. The corresponding parameter name is 'volume_group_configs.lvm_config.path'.`,
+											utils.SchemaDescInput{
+												Internal: true,
+											},
+										),
+									},
+								},
+							},
+							Description: utils.SchemaDesc(
+								`The script configuration value of this change is also the original value used for the new value
+next time in the list build method and reorder. The corresponding parameter name is 'volume_group_configs.lvm_config'.`,
+								utils.SchemaDescInput{
+									Internal: true,
+								},
+							),
+						},
+						"types": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+							Description: utils.SchemaDesc(
+								`The script configuration value of this change is also the original value used for the new value
+next time in the list build method and reorder. The corresponding parameter name is 'volume_group_configs.types'.`,
+								utils.SchemaDescInput{
+									Internal: true,
+								},
+							),
+						},
+					},
+				},
+				Description: utils.SchemaDesc(
+					`The script configuration value of this change is also the original value used for the new value
+next time in the list build method and reorder. The corresponding parameter name is 'volume_group_configs'.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
 			},
 			// Deprecated parameter(s).
 			"post_install": {
@@ -353,11 +443,13 @@ func modelartsResourcePoolResourcesAzsSchema() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"az": {
 				Type:        schema.TypeString,
+				Optional:    true,
 				Computed:    true,
 				Description: `The AZ name.`,
 			},
 			"count": {
 				Type:        schema.TypeInt,
+				Optional:    true,
 				Computed:    true,
 				Description: `Number of nodes.`,
 			},
@@ -708,10 +800,12 @@ func buildCreateResourcePoolMetaDataAnnotationsBodyParams(d *schema.ResourceData
 }
 
 func buildCreateResourcePoolSpecBodyParams(d *schema.ResourceData) map[string]interface{} {
+	oldResourcesVal, newResourcesVal := d.GetChange("resources")
+
 	params := map[string]interface{}{
 		"type":      "Dedicate",
 		"scope":     utils.ValueIgnoreEmpty(d.Get("scope").(*schema.Set).List()),
-		"resources": buildResourcePoolSpecResources(d),
+		"resources": buildResourcePoolSpecResources(oldResourcesVal.([]interface{}), newResourcesVal.([]interface{})),
 		"userLogin": buildCreateResourcePoolSpecUserLoginBodyParams(d),
 		"network":   buildCreateResourcePoolSpecNetworkBodyParams(d),
 		"clusters":  buildCreateResourcePoolSpecClustersBodyParams(d),
@@ -755,61 +849,67 @@ func buildCreateResourcePoolSpecClustersBodyParams(d *schema.ResourceData) []int
 	return nil
 }
 
-func buildResourcePoolSpecResources(d *schema.ResourceData) []map[string]interface{} {
-	if rawArray, ok := d.Get("resources").([]interface{}); ok {
-		if len(rawArray) == 0 {
-			return nil
-		}
+func buildResourcePoolSpecResources(oldResources, newResources []interface{}) []map[string]interface{} {
+	result := make([]map[string]interface{}, 0, len(newResources))
 
-		rst := make([]map[string]interface{}, len(rawArray))
-		for i, v := range rawArray {
-			if raw, ok := v.(map[string]interface{}); ok {
-				rst[i] = map[string]interface{}{
-					"flavor":             utils.ValueIgnoreEmpty(raw["flavor_id"]),
-					"count":              utils.ValueIgnoreEmpty(raw["count"]),
-					"nodePool":           utils.ValueIgnoreEmpty(raw["node_pool"]),
-					"maxCount":           utils.ValueIgnoreEmpty(raw["max_count"]),
-					"azs":                buildResourcePoolResourcesAzs(raw["azs"]),
-					"network":            buildResourcePoolSpecResourcesNetworkBodyParams(raw),
-					"taints":             buildResourcePoolResourcesTaints(raw["taints"]),
-					"tags":               utils.ExpandResourceTags(raw["tags"].(map[string]interface{})),
-					"labels":             utils.ValueIgnoreEmpty(raw["labels"]),
-					"extendParams":       buildResourcePoolResourcesPostInstallBodyParams(raw),
-					"rootVolume":         buildResourcePoolResourcesRootVolume(raw["root_volume"].([]interface{})),
-					"dataVolumes":        buildResourcePoolResourcesDataVolumes(raw["data_volumes"].(*schema.Set)),
-					"volumeGroupConfigs": buildResourcePoolResourcesVolumeGroupConfigs(raw["volume_group_configs"].(*schema.Set)),
-					"os":                 buildResourcePoolResourcesOsInfo(raw["os"].([]interface{})),
-					"driver":             buildResourcePoolResourcesDriver(raw["driver"].([]interface{})),
-				}
-			}
-		}
-		return rst
+	for i, newResource := range newResources {
+		result = append(result, map[string]interface{}{
+			"flavor":   utils.ValueIgnoreEmpty(utils.PathSearch("flavor_id", newResource, nil)),
+			"count":    utils.ValueIgnoreEmpty(utils.PathSearch("count", newResource, nil)),
+			"nodePool": utils.ValueIgnoreEmpty(utils.PathSearch("node_pool", newResource, nil)),
+			"maxCount": utils.ValueIgnoreEmpty(utils.PathSearch("max_count", newResource, nil)),
+			"azs": buildResourcePoolResourcesAzs(utils.PathSearch("azs", newResource,
+				schema.NewSet(schema.HashString, nil)).(*schema.Set)),
+			"network": buildResourcePoolSpecResourcesNetworkBodyParams(newResource),
+			"taints": buildResourcePoolResourcesTaints(utils.PathSearch("taints", newResource,
+				schema.NewSet(schema.HashString, nil)).(*schema.Set)),
+			"tags":   utils.ExpandResourceTags(utils.PathSearch("tags", newResource, make(map[string]interface{})).(map[string]interface{})),
+			"labels": utils.ValueIgnoreEmpty(utils.PathSearch("labels", newResource, nil)),
+			"extendParams": buildResourcePoolResourcesExtendParamsBodyParams(
+				utils.PathSearch(fmt.Sprintf("[%d].extend_params", i), oldResources, "{}").(string),
+				utils.PathSearch("extend_params", newResource, "{}").(string),
+				utils.PathSearch("post_install", newResource, "").(string),
+			),
+			"rootVolume": buildResourcePoolResourcesRootVolume(utils.PathSearch("root_volume", newResource,
+				make([]interface{}, 0)).([]interface{})),
+			"dataVolumes": buildResourcePoolResourcesDataVolumes(
+				utils.PathSearch(fmt.Sprintf("[%d].data_volumes", i), oldResources, make([]interface{}, 0)).([]interface{}),
+				utils.PathSearch("data_volumes", newResource, make([]interface{}, 0)).([]interface{}),
+			),
+			"volumeGroupConfigs": buildResourcePoolResourcesVolumeGroupConfigs(
+				utils.PathSearch(fmt.Sprintf("[%d].volume_group_configs_origin", i), oldResources, make([]interface{}, 0)).([]interface{}),
+				utils.PathSearch("volume_group_configs", newResource, schema.NewSet(schema.HashString, nil)).(*schema.Set).List(),
+			),
+			"os":     buildResourcePoolResourcesOsInfo(utils.PathSearch("os", newResource, make([]interface{}, 0)).([]interface{})),
+			"driver": buildResourcePoolResourcesDriver(utils.PathSearch("driver", newResource, make([]interface{}, 0)).([]interface{})),
+		})
+	}
+	return result
+}
+
+func buildResourcePoolSpecResourcesNetworkBodyParams(resourceRaw interface{}) map[string]interface{} {
+	if resourceRaw != nil && utils.PathSearch("vpc_id", resourceRaw, nil) != nil {
+		return utils.RemoveNil(map[string]interface{}{
+			"vpc":    utils.ValueIgnoreEmpty(utils.PathSearch("vpc_id", resourceRaw, nil)),
+			"subnet": utils.ValueIgnoreEmpty(utils.PathSearch("subnet_id", resourceRaw, nil)),
+			"securityGroups": utils.ValueIgnoreEmpty(utils.ExpandToStringListBySet(utils.PathSearch("security_group_ids", resourceRaw,
+				schema.NewSet(schema.HashString, nil)).(*schema.Set))),
+		})
 	}
 	return nil
 }
 
-func buildResourcePoolSpecResourcesNetworkBodyParams(rawParam map[string]interface{}) map[string]interface{} {
-	if vpcId := rawParam["vpc_id"]; len(vpcId.(string)) > 0 {
-		return map[string]interface{}{
-			"vpc":            utils.ValueIgnoreEmpty(rawParam["vpc_id"]),
-			"subnet":         utils.ValueIgnoreEmpty(rawParam["subnet_id"]),
-			"securityGroups": utils.ValueIgnoreEmpty(rawParam["security_group_ids"]),
-		}
-	}
-	return nil
-}
+func buildResourcePoolResourcesExtendParamsBodyParams(oldExtendParams, newExtendParams, postInstall string) map[string]interface{} {
+	extendParams := utils.TryMapValueAnalysis(utils.StringToJson(oldExtendParams))
 
-func buildResourcePoolResourcesPostInstallBodyParams(rawParam map[string]interface{}) map[string]interface{} {
-	extendParams := make(map[string]interface{})
-	if postInstall := rawParam["post_install"]; len(postInstall.(string)) > 0 {
+	if postInstall != "" {
 		extendParams["post_install"] = postInstall
 	}
 
-	if objExtendParams := utils.TryMapValueAnalysis(utils.StringToJson(rawParam["extend_params"].(string))); len(objExtendParams) > 0 {
-		if len(extendParams) > 0 {
-			objExtendParams["post_install"] = extendParams["post_install"]
+	if objExtendParams := utils.TryMapValueAnalysis(utils.StringToJson(newExtendParams)); len(objExtendParams) > 0 {
+		for k, v := range objExtendParams {
+			extendParams[k] = v
 		}
-		return objExtendParams
 	}
 	return extendParams
 }
@@ -826,39 +926,74 @@ func buildResourcePoolResourcesRootVolume(rootVolumes []interface{}) map[string]
 	}
 }
 
-func buildResourcePoolResourcesDataVolumes(dataVolumes *schema.Set) []map[string]interface{} {
-	if dataVolumes.Len() < 1 {
+func buildResourcePoolResourcesDataVolumes(oldDataVolumes, newDataVolumes []interface{}) []map[string]interface{} {
+	if len(newDataVolumes) < 1 {
 		return nil
 	}
 
-	result := make([]map[string]interface{}, 0, dataVolumes.Len())
-	for _, dataVolume := range dataVolumes.List() {
+	result := make([]map[string]interface{}, 0, len(newDataVolumes))
+	for i, dataVolume := range newDataVolumes {
 		result = append(result, map[string]interface{}{
-			"volumeType":   utils.PathSearch("volume_type", dataVolume, nil),
-			"size":         utils.PathSearch("size", dataVolume, nil),
-			"extendParams": utils.StringToJson(utils.PathSearch("extend_params", dataVolume, "").(string)),
-			"count":        utils.ValueIgnoreEmpty(utils.PathSearch("count", dataVolume, nil)),
+			"volumeType": utils.PathSearch("volume_type", dataVolume, nil),
+			"size":       utils.PathSearch("size", dataVolume, nil),
+			"extendParams": buildResourcePoolResourcesExtendParamsBodyParams(
+				utils.PathSearch(fmt.Sprintf("[%d].extend_params", i), oldDataVolumes, "").(string),
+				utils.PathSearch("extend_params", dataVolume, "").(string),
+				"",
+			),
+			"count": utils.ValueIgnoreEmpty(utils.PathSearch("count", dataVolume, nil)),
 		})
 	}
 
 	return result
 }
 
-func buildResourcePoolResourcesVolumeGroupConfigs(volumeGroupConfigs *schema.Set) []map[string]interface{} {
-	if volumeGroupConfigs.Len() < 1 {
-		return nil
+func buildResourcePoolResourcesVolumeGroupConfigs(oldVolumeGroupConfigs, newVolumeGroupConfigs []interface{}) []map[string]interface{} {
+	if len(oldVolumeGroupConfigs) < 1 {
+		result := make([]map[string]interface{}, 0, len(newVolumeGroupConfigs))
+		for _, volumeGroupConfig := range newVolumeGroupConfigs {
+			result = append(result, map[string]interface{}{
+				"volumeGroup":    utils.PathSearch("volume_group", volumeGroupConfig, nil),
+				"dockerThinPool": utils.ValueIgnoreEmpty(utils.PathSearch("docker_thin_pool", volumeGroupConfig, nil)),
+				"lvmConfig": buildResourceVolumeGroupConfigsLvmConfig(utils.PathSearch("lvm_config", volumeGroupConfig,
+					make([]interface{}, 0)).([]interface{})),
+				"types": utils.ValueIgnoreEmpty(utils.PathSearch("types", volumeGroupConfig,
+					make([]interface{}, 0)).([]interface{})),
+			})
+		}
+		return result
 	}
 
-	result := make([]map[string]interface{}, 0, volumeGroupConfigs.Len())
-	for _, volumeGroupConfig := range volumeGroupConfigs.List() {
-		result = append(result, map[string]interface{}{
-			"volumeGroup":    utils.PathSearch("volume_group", volumeGroupConfig, nil),
-			"dockerThinPool": utils.ValueIgnoreEmpty(utils.PathSearch("docker_thin_pool", volumeGroupConfig, nil)),
-			"lvmConfig": buildResourceVolumeGroupConfigsLvmConfig(utils.PathSearch("lvm_config", volumeGroupConfig,
-				make([]interface{}, 0)).([]interface{})),
-			"types": utils.ValueIgnoreEmpty(utils.ExpandToStringListBySet(utils.PathSearch("types", volumeGroupConfig,
-				schema.NewSet(schema.HashString, nil)).(*schema.Set))),
-		})
+	result := make([]map[string]interface{}, 0, len(oldVolumeGroupConfigs))
+	for _, volumeGroupConfig := range oldVolumeGroupConfigs {
+		newVolumeGroupConfig := utils.PathSearch(fmt.Sprintf("[?volume_group=='%s']|[0]",
+			utils.PathSearch("volume_group", volumeGroupConfig, "").(string)), newVolumeGroupConfigs, make(map[string]interface{}))
+
+		elem := map[string]interface{}{
+			// Required parameter.
+			"volumeGroup": utils.PathSearch("volume_group", volumeGroupConfig, nil),
+		}
+
+		if dockerThinPool := utils.PathSearch("docker_thin_pool", newVolumeGroupConfig, 0).(int); dockerThinPool != 0 {
+			elem["dockerThinPool"] = dockerThinPool
+		} else {
+			elem["dockerThinPool"] = utils.ValueIgnoreEmpty(utils.PathSearch("docker_thin_pool", volumeGroupConfig, nil))
+		}
+
+		if lvmConfigs := utils.PathSearch("lvm_config", newVolumeGroupConfig, make([]interface{}, 0)).([]interface{}); len(lvmConfigs) > 0 {
+			elem["lvmConfig"] = buildResourceVolumeGroupConfigsLvmConfig(lvmConfigs)
+		} else {
+			elem["lvmConfig"] = utils.ValueIgnoreEmpty(buildResourceVolumeGroupConfigsLvmConfig(
+				utils.PathSearch("lvm_config", volumeGroupConfig, make([]interface{}, 0)).([]interface{})))
+		}
+
+		if types := utils.PathSearch("types", newVolumeGroupConfig, make([]interface{}, 0)).([]interface{}); len(types) > 0 {
+			elem["types"] = utils.ValueIgnoreEmpty(types)
+		} else {
+			elem["types"] = utils.ValueIgnoreEmpty(utils.PathSearch("types", volumeGroupConfig, make([]interface{}, 0)).([]interface{}))
+		}
+
+		result = append(result, elem)
 	}
 
 	return result
@@ -1151,6 +1286,8 @@ func flattenGetResourcePoolResponseBodyResources(resp interface{}) []interface{}
 				v, make([]interface{}, 0)).([]interface{})),
 			"volume_group_configs": flattenResourcePoolResourcesVolumeGroupConfigs(utils.PathSearch("volumeGroupConfigs",
 				v, make([]interface{}, 0)).([]interface{})),
+			"volume_group_configs_origin": flattenResourcePoolResourcesVolumeGroupConfigs(utils.PathSearch("volumeGroupConfigs",
+				v, make([]interface{}, 0)).([]interface{})),
 			"os":     flattenResourcePoolResourcesOsInfo(utils.PathSearch("os", v, nil)),
 			"driver": flattenResourcePoolResourcesDriver(utils.PathSearch("driver", v, nil)),
 			// Deprecated parameter(s).
@@ -1320,52 +1457,46 @@ func buildUpdateResourcePoolMetaDataAnnotationsBodyParams(d *schema.ResourceData
 }
 
 func buildUpdateResourcePoolSpecBodyParams(d *schema.ResourceData) map[string]interface{} {
+	oldResourcesVal, newResourcesVal := d.GetChange("resources")
+
 	params := map[string]interface{}{
 		"scope":     utils.ValueIgnoreEmpty(d.Get("scope").(*schema.Set).List()),
-		"resources": buildResourcePoolSpecResources(d),
+		"resources": buildResourcePoolSpecResources(oldResourcesVal.([]interface{}), newResourcesVal.([]interface{})),
 	}
 	return params
 }
 
-func buildResourcePoolResourcesAzs(rawParams interface{}) []map[string]interface{} {
-	if rawArray, ok := rawParams.([]interface{}); ok {
-		if len(rawArray) == 0 {
-			return nil
-		}
-
-		rst := make([]map[string]interface{}, len(rawArray))
-		for i, v := range rawArray {
-			if raw, ok := v.(map[string]interface{}); ok {
-				rst[i] = map[string]interface{}{
-					"az":    utils.ValueIgnoreEmpty(raw["az"]),
-					"count": utils.ValueIgnoreEmpty(raw["count"]),
-				}
-			}
-		}
-		return rst
+func buildResourcePoolResourcesAzs(azSet *schema.Set) []map[string]interface{} {
+	if azSet.Len() < 1 {
+		return nil
 	}
-	return nil
+
+	result := make([]map[string]interface{}, 0, azSet.Len())
+	for _, az := range azSet.List() {
+		result = append(result, map[string]interface{}{
+			"az":    utils.ValueIgnoreEmpty(utils.PathSearch("az", az, nil)),
+			"count": utils.ValueIgnoreEmpty(utils.PathSearch("count", az, nil)),
+		})
+	}
+
+	return result
 }
 
-func buildResourcePoolResourcesTaints(rawParams interface{}) []map[string]interface{} {
-	if rawArray, ok := rawParams.([]interface{}); ok {
-		if len(rawArray) == 0 {
-			return nil
-		}
-
-		rst := make([]map[string]interface{}, len(rawArray))
-		for i, v := range rawArray {
-			if raw, ok := v.(map[string]interface{}); ok {
-				rst[i] = map[string]interface{}{
-					"key":    utils.ValueIgnoreEmpty(raw["key"]),
-					"effect": utils.ValueIgnoreEmpty(raw["effect"]),
-					"value":  utils.ValueIgnoreEmpty(raw["value"]),
-				}
-			}
-		}
-		return rst
+func buildResourcePoolResourcesTaints(taintSet *schema.Set) []map[string]interface{} {
+	if taintSet.Len() < 1 {
+		return nil
 	}
-	return nil
+
+	result := make([]map[string]interface{}, 0, taintSet.Len())
+	for _, taint := range taintSet.List() {
+		result = append(result, map[string]interface{}{
+			"key":    utils.ValueIgnoreEmpty(utils.PathSearch("key", taint, nil)),
+			"value":  utils.ValueIgnoreEmpty(utils.PathSearch("value", taint, nil)),
+			"effect": utils.ValueIgnoreEmpty(utils.PathSearch("effect", taint, nil)),
+		})
+	}
+
+	return result
 }
 
 func updateResourcePoolWaitingForStateCompleted(ctx context.Context, d *schema.ResourceData, meta interface{}, t time.Duration) error {
