@@ -26,7 +26,7 @@ import (
 // @API VPN GET /v5/{project_id}/customer-gateways/{id}
 // @API VPN PUT /v5/{project_id}/customer-gateways/{id}
 // @API VPN POST /v5/{project_id}/{resource_type}/{resource_id}/tags/create
-// @API VPN DELETE /v5/{project_id}/{resource_type}/{resource_id}/tags/delete
+// @API VPN POST /v5/{project_id}/{resource_type}/{resource_id}/tags/delete
 func ResourceCustomerGateway() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCustomerGatewayCreate,
