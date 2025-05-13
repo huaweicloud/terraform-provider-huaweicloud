@@ -2,6 +2,7 @@ package cbr
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -1214,4 +1215,59 @@ resource "huaweicloud_cbr_vault" "test" {
   }
 }
 `, basicConfig, name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+}
+
+func TestAccVault_locked(t *testing.T) {
+	var (
+		vault interface{}
+
+		resourceName = "huaweicloud_cbr_vault.test"
+		name         = acceptance.RandomAccResourceName()
+
+		rc = acceptance.InitResourceCheck(resourceName, &vault, getVaultResourceFunc)
+	)
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVault_locked_step(name, true),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "type", "disk"),
+					resource.TestCheckResourceAttr(resourceName, "protection_type", "backup"),
+					resource.TestCheckResourceAttr(resourceName, "size", "100"),
+					resource.TestCheckResourceAttr(resourceName, "locked", "true"),
+				),
+			},
+			{
+				Config: testAccVault_locked_step(name, false),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "type", "disk"),
+					resource.TestCheckResourceAttr(resourceName, "protection_type", "backup"),
+					resource.TestCheckResourceAttr(resourceName, "size", "100"),
+					resource.TestCheckResourceAttr(resourceName, "locked", "false"),
+				),
+				ExpectError: regexp.MustCompile("vault not support to modify locked attribute from true to false."),
+			},
+		},
+	})
+}
+
+func testAccVault_locked_step(name string, locked bool) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_cbr_vault" "test" {
+  name            = "%[1]s"
+  type            = "disk"
+  protection_type = "backup"
+  size            = 100
+  locked          = %v
+}
+`, name, locked)
 }
