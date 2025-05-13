@@ -121,7 +121,7 @@ type MemberInfo struct {
 	// Defaults to false.
 	IsBackup *bool `json:"is_backup,omitempty"`
 	// Backend server group name. The server group facilitates backend service address modification.
-	GroupName string `json:"group_name,omitempty"`
+	GroupName string `json:"member_group_name,omitempty"`
 	// Backend server status.
 	// + 1: available
 	// + 2: unavailable
