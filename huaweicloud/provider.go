@@ -569,10 +569,11 @@ func Provider() *schema.Provider {
 			"huaweicloud_cce_cluster_configurations": cce.DataSourceClusterConfigurations(),
 			"huaweicloud_cce_addons":                 cce.DataSourceCceAddons(),
 
-			"huaweicloud_cci_namespaces":   cci.DataSourceCciNamespaces(),
-			"huaweicloud_cciv2_namespaces": cci.DataSourceV2Namespaces(),
-			"huaweicloud_cciv2_services":   cci.DataSourceV2Services(),
-			"huaweicloud_cciv2_secrets":    cci.DataSourceV2Secrets(),
+			"huaweicloud_cci_namespaces":    cci.DataSourceCciNamespaces(),
+			"huaweicloud_cciv2_namespaces":  cci.DataSourceV2Namespaces(),
+			"huaweicloud_cciv2_services":    cci.DataSourceV2Services(),
+			"huaweicloud_cciv2_secrets":     cci.DataSourceV2Secrets(),
+			"huaweicloud_cciv2_config_maps": cci.DataSourceV2ConfigMaps(),
 
 			"huaweicloud_ccm_certificates":               ccm.DataSourceCertificates(),
 			"huaweicloud_ccm_certificate_export":         ccm.DataSourceCertificateExport(),
