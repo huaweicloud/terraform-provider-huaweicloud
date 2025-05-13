@@ -382,6 +382,9 @@ The following arguments are supported:
     period. It supports parameter-based, basic, and excluded throttling.
   + **kafka_log**: Kafka Log Push, Push detailed API calling logs to kafka for you to easily obtain logs.
   + **breaker**: Circuit Breaker, circuit breaker protect the system when performance issues occur on backend service.
+  + **third_auth**: Third-Party Authorizer.
+  + **proxy_cache**: Proxy Cache.
+  + **proxy_mirror**: Proxy Mirror.
 
   Changing this will create a new resource.
 
@@ -391,6 +394,9 @@ The following arguments are supported:
   + For `Request Throttling 2.0` plugins, you can refer to this [document](https://support.huaweicloud.com/intl/en-us/usermanual-apig/apig_03_0054.html).
   + For `Kafka Log Push` plugins, you can refer to this [document](https://support.huaweicloud.com/intl/en-us/usermanual-apig/apig_03_0061.html).
   + For `Circuit Breaker` plugins, you can refer to this [document](https://support.huaweicloud.com/intl/en-us/usermanual-apig/apig_03_0023.html).
+  + For `Third-Party Authorizer` plugins, you can refer to this [document](https://support.huaweicloud.com/intl/en-us/usermanual-apig/apig_03_0077.html).
+  + For `Proxy Cache` plugins, you can refer to this [document](https://support.huaweicloud.com/intl/en-us/usermanual-apig/apig_03_0111.html).
+  + For `Proxy Mirror` plugins, you can refer to this [document](https://support.huaweicloud.com/intl/en-us/usermanual-apig/apig_03_0112.html).
 
   -> All default values in content need to be filled in, otherwise `terraform plan` will prompt the script to change.
      You can confirm the content of a policy through the console (**APIG** -> **API Policies** -> **Your Policy**
