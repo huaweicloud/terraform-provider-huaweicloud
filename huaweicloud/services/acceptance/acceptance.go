@@ -108,6 +108,8 @@ var (
 	HW_HIGH_COST_ALLOW      = os.Getenv("HW_HIGH_COST_ALLOW")
 	HW_SWR_SHARING_ACCOUNT  = os.Getenv("HW_SWR_SHARING_ACCOUNT")
 
+	HW_CBH_INSTANCE_ID = os.Getenv("HW_CBH_INSTANCE_ID")
+
 	HW_RAM_SHARE_ACCOUNT_ID          = os.Getenv("HW_RAM_SHARE_ACCOUNT_ID")
 	HW_RAM_SHARE_RESOURCE_URN        = os.Getenv("HW_RAM_SHARE_RESOURCE_URN")
 	HW_RAM_SHARE_UPDATE_ACCOUNT_ID   = os.Getenv("HW_RAM_SHARE_UPDATE_ACCOUNT_ID")
@@ -967,6 +969,13 @@ func TestAccPreCheckElbCertID(t *testing.T) {
 func TestAccPreCheckElbLoadbalancerID(t *testing.T) {
 	if HW_ELB_LOADBALANCER_ID == "" {
 		t.Skip("HW_ELB_LOADBALANCER_ID must be set for this acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCbhInstanceID(t *testing.T) {
+	if HW_CBH_INSTANCE_ID == "" {
+		t.Skip("HW_CBH_INSTANCE_ID must be set for this acceptance test")
 	}
 }
 
