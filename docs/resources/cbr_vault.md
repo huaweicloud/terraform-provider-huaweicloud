@@ -92,6 +92,7 @@ resource "huaweicloud_cbr_vault" "test" {
   protection_type = "backup"
   size            = 50
   auto_expand     = true
+  locked          = false
 
   resources {
     includes = var.evs_volume_ids
@@ -225,6 +226,8 @@ The following arguments are supported:
   Defaults to **false**.
 
   -> You cannot configure `auto_expand` if the vault is **prePaid** mode.
+
+* `auto_expand` - (Optional, Bool) Specifies Locked status of the vault. Defaults to **false**.
 
 * `auto_bind` - (Optional, Bool) Specifies whether automatic association is enabled. Defaults to **false**.
 

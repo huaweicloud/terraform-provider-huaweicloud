@@ -22,6 +22,12 @@
                 "optional": true,
                 "computed": true
               },
+              "locked": {
+                "type": "bool",
+                "description":  "Locked status of the vault.",
+                "optional": true,
+                "computed": true
+              },
               "auto_renew": {
                 "type": "string",
                 "optional": true

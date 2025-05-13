@@ -2,6 +2,7 @@ package cbr
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"strconv"
@@ -273,7 +274,7 @@ func buildAssociateResourcesForServer(rType string, resources []interface{}) ([]
 
 	for _, val := range resources {
 		if utils.PathSearch("includes", val, schema.NewSet(schema.HashString, nil)).(*schema.Set).Len() > 0 {
-			return results, fmt.Errorf("server type vaults does not support 'includes'")
+			return results, errors.New("server type vaults does not support 'includes'")
 		}
 
 		result := map[string]interface{}{
@@ -293,18 +294,18 @@ func buildAssociateResourcesForServer(rType string, resources []interface{}) ([]
 
 func buildAssociateResourcesForDisk(rType string, resources []interface{}) ([]map[string]interface{}, error) {
 	if len(resources) > 1 {
-		return nil, fmt.Errorf("the size of resources cannot grant than one for disk and turbo vault")
+		return nil, errors.New("the size of resources cannot grant than one for disk and turbo vault")
 	} else if len(resources) == 0 {
 		// If no resource is set, send an empty slice to the CBR service.
 		return make([]map[string]interface{}, 0), nil
 	}
 
 	if utils.PathSearch("excludes", resources[0], schema.NewSet(schema.HashString, nil)).(*schema.Set).Len() > 0 {
-		return nil, fmt.Errorf("disk-type and turbo-type vaults does not support 'excludes'")
+		return nil, errors.New("disk-type and turbo-type vaults does not support 'excludes'")
 	}
 	includes := utils.PathSearch("includes", resources[0], schema.NewSet(schema.HashString, nil)).(*schema.Set)
 	if includes.Len() < 1 {
-		return nil, fmt.Errorf("includes must be set for disk type and turbo type vault")
+		return nil, errors.New("includes must be set for disk type and turbo type vault")
 	}
 	results := make([]map[string]interface{}, 0, includes.Len())
 	for _, v := range includes.List() {
@@ -390,7 +391,7 @@ func buildVaultCreateOpts(cfg *config.Config, d *schema.ResourceData) (map[strin
 
 	isAutoExpand, ok := d.GetOk("auto_expand")
 	if ok && isPrePaid(d) {
-		return nil, fmt.Errorf("the prepaid vault do not support the parameter 'auto_expand'")
+		return nil, errors.New("the prepaid vault do not support the parameter 'auto_expand'")
 	}
 
 	result := map[string]interface{}{
@@ -893,7 +894,7 @@ func updateBasicParameters(client *golangsdk.ServiceClient, d *schema.ResourceDa
 
 	if d.HasChanges("size", "auto_expand", "auto_bind") {
 		if isPrePaid(d) {
-			return fmt.Errorf("cannot update 'size', 'auto_expand' or 'auto_bind' if the vault is prepaid mode")
+			return errors.New("cannot update 'size', 'auto_expand' or 'auto_bind' if the vault is prepaid mode")
 		}
 		requestBody["auto_expand"] = d.Get("auto_expand").(bool)
 		requestBody["auto_bind"] = d.Get("auto_bind").(bool)
@@ -904,7 +905,7 @@ func updateBasicParameters(client *golangsdk.ServiceClient, d *schema.ResourceDa
 		newLocked := d.Get("locked").(bool)
 		oldLocked, _ := d.GetChange("locked")
 		if oldLocked.(bool) && !newLocked {
-			return fmt.Errorf("cannot unlock a vault that is already locked")
+			return errors.New("cannot unlock a vault that is already locked")
 		}
 		if !oldLocked.(bool) && newLocked {
 			requestBody["locked"] = newLocked
