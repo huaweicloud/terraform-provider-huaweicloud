@@ -362,6 +362,8 @@ func createPostPaidEip(ctx context.Context, cfg *config.Config, client *golangsd
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        5 * time.Second,
 		PollInterval: 10 * time.Second,
+		// Max four retries will be executed.
+		NotFoundChecks: 3,
 	}
 
 	_, err = stateConf.WaitForStateContext(ctx)
@@ -437,10 +439,10 @@ func eipStatusRefreshFunc(networkingClient *golangsdk.ServiceClient, eipId strin
 				if len(targets) < 1 {
 					return resp, "COMPLETED", nil
 				}
-				return resp, "PENDING", nil
+				// The right pending status and nil response will trigger the NotFoundCheck logic.
+				return nil, "PENDING", nil
 			}
-
-			return nil, "", err
+			return resp, "ERROR", err
 		}
 		log.Printf("[DEBUG] The details of the EIP (%s) is: %+v", eipId, resp)
 
