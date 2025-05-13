@@ -632,9 +632,10 @@ func Provider() *schema.Provider {
 			"huaweicloud_cfw_resource_tags":             cfw.DataSourceCfwResourceTags(),
 			"huaweicloud_cfw_tags":                      cfw.DataSourceCfwTags(),
 
-			"huaweicloud_cnad_advanced_instances":         cnad.DataSourceInstances(),
-			"huaweicloud_cnad_advanced_available_objects": cnad.DataSourceAvailableProtectedObjects(),
-			"huaweicloud_cnad_advanced_protected_objects": cnad.DataSourceProtectedObjects(),
+			"huaweicloud_cnad_advanced_instances":           cnad.DataSourceInstances(),
+			"huaweicloud_cnad_advanced_alarm_notifications": cnad.DataSourceAlarmNotifications(),
+			"huaweicloud_cnad_advanced_available_objects":   cnad.DataSourceAvailableProtectedObjects(),
+			"huaweicloud_cnad_advanced_protected_objects":   cnad.DataSourceProtectedObjects(),
 
 			"huaweicloud_compute_flavors":                 ecs.DataSourceEcsFlavors(),
 			"huaweicloud_compute_instance":                ecs.DataSourceComputeInstance(),
