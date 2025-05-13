@@ -227,7 +227,8 @@ The following arguments are supported:
 
   -> You cannot configure `auto_expand` if the vault is **prePaid** mode.
 
-* `auto_expand` - (Optional, Bool) Specifies locked status of the vault. Defaults to **false**.
+* `locked` - (Optional, Bool) Specifies whether the vault is locked. A locked vault cannot be unlocked.
+  Defaults to **false**.
 
 * `auto_bind` - (Optional, Bool) Specifies whether automatic association is enabled. Defaults to **false**.
 
