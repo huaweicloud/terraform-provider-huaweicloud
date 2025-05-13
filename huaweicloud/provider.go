@@ -1334,6 +1334,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_vpn_access_policies":                vpn.DataSourceVpnAccessPolicies(),
 			"huaweicloud_vpn_gateway_availability_zones":     vpn.DataSourceVpnGatewayAZs(),
+			"huaweicloud_vpnv51_gateway_availability_zones":  vpn.DataSourceVpnv51GatewayAvailabilityZones(),
 			"huaweicloud_vpn_gateways":                       vpn.DataSourceGateways(),
 			"huaweicloud_vpn_customer_gateways":              vpn.DataSourceVpnCustomerGateways(),
 			"huaweicloud_vpn_connections":                    vpn.DataSourceVpnConnections(),
