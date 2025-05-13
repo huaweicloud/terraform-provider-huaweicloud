@@ -1254,7 +1254,7 @@ func TestAccVault_locked(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "size", "100"),
 					resource.TestCheckResourceAttr(resourceName, "locked", "false"),
 				),
-				ExpectError: regexp.MustCompile("cannot unlock a vault that is already locked"),
+				ExpectError: regexp.MustCompile("vault not support to modify locked attribute from true to false."),
 			},
 		},
 	})
@@ -1263,11 +1263,11 @@ func TestAccVault_locked(t *testing.T) {
 func testAccVault_locked_step(name string, locked bool) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_cbr_vault" "test" {
-	name                  = "%[1]s"
-	type                  = "disk"
-	protection_type       = "backup"
-	size                  = 100
-    locked                = %v
+  name            = "%[1]s"
+  type            = "disk"
+  protection_type = "backup"
+  size            = 100
+  locked          = %v
 }
 `, name, locked)
 }

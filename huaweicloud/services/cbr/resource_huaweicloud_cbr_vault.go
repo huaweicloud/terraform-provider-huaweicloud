@@ -902,14 +902,7 @@ func updateBasicParameters(client *golangsdk.ServiceClient, d *schema.ResourceDa
 	}
 
 	if d.HasChange("locked") {
-		newLocked := d.Get("locked").(bool)
-		oldLocked, _ := d.GetChange("locked")
-		if oldLocked.(bool) && !newLocked {
-			return errors.New("cannot unlock a vault that is already locked")
-		}
-		if !oldLocked.(bool) && newLocked {
-			requestBody["locked"] = newLocked
-		}
+		requestBody["locked"] = d.Get("locked").(bool)
 	}
 
 	if d.HasChanges("bind_rules") {
