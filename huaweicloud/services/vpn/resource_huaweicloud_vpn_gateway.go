@@ -64,7 +64,7 @@ func ResourceGateway() *schema.Resource {
 				Description: `The name of the VPN gateway. Only letters, digits, underscores(_) and hypens(-) are supported.`,
 			},
 			"availability_zones": {
-				Type:        schema.TypeList,
+				Type:        schema.TypeSet,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Required:    true,
 				ForceNew:    true,
@@ -522,7 +522,7 @@ func buildCreateGatewayVpnGatewayChildBody(d *schema.ResourceData, cfg *config.C
 	}
 	params := map[string]interface{}{
 		"attachment_type":       utils.ValueIgnoreEmpty(d.Get("attachment_type")),
-		"availability_zone_ids": utils.ValueIgnoreEmpty(d.Get("availability_zones")),
+		"availability_zone_ids": utils.ValueIgnoreEmpty(d.Get("availability_zones").(*schema.Set).List()),
 		"bgp_asn":               utils.ValueIgnoreEmpty(d.Get("asn")),
 		"connect_subnet":        utils.ValueIgnoreEmpty(d.Get("connect_subnet")),
 		"enterprise_project_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
@@ -1173,27 +1173,8 @@ func deleteGatewayWaitingForStateCompleted(ctx context.Context, d *schema.Resour
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw := utils.PathSearch(`vpn_gateway.status`, deleteGatewayWaitingRespBody, nil)
-			if statusRaw == nil {
-				return nil, "ERROR", fmt.Errorf("error parsing %s from response body", `vpn_gateway.status`)
-			}
 
-			status := fmt.Sprintf("%v", statusRaw)
-
-			var targetStatus []string
-			if utils.StrSliceContains(targetStatus, status) {
-				return deleteGatewayWaitingRespBody, "COMPLETED", nil
-			}
-
-			pendingStatus := []string{
-				"ACTIVE",
-				"PENDING_DELETE",
-			}
-			if utils.StrSliceContains(pendingStatus, status) {
-				return deleteGatewayWaitingRespBody, "PENDING", nil
-			}
-
-			return deleteGatewayWaitingRespBody, status, nil
+			return deleteGatewayWaitingRespBody, "PENDING", nil
 		},
 		Timeout:      t,
 		Delay:        10 * time.Second,
