@@ -14,7 +14,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API AAD GET v1/aad/instances
+// @API AAD GET /v1/aad/instances
 func DataSourceAADInstances() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceAADInstancesRead,
