@@ -57,4 +57,3 @@ The `ips` block supports:
 * `elastic_bandwidth` - The elastic bandwidth of the AAD instance.
 
 * `ip_status` - The IP status of the AAD instance.
-
