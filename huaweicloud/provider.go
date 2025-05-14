@@ -575,6 +575,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cciv2_secrets":     cci.DataSourceV2Secrets(),
 			"huaweicloud_cciv2_config_maps": cci.DataSourceV2ConfigMaps(),
 			"huaweicloud_cciv2_networks":    cci.DataSourceV2Networks(),
+			"huaweicloud_cciv2_deployments": cci.DataSourceV2Deployments(),
 
 			"huaweicloud_ccm_certificates":               ccm.DataSourceCertificates(),
 			"huaweicloud_ccm_certificate_export":         ccm.DataSourceCertificateExport(),
