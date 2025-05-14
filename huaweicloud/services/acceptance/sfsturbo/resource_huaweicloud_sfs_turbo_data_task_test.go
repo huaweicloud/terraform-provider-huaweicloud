@@ -58,7 +58,7 @@ func TestAccDataTask_basic(t *testing.T) {
 			acceptance.TestAccPreCheckOBSEndpoint(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      nil,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataTask_basic(name, randInt),
