@@ -935,6 +935,8 @@ func buildUpdateFunctionMetadataBodyParams(cfg *config.Config, d *schema.Resourc
 		"custom_image":        buildFunctionCustomImage(d.Get("custom_image").([]interface{})),
 		"gpu_memory":          utils.ValueIgnoreEmpty(d.Get("gpu_memory")),
 		"gpu_type":            utils.ValueIgnoreEmpty(d.Get("gpu_type")),
+		"initializer_handler": utils.ValueIgnoreEmpty(d.Get("initializer_handler")),
+		"initializer_timeout": utils.ValueIgnoreEmpty(d.Get("initializer_timeout")),
 		"pre_stop_handler":    utils.ValueIgnoreEmpty(d.Get("pre_stop_handler")),
 		"pre_stop_timeout":    utils.ValueIgnoreEmpty(d.Get("pre_stop_timeout")),
 		"log_config":          buildFunctionLogConfig(d),
@@ -1276,9 +1278,9 @@ func resourceFunctionCreate(ctx context.Context, d *schema.ResourceData, meta in
 	funcUrnWithoutVersion := parseFunctionUrnWithoutVersion(funcUrn)
 
 	// lintignore:R019
-	if d.HasChanges("vpc_id", "func_mounts", "app_agency", "initializer_handler", "initializer_timeout", "concurrency_num",
-		"peering_cidr", "enable_auth_in_header", "enable_class_isolation", "ephemeral_storage", "heartbeat_handler",
-		"restore_hook_handler", "restore_hook_timeout", "lts_custom_tag") {
+	if d.HasChanges("vpc_id", "network_id", "func_mounts", "app_agency", "initializer_handler", "initializer_timeout",
+		"concurrency_num", "peering_cidr", "enable_auth_in_header", "enable_class_isolation", "ephemeral_storage",
+		"heartbeat_handler", "restore_hook_handler", "restore_hook_timeout", "lts_custom_tag") {
 		err = updateFunctionMetadata(client, cfg, d, funcUrnWithoutVersion)
 		if err != nil {
 			return diag.FromErr(err)

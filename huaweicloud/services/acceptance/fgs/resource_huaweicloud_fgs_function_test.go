@@ -87,6 +87,8 @@ func TestAccFunction_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(withBase64Code, "functiongraph_version", "v2"),
 					resource.TestCheckResourceAttr(withBase64Code, "enable_dynamic_memory", "true"),
 					resource.TestCheckResourceAttr(withBase64Code, "is_stateful_function", "true"),
+					resource.TestCheckResourceAttr(withBase64Code, "initializer_handler", "index.handler"),
+					resource.TestCheckResourceAttr(withBase64Code, "initializer_timeout", "5"),
 					resource.TestCheckResourceAttr(withBase64Code, "network_controller.#", "1"),
 					resource.TestCheckResourceAttr(withBase64Code, "network_controller.0.trigger_access_vpcs.#", "2"),
 					resource.TestCheckResourceAttr(withBase64Code, "network_controller.0.disable_public_network", "true"),
@@ -437,6 +439,8 @@ resource "huaweicloud_fgs_function" "with_base64_code" {
   functiongraph_version = "v2"
   enable_dynamic_memory = true
   is_stateful_function  = true
+  initializer_handler   = "index.handler"
+  initializer_timeout   = 5
 
   user_data = jsonencode({
     "owner": "terraform"
