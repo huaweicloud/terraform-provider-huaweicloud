@@ -28,6 +28,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/bcs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/bms"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cae"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cbc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cbh"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cbr"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cc"
@@ -1591,6 +1592,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_cae_notification_rule":        cae.ResourceNotificationRule(),
 			"huaweicloud_cae_timer_rule":               cae.ResourceTimerRule(),
 			"huaweicloud_cae_vpc_egress":               cae.ResourceVpcEgress(),
+
+			"huaweicloud_cbc_resources_unsubscribe": cbc.ResourceResourcesUnsubscribe(),
 
 			"huaweicloud_cbr_backup_share_accepter": cbr.ResourceBackupShareAccepter(),
 			"huaweicloud_cbr_backup_share":          cbr.ResourceBackupShare(),
