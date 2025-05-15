@@ -567,6 +567,11 @@ var (
 
 	HW_RDS_CROSS_REGION_BACKUP_INSTANCE_ID = os.Getenv("HW_RDS_CROSS_REGION_BACKUP_INSTANCE_ID")
 	HW_RDS_INSTANCE_ID                     = os.Getenv("HW_RDS_INSTANCE_ID")
+	HW_RDS_TARGET_INSTANCE_ID              = os.Getenv("HW_RDS_TARGET_INSTANCE_ID")
+	HW_RDS_TARGET_PROJECT_ID               = os.Getenv("HW_RDS_TARGET_PROJECT_ID")
+	HW_RDS_TARGET_REGION                   = os.Getenv("HW_RDS_TARGET_REGION")
+	HW_RDS_TARGET_IP                       = os.Getenv("HW_RDS_TARGET_IP")
+	HW_RDS_TARGET_SUBNET                   = os.Getenv("HW_RDS_TARGET_SUBNET")
 	HW_RDS_INSTANCE_NAME                   = os.Getenv("HW_RDS_INSTANCE_NAME")
 	HW_RDS_DATABASE_NAME                   = os.Getenv("HW_RDS_DATABASE_NAME")
 	HW_RDS_TABLE_NAME                      = os.Getenv("HW_RDS_TABLE_NAME")
@@ -2815,6 +2820,41 @@ func TestAccPreCheckRdsCrossRegionBackupInstanceId(t *testing.T) {
 func TestAccPreCheckRdsInstanceId(t *testing.T) {
 	if HW_RDS_INSTANCE_ID == "" {
 		t.Skip("HW_RDS_INSTANCE_ID must be set for RDS acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckRdsTargetInstanceId(t *testing.T) {
+	if HW_RDS_TARGET_INSTANCE_ID == "" {
+		t.Skip("HW_RDS_TARGET_INSTANCE_ID must be set for RDS acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckRdsTargetProjectId(t *testing.T) {
+	if HW_RDS_TARGET_PROJECT_ID == "" {
+		t.Skip("HW_RDS_TARGET_PROJECT_ID must be set for RDS acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckRdsTargetRegion(t *testing.T) {
+	if HW_RDS_TARGET_REGION == "" {
+		t.Skip("HW_RDS_TARGET_REGION must be set for RDS acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckRdsTargetIp(t *testing.T) {
+	if HW_RDS_TARGET_IP == "" {
+		t.Skip("HW_RDS_TARGET_IP must be set for RDS acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckRdsTargetSubnet(t *testing.T) {
+	if HW_RDS_TARGET_SUBNET == "" {
+		t.Skip("HW_RDS_TARGET_SUBNET must be set for RDS acceptance tests")
 	}
 }
 
