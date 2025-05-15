@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 1.74.1 (May 15, 2025)
+
+* **New Source:**
+  + `huaweicloud_cbc_resources_unsubscribe` [GH-6790]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_vpc_eip: report the error if the whole bandwidth is sold out [GH-6771]
+* resource/huaweicloud_modelarts_resource_pool: disable the sorting logic for resources parameter [GH-6776]
+
 ## 1.74.0 (April 30, 2025)
 
 * **New Data Source:**
