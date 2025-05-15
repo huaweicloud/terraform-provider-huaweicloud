@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_ga_tags
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: GA
+paths:
+    /v1/{resource_type}/tags:
+        GET:
+            tag: GA

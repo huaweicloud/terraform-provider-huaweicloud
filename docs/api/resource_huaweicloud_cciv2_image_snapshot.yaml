@@ -16,5 +16,3 @@ paths:
             tag: CCI
         GET:
             tag: CCI
-        PUT:
-            tag: CCI

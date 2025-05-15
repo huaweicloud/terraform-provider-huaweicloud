@@ -1,6 +1,6 @@
 info:
     version: ""
-    title: data_source_huaweicloud_cbh_flavors
+    title: data_source_huaweicloud_cbh_instance_tags
     description: ""
 schemes:
     - https
@@ -8,6 +8,6 @@ host: huaweicloud.com
 tags:
     - name: CBH
 paths:
-    /v2/{project_id}/cbs/instance/specification:
+    /v2/{project_id}/cbs/instance/tags:
         GET:
             tag: CBH
