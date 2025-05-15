@@ -146,7 +146,7 @@ func (*LogRoundTripper) dumpRequest(original io.ReadCloser, bs *bytes.Buffer) (i
 // logRequest will log the HTTP Request details.
 // If the body is JSON, it will attempt to be pretty-formatted.
 func (*LogRoundTripper) logRequest(bs *bytes.Buffer, contentType, logId string) error {
-	isJSONFormat := regexp.MustCompile(`^application/(merge-patch\+)?json$`).Match([]byte(contentType))
+	isJSONFormat := regexp.MustCompile(`^application/(merge-patch\+)?json`).Match([]byte(contentType))
 	isXMLFormat := strings.HasPrefix(bs.String(), "<") && !strings.HasPrefix(bs.String(), "<html>")
 	// Handle request contentType
 	switch {
