@@ -27,6 +27,24 @@
                 "description": "|-\n                    Specifies the information about the listener. The value can contain 0 to 255 characters.\n                    The following characters are not allowed: <>",
                 "optional": true
               },
+              "frozen_info": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "effect": "number",
+                      "scene": [
+                        "list",
+                        "string"
+                      ],
+                      "status": "number"
+                    }
+                  ]
+                ],
+                "description": "The frozen details of cloud services or resources.",
+                "computed": true
+              },
               "id": {
                 "type": "string",
                 "computed": true

@@ -18,6 +18,20 @@
                     {
                       "created_at": "string",
                       "description": "string",
+                      "frozen_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "effect": "number",
+                            "scene": [
+                              "list",
+                              "string"
+                            ],
+                            "status": "number"
+                          }
+                        ]
+                      ],
                       "id": "string",
                       "listener_id": "string",
                       "name": "string",

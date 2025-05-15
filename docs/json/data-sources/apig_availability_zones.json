@@ -1,0 +1,59 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_apig_availability_zones": {
+          "block": {
+            "attributes": {
+              "availability_zones": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "code": "string",
+                      "id": "string",
+                      "local_name": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "en_us": "string",
+                            "zh_cn": "string"
+                          }
+                        ]
+                      ],
+                      "name": "string",
+                      "port": "string",
+                      "specs": [
+                        "map",
+                        "bool"
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The list of the availability zones.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

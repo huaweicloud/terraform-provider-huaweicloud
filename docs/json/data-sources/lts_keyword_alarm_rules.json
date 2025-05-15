@@ -1,0 +1,101 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_lts_keyword_alarm_rules": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "keyword_alarm_rules": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "alarm_action_rule_name": "string",
+                      "alarm_level": "string",
+                      "condition_expression": "string",
+                      "created_at": "string",
+                      "description": "string",
+                      "domain_id": "string",
+                      "frequency": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "cron_expression": "string",
+                            "day_of_week": "number",
+                            "fixed_rate": "number",
+                            "fixed_rate_unit": "string",
+                            "hour_of_day": "number",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "id": "string",
+                      "keywords_requests": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "condition": "string",
+                            "keywords": "string",
+                            "log_group_id": "string",
+                            "log_group_name": "string",
+                            "log_stream_id": "string",
+                            "log_stream_name": "string",
+                            "number": "number",
+                            "search_time_range": "number",
+                            "search_time_range_unit": "string"
+                          }
+                        ]
+                      ],
+                      "name": "string",
+                      "notification_frequency": "number",
+                      "recovery_frequency": "number",
+                      "send_notifications": "bool",
+                      "send_recovery_notifications": "bool",
+                      "status": "string",
+                      "template_name": "string",
+                      "topics": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "display_name": "string",
+                            "name": "string",
+                            "push_policy": "number",
+                            "topic_urn": "string"
+                          }
+                        ]
+                      ],
+                      "trigger_condition_count": "number",
+                      "trigger_condition_frequency": "number",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the keyword alarm rules.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "LTS",
+            "name": "Log Tank Service",
+            "catalog": "Management & Governance",
+            "name_cn": "云日志服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

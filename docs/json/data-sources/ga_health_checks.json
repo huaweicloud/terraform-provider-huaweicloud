@@ -29,6 +29,20 @@
                       "created_at": "string",
                       "enabled": "bool",
                       "endpoint_group_id": "string",
+                      "frozen_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "effect": "number",
+                            "scene": [
+                              "list",
+                              "string"
+                            ],
+                            "status": "number"
+                          }
+                        ]
+                      ],
                       "id": "string",
                       "interval": "number",
                       "max_retries": "number",

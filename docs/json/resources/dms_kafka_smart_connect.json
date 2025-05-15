@@ -34,7 +34,7 @@
               "storage_spec_code": {
                 "type": "string",
                 "description": "Specifies the specification code of the smart connect.",
-                "required": true,
+                "optional": true,
                 "forcenew": true
               }
             }

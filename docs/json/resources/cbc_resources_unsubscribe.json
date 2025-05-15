@@ -1,0 +1,26 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cbc_resources_unsubscribe": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "resource_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The IDs of the resource to be unsubscribed.",
+                "required": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

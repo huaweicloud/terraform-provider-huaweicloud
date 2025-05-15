@@ -27,6 +27,17 @@
                 "description": "The creation time of the CCE access, in RFC3339 format.",
                 "computed": true
               },
+              "demo_log": {
+                "type": "string",
+                "description": "The example log of the ICAgent structuring parsing.",
+                "optional": true
+              },
+              "encoding_format": {
+                "type": "string",
+                "description": "The encoding format log file.",
+                "optional": true,
+                "computed": true
+              },
               "host_group_ids": {
                 "type": [
                   "list",
@@ -39,6 +50,12 @@
               "id": {
                 "type": "string",
                 "computed": true
+              },
+              "incremental_collect": {
+                "type": "bool",
+                "description": "Whether to collect logs incrementally.",
+                "optional": true,
+                "default": true
               },
               "log_group_id": {
                 "type": "string",
@@ -71,8 +88,12 @@
               "name": {
                 "type": "string",
                 "description": "The name of the CCE access.",
-                "required": true,
-                "forcenew": true
+                "required": true
+              },
+              "processor_type": {
+                "type": "string",
+                "description": "The type of the ICAgent structuring parsing.",
+                "optional": true
               },
               "region": {
                 "type": "string",
@@ -103,6 +124,15 @@
                       "description": "The regular expression matching of kubernetes container names.",
                       "optional": true
                     },
+                    "custom_key_value": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "description": "The custom key/value pairs.",
+                      "optional": true,
+                      "forcenew": true
+                    },
                     "exclude_envs": {
                       "type": [
                         "map",
@@ -110,6 +140,12 @@
                       ],
                       "description": "The environment variable blacklist.",
                       "optional": true
+                    },
+                    "exclude_envs_logical": {
+                      "type": "string",
+                      "description": "The logical relationship between multiple environment variable blacklists.",
+                      "optional": true,
+                      "computed": true
                     },
                     "exclude_k8s_labels": {
                       "type": [
@@ -119,6 +155,12 @@
                       "description": "The kubernetes label blacklist.",
                       "optional": true
                     },
+                    "exclude_k8s_labels_logical": {
+                      "type": "string",
+                      "description": "The logical relationship between multiple kubernetes label blacklists.",
+                      "optional": true,
+                      "computed": true
+                    },
                     "exclude_labels": {
                       "type": [
                         "map",
@@ -126,6 +168,12 @@
                       ],
                       "description": "The container label blacklist.",
                       "optional": true
+                    },
+                    "exclude_labels_logical": {
+                      "type": "string",
+                      "description": "The logical relationship between multiple container label blacklists.",
+                      "optional": true,
+                      "computed": true
                     },
                     "include_envs": {
                       "type": [
@@ -135,6 +183,12 @@
                       "description": "The environment variable whitelist.",
                       "optional": true
                     },
+                    "include_envs_logical": {
+                      "type": "string",
+                      "description": "The logical relationship between multiple environment variable whitelists.",
+                      "optional": true,
+                      "computed": true
+                    },
                     "include_k8s_labels": {
                       "type": [
                         "map",
@@ -143,6 +197,12 @@
                       "description": "The kubernetes label whitelist.",
                       "optional": true
                     },
+                    "include_k8s_labels_logical": {
+                      "type": "string",
+                      "description": "The logical relationship between multiple kubernetes label whitelists.",
+                      "optional": true,
+                      "computed": true
+                    },
                     "include_labels": {
                       "type": [
                         "map",
@@ -150,6 +210,12 @@
                       ],
                       "description": "The container label whitelist.",
                       "optional": true
+                    },
+                    "include_labels_logical": {
+                      "type": "string",
+                      "description": "The logical relationship between multiple container label whitelists.",
+                      "optional": true,
+                      "computed": true
                     },
                     "log_envs": {
                       "type": [
@@ -198,6 +264,12 @@
                       "description": "The regular expression matching of kubernetes pods.",
                       "optional": true
                     },
+                    "repeat_collect": {
+                      "type": "bool",
+                      "description": "Whether to allow repeated file collection.",
+                      "optional": true,
+                      "default": true
+                    },
                     "stderr": {
                       "type": "bool",
                       "description": "Whether error output is standard. Default is false.",
@@ -209,6 +281,16 @@
                       "description": "Whether output is standard. Default is false.",
                       "optional": true,
                       "computed": true
+                    },
+                    "system_fields": {
+                      "type": [
+                        "set",
+                        "string"
+                      ],
+                      "description": "The list of system built-in fields of the CCE access.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
                     }
                   },
                   "block_types": {
@@ -284,6 +366,42 @@
                 "nesting_mode": "list",
                 "min_items": 1,
                 "max_items": 1
+              },
+              "demo_fields": {
+                "block": {
+                  "attributes": {
+                    "field_name": {
+                      "type": "string",
+                      "description": "The name of the parsed field.",
+                      "required": true
+                    },
+                    "field_value": {
+                      "type": "string",
+                      "description": "The value of the parsed field.",
+                      "optional": true
+                    }
+                  },
+                  "description": "The list of the parsed fields of the example log"
+                },
+                "nesting_mode": "set"
+              },
+              "processors": {
+                "block": {
+                  "attributes": {
+                    "detail": {
+                      "type": "string",
+                      "description": "The configuration of the parser, in JSON format.",
+                      "optional": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The type of the parser.",
+                      "optional": true
+                    }
+                  },
+                  "description": "The list of the ICAgent structuring parsing rules."
+                },
+                "nesting_mode": "list"
               }
             }
           },

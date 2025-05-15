@@ -1,0 +1,59 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cciv2_config_maps": {
+          "block": {
+            "attributes": {
+              "config_maps": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "annotations": [
+                        "map",
+                        "string"
+                      ],
+                      "binary_data": [
+                        "map",
+                        "string"
+                      ],
+                      "creation_timestamp": "string",
+                      "data": [
+                        "map",
+                        "string"
+                      ],
+                      "immutable": "bool",
+                      "labels": [
+                        "map",
+                        "string"
+                      ],
+                      "name": "string",
+                      "namespace": "string",
+                      "resource_version": "string",
+                      "uid": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "namespace": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

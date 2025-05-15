@@ -144,7 +144,8 @@
                         "string"
                       ],
                       "description": "The labels of resource pool.",
-                      "optional": true
+                      "optional": true,
+                      "computed": true
                     },
                     "max_count": {
                       "type": "number",
@@ -160,7 +161,7 @@
                     },
                     "security_group_ids": {
                       "type": [
-                        "list",
+                        "set",
                         "string"
                       ],
                       "description": "The security group IDs.",
@@ -194,17 +195,19 @@
                           "az": {
                             "type": "string",
                             "description": "The AZ name.",
+                            "optional": true,
                             "computed": true
                           },
                           "count": {
                             "type": "number",
                             "description": "Number of nodes.",
+                            "optional": true,
                             "computed": true
                           }
                         },
                         "description": "AZs for resource pool nodes."
                       },
-                      "nesting_mode": "list"
+                      "nesting_mode": "set"
                     },
                     "data_volumes": {
                       "block": {
@@ -234,7 +237,7 @@
                         },
                         "description": "The data volumes of the resource pool nodes."
                       },
-                      "nesting_mode": "set"
+                      "nesting_mode": "list"
                     },
                     "driver": {
                       "block": {
@@ -319,7 +322,7 @@
                         },
                         "description": "The taints added to nodes."
                       },
-                      "nesting_mode": "list"
+                      "nesting_mode": "set"
                     },
                     "volume_group_configs": {
                       "block": {
@@ -332,7 +335,7 @@
                           },
                           "types": {
                             "type": [
-                              "set",
+                              "list",
                               "string"
                             ],
                             "description": "The storage types of the volume group.",

@@ -21,30 +21,40 @@
                               "string"
                             ],
                             "container_name_regex": "string",
+                            "custom_key_value": [
+                              "map",
+                              "string"
+                            ],
                             "exclude_envs": [
                               "map",
                               "string"
                             ],
+                            "exclude_envs_logical": "string",
                             "exclude_k8s_labels": [
                               "map",
                               "string"
                             ],
+                            "exclude_k8s_labels_logical": "string",
                             "exclude_labels": [
                               "map",
                               "string"
                             ],
+                            "exclude_labels_logical": "string",
                             "include_envs": [
                               "map",
                               "string"
                             ],
+                            "include_envs_logical": "string",
                             "include_k8s_labels": [
                               "map",
                               "string"
                             ],
+                            "include_k8s_labels_logical": "string",
                             "include_labels": [
                               "map",
                               "string"
                             ],
+                            "include_labels_logical": "string",
                             "log_envs": [
                               "map",
                               "string"
@@ -74,6 +84,7 @@
                               "string"
                             ],
                             "pod_name_regex": "string",
+                            "repeat_collect": "bool",
                             "single_log_format": [
                               "list",
                               [
@@ -86,6 +97,10 @@
                             ],
                             "stderr": "bool",
                             "stdout": "bool",
+                            "system_fields": [
+                              "list",
+                              "string"
+                            ],
                             "windows_log_info": [
                               "list",
                               [
@@ -111,17 +126,41 @@
                       "binary_collect": "bool",
                       "cluster_id": "string",
                       "created_at": "string",
+                      "demo_fields": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "field_name": "string",
+                            "field_value": "string"
+                          }
+                        ]
+                      ],
+                      "demo_log": "string",
+                      "encoding_format": "string",
                       "host_group_ids": [
                         "list",
                         "string"
                       ],
                       "id": "string",
+                      "incremental_collect": "bool",
                       "log_group_id": "string",
                       "log_group_name": "string",
                       "log_split": "bool",
                       "log_stream_id": "string",
                       "log_stream_name": "string",
                       "name": "string",
+                      "processor_type": "string",
+                      "processors": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "detail": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ],
                       "tags": [
                         "map",
                         "string"

@@ -16,6 +16,24 @@
                 "required": true,
                 "forcenew": true
               },
+              "frozen_info": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "effect": "number",
+                      "scene": [
+                        "list",
+                        "string"
+                      ],
+                      "status": "number"
+                    }
+                  ]
+                ],
+                "description": "The frozen details of cloud services or resources.",
+                "computed": true
+              },
               "health_state": {
                 "type": "string",
                 "description": "Specifies the health check result of the endpoint.",
