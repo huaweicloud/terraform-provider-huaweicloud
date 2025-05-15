@@ -585,6 +585,7 @@ var (
 	HW_DMS_ROCKETMQ_TOPIC_NAME  = os.Getenv("HW_DMS_ROCKETMQ_TOPIC_NAME")
 	HW_DMS_ROCKETMQ_GROUP_NAME  = os.Getenv("HW_DMS_ROCKETMQ_GROUP_NAME")
 
+	HW_SFS_TURBO_SHARE_ID    = os.Getenv("HW_SFS_TURBO_SHARE_ID")
 	HW_SFS_TURBO_BACKUP_ID   = os.Getenv("HW_SFS_TURBO_BACKUP_ID")
 	HW_SFS_FILE_SYSTEM_NAMES = os.Getenv("HW_SFS_FILE_SYSTEM_NAMES")
 
@@ -3054,6 +3055,13 @@ func TestAccPrecheckTimeStamp(t *testing.T) {
 func TestAccPrecheckCDNAnalytics(t *testing.T) {
 	if HW_CDN_START_TIME == "" || HW_CDN_END_TIME == "" || HW_CDN_STAT_TYPE == "" {
 		t.Skip("HW_CDN_START_TIME, HW_CDN_END_TIME, and HW_CDN_STAT_TYPE must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPrecheckSFSTurboShareId(t *testing.T) {
+	if HW_SFS_TURBO_SHARE_ID == "" {
+		t.Skip("HW_SFS_TURBO_SHARE_ID must be set for the acceptance test")
 	}
 }
 
