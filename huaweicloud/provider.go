@@ -2170,6 +2170,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_lts_host_access":                      lts.ResourceHostAccessConfig(),
 			"huaweicloud_lts_host_group":                       lts.ResourceHostGroup(),
 			"huaweicloud_lts_keywords_alarm_rule":              lts.ResourceKeywordsAlarmRule(),
+			"huaweicloud_lts_log_collection_switch":            lts.ResourceLogCollectionSwitch(),
 			"huaweicloud_lts_log_converge":                     lts.ResourceLogConverge(),
 			"huaweicloud_lts_log_converge_switch":              lts.ResourceLogConvergeSwitch(),
 			"huaweicloud_lts_metric_rule":                      lts.ResourceMetricRule(),
