@@ -3,7 +3,6 @@ package sfsturbo
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"strings"
 	"time"
 
@@ -21,6 +20,7 @@ import (
 
 // @API SFSTurbo POST /v1/{project_id}/sfs-turbo/{share_id}/hpc-cache/task
 // @API SFSTurbo GET /v1/{project_id}/sfs-turbo/{share_id}/hpc-cache/task/{task_id}
+// @API SFSTurbo DELETE /v1/{project_id}/sfs-turbo/{share_id}/hpc-cache/task/{task_id}
 func ResourceDataTask() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDataTaskCreate,
@@ -33,6 +33,7 @@ func ResourceDataTask() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(5 * time.Minute),
+			Delete: schema.DefaultTimeout(5 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -145,7 +146,7 @@ func resourceDataTaskCreate(ctx context.Context, d *schema.ResourceData, meta in
 	return resourceDataTaskRead(ctx, d, meta)
 }
 
-func getDataTaskInfo(d *schema.ResourceData, meta interface{}) (*http.Response, error) {
+func getDataTaskInfo(d *schema.ResourceData, meta interface{}) (interface{}, error) {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	client, err := cfg.SfsV1Client(region)
@@ -167,23 +168,18 @@ func getDataTaskInfo(d *schema.ResourceData, meta interface{}) (*http.Response, 
 		return nil, err
 	}
 
-	return resp, nil
+	return utils.FlattenResponse(resp)
 }
 
 func resourceDataTaskRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-	getDataTaskResp, err := getDataTaskInfo(d, meta)
+	getDataTaskRespBody, err := getDataTaskInfo(d, meta)
 	if err != nil {
 		// When the data task does not exist, the response body example of the details interface is as follows:
 		// error message: {"errCode":"SFS.TURBO.0106","errMsg":"Invalid task id."}
 		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "errCode", "SFS.TURBO.0106"),
 			fmt.Sprintf("error retrieving data task, the error message: %s", err))
-	}
-
-	getDataTaskRespBody, err := utils.FlattenResponse(getDataTaskResp)
-	if err != nil {
-		return diag.FromErr(err)
 	}
 
 	beginTime := utils.ConvertTimeStrToNanoTimestamp(utils.PathSearch("start_time", getDataTaskRespBody, "").(string), "2006-01-02T15:04:05")
@@ -204,8 +200,50 @@ func resourceDataTaskRead(_ context.Context, d *schema.ResourceData, meta interf
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-// Destroying resources does not change the current state.
-func resourceDataTaskDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceDataTaskDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		shareId = d.Get("share_id").(string)
+		taskId  = d.Id()
+		httpUrl = "v1/{project_id}/sfs-turbo/{share_id}/hpc-cache/task/{task_id}"
+	)
+
+	client, err := cfg.NewServiceClient("sfs-turbo", region)
+	if err != nil {
+		return diag.Errorf("error creating SFS client: %s", err)
+	}
+
+	deletePath := client.Endpoint + httpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = strings.ReplaceAll(deletePath, "{share_id}", shareId)
+	deletePath = strings.ReplaceAll(deletePath, "{task_id}", taskId)
+	deleteOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	_, err = client.Request("DELETE", deletePath, &deleteOpts)
+	if err != nil {
+		// If the data task does not exist, the response HTTP status code of the deletion API is 400.
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "errCode", "SFS.TURBO.0106"),
+			fmt.Sprintf("error deleting data task: %s", err))
+	}
+
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"DELETED"},
+		Refresh:      dataTaskStatusRefreshFunc(d, meta),
+		Timeout:      d.Timeout(schema.TimeoutDelete),
+		Delay:        10 * time.Second,
+		PollInterval: 30 * time.Second,
+	}
+
+	_, err = stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return diag.Errorf("error waiting for the data task deletion to complete: %s", err)
+	}
+
 	return nil
 }
 
@@ -224,12 +262,12 @@ func dataTaskWaitingForStateCompleted(ctx context.Context, d *schema.ResourceDat
 
 func dataTaskStatusRefreshFunc(d *schema.ResourceData, meta interface{}) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		resp, err := getDataTaskInfo(d, meta)
+		respBody, err := getDataTaskInfo(d, meta)
 		if err != nil {
-			return nil, "ERROR", err
-		}
-		respBody, err := utils.FlattenResponse(resp)
-		if err != nil {
+			if _, ok := err.(golangsdk.ErrDefault400); ok {
+				return "Resource Not Found", "DELETED", nil
+			}
+
 			return nil, "ERROR", err
 		}
 

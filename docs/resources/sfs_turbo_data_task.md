@@ -10,8 +10,7 @@ description: |-
 
 Manages a data import or export task resource under the SFS Turbo within HuaweiCloud.
 
--> Destroying resources does not change the current state. Please pay attention to the results of task execution
-  through `status`.
+-> Please pay attention to the results of task execution through `status`.
 
 -> This resource is only available for the following SFS Turbo file system types:
   **20MB/s/TiB**, **40MB/s/TiB**, **125MB/s/TiB**,**250MB/s/TiB**, **500MB/s/TiB**, **1,000MB/s/TiB**, **HPC缓存型**.
@@ -94,6 +93,8 @@ In addition to all arguments above, the following attributes are exported:
 This resource provides the following timeouts configuration options:
 
 * `create` - Default is 5 minutes.
+
+* `delete` - Default is 5 minutes.
 
 ## Import
 
