@@ -1548,6 +1548,13 @@ func TestAccPreCheckAadForwardRule(t *testing.T) {
 }
 
 // lintignore:AT003
+func TestAccPreCheckAadInstanceID(t *testing.T) {
+	if HW_AAD_INSTANCE_ID == "" {
+		t.Skip("HW_AAD_INSTANCE_ID must be set for this acceptance test.")
+	}
+}
+
+// lintignore:AT003
 func TestAccPreCheckCCMCertificateName(t *testing.T) {
 	if HW_CCM_CERTIFICATE_NAME == "" {
 		t.Skip("HW_CCM_CERTIFICATE_NAME must be set for CCM SSL acceptance tests.")
