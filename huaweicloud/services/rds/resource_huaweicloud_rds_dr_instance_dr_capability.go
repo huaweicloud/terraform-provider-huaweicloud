@@ -295,7 +295,7 @@ func resourceDrInstanceDrCapabilityDelete(_ context.Context, d *schema.ResourceD
 
 	jobId := utils.PathSearch("job_id", deleteRespBody, nil)
 	if jobId == nil {
-		return diag.Errorf("error deleting RDS dr instance dr capability: job_id is not found in API response")
+		return diag.Errorf("error deleting RDS DR instance DR capability: job_id is not found in API response")
 	}
 
 	err = checkRDSInstanceJobFinish(client, jobId.(string), d.Timeout(schema.TimeoutDelete))

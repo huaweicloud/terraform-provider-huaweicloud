@@ -3,12 +3,12 @@ subcategory: "Relational Database Service (RDS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_rds_dr_instance_dr_capability"
 description: |-
-  Manages RDS dr instance dr capability resource within HuaweiCloud.
+  Manages RDS DR instance DR capability resource within HuaweiCloud.
 ---
 
 # huaweicloud_rds_dr_instance_dr_capability
 
-Manages RDS dr instance dr capability resource within HuaweiCloud.
+Manages RDS DR instance DR capability resource within HuaweiCloud.
 
 ## Example Usage
 
@@ -53,7 +53,8 @@ In addition to all arguments above, the following attributes are exported:
 * `id` - The resource ID.
 
 * `status` - Indicates the DR configuration status.
-* `replica_state` - Indicates the Synchronization status. The value can be:
+
+* `replica_state` - Indicates the synchronization status. The value can be:
   + **0**: indicates that the synchronization is normal.
   + **-1**: indicates that the synchronization is abnormal.
 
@@ -80,7 +81,7 @@ This resource provides the following timeouts configuration options:
 
 ## Import
 
-The RDS dr instance dr capability can be imported using the `id`, e.g.
+The RDS DR instance DR capability can be imported using the `id`, e.g.
 
 ```bash
 $ terraform import huaweicloud_rds_dr_instance_dr_capability.test <id>
