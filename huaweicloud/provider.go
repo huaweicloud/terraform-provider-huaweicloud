@@ -499,6 +499,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_apig_instance_supported_features":        apig.DataSourceInstanceSupportedFeatures(),
 			"huaweicloud_apig_instances":                          apig.DataSourceInstances(),
 			"huaweicloud_apig_orchestration_rules":                apig.DataSourceOrchestrationRules(),
+			"huaweicloud_apig_orchestration_rule_associated_apis": apig.DataSourceOrchestrationRuleAssociatedApis(),
 			"huaweicloud_apig_signatures":                         apig.DataSourceSignatures(),
 			"huaweicloud_apig_throttling_policies":                apig.DataSourceThrottlingPolicies(),
 
