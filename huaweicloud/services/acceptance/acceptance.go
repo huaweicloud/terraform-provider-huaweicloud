@@ -391,9 +391,8 @@ var (
 	HW_AOM_MULTI_ACCOUNT_AGGREGATION_RULE_ENABLE = os.Getenv("HW_AOM_MULTI_ACCOUNT_AGGREGATION_RULE_ENABLE")
 
 	// the ID of ECS instance which has installed uniagent
-	HW_COC_INSTANCE_ID     = os.Getenv("HW_COC_INSTANCE_ID")
-	HW_COC_APPLICATION_ID  = os.Getenv("HW_COC_APPLICATION_ID")
-	HW_COC_SCRIPT_ORDER_ID = os.Getenv("HW_COC_SCRIPT_ORDER_ID")
+	HW_COC_INSTANCE_ID    = os.Getenv("HW_COC_INSTANCE_ID")
+	HW_COC_APPLICATION_ID = os.Getenv("HW_COC_APPLICATION_ID")
 
 	// Deprecated
 	HW_SRC_ACCESS_KEY = os.Getenv("HW_SRC_ACCESS_KEY")
@@ -2348,13 +2347,6 @@ func TestAccPreCheckCocInstanceID(t *testing.T) {
 func TestAccPreCheckCocApplicationID(t *testing.T) {
 	if HW_COC_APPLICATION_ID == "" {
 		t.Skip("HW_COC_APPLICATION_ID must be set for the acceptance test")
-	}
-}
-
-// lintignore:AT003
-func TestAccPreCheckCocScriptOrderID(t *testing.T) {
-	if HW_COC_SCRIPT_ORDER_ID == "" {
-		t.Skip("HW_COC_SCRIPT_ORDER_ID must be set for the acceptance test")
 	}
 }
 

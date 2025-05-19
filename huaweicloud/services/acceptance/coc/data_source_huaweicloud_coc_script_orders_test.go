@@ -1,6 +1,7 @@
 package coc
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -15,12 +16,11 @@ func TestAccDataSourceCocScriptOrders_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckCocScriptOrderID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceDataSourceCocScriptOrders_basic(),
+				Config: testDataSourceDataSourceCocScriptOrders_basic(acceptance.HW_COC_INSTANCE_ID),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(dataSource, "data.#"),
@@ -43,9 +43,29 @@ func TestAccDataSourceCocScriptOrders_basic(t *testing.T) {
 	})
 }
 
-func testDataSourceDataSourceCocScriptOrders_basic() string {
-	return `
-data "huaweicloud_coc_script_orders" "test" {}
+func testDataSourceDataSourceCocScriptOrders_basic(instanceID string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_coc_scripts" "test" {}
+
+locals {
+  script_id = [for v in data.huaweicloud_coc_scripts.test.data[*].script_uuid : v if v != ""][0]
+}
+
+resource "huaweicloud_coc_script_execute" "test" {
+  script_id    = local.script_id
+  instance_id  = "%s"
+  timeout      = 600
+  execute_user = "root"
+
+  parameters {
+    name  = "name"
+    value = "somebody"
+  }
+}
+
+data "huaweicloud_coc_script_orders" "test" {
+  depends_on = [huaweicloud_coc_script_execute.test]
+}
 
 locals {
   start_time = [for v in data.huaweicloud_coc_script_orders.test.data[*].gmt_created : v if v != ""][0]
@@ -53,6 +73,8 @@ locals {
 
 data "huaweicloud_coc_script_orders" "start_time_filter" {
   start_time = local.start_time
+
+  depends_on = [huaweicloud_coc_script_execute.test]
 }
 
 output "start_time_filter_is_useful" {
@@ -67,6 +89,8 @@ locals {
 
 data "huaweicloud_coc_script_orders" "end_time_filter" {
   end_time = local.end_time
+
+  depends_on = [huaweicloud_coc_script_execute.test]
 }
 
 output "end_time_filter_is_useful" {
@@ -81,6 +105,8 @@ locals {
 
 data "huaweicloud_coc_script_orders" "creator_filter" {
   creator = local.creator
+
+  depends_on = [huaweicloud_coc_script_execute.test]
 }
 
 output "creator_filter_is_useful" {
@@ -95,6 +121,8 @@ locals {
 
 data "huaweicloud_coc_script_orders" "status_filter" {
   status = local.status
+
+  depends_on = [huaweicloud_coc_script_execute.test]
 }
 
 output "status_filter_is_useful" {
@@ -102,5 +130,5 @@ output "status_filter_is_useful" {
     [for v in data.huaweicloud_coc_script_orders.status_filter.data[*].status : v == local.status]
   )
 }
-`
+`, instanceID)
 }

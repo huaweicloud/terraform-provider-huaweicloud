@@ -74,7 +74,7 @@ func DataSourceCocScriptOrders() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"properties": dataDataProperties1(),
+						"properties": dataDataScriptOrdersProperties(),
 					},
 				},
 			},
@@ -82,7 +82,7 @@ func DataSourceCocScriptOrders() *schema.Resource {
 	}
 }
 
-func dataDataProperties1() *schema.Schema {
+func dataDataScriptOrdersProperties() *schema.Schema {
 	return &schema.Schema{
 		Type:     schema.TypeList,
 		Computed: true,
