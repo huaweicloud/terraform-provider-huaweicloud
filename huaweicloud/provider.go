@@ -452,7 +452,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_access_analyzers":              accessanalyzer.DataSourceAccessAnalyzers(),
 			"huaweicloud_access_analyzer_archive_rules": accessanalyzer.DataSourceAccessAnalyzerArchiveRules(),
 
-			"huaweicloud_aad_instances": aad.DataSourceAADInstances(),
+			"huaweicloud_aad_instances":         aad.DataSourceAADInstances(),
+			"huaweicloud_aad_black_white_lists": aad.DataSourceAadBlackWhiteLists(),
 
 			"huaweicloud_antiddos_config_ranges":                antiddos.DataSourceConfigRanges(),
 			"huaweicloud_antiddos_weekly_protection_statistics": antiddos.DataSourceWeeklyProtectionStatistics(),
@@ -645,8 +646,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_cnad_advanced_available_objects":   cnad.DataSourceAvailableProtectedObjects(),
 			"huaweicloud_cnad_advanced_protected_objects":   cnad.DataSourceProtectedObjects(),
 
-			"huaweicloud_coc_applications": coc.DataSourceCocApplications(),
-			"huaweicloud_coc_scripts":      coc.DataSourceCocScripts(),
+			"huaweicloud_coc_applications":            coc.DataSourceCocApplications(),
+			"huaweicloud_coc_scripts":                 coc.DataSourceCocScripts(),
+			"huaweicloud_coc_script_order_statistics": coc.DataSourceCocScriptOrderStatistics(),
 
 			"huaweicloud_compute_flavors":                 ecs.DataSourceEcsFlavors(),
 			"huaweicloud_compute_instance":                ecs.DataSourceComputeInstance(),
