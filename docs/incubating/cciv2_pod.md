@@ -13,7 +13,40 @@ Manages a CCI pod resource within HuaweiCloud.
 ## Example Usage
 
 ```hcl
+variable "namespace" {}
+variable "name" {}
 
+resource "huaweicloud_cciv2_pod" "test" {
+  namespace = var.namespace
+  name      = var.name
+
+  annotations = {
+    "description"                    = "test",
+    "resource.cci.io/pod-size-specs" = "2.00_2.0",
+    "resource.cci.io/instance-type"  = "general-computing",
+  }
+
+  containers {
+    image = "nginx:stable-alpine-perl"
+    name  = "c1"
+
+    resources {
+      limits = {
+        cpu    = 2
+        memory = "2G"
+      }
+
+      requests = {
+        cpu    = 2
+        memory = "2G"
+      }
+    }
+  }
+
+  image_pull_secrets {
+    name = "imagepull-secret"
+  }
+}
 ```
 
 ## Argument Reference
@@ -24,10 +57,10 @@ The following arguments are supported:
   If omitted, the provider-level region will be used.
   Changing this creates a new resource.
 
-* `containers` - (Required, List) Specifies the container of the CCI Pod.
+* `containers` - (Required, List) Specifies the container of the CCI pod.
   The [containers](#containers) structure is documented below.
 
-* `name` - (Required, String) Specifies the name of the CCI Pod.
+* `name` - (Required, String) Specifies the name of the CCI pod.
 
 * `namespace` - (Required, String) Specifies the namespace of the CCI pod.
 
@@ -36,17 +69,17 @@ The following arguments are supported:
 * `affinity` - (Optional, List) Specifies the affinity of the CCI pod.
   The [affinity](#affinity) structure is documented below.
 
-* `annotations` - (Optional, Map) Specifies the annotations of the CCI Pod.
+* `annotations` - (Optional, Map) Specifies the annotations of the CCI pod.
 
 * `dns_config` - (Optional, List) Specifies The DNS config of the pod.
   The [dns_config](#dns_config) structure is documented below.
 
 * `dns_policy` - (Optional, String) Specifies the DNS policy of the pod.
 
-* `ephemeral_containers` - (Optional, List) Specifies the ephemeral container of the CCI Pod.
+* `ephemeral_containers` - (Optional, List) Specifies the ephemeral container of the CCI pod.
   The [ephemeral_containers](#containers) structure is documented below.
 
-* `host_aliases` - (Optional, List) Specifies the host aliases of the CCI Pod.
+* `host_aliases` - (Optional, List) Specifies the host aliases of the CCI pod.
   The [host_aliases](#host_aliases) structure is documented below.
 
 * `hostname` - (Optional, String) Specifies the host name of the pod.
@@ -54,23 +87,23 @@ The following arguments are supported:
 * `image_pull_secrets` - (Optional, List) Specifies the image pull secrets of the pod.
   The [image_pull_secrets](#image_pull_secrets) structure is documented below.
 
-* `init_containers` - (Optional, List) Specifies the init container of the CCI Pod.
+* `init_containers` - (Optional, List) Specifies the init container of the CCI pod.
   The [init_containers](#containers) structure is documented below.
 
-* `labels` - (Optional, Map) Specifies the labels of the CCI Pod.
+* `labels` - (Optional, Map) Specifies the labels of the CCI pod.
 
-* `node_name` - (Optional, String) Specifies the node name of the CCI Pod.
+* `node_name` - (Optional, String) Specifies the node name of the CCI pod.
 
-* `overhead` - (Optional, Map) Specifies the overhead of the CCI Pod.
+* `overhead` - (Optional, Map) Specifies the overhead of the CCI pod.
 
-* `readiness_gates` - (Optional, List) Specifies the readiness gates of the CCI Pod.
+* `readiness_gates` - (Optional, List) Specifies the readiness gates of the CCI pod.
   The [readiness_gates](#readiness_gates) structure is documented below.
 
 * `restart_policy` - (Optional, String) The restart policy for all containers within the pod.
 
-* `scheduler_name` - (Optional, String) Specifies the scheduler name of the CCI Pod.
+* `scheduler_name` - (Optional, String) Specifies the scheduler name of the CCI pod.
 
-* `security_context` - (Optional, List) Specifies the security context of the CCI Pod.
+* `security_context` - (Optional, List) Specifies the security context of the CCI pod.
   The [security_context](#security_context) structure is documented below.
 
 * `set_hostname_as_fqdn` - (Optional, Bool) Specifies whether the pod hostname is configured as the pod FQDN.
@@ -78,9 +111,9 @@ The following arguments are supported:
 * `share_process_namespace` - (Optional, Bool) Specifies whether to share a single process namespace between
   all of containers in a pod.
 
-* `termination_grace_period_seconds` - (Optional, Int) The restart policy for all containers within the pod.
+* `termination_grace_period_seconds` - (Optional, Int) Specifies the restart policy for all containers within the pod.
 
-* `volumes` - (Optional, List) Specifies the volumes of the CCI Pod.
+* `volumes` - (Optional, List) Specifies the volumes of the CCI pod.
   The [volumes](#volumes) structure is documented below.
 
 <a name="containers"></a>
@@ -125,9 +158,9 @@ The `containers`, `ephemeral_containers`, `init_containers` block supports:
 
 * `stdin_once` - (Optional, Bool) Specifies whether this container runtime should close the stdin channel.
 
-* `termination_message_path` - (Optional, String) Specifies the termination message path of the CCI Pod container.
+* `termination_message_path` - (Optional, String) Specifies the termination message path of the CCI pod container.
 
-* `termination_message_policy` - (Optional, String) Specifies the termination message policy of the CCI Pod container.
+* `termination_message_policy` - (Optional, String) Specifies the termination message policy of the CCI pod container.
 
 * `tty` - (Optional, Bool) Specifies whether this container should allocate a TTY for itself.
 
@@ -168,81 +201,81 @@ The `secret_ref` block supports:
 <a name="containers_lifecycle"></a>
 The `lifecycle` block supports:
 
-* `post_start` - (Optional, List) The lifecycle post start of the CCI Pod container.
+* `post_start` - (Optional, List) Specifies the lifecycle post start of the CCI pod container.
   The [post_start](#containers_lifecycle_post_start) structure is documented below.
 
-* `pre_stop` - (Optional, List) The lifecycle pre stop of the CCI Pod container.
+* `pre_stop` - (Optional, List) Specifies the lifecycle pre stop of the CCI pod container.
   The [pre_stop](#containers_lifecycle_pre_stop) structure is documented below.
 
 <a name="containers_lifecycle_post_start"></a>
 The `post_start` block supports:
 
-* `exec` - (Optional, List) The lifecycle post start of the CCI Pod container.
+* `exec` - (Optional, List) Specifies the lifecycle post start of the CCI pod container.
   The [exec](#containers_lifecycle_post_start_exec) structure is documented below.
 
-* `http_get` - (Optional, List) The lifecycle pre stop of the CCI Pod container.
+* `http_get` - (Optional, List) Specifies the lifecycle pre stop of the CCI pod container.
   The [http_get](#containers_lifecycle_post_start_http_get) structure is documented below.
 
 <a name="containers_lifecycle_post_start_exec"></a>
 The `http_get` block supports:
 
-* `command` - (Optional, List) The command line to execute inside the container.
+* `command` - (Optional, List) Specifies the command line to execute inside the container.
 
 <a name="containers_lifecycle_post_start_http_get"></a>
 The `http_get` block supports:
 
-* `host` - (Optional, String) The host name.
+* `host` - (Optional, String) Specifies the host name.
 
-* `http_headers` - (Optional, List) The custom headers to set in the request.
+* `http_headers` - (Optional, List) Specifies the custom headers to set in the request.
   The [http_headers](#containers_lifecycle_post_start_http_get_http_headers) structure is documented below.
 
-* `path` - (Optional, String) The path to access on the HTTP server.
+* `path` - (Optional, String) Specifies the path to access on the HTTP server.
 
-* `port` - (Optional, String) The port to access on the HTTP server.
+* `port` - (Optional, String) Specifies the port to access on the HTTP server.
 
-* `scheme` - (Optional, String) The scheme to use for connecting to the host.
+* `scheme` - (Optional, String) Specifies the scheme to use for connecting to the host.
 
 <a name="containers_lifecycle_post_start_http_get_http_headers"></a>
 The `http_headers` block supports:
 
-* `name` - (Optional, String) The name of the custom HTTP headers.
+* `name` - (Optional, String) Specifies the name of the custom HTTP headers.
 
-* `value` - (Optional, String) The value of the custom HTTP headers.
+* `value` - (Optional, String) Specifies the value of the custom HTTP headers.
 
 <a name="containers_lifecycle_pre_stop"></a>
 The `pre_stop` block supports:
 
-* `exec` - (Optional, List) The lifecycle post start of the CCI Pod container.
+* `exec` - (Optional, List) Specifies the lifecycle post start of the CCI Pod container.
   The [exec](#containers_lifecycle_pre_stop_exec) structure is documented below.
 
-* `http_get` - (Optional, List) The lifecycle pre stop of the CCI Pod container.
+* `http_get` - (Optional, List) Specifies the lifecycle pre stop of the CCI Pod container.
   The [http_get](#containers_lifecycle_pre_stop_http_get) structure is documented below.
 
 <a name="containers_lifecycle_pre_stop_exec"></a>
 The `http_get` block supports:
 
-* `command` - (Optional, List) The command line to execute inside the container.
+* `command` - (Optional, List) Specifies the command line to execute inside the container.
 
 <a name="containers_lifecycle_pre_stop_http_get"></a>
 The `http_get` block supports:
 
-* `host` - (Optional, String) The host name.
+* `host` - (Optional, String) Specifies the host name.
 
-* `http_headers` - (Optional, List) The custom headers to set in the request.
+* `http_headers` - (Optional, List) Specifies the custom headers to set in the request.
   The [http_headers](#containers_lifecycle_pre_stop_http_get_http_headers) structure is documented below.
 
-* `path` - (Optional, String) The path to access on the HTTP server.
+* `path` - (Optional, String) Specifies the path to access on the HTTP server.
 
-* `port` - (Optional, String) The port to access on the HTTP server.
+* `port` - (Optional, String) Specifies the port to access on the HTTP server.
 
-* `scheme` - (Optional, String) The scheme to use for connecting to the host.
+* `scheme` - (Optional, String) Specifies the scheme to use for connecting to the host.
 
 <a name="containers_lifecycle_pre_stop_http_get_http_headers"></a>
 The `http_headers` block supports:
 
-* `name` - (Optional, String) The name of the custom HTTP headers.
+* `name` - (Optional, String) Specifies the name of the custom HTTP headers.
 
-* `value` - (Optional, String) The value of the custom HTTP headers.
+* `value` - (Optional, String) Specifies the value of the custom HTTP headers.
 
 <a name="containers_probe"></a>
 The `liveness_probe` block supports:
@@ -256,7 +289,7 @@ The `liveness_probe` block supports:
 * `http_get` - (Optional, List) Specifies the HTTP get.
   The [http_get](#containers_probe_http_get) structure is documented below.
 
-* `initial_delay_seconds` - (Optional, Int) The number of seconds after the container has started
+* `initial_delay_seconds` - (Optional, Int) Specifies the number of seconds after the container has started
   before liveness probes are initialed.
 
 * `period_seconds` - (Optional, Int) Specifies how often to perform the probe.
@@ -266,28 +299,28 @@ The `liveness_probe` block supports:
 <a name="containers_probe_exec"></a>
 The `exec` block supports:
 
-* `command` - (Optional, List) The command line to execute inside the container.
+* `command` - (Optional, List) Specifies the command line to execute inside the container.
 
 <a name="containers_probe_http_get"></a>
 The `http_get` block supports:
 
-* `host` - (Optional, String) The host name.
+* `host` - (Optional, String) Specifies the host name.
 
-* `http_headers` - (Optional, List) The custom headers to set in the request.
+* `http_headers` - (Optional, List) Specifies the custom headers to set in the request.
   The [http_headers](#containers_probe_http_get_http_headers) structure is documented below.
 
-* `path` - (Optional, String) The path to access on the HTTP server.
+* `path` - (Optional, String) Specifies the path to access on the HTTP server.
 
-* `port` - (Optional, String) The port to access on the HTTP server.
+* `port` - (Optional, String) Specifies the port to access on the HTTP server.
 
-* `scheme` - (Optional, String) The scheme to use for connecting to the host.
+* `scheme` - (Optional, String) Specifies the scheme to use for connecting to the host.
 
 <a name="containers_probe_http_get_http_headers"></a>
 The `scheme` block supports:
 
-* `name` - (Optional, String) The name of the custom HTTP headers.
+* `name` - (Optional, String) Specifies the name of the custom HTTP headers.
 
-* `value` - (Optional, String) The value of the custom HTTP headers.
+* `value` - (Optional, String) Specifies the value of the custom HTTP headers.
 
 <a name="containers_ports"></a>
 The `ports` block supports:
@@ -313,13 +346,13 @@ The `security_context` block supports:
 
 * `proc_mount` - (Optional, String) Specifies the denotes the type of proc mount to use for the containers.
 
-* `read_only_root_file_system` - (Optional, Bool) Whether this container has a read-only root file system.
+* `read_only_root_file_system` - (Optional, Bool) Specifies whether this container has a read-only root file system.
 
-* `run_as_group` - (Optional, Int) The GID TO run the entrypoint of the container process.
+* `run_as_group` - (Optional, Int) Specifies the GID TO run the entrypoint of the container process.
 
-* `run_as_non_root` - (Optional, Bool) The container must run as a non-root user.
+* `run_as_non_root` - (Optional, Bool) Specifies the container must run as a non-root user.
 
-* `run_as_user` - (Optional, Int) The UID to run the entrypoint of the container process.
+* `run_as_user` - (Optional, Int) Specifies the UID to run the entrypoint of the container process.
 
 <a name="containers_security_context_capabilities"></a>
 The `capabilities` block supports:
@@ -530,9 +563,9 @@ The `persistent_volume_claim` block supports:
 <a name="volumes_projected"></a>
 The `projected` block supports:
 
-* `default_mode` - (Optional, Int) Specifies the rolling update config of the CCI Pod strategy.
+* `default_mode` - (Optional, Int) Specifies the rolling update config of the CCI pod strategy.
 
-* `sources` - (Optional, List) Specifies the type of the CCI Pod strategy.
+* `sources` - (Optional, List) Specifies the type of the CCI pod strategy.
   The [sources](#volumes_projected_sources) structure is documented below.
 
 <a name="volumes_projected_sources"></a>
@@ -645,43 +678,43 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID.
 
-* `api_version` - The API version of the CCI Pod.
+* `api_version` - The API version of the CCI pod.
 
-* `creation_timestamp` - The creation timestamp of the CCI Pod.
+* `creation_timestamp` - The creation timestamp of the CCI pod.
 
 * `finalizers` - The finalizers of the namespace.
 
-* `kind` - The kind of the CCI Pod.
+* `kind` - The kind of the CCI pod.
 
-* `resource_version` - The resource version of the CCI Pod.
+* `resource_version` - The resource version of the CCI pod.
 
-* `status` - The status of the CCI Pod.
+* `status` - The status of the CCI pod.
   The [status](#attrstatus) structure is documented below.
 
-* `uid` - The uid of the CCI Pod.
+* `uid` - The uid of the CCI pod.
 
 <a name="attrstatus"></a>
 The `status` block supports:
 
-* `conditions` - Tthe conditions of the CCI Pod.
+* `conditions` - The conditions of the CCI pod.
   The [conditions](#attrstatus_conditions) structure is documented below.
 
-* `observed_generation` - The observed generation of the CCI Pod.
+* `observed_generation` - The observed generation of the CCI pod.
 
 <a name="attrstatus_conditions"></a>
 The `conditions` block supports:
 
-* `last_transition_time` - The last transition time of the CCI Pod conditions.
+* `last_transition_time` - The last transition time of the CCI pod conditions.
 
-* `last_update_time` - The last update time of the CCI Pod conditions.
+* `last_update_time` - The last update time of the CCI pod conditions.
 
-* `message` - The message of the CCI Pod conditions.
+* `message` - The message of the CCI pod conditions.
 
-* `reason` - The reason of the CCI Pod conditions.
+* `reason` - The reason of the CCI pod conditions.
 
-* `status` - Tthe status of the CCI Pod conditions.
+* `status` - The status of the CCI pod conditions.
 
-* `type` - The type of the CCI Pod conditions.
+* `type` - The type of the CCI pod conditions.
 
 ## Timeouts
 
