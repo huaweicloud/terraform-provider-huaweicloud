@@ -45,6 +45,7 @@ var (
 	HW_VPC_ENHANCED_LOCAL_ROUTE      = os.Getenv("HW_VPC_ENHANCED_LOCAL_ROUTE")
 	HW_VPN_P2C_GATEWAY_ID            = os.Getenv("HW_VPN_P2C_GATEWAY_ID")
 	HW_VPN_P2C_SERVER                = os.Getenv("HW_VPN_P2C_SERVER")
+	HW_VPN_P2C_SERVER_CERTIFICATE_ID = os.Getenv("HW_VPN_P2C_SERVER_CERTIFICATE_ID")
 	HW_VPN_P2C_CLIENT_CA_CERTIFICATE = os.Getenv("HW_VPN_P2C_CLIENT_CA_CERTIFICATE")
 	HW_NETWORK_ID                    = os.Getenv("HW_NETWORK_ID")
 	HW_SUBNET_ID                     = os.Getenv("HW_SUBNET_ID")
@@ -3063,6 +3064,13 @@ func TestAccPreCheckVPNP2cGatewayId(t *testing.T) {
 func TestAccPreCheckVPNP2cServer(t *testing.T) {
 	if HW_VPN_P2C_SERVER == "" {
 		t.Skip("HW_VPN_P2C_SERVER must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckVPNP2cServerCertificateID(t *testing.T) {
+	if HW_VPN_P2C_SERVER_CERTIFICATE_ID == "" {
+		t.Skip("HW_VPN_P2C_SERVER_CERTIFICATE_ID must be set for the acceptance test")
 	}
 }
 

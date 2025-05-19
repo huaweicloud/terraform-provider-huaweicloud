@@ -2466,6 +2466,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpn_user":                    vpn.ResourceUser(),
 			"huaweicloud_vpn_user_group":              vpn.ResourceUserGroup(),
 			"huaweicloud_vpn_client_ca_certificate":   vpn.ResourceClientCACertificate(),
+			"huaweicloud_vpn_server":                  vpn.ResourceServer(),
 
 			"huaweicloud_waf_address_group":                       waf.ResourceWafAddressGroup(),
 			"huaweicloud_waf_certificate":                         waf.ResourceWafCertificate(),
