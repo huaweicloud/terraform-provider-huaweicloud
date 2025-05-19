@@ -1269,6 +1269,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_sfs_turbos":            sfsturbo.DataSourceTurbos(),
 			"huaweicloud_sfs_turbo_data_tasks":  sfsturbo.DataSourceSfsTurboDataTasks(),
+			"huaweicloud_sfs_turbo_dir_usage":   sfsturbo.DataSourceDirusage(),
 			"huaweicloud_sfs_turbo_du_tasks":    sfsturbo.DataSourceSfsTurboDuTasks(),
 			"huaweicloud_sfs_turbo_obs_targets": sfsturbo.DataSourceSfsTurboObsTargets(),
 			"huaweicloud_sfs_turbo_perm_rules":  sfsturbo.DataSourceSfsTurboPermRules(),
