@@ -535,10 +535,11 @@ func Provider() *schema.Provider {
 			"huaweicloud_cae_environments":       cae.DataSourceEnvironments(),
 			"huaweicloud_cae_notification_rules": cae.DataSourceCaeNotificationRules(),
 
-			"huaweicloud_cbr_backup":   cbr.DataSourceBackup(),
-			"huaweicloud_cbr_vaults":   cbr.DataSourceVaults(),
-			"huaweicloud_cbr_policies": cbr.DataSourcePolicies(),
-			"huaweicloud_cbr_tags":     cbr.DataSourceTags(),
+			"huaweicloud_cbr_backup":         cbr.DataSourceBackup(),
+			"huaweicloud_cbr_vaults":         cbr.DataSourceVaults(),
+			"huaweicloud_cbr_policies":       cbr.DataSourcePolicies(),
+			"huaweicloud_cbr_tags":           cbr.DataSourceTags(),
+			"huaweicloud_cbr_vaults_by_tags": cbr.DataSourceVaultsByTags(),
 
 			"huaweicloud_cbh_instances":          cbh.DataSourceCbhInstances(),
 			"huaweicloud_cbh_flavors":            cbh.DataSourceCbhFlavors(),
