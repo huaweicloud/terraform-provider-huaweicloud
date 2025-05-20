@@ -84,7 +84,7 @@ The following arguments are supported:
   If omitted, the provider-level region will be used.
   Changing this creates a new resource.
 
-* `p2c_vgw_id` - (Required, String) Specifies the ID of a P2C VPN gateway instance.
+* `p2c_vgw_id` - (Required, String, NonUpdatable) Specifies the ID of a P2C VPN gateway instance.
 
 * `local_subnets` - (Required, List) Specifies the list of local CIDR blocks. A local CIDR block is a destination CIDR
   block on the cloud to be accessed by client CIDR blocks through a VPN. The value is in the format of dotted decimal
@@ -98,7 +98,8 @@ The following arguments are supported:
   the client CIDR block must be greater than **four** times the maximum number of gateway connections. The client CIDR
   block cannot be **0.0.0.0/8**, **127.0.0.0/8**, **224.0.0.0/4**, **240.0.0.0/4**, or **169.254.0.0/16**.
 
-* `tunnel_protocol` - (Optional, String) Specifies the tunnel protocol. Value can be **SSL**. Defaults to **SSL**.
+* `tunnel_protocol` - (Optional, String, NonUpdatable) Specifies the tunnel protocol. Value can be **SSL**.
+  Defaults to **SSL**.
 
 * `client_auth_type` - (Optional, String) Specifies the client authentication mode.
   Value can be as follows:
@@ -148,7 +149,7 @@ The `ssl_options` block supports:
 * `encryption_algorithm` - (Optional, String) Specifies the encryption algorithm.
   Value can be **AES-128-GCM**, **AES-256-GCM**. The default value is **AES-128-GCM**.
 
-* `is_compressed` - (Optional, Bool) Specifies whether to compress data. The default value is false.
+* `is_compressed` - (Optional, Bool, NonUpdatable) Specifies whether to compress data. The default value is **false**.
 
 * `port` - (Optional, Int) Specifies the port number. Value can be **443**, **1194**. The default value is **443**.
 
