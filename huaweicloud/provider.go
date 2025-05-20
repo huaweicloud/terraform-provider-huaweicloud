@@ -652,6 +652,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_coc_scripts":                 coc.DataSourceCocScripts(),
 			"huaweicloud_coc_script_orders":           coc.DataSourceCocScriptOrders(),
 			"huaweicloud_coc_script_order_statistics": coc.DataSourceCocScriptOrderStatistics(),
+			"huaweicloud_coc_script_order_batches":    coc.DataSourceCocScriptOrderBatches(),
 
 			"huaweicloud_compute_flavors":                 ecs.DataSourceEcsFlavors(),
 			"huaweicloud_compute_instance":                ecs.DataSourceComputeInstance(),
