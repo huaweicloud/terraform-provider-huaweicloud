@@ -2242,9 +2242,10 @@ func Provider() *schema.Provider {
 			"huaweicloud_modelarts_network":                modelarts.ResourceModelartsNetwork(),
 			"huaweicloud_modelarts_resource_pool":          modelarts.ResourceModelartsResourcePool(),
 			// Resource management via V2 APIs.
-			"huaweicloud_modelartsv2_node_batch_delete": modelarts.ResourceV2NodeBatchDelete(),
-			"huaweicloud_modelartsv2_service":           modelarts.ResourceV2Service(),
-			"huaweicloud_modelartsv2_service_action":    modelarts.ResourceV2ServiceAction(),
+			"huaweicloud_modelartsv2_node_batch_delete":      modelarts.ResourceV2NodeBatchDelete(),
+			"huaweicloud_modelartsv2_node_batch_unsubscribe": modelarts.ResourceV2NodeBatchUnsubscribe(),
+			"huaweicloud_modelartsv2_service":                modelarts.ResourceV2Service(),
+			"huaweicloud_modelartsv2_service_action":         modelarts.ResourceV2ServiceAction(),
 
 			// DataArts Studio - Management Center
 			"huaweicloud_dataarts_studio_data_connection": dataarts.ResourceDataConnection(),
