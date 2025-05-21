@@ -21,7 +21,7 @@ variable "subnet_id" {}
 variable "security_group_ids" {}
 
 resource "huaweicloud_cciv2_network" "test" {
-  namesapce = var.namespace
+  namespace = var.namespace
   name      = var.name
 
   annotations = {
