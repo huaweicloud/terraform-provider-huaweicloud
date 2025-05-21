@@ -261,6 +261,7 @@ var (
 	HW_KMS_ENVIRONMENT     = os.Getenv("HW_KMS_ENVIRONMENT")
 	HW_KMS_HSM_CLUSTER_ID  = os.Getenv("HW_KMS_HSM_CLUSTER_ID")
 	HW_KMS_KEY_ID          = os.Getenv("HW_KMS_KEY_ID")
+	HW_KMS_ALIAS           = os.Getenv("HW_KMS_ALIAS")
 	HW_KMS_IMPORT_TOKEN    = os.Getenv("HW_KMS_IMPORT_TOKEN")
 	HW_KMS_KEY_MATERIAL    = os.Getenv("HW_KMS_KEY_MATERIAL")
 	HW_KMS_KEY_PRIVATE_KEY = os.Getenv("HW_KMS_KEY_PRIVATE_KEY")
@@ -1616,6 +1617,13 @@ func TestAccPreCheckKmsImportToken(t *testing.T) {
 func TestAccPreCheckKmsKeyID(t *testing.T) {
 	if HW_KMS_KEY_ID == "" {
 		t.Skip("HW_KMS_KEY_ID must be set for KMS key material acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckKmsAlias(t *testing.T) {
+	if HW_KMS_ALIAS == "" {
+		t.Skip("HW_KMS_ALIAS must be set for the acceptance test")
 	}
 }
 
