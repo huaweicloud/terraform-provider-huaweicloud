@@ -1358,6 +1358,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpn_customer_gateways":              vpn.DataSourceVpnCustomerGateways(),
 			"huaweicloud_vpn_connections":                    vpn.DataSourceVpnConnections(),
 			"huaweicloud_vpn_connection_health_checks":       vpn.DataSourceVpnConnectionHealthChecks(),
+			"huaweicloud_vpn_connection_logs":                vpn.DataSourceVpnConnectionLogs(),
 			"huaweicloud_vpn_p2c_gateways":                   vpn.DataSourceVpnP2cGateways(),
 			"huaweicloud_vpn_p2c_gateway_availability_zones": vpn.DataSourceVpnP2cGatewayAvailabilityZones(),
 			"huaweicloud_vpn_p2c_gateway_connections":        vpn.DataSourceVpnP2cGatewayConnections(),
