@@ -195,7 +195,7 @@ func DataSourceV3Volumes() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"frozened": {
-										Type:     schema.TypeString,
+										Type:     schema.TypeBool,
 										Computed: true,
 									},
 									"id": {
@@ -203,7 +203,7 @@ func DataSourceV3Volumes() *schema.Resource {
 										Computed: true,
 									},
 									"total_val": {
-										Type:     schema.TypeString,
+										Type:     schema.TypeInt,
 										Computed: true,
 									},
 									"volume_id": {
