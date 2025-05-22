@@ -234,6 +234,7 @@ var (
 	HW_AAD_IP_ADDRESS  = os.Getenv("HW_AAD_IP_ADDRESS")
 	HW_AAD_ENABLE_FLAG = os.Getenv("HW_AAD_ENABLE_FLAG")
 	HW_AAD_DOMAIN_NAME = os.Getenv("HW_AAD_DOMAIN_NAME")
+	HW_AAD_DOMAIN_ID   = os.Getenv("HW_AAD_DOMAIN_ID")
 
 	HW_WORKSPACE_AD_DOMAIN_NAMES = os.Getenv("HW_WORKSPACE_AD_DOMAIN_NAMES") // Domain name, e.g. "example.com".
 	// Please make sure all AD servers (master and standby) have the same account configuration (with same name and password).
@@ -773,6 +774,13 @@ func TestAccPrecheckAadEnable(t *testing.T) {
 func TestAccPrecheckAadDomainName(t *testing.T) {
 	if HW_AAD_DOMAIN_NAME == "" {
 		t.Skip("HW_AAD_DOMAIN_NAME must be set for this acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckAadDomainID(t *testing.T) {
+	if HW_AAD_DOMAIN_ID == "" {
+		t.Skip("HW_AAD_DOMAIN_ID must be set for this acceptance test")
 	}
 }
 
