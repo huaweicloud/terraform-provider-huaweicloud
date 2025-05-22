@@ -444,26 +444,26 @@ The EIP must have been created and must be in the same region as the cluster.
 
 * `analysis_core_nodes` - (Optional, List, ForceNew) Specifies the informations about analysis core nodes in the
   MapReduce cluster.  
-  The [master_nodes](#v2_mapreduce_cluster_core_task_nodes) structure is documented below.  
+  The [analysis_core_nodes](#v2_mapreduce_cluster_core_nodes) structure is documented below.  
   Changing this will create a new MapReduce cluster resource.
 
 * `streaming_core_nodes` - (Optional, List, ForceNew) Specifies the informations about streaming core nodes in the
   MapReduce cluster.  
-  The [master_nodes](#v2_mapreduce_cluster_core_task_nodes) structure is documented below.  
+  The [streaming_core_nodes](#v2_mapreduce_cluster_core_nodes) structure is documented below.  
   Changing this will create a new MapReduce cluster resource.
 
 * `analysis_task_nodes` - (Optional, List, ForceNew) Specifies the informations about analysis task nodes in the
   MapReduce cluster.  
-  The [master_nodes](#v2_mapreduce_cluster_core_task_nodes) structure is documented below.  
+  The [analysis_task_nodes](#v2_mapreduce_cluster_task_nodes) structure is documented below.  
   Changing this will create a new MapReduce cluster resource.
 
 * `streaming_task_nodes` - (Optional, List, ForceNew) Specifies the informations about streaming task nodes in the
   MapReduce cluster.  
-  The [master_nodes](#v2_mapreduce_cluster_core_task_nodes) structure is documented below.  
+  The [streaming_task_nodes](#v2_mapreduce_cluster_task_nodes) structure is documented below.  
   Changing this will create a new MapReduce cluster resource.
 
 * `custom_nodes` - (Optional, List, ForceNew) Specifies the informations about custom nodes in the MapReduce cluster.  
-  The [master_nodes](#v2_mapreduce_cluster_custom_nodes) structure is documented below.  
+  The [custom_nodes](#v2_mapreduce_cluster_custom_nodes) structure is documented below.  
   Changing this will create a new MapReduce cluster resource.
 
 * `component_configs` - (Optional, List, ForceNew) Specifies the component configurations of the cluster.
@@ -497,10 +497,14 @@ The EIP must have been created and must be in the same region as the cluster.
   Changing this parameter will create a new MapReduce cluster resource.
 
 * `period` - (Optional, Int, ForceNew) Specifies the charging period of the cluster.  
-  If `period_unit` is set to **month**, the value ranges from 1 to 9.  
-  If `period_unit` is set to **year**, the value ranges from 1 to 3.  
+  If `period_unit` is set to **month**, the value ranges from `1` to `9`.  
+  If `period_unit` is set to **year**, the value ranges from `1` to `3`.  
   This parameter is mandatory if `charging_mode` is set to **prePaid**.  
   Changing this parameter will create a new MapReduce cluster resource.
+
+* `auto_renew` - (Optional, String) Specifies whether auto renew is enabled, defaults to **false**.  
+  This parameter is available if `charging_mode` is set to **prePaid**.  
+  The valid values are **true** and **false**.  
 
 <a name="v2_mapreduce_cluster_master_nodes"></a>
 The `master_nodes` block supports:
@@ -549,9 +553,103 @@ The `master_nodes` block supports:
 
   -> `DBService` is a basic component of a cluster. Components such as Hive, Hue, Oozie, Loader, and Redis, and Loader
    store their metadata in DBService, and provide the metadata backup and restoration functions by using DBService.
+  
+* `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the cluster.  
+  Valid values are **prePaid** and **postPaid**, defaults to **postPaid**.  
+  Changing this parameter will create a new MapReduce cluster resource.
 
-<a name="v2_mapreduce_cluster_core_task_nodes"></a>
-The `analysis_core_nodes`, `streaming_core_nodes`, `analysis_task_nodes` and `streaming_task_nodes` blocks support:
+* `period_unit` - (Optional, String, ForceNew) Specifies the charging period unit of the cluster.  
+  Valid values are **month** and **year**. This parameter is mandatory if `charging_mode` is set to **prePaid**.  
+  Changing this parameter will create a new MapReduce cluster resource.
+
+* `period` - (Optional, Int, ForceNew) Specifies the charging period of the cluster.  
+  If `period_unit` is set to **month**, the value ranges from `1` to `9`.  
+  If `period_unit` is set to **year**, the value ranges from `1` to `3`.  
+  This parameter is mandatory if `charging_mode` is set to **prePaid**.  
+  Changing this parameter will create a new MapReduce cluster resource.
+
+* `auto_renew` - (Optional, String) Specifies whether auto renew is enabled, defaults to **false**.  
+  This parameter is available if `charging_mode` is set to **prePaid**.  
+  The valid values are **true** and **false**.  
+
+  -> The `period_unit` must be used together with the `period` parameter.
+  
+<a name="v2_mapreduce_cluster_core_nodes"></a>
+The `analysis_core_nodes` and `streaming_core_nodes` blocks support:
+
+* `flavor` - (Required, String, ForceNew) Specifies the instance specifications for each nodes in node group.
+  Changing this will create a new MapReduce cluster resource.
+
+* `node_number` - (Required, Int) Specifies the number of nodes for the node group.
+
+  -> The number of nodes after scaling cannot be less than the number of nodes originally created.
+
+* `root_volume_type` - (Required, String, ForceNew) Specifies the system disk flavor of the nodes. Changing this will
+  create a new MapReduce cluster resource.
+
+* `root_volume_size` - (Required, Int, ForceNew) Specifies the system disk size of the nodes. Changing this will create
+  a new MapReduce cluster resource.
+
+* `data_volume_count` - (Required, Int, ForceNew) Specifies the data disk number of the nodes. The number configuration
+  of each node are as follows:
+  + **analysis_core_nodes**: minimum is one and the maximum is subject to the configuration of the corresponding flavor.
+  + **streaming_core_nodes**: minimum is one and the maximum is subject to the configuration of the corresponding flavor.
+  + **analysis_task_nodes**: minimum is one and the maximum is subject to the configuration of the corresponding flavor.
+  + **streaming_task_nodes**: minimum is one and the maximum is subject to the configuration of the corresponding flavor.
+
+  Changing this will create a new MapReduce cluster resource.
+  
+* `data_volume_type` - (Optional, String, ForceNew) Specifies the data disk flavor of the nodes.
+  Required if `data_volume_count` is greater than zero. Changing this will create a new MapReduce cluster resource.
+   The following disk types are supported:
+  + **SATA**: common I/O disk.
+  + **SAS**: high I/O disk.
+  + **SSD**: ultra-high I/O disk.
+
+* `data_volume_size` - (Optional, Int, ForceNew) Specifies the data disk size of the nodes,in GB. The value range is 10
+  to 32768. Required if `data_volume_count` is greater than zero. Changing this will create a new MapReduce
+  cluster resource.
+
+* `assigned_roles` - (Optional, List, ForceNew) Specifies the roles deployed in a node group.This argument is mandatory
+ when the cluster type is **CUSTOM**. Each character string represents a role expression.
+
+  **Role expression definition:**
+
+   + If the role is deployed on all nodes in the node group, set this parameter to role_name, for example: `DataNode`.
+   + If the role is deployed on a specified subscript node in the node group: role_name:index1,index2..., indexN,
+ for example: `DataNode:1,2`. The subscript starts from 1.
+   + Some roles support multi-instance deployment (that is, multiple instances of the same role are deployed on a node):
+  role_name[instance_count], for example: `EsNode[9]`.
+  
+  [For details about components](https://support.huaweicloud.com/intl/en-us/productdesc-mrs/mrs_08_0005.html)
+
+  [Mapping between roles and components](https://support.huaweicloud.com/intl/en-us/api-mrs/mrs_02_0106.html)
+
+  -> `DBService` is a basic component of a cluster. Components such as Hive, Hue, Oozie, Loader, and Redis, and Loader
+   store their metadata in DBService, and provide the metadata backup and restoration functions by using DBService.
+
+  + `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the cluster.  
+  Valid values are **prePaid** and **postPaid**, defaults to **postPaid**.  
+  Changing this parameter will create a new MapReduce cluster resource.
+
+* `period_unit` - (Optional, String, ForceNew) Specifies the charging period unit of the cluster.  
+  Valid values are **month** and **year**. This parameter is mandatory if `charging_mode` is set to **prePaid**.  
+  Changing this parameter will create a new MapReduce cluster resource.
+
+* `period` - (Optional, Int, ForceNew) Specifies the charging period of the cluster.  
+  If `period_unit` is set to **month**, the value ranges from `1` to `9`.  
+  If `period_unit` is set to **year**, the value ranges from `1` to `3`.  
+  This parameter is mandatory if `charging_mode` is set to **prePaid**.  
+  Changing this parameter will create a new MapReduce cluster resource.
+
+* `auto_renew` - (Optional, String) Specifies whether auto renew is enabled, defaults to **false**.  
+  This parameter is available if `charging_mode` is set to **prePaid**.  
+  The valid values are **true** and **false**.  
+
+  -> The `period_unit` must be used together with the `period` parameter.
+
+<a name="v2_mapreduce_cluster_task_nodes"></a>
+The `analysis_task_nodes` and `streaming_task_nodes` blocks support:
 
 * `flavor` - (Required, String, ForceNew) Specifies the instance specifications for each nodes in node group.
   Changing this will create a new MapReduce cluster resource.
@@ -654,6 +752,26 @@ The `custom_nodes` block supports:
 
   -> `DBService` is a basic component of a cluster. Components such as Hive, Hue, Oozie, Loader, and Redis, and Loader
    store their metadata in DBService, and provide the metadata backup and restoration functions by using DBService.
+
+* `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the cluster.  
+  Valid values are **prePaid** and **postPaid**, defaults to **postPaid**.  
+  Changing this parameter will create a new MapReduce cluster resource.
+
+* `period_unit` - (Optional, String, ForceNew) Specifies the charging period unit of the cluster.  
+  Valid values are **month** and **year**. This parameter is mandatory if `charging_mode` is set to **prePaid**.  
+  Changing this parameter will create a new MapReduce cluster resource.
+
+* `period` - (Optional, Int, ForceNew) Specifies the charging period of the cluster.  
+  If `period_unit` is set to **month**, the value ranges from `1` to `9`.  
+  If `period_unit` is set to **year**, the value ranges from `1` to `3`.  
+  This parameter is mandatory if `charging_mode` is set to **prePaid**.  
+  Changing this parameter will create a new MapReduce cluster resource.
+
+* `auto_renew` - (Optional, String) Specifies whether auto renew is enabled, defaults to **false**.  
+  This parameter is available if `charging_mode` is set to **prePaid**.  
+  The valid values are **true** and **false**.  
+
+  -> The `period_unit` must be used together with the `period` parameter.
 
 <a name="component_configurations"></a>
 The `component_configs` block supports:
@@ -786,14 +904,17 @@ This resource provides the following timeouts configuration options:
 Clusters can be imported by their `id`. For example,
 
 ```bash
-terraform import huaweicloud_mapreduce_cluster.test b11b407c-e604-4e8d-8bc4-92398320b847
+terraform import huaweicloud_mapreduce_cluster.test <id>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include:
 `manager_admin_pass`, `node_admin_pass`,`template_id`, `assigned_roles`, `external_datasources`, `component_configs`,
-`smn_notify`, `charging_mode`, `period` and `period_unit`. It is generally recommended running `terraform plan`
-after importing a cluster.
+`smn_notify`, `charging_mode`, `period`, `period_unit`, `auto_renew`, `streaming_core_nodes.0.charging_mode`,
+`streaming_core_nodes.0.period`, `streaming_core_nodes.0.period_unit`, `streaming_core_nodes.0.auto_renew`,
+`analysis_core_nodes.0.charging_mode`, `analysis_core_nodes.0.period`, `analysis_core_nodes.0.period_unit`,
+`analysis_core_nodes.0.auto_renew`, `custom_nodes.0.charging_mode`, `custom_nodes.0.period`, `custom_nodes.0.period_unit`
+and `custom_nodes.0.auto_renew`. It is generally recommended running `terraform plan` after importing a cluster.
 You can then decide if changes should be applied to the cluster, or the resource definition
 should be updated to align with the cluster. Also you can ignore changes as below.
 
@@ -804,7 +925,10 @@ resource "huaweicloud_mapreduce_cluster" "test" {
   lifecycle {
     ignore_changes = [
       manager_admin_pass, node_admin_pass, template_id, assigned_roles, external_datasources, component_configs, smn_notify,
-      charging_mode, period, period_unit,
+      charging_mode, period, period_unit, auto_renew, master_nodes.0.charging_mode, master_nodes.0.period, master_nodes.0.period_unit,
+      master_nodes.0.auto_renew, streaming_core_nodes.0.charging_mode, streaming_core_nodes.0.period, streaming_core_nodes.0.period_unit,
+      streaming_core_nodes.0.auto_renew, analysis_core_nodes.0.charging_mode, analysis_core_nodes.0.period, analysis_core_nodes.0.period_unit,
+      analysis_core_nodes.0.auto_renew, custom_nodes.0.charging_mode, custom_nodes.0.period, custom_nodes.0.period_unit, custom_nodes.0.auto_renew
     ]
   }
 }

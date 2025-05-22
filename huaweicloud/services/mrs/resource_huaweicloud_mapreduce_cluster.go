@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
@@ -256,6 +257,8 @@ func ResourceMRSClusterV2() *schema.Resource {
 			"charging_mode": common.SchemaChargingMode(nil),
 			"period_unit":   common.SchemaPeriodUnit(nil),
 			"period":        common.SchemaPeriod(nil),
+			"auto_renew":    common.SchemaAutoRenewUpdatable(nil),
+			// Attributes.
 			"total_node_number": {
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -368,6 +371,26 @@ func nodeGroupSchemaResource(groupName string, nodeScalable bool) *schema.Resour
 			Required: true,
 			ForceNew: true,
 		}
+	}
+
+	// All task node groups do not support `prepaid`.
+	if groupName != analysisTaskGroup && groupName != streamingTaskGroup {
+		nodeResource.Schema["charging_mode"] = common.SchemaChargingMode(nil)
+		nodeResource.Schema["period_unit"] = &schema.Schema{
+			Type:     schema.TypeString,
+			Optional: true,
+			ForceNew: true,
+			ValidateFunc: validation.StringInSlice([]string{
+				"month", "year",
+			}, false),
+		}
+		nodeResource.Schema["period"] = &schema.Schema{
+			Type:         schema.TypeInt,
+			Optional:     true,
+			ForceNew:     true,
+			ValidateFunc: validation.IntBetween(1, 9),
+		}
+		nodeResource.Schema["auto_renew"] = common.SchemaAutoRenewUpdatable(nil)
 	}
 
 	return &nodeResource
@@ -595,17 +618,10 @@ func buildNodeGroupOpts(d *schema.ResourceData, optsRaw []interface{}, defaultNa
 			}
 		}
 
-		chargingMode := d.Get("charging_mode").(string)
-		if chargingMode == "prePaid" {
-			var chargeInfo clusterv2.ChargeInfo
-			log.Printf("nodeGroup.GroupName:%s", nodeGroup.GroupName)
-			if nodeGroup.GroupName == masterGroup || nodeGroup.GroupName == analysisCoreGroup || nodeGroup.GroupName == streamingCoreGroup {
-				chargeInfo.ChargeMode = "prePaid"
-				chargeInfo.PeriodNum = d.Get("period").(int)
-				chargeInfo.PeriodType = d.Get("period_unit").(string)
-				chargeInfo.IsAutoPay = utils.Bool(true)
-				nodeGroup.ChargeInfo = &chargeInfo
-			}
+		nodeType := nodeGroup.GroupName
+		// All task node groups do not support `prepaid`.
+		if nodeType != "task_node_analysis_group" && nodeType != "task_node_streaming_group" {
+			nodeGroup.ChargeInfo = bulidNodeGroupChargeInfo(opts, d)
 		}
 
 		nodeGroup.DataVolumeCount = golangsdk.IntToPointer(volumeCount)
@@ -619,6 +635,40 @@ func buildNodeGroupOpts(d *schema.ResourceData, optsRaw []interface{}, defaultNa
 		result = append(result, nodeGroup)
 	}
 	return result
+}
+
+func bulidClusterChargeMode(d *schema.ResourceData) *clusterv2.ChargeInfo {
+	autoRenew, _ := strconv.ParseBool(d.Get("auto_renew").(string))
+	return &clusterv2.ChargeInfo{
+		ChargeMode:  "prePaid",
+		PeriodNum:   d.Get("period").(int),
+		PeriodType:  d.Get("period_unit").(string),
+		IsAutoRenew: utils.Bool(autoRenew),
+		IsAutoPay:   utils.Bool(true),
+	}
+}
+
+func bulidNodeGroupChargeInfo(nodeGroup map[string]interface{}, d *schema.ResourceData) *clusterv2.ChargeInfo {
+	if nodeGroup["charging_mode"].(string) != "prePaid" && d.Get("charging_mode").(string) != "prePaid" {
+		return nil
+	}
+
+	// If mode group does not specify charge information, it will inherit the cluster.
+	nodeChargeInfo := bulidClusterChargeMode(d)
+	if period, ok := nodeGroup["period"].(int); ok && period != 0 {
+		nodeChargeInfo.PeriodNum = period
+	}
+
+	if periodUnit, ok := nodeGroup["period_unit"].(string); ok && periodUnit != "" {
+		nodeChargeInfo.PeriodType = periodUnit
+	}
+
+	if autoRenew, ok := nodeGroup["auto_renew"].(string); ok && autoRenew != "" {
+		isAutoRenew, _ := strconv.ParseBool(autoRenew)
+		nodeChargeInfo.IsAutoRenew = utils.Bool(isAutoRenew)
+	}
+
+	return nodeChargeInfo
 }
 
 func buildComponentConfigOpts(d *schema.ResourceData) []clusterv2.ComponentConfigOpts {
@@ -752,17 +802,9 @@ func resourceMRSClusterV2Create(ctx context.Context, d *schema.ResourceData, met
 	}
 
 	// add charge info
-	var chargeInfo clusterv2.ChargeInfo
 	chargingMode := d.Get("charging_mode").(string)
 	if chargingMode == "prePaid" {
-		chargeInfo.ChargeMode = chargingMode
-		chargeInfo.PeriodNum = d.Get("period").(int)
-		chargeInfo.PeriodType = d.Get("period_unit").(string)
-		chargeInfo.IsAutoPay = utils.Bool(true)
-		if chargeInfo != (clusterv2.ChargeInfo{}) {
-			createOpts.ChargeInfo = &chargeInfo
-		}
-
+		createOpts.ChargeInfo = bulidClusterChargeMode(d)
 		resp, err := clusterv2.Create(mrsV2Client, createOpts).Extract()
 		if err != nil {
 			return diag.Errorf("error creating Cluster: %s", err)
@@ -990,6 +1032,17 @@ func setMrsClusterNodeGroups(d *schema.ResourceData, mrsV1Client *golangsdk.Serv
 			groupMap["data_volume_size"] = node.DataVolumeSize
 			groupMap["data_volume_count"] = node.DataVolumeCount
 		}
+
+		if value != "analysis_task_nodes" && value != "streaming_task_nodes" {
+			nodeGroup, ok := d.GetOk(value)
+			if ok {
+				groupMap["charging_mode"] = utils.PathSearch("[0].charging_mode", nodeGroup, "")
+				groupMap["period"] = utils.PathSearch("[0].period", nodeGroup, 1)
+				groupMap["period_unit"] = utils.PathSearch("[0].period_unit", nodeGroup, "")
+				groupMap["auto_renew"] = utils.PathSearch("[0].auto_renew", nodeGroup, "")
+			}
+		}
+
 		log.Printf("[DEBUG] node group '%s' is : %+v", value, groupMap)
 		values[value] = append(values[value], groupMap)
 	}
@@ -1363,6 +1416,17 @@ func resourceMRSClusterV2Update(ctx context.Context, d *schema.ResourceData, met
 		err = updateMRSClusterNodes(ctx, d, client)
 		if err != nil {
 			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("auto_renew") {
+		bssClient, err := cfg.BssV2Client(region)
+		if err != nil {
+			return diag.Errorf("error creating BSS V2 client: %s", err)
+		}
+
+		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), clusterId); err != nil {
+			return diag.Errorf("error updating the auto-renew of the cluster (%s): %s", clusterId, err)
 		}
 	}
 
