@@ -41,7 +41,7 @@ resource "huaweicloud_drs_job" "test" {
     port        = var.source_db_port
     user        = var.source_db_user
     password    = var.source_db_password
-    ssl_link    = false
+    ssl_enabled = false
   }
 
   destination_db {
@@ -155,7 +155,7 @@ resource "huaweicloud_drs_job" "test" {
     port        = var.source_db_port
     user        = var.source_db_user
     password    = var.source_db_password
-    ssl_link    = false
+    ssl_enabled = false
     vpc_id      = var.source_db_vpc_id
     subnet_id   = var.source_db_subnet_id
   }
@@ -219,7 +219,7 @@ resource "huaweicloud_drs_job" "test" {
     port        = var.source_db_port
     user        = var.source_db_user
     password    = var.source_db_password
-    ssl_link    = false
+    ssl_enabled = false
   }
 
   destination_db {
