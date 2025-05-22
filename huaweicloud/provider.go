@@ -452,8 +452,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_access_analyzers":              accessanalyzer.DataSourceAccessAnalyzers(),
 			"huaweicloud_access_analyzer_archive_rules": accessanalyzer.DataSourceAccessAnalyzerArchiveRules(),
 
-			"huaweicloud_aad_instances":         aad.DataSourceAADInstances(),
-			"huaweicloud_aad_black_white_lists": aad.DataSourceAadBlackWhiteLists(),
+			"huaweicloud_aad_instances":               aad.DataSourceAADInstances(),
+			"huaweicloud_aad_black_white_lists":       aad.DataSourceAadBlackWhiteLists(),
+			"huaweicloud_aad_web_protection_policies": aad.DataSourceAadWebProtectionPolicies(),
 
 			"huaweicloud_antiddos_config_ranges":                antiddos.DataSourceConfigRanges(),
 			"huaweicloud_antiddos_weekly_protection_statistics": antiddos.DataSourceWeeklyProtectionStatistics(),
