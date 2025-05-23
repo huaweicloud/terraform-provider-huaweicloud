@@ -1275,6 +1275,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_sms_source_servers": sms.DataSourceServers(),
 
 			"huaweicloud_sfs_turbos":            sfsturbo.DataSourceTurbos(),
+			"huaweicloud_sfs_turbos_by_tags":    sfsturbo.DataSourceSfsTurbosByTags(),
 			"huaweicloud_sfs_turbo_data_tasks":  sfsturbo.DataSourceSfsTurboDataTasks(),
 			"huaweicloud_sfs_turbo_dir_usage":   sfsturbo.DataSourceDirusage(),
 			"huaweicloud_sfs_turbo_du_tasks":    sfsturbo.DataSourceSfsTurboDuTasks(),
