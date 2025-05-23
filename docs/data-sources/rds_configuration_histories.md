@@ -34,9 +34,8 @@ The following arguments are supported:
 
 * `end_time` - (Optional, String) Specifies the end time in the **yyyy-mm-ddThh:mm:ssZ** format. 
   The default value is the current time.
-  Defaults to the current time.
 
-* `param_name` - (Optional, String) Specifies the filter to a singe parameter name.
+* `param_name` - (Optional, String) Specifies the parameter name.
 
 ## Attribute Reference
 

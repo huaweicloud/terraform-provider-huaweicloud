@@ -64,12 +64,11 @@ resource "huaweicloud_rds_instance" "test" {
   }
 
   parameters {
-	name  = "deadlock_timeout"
-	value = "10001"
+    name  = "deadlock_timeout"
+    value = "10001"
   }
 }
 `, testAccRdsInstance_base(name), name)
-
 }
 
 func testDataSourceRdsConfigurationHistories_basic(name string) string {
