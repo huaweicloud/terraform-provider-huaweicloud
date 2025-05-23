@@ -1039,6 +1039,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_kms_grants":        dew.DataSourceKmsGrants(),
 			"huaweicloud_kms_key":           dew.DataSourceKmsKey(),
 			"huaweicloud_kms_keys":          dew.DataSourceKmsKeys(),
+			"huaweicloud_kms_quotas":        dew.DataSourceKMSQuotas(),
 			"huaweicloud_kps_failed_tasks":  dew.DataSourceDewKpsFailedTasks(),
 			"huaweicloud_kps_running_tasks": dew.DataSourceDewKpsRunningTasks(),
 			"huaweicloud_kps_keypairs":      dew.DataSourceKeypairs(),
