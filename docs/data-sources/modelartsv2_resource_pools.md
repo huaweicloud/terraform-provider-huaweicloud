@@ -84,6 +84,8 @@ The `resource_pools` block supports:
 <a name="modelarts_resource_pool_metadata"></a>
 The `metadata` block supports:
 
+* `name` - The name of the resource pool.
+
 * `annotations` - The annotations of the resource pool.
 
 * `labels` - The labels of the resource pool.
