@@ -16,6 +16,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// @API RDS GET /v3/{project_id}/instances/{instance_id}/configuration-histories
 func DataSourceRdsConfigurationHistories() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceRdsConfigurationHistoriesRead,
