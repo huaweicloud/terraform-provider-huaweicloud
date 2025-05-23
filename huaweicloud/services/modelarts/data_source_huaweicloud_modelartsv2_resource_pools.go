@@ -135,6 +135,11 @@ func DataSourceV2ResourcePools() *schema.Resource {
 func dataV2ResourcePoolMetadataSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
+			"name": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The name of the resource pool.`,
+			},
 			"annotations": {
 				Type:        schema.TypeMap,
 				Computed:    true,
@@ -449,6 +454,7 @@ func flattenV2ResourcePoolMetadata(metadata interface{}) []map[string]interface{
 
 	return []map[string]interface{}{
 		{
+			"name":        utils.PathSearch("name", metadata, nil),
 			"annotations": utils.PathSearch("annotations", metadata, make(map[string]interface{})),
 			"labels":      utils.PathSearch("labels", metadata, make(map[string]interface{})),
 			"created_at": utils.FormatTimeStampRFC3339(utils.ConvertTimeStrToNanoTimestamp(utils.PathSearch("creationTimestamp",
