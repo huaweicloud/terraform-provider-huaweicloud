@@ -2422,8 +2422,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_smn_message_publish":            smn.ResourceMessagePublish(),
 			"huaweicloud_smn_subscription_filter_policy": smn.ResourceSubscriptionFilterPolicy(),
 
-			"huaweicloud_sms_server_template": sms.ResourceServerTemplate(),
-			"huaweicloud_sms_task":            sms.ResourceMigrateTask(),
+			"huaweicloud_sms_server_template":    sms.ResourceServerTemplate(),
+			"huaweicloud_sms_task":               sms.ResourceMigrateTask(),
+			"huaweicloud_sms_privacy_agreements": sms.ResourcePrivacyAgreements(),
 
 			"huaweicloud_swr_organization":             swr.ResourceSWROrganization(),
 			"huaweicloud_swr_organization_permissions": swr.ResourceSWROrganizationPermissions(),
