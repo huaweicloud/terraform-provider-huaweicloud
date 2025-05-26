@@ -17,9 +17,9 @@ import (
 )
 
 // @API RDS GET /v3/{project_id}/instances/{instance_id}/configuration-histories
-func DataSourceRdsConfigurationHistories() *schema.Resource {
+func DataSourceRdsInstanceParameterHistories() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceRdsConfigurationHistoriesRead,
+		ReadContext: dataSourceRdsInstanceParameterHistoriesRead,
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
@@ -82,7 +82,7 @@ func DataSourceRdsConfigurationHistories() *schema.Resource {
 	}
 }
 
-func dataSourceRdsConfigurationHistoriesRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceRdsInstanceParameterHistoriesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
@@ -112,7 +112,7 @@ func dataSourceRdsConfigurationHistoriesRead(ctx context.Context, d *schema.Reso
 		path := basePath + buildFullQueryParams(d, offset)
 		getResp, err := client.Request("GET", path, &getOpt)
 		if err != nil {
-			return diag.Errorf("error retrieving RDS configuration histories: %s", err)
+			return diag.Errorf("error retrieving RDS instance parameters change histories: %s", err)
 		}
 
 		getRespBody, err := utils.FlattenResponse(getResp)
@@ -120,7 +120,7 @@ func dataSourceRdsConfigurationHistoriesRead(ctx context.Context, d *schema.Reso
 			return diag.FromErr(err)
 		}
 
-		parsed := flattenConfigurationHistoriesBody(getRespBody)
+		parsed := flattenInstanceParametesrHistoriesBody(getRespBody)
 		if len(parsed) == 0 {
 			break
 		}
@@ -156,7 +156,7 @@ func buildFullQueryParams(d *schema.ResourceData, offset int) string {
 	return params
 }
 
-func flattenConfigurationHistoriesBody(resp interface{}) []interface{} {
+func flattenInstanceParametesrHistoriesBody(resp interface{}) []interface{} {
 	historiesJSON := utils.PathSearch("histories", resp, make([]interface{}, 0))
 	historiesArr := historiesJSON.([]interface{})
 
