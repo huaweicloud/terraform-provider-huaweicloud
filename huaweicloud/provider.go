@@ -1212,6 +1212,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_tags":                             rds.DataSourceRdsTags(),
 			"huaweicloud_rds_tasks":                            rds.DataSourceRdsTasks(),
 			"huaweicloud_rds_predefined_tags":                  rds.DataSourceRdsPredefinedTags(),
+			"huaweicloud_rds_diagnosis":                        rds.DataSourceRdsDiagnosis(),
 
 			"huaweicloud_rms_policy_definitions":                       rms.DataSourcePolicyDefinitions(),
 			"huaweicloud_rms_assignment_package_templates":             rms.DataSourceTemplates(),
