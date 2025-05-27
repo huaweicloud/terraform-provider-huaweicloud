@@ -223,7 +223,7 @@ func resourceDomainRead(_ context.Context, d *schema.ResourceData, meta interfac
 	jsonPath := fmt.Sprintf("items[?domain_id=='%s']|[0]", d.Id())
 	domain := utils.PathSearch(jsonPath, getDomainsRespBody, nil)
 	if domain == nil {
-		return common.CheckDeletedDiag(d, err, "")
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
 	}
 
 	mErr = multierror.Append(
