@@ -131,7 +131,7 @@ resource "huaweicloud_rds_instance" "test" {
     ignore_changes = [binlog_retention_hours]
   }
 }
-`, testAccRdsInstance_base(name), name)
+`, testAccRdsInstance_base(), name)
 }
 
 func testMysqlBinlog_basic(name string) string {

@@ -67,7 +67,7 @@ resource "huaweicloud_rds_sqlserver_database" "test" {
   instance_id = huaweicloud_rds_instance.test.id
   name        = "%[2]s_source"
 }
-`, testAccRdsInstance_base(name), name)
+`, testAccRdsInstance_base(), name)
 }
 
 func testSQLServerDatabaseCopy_basic(name string) string {
