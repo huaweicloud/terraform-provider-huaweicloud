@@ -9,8 +9,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceRdsConfigurationHistories_basic(t *testing.T) {
-	dataSource := "data.huaweicloud_rds_configuration_histories.test"
+func TestAccDataSourceRdsInstanceParameterHistories_basic(t *testing.T) {
+	dataSource := "data.huaweicloud_rds_instance_parameters_histories.test"
 	rName := acceptance.RandomAccResourceName()
 	dc := acceptance.InitDataSourceCheck(dataSource)
 
@@ -21,7 +21,7 @@ func TestAccDataSourceRdsConfigurationHistories_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceRdsConfigurationHistories_basic(rName),
+				Config: testDataSourceRdsInstanceParameterHistories_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(dataSource, "histories.#"),
@@ -39,7 +39,7 @@ func TestAccDataSourceRdsConfigurationHistories_basic(t *testing.T) {
 	})
 }
 
-func testDataSourceRdsConfigurationHistories_base(name string) string {
+func testDataSourceRdsInstanceParameterHistories_base(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -71,21 +71,21 @@ resource "huaweicloud_rds_instance" "test" {
 `, testAccRdsInstance_base(name), name)
 }
 
-func testDataSourceRdsConfigurationHistories_basic(name string) string {
+func testDataSourceRdsInstanceParameterHistories_basic(name string) string {
 	return fmt.Sprintf(`
 %s
 
-data "huaweicloud_rds_configuration_histories" "test" {
+data "huaweicloud_rds_instance_parameters_histories" "test" {
   instance_id = huaweicloud_rds_instance.test.id
 }
 
-data "huaweicloud_rds_configuration_histories" "param_name_filter" {
+data "huaweicloud_rds_instance_parameters_histories" "param_name_filter" {
   instance_id = huaweicloud_rds_instance.test.id
   param_name  = "deadlock_timeout"
 }
 
 output "param_name_filter_is_useful" {
-  value = length(data.huaweicloud_rds_configuration_histories.param_name_filter.histories) > 0
+  value = length(data.huaweicloud_rds_instance_parameters_histories.param_name_filter.histories) > 0
 }
-`, testDataSourceRdsConfigurationHistories_base(name))
+`, testDataSourceRdsInstanceParameterHistories_base(name))
 }

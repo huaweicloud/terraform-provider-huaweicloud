@@ -1,21 +1,21 @@
 ---
 subcategory: "Relational Database Service (RDS)"
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_rds_configuration_histories"
+page_title: "HuaweiCloud: huaweicloud_rds_instance_parameters_histories"
 description: |-
-  Use this data source to query the parameter change histories of an RDS instance.
+  Use this data source to query the instance parameters change histories of an RDS instance.
 ---
 
-# huaweicloud_rds_configuration_histories
+# huaweicloud_rds_instance_parameters_histories
 
-Use this data source to query the parameter change histories of an RDS instance.
+Use this data source to query the instance parameters change histories of an RDS instance.
 
 ## Example Usage
 
 ```hcl
 variable "instance_id" {}
 
-data "huaweicloud_rds_configuration_histories" "test" {
+data "huaweicloud_rds_instance_parameters_histories" "test" {
   instance_id = var.instance_id
 }
 ```
@@ -40,6 +40,8 @@ The following arguments are supported:
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
+
+* `id` - The data source ID.
 
 * `histories` - Indicates the list of parameter change history objects.
 
