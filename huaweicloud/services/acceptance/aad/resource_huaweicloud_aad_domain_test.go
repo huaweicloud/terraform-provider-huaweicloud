@@ -41,8 +41,8 @@ func getDomainResourceFunc(cfg *config.Config, state *terraform.ResourceState) (
 		return nil, fmt.Errorf("error flattening AAD domains response: %s", err)
 	}
 
-	ids := fmt.Sprintf("items[?domain_id=='%s']|[0]", state.Primary.ID)
-	domains := utils.PathSearch(ids, respBody, nil)
+	jsonPath := fmt.Sprintf("items[?domain_id=='%s']|[0]", state.Primary.ID)
+	domains := utils.PathSearch(jsonPath, respBody, nil)
 	if domains == nil {
 		return nil, golangsdk.ErrDefault404{}
 	}
