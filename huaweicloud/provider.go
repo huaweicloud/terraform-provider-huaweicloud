@@ -1385,6 +1385,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_waf_address_groups":                       waf.DataSourceWafAddressGroups(),
 			"huaweicloud_waf_certificate":                          waf.DataSourceWafCertificate(),
+			"huaweicloud_waf_config":                               waf.DataSourceWafConfig(),
 			"huaweicloud_waf_dedicated_domains":                    waf.DataSourceWafDedicatedDomains(),
 			"huaweicloud_waf_dedicated_instances":                  waf.DataSourceWafDedicatedInstances(),
 			"huaweicloud_waf_domains":                              waf.DataSourceWafDomains(),
