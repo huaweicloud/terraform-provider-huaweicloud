@@ -105,6 +105,21 @@ resource "huaweicloud_sfs_turbo_obs_target" "test" {
   obs {
     bucket   = huaweicloud_obs_bucket.test.id
     endpoint = "%[3]s"
+
+    policy {
+      auto_export_policy {
+        events = ["NEW","DELETED"]
+        prefix = "pre"
+        suffix = "suf"
+      }
+    }
+
+    attributes {
+      file_mode = "421"
+      dir_mode  = "750"
+      uid       = 101
+      gid       = 234
+    }
   }
 }
 `, testAccOBSTarget_basic_base(randInt), testAccSFSTurbo_shareTypeHpc(name), acceptance.HW_OBS_ENDPOINT)
