@@ -8,7 +8,6 @@ package coc
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
 	"time"
 
@@ -28,6 +27,10 @@ var scriptOrderNotFoundErrCodes = []string{
 	"COC.00040709", // Script not found
 }
 
+var scriptExecuteNonUpdatableParams = []string{
+	"script_id", "instance_id", "timeout", "execute_user", "parameters", "parameters.*.name", "parameters.*.value", "is_sync",
+}
+
 // @API COC POST /v1/job/scripts/{script_uuid}
 // @API COC GET /v1/job/script/orders/{execute_uuid}
 // @API COC PUT /v1/job/script/orders/{execute_uuid}/operation
@@ -37,10 +40,13 @@ func ResourceScriptExecute() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceScriptExecuteCreate,
 		ReadContext:   resourceScriptExecuteRead,
+		UpdateContext: resourceScriptExecuteUpdate,
 		DeleteContext: resourceScriptExecuteDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+
+		CustomizeDiff: config.FlexibleForceNew(scriptExecuteNonUpdatableParams),
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -51,44 +57,42 @@ func ResourceScriptExecute() *schema.Resource {
 			"script_id": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"instance_id": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"timeout": {
 				Type:     schema.TypeInt,
 				Required: true,
-				ForceNew: true,
 			},
 			"execute_user": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"parameters": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 						"value": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 							DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
 								return oldValue == defaultSensitiveValue
 							},
 						},
 					},
 				},
+			},
+			"is_sync": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
 			},
 
 			// attributes
@@ -180,10 +184,24 @@ func resourceScriptExecuteCreate(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	instanceID := d.Get("instance_id").(string)
-	// sync the ECS instance to get informations about UniAgent
-	info, err := syncResourceInfo(ctx, client, d.Timeout(schema.TimeoutCreate), instanceID)
+	// sync the ECS instance to get information about UniAgent
+	if d.Get("is_sync").(bool) {
+		if err = syncResourceInfo(client); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"pending"},
+		Target:       []string{"online"},
+		Refresh:      doGetResources(client, instanceID),
+		Timeout:      d.Timeout(schema.TimeoutCreate),
+		Delay:        5 * time.Second,
+		PollInterval: 15 * time.Second,
+	}
+	info, err := stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return diag.Errorf("error synchronizing the instance %s in COC: %s", instanceID, err)
+		return diag.Errorf("error waiting for ECS instance(%s) to be online in COC: %s", instanceID, err)
 	}
 
 	createExecuteHttpUrl := fmt.Sprintf("v1/job/scripts/%s", d.Get("script_id"))
@@ -213,7 +231,7 @@ func resourceScriptExecuteCreate(ctx context.Context, d *schema.ResourceData, me
 	d.SetId(ticketID)
 
 	// waiting the execution status of COC script
-	stateConf := &resource.StateChangeConf{
+	stateConf = &resource.StateChangeConf{
 		Pending:      []string{"pending"},
 		Target:       []string{"exited"},
 		Refresh:      refreshGetExecutionTicketDetail(client, ticketID),
@@ -221,8 +239,8 @@ func resourceScriptExecuteCreate(ctx context.Context, d *schema.ResourceData, me
 		Delay:        15 * time.Second,
 		PollInterval: 15 * time.Second,
 	}
-	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
-		// skip the timeouts error, and return error when the result is ABNORMAL
+	if _, err = stateConf.WaitForStateContext(ctx); err != nil {
+		// skip the timeout error, and return error when the result is ABNORMAL
 		if _, ok := err.(*resource.UnexpectedStateError); ok {
 			return diag.Errorf("error executing COC script: %s", err)
 		}
@@ -321,6 +339,10 @@ func flattenScriptExecuteParams(resp interface{}) []interface{} {
 	return rst
 }
 
+func resourceScriptExecuteUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+	return nil
+}
+
 func resourceScriptExecuteDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	product := "coc"
@@ -355,24 +377,7 @@ func resourceScriptExecuteDelete(_ context.Context, d *schema.ResourceData, meta
 	return nil
 }
 
-func syncResourceInfo(ctx context.Context, client *golangsdk.ServiceClient, timeout time.Duration, instanceID string) (interface{}, error) {
-	if err := doSyncResources(client); err != nil {
-		return nil, err
-	}
-
-	log.Printf("[DEBUG] Waiting for ECS instance %s to be online in COC", instanceID)
-	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"pending"},
-		Target:       []string{"online"},
-		Refresh:      doGetResources(client, instanceID),
-		Timeout:      timeout,
-		Delay:        5 * time.Second,
-		PollInterval: 15 * time.Second,
-	}
-	return stateConf.WaitForStateContext(ctx)
-}
-
-func doSyncResources(client *golangsdk.ServiceClient) error {
+func syncResourceInfo(client *golangsdk.ServiceClient) error {
 	syncResourceHttpUrl := "v1/external/resources/sync"
 	syncResourcePath := client.Endpoint + syncResourceHttpUrl
 
