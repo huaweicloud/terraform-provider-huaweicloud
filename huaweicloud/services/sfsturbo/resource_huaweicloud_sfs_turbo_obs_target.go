@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -84,10 +85,85 @@ func obsSchema() *schema.Resource {
 			"bucket": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 			},
 			"endpoint": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
+			},
+			"policy": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"auto_export_policy": {
+							Type:     schema.TypeList,
+							Optional: true,
+							ForceNew: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"events": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Computed: true,
+										ForceNew: true,
+										Elem:     &schema.Schema{Type: schema.TypeString},
+									},
+									"prefix": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+										ForceNew: true,
+									},
+									"suffix": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+										ForceNew: true,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			"attributes": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"file_mode": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+							ForceNew: true,
+						},
+						"dir_mode": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+							ForceNew: true,
+						},
+						"uid": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
+							ForceNew: true,
+						},
+						"gid": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
+							ForceNew: true,
+						},
+					},
+				},
 			},
 		},
 	}
@@ -104,9 +180,81 @@ func buildCreateOBSTargetBodyParams(d *schema.ResourceData) map[string]interface
 
 func buildOBSBody(obsData map[string]interface{}) map[string]interface{} {
 	return map[string]interface{}{
-		"bucket":   obsData["bucket"],
-		"endpoint": obsData["endpoint"],
+		"bucket":     obsData["bucket"],
+		"endpoint":   obsData["endpoint"],
+		"policy":     buildPolicyBodyParams(obsData["policy"].([]interface{})),
+		"attributes": buildAttributesBodyParams(obsData["attributes"].([]interface{})),
 	}
+}
+
+func buildPolicyBodyParams(rawPolicy []interface{}) map[string]interface{} {
+	if len(rawPolicy) == 0 {
+		return nil
+	}
+
+	policy, ok := rawPolicy[0].(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	policyParams := map[string]interface{}{
+		"auto_export_policy": buildExportPolicyBodyParams(policy["auto_export_policy"].([]interface{})),
+	}
+
+	return policyParams
+}
+
+func buildExportPolicyBodyParams(rawExportPolicy []interface{}) map[string]interface{} {
+	if len(rawExportPolicy) == 0 {
+		return nil
+	}
+
+	exportPolicy, ok := rawExportPolicy[0].(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	events := utils.ExpandToStringList(exportPolicy["events"].([]interface{}))
+
+	exportPolicyParams := map[string]interface{}{
+		"prefix": utils.ValueIgnoreEmpty(exportPolicy["prefix"]),
+		"suffix": utils.ValueIgnoreEmpty(exportPolicy["suffix"]),
+	}
+
+	if len(events) > 0 {
+		exportPolicyParams["events"] = events
+	}
+
+	return exportPolicyParams
+}
+
+func buildAttributesBodyParams(rawAttributes []interface{}) map[string]interface{} {
+	if len(rawAttributes) == 0 {
+		return nil
+	}
+
+	attributes, ok := rawAttributes[0].(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	attributesParams := map[string]interface{}{
+		"file_mode": bulidAttributeMode(attributes["file_mode"].(string)),
+		"dir_mode":  bulidAttributeMode(attributes["dir_mode"].(string)),
+		"uid":       attributes["uid"],
+		"gid":       attributes["gid"],
+	}
+
+	return attributesParams
+}
+
+func bulidAttributeMode(str string) interface{} {
+	resp, err := strconv.Atoi(str)
+	if err != nil {
+		return nil
+	}
+
+	return resp
 }
 
 func resourceOBSTargetCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -205,10 +353,61 @@ func flattenGetOBSDataResponseBody(resp interface{}) []map[string]interface{} {
 
 	return []map[string]interface{}{
 		{
-			"bucket":   utils.PathSearch("bucket", resp, nil),
-			"endpoint": utils.PathSearch("endpoint", resp, nil),
+			"bucket":     utils.PathSearch("bucket", resp, nil),
+			"endpoint":   utils.PathSearch("endpoint", resp, nil),
+			"policy":     flattenPolicy(utils.PathSearch("policy", resp, nil)),
+			"attributes": flattenAttributes(utils.PathSearch("attributes", resp, nil)),
 		},
 	}
+}
+
+func flattenPolicy(policy interface{}) []map[string]interface{} {
+	if policy == nil {
+		return nil
+	}
+
+	policyResult := map[string]interface{}{
+		"auto_export_policy": flattenExportPolicy(utils.PathSearch("auto_export_policy", policy, nil)),
+	}
+
+	return []map[string]interface{}{policyResult}
+}
+
+func flattenExportPolicy(exportPolicy interface{}) []map[string]interface{} {
+	if exportPolicy == nil {
+		return nil
+	}
+
+	exportPolicyResult := map[string]interface{}{
+		"events": utils.PathSearch("events", exportPolicy, nil),
+		"prefix": utils.PathSearch("prefix", exportPolicy, nil),
+		"suffix": utils.PathSearch("suffix", exportPolicy, nil),
+	}
+
+	return []map[string]interface{}{exportPolicyResult}
+}
+
+func flattenAttributes(attributes interface{}) []map[string]interface{} {
+	if attributes == nil {
+		return nil
+	}
+
+	attributesResult := map[string]interface{}{
+		"file_mode": flattenAttributeMode(utils.PathSearch("file_mode", attributes, nil)),
+		"dir_mode":  flattenAttributeMode(utils.PathSearch("dir_mode", attributes, nil)),
+		"uid":       utils.PathSearch("uid", attributes, nil),
+		"gid":       utils.PathSearch("gid", attributes, nil),
+	}
+
+	return []map[string]interface{}{attributesResult}
+}
+
+func flattenAttributeMode(param interface{}) string {
+	if param == nil {
+		return ""
+	}
+
+	return fmt.Sprintf("%v", param)
 }
 
 func resourceOBSTargetDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
