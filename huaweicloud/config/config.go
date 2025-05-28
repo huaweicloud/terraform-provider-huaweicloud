@@ -1096,6 +1096,9 @@ func (c *Config) MaasV1Client(region string) (*golangsdk.ServiceClient, error) {
 }
 
 func (c *Config) SmsV3Client(region string) (*golangsdk.ServiceClient, error) {
+	if c.GetWebsiteType() == InternationalSite {
+		return c.NewServiceClient("sms-intl", region)
+	}
 	return c.NewServiceClient("sms", region)
 }
 
