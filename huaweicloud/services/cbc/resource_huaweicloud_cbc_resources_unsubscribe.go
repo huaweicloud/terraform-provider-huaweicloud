@@ -71,13 +71,13 @@ func resourceResourcesUnsubscribeCreate(ctx context.Context, d *schema.ResourceD
 		return diag.Errorf("error creating BSS client: %s", err)
 	}
 
-	resourceIds := utils.ExpandToStringList(d.Get("resource_ids").([]interface{}))
-	err = unsubscribePrePaidResources(client, resourceIds)
+	resourceIds := d.Get("resource_ids").([]interface{})
+	err = UnsubscribePrePaidResources(client, resourceIds)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	err = waitForResourcesUnsubscribed(ctx, client, resourceIds, d.Timeout(schema.TimeoutCreate))
+	err = WaitForResourcesUnsubscribed(ctx, client, resourceIds, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.Errorf("error waiting for all resources to be unsubscribed: %s ", err)
 	}
@@ -91,7 +91,7 @@ func resourceResourcesUnsubscribeCreate(ctx context.Context, d *schema.ResourceD
 	return nil
 }
 
-func unsubscribePrePaidResources(client *golangsdk.ServiceClient, resourceIds []string) error {
+func UnsubscribePrePaidResources(client *golangsdk.ServiceClient, resourceIds []interface{}) error {
 	httpUrl := "v2/orders/subscriptions/resources/unsubscribe"
 	createPath := client.Endpoint + httpUrl
 	createOpt := golangsdk.RequestOpts{
@@ -127,7 +127,8 @@ func unsubscribePrePaidResources(client *golangsdk.ServiceClient, resourceIds []
 	return nil
 }
 
-func waitForResourcesUnsubscribed(ctx context.Context, client *golangsdk.ServiceClient, resourceIds []string, timeout time.Duration) error {
+func WaitForResourcesUnsubscribed(ctx context.Context, client *golangsdk.ServiceClient, resourceIds []interface{},
+	timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
@@ -140,7 +141,7 @@ func waitForResourcesUnsubscribed(ctx context.Context, client *golangsdk.Service
 	return err
 }
 
-func refreshPrePaidResourcesByIds(client *golangsdk.ServiceClient, resourceIds []string) resource.StateRefreshFunc {
+func refreshPrePaidResourcesByIds(client *golangsdk.ServiceClient, resourceIds []interface{}) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		var (
 			httpUrl = "v2/orders/suscriptions/resources/query"
