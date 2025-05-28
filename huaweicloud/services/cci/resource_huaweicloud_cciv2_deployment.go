@@ -280,57 +280,7 @@ func deploymentTemplateSpecSchema() *schema.Resource {
 			"containers": {
 				Type:     schema.TypeList,
 				Required: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"name": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"image": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-						},
-						"env": {
-							Type:     schema.TypeSet,
-							Optional: true,
-							Computed: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"name": {
-										Type:     schema.TypeString,
-										Optional: true,
-										Computed: true,
-									},
-									"value": {
-										Type:     schema.TypeString,
-										Optional: true,
-										Computed: true,
-									},
-								},
-							},
-						},
-						"resources": {
-							Type:     schema.TypeList,
-							Optional: true,
-							MaxItems: 1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"limits": {
-										Type:     schema.TypeMap,
-										Optional: true,
-										Elem:     &schema.Schema{Type: schema.TypeString},
-									},
-									"requests": {
-										Type:     schema.TypeMap,
-										Optional: true,
-										Elem:     &schema.Schema{Type: schema.TypeString},
-									},
-								},
-							},
-						},
-					},
-				},
+				Elem:     podContainersSchema(),
 			},
 			"dns_policy": {
 				Type:     schema.TypeString,
@@ -650,7 +600,7 @@ func buildV2DeploymentTemplateSpecParams(spec interface{}) map[string]interface{
 	affinity := utils.PathSearch("affinity|[0]", spec, nil)
 	imagePullSecrets := utils.PathSearch("image_pull_secrets", spec, &schema.Set{}).(*schema.Set).List()
 	rst := map[string]interface{}{
-		"containers":                    buildV2DeploymentTemplateSpecContainersParams(containers),
+		"containers":                    buildV2PodContainersParams(containers),
 		"dnsPolicy":                     utils.ValueIgnoreEmpty(utils.PathSearch("dns_policy", spec, nil)),
 		"activeDeadlineSeconds":         utils.ValueIgnoreEmpty(utils.PathSearch("active_deadline_seconds", spec, nil)),
 		"hostname":                      utils.ValueIgnoreEmpty(utils.PathSearch("hostname", spec, nil)),
@@ -779,30 +729,6 @@ func buildPodAffinityTermParams(podAffinityTerm interface{}) map[string]interfac
 		"namespaces":    utils.PathSearch("namespaces", podAffinityTerm, &schema.Set{}).(*schema.Set).List(),
 		"topologyKey":   utils.PathSearch("topology_key", podAffinityTerm, nil),
 	}
-}
-
-func buildV2DeploymentTemplateSpecContainersParams(containers []interface{}) []interface{} {
-	if len(containers) == 0 {
-		return nil
-	}
-
-	containersParams := make([]interface{}, len(containers))
-	for i, v := range containers {
-		container := utils.RemoveNil(map[string]interface{}{
-			"name":      utils.PathSearch("name", v, nil),
-			"image":     utils.ValueIgnoreEmpty(utils.PathSearch("image", v, nil)),
-			"resources": buildContainerResourceParams(utils.PathSearch("resources|[0]", v, nil)),
-		})
-
-		env := utils.PathSearch("env", v, &schema.Set{}).(*schema.Set).List()
-		if len(env) > 0 {
-			container["env"] = buildContainerEnvParams(env)
-		}
-
-		containersParams[i] = container
-	}
-
-	return containersParams
 }
 
 func buildContainerEnvParams(env []interface{}) []interface{} {
@@ -958,7 +884,7 @@ func flattenTemplateSpec(spec interface{}) []map[string]interface{} {
 
 	rst := []map[string]interface{}{
 		{
-			"containers":                       flattenTemplateSpecContainers(containers),
+			"containers":                       flattenPodContainers(containers),
 			"dns_policy":                       utils.PathSearch("dnsPolicy", spec, nil),
 			"active_deadline_seconds":          utils.PathSearch("activeDeadlineSeconds", spec, nil),
 			"hostname":                         utils.PathSearch("hostname", spec, nil),
@@ -1093,24 +1019,6 @@ func flattenNodeSelectorTerms(nodeSelectorTerms []interface{}) []interface{} {
 			"match_expressions": flattenMatchExpressions(matchExpressions),
 		}
 	}
-	return rst
-}
-
-func flattenTemplateSpecContainers(containers []interface{}) []interface{} {
-	if len(containers) == 0 {
-		return nil
-	}
-
-	rst := make([]interface{}, len(containers))
-	for i, v := range containers {
-		rst[i] = map[string]interface{}{
-			"name":      utils.PathSearch("name", v, nil),
-			"image":     utils.ValueIgnoreEmpty(utils.PathSearch("image", v, nil)),
-			"env":       flattenContainerEnv(utils.PathSearch("env", v, make([]interface{}, 0)).([]interface{})),
-			"resources": flattenContainerResource(utils.PathSearch("resources", v, nil)),
-		}
-	}
-
 	return rst
 }
 
