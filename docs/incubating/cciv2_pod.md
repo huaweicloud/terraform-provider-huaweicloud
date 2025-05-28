@@ -166,6 +166,24 @@ The `containers`, `ephemeral_containers`, `init_containers` block supports:
 
 * `working_dir` - (Optional, String) Specifies the working directory of the CCI Pod container.
 
+* `volume_mounts` - (Optional, List) Specifies the volume mounts probe of the container.
+  The [volume_mounts](#containers_volume_mounts) structure is documented below.
+
+<a name="containers_volume_mounts"></a>
+The `volume_mounts` block supports:
+
+* `extend_path_mode` - (Optional, String) Specifies the extend path mode of the volume mounts.
+
+* `mount_path` - (Required, String) Specifies the mount path of the volume mounts.
+
+* `name` - (Required, String) Specifies the name of the volume mounts.
+
+* `read_only` - (Optional, Bool) Specifies whether to read only.
+
+* `sub_path` - (Optional, String) Specifies the sub path of the volume mounts.
+
+* `sub_path_expr` - (Optional, String) Specifies the sub path expression of the volume mounts.
+
 <a name="containers_env"></a>
 The `env` block supports:
 

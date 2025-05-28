@@ -787,6 +787,43 @@ func podContainersSchema() *schema.Resource {
 				Computed:    true,
 				Description: `Specifies the working directory of the CCI Pod container.`,
 			},
+			"volume_mounts": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"extend_path_mode": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"mount_path": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"name": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"read_only": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Computed: true,
+						},
+						"sub_path": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"sub_path_expr": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+					},
+				},
+			},
 		},
 	}
 
@@ -1652,7 +1689,7 @@ func buildV2PodContainersParams(containers []interface{}) []interface{} {
 		}
 
 		envFrom := utils.PathSearch("env_from", v, &schema.Set{}).(*schema.Set).List()
-		if len(env) > 0 {
+		if len(envFrom) > 0 {
 			container["envFrom"] = buildPodContainersEnvFromParams(envFrom)
 		}
 
@@ -1661,10 +1698,31 @@ func buildV2PodContainersParams(containers []interface{}) []interface{} {
 			container["ports"] = buildPodContainersPortsParams(ports)
 		}
 
+		volumeMounts := utils.PathSearch("volume_mounts", v, &schema.Set{}).(*schema.Set).List()
+		if len(volumeMounts) > 0 {
+			container["volumeMounts"] = buildPodContainersVolumeMountsParams(volumeMounts)
+		}
+
 		containersParams[i] = container
 	}
 
 	return containersParams
+}
+
+func buildPodContainersVolumeMountsParams(volumeMounts []interface{}) []interface{} {
+	params := make([]interface{}, len(volumeMounts))
+	for i, v := range volumeMounts {
+		params[i] = utils.RemoveNil(map[string]interface{}{
+			"extendPathMode": utils.ValueIgnoreEmpty(utils.PathSearch("extend_path_mode", v, nil)),
+			"mountPath":      utils.PathSearch("mount_path", v, nil),
+			"name":           utils.PathSearch("name", v, nil),
+			"readOnly":       utils.ValueIgnoreEmpty(utils.PathSearch("read_only", v, nil)),
+			"subPath":        utils.ValueIgnoreEmpty(utils.PathSearch("sub_path", v, nil)),
+			"subPathExpr":    utils.ValueIgnoreEmpty(utils.PathSearch("sub_path_expr", v, nil)),
+		})
+	}
+
+	return params
 }
 
 func buildPodContainersSecurityContextParams(sc interface{}) map[string]interface{} {
@@ -2182,6 +2240,7 @@ func flattenPodContainers(containers []interface{}) []interface{} {
 
 	rst := make([]interface{}, len(containers))
 	for i, v := range containers {
+		volumeMounts := utils.PathSearch("volumeMounts", v, make([]interface{}, 0)).([]interface{})
 		rst[i] = utils.RemoveNil(map[string]interface{}{
 			"args":                       utils.PathSearch("args", v, nil),
 			"command":                    utils.PathSearch("command", v, nil),
@@ -2202,10 +2261,27 @@ func flattenPodContainers(containers []interface{}) []interface{} {
 			"env":                        flattenContainerEnv(utils.PathSearch("env", v, make([]interface{}, 0)).([]interface{})),
 			"env_from":                   flattenPodContainersEnvFrom(utils.PathSearch("envFrom", v, make([]interface{}, 0)).([]interface{})),
 			"ports":                      flattenPodContainersPorts(utils.PathSearch("ports", v, make([]interface{}, 0)).([]interface{})),
+			"volume_mounts":              flattenPodContainersVolumeMounts(volumeMounts),
 		})
 	}
 
 	return rst
+}
+
+func flattenPodContainersVolumeMounts(volumeMounts []interface{}) []interface{} {
+	params := make([]interface{}, len(volumeMounts))
+	for i, v := range volumeMounts {
+		params[i] = map[string]interface{}{
+			"extend_path_mode": utils.ValueIgnoreEmpty(utils.PathSearch("extendPathMode", v, nil)),
+			"mount_path":       utils.PathSearch("mountPath", v, nil),
+			"name":             utils.PathSearch("name", v, nil),
+			"read_only":        utils.ValueIgnoreEmpty(utils.PathSearch("readOnly", v, nil)),
+			"sub_path":         utils.ValueIgnoreEmpty(utils.PathSearch("subPath", v, nil)),
+			"sub_path_expr":    utils.ValueIgnoreEmpty(utils.PathSearch("subPathExpr", v, nil)),
+		}
+	}
+
+	return params
 }
 
 func flattenPodContainersPorts(ports []interface{}) []interface{} {

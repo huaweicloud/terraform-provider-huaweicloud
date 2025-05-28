@@ -159,13 +159,68 @@ The `containers` block supports:
 
 * `name` - (Required, String) Specifies the name of the container.
 
+* `args` - (Optional, List) Specifies the arguments to the entrypoint of the container.
+
+* `command` - (Optional, List) Specifies the command of the container.
+
 * `env` - (Optional, List) Specifies the environment of the container.
   The [env](#template_spec_containers_env) structure is documented below.
 
-* `image` - (Optional, String) Specifies the image of the container.
+* `env_from` - (Optional, List) Specifies the sources to populate environment variables of the container.
+  The [env_from](#containers_env_from) structure is documented below.
+
+* `image` - (Optional, String) Specifies the image name of the container.
+
+* `lifecycle` - (Optional, List) Specifies the lifecycle of the container.
+  The [lifecycle](#containers_lifecycle) structure is documented below.
+
+* `liveness_probe` - (Optional, List) Specifies the liveness probe of the container.
+  The [liveness_probe](#containers_probe) structure is documented below.
+
+* `ports` - (Optional, List) Specifies the ports of the container.
+  The [ports](#containers_ports) structure is documented below.
+
+* `readiness_probe` - (Optional, List) Specifies the readiness probe of the container.
+  The [readiness_probe](#containers_probe) structure is documented below.
 
 * `resources` - (Optional, List) Specifies the resources of the container.
-  The [resources](#template_spec_containers_resources) structure is documented below.
+  The [resources](#containers_resources) structure is documented below.
+
+* `security_context` - (Optional, List) Specifies the security context of the container.
+  The [security_context](#containers_security_context) structure is documented below.
+
+* `startup_probe` - (Optional, List) Specifies the startup probe of the container.
+  The [startup_probe](#containers_probe) structure is documented below.
+
+* `stdin` - (Optional, Bool) Specifies whether this container should allocate a buffer for stdin in the container runtime.
+
+* `stdin_once` - (Optional, Bool) Specifies whether this container runtime should close the stdin channel.
+
+* `termination_message_path` - (Optional, String) Specifies the termination message path of the CCI pod container.
+
+* `termination_message_policy` - (Optional, String) Specifies the termination message policy of the CCI pod container.
+
+* `tty` - (Optional, Bool) Specifies whether this container should allocate a TTY for itself.
+
+* `working_dir` - (Optional, String) Specifies the working directory of the CCI Pod container.
+
+* `volume_mounts` - (Optional, List) Specifies the volume mounts probe of the container.
+  The [volume_mounts](#containers_volume_mounts) structure is documented below.
+
+<a name="containers_volume_mounts"></a>
+The `volume_mounts` block supports:
+
+* `extend_path_mode` - (Optional, String) Specifies the extend path mode of the volume mounts.
+
+* `mount_path` - (Required, String) Specifies the mount path of the volume mounts.
+
+* `name` - (Required, String) Specifies the name of the volume mounts.
+
+* `read_only` - (Optional, Bool) Specifies whether to read only.
+
+* `sub_path` - (Optional, String) Specifies the sub path of the volume mounts.
+
+* `sub_path_expr` - (Optional, String) Specifies the sub path expression of the volume mounts.
 
 <a name="template_spec_containers_env"></a>
 The `env` block supports:
@@ -174,12 +229,193 @@ The `env` block supports:
 
 * `value` - (Optional, String) Specifies the value of the environment.
 
-<a name="template_spec_containers_resources"></a>
+<a name="containers_env_from"></a>
+The `env_from` block supports:
+
+* `config_map_ref` - (Optional, List) Specifies the config map.
+  The [config_map_ref](#containers_env_from_config_map_ref) structure is documented below.
+
+* `prefix` - (Optional, String) Specifies the prefix.
+
+* `secret_ref` - (Optional, List) Specifies the secret.
+  The [secret_ref](#containers_env_from_secret_ref) structure is documented below.
+
+<a name="containers_env_from_config_map_ref"></a>
+The `config_map_ref` block supports:
+
+* `name` - (Optional, String) Specifies the name.
+
+* `optional` - (Optional, Bool) Specifies whether to be defined.
+
+<a name="containers_env_from_secret_ref"></a>
+The `secret_ref` block supports:
+
+* `name` - (Optional, String) Specifies the name.
+
+* `optional` - (Optional, Bool) Specifies whether to be defined.
+
+<a name="containers_lifecycle"></a>
+The `lifecycle` block supports:
+
+* `post_start` - (Optional, List) Specifies the lifecycle post start of the CCI pod container.
+  The [post_start](#containers_lifecycle_post_start) structure is documented below.
+
+* `pre_stop` - (Optional, List) Specifies the lifecycle pre stop of the CCI pod container.
+  The [pre_stop](#containers_lifecycle_pre_stop) structure is documented below.
+
+<a name="containers_lifecycle_post_start"></a>
+The `post_start` block supports:
+
+* `exec` - (Optional, List) Specifies the exec.
+  The [exec](#containers_lifecycle_post_start_exec) structure is documented below.
+
+* `http_get` - (Optional, List) Specifies the http get.
+  The [http_get](#containers_lifecycle_post_start_http_get) structure is documented below.
+
+<a name="containers_lifecycle_post_start_exec"></a>
+The `exec` block supports:
+
+* `command` - (Optional, List) Specifies the command line to execute inside the container.
+
+<a name="containers_lifecycle_post_start_http_get"></a>
+The `http_get` block supports:
+
+* `host` - (Optional, String) Specifies the host name.
+
+* `http_headers` - (Optional, List) Specifies the custom headers to set in the request.
+  The [http_headers](#containers_lifecycle_post_start_http_get_http_headers) structure is documented below.
+
+* `path` - (Optional, String) Specifies the path to access on the HTTP server.
+
+* `port` - (Optional, String) Specifies the port to access on the HTTP server.
+
+* `scheme` - (Optional, String) Specifies the scheme to use for connecting to the host.
+
+<a name="containers_lifecycle_post_start_http_get_http_headers"></a>
+The `http_headers` block supports:
+
+* `name` - (Optional, String) Specifies the name of the custom HTTP headers.
+
+* `value` - (Optional, String) Specifies the value of the custom HTTP headers.
+
+<a name="containers_lifecycle_pre_stop"></a>
+The `pre_stop` block supports:
+
+* `exec` - (Optional, List) Specifies the exec.
+  The [exec](#containers_lifecycle_pre_stop_exec) structure is documented below.
+
+* `http_get` - (Optional, List) Specifies the http get.
+  The [http_get](#containers_lifecycle_pre_stop_http_get) structure is documented below.
+
+<a name="containers_lifecycle_pre_stop_exec"></a>
+The `exec` block supports:
+
+* `command` - (Optional, List) Specifies the command line to execute inside the container.
+
+<a name="containers_lifecycle_pre_stop_http_get"></a>
+The `http_get` block supports:
+
+* `host` - (Optional, String) Specifies the host name.
+
+* `http_headers` - (Optional, List) Specifies the custom headers to set in the request.
+  The [http_headers](#containers_lifecycle_pre_stop_http_get_http_headers) structure is documented below.
+
+* `path` - (Optional, String) Specifies the path to access on the HTTP server.
+
+* `port` - (Optional, String) Specifies the port to access on the HTTP server.
+
+* `scheme` - (Optional, String) Specifies the scheme to use for connecting to the host.
+
+<a name="containers_lifecycle_pre_stop_http_get_http_headers"></a>
+The `http_headers` block supports:
+
+* `name` - (Optional, String) Specifies the name of the custom HTTP headers.
+
+* `value` - (Optional, String) Specifies the value of the custom HTTP headers.
+
+<a name="containers_probe"></a>
+The `liveness_probe` block supports:
+
+* `exec` - (Optional, List) Specifies the exec.
+  The [exec](#containers_probe_exec) structure is documented below.
+
+* `failure_threshold` - (Optional, Int) Specifies the minimum consecutive failures for the probe to be
+  considered failed after having succeeded.
+
+* `http_get` - (Optional, List) Specifies the HTTP get.
+  The [http_get](#containers_probe_http_get) structure is documented below.
+
+* `initial_delay_seconds` - (Optional, Int) Specifies the number of seconds after the container has started
+  before liveness probes are initialed.
+
+* `period_seconds` - (Optional, Int) Specifies how often to perform the probe.
+
+* `termination_grace_period_seconds` - (Optional, Int) Specifies the termination grace period seconds.
+
+<a name="containers_probe_exec"></a>
+The `exec` block supports:
+
+* `command` - (Optional, List) Specifies the command line to execute inside the container.
+
+<a name="containers_probe_http_get"></a>
+The `http_get` block supports:
+
+* `host` - (Optional, String) Specifies the host name.
+
+* `http_headers` - (Optional, List) Specifies the custom headers to set in the request.
+  The [http_headers](#containers_probe_http_get_http_headers) structure is documented below.
+
+* `path` - (Optional, String) Specifies the path to access on the HTTP server.
+
+* `port` - (Optional, String) Specifies the port to access on the HTTP server.
+
+* `scheme` - (Optional, String) Specifies the scheme to use for connecting to the host.
+
+<a name="containers_probe_http_get_http_headers"></a>
+The `http_headers` block supports:
+
+* `name` - (Optional, String) Specifies the name of the custom HTTP headers.
+
+* `value` - (Optional, String) Specifies the value of the custom HTTP headers.
+
+<a name="containers_ports"></a>
+The `ports` block supports:
+
+* `container_port` - (Required, Int) Specifies the number of port to expose on the IP address of pod.
+
+* `name` - (Optional, String) Specifies the port name of the container.
+
+* `protocol` - (Optional, String) Specifies the protocol for container port.
+
+<a name="containers_resources"></a>
 The `resources` block supports:
 
-* `limits` - (Optional, Map) Specifies the limits of the resources.
+* `limits` - (Optional, Map) Specifies the limits of resource.
 
-* `requests` - (Optional, Map) Specifies the requests of the resources.
+* `requests` - (Optional, Map) Specifies the requests of the resource.
+
+<a name="containers_security_context"></a>
+The `security_context` block supports:
+
+* `capabilities` - (Optional, List) Specifies the capabilities of the security context.
+  The [capabilities](#containers_security_context_capabilities) structure is documented below.
+
+* `proc_mount` - (Optional, String) Specifies the proc mount to use for the containers.
+
+* `read_only_root_file_system` - (Optional, Bool) Specifies whether this container has a read-only root file system.
+
+* `run_as_group` - (Optional, Int) Specifies the GID TO run the entrypoint of the container process.
+
+* `run_as_non_root` - (Optional, Bool) Specifies the container must run as a non-root user.
+
+* `run_as_user` - (Optional, Int) Specifies the UID to run the entrypoint of the container process.
+
+<a name="containers_security_context_capabilities"></a>
+The `capabilities` block supports:
+
+* `add` - (Optional, List) Specifies the add of the capabilities.
+
+* `drop` - (Optional, List) Specifies the drop of the capabilities.
 
 <a name="template_spec_affinity"></a>
 The `affinity` block supports:
