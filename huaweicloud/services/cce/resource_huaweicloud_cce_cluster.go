@@ -191,10 +191,10 @@ func ResourceCluster() *schema.Resource {
 				Description: "schema: Computed",
 			},
 			"enable_distribute_management": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				ForceNew:    true,
-				Description: "schema: Internal",
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
 			},
 			"authentication_mode": {
 				Type:     schema.TypeString,
@@ -342,12 +342,6 @@ func ResourceCluster() *schema.Resource {
 				Computed: true,
 			},
 			"ipv6_enable": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
-			},
-			"enable_dist_mgt": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: true,
@@ -711,7 +705,6 @@ func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta int
 			ClusterTags:   resourceClusterTags(d),
 			CustomSan:     utils.ExpandToStringList(d.Get("custom_san").([]interface{})),
 			IPv6Enable:    d.Get("ipv6_enable").(bool),
-			EnableDistMgt: d.Get("enable_dist_mgt").(bool),
 			KubeProxyMode: d.Get("kube_proxy_mode").(string),
 		},
 	}
@@ -855,7 +848,7 @@ func resourceClusterRead(_ context.Context, d *schema.ResourceData, meta interfa
 		d.Set("billing_mode", n.Spec.BillingMode),
 		d.Set("tags", utils.TagsToMap(n.Spec.ClusterTags)),
 		d.Set("ipv6_enable", n.Spec.IPv6Enable),
-		d.Set("enable_dist_mgt", n.Spec.EnableDistMgt),
+		d.Set("enable_distribute_management", n.Spec.EnableDistMgt),
 		d.Set("kube_proxy_mode", n.Spec.KubeProxyMode),
 		d.Set("support_istio", n.Spec.SupportIstio),
 		d.Set("custom_san", n.Spec.CustomSan),

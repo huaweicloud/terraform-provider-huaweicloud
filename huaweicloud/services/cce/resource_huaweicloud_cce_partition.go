@@ -18,6 +18,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
+// @API CCE POST /api/v3/projects/{project_id}/clusters/{cluster_id}/partitions
+// @API CCE GET /api/v3/projects/{project_id}/clusters/{cluster_id}/partitions/{partition_name}
+// @API CCE PUT /api/v3/projects/{project_id}/clusters/{cluster_id}/partitions/{partition_name}
 func ResourcePartition() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourcePartitionCreate,
@@ -32,7 +35,6 @@ func ResourcePartition() *schema.Resource {
 			Create: schema.DefaultTimeout(5 * time.Minute),
 		},
 
-		Description: "schema: Internal",
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
