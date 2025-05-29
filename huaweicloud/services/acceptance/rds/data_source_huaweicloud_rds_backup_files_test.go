@@ -73,7 +73,7 @@ resource "huaweicloud_rds_backup" "test" {
   name        = "%[2]s"
   instance_id = huaweicloud_rds_instance.test.id
 }
-`, testAccRdsInstance_base(name), name)
+`, testAccRdsInstance_base(), name)
 }
 
 func testDataSourceRdsBackupFiles_basic(name string) string {

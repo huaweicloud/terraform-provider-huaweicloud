@@ -68,7 +68,7 @@ resource "huaweicloud_rds_instance" "test" {
     value = "10001"
   }
 }
-`, testAccRdsInstance_base(name), name)
+`, testAccRdsInstance_base(), name)
 }
 
 func testDataSourceRdsInstanceParameterHistories_basic(name string) string {

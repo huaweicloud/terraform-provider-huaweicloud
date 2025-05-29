@@ -69,7 +69,7 @@ resource "huaweicloud_rds_pg_database" "test" {
   lc_collate    = "en_US.UTF-8"
   lc_ctype      = "en_US.UTF-8"
 }
-`, testAccRdsInstance_base(name), name)
+`, testAccRdsInstance_base(), name)
 }
 
 func testAccRdsPgDatabasePrivilege_basic(name string) string {

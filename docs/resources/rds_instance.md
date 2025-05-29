@@ -171,8 +171,7 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which to create the rds instance resource. If omitted, the
   provider-level region will be used. Changing this creates a new rds instance resource.
 
-* `availability_zone` - (Required, List, ForceNew) Specifies the list of AZ name. Changing this parameter will create a
-  new resource.
+* `availability_zone` - (Required, List) Specifies the list of AZ name.
 
 * `name` - (Required, String) Specifies the DB instance name. The DB instance name of the same type must be unique for
   the same tenant. The value must be 4 to 64 characters in length and start with a letter. It is case-sensitive and can

@@ -167,7 +167,7 @@ resource "huaweicloud_rds_instance" "test" {
     size = 50
   }
 }
-`, testAccRdsInstance_base(name), name)
+`, testAccRdsInstance_base(), name)
 }
 
 func testPgHba_basic(name string) string {
