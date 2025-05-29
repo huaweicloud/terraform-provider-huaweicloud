@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 1.75.0 (May 29, 2025)
+
+* **New Data Source:**
+  + `huaweicloud_rds_diagnosis` [GH-6882]
+  + `huaweicloud_sms_migration_projects` [GH-6863]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_coc_script_execute: add is_sync parameter support [GH-6873]
+
 ## 1.74.1 (May 15, 2025)
 
 * **New Source:**
