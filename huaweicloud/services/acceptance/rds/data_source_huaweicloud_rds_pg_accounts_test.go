@@ -69,7 +69,7 @@ resource "huaweicloud_rds_pg_account" "test" {
   password    = "Test@12345678"
   description = "test_description"
 }
-`, testAccRdsInstance_base(name), name)
+`, testAccRdsInstance_base(), name)
 }
 
 func testAccDatasourcePgAccounts_basic(name string) string {

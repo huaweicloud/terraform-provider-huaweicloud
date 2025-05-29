@@ -2,6 +2,7 @@ package rds
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -55,6 +56,7 @@ type ctxType string
 // @API RDS GET /v3/{project_id}/instances/{instance_id}/second-level-monitor
 // @API RDS GET /v3/{project_id}/instances/{instance_id}/db-auto-upgrade
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/name
+// @API RDS POST /v3/{project_id}/instances/{instance_id}/migrateslave
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/failover/mode
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/collations
 // @API RDS POST /v3/{project_id}/instances/{instance_id}/msdtc/host
@@ -105,7 +107,6 @@ func ResourceRdsInstance() *schema.Resource {
 			"availability_zone": {
 				Type:     schema.TypeList,
 				Required: true,
-				ForceNew: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -1043,6 +1044,10 @@ func resourceRdsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(err)
 	}
 
+	if err = updateSlaveAvailabilityZone(ctx, d, client); err != nil {
+		return diag.FromErr(err)
+	}
+
 	if err := updateRdsInstanceFlavor(ctx, d, cfg, client, instanceID, true); err != nil {
 		return diag.FromErr(err)
 	}
@@ -1050,7 +1055,6 @@ func resourceRdsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 	if err := updateRdsInstanceVolumeSize(ctx, d, cfg, client, instanceID); err != nil {
 		return diag.FromErr(err)
 	}
-
 	if err := updateRdsInstanceBackupStrategy(d, client, instanceID); err != nil {
 		return diag.FromErr(err)
 	}
@@ -1468,6 +1472,96 @@ func updateRdsInstanceDescription(d *schema.ResourceData, client *golangsdk.Serv
 	}
 
 	return nil
+}
+
+func updateSlaveAvailabilityZone(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	if !d.HasChange("availability_zone") {
+		return nil
+	}
+
+	availabilityZone := d.Get("availability_zone").([]interface{})
+	if len(availabilityZone) == 1 {
+		return errors.New("migrating slave node only supported by primary/standby instance")
+	}
+
+	oldRaws, newRaws := d.GetChange("availability_zone")
+	oldAzList := oldRaws.([]interface{})
+	newAzList := newRaws.([]interface{})
+	if oldAzList[0].(string) != newAzList[0].(string) {
+		return errors.New("migrating master node of primary/standby instance is not supported")
+	}
+
+	instance, err := GetRdsInstanceByID(client, d.Id())
+	if err != nil {
+		return fmt.Errorf("error getting RDS instance: %s", err)
+	}
+
+	var slaveNodeId string
+	for _, node := range instance.Nodes {
+		if node.Role == "slave" {
+			slaveNodeId = node.Id
+			break
+		}
+	}
+
+	err = migrateStandbyNode(ctx, d, client, slaveNodeId, newAzList[1].(string))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func migrateStandbyNode(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, slaveNodeId,
+	azCode string) error {
+	var (
+		httpUrl = "v3/{project_id}/instances/{instance_id}/migrateslave"
+	)
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Id())
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	updateOpt.JSONBody = buildMigrateStandbySlaveBodyParams(slaveNodeId, azCode)
+
+	retryFunc := func() (interface{}, bool, error) {
+		res, err := client.Request("POST", updatePath, &updateOpt)
+		retry, err := handleMultiOperationsError(err)
+		return res, retry, err
+	}
+	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     rdsInstanceStateRefreshFunc(client, d.Id()),
+		WaitTarget:   []string{"ACTIVE"},
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error migrating slave node: %s ", err)
+	}
+
+	updateRespBody, err := utils.FlattenResponse(r.(*http.Response))
+	if err != nil {
+		return err
+	}
+	workflowId := utils.PathSearch("workflowId", updateRespBody, nil)
+	if workflowId == nil {
+		return fmt.Errorf("error migrating slave node(%s): workflowId is not found in the API rsponse", slaveNodeId)
+	}
+
+	return checkRDSInstanceJobFinish(client, workflowId.(string), d.Timeout(schema.TimeoutUpdate))
+}
+
+func buildMigrateStandbySlaveBodyParams(slaveNodeId, azCode string) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"nodeId": slaveNodeId,
+		"azCode": azCode,
+	}
+	return bodyParams
 }
 
 func updateRdsInstanceFlavor(ctx context.Context, d *schema.ResourceData, cfg *config.Config,
