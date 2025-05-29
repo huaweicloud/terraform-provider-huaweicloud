@@ -38,37 +38,39 @@ resource "huaweicloud_coc_script_execute" "test" {
 
 The following arguments are supported:
 
-* `script_id` - (Required, String, ForceNew) Specifies the COC script ID.
-  Changing this creates a new resource.
+* `script_id` - (Required, String, NonUpdatable) Specifies the COC script ID.
 
-* `instance_id` - (Required, String, ForceNew) Specifies the ECS instance ID.
-  Changing this creates a new resource.
+* `instance_id` - (Required, String, NonUpdatable) Specifies the ECS instance ID.
 
-* `timeout` - (Required, Int, ForceNew) Specifies the maximum time to execute the script in seconds.
-  Changing this creates a new resource.
+* `timeout` - (Required, Int, NonUpdatable) Specifies the maximum time to execute the script in seconds.
 
-* `execute_user` - (Required, String, ForceNew) Specifies the user to execute the script.
-  Changing this creates a new resource.
+* `execute_user` - (Required, String, NonUpdatable) Specifies the user to execute the script.
 
-* `parameters` - (Optional, List, ForceNew) Specifies the input parameters of the script.
-  Up to 20 script parameters can be added. Changing this creates a new resource.
+* `parameters` - (Optional, List, NonUpdatable) Specifies the input parameters of the script.
+  Up to 20 script parameters can be added.
   The [parameters](#block--parameters) structure is documented below.
+
+* `is_sync` - (Optional, Bool, NonUpdatable) Specifies whether sync data before execute the script. Defaults to **true**.
 
 <a name="block--parameters"></a>
 The `parameters` block supports:
 
-* `name` - (Required, String, ForceNew) Specifies the name of the parameter. Changing this creates a new resource.
+* `name` - (Required, String, NonUpdatable) Specifies the name of the parameter.
 
-* `value` - (Required, String, ForceNew) Specifies the value of the parameter. Changing this creates a new resource.
+* `value` - (Required, String, NonUpdatable) Specifies the value of the parameter.
 
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID.
+
 * `script_name` - The script name.
+
 * `status` - The status of the script execution.
+
 * `created_at` - The start time of the script execution.
+
 * `finished_at` - The end time of the script execution.
 
 ## Timeouts
@@ -87,7 +89,7 @@ $ terraform import huaweicloud_coc_script_execute.test <id>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
-API response, security or some other reason. The missing attributes include `instance_id` and `parameters`.
+API response, security or some other reason. The missing attributes include `instance_id`, `parameters` and `is_sync`.
 
 It is generally recommended running `terraform plan` after importing the resource.
 You can then decide if changes should be applied to the instance, or the resource definition should be updated to
@@ -99,7 +101,7 @@ resource "huaweicloud_coc_script_execute" "test" {
 
   lifecycle {
     ignore_changes = [
-      instance_id, parameters
+      instance_id, parameters, is_sync
     ]
   }
 }

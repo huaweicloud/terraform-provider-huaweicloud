@@ -70,7 +70,8 @@ func TestAccScriptExecute_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "script_name", rName),
 					resource.TestCheckResourceAttr(resourceName, "status", "FINISHED"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.#", "2"),
-					resource.TestCheckResourceAttrPair(resourceName, "script_id", "huaweicloud_coc_script.test", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "script_id",
+						"huaweicloud_coc_script.test", "id"),
 					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
 					resource.TestCheckResourceAttrSet(resourceName, "finished_at"),
 				),
@@ -79,7 +80,50 @@ func TestAccScriptExecute_basic(t *testing.T) {
 				ResourceName:            resourceName,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"instance_id", "parameters"},
+				ImportStateVerifyIgnore: []string{"instance_id", "parameters", "is_sync"},
+			},
+		},
+	})
+}
+
+func TestAccScriptExecute_no_sync(t *testing.T) {
+	var obj interface{}
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_coc_script_execute.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getScriptExecuteResourceFunc,
+	)
+
+	// lintignore:AT001
+	// without CheckDestroy because the ticket ID always exits.
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckCocInstanceID(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: tesScriptExecute_no_sync(rName, acceptance.HW_COC_INSTANCE_ID),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "script_name", rName),
+					resource.TestCheckResourceAttr(resourceName, "status", "FINISHED"),
+					resource.TestCheckResourceAttr(resourceName, "parameters.#", "2"),
+					resource.TestCheckResourceAttrPair(resourceName, "script_id",
+						"huaweicloud_coc_script.test", "id"),
+					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
+					resource.TestCheckResourceAttrSet(resourceName, "finished_at"),
+				),
+			},
+			{
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"instance_id", "parameters", "is_sync"},
 			},
 		},
 	})
@@ -94,6 +138,28 @@ resource "huaweicloud_coc_script_execute" "test" {
   instance_id  = "%s"
   timeout      = 600
   execute_user = "root"
+
+  parameters {
+    name  = "name"
+    value = "somebody"
+  }
+  parameters {
+    name  = "company"
+    value = "HuaweiCloud"
+  }
+}`, tesScript_updated(name), instanceID)
+}
+
+func tesScriptExecute_no_sync(name, instanceID string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_coc_script_execute" "test" {
+  script_id    = huaweicloud_coc_script.test.id
+  instance_id  = "%s"
+  timeout      = 600
+  execute_user = "root"
+  is_sync      = false
 
   parameters {
     name  = "name"
