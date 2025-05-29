@@ -235,7 +235,7 @@
                   },
                   "description": "The backend server groups of the channel."
                 },
-                "nesting_mode": "list"
+                "nesting_mode": "set"
               },
               "microservice": {
                 "block": {

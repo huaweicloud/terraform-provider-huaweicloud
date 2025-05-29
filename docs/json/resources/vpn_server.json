@@ -1,0 +1,207 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_vpn_server": {
+          "block": {
+            "attributes": {
+              "client_auth_type": {
+                "type": "string",
+                "description": "Specifies the client authentication mode.",
+                "optional": true,
+                "computed": true
+              },
+              "client_ca_certificates_uploaded": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "expiration_time": "string",
+                      "id": "string",
+                      "issuer": "string",
+                      "name": "string",
+                      "serial_number": "string",
+                      "signature_algorithm": "string",
+                      "subject": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of client CA certificates.",
+                "computed": true
+              },
+              "client_cidr": {
+                "type": "string",
+                "description": "Specifies the client CIDR block.",
+                "required": true
+              },
+              "client_config": {
+                "type": "string",
+                "description": "The client config.",
+                "computed": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The creation time.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "local_subnets": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "description": "Specifies the list of local CIDR blocks.",
+                "required": true
+              },
+              "os_type": {
+                "type": "string",
+                "description": "Specifies the OS type.",
+                "optional": true
+              },
+              "p2c_vgw_id": {
+                "type": "string",
+                "description": "Specifies the ID of a P2C VPN gateway instance.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The server status.",
+                "computed": true
+              },
+              "tunnel_protocol": {
+                "type": "string",
+                "description": "Specifies the tunnel protocol.",
+                "optional": true,
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The update time.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "client_ca_certificates": {
+                "block": {
+                  "attributes": {
+                    "content": {
+                      "type": "string",
+                      "description": "Specifies the certificate content.",
+                      "required": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Specifies the certificate name.",
+                      "optional": true
+                    }
+                  },
+                  "description": "Specifies the list of client CA certificates."
+                },
+                "nesting_mode": "set"
+              },
+              "server_certificate": {
+                "block": {
+                  "attributes": {
+                    "expiration_time": {
+                      "type": "string",
+                      "description": "The expiration time of the server certificate.",
+                      "computed": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "description": "Specifies the certificate ID.",
+                      "required": true
+                    },
+                    "issuer": {
+                      "type": "string",
+                      "description": "The issuer of the server certificate.",
+                      "computed": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "The server certificate name.",
+                      "computed": true
+                    },
+                    "serial_number": {
+                      "type": "string",
+                      "description": "The serial number of the server certificate.",
+                      "computed": true
+                    },
+                    "signature_algorithm": {
+                      "type": "string",
+                      "description": "The signature algorithm of the server certificate.",
+                      "computed": true
+                    },
+                    "subject": {
+                      "type": "string",
+                      "description": "The subject of the server certificate.",
+                      "computed": true
+                    }
+                  },
+                  "description": "Specifies the server certificate info."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "ssl_options": {
+                "block": {
+                  "attributes": {
+                    "authentication_algorithm": {
+                      "type": "string",
+                      "description": "The authentication algorithm.",
+                      "computed": true
+                    },
+                    "encryption_algorithm": {
+                      "type": "string",
+                      "description": "Specifies the encryption algorithm.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "is_compressed": {
+                      "type": "bool",
+                      "description": "Specifies whether to compress data.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "port": {
+                      "type": "number",
+                      "description": "Specifies the port number.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "protocol": {
+                      "type": "string",
+                      "description": "Specifies the protocol.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "Specifies the SSL options."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "VPN",
+            "name": "Virtual Private Network",
+            "catalog": "Networking",
+            "name_cn": "虚拟专用网络",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,301 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cbr_vaults_by_tags": {
+          "block": {
+            "attributes": {
+              "action": {
+                "type": "string",
+                "required": true
+              },
+              "cloud_type": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "object_type": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "resources": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "resource_detail": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "vault": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "auto_bind": "bool",
+                                  "auto_expand": "bool",
+                                  "availability_zone": "string",
+                                  "backup_name_prefix": "string",
+                                  "billing": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "allocated": "number",
+                                        "charging_mode": "string",
+                                        "cloud_type": "string",
+                                        "consistent_level": "string",
+                                        "frozen_scene": "string",
+                                        "is_double_az": "bool",
+                                        "is_multi_az": "bool",
+                                        "object_type": "string",
+                                        "order_id": "string",
+                                        "partner_bp_id": "string",
+                                        "product_id": "string",
+                                        "protect_type": "string",
+                                        "size": "number",
+                                        "spec_code": "string",
+                                        "status": "string",
+                                        "storage_unit": "string",
+                                        "used": "number"
+                                      }
+                                    ]
+                                  ],
+                                  "bind_rules": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "key": "string",
+                                        "value": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "cbc_delete_count": "number",
+                                  "created_at": "string",
+                                  "cross_account": "bool",
+                                  "cross_account_urn": "string",
+                                  "demand_billing": "bool",
+                                  "description": "string",
+                                  "enterprise_project_id": "string",
+                                  "frozen": "bool",
+                                  "id": "string",
+                                  "locked": "bool",
+                                  "name": "string",
+                                  "provider_id": "string",
+                                  "resources": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "auto_protect": "bool",
+                                        "backup_count": "number",
+                                        "backup_size": "number",
+                                        "extra_info": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "description": "string",
+                                              "exclude_volumes": [
+                                                "list",
+                                                "string"
+                                              ],
+                                              "name": "string",
+                                              "retention_duration": "string"
+                                            }
+                                          ]
+                                        ],
+                                        "id": "string",
+                                        "name": "string",
+                                        "protect_status": "string",
+                                        "size": "number",
+                                        "type": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "smn_notify": "bool",
+                                  "supplier": "string",
+                                  "sys_lock_source_service": "string",
+                                  "tags": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "key": "string",
+                                        "value": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "threshold": "number"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "resource_id": "string",
+                      "resource_name": "string",
+                      "sys_tags": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "key": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ],
+                      "tags": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "key": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "total_count": {
+                "type": "number",
+                "computed": true
+              },
+              "without_any_tag": {
+                "type": "bool",
+                "optional": true
+              }
+            },
+            "block_types": {
+              "matches": {
+                "block": {
+                  "attributes": {
+                    "key": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              },
+              "not_tags": {
+                "block": {
+                  "attributes": {
+                    "key": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "values": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              },
+              "not_tags_any": {
+                "block": {
+                  "attributes": {
+                    "key": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "values": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              },
+              "sys_tags": {
+                "block": {
+                  "attributes": {
+                    "key": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "values": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              },
+              "tags": {
+                "block": {
+                  "attributes": {
+                    "key": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "values": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              },
+              "tags_any": {
+                "block": {
+                  "attributes": {
+                    "key": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "values": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "CBR",
+            "name": "Cloud Backup and Recovery",
+            "catalog": "Storage",
+            "name_cn": "云备份",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}

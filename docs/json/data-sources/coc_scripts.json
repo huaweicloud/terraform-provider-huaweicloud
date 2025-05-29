@@ -1,0 +1,99 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_coc_scripts": {
+          "block": {
+            "attributes": {
+              "creator": {
+                "type": "string",
+                "optional": true
+              },
+              "data": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "creator": "string",
+                      "creator_id": "string",
+                      "enterprise_project_id": "string",
+                      "gmt_created": "number",
+                      "gmt_modified": "number",
+                      "id": "number",
+                      "name": "string",
+                      "operator": "string",
+                      "properties": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "protocol": "string",
+                            "reviewers": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "reviewer_id": "string",
+                                  "reviewer_name": "string"
+                                }
+                              ]
+                            ],
+                            "risk_level": "string",
+                            "version": "string"
+                          }
+                        ]
+                      ],
+                      "resource_tags": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "key": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ],
+                      "script_uuid": "string",
+                      "status": "string",
+                      "type": "string",
+                      "usage_count": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name_like": {
+                "type": "string",
+                "optional": true
+              },
+              "risk_level": {
+                "type": "string",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "COC",
+            "name": "Cloud Operations Center",
+            "catalog": "Management & Governance",
+            "name_cn": "云运维中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

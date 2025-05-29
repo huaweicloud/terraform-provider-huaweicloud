@@ -1135,6 +1135,41 @@
                       },
                       "nesting_mode": "list",
                       "max_items": 1
+                    },
+                    "volume_mounts": {
+                      "block": {
+                        "attributes": {
+                          "extend_path_mode": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "mount_path": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "read_only": {
+                            "type": "bool",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "sub_path": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "sub_path_expr": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "set"
                     }
                   },
                   "description": "Specifies the container of the CCI Pod."
@@ -1958,6 +1993,41 @@
                       },
                       "nesting_mode": "list",
                       "max_items": 1
+                    },
+                    "volume_mounts": {
+                      "block": {
+                        "attributes": {
+                          "extend_path_mode": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "mount_path": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "read_only": {
+                            "type": "bool",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "sub_path": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "sub_path_expr": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "set"
                     }
                   },
                   "description": "Specifies the ephemeral container of the CCI Pod."
@@ -2764,6 +2834,41 @@
                       },
                       "nesting_mode": "list",
                       "max_items": 1
+                    },
+                    "volume_mounts": {
+                      "block": {
+                        "attributes": {
+                          "extend_path_mode": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "mount_path": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "read_only": {
+                            "type": "bool",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "sub_path": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "sub_path_expr": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "set"
                     }
                   },
                   "description": "Specifies the init container of the CCI Pod."

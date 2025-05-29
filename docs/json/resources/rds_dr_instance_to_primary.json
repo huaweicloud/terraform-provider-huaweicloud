@@ -1,0 +1,33 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_rds_dr_instance_to_primary": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "RDS",
+            "name": "Relational Database Service",
+            "catalog": "Databases",
+            "name_cn": "云数据库",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

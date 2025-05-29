@@ -1,0 +1,343 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cciv2_deployments": {
+          "block": {
+            "attributes": {
+              "deployments": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "annotations": [
+                        "map",
+                        "string"
+                      ],
+                      "creation_timestamp": "string",
+                      "generation": "number",
+                      "min_ready_seconds": "number",
+                      "name": "string",
+                      "namespace": "string",
+                      "progress_deadline_seconds": "number",
+                      "replicas": "number",
+                      "resource_version": "string",
+                      "selector": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "match_expressions": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "key": "string",
+                                  "operator": "string",
+                                  "values": [
+                                    "list",
+                                    "string"
+                                  ]
+                                }
+                              ]
+                            ],
+                            "match_labels": [
+                              "map",
+                              "string"
+                            ]
+                          }
+                        ]
+                      ],
+                      "status": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "conditions": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "last_transition_time": "string",
+                                  "last_update_time": "string",
+                                  "message": "string",
+                                  "reason": "string",
+                                  "status": "string",
+                                  "type": "string"
+                                }
+                              ]
+                            ],
+                            "observed_generation": "number"
+                          }
+                        ]
+                      ],
+                      "strategy": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "rolling_update": [
+                              "map",
+                              "string"
+                            ],
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "template": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "metadata": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "annotations": [
+                                    "map",
+                                    "string"
+                                  ],
+                                  "labels": [
+                                    "map",
+                                    "string"
+                                  ]
+                                }
+                              ]
+                            ],
+                            "spec": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "active_deadline_seconds": "number",
+                                  "affinity": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "node_affinity": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "required_during_scheduling_ignored_during_execution": [
+                                                "list",
+                                                [
+                                                  "object",
+                                                  {
+                                                    "node_selector_terms": [
+                                                      "list",
+                                                      [
+                                                        "object",
+                                                        {
+                                                          "match_expressions": [
+                                                            "list",
+                                                            [
+                                                              "object",
+                                                              {
+                                                                "key": "string",
+                                                                "operator": "string",
+                                                                "values": [
+                                                                  "list",
+                                                                  "string"
+                                                                ]
+                                                              }
+                                                            ]
+                                                          ]
+                                                        }
+                                                      ]
+                                                    ]
+                                                  }
+                                                ]
+                                              ]
+                                            }
+                                          ]
+                                        ],
+                                        "pod_anti_affinity": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "preferred_during_scheduling_ignored_during_execution": [
+                                                "list",
+                                                [
+                                                  "object",
+                                                  {
+                                                    "pod_affinity_term": [
+                                                      "list",
+                                                      [
+                                                        "object",
+                                                        {
+                                                          "label_selector": [
+                                                            "list",
+                                                            [
+                                                              "object",
+                                                              {
+                                                                "match_expressions": [
+                                                                  "set",
+                                                                  [
+                                                                    "object",
+                                                                    {
+                                                                      "key": "string",
+                                                                      "operator": "string",
+                                                                      "values": [
+                                                                        "set",
+                                                                        "string"
+                                                                      ]
+                                                                    }
+                                                                  ]
+                                                                ],
+                                                                "match_labels": [
+                                                                  "map",
+                                                                  "string"
+                                                                ]
+                                                              }
+                                                            ]
+                                                          ],
+                                                          "namespaces": [
+                                                            "set",
+                                                            "string"
+                                                          ],
+                                                          "topology_key": "string"
+                                                        }
+                                                      ]
+                                                    ],
+                                                    "weight": "number"
+                                                  }
+                                                ]
+                                              ],
+                                              "required_during_scheduling_ignored_during_execution": [
+                                                "list",
+                                                [
+                                                  "object",
+                                                  {
+                                                    "label_selector": [
+                                                      "list",
+                                                      [
+                                                        "object",
+                                                        {
+                                                          "match_expressions": [
+                                                            "set",
+                                                            [
+                                                              "object",
+                                                              {
+                                                                "key": "string",
+                                                                "operator": "string",
+                                                                "values": [
+                                                                  "set",
+                                                                  "string"
+                                                                ]
+                                                              }
+                                                            ]
+                                                          ],
+                                                          "match_labels": [
+                                                            "map",
+                                                            "string"
+                                                          ]
+                                                        }
+                                                      ]
+                                                    ],
+                                                    "namespaces": [
+                                                      "list",
+                                                      "string"
+                                                    ],
+                                                    "topology_key": "string"
+                                                  }
+                                                ]
+                                              ]
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    ]
+                                  ],
+                                  "containers": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "env": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "name": "string",
+                                              "value": "string"
+                                            }
+                                          ]
+                                        ],
+                                        "image": "string",
+                                        "name": "string",
+                                        "resources": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "limits": [
+                                                "map",
+                                                "string"
+                                              ],
+                                              "requests": [
+                                                "map",
+                                                "string"
+                                              ]
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    ]
+                                  ],
+                                  "dns_policy": "string",
+                                  "hostname": "string",
+                                  "image_pull_secrets": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "name": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "node_name": "string",
+                                  "overhead": [
+                                    "map",
+                                    "string"
+                                  ],
+                                  "restart_policy": "string",
+                                  "scheduler_name": "string",
+                                  "set_hostname_as_pqdn": "bool",
+                                  "share_process_namespace": "bool",
+                                  "termination_grace_period_seconds": "number"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "uid": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "namespace": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

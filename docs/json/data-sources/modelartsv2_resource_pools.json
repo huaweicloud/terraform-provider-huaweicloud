@@ -45,7 +45,8 @@
                             "labels": [
                               "map",
                               "string"
-                            ]
+                            ],
+                            "name": "string"
                           }
                         ]
                       ],

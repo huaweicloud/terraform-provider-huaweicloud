@@ -5,6 +5,10 @@
         "huaweicloud_mapreduce_cluster": {
           "block": {
             "attributes": {
+              "auto_renew": {
+                "type": "string",
+                "optional": true
+              },
               "availability_zone": {
                 "type": "string",
                 "required": true,
@@ -175,6 +179,16 @@
                       "optional": true,
                       "forcenew": true
                     },
+                    "auto_renew": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "charging_mode": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
                     "data_volume_count": {
                       "type": "number",
                       "required": true,
@@ -205,6 +219,16 @@
                     "node_number": {
                       "type": "number",
                       "required": true
+                    },
+                    "period": {
+                      "type": "number",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "period_unit": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
                     },
                     "root_volume_size": {
                       "type": "number",
@@ -402,6 +426,16 @@
                       "optional": true,
                       "forcenew": true
                     },
+                    "auto_renew": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "charging_mode": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
                     "data_volume_count": {
                       "type": "number",
                       "required": true,
@@ -437,6 +471,16 @@
                     "node_number": {
                       "type": "number",
                       "required": true,
+                      "forcenew": true
+                    },
+                    "period": {
+                      "type": "number",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "period_unit": {
+                      "type": "string",
+                      "optional": true,
                       "forcenew": true
                     },
                     "root_volume_size": {
@@ -493,6 +537,16 @@
                       "optional": true,
                       "forcenew": true
                     },
+                    "auto_renew": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "charging_mode": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
                     "data_volume_count": {
                       "type": "number",
                       "required": true,
@@ -523,6 +577,16 @@
                     "node_number": {
                       "type": "number",
                       "required": true,
+                      "forcenew": true
+                    },
+                    "period": {
+                      "type": "number",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "period_unit": {
+                      "type": "string",
+                      "optional": true,
                       "forcenew": true
                     },
                     "root_volume_size": {
@@ -574,6 +638,16 @@
                       "optional": true,
                       "forcenew": true
                     },
+                    "auto_renew": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "charging_mode": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
                     "data_volume_count": {
                       "type": "number",
                       "required": true,
@@ -604,6 +678,16 @@
                     "node_number": {
                       "type": "number",
                       "required": true
+                    },
+                    "period": {
+                      "type": "number",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "period_unit": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
                     },
                     "root_volume_size": {
                       "type": "number",

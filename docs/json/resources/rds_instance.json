@@ -14,8 +14,7 @@
                   "list",
                   "string"
                 ],
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "binlog_retention_hours": {
                 "type": "number",

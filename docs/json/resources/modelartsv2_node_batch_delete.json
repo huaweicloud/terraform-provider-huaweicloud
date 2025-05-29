@@ -1,0 +1,36 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_modelartsv2_node_batch_delete": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "node_names": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The name list of resource nodes to be deleted.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the resource nodes are located.",
+                "computed": true
+              },
+              "resource_pool_name": {
+                "type": "string",
+                "description": "The resource pool name to which the resource nodes belong.",
+                "required": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

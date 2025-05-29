@@ -1,0 +1,71 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_rds_tasks": {
+          "block": {
+            "attributes": {
+              "end_time": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "jobs": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created": "string",
+                      "ended": "string",
+                      "entities": "string",
+                      "fail_reason": "string",
+                      "id": "string",
+                      "instance": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "name": "string"
+                          }
+                        ]
+                      ],
+                      "name": "string",
+                      "process": "string",
+                      "status": "string",
+                      "task_detail": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "start_time": {
+                "type": "string",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "RDS",
+            "name": "Relational Database Service",
+            "catalog": "Databases",
+            "name_cn": "云数据库",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

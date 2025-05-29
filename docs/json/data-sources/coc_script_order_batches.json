@@ -1,0 +1,46 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_coc_script_order_batches": {
+          "block": {
+            "attributes": {
+              "data": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "batch_index": "number",
+                      "properties": "string",
+                      "rotation_strategy": "string",
+                      "total_instances": "number"
+                    }
+                  ]
+                ],
+                "description": "Indicates the batch list of script orders.",
+                "computed": true
+              },
+              "execute_uuid": {
+                "type": "string",
+                "description": "Specifies the execution ID of a script order.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "COC",
+            "name": "Cloud Operations Center",
+            "catalog": "Management & Governance",
+            "name_cn": "云运维中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

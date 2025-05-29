@@ -1,0 +1,62 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_aad_web_protection_policies": {
+          "block": {
+            "attributes": {
+              "domain_name": {
+                "type": "string",
+                "description": "Specifies the domain name.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "level": {
+                "type": "number",
+                "description": "The intelligent CC protection level.",
+                "computed": true
+              },
+              "mode": {
+                "type": "number",
+                "description": "The smart CC mode.",
+                "computed": true
+              },
+              "options": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cc": "bool",
+                      "custom": "bool",
+                      "geoip": "bool",
+                      "modulex_enabled": "bool",
+                      "whiteblackip": "bool"
+                    }
+                  ]
+                ],
+                "description": "The protection options.",
+                "computed": true
+              },
+              "overseas_type": {
+                "type": "number",
+                "description": "Specifies the overseas type.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "AAD",
+            "name": "Advanced Anti-DDoS",
+            "catalog": "Security & Compliance",
+            "name_cn": "DDoS高防",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

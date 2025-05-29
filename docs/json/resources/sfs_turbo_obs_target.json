@@ -43,11 +43,87 @@
                   "attributes": {
                     "bucket": {
                       "type": "string",
-                      "required": true
+                      "required": true,
+                      "forcenew": true
                     },
                     "endpoint": {
                       "type": "string",
-                      "required": true
+                      "required": true,
+                      "forcenew": true
+                    }
+                  },
+                  "block_types": {
+                    "attributes": {
+                      "block": {
+                        "attributes": {
+                          "dir_mode": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true,
+                            "forcenew": true
+                          },
+                          "file_mode": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true,
+                            "forcenew": true
+                          },
+                          "gid": {
+                            "type": "number",
+                            "optional": true,
+                            "computed": true,
+                            "forcenew": true
+                          },
+                          "uid": {
+                            "type": "number",
+                            "optional": true,
+                            "computed": true,
+                            "forcenew": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "forcenew": true,
+                      "max_items": 1
+                    },
+                    "policy": {
+                      "block": {
+                        "block_types": {
+                          "auto_export_policy": {
+                            "block": {
+                              "attributes": {
+                                "events": {
+                                  "type": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "optional": true,
+                                  "computed": true,
+                                  "forcenew": true
+                                },
+                                "prefix": {
+                                  "type": "string",
+                                  "optional": true,
+                                  "computed": true,
+                                  "forcenew": true
+                                },
+                                "suffix": {
+                                  "type": "string",
+                                  "optional": true,
+                                  "computed": true,
+                                  "forcenew": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "list",
+                            "forcenew": true,
+                            "max_items": 1
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "forcenew": true,
+                      "max_items": 1
                     }
                   }
                 },

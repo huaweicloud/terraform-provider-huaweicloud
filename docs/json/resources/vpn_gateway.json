@@ -47,7 +47,7 @@
               },
               "availability_zones": {
                 "type": [
-                  "list",
+                  "set",
                   "string"
                 ],
                 "description": "The availability zone IDs.",

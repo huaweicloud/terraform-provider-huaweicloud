@@ -11,8 +11,7 @@
               },
               "execute_user": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "finished_at": {
                 "type": "string",
@@ -24,13 +23,16 @@
               },
               "instance_id": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "required": true
+              },
+              "is_sync": {
+                "type": "bool",
+                "optional": true,
+                "default": true
               },
               "script_id": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "script_name": {
                 "type": "string",
@@ -42,8 +44,7 @@
               },
               "timeout": {
                 "type": "number",
-                "required": true,
-                "forcenew": true
+                "required": true
               }
             },
             "block_types": {
@@ -52,18 +53,15 @@
                   "attributes": {
                     "name": {
                       "type": "string",
-                      "required": true,
-                      "forcenew": true
+                      "required": true
                     },
                     "value": {
                       "type": "string",
-                      "required": true,
-                      "forcenew": true
+                      "required": true
                     }
                   }
                 },
-                "nesting_mode": "list",
-                "forcenew": true
+                "nesting_mode": "list"
               }
             }
           },

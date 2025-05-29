@@ -1,0 +1,70 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_apig_orchestration_rule_associated_apis": {
+          "block": {
+            "attributes": {
+              "api_id": {
+                "type": "string",
+                "description": "The ID of the API associated with the orchestration rule.",
+                "optional": true
+              },
+              "api_name": {
+                "type": "string",
+                "description": "The name of the API associated with the orchestration rule, fuzzy matching is supported.",
+                "optional": true
+              },
+              "apis": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "api_id": "string",
+                      "api_name": "string",
+                      "attached_time": "string",
+                      "auth_type": "string",
+                      "group_id": "string",
+                      "group_name": "string",
+                      "match_mode": "string",
+                      "req_method": "string",
+                      "req_uri": "string"
+                    }
+                  ]
+                ],
+                "description": "All associated APIs that match the filter parameters.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the dedicated instance to which the orchestration rule belongs.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "rule_id": {
+                "type": "string",
+                "description": "The ID of the orchestration rule.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

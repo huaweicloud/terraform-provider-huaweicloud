@@ -1,0 +1,186 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_lts_host_accesses": {
+          "block": {
+            "attributes": {
+              "access_config_name_list": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The list of the host access names.",
+                "optional": true
+              },
+              "accesses": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "access_config": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "black_paths": [
+                              "list",
+                              "string"
+                            ],
+                            "custom_key_value": [
+                              "map",
+                              "string"
+                            ],
+                            "multi_log_format": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "mode": "string",
+                                  "value": "string"
+                                }
+                              ]
+                            ],
+                            "paths": [
+                              "list",
+                              "string"
+                            ],
+                            "repeat_collect": "bool",
+                            "single_log_format": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "mode": "string",
+                                  "value": "string"
+                                }
+                              ]
+                            ],
+                            "system_fields": [
+                              "list",
+                              "string"
+                            ],
+                            "windows_log_info": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "categorys": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "event_level": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "time_offset": "number",
+                                  "time_offset_unit": "string"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "access_type": "string",
+                      "binary_collect": "bool",
+                      "created_at": "string",
+                      "demo_fields": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "name": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ],
+                      "demo_log": "string",
+                      "encoding_format": "string",
+                      "host_group_ids": [
+                        "list",
+                        "string"
+                      ],
+                      "id": "string",
+                      "incremental_collect": "bool",
+                      "log_group_id": "string",
+                      "log_group_name": "string",
+                      "log_split": "bool",
+                      "log_stream_id": "string",
+                      "log_stream_name": "string",
+                      "name": "string",
+                      "processor_type": "string",
+                      "processors": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "detail": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "tags": [
+                        "map",
+                        "string"
+                      ]
+                    }
+                  ]
+                ],
+                "description": "All host accesses that match the filter parameters.",
+                "computed": true
+              },
+              "host_group_name_list": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The list host of the group names associated with the host access.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "log_group_name_list": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The list of log group names.",
+                "optional": true
+              },
+              "log_stream_name_list": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The list of log stream names.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "The key/value pairs to associate with the host access.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "LTS",
+            "name": "Log Tank Service",
+            "catalog": "Management & Governance",
+            "name_cn": "云日志服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

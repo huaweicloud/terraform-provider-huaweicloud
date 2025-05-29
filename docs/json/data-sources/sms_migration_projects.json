@@ -1,0 +1,50 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_sms_migration_projects": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "migprojects": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "description": "string",
+                      "enterprise_project": "string",
+                      "exist_server": "bool",
+                      "id": "string",
+                      "is_default": "bool",
+                      "name": "string",
+                      "region": "string",
+                      "speed_limit": "number",
+                      "start_network_check": "bool",
+                      "start_target_server": "bool",
+                      "syncing": "bool",
+                      "type": "string",
+                      "use_public_ip": "bool"
+                    }
+                  ]
+                ],
+                "description": "Indicates the details of the queried migration projects.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "SMS",
+            "name": "Server Migration Service",
+            "catalog": "Migration",
+            "name_cn": "主机迁移服务",
+            "catalog_cn": "迁移"
+          }
+        }
+      }
+    }
+  }
+}

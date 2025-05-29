@@ -1,0 +1,77 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_rds_dr_instance_dr_capability": {
+          "block": {
+            "attributes": {
+              "build_process": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "replica_state": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "target_instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "target_ip": {
+                "type": "string",
+                "required": true
+              },
+              "target_project_id": {
+                "type": "string",
+                "required": true
+              },
+              "target_region": {
+                "type": "string",
+                "required": true
+              },
+              "time": {
+                "type": "string",
+                "computed": true
+              },
+              "wal_receive_replay_delay_in_ms": {
+                "type": "string",
+                "computed": true
+              },
+              "wal_write_receive_delay_in_mb": {
+                "type": "string",
+                "computed": true
+              },
+              "wal_write_replay_delay_in_mb": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "RDS",
+            "name": "Relational Database Service",
+            "catalog": "Databases",
+            "name_cn": "云数据库",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}
