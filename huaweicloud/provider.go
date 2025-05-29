@@ -496,6 +496,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_apig_environment_variables":              apig.DataSourceApigEnvironmentVariables(),
 			"huaweicloud_apig_environments":                       apig.DataSourceEnvironments(),
 			"huaweicloud_apig_groups":                             apig.DataSourceGroups(),
+			"huaweicloud_apig_instance_ssl_certificates":          apig.DataSourceInstanceAssociatedSSLCertificates(),
 			"huaweicloud_apig_instance_features":                  apig.DataSourceInstanceFeatures(),
 			"huaweicloud_apig_instance_quotas":                    apig.DataSourceInstanceQuotas(),
 			"huaweicloud_apig_instance_supported_features":        apig.DataSourceInstanceSupportedFeatures(),
