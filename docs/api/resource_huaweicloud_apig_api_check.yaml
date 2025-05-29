@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_apig_api_check
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: APIG
+paths:
+    /v2/{project_id}/apigw/instances/{instance_id}/apis/check:
+        POST:
+            tag: APIG

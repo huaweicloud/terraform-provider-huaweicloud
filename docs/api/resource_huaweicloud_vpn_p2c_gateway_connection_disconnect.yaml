@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_vpn_p2c_gateway_connection_disconnect
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: VPN
+paths:
+    /v5/{project_id}/p2c-vpn-gateways/{p2c_vgw_id}/connections/{connection_id}/disconnect:
+        POST:
+            tag: VPN

@@ -12,5 +12,7 @@ paths:
         POST:
             tag: SFSTurbo
     /v1/{project_id}/sfs-turbo/{share_id}/hpc-cache/task/{task_id}:
+        DELETE:
+            tag: SFSTurbo
         GET:
             tag: SFSTurbo

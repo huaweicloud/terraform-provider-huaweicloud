@@ -8,10 +8,10 @@ host: huaweicloud.com
 tags:
     - name: ASM
 paths:
-    /v1/meshes:
+    /v1/{project_id}/meshes:
         POST:
             tag: ASM
-    /v1/meshes/{mesh_id}:
+    /v1/{project_id}/meshes/{mesh_id}:
         DELETE:
             tag: ASM
         GET:

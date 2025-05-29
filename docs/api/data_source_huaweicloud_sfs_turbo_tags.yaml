@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_sfs_turbo_tags
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: SFSTURBO
+paths:
+    /v1/{project_id}/sfs-turbo/tags:
+        GET:
+            tag: SFSTURBO

@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_lts_log_collection_switch
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: LTS
+paths:
+    /v2/{project_id}/collection/disable:
+        POST:
+            tag: LTS
+    /v2/{project_id}/collection/enable:
+        POST:
+            tag: LTS

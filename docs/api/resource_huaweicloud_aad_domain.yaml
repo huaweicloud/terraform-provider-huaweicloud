@@ -1,0 +1,24 @@
+info:
+    version: ""
+    title: resource_huaweicloud_aad_domain
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: AAD
+paths:
+    /v1/{project_id}/aad/external/domains:
+        POST:
+            tag: AAD
+    /v1/aad/protected-domains:
+        GET:
+            tag: AAD
+    /v1/aad/protected-domains/{domain_id}:
+        GET:
+            tag: AAD
+        PUT:
+            tag: AAD
+    /v2/aad/domains:
+        DELETE:
+            tag: AAD
