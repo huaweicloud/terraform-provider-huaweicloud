@@ -97,7 +97,7 @@ func dataSourceRdsMysqlAuthorizedDatabasesRead(_ context.Context, d *schema.Reso
 		}
 		databases = append(databases, pageDatabases...)
 
-		page++
+		page++ 
 	}
 
 	id, err := uuid.GenerateUUID()
