@@ -22,8 +22,8 @@ github.com/apparentlymart/go-textseg/v13 v13.0.0 h1:Y+KvPE1NYz0xl601PVImeQfFyEy6
 github.com/apparentlymart/go-textseg/v13 v13.0.0/go.mod h1:ZK2fH7c4NqDTLtiYLvIkEghdlcqw7yxLeM89kiTRPUo=
 github.com/armon/go-socks5 v0.0.0-20160902184237-e75332964ef5/go.mod h1:wHh0iHkYZB8zMSxRWpUBQtwG5a7fFgvEO+odwuTv2gs=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
-github.com/chnsz/golangsdk v0.0.0-20250522034853-eb1e624cd784 h1:Sxje1lzj5MeYf9QupX4p3CmDoR0kLcdPDRg2nBxlZHQ=
-github.com/chnsz/golangsdk v0.0.0-20250522034853-eb1e624cd784/go.mod h1:PIan4aDeDoNOI4FImVS8osVpShcVnAUKR2XM8Ulgsgw=
+github.com/chnsz/golangsdk v0.0.0-20250529023604-407526f9efac h1:x+NrnhVCl1742NgN9xuNPzGiRlBmHkiqP4CHcFma7WQ=
+github.com/chnsz/golangsdk v0.0.0-20250529023604-407526f9efac/go.mod h1:PIan4aDeDoNOI4FImVS8osVpShcVnAUKR2XM8Ulgsgw=
 github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDkc90ppPyw=
 github.com/cncf/udpa/go v0.0.0-20191209042840-269d4d468f6f/go.mod h1:M8M6+tZqaGXZJjfX53e64911xZQV5JYwmTeXPW+k8Sc=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=

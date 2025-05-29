@@ -121,6 +121,12 @@ func ResourceCluster() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"timezone": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -336,6 +342,12 @@ func ResourceCluster() *schema.Resource {
 				Computed: true,
 			},
 			"ipv6_enable": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
+			"enable_dist_mgt": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: true,
@@ -670,7 +682,9 @@ func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta int
 			Name:        clusterName,
 			Alias:       d.Get("alias").(string),
 			Labels:      resourceClusterLabels(d),
-			Annotations: resourceClusterAnnotations(d)},
+			Annotations: resourceClusterAnnotations(d),
+			Timezone:    d.Get("timezone").(string),
+		},
 
 		Spec: clusters.Spec{
 			Type:        d.Get("cluster_type").(string),
@@ -697,6 +711,7 @@ func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta int
 			ClusterTags:   resourceClusterTags(d),
 			CustomSan:     utils.ExpandToStringList(d.Get("custom_san").([]interface{})),
 			IPv6Enable:    d.Get("ipv6_enable").(bool),
+			EnableDistMgt: d.Get("enable_dist_mgt").(bool),
 			KubeProxyMode: d.Get("kube_proxy_mode").(string),
 		},
 	}
@@ -820,6 +835,7 @@ func resourceClusterRead(_ context.Context, d *schema.ResourceData, meta interfa
 		d.Set("region", config.GetRegion(d)),
 		d.Set("name", n.Metadata.Name),
 		d.Set("alias", n.Metadata.Alias),
+		d.Set("timezone", n.Metadata.Timezone),
 		d.Set("status", n.Status.Phase),
 		d.Set("flavor_id", n.Spec.Flavor),
 		d.Set("cluster_version", n.Spec.Version),
@@ -839,6 +855,7 @@ func resourceClusterRead(_ context.Context, d *schema.ResourceData, meta interfa
 		d.Set("billing_mode", n.Spec.BillingMode),
 		d.Set("tags", utils.TagsToMap(n.Spec.ClusterTags)),
 		d.Set("ipv6_enable", n.Spec.IPv6Enable),
+		d.Set("enable_dist_mgt", n.Spec.EnableDistMgt),
 		d.Set("kube_proxy_mode", n.Spec.KubeProxyMode),
 		d.Set("support_istio", n.Spec.SupportIstio),
 		d.Set("custom_san", n.Spec.CustomSan),
