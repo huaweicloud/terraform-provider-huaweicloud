@@ -138,6 +138,8 @@ type CreateMetaData struct {
 	Annotations map[string]string `json:"annotations,omitempty"`
 	// Cluster alias
 	Alias string `json:"alias,omitempty"`
+	// Cluster timezone
+	Timezone string `json:"timezone,omitempty"`
 }
 
 // ToClusterCreateMap builds a create request body from CreateOpts.

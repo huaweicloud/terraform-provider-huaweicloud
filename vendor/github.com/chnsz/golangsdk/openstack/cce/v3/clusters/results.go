@@ -41,6 +41,8 @@ type MetaData struct {
 	Annotations map[string]string `json:"annotations,omitempty"`
 	// Cluster alias
 	Alias string `json:"alias"`
+	// Cluster timezone
+	Timezone string `json:"timezone"`
 }
 
 // Specifications to create a cluster

@@ -231,6 +231,9 @@ The following arguments are supported:
 * `alias` - (Optional, String) Specifies the display name of a cluster. The value of `alias` cannot be the same as the `name`
   and display names of other clusters.
 
+* `timezone` - (Optional, String, ForceNew) Specifies the time zone of a cluster. Changing this parameter will create a
+  new cluster resource.
+
 * `description` - (Optional, String) Specifies the cluster description.
 
 * `container_network_cidr` - (Optional, String) Specifies the container network segments.
@@ -284,6 +287,9 @@ The following arguments are supported:
 * `custom_san` - (Optional, List) Specifies the custom san to add to certificate (array of string).
 
 * `ipv6_enable` - (Optional, Bool, ForceNew) Specifies whether to enable IPv6 in the cluster.
+  Changing this parameter will create a new cluster resource.
+
+* `enable_dist_mgt` - (Optional, Bool, ForceNew) Specifies whether to enable support for remote clouds.
   Changing this parameter will create a new cluster resource.
 
 * `extend_params` - (Optional, List, ForceNew) Specifies the extended parameter.
