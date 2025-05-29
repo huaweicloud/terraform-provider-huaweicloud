@@ -39,18 +39,12 @@ func DataSourceSmsAgentConfigs() *schema.Resource {
 
 func dataSourceSmsAgentConfigsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	var mErr *multierror.Error
-
-	var (
-		httpUrl = "v3/config"
-		product = "sms"
-	)
-	client, err := cfg.NewServiceClient(product, region)
+	client, err := cfg.SmsV3Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating SMS client: %s", err)
 	}
+	var mErr *multierror.Error
+	httpUrl := "v3/config"
 
 	smsAgentConfigsUrl := client.Endpoint + httpUrl
 
