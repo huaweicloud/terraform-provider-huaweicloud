@@ -75,6 +75,13 @@ func TestAccChannel_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(typeServer, "health_check.0.port", "0"),
 					resource.TestCheckResourceAttr(typeServer, "health_check.0.http_codes", ""),
 					resource.TestCheckResourceAttr(typeServer, "member.#", "1"),
+					resource.TestCheckResourceAttrPair(typeServer, "member.0.id", "huaweicloud_compute_instance.test.0", "id"),
+					resource.TestCheckResourceAttrPair(typeServer, "member.0.name", "huaweicloud_compute_instance.test.0", "name"),
+					// If `member.port` is not specified, this value is the channel's `port`.
+					resource.TestCheckResourceAttr(typeServer, "member.0.port", "80"),
+					resource.TestCheckResourceAttr(typeServer, "member.0.weight", "0"),
+					resource.TestCheckResourceAttr(typeServer, "member.0.is_backup", "false"),
+					resource.TestCheckResourceAttr(typeServer, "member.0.status", "1"),
 					rcTypeServerLegacy.CheckResourceExists(),
 					resource.TestCheckResourceAttr(typeServerLegacy, "instance_id", acceptance.HW_APIG_DEDICATED_INSTANCE_ID),
 					resource.TestCheckResourceAttr(typeServerLegacy, "name", name+"_type_server_legacy"),
@@ -120,7 +127,7 @@ func TestAccChannel_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccChannel_basic_step2(baseConfig, updateName),
+				Config: testAccChannel_basic_step2(baseConfig, name, updateName),
 				Check: resource.ComposeTestCheckFunc(
 					rcTypeServer.CheckResourceExists(),
 					resource.TestCheckResourceAttr(typeServer, "instance_id", acceptance.HW_APIG_DEDICATED_INSTANCE_ID),
@@ -138,7 +145,15 @@ func TestAccChannel_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(typeServer, "health_check.0.method", "HEAD"),
 					resource.TestCheckResourceAttr(typeServer, "health_check.0.port", "8080"),
 					resource.TestCheckResourceAttr(typeServer, "health_check.0.http_codes", "201,202,303-404"),
+					resource.TestCheckResourceAttr(typeServer, "member_group.#", "2"),
+					resource.TestCheckResourceAttrSet(typeServer, "member_group.0.name"),
 					resource.TestCheckResourceAttr(typeServer, "member.#", "2"),
+					resource.TestCheckResourceAttrSet(typeServer, "member.0.id"),
+					resource.TestCheckResourceAttrSet(typeServer, "member.0.name"),
+					resource.TestCheckResourceAttrSet(typeServer, "member.0.group_name"),
+					resource.TestCheckResourceAttrSet(typeServer, "member.1.id"),
+					resource.TestCheckResourceAttrSet(typeServer, "member.1.name"),
+					resource.TestCheckResourceAttrSet(typeServer, "member.1.group_name"),
 					rcTypeServerLegacy.CheckResourceExists(),
 					resource.TestCheckResourceAttr(typeServerLegacy, "instance_id", acceptance.HW_APIG_DEDICATED_INSTANCE_ID),
 					resource.TestCheckResourceAttr(typeServerLegacy, "name", updateName+"_type_server_legacy"),
@@ -156,6 +171,7 @@ func TestAccChannel_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(typeServerLegacy, "health_check.0.port", "8080"),
 					resource.TestCheckResourceAttr(typeServerLegacy, "health_check.0.http_codes", "201,202,303-404"),
 					resource.TestCheckResourceAttr(typeServerLegacy, "member.#", "2"),
+					resource.TestCheckResourceAttr(typeServerLegacy, "member.0.status", "2"),
 					rcTypeReference.CheckResourceExists(),
 					resource.TestCheckResourceAttr(typeReference, "instance_id", acceptance.HW_APIG_DEDICATED_INSTANCE_ID),
 					resource.TestCheckResourceAttr(typeReference, "name", updateName+"_type_reference"),
@@ -267,6 +283,11 @@ resource "huaweicloud_apig_channel" "type_server" {
     timeout            = 1 # minimum value
   }
 
+  member_group {
+    name   = "%[2]s"
+    weight = 1
+  }
+
   dynamic "member" {
     for_each = huaweicloud_compute_instance.test[*]
 
@@ -330,14 +351,14 @@ resource "huaweicloud_apig_channel" "type_reference" {
 `, baseConfig, name, acceptance.HW_APIG_DEDICATED_INSTANCE_USED_SUBNET_ID)
 }
 
-func testAccChannel_basic_step2(baseConfig, name string) string {
+func testAccChannel_basic_step2(baseConfig, name, updateName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
 resource "huaweicloud_compute_instance" "test" {
   count = 2
 
-  name               = format("%[2]s-%%d", count.index)
+  name               = format("%[4]s-%%d", count.index)
   image_id           = data.huaweicloud_images_image.test.id
   flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
   security_group_ids = [huaweicloud_networking_secgroup.test.id]
@@ -369,13 +390,26 @@ resource "huaweicloud_apig_channel" "type_server" {
     http_codes         = "201,202,303-404"
   }
 
-  dynamic "member" {
-    for_each = huaweicloud_compute_instance.test[*]
+  member_group {
+    name   = "%[2]s"
+    weight = 1
+  }
+  member_group {
+    name = "%[2]s_2"
+  }
 
-    content {
-      id   = member.value.id
-      name = member.value.name
-    }
+  member {
+    id         = huaweicloud_compute_instance.test[0].id
+    name       = huaweicloud_compute_instance.test[0].name
+	group_name = "%[2]s"
+  }
+  member {
+    id         = huaweicloud_compute_instance.test[1].id
+    name       = huaweicloud_compute_instance.test[1].name
+    port       = 8009
+    status     = 2
+    is_backup  = true
+	group_name = "%[2]s_2"
   }
 }
 
@@ -403,8 +437,9 @@ resource "huaweicloud_apig_channel" "type_server_legacy" {
     for_each = huaweicloud_compute_instance.test[*]
 
     content {
-      id   = member.value.id
-      name = member.value.name
+      id     = member.value.id
+      name   = member.value.name
+      status = 2
     }
   }
 }
@@ -436,7 +471,7 @@ resource "huaweicloud_apig_channel" "type_reference" {
     http_codes         = "500"
   }
 }
-`, baseConfig, name, acceptance.HW_APIG_DEDICATED_INSTANCE_USED_SUBNET_ID)
+`, baseConfig, updateName, acceptance.HW_APIG_DEDICATED_INSTANCE_USED_SUBNET_ID, name)
 }
 
 func TestAccChannel_eipMembers(t *testing.T) {
@@ -471,7 +506,7 @@ func TestAccChannel_eipMembers(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "port", "80"),
 					resource.TestCheckResourceAttr(rName, "balance_strategy", "2"),
 					resource.TestCheckResourceAttr(rName, "member_type", "ip"),
-					resource.TestCheckResourceAttr(rName, "type", "2"),
+					resource.TestCheckResourceAttr(rName, "type", "builtin"),
 					resource.TestCheckResourceAttr(rName, "health_check.0.protocol", "HTTP"),
 					resource.TestCheckResourceAttr(rName, "health_check.0.threshold_normal", "2"),
 					resource.TestCheckResourceAttr(rName, "health_check.0.threshold_abnormal", "2"),
