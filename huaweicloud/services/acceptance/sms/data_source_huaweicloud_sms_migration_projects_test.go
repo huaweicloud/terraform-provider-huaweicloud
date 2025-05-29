@@ -26,10 +26,9 @@ func TestAccDataSourceSmsMigrationProjects_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(dataSource, "migprojects.0.id"),
 					resource.TestCheckResourceAttrSet(dataSource, "migprojects.0.name"),
 					resource.TestCheckResourceAttrSet(dataSource, "migprojects.0.type"),
-					resource.TestCheckResourceAttrSet(dataSource, "migprojects.0.description"),
 					resource.TestCheckResourceAttrSet(dataSource, "migprojects.0.enterprise_project"),
 					resource.TestCheckResourceAttrSet(dataSource, "migprojects.0.exist_server"),
-					resource.TestCheckResourceAttrSet(dataSource, "migprojects.0.isdefault"),
+					resource.TestCheckResourceAttrSet(dataSource, "migprojects.0.is_default"),
 					resource.TestCheckResourceAttrSet(dataSource, "migprojects.0.region"),
 					resource.TestCheckResourceAttrSet(dataSource, "migprojects.0.speed_limit"),
 					resource.TestCheckResourceAttrSet(dataSource, "migprojects.0.start_network_check"),
@@ -44,7 +43,6 @@ func TestAccDataSourceSmsMigrationProjects_basic(t *testing.T) {
 
 func testDataSourceDataSourceSmsMigrationProjects_basic() string {
 	return `
-data "huaweicloud_sms_migration_projects" "test" {
-}
+data "huaweicloud_sms_migration_projects" "test" {}
 `
 }

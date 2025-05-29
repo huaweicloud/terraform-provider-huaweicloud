@@ -41,7 +41,7 @@ func DataSourceSmsMigrationProjects() *schema.Resource {
 							Computed:    true,
 							Description: `Indicates whether to use a public IP address for migration.`,
 						},
-						"isdefault": {
+						"is_default": {
 							Type:        schema.TypeBool,
 							Computed:    true,
 							Description: `Indicates whether the migration project is the default project.`,
@@ -133,7 +133,8 @@ func dataSourceSmsMigrationProjectsRead(_ context.Context, d *schema.ResourceDat
 
 // @API SMS GET /v3/migprojects
 func (w *MigrationProjectsDSWrapper) ListMigprojects() (*gjson.Result, error) {
-	client, err := w.NewClient(w.Config, "sms")
+	region := w.Config.GetRegion(w.ResourceData)
+	client, err := w.Config.SmsV3Client(region)
 	if err != nil {
 		return nil, err
 	}
@@ -156,7 +157,7 @@ func (w *MigrationProjectsDSWrapper) listMigprojectsToSchema(body *gjson.Result)
 					"id":                  migprojects.Get("id").Value(),
 					"name":                migprojects.Get("name").Value(),
 					"use_public_ip":       migprojects.Get("use_public_ip").Value(),
-					"isdefault":           migprojects.Get("isdefault").Value(),
+					"is_default":          migprojects.Get("isdefault").Value(),
 					"start_target_server": migprojects.Get("start_target_server").Value(),
 					"region":              migprojects.Get("region").Value(),
 					"speed_limit":         migprojects.Get("speed_limit").Value(),
