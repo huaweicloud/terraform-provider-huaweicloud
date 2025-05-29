@@ -289,7 +289,7 @@ The following arguments are supported:
 * `ipv6_enable` - (Optional, Bool, ForceNew) Specifies whether to enable IPv6 in the cluster.
   Changing this parameter will create a new cluster resource.
 
-* `enable_dist_mgt` - (Optional, Bool, ForceNew) Specifies whether to enable support for remote clouds.
+* `enable_distribute_management` - (Optional, Bool, ForceNew) Specifies whether to enable support for remote clouds.
   Changing this parameter will create a new cluster resource.
 
 * `extend_params` - (Optional, List, ForceNew) Specifies the extended parameter.
