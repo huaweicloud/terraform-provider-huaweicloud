@@ -17,7 +17,7 @@ import (
 
 func getResourceAsmMeshFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	var (
-		getMeshHttpUrl = "v1/meshes/{mesh_id}"
+		getMeshHttpUrl = "v1/{project_id}/meshes/{mesh_id}"
 		getMeshProduct = "asm"
 	)
 	getMeshClient, err := cfg.NewServiceClient(getMeshProduct, acceptance.HW_REGION_NAME)
@@ -26,6 +26,7 @@ func getResourceAsmMeshFunc(cfg *config.Config, state *terraform.ResourceState) 
 	}
 
 	getMeshPath := getMeshClient.Endpoint + getMeshHttpUrl
+	getMeshPath = strings.ReplaceAll(getMeshPath, "{project_id}", getMeshClient.ProjectID)
 	getMeshPath = strings.ReplaceAll(getMeshPath, "{mesh_id}", state.Primary.ID)
 
 	getPotectionRulesOpt := golangsdk.RequestOpts{
