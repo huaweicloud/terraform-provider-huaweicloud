@@ -35,7 +35,7 @@ The `migprojects` block supports:
 
 * `use_public_ip` - Indicates whether to use a public IP address for migration.
 
-* `isdefault` - Indicates whether the migration project is the default project.
+* `is_default` - Indicates whether the migration project is the default project.
 
 * `start_target_server` - Indicates whether to start the target server after the migration.
 
