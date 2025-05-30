@@ -548,6 +548,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cbh_instance_quota":     cbh.DataSourceInstanceQuota(),
 			"huaweicloud_cbh_instance_tags":      cbh.DataSourceInstanceTags(),
 			"huaweicloud_cbh_instance_ecs_quota": cbh.DataSourceInstanceEcsQuota(),
+			"huaweicloud_cbh_instance_admin_url": cbh.DataSourceInstanceAdminUrl(),
 
 			"huaweicloud_cc_authorizations":                               cc.DataSourceCcAuthorizations(),
 			"huaweicloud_cc_bandwidth_packages":                           cc.DataSourceCcBandwidthPackages(),
