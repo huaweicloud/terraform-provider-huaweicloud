@@ -1,24 +1,19 @@
 resource "huaweicloud_coc_script" "test" {
   name        = var.script_name
-  description = "coc script description"
-  risk_level  = "LOW"
-  version     = "1.0.0"
-  type        = "SHELL"
+  description = var.script_description
+  risk_level  = var.script_risk_level
+  version     = var.script_version
+  type        = var.script_type
+  content     = var.script_content
 
-  content = <<EOF
-#! /bin/bash
-echo "hello world!"
-EOF
+  dynamic "parameters" {
+    for_each = var.script_parameters
 
-  parameters {
-    name        = "name"
-    value       = "world"
-    description = "the first parameter"
-  }
-  parameters {
-    name        = "company"
-    value       = "Huawei"
-    description = "the second parameter"
-    sensitive   = true
+    content {
+      name        = parameters.value.name
+      value       = parameters.value.value
+      description = parameters.value.description
+      sensitive   = parameters.value.sensitive
+    }
   }
 }
