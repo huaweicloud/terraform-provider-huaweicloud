@@ -1,6 +1,6 @@
 resource "huaweicloud_coc_script" "test" {
   name        = var.script_name
-  description = "coc script description"
+  description = var.script_description
   risk_level  = "LOW"
   version     = "1.0.0"
   type        = "SHELL"
@@ -10,25 +10,29 @@ resource "huaweicloud_coc_script" "test" {
 echo "hello world!"
 EOF
 
-  parameters {
-    name        = "name"
-    value       = "world"
-    description = "the parameter"
+
+  dynamic "parameters" {
+    for_each = var.script_parameters
+    content {
+      name        = parameters.value.name
+      value       = parameters.value.value
+      description = parameters.value.description
+      sensitive   = parameters.value.sensitive != null ? parameters.value.sensitive : null
+    }
   }
 }
 
 resource "huaweicloud_coc_script_execute" "test" {
   script_id    = huaweicloud_coc_script.test.id
-  instance_id  = var.script_execute_name
+  instance_id  = var.ecs_instance_id
   timeout      = 600
   execute_user = "root"
 
-  parameters {
-    name  = "name"
-    value = "somebody"
-  }
-  parameters {
-    name  = "company"
-    value = "HuaweiCloud"
+  dynamic "parameters" {
+    for_each = var.script_execute_parameters
+    content {
+      name  = parameters.value.name
+      value = parameters.value.value
+    }
   }
 }

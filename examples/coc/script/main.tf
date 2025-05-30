@@ -1,6 +1,6 @@
 resource "huaweicloud_coc_script" "test" {
   name        = var.script_name
-  description = "coc script description"
+  description = var.script_description
   risk_level  = "LOW"
   version     = "1.0.0"
   type        = "SHELL"
@@ -10,15 +10,13 @@ resource "huaweicloud_coc_script" "test" {
 echo "hello world!"
 EOF
 
-  parameters {
-    name        = "name"
-    value       = "world"
-    description = "the first parameter"
-  }
-  parameters {
-    name        = "company"
-    value       = "Huawei"
-    description = "the second parameter"
-    sensitive   = true
+  dynamic "parameters" {
+    for_each = var.script_parameters
+    content {
+      name        = parameters.value.name
+      value       = parameters.value.value
+      description = parameters.value.description
+      sensitive   = parameters.value.sensitive != null ? parameters.value.sensitive : null
+    }
   }
 }
