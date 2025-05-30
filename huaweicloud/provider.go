@@ -2017,6 +2017,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_fgs_function_event":             fgs.ResourceFunctionEvent(),
 			"huaweicloud_fgs_function_topping":           fgs.ResourceFunctionTopping(),
 			"huaweicloud_fgs_function_trigger":           fgs.ResourceFunctionTrigger(),
+			"huaweicloud_fgs_lts_log_enable":             fgs.ResourceFgsLtsLogEnable(),
 
 			"huaweicloud_ga_accelerator":    ga.ResourceAccelerator(),
 			"huaweicloud_ga_access_log":     ga.ResourceAccessLog(),
