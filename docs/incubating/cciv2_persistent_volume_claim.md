@@ -13,14 +13,14 @@ Manages a CCI persistent volume claim resource within HuaweiCloud.
 ## Example Usage
 
 ```hcl
-resource "kubernetes_persistent_volume_claim" "my-pvc" {
+resource "huaweicloud_persistent_volume_claim" "my-pvc" {
   name      = "my-pvc-obs"
   namespace = "default"
 
   annotations = {
-    "everest.io/obs-volume-type"                       = "STANDARD"
-    "csi.storage.k8s.io/fstype"                        = "s3fs"
-    "everest.io/enterprise-project-id"                 = "0"
+    "everest.io/obs-volume-type"       = "STANDARD"
+    "csi.storage.k8s.io/fstype"        = "s3fs"
+    "everest.io/enterprise-project-id" = "0"
   }
 
   access_modes = ["ReadWriteMany"]
