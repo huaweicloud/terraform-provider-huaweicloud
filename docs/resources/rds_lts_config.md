@@ -1,13 +1,14 @@
 ---
 subcategory: "Relational Database Service (RDS)"
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_rds_lts_log"
-description: ""
+page_title: "HuaweiCloud: huaweicloud_rds_lts_config"
+description: |-
+  Manages a RDS LTS config resource within HuaweiCloud.
 ---
 
-# huaweicloud_rds_lts_log
+# huaweicloud_rds_lts_config
 
-Manages a RDS LTS log resource within HuaweiCloud.
+Manages a RDS LTS config resource within HuaweiCloud.
 
 ## Example Usage
 
@@ -16,7 +17,7 @@ variable "instance_id" {}
 variable "lts_group_id" {}
 variable "lts_stream_id" {}
 
-resource "huaweicloud_rds_lts_log" "test" {
+resource "huaweicloud_rds_lts_config" "test" {
   instance_id   = var.instance_id
   engine        = "mysql"
   log_type      = "error_log"
@@ -38,7 +39,7 @@ The following arguments are supported:
 * `instance_id` - (Required, String, ForceNew) Specifies the ID of the RDS instance.
   Changing this creates a new resource.
 
-* `log_type` - (Required, String, ForceNew) Specifies the type of the LTS log.
+* `log_type` - (Required, String, ForceNew) Specifies the type of the LTS log config.
   Value options: **error_log**, **slow_log**, **audit_log**. Changing this creates a new resource.
 
 * `lts_group_id` - (Required, String) Specifies the ID of the LTS log group.
@@ -63,5 +64,5 @@ This resource provides the following timeouts configuration options:
 The RDS LTS log can be imported using `instance_id` and `log_type` separated by a slash, e.g.
 
 ```bash
-$ terraform import huaweicloud_rds_lts_log.test <instance_id>/<log_type>
+$ terraform import huaweicloud_rds_lts_config.test <instance_id>/<log_type>
 ```

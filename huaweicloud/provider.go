@@ -2361,7 +2361,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_pg_hba":                         rds.ResourcePgHba(),
 			"huaweicloud_rds_pg_sql_limit":                   rds.ResourcePgSqlLimit(),
 			"huaweicloud_rds_pg_plugin_parameter":            rds.ResourcePgPluginParameter(),
-			"huaweicloud_rds_lts_log":                        rds.ResourceRdsLtsLog(),
+			"huaweicloud_rds_lts_config":                     rds.ResourceRdsLtsConfig(),
 			"huaweicloud_rds_recycling_policy":               rds.ResourceRecyclingPolicy(),
 			"huaweicloud_rds_primary_instance_dr_capability": rds.ResourcePrimaryInstanceDrCapability(),
 			"huaweicloud_rds_dr_instance_dr_capability":      rds.ResourceDrInstanceDrCapability(),
@@ -2649,6 +2649,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_database_privilege": rds.ResourceMysqlDatabasePrivilege(),
 			"huaweicloud_rds_instance_v3":        rds.ResourceRdsInstance(),
 			"huaweicloud_rds_parametergroup_v3":  rds.ResourceRdsConfiguration(),
+			"huaweicloud_rds_lts_log":            rds.ResourceRdsLtsConfig(),
 
 			"huaweicloud_rf_stack": rfs.ResourceStack(),
 

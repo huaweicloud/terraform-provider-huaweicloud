@@ -22,14 +22,14 @@ import (
 // @API RDS POST /v3/{project_id}/{engine}/instances/logs/lts-configs
 // @API RDS GET /v3/{project_id}/{engine}/instances/logs/lts-configs
 // @API RDS DELETE /v3/{project_id}/{engine}/instances/logs/lts-configs
-func ResourceRdsLtsLog() *schema.Resource {
+func ResourceRdsLtsConfig() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceRdsLtsLogCreateOrUpdate,
-		ReadContext:   resourceRdsLtsLogRead,
-		UpdateContext: resourceRdsLtsLogCreateOrUpdate,
-		DeleteContext: resourceRdsLtsLogDelete,
+		CreateContext: resourceRdsLtsConfigCreateOrUpdate,
+		ReadContext:   resourceRdsLtsConfigRead,
+		UpdateContext: resourceRdsLtsConfigCreateOrUpdate,
+		DeleteContext: resourceRdsLtsConfigDelete,
 		Importer: &schema.ResourceImporter{
-			StateContext: resourceRdsLtsLogImportState,
+			StateContext: resourceRdsLtsConfigImportState,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -76,7 +76,7 @@ func ResourceRdsLtsLog() *schema.Resource {
 	}
 }
 
-func buildRdsLtsLogBodyParams(d *schema.ResourceData) map[string]interface{} {
+func buildRdsLtsConfigBodyParams(d *schema.ResourceData) map[string]interface{} {
 	ltsConfigs := map[string]interface{}{
 		"log_configs": []map[string]interface{}{
 			{
@@ -90,7 +90,7 @@ func buildRdsLtsLogBodyParams(d *schema.ResourceData) map[string]interface{} {
 	return ltsConfigs
 }
 
-func resourceRdsLtsLogCreateOrUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceRdsLtsConfigCreateOrUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	engine := d.Get("engine").(string)
@@ -98,35 +98,35 @@ func resourceRdsLtsLogCreateOrUpdate(ctx context.Context, d *schema.ResourceData
 	logType := d.Get("log_type").(string)
 
 	var (
-		rdsLtsLogHttpUrl = "v3/{project_id}/{engine}/instances/logs/lts-configs"
-		rdsLtsLogProduct = "rds"
+		rdsLtsConfigHttpUrl = "v3/{project_id}/{engine}/instances/logs/lts-configs"
+		rdsLtsConfigProduct = "rds"
 	)
-	rdsLtsLogClient, err := cfg.NewServiceClient(rdsLtsLogProduct, region)
+	rdsLtsConfigClient, err := cfg.NewServiceClient(rdsLtsConfigProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating RDS client: %s", err)
 	}
 
-	rdsLtsLogPath := rdsLtsLogClient.Endpoint + rdsLtsLogHttpUrl
-	rdsLtsLogPath = strings.ReplaceAll(rdsLtsLogPath, "{project_id}", rdsLtsLogClient.ProjectID)
-	rdsLtsLogPath = strings.ReplaceAll(rdsLtsLogPath, "{engine}", engine)
+	rdsLtsConfigPath := rdsLtsConfigClient.Endpoint + rdsLtsConfigHttpUrl
+	rdsLtsConfigPath = strings.ReplaceAll(rdsLtsConfigPath, "{project_id}", rdsLtsConfigClient.ProjectID)
+	rdsLtsConfigPath = strings.ReplaceAll(rdsLtsConfigPath, "{engine}", engine)
 
-	rdsLtsLogOpt := golangsdk.RequestOpts{
+	rdsLtsConfigOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		OkCodes: []int{
 			204,
 		},
 	}
-	rdsLtsLogOpt.JSONBody = utils.RemoveNil(buildRdsLtsLogBodyParams(d))
+	rdsLtsConfigOpt.JSONBody = utils.RemoveNil(buildRdsLtsConfigBodyParams(d))
 
 	retryFunc := func() (interface{}, bool, error) {
-		_, err = rdsLtsLogClient.Request("POST", rdsLtsLogPath, &rdsLtsLogOpt)
+		_, err = rdsLtsConfigClient.Request("POST", rdsLtsConfigPath, &rdsLtsConfigOpt)
 		retry, err := handleMultiOperationsError(err)
 		return nil, retry, err
 	}
 	_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
-		WaitFunc:     rdsInstanceStateRefreshFunc(rdsLtsLogClient, instanceID),
+		WaitFunc:     rdsInstanceStateRefreshFunc(rdsLtsConfigClient, instanceID),
 		WaitTarget:   []string{"ACTIVE"},
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		DelayTimeout: 10 * time.Second,
@@ -138,48 +138,48 @@ func resourceRdsLtsLogCreateOrUpdate(ctx context.Context, d *schema.ResourceData
 
 	d.SetId(fmt.Sprintf("%s/%s", instanceID, logType))
 
-	return resourceRdsLtsLogRead(ctx, d, meta)
+	return resourceRdsLtsConfigRead(ctx, d, meta)
 }
 
-func resourceRdsLtsLogRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceRdsLtsConfigRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
 	var mErr *multierror.Error
 	var (
-		getRdsLtsLogHttpUrl = "v3/{project_id}/{engine}/instances/logs/lts-configs"
-		getRdsLtsLogProduct = "rds"
+		getRdsLtsConfigHttpUrl = "v3/{project_id}/{engine}/instances/logs/lts-configs"
+		getRdsLtsConfigProduct = "rds"
 	)
 
-	getRdsLtsLogClient, err := cfg.NewServiceClient(getRdsLtsLogProduct, region)
+	getRdsLtsConfigClient, err := cfg.NewServiceClient(getRdsLtsConfigProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating RDS client: %s", err)
 	}
 
-	getRdsLtsLogPath := getRdsLtsLogClient.Endpoint + getRdsLtsLogHttpUrl
-	getRdsLtsLogPath = strings.ReplaceAll(getRdsLtsLogPath, "{project_id}", getRdsLtsLogClient.ProjectID)
-	getRdsLtsLogPath = strings.ReplaceAll(getRdsLtsLogPath, "{engine}", d.Get("engine").(string))
-	getRdsLtsLogPath += fmt.Sprintf("?instance_id=%s", d.Get("instance_id").(string))
+	getRdsLtsConfigPath := getRdsLtsConfigClient.Endpoint + getRdsLtsConfigHttpUrl
+	getRdsLtsConfigPath = strings.ReplaceAll(getRdsLtsConfigPath, "{project_id}", getRdsLtsConfigClient.ProjectID)
+	getRdsLtsConfigPath = strings.ReplaceAll(getRdsLtsConfigPath, "{engine}", d.Get("engine").(string))
+	getRdsLtsConfigPath += fmt.Sprintf("?instance_id=%s", d.Get("instance_id").(string))
 
-	getRdsLtsLogResp, err := pagination.ListAllItems(
-		getRdsLtsLogClient,
+	getRdsLtsConfigResp, err := pagination.ListAllItems(
+		getRdsLtsConfigClient,
 		"offset",
-		getRdsLtsLogPath,
+		getRdsLtsConfigPath,
 		&pagination.QueryOpts{MarkerField: ""})
 	if err != nil {
 		return diag.Errorf("error retrieving RDS LTS configs: %s", err)
 	}
-	getRdsLtsLogRespJson, err := json.Marshal(getRdsLtsLogResp)
+	getRdsLtsConfigRespJson, err := json.Marshal(getRdsLtsConfigResp)
 	if err != nil {
 		return diag.Errorf("error marshaling RDS LTS configs: %s", err)
 	}
-	var getRdsLtsLogRespBody interface{}
-	err = json.Unmarshal(getRdsLtsLogRespJson, &getRdsLtsLogRespBody)
+	var getRdsLtsConfigRespBody interface{}
+	err = json.Unmarshal(getRdsLtsConfigRespJson, &getRdsLtsConfigRespBody)
 	if err != nil {
 		return diag.Errorf("error unmarshaling RDS LTS configs: %s", err)
 	}
 	jsonPath := fmt.Sprintf("instance_lts_configs[0].lts_configs[?log_type=='%s']|[0]", d.Get("log_type").(string))
-	ltsConfig := utils.PathSearch(jsonPath, getRdsLtsLogRespBody, nil)
+	ltsConfig := utils.PathSearch(jsonPath, getRdsLtsConfigRespBody, nil)
 	if !utils.PathSearch("enabled", ltsConfig, false).(bool) {
 		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
 	}
@@ -187,8 +187,8 @@ func resourceRdsLtsLogRead(_ context.Context, d *schema.ResourceData, meta inter
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),
-		d.Set("engine", utils.PathSearch("instance_lts_configs[0].instance.engine_name", getRdsLtsLogRespBody, nil)),
-		d.Set("instance_id", utils.PathSearch("instance_lts_configs[0].instance.id", getRdsLtsLogRespBody, nil)),
+		d.Set("engine", utils.PathSearch("instance_lts_configs[0].instance.engine_name", getRdsLtsConfigRespBody, nil)),
+		d.Set("instance_id", utils.PathSearch("instance_lts_configs[0].instance.id", getRdsLtsConfigRespBody, nil)),
 		d.Set("log_type", utils.PathSearch("log_type", ltsConfig, nil)),
 		d.Set("lts_group_id", utils.PathSearch("lts_group_id", ltsConfig, nil)),
 		d.Set("lts_stream_id", utils.PathSearch("lts_stream_id", ltsConfig, nil)),
@@ -197,7 +197,7 @@ func resourceRdsLtsLogRead(_ context.Context, d *schema.ResourceData, meta inter
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func buildDeleteRdsLtsLogBodyParams(d *schema.ResourceData) map[string]interface{} {
+func buildDeleteRdsLtsConfigBodyParams(d *schema.ResourceData) map[string]interface{} {
 	ltsConfigs := map[string]interface{}{
 		"log_configs": []map[string]interface{}{
 			{
@@ -209,42 +209,42 @@ func buildDeleteRdsLtsLogBodyParams(d *schema.ResourceData) map[string]interface
 	return ltsConfigs
 }
 
-func resourceRdsLtsLogDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceRdsLtsConfigDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	engine := d.Get("engine").(string)
 	instanceID := d.Get("instance_id").(string)
 
 	var (
-		deleteRdsLtsLogHttpUrl = "v3/{project_id}/{engine}/instances/logs/lts-configs"
-		deleteRdsLtsLogProduct = "rds"
+		deleteRdsLtsConfigHttpUrl = "v3/{project_id}/{engine}/instances/logs/lts-configs"
+		deleteRdsLtsConfigProduct = "rds"
 	)
-	deleteRdsLtsLogClient, err := cfg.NewServiceClient(deleteRdsLtsLogProduct, region)
+	deleteRdsLtsConfigClient, err := cfg.NewServiceClient(deleteRdsLtsConfigProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating RDS client: %s", err)
 	}
 
-	deleteRdsLtsLogPath := deleteRdsLtsLogClient.Endpoint + deleteRdsLtsLogHttpUrl
-	deleteRdsLtsLogPath = strings.ReplaceAll(deleteRdsLtsLogPath, "{project_id}", deleteRdsLtsLogClient.ProjectID)
-	deleteRdsLtsLogPath = strings.ReplaceAll(deleteRdsLtsLogPath, "{engine}", engine)
+	deleteRdsLtsConfigPath := deleteRdsLtsConfigClient.Endpoint + deleteRdsLtsConfigHttpUrl
+	deleteRdsLtsConfigPath = strings.ReplaceAll(deleteRdsLtsConfigPath, "{project_id}", deleteRdsLtsConfigClient.ProjectID)
+	deleteRdsLtsConfigPath = strings.ReplaceAll(deleteRdsLtsConfigPath, "{engine}", engine)
 
-	deleteRdsLtsLogOpt := golangsdk.RequestOpts{
+	deleteRdsLtsConfigOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		OkCodes: []int{
 			204,
 		},
 	}
-	deleteRdsLtsLogOpt.JSONBody = utils.RemoveNil(buildDeleteRdsLtsLogBodyParams(d))
+	deleteRdsLtsConfigOpt.JSONBody = utils.RemoveNil(buildDeleteRdsLtsConfigBodyParams(d))
 
 	retryFunc := func() (interface{}, bool, error) {
-		_, err = deleteRdsLtsLogClient.Request("DELETE", deleteRdsLtsLogPath, &deleteRdsLtsLogOpt)
+		_, err = deleteRdsLtsConfigClient.Request("DELETE", deleteRdsLtsConfigPath, &deleteRdsLtsConfigOpt)
 		retry, err := handleMultiOperationsError(err)
 		return nil, retry, err
 	}
 	_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
-		WaitFunc:     rdsInstanceStateRefreshFunc(deleteRdsLtsLogClient, instanceID),
+		WaitFunc:     rdsInstanceStateRefreshFunc(deleteRdsLtsConfigClient, instanceID),
 		WaitTarget:   []string{"ACTIVE"},
 		Timeout:      d.Timeout(schema.TimeoutDelete),
 		DelayTimeout: 10 * time.Second,
@@ -254,10 +254,10 @@ func resourceRdsLtsLogDelete(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error unassociating RDS with LTS log: %s", err)
 	}
 
-	return resourceRdsLtsLogRead(ctx, d, meta)
+	return resourceRdsLtsConfigRead(ctx, d, meta)
 }
 
-func resourceRdsLtsLogImportState(_ context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceRdsLtsConfigImportState(_ context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.Split(d.Id(), "/")
 
 	if len(parts) != 2 {

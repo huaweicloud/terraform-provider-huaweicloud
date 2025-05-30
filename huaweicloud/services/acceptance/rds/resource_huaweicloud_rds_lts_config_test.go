@@ -16,44 +16,44 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getRdsLtsLogResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getRdsLtsConfigResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	var (
-		getRdsLtsLogHttpUrl = "v3/{project_id}/{engine}/instances/logs/lts-configs"
-		getRdsLtsLogProduct = "rds"
+		getRdsLtsConfigHttpUrl = "v3/{project_id}/{engine}/instances/logs/lts-configs"
+		getRdsLtsConfigProduct = "rds"
 	)
 
-	getRdsLtsLogClient, err := cfg.NewServiceClient(getRdsLtsLogProduct, acceptance.HW_REGION_NAME)
+	getRdsLtsConfigClient, err := cfg.NewServiceClient(getRdsLtsConfigProduct, acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating RDS client: %s", err)
 	}
 
-	getRdsLtsLogPath := getRdsLtsLogClient.Endpoint + getRdsLtsLogHttpUrl
-	getRdsLtsLogPath = strings.ReplaceAll(getRdsLtsLogPath, "{project_id}", getRdsLtsLogClient.ProjectID)
-	getRdsLtsLogPath = strings.ReplaceAll(getRdsLtsLogPath, "{engine}", state.Primary.Attributes["engine"])
-	getRdsLtsLogPath += fmt.Sprintf("?instance_id=%s", state.Primary.Attributes["instance_id"])
+	getRdsLtsConfigPath := getRdsLtsConfigClient.Endpoint + getRdsLtsConfigHttpUrl
+	getRdsLtsConfigPath = strings.ReplaceAll(getRdsLtsConfigPath, "{project_id}", getRdsLtsConfigClient.ProjectID)
+	getRdsLtsConfigPath = strings.ReplaceAll(getRdsLtsConfigPath, "{engine}", state.Primary.Attributes["engine"])
+	getRdsLtsConfigPath += fmt.Sprintf("?instance_id=%s", state.Primary.Attributes["instance_id"])
 
-	getRdsLtsLogResp, err := pagination.ListAllItems(
-		getRdsLtsLogClient,
+	getRdsLtsConfigResp, err := pagination.ListAllItems(
+		getRdsLtsConfigClient,
 		"offset",
-		getRdsLtsLogPath,
+		getRdsLtsConfigPath,
 		&pagination.QueryOpts{MarkerField: ""})
 	if err != nil {
 		return nil, fmt.Errorf("error retrieving RDS LTS configs: %s", err)
 	}
 
-	getRdsLtsLogRespJson, err := json.Marshal(getRdsLtsLogResp)
+	getRdsLtsConfigRespJson, err := json.Marshal(getRdsLtsConfigResp)
 	if err != nil {
 		return nil, fmt.Errorf("error marshaling RDS LTS configs: %s", err)
 	}
 
-	var getRdsLtsLogRespBody interface{}
-	err = json.Unmarshal(getRdsLtsLogRespJson, &getRdsLtsLogRespBody)
+	var getRdsLtsConfigRespBody interface{}
+	err = json.Unmarshal(getRdsLtsConfigRespJson, &getRdsLtsConfigRespBody)
 	if err != nil {
 		return nil, fmt.Errorf("error unmarshaling RDS LTS configs: %s", err)
 	}
 
 	jsonPath := fmt.Sprintf("instance_lts_configs[0].lts_configs[?log_type=='%s']|[0]", state.Primary.Attributes["log_type"])
-	ltsConfig := utils.PathSearch(jsonPath, getRdsLtsLogRespBody, nil)
+	ltsConfig := utils.PathSearch(jsonPath, getRdsLtsConfigRespBody, nil)
 	if !utils.PathSearch("enabled", ltsConfig, false).(bool) {
 		return nil, fmt.Errorf("error retrieving RDS LTS config: the LTS config can not be found")
 	}
@@ -61,15 +61,15 @@ func getRdsLtsLogResourceFunc(cfg *config.Config, state *terraform.ResourceState
 	return ltsConfig, nil
 }
 
-func TestAccRdsLtsLog_basic(t *testing.T) {
+func TestAccRdsLtsConfig_basic(t *testing.T) {
 	var obj interface{}
 	rName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_rds_lts_log.test"
+	resourceName := "huaweicloud_rds_lts_config.test"
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&obj,
-		getRdsLtsLogResourceFunc,
+		getRdsLtsConfigResourceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -78,7 +78,7 @@ func TestAccRdsLtsLog_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccRdsLtsLog_basic(rName),
+				Config: testAccRdsLtsConfig_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(resourceName, "instance_id", "huaweicloud_rds_instance.test", "id"),
@@ -89,7 +89,7 @@ func TestAccRdsLtsLog_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccRdsLtsLog_update(rName),
+				Config: testAccRdsLtsConfig_update(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(resourceName, "instance_id", "huaweicloud_rds_instance.test", "id"),
@@ -108,7 +108,7 @@ func TestAccRdsLtsLog_basic(t *testing.T) {
 	})
 }
 
-func testAccRdsLtsLog_basic(rName string) string {
+func testAccRdsLtsConfig_basic(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -122,7 +122,7 @@ resource "huaweicloud_lts_stream" "test" {
   stream_name = "%[2]s"
 }
 
-resource "huaweicloud_rds_lts_log" "test" {
+resource "huaweicloud_rds_lts_config" "test" {
   instance_id   = huaweicloud_rds_instance.test.id
   engine        = "mysql"
   log_type      = "error_log"
@@ -131,7 +131,7 @@ resource "huaweicloud_rds_lts_log" "test" {
 }`, testAccRdsInstance_mysql_step1(rName), rName)
 }
 
-func testAccRdsLtsLog_update(rName string) string {
+func testAccRdsLtsConfig_update(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -145,7 +145,7 @@ resource "huaweicloud_lts_stream" "test" {
   stream_name = "%[2]s-update"
 }
 
-resource "huaweicloud_rds_lts_log" "test" {
+resource "huaweicloud_rds_lts_config" "test" {
   instance_id   = huaweicloud_rds_instance.test.id
   engine        = "mysql"
   log_type      = "error_log"
