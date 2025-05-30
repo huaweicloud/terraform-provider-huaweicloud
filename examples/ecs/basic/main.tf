@@ -1,33 +1,53 @@
-data "huaweicloud_availability_zones" "myaz" {}
+data "huaweicloud_availability_zones" "test" {}
 
-data "huaweicloud_compute_flavors" "myflavor" {
-  availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
+data "huaweicloud_compute_flavors" "test" {
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
   performance_type  = "normal"
   cpu_core_count    = 2
   memory_size       = 4
 }
 
-data "huaweicloud_vpc_subnet" "mynet" {
-  name = "subnet-default"
+data "huaweicloud_images_images" "test" {
+  flavor_id  = try(data.huaweicloud_compute_flavors.test.flavors[0].id, "")
+  visibility = "public"
+  os         = "Ubuntu"
 }
 
-data "huaweicloud_images_image" "myimage" {
-  name        = "Ubuntu 18.04 server 64bit"
-  most_recent = true
+resource "huaweicloud_vpc" "test" {
+  name = var.vpc_name
+  cidr = "192.168.0.0/16"
 }
 
-data "huaweicloud_networking_secgroup" "mysecgroup" {
-  name = "default"
+resource "huaweicloud_vpc_subnet" "test" {
+  vpc_id     = huaweicloud_vpc.test.id
+  name       = var.subnet_name
+  cidr       = cidrsubnet(huaweicloud_vpc.test.cidr, 8, 0)
+  gateway_ip = cidrhost(cidrsubnet(huaweicloud_vpc.test.cidr, 8, 0), 1)
+}
+
+resource "huaweicloud_networking_secgroup" "test" {
+  name                 = var.security_group_name
+  delete_default_rules = true
 }
 
 resource "huaweicloud_compute_instance" "basic" {
-  name               = "basic"
-  image_id           = data.huaweicloud_images_image.myimage.id
-  flavor_id          = data.huaweicloud_compute_flavors.myflavor.ids[0]
-  availability_zone  = data.huaweicloud_availability_zones.myaz.names[0]
-  security_group_ids = [data.huaweicloud_networking_secgroup.mysecgroup.id]
+  name               = var.instance_name
+  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
+  flavor_id          = try(data.huaweicloud_compute_flavors.test.flavors[0].id, "")
+  image_id           = try(data.huaweicloud_images_images.test.images[0].id, "")
+  security_group_ids = [
+    huaweicloud_networking_secgroup.test.id
+  ]
 
   network {
-    uuid = data.huaweicloud_vpc_subnet.mynet.id
+    uuid = huaweicloud_vpc_subnet.test.id
+  }
+  
+  admin_pass = var.administrator_password
+
+  lifecycle {
+    ignore_changes = [
+      admin_pass,
+    ]
   }
 }
