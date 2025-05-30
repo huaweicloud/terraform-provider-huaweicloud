@@ -1,34 +1,72 @@
 # Create a basic AS configuration
 
-This example creates a basic AS configuration based on the example
-[examples/as/configuration-basic](https://github.com/huaweicloud/terraform-provider-huaweicloud/tree/master/examples/as/configuration-basic).
-You can replace the VPC, Subnet and Security Group with the resources already created in HuaweiCloud.
+This example provides best practice code for using Terraform to create a basic Auto Scaling (AS) configuration in HuaweiCloud.
 
-To run, configure your HuaweiCloud provider as described in the
-[document](https://registry.terraform.io/providers/huaweicloud/huaweicloud/latest/docs).
+## Prerequisites
 
-## The basic AS configuration
+* A HuaweiCloud account
+* Terraform installed
+* HuaweiCloud access key and secret key (AK/SK)
 
-| Attributes       | Value |
-|------------------|-------|
-| Disk size        | 40    |
-| Disk volume type | SSD   |
-| Disk type        | SYS   |
+## Required Variables
+
+The following variables need to be configured:
+
+### Authentication Variables
+
+* `access_key` - HuaweiCloud access key
+* `secret_key` - HuaweiCloud secret key
+* `region_name` - The region where resources will be created
+
+### Resource Variables
+
+* `security_group_name` - Name of the security group
+* `key_pair_name` - Name of the key pair for SSH access
+* `public_key` - Public key for the key pair (sensitive)
+* `configuration_name` - Name of the AS configuration
 
 ## Usage
 
-```shell
-terraform init
-terraform plan
-terraform apply
-terraform destroy
-```
+* Copy this example script to your `main.tf`.
 
-It takes several minutes to create a basic AS configuration.
+* Create a `terraform.tfvars` file and fill in the required variables:
 
-## Requirements
+  ```hcl
+  access_key           = "your_access_key"
+  secret_key           = "your_secret_key"
+  region_name          = "your_region"
+  security_group_name  = "example-sg"
+  key_pair_name        = "example-keypair"
+  public_key           = "your_public_key"
+  configuration_name   = "example-as-config"
+  ```
 
-| Name        | Version   |
-|-------------|-----------|
-| terraform   | >= 0.12.0 |
-| huaweicloud | >= 1.49.0 |
+* Initialize Terraform:
+
+  ```bash
+  $ terraform init
+  ```
+
+* Review the Terraform plan:
+
+  ```bash
+  $ terraform plan
+  ```
+
+* Apply the configuration:
+
+  ```bash
+  $ terraform apply
+  ```
+
+* To clean up the resources:
+
+  ```bash
+  $ terraform destroy
+  ```
+
+## Notes
+
+* Make sure to keep your credentials secure and never commit them to version control
+* The administrator password must meet the complexity requirements of HuaweiCloud
+* All resources will be created in the specified region
