@@ -1184,6 +1184,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_pg_roles":                         rds.DataSourceRdsPgRoles(),
 			"huaweicloud_rds_pg_databases":                     rds.DataSourcePgDatabases(),
 			"huaweicloud_rds_pg_hba_change_records":            rds.DataSourcePgHbaChangeRecords(),
+			"huaweicloud_rds_mysql_authorized_databases":       rds.DataSourceRdsMysqlAuthorizedDatabases(),
 			"huaweicloud_rds_mysql_databases":                  rds.DataSourceRdsMysqlDatabases(),
 			"huaweicloud_rds_mysql_database_privileges":        rds.DataSourceRdsMysqlDatabasePrivileges(),
 			"huaweicloud_rds_mysql_accounts":                   rds.DataSourceRdsMysqlAccounts(),

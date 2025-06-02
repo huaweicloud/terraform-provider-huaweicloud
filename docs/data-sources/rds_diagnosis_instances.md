@@ -3,12 +3,12 @@ subcategory: "Relational Database Service (RDS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_rds_diagnosis_instances"
 description: |-
-  Use this data source to obtain the diagnosis result of a specified diagnosis item for RDS instences.
+  Use this data source to obtain the diagnosis result of a specified diagnosis item for RDS instances.
 ---
 
 # huaweicloud_rds_diagnosis_instances
 
-Use this data source to obtain the diagnosis result of a specified diagnosis item for RDS instences.
+Use this data source to obtain the diagnosis result of a specified diagnosis item for RDS instances.
 
 ## Example Usage
 
@@ -26,7 +26,7 @@ data "huaweicloud_rds_diagnosis_instances" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String) Specifies the region in which to query the resource. If omitted, the provided-level
+* `region` - (Optional, String) Specifies the region in which to query the resource. If omitted, the provider-level
   region will be used.
 
 * `engine` - (Required, String) Specifies the RDS engine type. The valid values are:

@@ -33,10 +33,10 @@ The following arguments are supported:
 
 * `instance_id` - (Required, String) Specifies the ID of the RDS instance.
 
-* `start_time` - (Required, String) Specified the start time in UTC timestamp format
+* `start_time` - (Required, String) Specifies the start time in UTC timestamp format
   (milliseconds since epoch).
 
-* `end_time` - (Optional, String) Specified the end time in UTC timestamp format
+* `end_time` - (Optional, String) Specifies the end time in UTC timestamp format
   (milliseconds since epoch).
 
 ## Attribute Reference
@@ -73,7 +73,7 @@ The `jobs` block supports:
   indicating the task execution progress is 60%) is displayed only when the task is being
   executed. Otherwise, "" is returned.
 
-* `instance` - Indicates information of the DB instance on which the task is executed.
+* `instance` - Indicates the information of the DB instance on which the task is executed.
 
   The [instance](#jobs_instance_struct) structure is documented below.
 
