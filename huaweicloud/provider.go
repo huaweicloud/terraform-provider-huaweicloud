@@ -2455,6 +2455,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_smn_message_detection":          smn.ResourceMessageDetection(),
 			"huaweicloud_smn_message_publish":            smn.ResourceMessagePublish(),
 			"huaweicloud_smn_subscription_filter_policy": smn.ResourceSubscriptionFilterPolicy(),
+			"huaweicloud_smn_topic_attributes":           smn.ResourceTopicAttributes(),
 
 			"huaweicloud_sms_server_template": sms.ResourceServerTemplate(),
 			"huaweicloud_sms_task":            sms.ResourceMigrateTask(),
