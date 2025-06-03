@@ -1394,6 +1394,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpn_resource_instances":             vpn.DataSourceVpnInstances(),
 
 			"huaweicloud_waf_address_groups":                       waf.DataSourceWafAddressGroups(),
+			"huaweicloud_waf_alarm_notifications":                  waf.DataSourceWafAlarmNotifications(),
 			"huaweicloud_waf_certificate":                          waf.DataSourceWafCertificate(),
 			"huaweicloud_waf_dedicated_domains":                    waf.DataSourceWafDedicatedDomains(),
 			"huaweicloud_waf_dedicated_instances":                  waf.DataSourceWafDedicatedInstances(),
