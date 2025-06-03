@@ -47,6 +47,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/codearts"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/codeartsdeploy"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/codeartsinspector"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/codeartspipeline"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cph"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cpts"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cse"
@@ -2589,6 +2590,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_codearts_inspector_website_scan": codeartsinspector.ResourceInspectorWebsiteScan(),
 			"huaweicloud_codearts_inspector_host_group":   codeartsinspector.ResourceInspectorHostGroup(),
 			"huaweicloud_codearts_inspector_host":         codeartsinspector.ResourceInspectorHost(),
+
+			"huaweicloud_codearts_pipeline_template": codeartspipeline.ResourceCodeArtsPipelineTemplate(),
 
 			"huaweicloud_dsc_instance":           dsc.ResourceDscInstance(),
 			"huaweicloud_dsc_asset_obs":          dsc.ResourceAssetObs(),
