@@ -21,10 +21,6 @@ var organizationPolicyNonUpdatableParams = []string{
 	"operation_type",
 }
 
-var organizationPolicyNotFoundCodes = []string{
-	"CBR.404",
-}
-
 // @API CBR POST /v3/{project_id}/organization-policies
 // @API CBR GET /v3/{project_id}/organization-policies/{organization_policy_id}
 // @API CBR PUT /v3/{project_id}/organization-policies/{organization_policy_id}
