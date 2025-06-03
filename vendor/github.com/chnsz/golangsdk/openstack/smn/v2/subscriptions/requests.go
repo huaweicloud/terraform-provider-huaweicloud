@@ -32,6 +32,21 @@ type ExtensionSpec struct {
 	ClientSecret string `json:"client_secret,omitempty"`
 	Keyword      string `json:"keyword,omitempty"`
 	SignSecret   string `json:"sign_secret,omitempty"`
+	// The HTTP/HTTPS headers to be added to the requests when the message is delivered via HTTP/HTTPS.
+	// This field is used when `protocol` is set to **http** or **https**.
+	// The following requirements apply to the header keys and values:
+	// + Header keys must:
+	//   - Contain only letters, numbers, and hyphens (`[A-Za-z0-9-]`)
+	//   - Not end with a hyphen
+	//   - Not contain consecutive hyphens
+	//   - Start with "x-" (e.g., "x-abc-cba", "x-abc")
+	//   - Not start with "x-smn"
+	//   - Be case-insensitive (e.g., "X-Custom" and "x-custom" are considered the same)
+	//   - Not be duplicated
+	// + Maximum of 10 key-value pairs allowed
+	// + Total length of all keys and values combined must not exceed 1024 characters
+	// + Values must only contain ASCII characters (no Chinese or other Unicode characters, spaces are allowed)
+	Header map[string]interface{} `json:"header,omitempty"`
 }
 
 func (ops CreateOps) ToSubscriptionCreateMap() (map[string]interface{}, error) {

@@ -30,6 +30,19 @@ resource "huaweicloud_smn_subscription" "subscription_2" {
   protocol  = "sms"
   remark    = "O&M"
 }
+
+resource "huaweicloud_smn_subscription" "subscription_3" {
+  topic_urn = huaweicloud_smn_topic.topic_1.id
+  endpoint  = "https://example.com/notification"
+  protocol  = "https"
+  remark    = "API webhook"
+  
+  extension {
+    header = {
+      "X-Custom-Test" = "test"
+    }
+  }
+}
 ```
 
 ## Argument Reference
@@ -88,6 +101,23 @@ The `extension` block supports:
   to **feishu** or **dingding**, this field or `keyword` must be specified. The key configurations must be
   the same as those on the Lark or DingTalk client. For example, if only key is configured on the Lark client,
   enter the key field obtained from the Lark client. If only keyword is configured on the Lark client, skip this field.
+  Changing this parameter will create a new resource.
+
+* `header` - (Optional, Map, ForceNew) Specifies the HTTP/HTTPS headers to be added to the requests when the
+  message is delivered via HTTP/HTTPS. This field is used when `protocol` is set to **http** or **https**.
+  The following requirements apply to the header keys and values:
+  + Header keys must:
+    - Contain only letters, numbers, and hyphens (`[A-Za-z0-9-]`)
+    - Not end with a hyphen
+    - Not contain consecutive hyphens
+    - Start with "x-" (e.g., "x-abc-cba", "x-abc")
+    - Not start with "x-smn"
+    - Be case-insensitive (e.g., "X-Custom" and "x-custom" are considered the same)
+    - Not be duplicated
+  + Maximum of 10 key-value pairs allowed
+  + Total length of all keys and values combined must not exceed 1024 characters
+  + Values must only contain ASCII characters (no Chinese or other Unicode characters, spaces are allowed)
+
   Changing this parameter will create a new resource.
 
 ## Attribute Reference

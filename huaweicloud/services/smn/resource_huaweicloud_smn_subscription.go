@@ -84,6 +84,12 @@ func ResourceSubscription() *schema.Resource {
 							Optional: true,
 							ForceNew: true,
 						},
+						"header": {
+							Type:     schema.TypeMap,
+							Optional: true,
+							ForceNew: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
 					},
 				},
 			},
@@ -162,6 +168,7 @@ func buildExtensionOpts(extensionRaw []interface{}) *subscriptions.ExtensionSpec
 		ClientSecret: extension["client_secret"].(string),
 		Keyword:      extension["keyword"].(string),
 		SignSecret:   extension["sign_secret"].(string),
+		Header:       extension["header"].(map[string]interface{}),
 	}
 
 	return &res
