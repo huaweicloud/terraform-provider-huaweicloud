@@ -1297,6 +1297,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_sms_source_servers":     sms.DataSourceServers(),
 			"huaweicloud_sms_agent_configs":      sms.DataSourceSmsAgentConfigs(),
 			"huaweicloud_sms_migration_projects": sms.DataSourceSmsMigrationProjects(),
+			"huaweicloud_sms_sha256":             sms.DataSourceSmsSha256(),
 
 			"huaweicloud_sfs_turbos":            sfsturbo.DataSourceTurbos(),
 			"huaweicloud_sfs_turbos_by_tags":    sfsturbo.DataSourceSfsTurbosByTags(),
