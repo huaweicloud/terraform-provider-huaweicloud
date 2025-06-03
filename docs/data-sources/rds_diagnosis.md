@@ -3,7 +3,7 @@ subcategory: "Relational Database Service (RDS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_rds_diagnosis"
 description: |-
-  UUse this data source to query the number of diagnosed RDS instances by diagnosis type for a specific database engine.
+  Use this data source to query the number of diagnosed RDS instances by diagnosis type for a specific database engine.
 ---
 
 # huaweicloud_rds_diagnosis
@@ -24,7 +24,7 @@ data "huaweicloud_rds_diagnosis" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String) Specifies the region in which to query the resource. If omitted, the provided-level
+* `region` - (Optional, String) Specifies the region in which to query the resource. If omitted, the provider-level
   region will be used.
 
 * `engine` - (Required, String) Specifies the RDS engine type.
