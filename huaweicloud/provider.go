@@ -1097,6 +1097,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_lts_keyword_alarm_rules":          lts.DataSourceKeywordAlarmRules(),
 			"huaweicloud_lts_notification_templates":       lts.DataSourceLtsNotificationTemplates(),
 			"huaweicloud_lts_search_criteria":              lts.DataSourceLtsSearchCriteria(),
+			"huaweicloud_lts_sql_alarm_rules":              lts.DataSourceSqlAlarmRules(),
 			"huaweicloud_lts_streams":                      lts.DataSourceLtsStreams(),
 			"huaweicloud_lts_structuring_custom_templates": lts.DataSourceCustomTemplates(),
 			"huaweicloud_lts_transfers":                    lts.DataSourceLtsTransfers(),
