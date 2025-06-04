@@ -56,6 +56,16 @@ var (
 	HW_IAM_V5                        = os.Getenv("HW_IAM_V5")
 	HW_RUNNER_PUBLIC_IP              = os.Getenv("HW_RUNNER_PUBLIC_IP")
 
+	// CBR environment
+	HW_CBR_ECS_BACKUP_ID         = os.Getenv("HW_CBR_ECS_BACKUP_ID")         // The ECS backup ID.
+	HW_CBR_ECS_SERVER_ID         = os.Getenv("HW_CBR_ECS_SERVER_ID")         // The ECS ID using to create backup.
+	HW_CBR_EVS_BACKUP_ID_FOR_ECS = os.Getenv("HW_CBR_EVS_BACKUP_ID_FOR_ECS") // The EVS backup ID using for ECS.
+	HW_CBR_EVS_VOLUME_ID_FOR_ECS = os.Getenv("HW_CBR_EVS_VOLUME_ID_FOR_ECS") // The EVS volume ID using for ECS.
+	HW_CBR_EVS_BACKUP_ID         = os.Getenv("HW_CBR_EVS_BACKUP_ID")         // The EVS back ID.
+	HW_CBR_EVS_VOLUME_ID         = os.Getenv("HW_CBR_EVS_VOLUME_ID")         // The EVS volume ID using to create backup.
+	HW_CBR_WORKSPACE_BACKUP_ID   = os.Getenv("HW_CBR_WORKSPACE_BACKUP_ID")   // The Workspace backup ID.
+	HW_CBR_WORKSPACE_RESOURCE_ID = os.Getenv("HW_CBR_WORKSPACE_RESOURCE_ID") // The resource ID using to create backup.
+
 	HW_VPC_BANDWIDTH_ADDON_PACKAGE_ENABLED = os.Getenv("HW_VPC_BANDWIDTH_ADDON_PACKAGE_ENABLED")
 	HW_VPC_EIP_POOL_ENABLED                = os.Getenv("HW_VPC_EIP_POOL_ENABLED")
 
@@ -3083,6 +3093,36 @@ func TestAccPreCheckVpcEipPoolEnabled(t *testing.T) {
 func TestAccPreCheckVpcEipBandwidthAddOnPackageEnabled(t *testing.T) {
 	if HW_VPC_BANDWIDTH_ADDON_PACKAGE_ENABLED == "" {
 		t.Skip("HW_VPC_BANDWIDTH_ADDON_PACKAGE_ENABLED must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckECSBackupRestore(t *testing.T) {
+	targetEnvValues := []string{
+		HW_CBR_ECS_BACKUP_ID,
+		HW_CBR_ECS_SERVER_ID,
+		HW_CBR_EVS_BACKUP_ID_FOR_ECS,
+		HW_CBR_EVS_VOLUME_ID_FOR_ECS,
+	}
+
+	for _, v := range targetEnvValues {
+		if v == "" {
+			t.Skipf("%s must be set for the acceptance test", v)
+		}
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckEVSBackupRestore(t *testing.T) {
+	if HW_CBR_EVS_BACKUP_ID == "" || HW_CBR_EVS_VOLUME_ID == "" {
+		t.Skip("HW_CBR_EVS_BACKUP_ID and HW_CBR_EVS_VOLUME_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckWorkspaceBackupRestore(t *testing.T) {
+	if HW_CBR_WORKSPACE_BACKUP_ID == "" || HW_CBR_WORKSPACE_RESOURCE_ID == "" {
+		t.Skip("HW_CBR_WORKSPACE_BACKUP_ID and HW_CBR_WORKSPACE_RESOURCE_ID must be set for the acceptance test")
 	}
 }
 
