@@ -46,6 +46,14 @@ data "huaweicloud_identity_permissions" "custom" {
 }
 ```
 
+### All Project Level System Defined Permissions
+
+```hcl
+data "huaweicloud_identity_permissions" "project_all" {
+  scope_type = "project"
+}
+```
+
 ## Argument Reference
 
 * `type` - (Optional, String) Specifies the type of the permission. The default value is **system**, and valid values are
@@ -55,6 +63,18 @@ data "huaweicloud_identity_permissions" "custom" {
   + **system-policy**: The system-defined policies.
   + **system-role**: The system-defined roles.
   + **custom**: The custom policies.
+
+* `scope_type` - (Optional, String) Specifies the mode of the permission. Valid values are
+  as follows:
+  + **domain**: All permissions of the AA and AX levels.
+  + **project**: All permissions of the AA and XA levels
+  + **all**: Permissions of the AA, AX, and XA permissions.
+
+  Note:
+  + **AX**: Account level.
+  + **XA**: Project level.
+  + **AA**: Both the account level and project level.
+  + **XX**: Neither the account level nor project level.
 
 * `catalog` - (Optional, String) Specifies the service catalog of the permission.
 

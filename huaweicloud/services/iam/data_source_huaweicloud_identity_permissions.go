@@ -29,6 +29,10 @@ func DataSourceIdentityPermissions() *schema.Resource {
 				Default:      "system",
 				ValidateFunc: validation.StringInSlice([]string{"system", "system-role", "system-policy", "custom"}, false),
 			},
+			"scope_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"catalog": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -90,6 +94,7 @@ func dataSourceIdentityPermissionsRead(_ context.Context, d *schema.ResourceData
 	listOpts := roles.ListOpts{
 		DisplayName: d.Get("name").(string),
 		Catalog:     d.Get("catalog").(string),
+		Type:        d.Get("scope_type").(string),
 	}
 
 	roleType := d.Get("type").(string)

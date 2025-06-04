@@ -28,6 +28,7 @@ func TestAccIdentityPermissionsDataSource_basic(t *testing.T) {
 					resource.TestCheckOutput("catalog_filter_is_useful", "true"),
 					resource.TestCheckOutput("type_filter_is_useful", "true"),
 					resource.TestCheckOutput("custom_filter_is_useful", "true"),
+					resource.TestCheckOutput("scope_type_filter_is_useful", "true"),
 				),
 			},
 		},
@@ -56,6 +57,11 @@ data "huaweicloud_identity_permissions" "custom" {
   type = "custom"
 }
 
+data "huaweicloud_identity_permissions" "by_scope_type" {
+  scope_type = "project"
+  name = "CCE FullAccess"
+}
+
 output "name_filter_is_useful" {
   value = alltrue([for v in data.huaweicloud_identity_permissions.by_name.permissions[*].name : v == "KMS Administrator"])
 }
@@ -70,6 +76,10 @@ output "type_filter_is_useful" {
 
 output "custom_filter_is_useful" {
   value = alltrue([for v in data.huaweicloud_identity_permissions.custom.permissions[*].catalog : v == "CUSTOMED"])
+}
+
+output "scope_type_filter_is_useful" {
+  value = alltrue([length(data.huaweicloud_identity_permissions.by_scope_type.permissions) == 1])
 }
 `
 }
