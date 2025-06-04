@@ -352,18 +352,18 @@ func waitASGroupInstanceDeleted(ctx context.Context, client *golangsdk.ServiceCl
 
 func refreshInstancesStatus(asClient *golangsdk.ServiceClient, groupID, instanceID string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		allIns, err := getInstancesInGroup(asClient, groupID, nil)
+		allIns, err := getAllInstancesInGroup(asClient, groupID)
 		if err != nil {
 			return nil, "ERROR", err
 		}
 
 		for _, ins := range allIns {
-			if instanceID != "" && ins.ID != instanceID {
+			if instanceID != "" && utils.PathSearch("instance_id", ins, "").(string) != instanceID {
 				continue
 			}
 
 			// the status may be PENDING, PENDING_WAIT, REMOVING, REMOVING_WAIT, ENTERING_STANDBY
-			if strings.Contains(ins.LifeCycleStatus, "ING") {
+			if strings.Contains(utils.PathSearch("life_cycle_state", ins, "").(string), "ING") {
 				return allIns, "PENDING", nil
 			}
 		}
@@ -374,13 +374,13 @@ func refreshInstancesStatus(asClient *golangsdk.ServiceClient, groupID, instance
 
 func checkInstanceDeleted(asClient *golangsdk.ServiceClient, groupID, instanceID string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		allIns, err := getInstancesInGroup(asClient, groupID, nil)
+		allIns, err := getAllInstancesInGroup(asClient, groupID)
 		if err != nil {
 			return nil, "ERROR", err
 		}
 
 		for _, ins := range allIns {
-			if ins.ID == instanceID {
+			if utils.PathSearch("instance_id", ins, "").(string) == instanceID {
 				return allIns, "REMOVING", nil
 			}
 		}
