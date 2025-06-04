@@ -1,0 +1,55 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_aad_unblock_quota_statistics": {
+          "block": {
+            "attributes": {
+              "domain_id": {
+                "type": "string",
+                "description": "Specified the account ID of IAM user.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "remaining_unblocking_quota": {
+                "type": "number",
+                "description": "The remaining unblocking quota.",
+                "computed": true
+              },
+              "remaining_unblocking_quota_today": {
+                "type": "number",
+                "description": "The remaining unblocking quota of today.",
+                "computed": true
+              },
+              "total_unblocking_quota": {
+                "type": "number",
+                "description": "The total unblocking quota.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The user type.",
+                "computed": true
+              },
+              "unblocking_quota_today": {
+                "type": "number",
+                "description": "The unblocking quota of today.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "AAD",
+            "name": "Advanced Anti-DDoS",
+            "catalog": "Security & Compliance",
+            "name_cn": "DDoS高防",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,147 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_codearts_pipeline_template": {
+          "block": {
+            "attributes": {
+              "create_time": {
+                "type": "number",
+                "description": "Indicates the creation time.",
+                "computed": true
+              },
+              "creator_id": {
+                "type": "string",
+                "description": "Indicates the creator.",
+                "computed": true
+              },
+              "definition": {
+                "type": "string",
+                "description": "Specifies the template definition JSON.",
+                "required": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the template description.",
+                "optional": true
+              },
+              "icon": {
+                "type": "string",
+                "description": "Indicates the template icon.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_favorite": {
+                "type": "bool",
+                "description": "Specifies whether it is a favorite template.",
+                "optional": true
+              },
+              "is_show_source": {
+                "type": "bool",
+                "description": "Specifies whether to display the pipeline source.",
+                "required": true
+              },
+              "is_system": {
+                "type": "bool",
+                "description": "Indicates whether the template is a system template.",
+                "computed": true
+              },
+              "language": {
+                "type": "string",
+                "description": "Specifies the template language.",
+                "required": true
+              },
+              "manifest_version": {
+                "type": "string",
+                "description": "Indicates the manifest version.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the template name.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "update_time": {
+                "type": "number",
+                "description": "Indicates the last update time.",
+                "computed": true
+              },
+              "updater_id": {
+                "type": "string",
+                "description": "Indicates the last updater.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "variables": {
+                "block": {
+                  "attributes": {
+                    "description": {
+                      "type": "string",
+                      "description": "Specifies the parameter description.",
+                      "optional": true
+                    },
+                    "is_reset": {
+                      "type": "bool",
+                      "description": "Specifies whether to reset.",
+                      "optional": true
+                    },
+                    "is_runtime": {
+                      "type": "bool",
+                      "description": "Specifies whether to set parameters at runtime.",
+                      "optional": true
+                    },
+                    "is_secret": {
+                      "type": "bool",
+                      "description": "Specifies whether it is a private parameter.",
+                      "optional": true
+                    },
+                    "latest_value": {
+                      "type": "string",
+                      "description": "Specifies the last parameter value.",
+                      "optional": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Specifies the custom variable name.",
+                      "optional": true
+                    },
+                    "runtime_value": {
+                      "type": "string",
+                      "description": "Specifies the value passed in at runtime.",
+                      "optional": true
+                    },
+                    "sequence": {
+                      "type": "number",
+                      "description": "Specifies the parameter sequence, starting from 1.",
+                      "optional": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Specifies the custom parameter type.",
+                      "optional": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "description": "Specifies the custom parameter default value.",
+                      "optional": true
+                    }
+                  },
+                  "description": "Specifies the custom variables."
+                },
+                "nesting_mode": "list"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

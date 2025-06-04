@@ -1,0 +1,63 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_waf_alarm_notifications": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID to which the alarm notification",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "items": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "enabled": "bool",
+                      "enterprise_project_id": "string",
+                      "id": "string",
+                      "is_all_enterprise_project": "bool",
+                      "locale": "string",
+                      "name": "string",
+                      "nearly_expired_time": "string",
+                      "notice_class": "string",
+                      "sendfreq": "number",
+                      "threat": [
+                        "list",
+                        "string"
+                      ],
+                      "times": "number",
+                      "topic_urn": "string",
+                      "update_time": "number"
+                    }
+                  ]
+                ],
+                "description": "The list of alarm notifications.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "WAF",
+            "name": "Web Application Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "Web应用防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}
