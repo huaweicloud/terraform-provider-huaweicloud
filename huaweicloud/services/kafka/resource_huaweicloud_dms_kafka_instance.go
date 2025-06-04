@@ -3,6 +3,7 @@ package kafka
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"regexp"
@@ -155,17 +156,23 @@ func ResourceDmsKafkaInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-				RequiredWith: []string{
-					"password",
-				},
 			},
 			"password": {
 				Type:      schema.TypeString,
 				Sensitive: true,
 				Optional:  true,
-				RequiredWith: []string{
-					"access_user",
+				ConflictsWith: []string{
+					"kms_encrypted_password",
 				},
+			},
+			"kms_encrypted_password": {
+				Type:      schema.TypeString,
+				Sensitive: true,
+				Optional:  true,
+				ConflictsWith: []string{
+					"password",
+				},
+				Description: "schema: Internal",
 			},
 			"maintain_begin": {
 				Type:     schema.TypeString,
@@ -757,7 +764,16 @@ func createKafkaInstanceWithFlavor(ctx context.Context, d *schema.ResourceData, 
 	}
 	log.Printf("[DEBUG] Create DMS Kafka instance options: %#v", createOpts)
 	// Add password here, so it wouldn't go in the above log entry
-	createOpts.Password = d.Get("password").(string)
+	password := d.Get("password").(string)
+	if password == "" {
+		if v := d.Get("kms_encrypted_password").(string); v != "" {
+			password, err = decryptPasswordWithKmsID(ctx, d, meta)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		}
+	}
+	createOpts.Password = password
 	createOpts.KafkaManagerPassword = d.Get("manager_password").(string)
 
 	kafkaInstance, err := instances.Create(client, createOpts).Extract()
@@ -890,7 +906,16 @@ func createKafkaInstanceWithProductID(ctx context.Context, d *schema.ResourceDat
 	log.Printf("[DEBUG] Create DMS Kafka instance options: %#v", createOpts)
 
 	// Add password here, so it wouldn't go in the above log entry
-	createOpts.Password = d.Get("password").(string)
+	password := d.Get("password").(string)
+	if password == "" {
+		if v := d.Get("kms_encrypted_password").(string); v != "" {
+			password, err = decryptPasswordWithKmsID(ctx, d, meta)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		}
+	}
+	createOpts.Password = password
 	createOpts.KafkaManagerPassword = d.Get("manager_password").(string)
 
 	kafkaInstance, err := instances.Create(client, createOpts).Extract()
@@ -938,6 +963,49 @@ func createKafkaInstanceWithProductID(ctx context.Context, d *schema.ResourceDat
 	}
 
 	return nil
+}
+
+func decryptPasswordWithKmsID(_ context.Context, d *schema.ResourceData, meta interface{}) (string, error) {
+	var (
+		cfg                = meta.(*config.Config)
+		region             = cfg.GetRegion(d)
+		dataDecryptHttpUrl = "v1.0/{project_id}/kms/decrypt-data"
+		dataDecryptProduct = "kms"
+	)
+
+	client, err := cfg.NewServiceClient(dataDecryptProduct, region)
+	if err != nil {
+		return "", fmt.Errorf("error creating KMS client: %s", err)
+	}
+
+	dataDecryptPath := client.Endpoint + dataDecryptHttpUrl
+	dataDecryptPath = strings.ReplaceAll(dataDecryptPath, "{project_id}", client.ProjectID)
+
+	dataDecryptOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	bodyParams := map[string]interface{}{
+		"cipher_text": utils.ValueIgnoreEmpty(d.Get("kms_encrypted_password")),
+	}
+
+	dataDecryptOpt.JSONBody = utils.RemoveNil(bodyParams)
+	dataDecryptResp, err := client.Request("POST", dataDecryptPath, &dataDecryptOpt)
+	if err != nil {
+		return "", fmt.Errorf("error running kms decrypt operation: %s", err)
+	}
+
+	dataDecryptRespBody, err := utils.FlattenResponse(dataDecryptResp)
+	if err != nil {
+		return "", fmt.Errorf("err flatting response: %s", err)
+	}
+
+	plainText := utils.PathSearch("plain_text", dataDecryptRespBody, "").(string)
+	if plainText == "" {
+		return "", errors.New("unable to find the plain text from the API response")
+	}
+
+	return plainText, nil
 }
 
 func waitForOrderComplete(ctx context.Context, d *schema.ResourceData, conf *config.Config,
@@ -1375,9 +1443,18 @@ func resourceDmsKafkaInstanceUpdate(ctx context.Context, d *schema.ResourceData,
 		}
 	}
 
-	if d.HasChange("password") {
+	if d.HasChanges("password", "kms_encrypted_password") {
+		password := d.Get("password").(string)
+		if password == "" {
+			if v := d.Get("kms_encrypted_password").(string); v != "" {
+				password, err = decryptPasswordWithKmsID(ctx, d, meta)
+				if err != nil {
+					return diag.FromErr(err)
+				}
+			}
+		}
 		resetPasswordOpts := instances.ResetPasswordOpts{
-			NewPassword: d.Get("password").(string),
+			NewPassword: password,
 		}
 		retryFunc := func() (interface{}, bool, error) {
 			err = instances.ResetPassword(client, d.Id(), resetPasswordOpts).Err
