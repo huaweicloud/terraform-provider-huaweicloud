@@ -34,6 +34,10 @@
                 ],
                 "computed": true
               },
+              "scope_type": {
+                "type": "string",
+                "optional": true
+              },
               "type": {
                 "type": "string",
                 "optional": true,

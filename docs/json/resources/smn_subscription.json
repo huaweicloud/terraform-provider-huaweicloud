@@ -77,6 +77,14 @@
                       "optional": true,
                       "forcenew": true
                     },
+                    "header": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "optional": true,
+                      "forcenew": true
+                    },
                     "keyword": {
                       "type": "string",
                       "optional": true,

@@ -21,6 +21,12 @@
                 "optional": true,
                 "computed": true
               },
+              "code_encrypt_kms_key_id": {
+                "type": "string",
+                "description": "The KMS key ID for encrypting the function code.",
+                "optional": true,
+                "forcenew": true
+              },
               "code_filename": {
                 "type": "string",
                 "description": "The name of the function file.",
@@ -76,6 +82,11 @@
               "enable_dynamic_memory": {
                 "type": "bool",
                 "description": "Whether the dynamic memory configuration is enabled.",
+                "optional": true
+              },
+              "enable_lts_log": {
+                "type": "bool",
+                "description": "Whether to enable the LTS log.",
                 "optional": true
               },
               "encrypted_user_data": {
@@ -262,6 +273,11 @@
               "user_data": {
                 "type": "string",
                 "description": "The key/value information defined for the function.",
+                "optional": true
+              },
+              "user_data_encrypt_kms_key_id": {
+                "type": "string",
+                "description": "The KMS key ID for encrypting the user data.",
                 "optional": true
               },
               "version": {
