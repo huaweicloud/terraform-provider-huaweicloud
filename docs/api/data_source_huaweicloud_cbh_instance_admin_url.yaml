@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_cbh_instance_admin_url
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CBH
+paths:
+    /v2/{project_id}/cbs/instances/{server_id}/admin-url:
+        GET:
+            tag: CBH

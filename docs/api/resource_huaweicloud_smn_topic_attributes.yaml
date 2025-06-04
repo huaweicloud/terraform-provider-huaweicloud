@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_smn_topic_attributes
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: SMN
+paths:
+    /v2/{project_id}/notifications/topics/{topic_urn}/attributes:
+        GET:
+            tag: SMN
+    /v2/{project_id}/notifications/topics/{topic_urn}/attributes/{name}:
+        PUT:
+            tag: SMN

@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_aad_unblock_records
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: AAD
+paths:
+    /v1/unblockservice/{domain_id}/unblock-record:
+        GET:
+            tag: AAD

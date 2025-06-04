@@ -1,6 +1,6 @@
 info:
     version: ""
-    title: resource_huaweicloud_rds_lts_log
+    title: resource_huaweicloud_rds_lts_config
     description: ""
 schemes:
     - https
