@@ -902,6 +902,7 @@ func TestAccFunction_logConfig(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rcCreateWithLtsParams.CheckResourceExists(),
 					resource.TestCheckResourceAttr(createWithLtsParams, "functiongraph_version", "v2"),
+					resource.TestCheckResourceAttr(createWithLtsParams, "enable_lts_log", "true"),
 					resource.TestCheckResourceAttrPair(createWithLtsParams, "log_group_id",
 						"huaweicloud_lts_group.test.0", "id"),
 					resource.TestCheckResourceAttrPair(createWithLtsParams, "log_group_name",
@@ -915,6 +916,7 @@ func TestAccFunction_logConfig(t *testing.T) {
 					resource.TestCheckResourceAttr(createWithLtsParams, "lts_custom_tag.key", "value"),
 					rcCreateWithoutLtsParams.CheckResourceExists(),
 					resource.TestCheckResourceAttr(createWithoutLtsParams, "functiongraph_version", "v2"),
+					resource.TestCheckResourceAttr(createWithoutLtsParams, "enable_lts_log", "true"),
 					// In some regions (such as 'cn-north-4'), the FunctionGraph service automatically binds the groups
 					// and streams created by FunctionGraph to functions that do not have LTS set.
 					resource.TestCheckResourceAttrSet(createWithoutLtsParams, "log_group_id"),
@@ -928,6 +930,7 @@ func TestAccFunction_logConfig(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rcCreateWithLtsParams.CheckResourceExists(),
 					resource.TestCheckResourceAttr(createWithLtsParams, "functiongraph_version", "v2"),
+					resource.TestCheckResourceAttr(createWithLtsParams, "enable_lts_log", "true"),
 					resource.TestCheckResourceAttrPair(createWithLtsParams, "log_group_id",
 						"huaweicloud_lts_group.test.1", "id"),
 					resource.TestCheckResourceAttrPair(createWithLtsParams, "log_group_name",
@@ -940,6 +943,7 @@ func TestAccFunction_logConfig(t *testing.T) {
 					resource.TestCheckResourceAttr(createWithLtsParams, "lts_custom_tag.foo", "baar"),
 					resource.TestCheckResourceAttr(createWithLtsParams, "lts_custom_tag.new_key", "value"),
 					rcCreateWithoutLtsParams.CheckResourceExists(),
+					resource.TestCheckResourceAttr(createWithoutLtsParams, "enable_lts_log", "true"),
 					resource.TestCheckResourceAttr(createWithoutLtsParams, "functiongraph_version", "v2"),
 					resource.TestCheckResourceAttrPair(createWithoutLtsParams, "log_group_id",
 						"huaweicloud_lts_group.test.0", "id"),
@@ -959,14 +963,7 @@ func TestAccFunction_logConfig(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rcCreateWithLtsParams.CheckResourceExists(),
 					resource.TestCheckResourceAttr(createWithLtsParams, "functiongraph_version", "v2"),
-					resource.TestCheckResourceAttrPair(createWithLtsParams, "log_group_id",
-						"huaweicloud_lts_group.test.1", "id"),
-					resource.TestCheckResourceAttrPair(createWithLtsParams, "log_group_name",
-						"huaweicloud_lts_group.test.1", "group_name"),
-					resource.TestCheckResourceAttrPair(createWithLtsParams, "log_stream_id",
-						"huaweicloud_lts_stream.test.1", "id"),
-					resource.TestCheckResourceAttrPair(createWithLtsParams, "log_stream_name",
-						"huaweicloud_lts_stream.test.1", "stream_name"),
+					resource.TestCheckResourceAttr(createWithLtsParams, "enable_lts_log", "false"),
 					resource.TestCheckResourceAttr(createWithLtsParams, "lts_custom_tag.%", "0"),
 				),
 			},
@@ -1011,6 +1008,7 @@ resource "huaweicloud_fgs_function" "create_with_lts_params" {
   functiongraph_version = "v2"
   agency                = "%[3]s"
 
+  enable_lts_log  = true
   log_group_id    = huaweicloud_lts_group.test[0].id
   log_stream_id   = huaweicloud_lts_stream.test[0].id
   log_group_name  = huaweicloud_lts_group.test[0].group_name
@@ -1033,6 +1031,7 @@ resource "huaweicloud_fgs_function" "create_without_lts_params" {
   description           = "Created by terraform script"
   functiongraph_version = "v2"
   agency                = "%[3]s"
+  enable_lts_log        = true
 }
 `, testAccFunction_logConfig_base(name), name, acceptance.HW_FGS_AGENCY_NAME)
 }
@@ -1054,6 +1053,7 @@ resource "huaweicloud_fgs_function" "create_with_lts_params" {
   functiongraph_version = "v2"
   agency                = "%[3]s"
 
+  enable_lts_log  = true
   log_group_id    = huaweicloud_lts_group.test[1].id
   log_stream_id   = huaweicloud_lts_stream.test[1].id
   log_group_name  = huaweicloud_lts_group.test[1].group_name
@@ -1077,6 +1077,7 @@ resource "huaweicloud_fgs_function" "create_without_lts_params" {
   functiongraph_version = "v2"
   agency                = "%[3]s"
 
+  enable_lts_log  = true
   log_group_id    = huaweicloud_lts_group.test[0].id
   log_stream_id   = huaweicloud_lts_stream.test[0].id
   log_group_name  = huaweicloud_lts_group.test[0].group_name

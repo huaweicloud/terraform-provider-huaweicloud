@@ -455,6 +455,8 @@ The following arguments are supported:
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the function.
 
+* `enable_lts_log` - (Optional, Bool) Specifies whether to enable the LTS log, defaults to **false**.
+
 * `log_group_id` - (Optional, String) Specifies the LTS group ID for collecting logs.
 
 * `log_group_name` - (Optional, String) Specifies the LTS group name for collecting logs.
@@ -462,6 +464,9 @@ The following arguments are supported:
 * `log_stream_id` - (Optional, String) Specifies the LTS stream IID for collecting logs.
 
 * `log_stream_name` - (Optional, String) Specifies the LTS stream name for collecting logs.
+
+-> If the `enable_lts_log` parameter is set to **true**, and the `log_group_id`, `log_group_name`, `log_stream_id` and
+   `log_stream_name` parameters are not specified, the FunctionGraph will automatically create a log group and log stream.
 
 * `reserved_instances` - (Optional, List) Specifies the reserved instance policies of the function.  
   The [reserved_instances](#function_reserved_instances) structure is documented below.
@@ -529,6 +534,11 @@ The following arguments are supported:
 * `lts_custom_tag` - (Optional, Map) Specifies the custom tags configuration that used to filter the LTS logs.
 
   -> This parameter is only supported by the `v2` version of the function.
+
+* `user_data_encrypt_kms_key_id` - (Optional, String) Specifies the KMS key ID for encrypting the user data.
+
+* `code_encrypt_kms_key_id` - (Optional, String, ForceNew) Specifies the KMS key ID for encrypting the function code.  
+  Changing this will create a new resource.
 
 <a name="function_func_mounts"></a>
 The `func_mounts` block supports:
