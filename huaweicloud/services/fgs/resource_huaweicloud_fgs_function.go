@@ -597,6 +597,22 @@ CIDR blocks used by the service.`,
 				// The custom tags can be set to empty, so computed behavior cannot be supported.
 				Description: `The custom tags configuration that used to filter the LTS logs.`,
 			},
+			"enable_lts_log": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Whether to enable the LTS log.`,
+			},
+			"user_data_encrypt_kms_key_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The KMS key ID for encrypting the user data.`,
+			},
+			"code_encrypt_kms_key_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The KMS key ID for encrypting the function code.`,
+			},
 
 			// Deprecated parameters.
 			"package": {
@@ -737,6 +753,11 @@ func buildFunctionCodeConfig(funcCode string) map[string]interface{} {
 }
 
 func buildFunctionLogConfig(d *schema.ResourceData) map[string]interface{} {
+	// If the value of `enable_lts_log` parameter is `false`, the corresponding LTS log parameters cannot be configured.
+	if !d.Get("enable_lts_log").(bool) {
+		return nil
+	}
+
 	// If the LTS log parameters is not configured (in the creation phase), the service will automatically create an
 	// LTS stream (group will also be created) and associate it with the function.
 	// So, the tfstate records will always have the log group ID and the log stream ID.
@@ -804,25 +825,28 @@ func buildCreateFunctionBodyParams(cfg *config.Config, d *schema.ResourceData) m
 		"handler":   utils.ValueIgnoreEmpty(d.Get("handler")),
 		"code_type": utils.ValueIgnoreEmpty(d.Get("code_type")),
 		// Optional parameters.
-		"description":           utils.ValueIgnoreEmpty(d.Get("description")),
-		"type":                  utils.ValueIgnoreEmpty(d.Get("functiongraph_version")),
-		"code_url":              utils.ValueIgnoreEmpty(d.Get("code_url")),
-		"code_filename":         utils.ValueIgnoreEmpty(d.Get("code_filename")),
-		"user_data":             utils.ValueIgnoreEmpty(d.Get("user_data")),
-		"encrypted_user_data":   utils.ValueIgnoreEmpty(d.Get("encrypted_user_data")),
-		"xrole":                 utils.ValueIgnoreEmpty(agency),
-		"enterprise_project_id": cfg.GetEnterpriseProjectID(d),
-		"custom_image":          buildFunctionCustomImage(d.Get("custom_image").([]interface{})),
-		"gpu_memory":            utils.ValueIgnoreEmpty(d.Get("gpu_memory")),
-		"gpu_type":              utils.ValueIgnoreEmpty(d.Get("gpu_type")),
-		"pre_stop_handler":      utils.ValueIgnoreEmpty(d.Get("pre_stop_handler")),
-		"pre_stop_timeout":      utils.ValueIgnoreEmpty(d.Get("pre_stop_timeout")),
-		"func_code":             buildFunctionCodeConfig(d.Get("func_code").(string)),
-		"log_config":            buildFunctionLogConfig(d),
-		"enable_dynamic_memory": d.Get("enable_dynamic_memory"),
-		"is_stateful_function":  d.Get("is_stateful_function"),
-		"network_controller":    buildFunctionNetworkController(d.Get("network_controller").([]interface{})),
-		"lts_custom_tag":        utils.ValueIgnoreEmpty(d.Get("lts_custom_tag")),
+		"description":                  utils.ValueIgnoreEmpty(d.Get("description")),
+		"type":                         utils.ValueIgnoreEmpty(d.Get("functiongraph_version")),
+		"code_url":                     utils.ValueIgnoreEmpty(d.Get("code_url")),
+		"code_filename":                utils.ValueIgnoreEmpty(d.Get("code_filename")),
+		"user_data":                    utils.ValueIgnoreEmpty(d.Get("user_data")),
+		"encrypted_user_data":          utils.ValueIgnoreEmpty(d.Get("encrypted_user_data")),
+		"xrole":                        utils.ValueIgnoreEmpty(agency),
+		"enterprise_project_id":        cfg.GetEnterpriseProjectID(d),
+		"custom_image":                 buildFunctionCustomImage(d.Get("custom_image").([]interface{})),
+		"gpu_memory":                   utils.ValueIgnoreEmpty(d.Get("gpu_memory")),
+		"gpu_type":                     utils.ValueIgnoreEmpty(d.Get("gpu_type")),
+		"pre_stop_handler":             utils.ValueIgnoreEmpty(d.Get("pre_stop_handler")),
+		"pre_stop_timeout":             utils.ValueIgnoreEmpty(d.Get("pre_stop_timeout")),
+		"func_code":                    buildFunctionCodeConfig(d.Get("func_code").(string)),
+		"log_config":                   buildFunctionLogConfig(d),
+		"enable_dynamic_memory":        d.Get("enable_dynamic_memory"),
+		"is_stateful_function":         d.Get("is_stateful_function"),
+		"network_controller":           buildFunctionNetworkController(d.Get("network_controller").([]interface{})),
+		"lts_custom_tag":               utils.ValueIgnoreEmpty(d.Get("lts_custom_tag")),
+		"enable_lts_log":               d.Get("enable_lts_log"),
+		"user_data_encrypt_kms_key_id": utils.ValueIgnoreEmpty(d.Get("user_data_encrypt_kms_key_id")),
+		"code_encrypt_kms_key_id":      utils.ValueIgnoreEmpty(d.Get("code_encrypt_kms_key_id")),
 	}
 }
 
@@ -944,23 +968,25 @@ func buildUpdateFunctionMetadataBodyParams(cfg *config.Config, d *schema.Resourc
 		"func_vpc":            buildFunctionVpcConfig(d),
 		"func_mounts": buildFunctionMountConfig(d.Get("func_mounts").([]interface{}),
 			d.Get("mount_user_id").(int), d.Get("mount_user_group_id").(int)),
-		"strategy_config":        buildFunctionStrategyConfig(d.Get("concurrency_num").(int)),
-		"enable_dynamic_memory":  d.Get("enable_dynamic_memory"),
-		"is_stateful_function":   d.Get("is_stateful_function"),
-		"network_controller":     buildFunctionNetworkController(d.Get("network_controller").([]interface{})),
-		"enterprise_project_id":  cfg.GetEnterpriseProjectID(d),
-		"peering_cidr":           d.Get("peering_cidr"),
-		"enable_auth_in_header":  d.Get("enable_auth_in_header"),
-		"enable_class_isolation": d.Get("enable_class_isolation"),
-		"ephemeral_storage":      utils.ValueIgnoreEmpty(d.Get("ephemeral_storage")),
-		"heartbeat_handler":      d.Get("heartbeat_handler"),
-		"restore_hook_handler":   d.Get("restore_hook_handler"),
-		"restore_hook_timeout":   d.Get("restore_hook_timeout"),
-		"lts_custom_tag":         utils.ValueIgnoreEmpty(d.Get("lts_custom_tag")),
+		"strategy_config":              buildFunctionStrategyConfig(d.Get("concurrency_num").(int)),
+		"enable_dynamic_memory":        d.Get("enable_dynamic_memory"),
+		"is_stateful_function":         d.Get("is_stateful_function"),
+		"network_controller":           buildFunctionNetworkController(d.Get("network_controller").([]interface{})),
+		"enterprise_project_id":        cfg.GetEnterpriseProjectID(d),
+		"peering_cidr":                 d.Get("peering_cidr"),
+		"enable_auth_in_header":        d.Get("enable_auth_in_header"),
+		"enable_class_isolation":       d.Get("enable_class_isolation"),
+		"ephemeral_storage":            utils.ValueIgnoreEmpty(d.Get("ephemeral_storage")),
+		"heartbeat_handler":            d.Get("heartbeat_handler"),
+		"restore_hook_handler":         d.Get("restore_hook_handler"),
+		"restore_hook_timeout":         d.Get("restore_hook_timeout"),
+		"enable_lts_log":               d.Get("enable_lts_log"),
+		"lts_custom_tag":               utils.ValueIgnoreEmpty(d.Get("lts_custom_tag")),
+		"user_data_encrypt_kms_key_id": utils.ValueIgnoreEmpty(d.Get("user_data_encrypt_kms_key_id")),
 	}
 }
 
-func updateFunctionMetadata(client *golangsdk.ServiceClient, cfg *config.Config, d *schema.ResourceData, functionUrn string) error {
+func updateFunctionMetadata(client *golangsdk.ServiceClient, functionUrn string, params map[string]interface{}) error {
 	httpUrl := "v2/{project_id}/fgs/functions/{function_urn}/config"
 
 	updatePath := client.Endpoint + httpUrl
@@ -971,7 +997,7 @@ func updateFunctionMetadata(client *golangsdk.ServiceClient, cfg *config.Config,
 		MoreHeaders: map[string]string{
 			"Content-Type": "application/json",
 		},
-		JSONBody: utils.RemoveNil(buildUpdateFunctionMetadataBodyParams(cfg, d)),
+		JSONBody: utils.RemoveNil(params),
 	}
 
 	_, err := client.Request("PUT", updatePath, &updateOpt)
@@ -1281,7 +1307,12 @@ func resourceFunctionCreate(ctx context.Context, d *schema.ResourceData, meta in
 	if d.HasChanges("vpc_id", "network_id", "func_mounts", "app_agency", "initializer_handler", "initializer_timeout",
 		"concurrency_num", "peering_cidr", "enable_auth_in_header", "enable_class_isolation", "ephemeral_storage",
 		"heartbeat_handler", "restore_hook_handler", "restore_hook_timeout", "lts_custom_tag") {
-		err = updateFunctionMetadata(client, cfg, d, funcUrnWithoutVersion)
+		params := buildUpdateFunctionMetadataBodyParams(cfg, d)
+		// If enable_lts_log is set to true when creating, but no other LTS log parameters are set,
+		// the enable_lts_log and log_config parameters must be deleted, otherwise the interface reports an error.
+		delete(params, "enable_lts_log")
+		delete(params, "log_config")
+		err = updateFunctionMetadata(client, funcUrnWithoutVersion, params)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -1721,6 +1752,9 @@ func resourceFunctionRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("heartbeat_handler", utils.PathSearch("heartbeat_handler", function, nil)),
 		d.Set("restore_hook_handler", utils.PathSearch("restore_hook_handler", function, nil)),
 		d.Set("restore_hook_timeout", utils.PathSearch("restore_hook_timeout", function, nil)),
+		d.Set("enable_lts_log", utils.PathSearch("enable_lts_log", function, nil)),
+		d.Set("user_data_encrypt_kms_key_id", utils.PathSearch("user_data_encrypt_kms_key_id", function, nil)),
+		d.Set("code_encrypt_kms_key_id", utils.PathSearch("code_encrypt_kms_key_id", function, nil)),
 		// Attributes.
 		d.Set("urn", utils.PathSearch("func_urn", function, nil)),
 		d.Set("version", utils.PathSearch("version", function, nil)),
@@ -1775,8 +1809,8 @@ func resourceFunctionUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		"log_group_id", "log_stream_id", "log_group_name", "log_stream_name", "concurrency_num", "gpu_memory", "gpu_type",
 		"enable_dynamic_memory", "is_stateful_function", "network_controller", "enterprise_project_id", "peering_cidr",
 		"enable_auth_in_header", "enable_class_isolation", "ephemeral_storage", "heartbeat_handler", "restore_hook_handler",
-		"restore_hook_timeout", "lts_custom_tag") {
-		err := updateFunctionMetadata(client, cfg, d, funcUrnWithoutVersion)
+		"restore_hook_timeout", "lts_custom_tag", "enable_lts_log", "user_data_encrypt_kms_key_id") {
+		err := updateFunctionMetadata(client, funcUrnWithoutVersion, buildUpdateFunctionMetadataBodyParams(cfg, d))
 		if err != nil {
 			return diag.FromErr(err)
 		}
