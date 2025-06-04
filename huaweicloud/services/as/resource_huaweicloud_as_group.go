@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -387,6 +388,7 @@ func expandGroupsTags(tagMap map[string]interface{}) []tags.ResourceTag {
 	return tagList
 }
 
+// The pagination of this query method is not effective, and other resources using this method need to be fixed.
 func getInstancesInGroup(asClient *golangsdk.ServiceClient, groupID string,
 	opts instances.ListOptsBuilder) ([]instances.Instance, error) {
 	var insList []instances.Instance
@@ -397,14 +399,14 @@ func getInstancesInGroup(asClient *golangsdk.ServiceClient, groupID string,
 	return page.(instances.InstancePage).Extract()
 }
 
-func getInstancesIDs(allIns []instances.Instance) []string {
-	var allIDs = make([]string, 0, len(allIns))
-	for _, ins := range allIns {
+func getInstancesIDs(allInstances []interface{}) []string {
+	var allIDs = make([]string, 0, len(allInstances))
+	for _, instance := range allInstances {
 		// Maybe the instance is pending, so we can't get the id,
 		// so unable to delete the instance this time, maybe next time to execute
 		// terraform destroy will works
-		if ins.ID != "" {
-			allIDs = append(allIDs, ins.ID)
+		if instanceID := utils.PathSearch("instance_id", instance, "").(string); instanceID != "" {
+			allIDs = append(allIDs, instanceID)
 		}
 	}
 
@@ -413,13 +415,52 @@ func getInstancesIDs(allIns []instances.Instance) []string {
 
 // isAllInstanceInService Used to determine whether all instances in the scaling group are `INSERVICE`.
 // When the array is empty, return `true` directly.
-func isAllInstanceInService(allIns []instances.Instance) bool {
-	for _, ins := range allIns {
-		if ins.LifeCycleStatus != "INSERVICE" {
+func isAllInstanceInService(allInstances []interface{}) bool {
+	for _, instance := range allInstances {
+		if utils.PathSearch("life_cycle_state", instance, "") != "INSERVICE" {
 			return false
 		}
 	}
+
 	return true
+}
+
+func getAllInstancesInGroup(client *golangsdk.ServiceClient, groupID string) ([]interface{}, error) {
+	var (
+		getHttpUrl   = "autoscaling-api/v1/{project_id}/scaling_group_instance/{scaling_group_id}/list?limit=50"
+		startNumber  = 0
+		allInstances []interface{}
+	)
+
+	listPath := client.Endpoint + getHttpUrl
+	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
+	listPath = strings.ReplaceAll(listPath, "{scaling_group_id}", groupID)
+	listOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	for {
+		listPathWithStartNumber := fmt.Sprintf("%s&start_number=%d", listPath, startNumber)
+		resp, err := client.Request("GET", listPathWithStartNumber, &listOpt)
+		if err != nil {
+			return nil, fmt.Errorf("error retrieving instances in AS group (%s): %s", groupID, err)
+		}
+
+		getRespBody, err := utils.FlattenResponse(resp)
+		if err != nil {
+			return nil, err
+		}
+
+		instancesResp := utils.PathSearch("scaling_group_instances", getRespBody, make([]interface{}, 0)).([]interface{})
+		if len(instancesResp) == 0 {
+			break
+		}
+
+		allInstances = append(allInstances, instancesResp...)
+		startNumber += len(instancesResp)
+	}
+
+	return allInstances, nil
 }
 
 func waitingForAllInstancesInService(ctx context.Context, client *golangsdk.ServiceClient, groupID string, insNum int,
@@ -428,7 +469,7 @@ func waitingForAllInstancesInService(ctx context.Context, client *golangsdk.Serv
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
-			allIns, err := getInstancesInGroup(client, groupID, nil)
+			allIns, err := getAllInstancesInGroup(client, groupID)
 			if err != nil {
 				return nil, "ERROR", err
 			}
@@ -454,7 +495,7 @@ func waitingForAllInstancesRemoved(ctx context.Context, client *golangsdk.Servic
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
-			allIns, err := getInstancesInGroup(client, groupID, nil)
+			allIns, err := getAllInstancesInGroup(client, groupID)
 			if err != nil {
 				return nil, "ERROR", err
 			}
@@ -590,11 +631,11 @@ func resourceASGroupRead(_ context.Context, d *schema.ResourceData, meta interfa
 		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error.code", "AS.2007"), "error retrieving AS group")
 	}
 
-	allIns, err := getInstancesInGroup(asClient, groupID, nil)
+	allInstances, err := getAllInstancesInGroup(asClient, groupID)
 	if err != nil {
 		return diag.Errorf("error retrieving the instances in AS Group %s: %s", groupID, err)
 	}
-	allIDs := getInstancesIDs(allIns)
+	allIDs := getInstancesIDs(allInstances)
 
 	// set properties based on the read info
 	mErr := multierror.Append(nil,
@@ -794,11 +835,11 @@ func forceDeleteASGroup(ctx context.Context, asClient *golangsdk.ServiceClient, 
 }
 
 func deleteAllInstancesFromASGroup(ctx context.Context, asClient *golangsdk.ServiceClient, d *schema.ResourceData,
-	allIns []instances.Instance) error {
+	allIns []interface{}) error {
 	for _, ins := range allIns {
-		if ins.LifeCycleStatus != "INSERVICE" {
+		if lifeCycleState := utils.PathSearch("life_cycle_state", ins, "").(string); lifeCycleState != "INSERVICE" {
 			return fmt.Errorf("can't delete the AS group %s: some instances are not in INSERVICE but in %s, "+
-				"please try again latter or use force_delete option", d.Id(), ins.LifeCycleStatus)
+				"please try again latter or use force_delete option", d.Id(), lifeCycleState)
 		}
 	}
 
@@ -833,20 +874,16 @@ func resourceASGroupDelete(ctx context.Context, d *schema.ResourceData, meta int
 		return forceDeleteASGroup(ctx, asClient, d)
 	}
 
-	page, err := instances.List(asClient, d.Id(), nil).AllPages()
+	allInstances, err := getAllInstancesInGroup(asClient, d.Id())
 	if err != nil {
 		// When the Group ID does not exist, the query instance list interface will also report an error,
 		// and the 404 error judgment also needs to be performed.
 		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error.code", "AS.2007"), "error getting instances in AS group")
 	}
-	allIns, err := page.(instances.InstancePage).Extract()
-	if err != nil {
-		return diag.FromErr(err)
-	}
 
-	if len(allIns) > 0 {
+	if len(allInstances) > 0 {
 		// remove all instances from group
-		if err := deleteAllInstancesFromASGroup(ctx, asClient, d, allIns); err != nil {
+		if err := deleteAllInstancesFromASGroup(ctx, asClient, d, allInstances); err != nil {
 			return diag.FromErr(err)
 		}
 	}
