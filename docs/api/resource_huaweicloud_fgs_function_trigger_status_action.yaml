@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_fgs_function_trigger_status_action
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: FunctionGraph
+paths:
+    /v2/{project_id}/fgs/triggers/{function_urn}/{trigger_type_code}/{trigger_id}:
+        PUT:
+            tag: FunctionGraph
