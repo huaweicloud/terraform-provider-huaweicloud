@@ -132,9 +132,11 @@ func testAccFunctionTimingTrigger_basic_step1(name string) string {
 resource "huaweicloud_fgs_function_trigger" "timer_rate" {
   function_urn = huaweicloud_fgs_function.test.urn
   type         = "TIMER"
+  status       = "ACTIVE"
   event_data   = jsonencode({
     "name": "%[2]s_rate",
     "schedule_type": "Rate",
+    "sync_execution": false,
     "user_event": "Created by acc test",
     "schedule": "3m"
   })
@@ -144,9 +146,11 @@ resource "huaweicloud_fgs_function_trigger" "timer_rate" {
 resource "huaweicloud_fgs_function_trigger" "timer_cron" {
   function_urn = huaweicloud_fgs_function.test.urn
   type         = "TIMER"
+  status       = "ACTIVE"
   event_data   = jsonencode({
     "name": "%[2]s_cron",
     "schedule_type": "Cron",
+    "sync_execution": false,
     "user_event": "Created by acc test",
     "schedule": "@every 1h30m"
   })
@@ -166,6 +170,7 @@ resource "huaweicloud_fgs_function_trigger" "timer_rate" {
   event_data   = jsonencode({
     "name": "%[2]s_rate",
     "schedule_type": "Rate",
+    "sync_execution": false,
     "user_event": "Created by acc test",
     "schedule": "3m"
   })
@@ -179,6 +184,7 @@ resource "huaweicloud_fgs_function_trigger" "timer_cron" {
   event_data   = jsonencode({
     "name": "%[2]s_cron",
     "schedule_type": "Cron",
+    "sync_execution": false,
     "user_event": "Created by acc test",
     "schedule": "@every 1h30m"
   })

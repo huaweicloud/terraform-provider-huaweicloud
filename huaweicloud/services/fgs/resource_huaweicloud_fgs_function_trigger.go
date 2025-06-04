@@ -99,7 +99,6 @@ func ResourceFunctionTrigger() *schema.Resource {
 func buildCreateFunctionTriggerBodyParams(d *schema.ResourceData) map[string]interface{} {
 	return map[string]interface{}{
 		"trigger_type_code": d.Get("type"),
-		"trigger_status":    d.Get("status"),
 		"event_data":        utils.StringToJson(d.Get("event_data").(string)),
 	}
 }
@@ -149,9 +148,10 @@ func resourceFunctionTriggerCreate(ctx context.Context, d *schema.ResourceData, 
 
 func waitForFunctionTriggerStatusCompleted(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"PENDING"},
-		Target:       []string{"COMPLETED"},
-		Refresh:      functionTriggerStatusRefreshFunc(client, d, []string{"ACTIVE", "DISABLED"}),
+		Pending: []string{"PENDING"},
+		Target:  []string{"COMPLETED"},
+		Refresh: functionTriggerStatusRefreshFunc(client, d.Get("function_urn").(string), d.Get("type").(string),
+			d.Id(), []string{"ACTIVE", "DISABLED"}),
 		Timeout:      d.Timeout(schema.TimeoutUpdate),
 		Delay:        5 * time.Second,
 		PollInterval: 10 * time.Second,
@@ -160,13 +160,9 @@ func waitForFunctionTriggerStatusCompleted(ctx context.Context, client *golangsd
 	return err
 }
 
-func functionTriggerStatusRefreshFunc(client *golangsdk.ServiceClient, d *schema.ResourceData, targets []string) resource.StateRefreshFunc {
+func functionTriggerStatusRefreshFunc(client *golangsdk.ServiceClient, functionUrn, triggerType, triggerId string,
+	targets []string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		var (
-			functionUrn = d.Get("function_urn").(string)
-			triggerType = d.Get("type").(string)
-			triggerId   = d.Id()
-		)
 		respBody, err := GetTriggerById(client, functionUrn, triggerType, triggerId)
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok && len(targets) < 1 {
@@ -332,7 +328,7 @@ func waitForFunctionTriggerDeleted(ctx context.Context, client *golangsdk.Servic
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
-		Refresh:      functionTriggerStatusRefreshFunc(client, d, nil),
+		Refresh:      functionTriggerStatusRefreshFunc(client, d.Get("function_urn").(string), d.Get("type").(string), d.Id(), nil),
 		Timeout:      d.Timeout(schema.TimeoutDelete),
 		Delay:        5 * time.Second,
 		PollInterval: 10 * time.Second,
