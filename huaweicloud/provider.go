@@ -2390,6 +2390,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_database_logs_shrinking":        rds.ResourceRdsDbLogsShrinking(),
 			"huaweicloud_rds_extend_log_link":                rds.ResourceRdsExtendLogLink(),
 			"huaweicloud_rds_instant_task_delete":            rds.ResourceRdsInstantTaskDelete(),
+			"huaweicloud_rds_upgrading_minor_version":        rds.ResourceRdsUpgradingMinorVersion(),
 
 			"huaweicloud_rgc_account": rgc.ResourceAccount(),
 
