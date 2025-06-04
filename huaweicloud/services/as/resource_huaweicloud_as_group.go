@@ -388,17 +388,6 @@ func expandGroupsTags(tagMap map[string]interface{}) []tags.ResourceTag {
 	return tagList
 }
 
-// The pagination of this query method is not effective, and other resources using this method need to be fixed.
-func getInstancesInGroup(asClient *golangsdk.ServiceClient, groupID string,
-	opts instances.ListOptsBuilder) ([]instances.Instance, error) {
-	var insList []instances.Instance
-	page, err := instances.List(asClient, groupID, opts).AllPages()
-	if err != nil {
-		return insList, fmt.Errorf("error getting instances in AS group %s: %s", groupID, err)
-	}
-	return page.(instances.InstancePage).Extract()
-}
-
 func getInstancesIDs(allInstances []interface{}) []string {
 	var allIDs = make([]string, 0, len(allInstances))
 	for _, instance := range allInstances {
