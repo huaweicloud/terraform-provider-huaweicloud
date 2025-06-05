@@ -159,6 +159,10 @@ func TestAccRdsInstance_mysql(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "binlog_retention_hours", "12"),
 					resource.TestCheckResourceAttr(resourceName, "seconds_level_monitoring_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "seconds_level_monitoring_interval", "1"),
+					resource.TestCheckResourceAttrSet(resourceName, "storage_used_space.#"),
+					resource.TestCheckResourceAttrSet(resourceName, "storage_used_space.0.node_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "storage_used_space.0.used"),
+					resource.TestCheckResourceAttrSet(resourceName, "replication_status"),
 				),
 			},
 			{
@@ -586,7 +590,7 @@ resource "huaweicloud_rds_instance" "test" {
   description                        = "test_description"
   flavor                             = "rds.pg.n1.large.2"
   availability_zone                  = [data.huaweicloud_availability_zones.test.names[0]]
-  security_group_id                  = huaweicloud_networking_secgroup.test.id
+  security_group_id                  = data.huaweicloud_networking_secgroup.test.id
   subnet_id                          = data.huaweicloud_vpc_subnet.test.id
   vpc_id                             = data.huaweicloud_vpc.test.id
   time_zone                          = "UTC+08:00"
