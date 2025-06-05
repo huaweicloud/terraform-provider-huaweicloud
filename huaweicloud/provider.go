@@ -2552,6 +2552,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_waf_rule_global_protection_whitelist":    waf.ResourceRuleGlobalProtectionWhitelist(),
 			"huaweicloud_waf_rule_known_attack_source":            waf.ResourceRuleKnownAttack(),
 			"huaweicloud_waf_rule_precise_protection":             waf.ResourceRulePreciseProtection(),
+			"huaweicloud_waf_rule_web_tamper_protection_refresh":  waf.ResourceRuleWebTamperRefresh(),
 			"huaweicloud_waf_rule_web_tamper_protection":          waf.ResourceWafRuleWebTamperProtection(),
 			"huaweicloud_waf_rule_geolocation_access_control":     waf.ResourceRuleGeolocation(),
 			"huaweicloud_waf_rule_information_leakage_prevention": waf.ResourceRuleLeakagePrevention(),
