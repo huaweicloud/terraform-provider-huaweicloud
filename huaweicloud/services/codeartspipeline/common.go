@@ -1,7 +1,9 @@
 package codeartspipeline
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
 
 	"github.com/chnsz/golangsdk"
 
@@ -10,21 +12,33 @@ import (
 
 const (
 	templateNotFoundError = "DEVPIPE.00011203"
+	projectNotFoundError  = "DEV_21_100169"
 )
 
 // checkResponseError use to check whether the CodeArts Pipeline API response body contains error code.
 // Parameter 'respBody' is the response body and 'notFoundCode' is the error code when the resource is not found.
 // An example of an error response body is as follows: {"error_code": "XXX", "error_msg": "XXX"}
+// Another example of an error response body is as follows: {"error": {"code": "xxx","message": "xxx"}}
 func checkResponseError(respBody interface{}, notFoundCode string) error {
 	errorCode := utils.PathSearch("error_code", respBody, "")
-	if errorCode == "" {
+	errorCodeInStruct := utils.PathSearch("error.code", respBody, "")
+	if errorCode == "" && errorCodeInStruct == "" {
 		return nil
 	}
 
-	errorMsg := utils.PathSearch("error_msg", respBody, "")
-	err := fmt.Errorf("error code: %s, error message: %s", errorCode, errorMsg)
-	if errorCode != notFoundCode {
-		return err
+	var err error
+	if errorCode != "" {
+		errorMsg := utils.PathSearch("error_msg", respBody, "")
+		err = fmt.Errorf("error code: %s, error message: %s", errorCode, errorMsg)
+		if errorCode != notFoundCode {
+			return err
+		}
+	} else {
+		errorMsg := utils.PathSearch("error.message", respBody, "")
+		err = fmt.Errorf("error code: %s, error message: %s", errorCodeInStruct, errorMsg)
+		if errorCodeInStruct != notFoundCode {
+			return err
+		}
 	}
 
 	return golangsdk.ErrDefault404{
@@ -32,4 +46,19 @@ func checkResponseError(respBody interface{}, notFoundCode string) error {
 			Body: []byte(err.Error()),
 		},
 	}
+}
+
+func parseJson(v string) interface{} {
+	if v == "" {
+		return nil
+	}
+
+	var data interface{}
+	err := json.Unmarshal([]byte(v), &data)
+	if err != nil {
+		log.Printf("[DEBUG] Unable to parse JSON: %s", err)
+		return v
+	}
+
+	return data
 }
