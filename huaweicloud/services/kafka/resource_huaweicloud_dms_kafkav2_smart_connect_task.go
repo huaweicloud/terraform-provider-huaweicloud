@@ -242,6 +242,12 @@ func ResourceDmsKafkav2SmartConnectTask() *schema.Resource {
 							Sensitive:   true,
 							Description: `Specifies the secret access key used to access the OBS bucket.`,
 						},
+						"agency_name": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Description: "schema: Internal",
+						},
 						"consumer_strategy": {
 							Type:        schema.TypeString,
 							Optional:    true,
@@ -459,6 +465,7 @@ func buildSinkTaskRequestBody(rawParams []interface{}) map[string]interface{} {
 		"consumer_strategy":     utils.ValueIgnoreEmpty(params["consumer_strategy"]),
 		"access_key":            utils.ValueIgnoreEmpty(params["access_key"]),
 		"secret_key":            utils.ValueIgnoreEmpty(params["secret_key"]),
+		"agency_name":           utils.ValueIgnoreEmpty(params["agency_name"]),
 		"obs_bucket_name":       utils.ValueIgnoreEmpty(params["obs_bucket_name"]),
 		"partition_format":      utils.ValueIgnoreEmpty(params["partition_format"]),
 		"deliver_time_interval": utils.ValueIgnoreEmpty(params["deliver_time_interval"]),
