@@ -397,7 +397,7 @@ func resourceVpcSubnetRead(_ context.Context, d *schema.ResourceData, meta inter
 		return diag.Errorf("error creating VpcSubnet client: %s", err)
 	}
 
-	// set dhcp extra opts ntp and addresstime
+	// set dhcp extra opts ntp, addresstime, ipv6_addresstime, domainname
 	for _, val := range n.ExtraDhcpOpts {
 		switch val.OptName {
 		case "ntp":
@@ -426,7 +426,7 @@ func resourceVpcSubnetUpdate(ctx context.Context, d *schema.ResourceData, meta i
 	}
 
 	if d.HasChanges("name", "description", "dhcp_enable", "primary_dns", "secondary_dns", "dns_list",
-		"ipv6_enable", "dhcp_lease_time", "ntp_server_address") {
+		"ipv6_enable", "dhcp_lease_time", "ntp_server_address", "dhcp_ipv6_lease_time", "dhcp_domain_name") {
 		var updateOpts subnets.UpdateOpts
 
 		// name is mandatory while updating subnet
