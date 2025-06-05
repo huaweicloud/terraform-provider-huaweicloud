@@ -1,14 +1,16 @@
 ---
 subcategory: "Data Encryption Workshop (DEW)"
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_kms_keypair_disassociate"
+page_title: "HuaweiCloud: huaweicloud_kps_keypair_disassociate"
 description: |-
-  Manages a KMS keypair disassociate resource within HuaweiCloud.
+  Manages a KPS keypair disassociate resource within HuaweiCloud.
 ---
 
-# huaweicloud_kms_keypair_disassociate
+# huaweicloud_kps_keypair_disassociate
 
-Manages a KMS keypair disassociate resource within HuaweiCloud.
+Manages a KPS keypair disassociate resource within HuaweiCloud.
+
+-> The current resource is a one-time resource, and destroying this resource will not change the current status.
 
 -> Please refer to the API document link for more precautions  
 [reference](https://support.huaweicloud.com/intl/en-us/usermanual-dew/dew_01_0071.html).
@@ -23,7 +25,7 @@ variable "port" {}
 variable "type" {}
 variable "key" {}
 
-resource "huaweicloud_kms_keypair_disassociate" "test" {
+resource "huaweicloud_kps_keypair_disassociate" "test" {
   server {
     id   = var.server_id
     port = var.port
@@ -41,7 +43,7 @@ resource "huaweicloud_kms_keypair_disassociate" "test" {
 ```hcl
 variable "server_id" {}
 
-resource "huaweicloud_kms_keypair_disassociate" "test" {
+resource "huaweicloud_kps_keypair_disassociate" "test" {
   server {
     id = var.server_id
   }
@@ -56,9 +58,9 @@ The following arguments are supported:
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
 * `server` - (Required, List, NonUpdatable) Specifies the ECS information that requires disassociating keypair.
-  The [server](#kms_server) structure is documented below.
+  The [server](#kps_server) structure is documented below.
 
-<a name="kms_server"></a>
+<a name="kps_server"></a>
 The `server` block supports:
 
 * `id` - (Required, String, NonUpdatable) Specifies ID of the ECS which need to disassociate the SSH keypair.

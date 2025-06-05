@@ -14,9 +14,9 @@ func TestAccKeypairsDisassociate_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			// Please prepare one ECS with KMS keypair, then config it to the environment variable.
-			acceptance.TestAccPreCheckKmsKeyPrivateKey(t)
-			acceptance.TestAccPreCheckKmsSSHPort(t)
+			// Please prepare one ECS with KPS keypair, then config it to the environment variable.
+			acceptance.TestAccPreCheckKpsKeypairKey(t)
+			acceptance.TestAccPreCheckKpsSSHPort(t)
 			acceptance.TestAccPreCheckECSID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
@@ -30,7 +30,7 @@ func TestAccKeypairsDisassociate_basic(t *testing.T) {
 
 func testAccKeypairsDisassociate_basic() string {
 	return fmt.Sprintf(`
-resource "huaweicloud_kms_keypair_disassociate" "test" {
+resource "huaweicloud_kps_keypair_disassociate" "test" {
   server {
     id   = "%[1]s"
     port = %[2]s
@@ -41,5 +41,5 @@ resource "huaweicloud_kms_keypair_disassociate" "test" {
     }
   }
 }
-`, acceptance.HW_ECS_ID, acceptance.HW_KMS_KEYPAIR_SSH_PORT, acceptance.HW_KMS_KEY_PRIVATE_KEY)
+`, acceptance.HW_ECS_ID, acceptance.HW_KPS_KEYPAIR_SSH_PORT, acceptance.HW_KPS_KEYPAIR_KEY_1)
 }

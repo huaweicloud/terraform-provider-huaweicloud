@@ -17,25 +17,27 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-var keypairDisassociateNonUpdatableParams = []string{
+var keypairAssociateNonUpdatableParams = []string{
+	"keypair_name",
 	"server",
 	"server.*.id",
 	"server.*.auth",
 	"server.*.port",
+	"server.*.disable_password",
 	"server.*.auth.*.type",
 	"server.*.auth.*.key",
 }
 
-// @API DEW POST /v3/{project_id}/keypairs/disassociate
+// @API DEW POST /v3/{project_id}/keypairs/associate
 // @API DEW GET /v3/{project_id}/tasks/{task_id}
-func ResourceKmsKeypairDisassociate() *schema.Resource {
+func ResourceKpsKeypairAssociate() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceKmsKeypairDisassociateCreate,
-		ReadContext:   resourceKmsKeypairDisassociateRead,
-		UpdateContext: resourceKmsKeypairDisassociateUpdate,
-		DeleteContext: resourceKmsKeypairDisassociateDelete,
+		CreateContext: resourceKpsKeypairAssociateCreate,
+		ReadContext:   resourceKpsKeypairAssociateRead,
+		UpdateContext: resourceKpsKeypairAssociateUpdate,
+		DeleteContext: resourceKpsKeypairAssociateDelete,
 
-		CustomizeDiff: config.FlexibleForceNew(keypairDisassociateNonUpdatableParams),
+		CustomizeDiff: config.FlexibleForceNew(keypairAssociateNonUpdatableParams),
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
@@ -48,11 +50,16 @@ func ResourceKmsKeypairDisassociate() *schema.Resource {
 				Computed:    true,
 				Description: `Specifies the region in which to query the resource.`,
 			},
+			"keypair_name": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `Specifies the name of SSH keypair.`,
+			},
 			"server": {
 				Type:        schema.TypeList,
 				Required:    true,
 				MaxItems:    1,
-				Elem:        resourceServerSchema(),
+				Elem:        resourceKeypairAssociateServerSchema(),
 				Description: `Specifies the ECS information.`,
 			},
 			"enable_force_new": {
@@ -65,7 +72,7 @@ func ResourceKmsKeypairDisassociate() *schema.Resource {
 	}
 }
 
-func resourceServerSchema() *schema.Resource {
+func resourceKeypairAssociateServerSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"id": {
@@ -77,25 +84,30 @@ func resourceServerSchema() *schema.Resource {
 				Type:        schema.TypeList,
 				Optional:    true,
 				MaxItems:    1,
-				Elem:        resourceServerAuthSchema(),
-				Description: `Specifies the authentication type.`,
+				Elem:        resourceKeypairAssociateServerAuthSchema(),
+				Description: `Specifies the authentication information.`,
 			},
 			"port": {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				Description: `Specifies the SSH listening port.`,
 			},
+			"disable_password": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Specifies whether the password is disabled.`,
+			},
 		},
 	}
 }
 
-func resourceServerAuthSchema() *schema.Resource {
+func resourceKeypairAssociateServerAuthSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"type": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specifies the value of an enumeration type.`,
+				Description: `Specifies the value of the authentication type.`,
 			},
 			"key": {
 				Type:        schema.TypeString,
@@ -106,13 +118,14 @@ func resourceServerAuthSchema() *schema.Resource {
 	}
 }
 
-func buildKeypairDisassociateBodyParams(d *schema.ResourceData) map[string]interface{} {
+func buildKeypairAssociateBodyParams(d *schema.ResourceData) map[string]interface{} {
 	return map[string]interface{}{
-		"server": utils.RemoveNil(buildServerBodyParams(d.Get("server").([]interface{}))),
+		"keypair_name": d.Get("keypair_name"),
+		"server":       utils.RemoveNil(buildKeypairAssociateServerBodyParams(d.Get("server").([]interface{}))),
 	}
 }
 
-func buildServerAuthBodyParams(auths []interface{}) map[string]interface{} {
+func buildKeypairAssociateServerAuthBodyParams(auths []interface{}) map[string]interface{} {
 	if len(auths) == 0 || auths[0] == nil {
 		return nil
 	}
@@ -130,8 +143,8 @@ func buildServerAuthBodyParams(auths []interface{}) map[string]interface{} {
 	return bodyParams
 }
 
-func buildServerBodyParams(servers []interface{}) map[string]interface{} {
-	if (len(servers) == 0) || servers[0] == nil {
+func buildKeypairAssociateServerBodyParams(servers []interface{}) map[string]interface{} {
+	if len(servers) == 0 || servers[0] == nil {
 		return nil
 	}
 
@@ -139,16 +152,17 @@ func buildServerBodyParams(servers []interface{}) map[string]interface{} {
 	for _, v := range servers {
 		item := v.(map[string]interface{})
 		bodyParams = map[string]interface{}{
-			"id":   item["id"],
-			"auth": buildServerAuthBodyParams(item["auth"].([]interface{})),
-			"port": utils.ValueIgnoreEmpty(item["port"]),
+			"id":               item["id"],
+			"auth":             buildKeypairAssociateServerAuthBodyParams(item["auth"].([]interface{})),
+			"port":             utils.ValueIgnoreEmpty(item["port"]),
+			"disable_password": item["disable_password"],
 		}
 	}
 
 	return bodyParams
 }
 
-func getKeypairDisassociateTask(client *golangsdk.ServiceClient, taskId string) (interface{}, error) {
+func getKeypairAssociateTask(client *golangsdk.ServiceClient, taskId string) (interface{}, error) {
 	var (
 		httpUrl = "v3/{project_id}/tasks/{task_id}"
 		getOpt  = golangsdk.RequestOpts{
@@ -162,38 +176,38 @@ func getKeypairDisassociateTask(client *golangsdk.ServiceClient, taskId string) 
 
 	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return getResp, fmt.Errorf("error retrieving KMS keypair disassociate task: %s", err)
+		return getResp, fmt.Errorf("error retrieving KPS keypair associate task: %s", err)
 	}
 
 	return utils.FlattenResponse(getResp)
 }
 
-func taskStatusRefreshFunc(taskId string, client *golangsdk.ServiceClient) resource.StateRefreshFunc {
+func keypairAssociateTaskStatusRefreshFunc(taskId string, client *golangsdk.ServiceClient) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		getTaskBody, err := getKeypairDisassociateTask(client, taskId)
+		getTaskBody, err := getKeypairAssociateTask(client, taskId)
 		if err != nil {
 			return getTaskBody, "ERROR", err
 		}
 
 		taskStatus := utils.PathSearch("task_status", getTaskBody, "").(string)
-		if taskStatus == "SUCCESS_UNBIND" {
-			return getTaskBody, "COMPLETED", nil
+		if utils.StrSliceContains([]string{"FAILED_BIND", "FAILED_RESET", "FAILED_REPLACE"}, taskStatus) {
+			return getTaskBody, "ERROR", fmt.Errorf("unexpect status (%s)", taskStatus)
 		}
 
-		if taskStatus == "FAILED_UNBIND" {
-			return getTaskBody, "ERROR", fmt.Errorf("unexpect status (%s)", taskStatus)
+		if utils.StrSliceContains([]string{"SUCCESS_BIND", "SUCCESS_RESET", "SUCCESS_REPLACE"}, taskStatus) {
+			return getTaskBody, "COMPLETED", nil
 		}
 
 		return getTaskBody, "PENDING", nil
 	}
 }
 
-func waitForKeypairDisassociateStatusCompleted(ctx context.Context, client *golangsdk.ServiceClient, taskId string,
+func waitForKeypairAssociateStatusCompleted(ctx context.Context, client *golangsdk.ServiceClient, taskId string,
 	timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
-		Refresh:      taskStatusRefreshFunc(taskId, client),
+		Refresh:      keypairAssociateTaskStatusRefreshFunc(taskId, client),
 		Timeout:      timeout,
 		Delay:        10 * time.Second,
 		PollInterval: 20 * time.Second,
@@ -204,16 +218,16 @@ func waitForKeypairDisassociateStatusCompleted(ctx context.Context, client *gola
 	return err
 }
 
-func resourceKmsKeypairDisassociateCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceKpsKeypairAssociateCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg     = meta.(*config.Config)
 		region  = cfg.GetRegion(d)
-		httpUrl = "v3/{project_id}/keypairs/disassociate"
+		httpUrl = "v3/{project_id}/keypairs/associate"
 		product = "kms"
 	)
 	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating KMS client: %s", err)
+		return diag.Errorf("error creating KPS client: %s", err)
 	}
 
 	requestPath := client.Endpoint + httpUrl
@@ -221,11 +235,11 @@ func resourceKmsKeypairDisassociateCreate(ctx context.Context, d *schema.Resourc
 	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
-		JSONBody:         utils.RemoveNil(buildKeypairDisassociateBodyParams(d)),
+		JSONBody:         utils.RemoveNil(buildKeypairAssociateBodyParams(d)),
 	}
 	resp, err := client.Request("POST", requestPath, &requestOpt)
 	if err != nil {
-		return diag.Errorf("error disassociating the KMS keypair from ECS: %s", err)
+		return diag.Errorf("error associating the KPS keypair to the ECS: %s", err)
 	}
 
 	respBody, err := utils.FlattenResponse(resp)
@@ -235,11 +249,11 @@ func resourceKmsKeypairDisassociateCreate(ctx context.Context, d *schema.Resourc
 
 	taskId := utils.PathSearch("task_id", respBody, "").(string)
 	if taskId == "" {
-		return diag.Errorf("unable to find KMS task ID from API response")
+		return diag.Errorf("unable to find KPS task ID from API response")
 	}
 	d.SetId(taskId)
 
-	err = waitForKeypairDisassociateStatusCompleted(ctx, client, taskId, d.Timeout(schema.TimeoutCreate))
+	err = waitForKeypairAssociateStatusCompleted(ctx, client, taskId, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.Errorf("error waiting for the task (%s) completed: %s", taskId, err)
 	}
@@ -247,19 +261,19 @@ func resourceKmsKeypairDisassociateCreate(ctx context.Context, d *schema.Resourc
 	return nil
 }
 
-func resourceKmsKeypairDisassociateRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceKpsKeypairAssociateRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	// No processing is performed in the 'Read()' method because the resource is a one-time action resource.
 	return nil
 }
 
-func resourceKmsKeypairDisassociateUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceKpsKeypairAssociateUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	// No processing is performed in the 'Update()' method because the resource is a one-time action resource.
 	return nil
 }
 
-func resourceKmsKeypairDisassociateDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
-	errorMsg := `This resource is a one-time action resource using to disassociate a SSH keypair to a specified ECS.
-Deleting this resource will not change the current SSH keypair, but will only remove the resource information from the tfstate file.`
+func resourceKpsKeypairAssociateDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+	errorMsg := `This resource is a one-time action resource using to associate a SSH keypair to a specified ECS.
+Deleting this resource will not change the current SSH key pair, but will only remove the resource information from the tfstate file.`
 	return diag.Diagnostics{
 		diag.Diagnostic{
 			Severity: diag.Warning,
