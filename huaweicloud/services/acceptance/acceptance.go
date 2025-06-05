@@ -271,13 +271,14 @@ var (
 	HW_FGS_GPU_TYPE            = os.Getenv("HW_FGS_GPU_TYPE")
 	HW_FGS_DEPENDENCY_OBS_LINK = os.Getenv("HW_FGS_DEPENDENCY_OBS_LINK")
 
-	HW_KMS_ENVIRONMENT     = os.Getenv("HW_KMS_ENVIRONMENT")
-	HW_KMS_HSM_CLUSTER_ID  = os.Getenv("HW_KMS_HSM_CLUSTER_ID")
-	HW_KMS_KEY_ID          = os.Getenv("HW_KMS_KEY_ID")
-	HW_KMS_ALIAS           = os.Getenv("HW_KMS_ALIAS")
-	HW_KMS_IMPORT_TOKEN    = os.Getenv("HW_KMS_IMPORT_TOKEN")
-	HW_KMS_KEY_MATERIAL    = os.Getenv("HW_KMS_KEY_MATERIAL")
-	HW_KMS_KEY_PRIVATE_KEY = os.Getenv("HW_KMS_KEY_PRIVATE_KEY")
+	HW_KMS_ENVIRONMENT      = os.Getenv("HW_KMS_ENVIRONMENT")
+	HW_KMS_HSM_CLUSTER_ID   = os.Getenv("HW_KMS_HSM_CLUSTER_ID")
+	HW_KMS_KEY_ID           = os.Getenv("HW_KMS_KEY_ID")
+	HW_KMS_ALIAS            = os.Getenv("HW_KMS_ALIAS")
+	HW_KMS_IMPORT_TOKEN     = os.Getenv("HW_KMS_IMPORT_TOKEN")
+	HW_KMS_KEY_MATERIAL     = os.Getenv("HW_KMS_KEY_MATERIAL")
+	HW_KMS_KEY_PRIVATE_KEY  = os.Getenv("HW_KMS_KEY_PRIVATE_KEY")
+	HW_KMS_KEYPAIR_SSH_PORT = os.Getenv("HW_KMS_KEYPAIR_SSH_PORT")
 
 	HW_MULTI_ACCOUNT_ENVIRONMENT            = os.Getenv("HW_MULTI_ACCOUNT_ENVIRONMENT")
 	HW_ORGANIZATIONS_OPEN                   = os.Getenv("HW_ORGANIZATIONS_OPEN")
@@ -515,6 +516,7 @@ var (
 	HW_EVS_ENABLE_FLAG              = os.Getenv("HW_EVS_ENABLE_FLAG")
 
 	HW_ECS_LAUNCH_TEMPLATE_ID = os.Getenv("HW_ECS_LAUNCH_TEMPLATE_ID")
+	HW_ECS_ID                 = os.Getenv("HW_ECS_ID")
 
 	HW_IOTDA_ACCESS_ADDRESS      = os.Getenv("HW_IOTDA_ACCESS_ADDRESS")
 	HW_IOTDA_BATCHTASK_FILE_PATH = os.Getenv("HW_IOTDA_BATCHTASK_FILE_PATH")
@@ -1677,6 +1679,13 @@ func TestAccPreCheckKmsKeyPrivateKey(t *testing.T) {
 }
 
 // lintignore:AT003
+func TestAccPreCheckKmsSSHPort(t *testing.T) {
+	if HW_KMS_KEYPAIR_SSH_PORT == "" {
+		t.Skip("HW_KMS_KEYPAIR_SSH_PORT must be set for acceptance tests.")
+	}
+}
+
+// lintignore:AT003
 func TestAccPreCheckProjectID(t *testing.T) {
 	if HW_PROJECT_ID == "" {
 		t.Skip("HW_PROJECT_ID must be set for acceptance tests")
@@ -2676,6 +2685,13 @@ func TestAccPreCheckAKAndSK(t *testing.T) {
 func TestAccPreCheckECSLaunchTemplateID(t *testing.T) {
 	if HW_ECS_LAUNCH_TEMPLATE_ID == "" {
 		t.Skip("HW_ECS_LAUNCH_TEMPLATE_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckECSID(t *testing.T) {
+	if HW_ECS_ID == "" {
+		t.Skip("HW_ECS_ID must be set for the acceptance test")
 	}
 }
 
