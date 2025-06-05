@@ -73,6 +73,19 @@ func TestAccOBSTarget_basic(t *testing.T) {
 				),
 			},
 			{
+				Config: testAccOBSTarget_update(name, randInt),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "obs.0.policy.0.auto_export_policy.0.prefix", "pretest"),
+					resource.TestCheckResourceAttr(rName, "obs.0.policy.0.auto_export_policy.0.suffix", "suftest"),
+					resource.TestCheckResourceAttr(rName, "obs.0.policy.0.auto_export_policy.0.events.#", "3"),
+					resource.TestCheckResourceAttr(rName, "obs.0.attributes.0.file_mode", "777"),
+					resource.TestCheckResourceAttr(rName, "obs.0.attributes.0.dir_mode", "555"),
+					resource.TestCheckResourceAttr(rName, "obs.0.attributes.0.uid", "1231"),
+					resource.TestCheckResourceAttr(rName, "obs.0.attributes.0.gid", "2340"),
+				),
+			},
+			{
 				ResourceName:            rName,
 				ImportState:             true,
 				ImportStateVerify:       true,
@@ -119,6 +132,38 @@ resource "huaweicloud_sfs_turbo_obs_target" "test" {
       dir_mode  = "750"
       uid       = 101
       gid       = 234
+    }
+  }
+}
+`, testAccOBSTarget_basic_base(randInt), testAccSFSTurbo_shareTypeHpc(name), acceptance.HW_OBS_ENDPOINT)
+}
+
+func testAccOBSTarget_update(name string, randInt int) string {
+	return fmt.Sprintf(`
+%[1]s
+%[2]s
+
+resource "huaweicloud_sfs_turbo_obs_target" "test" {
+  share_id         = huaweicloud_sfs_turbo.test.id
+  file_system_path = "obsdir"
+
+  obs {
+    bucket   = huaweicloud_obs_bucket.test.id
+    endpoint = "%[3]s"
+
+    policy {
+      auto_export_policy {
+        events = ["NEW","DELETED","CHANGED"]
+        prefix = "pretest"
+        suffix = "suftest"
+      }
+    }
+
+    attributes {
+      file_mode = "777"
+      dir_mode  = "555"
+      uid       = 1231
+      gid       = 2340
     }
   }
 }
