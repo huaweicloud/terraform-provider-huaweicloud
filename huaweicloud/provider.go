@@ -541,6 +541,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cae_notification_rules": cae.DataSourceCaeNotificationRules(),
 
 			"huaweicloud_cbr_backup":         cbr.DataSourceBackup(),
+			"huaweicloud_cbr_backups":        cbr.DataSourceBackups(),
 			"huaweicloud_cbr_vaults":         cbr.DataSourceVaults(),
 			"huaweicloud_cbr_policies":       cbr.DataSourcePolicies(),
 			"huaweicloud_cbr_tags":           cbr.DataSourceTags(),
