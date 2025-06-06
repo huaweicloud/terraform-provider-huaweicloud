@@ -598,6 +598,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cciv2_pods":                     cci.DataSourceV2Pods(),
 			"huaweicloud_cciv2_persistent_volumes":       cci.DataSourceV2PersistentVolumes(),
 			"huaweicloud_cciv2_persistent_volume_claims": cci.DataSourceV2PersistentVolumeClaims(),
+			"huaweicloud_cciv2_storage_classes":          cci.DataSourceV2StorageClasses(),
 
 			"huaweicloud_ccm_certificates":               ccm.DataSourceCertificates(),
 			"huaweicloud_ccm_certificate_export":         ccm.DataSourceCertificateExport(),
