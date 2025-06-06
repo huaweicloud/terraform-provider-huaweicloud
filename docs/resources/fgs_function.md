@@ -685,7 +685,7 @@ The `metric_configs` block supports:
 <a name="function_network_controller"></a>
 The `network_controller` block supports:
 
-* `trigger_access_vpcs` - (Required, List) Specifies the configuration of the VPCs that can trigger the function.  
+* `trigger_access_vpcs` - (Optional, List) Specifies the configuration of the VPCs that can trigger the function.  
   The [trigger_access_vpcs](#function_network_controller_trigger_access_vpcs) structure is documented below.
 
 * `disable_public_network` - (Optional, Bool) Specifies whether to disable the public network access.
@@ -693,7 +693,9 @@ The `network_controller` block supports:
 <a name="function_network_controller_trigger_access_vpcs"></a>
 The `trigger_access_vpcs` block supports:
 
-* `vpc_id` - (Required, String) Specifies the ID of the VPC that can trigger the function.
+* `vpc_id` - (Optional, String) Specifies the ID of the VPC that can trigger the function.
+
+* `vpc_name` - (Optional, String) Specifies the name of the VPC that can trigger the function.
 
 ## Attribute Reference
 

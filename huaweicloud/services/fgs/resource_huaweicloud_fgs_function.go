@@ -520,12 +520,20 @@ func ResourceFgsFunction() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"trigger_access_vpcs": {
 							Type:     schema.TypeSet,
-							Required: true,
+							Optional: true,
+							Computed: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"vpc_id": {
 										Type:        schema.TypeString,
-										Required:    true,
+										Optional:    true,
+										Computed:    true,
+										Description: `The ID of the VPC that can trigger the function.`,
+									},
+									"vpc_name": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Computed:    true,
 										Description: `The ID of the VPC that can trigger the function.`,
 									},
 								},
@@ -775,21 +783,22 @@ func buildFunctionLogConfig(d *schema.ResourceData) map[string]interface{} {
 }
 
 func buildNetworkControllerTriggerAccessVpcs(triggerAccessVpcs []interface{}) []map[string]interface{} {
-	if len(triggerAccessVpcs) < 1 {
+	if len(triggerAccessVpcs) < 1 || triggerAccessVpcs[0] == nil {
 		return nil
 	}
 
 	result := make([]map[string]interface{}, 0, len(triggerAccessVpcs))
 	for _, triggerAccessVpc := range triggerAccessVpcs {
 		result = append(result, map[string]interface{}{
-			"vpc_id": utils.PathSearch("vpc_id", triggerAccessVpc, nil),
+			"vpc_id":   utils.PathSearch("vpc_id", triggerAccessVpc, nil),
+			"vpc_name": utils.PathSearch("vpc_name", triggerAccessVpc, nil),
 		})
 	}
 	return result
 }
 
 func buildFunctionNetworkController(networkControlers []interface{}) map[string]interface{} {
-	if len(networkControlers) < 1 {
+	if len(networkControlers) < 1 || networkControlers[0] == nil {
 		return nil
 	}
 
@@ -1498,7 +1507,8 @@ func flattenNetworkControllerTriggerAccessVpcs(triggerAccessVpcs []interface{}) 
 	result := make([]map[string]interface{}, 0, len(triggerAccessVpcs))
 	for _, triggerAccessVpc := range triggerAccessVpcs {
 		result = append(result, map[string]interface{}{
-			"vpc_id": utils.PathSearch("vpc_id", triggerAccessVpc, nil),
+			"vpc_id":   utils.PathSearch("vpc_id", triggerAccessVpc, nil),
+			"vpc_name": utils.PathSearch("vpc_name", triggerAccessVpc, nil),
 		})
 	}
 
