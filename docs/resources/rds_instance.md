@@ -419,7 +419,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `created` - Indicates the creation time.
 
-* `nodes` - Indicates the instance nodes information. Structure is documented below.
+* `nodes` - Indicates the instance nodes information.
+  The [nodes](#nodes_struct) structure is documented below.
 
 * `private_ips` - Indicates the private IP address list. It is a blank string until an ECS is created.
 
@@ -430,6 +431,12 @@ In addition to all arguments above, the following attributes are exported:
 * `msdtc_hosts` - Indicates the host information for MSDTC.
   The [msdtc_hosts](#RdsInstance_MsdtcHostsResp) structure is documented below.
 
+* `storage_used_space` - Indicates the storage usage of the instance.
+  The [storage_used_space](#storage_used_space_struct) structure is documented below.
+
+* `replication_status` - Indicates the replication status of the instance.
+
+<a name="nodes_struct"></a>
 The `nodes` block contains:
 
 * `availability_zone` - Indicates the AZ.
@@ -447,6 +454,13 @@ The `nodes` block contains:
 The `msdtc_hosts` block supports:
 
 * `id` - Indicates the host ID.
+
+<a name="storage_used_space_struct"></a>
+The `storage_used_space` block supports:
+
+* `node_id` - Indicates the instance node ID.
+
+* `used` - Indicates the used storage, in GB.
 
 ## Timeouts
 
