@@ -2544,6 +2544,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_waf_address_group":                       waf.ResourceWafAddressGroup(),
 			"huaweicloud_waf_certificate":                         waf.ResourceWafCertificate(),
 			"huaweicloud_waf_cloud_instance":                      waf.ResourceCloudInstance(),
+			"huaweicloud_waf_domain_associate_certificate":        waf.ResourceDomainAssociateCertificate(),
 			"huaweicloud_waf_domain":                              waf.ResourceWafDomain(),
 			"huaweicloud_waf_policy":                              waf.ResourceWafPolicy(),
 			"huaweicloud_waf_rule_anti_crawler":                   waf.ResourceRuleAntiCrawler(),
