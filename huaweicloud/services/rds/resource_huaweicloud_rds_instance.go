@@ -42,6 +42,7 @@ type ctxType string
 // @API RDS POST /v3/{project_id}/instances/{id}/tags/action
 // @API RDS PUT /v3.1/{project_id}/configurations/{config_id}/apply
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/configurations
+// @API RDS PUT /v3.1/{project_id}/instances/{instance_id}/configurations
 // @API RDS POST /v3/{project_id}/instances/{instance_id}/action
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/disk-auto-expansion
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/backups/policy
@@ -2647,7 +2648,7 @@ func checkRDSInstanceJobFinish(client *golangsdk.ServiceClient, jobID string, ti
 		Target:       []string{"Completed"},
 		Refresh:      rdsInstanceJobRefreshFunc(client, jobID),
 		Timeout:      timeout,
-		Delay:        10 * time.Second,
+		Delay:        2 * time.Second,
 		PollInterval: 10 * time.Second,
 	}
 	if _, err := stateConf.WaitForState(); err != nil {

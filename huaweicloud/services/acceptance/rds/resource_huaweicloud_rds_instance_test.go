@@ -955,6 +955,11 @@ func testAccRdsInstance_sqlserver(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
+resource "huaweicloud_networking_secgroup" "test" {
+  name                 = "test_name"
+  delete_default_rules = true
+}
+
 resource "huaweicloud_networking_secgroup_rule" "ingress" {
   direction         = "ingress"
   ethertype         = "IPv4"

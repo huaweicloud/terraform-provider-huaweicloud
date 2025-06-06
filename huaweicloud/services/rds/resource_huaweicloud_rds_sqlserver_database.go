@@ -9,6 +9,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"strings"
 	"time"
 
@@ -27,7 +28,7 @@ import (
 // @API RDS POST /v3/{project_id}/instances/{instance_id}/database
 // @API RDS GET /v3/{project_id}/instances
 // @API RDS GET /v3/{project_id}/instances/{instance_id}/database/detail
-// @API RDS DELETE /v3/{project_id}/instances/{instance_id}/database/{db_name}
+// @API RDS DELETE /v3.1/{project_id}/instances/{instance_id}/database/{db_name}
 func ResourceSQLServerDatabase() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceSQLServerDatabaseCreate,
@@ -205,7 +206,7 @@ func resourceSQLServerDatabaseDelete(ctx context.Context, d *schema.ResourceData
 
 	// deleteSQLServerDatabase: delete RDS SQLServer database
 	var (
-		deleteSQLServerDatabaseHttpUrl = "v3/{project_id}/instances/{instance_id}/database/{db_name}"
+		deleteSQLServerDatabaseHttpUrl = "v3.1/{project_id}/instances/{instance_id}/database/{db_name}"
 		deleteSQLServerDatabaseProduct = "rds"
 	)
 	deleteSQLServerDatabaseClient, err := cfg.NewServiceClient(deleteSQLServerDatabaseProduct, region)
@@ -226,11 +227,11 @@ func resourceSQLServerDatabaseDelete(ctx context.Context, d *schema.ResourceData
 	}
 
 	retryFunc := func() (interface{}, bool, error) {
-		_, err = deleteSQLServerDatabaseClient.Request("DELETE", deleteSQLServerDatabasePath, &deleteSQLServerDatabaseOpt)
+		res, err := deleteSQLServerDatabaseClient.Request("DELETE", deleteSQLServerDatabasePath, &deleteSQLServerDatabaseOpt)
 		retry, err := handleMultiOperationsError(err)
-		return nil, retry, err
+		return res, retry, err
 	}
-	_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+	deleteResp, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
 		WaitFunc:     rdsInstanceStateRefreshFunc(deleteSQLServerDatabaseClient, instanceId),
@@ -241,6 +242,20 @@ func resourceSQLServerDatabaseDelete(ctx context.Context, d *schema.ResourceData
 	})
 	if err != nil {
 		return diag.Errorf("error deleting RDS SQLServer database: %s", err)
+	}
+
+	deleteRespBody, err := utils.FlattenResponse(deleteResp.(*http.Response))
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	jobId := utils.PathSearch("job_id", deleteRespBody, nil)
+	if jobId == nil {
+		return diag.Errorf("error deleting RDS SQL server database: job_id is not found in API response")
+	}
+
+	err = checkRDSInstanceJobFinish(deleteSQLServerDatabaseClient, jobId.(string), d.Timeout(schema.TimeoutDelete))
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
 	return nil

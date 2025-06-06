@@ -31,6 +31,7 @@ import (
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/ssl
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/disk-auto-expansion
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/configurations
+// @API RDS PUT /v3.1/{project_id}/instances/{instance_id}/configurations
 // @API RDS GET /v3/{project_id}/instances/{instance_id}/disk-auto-expansion
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/name
 // @API RDS DELETE /v3/{project_id}/instances/{instance_id}
