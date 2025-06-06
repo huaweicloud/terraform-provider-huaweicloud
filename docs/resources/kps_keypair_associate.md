@@ -1,14 +1,14 @@
 ---
 subcategory: "Data Encryption Workshop (DEW)"
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_kms_keypair_associate"
+page_title: "HuaweiCloud: huaweicloud_kps_keypair_associate"
 description: |-
-  Manages a KMS keypair associate resource within HuaweiCloud.
+  Manages a KPS keypair associate resource within HuaweiCloud.
 ---
 
-# huaweicloud_kms_keypair_associate
+# huaweicloud_kps_keypair_associate
 
-Manages a KMS keypair associate resource within HuaweiCloud.
+Manages a KPS keypair associate resource within HuaweiCloud.
 
 -> The current resource is a one-time resource, and destroying this resource will not change the current status.
 
@@ -33,7 +33,7 @@ variable "port" {}
 variable "type" {}
 variable "key" {}
 
-resource "huaweicloud_kms_keypair_associate" "test" {
+resource "huaweicloud_kps_keypair_associate" "test" {
   keypair_name  = var.keypair_name
 
   server {
@@ -54,7 +54,7 @@ resource "huaweicloud_kms_keypair_associate" "test" {
 variable "keypair_name" {}
 variable "server_id" {}
 
-resource "huaweicloud_kms_keypair_associate" "test" {
+resource "huaweicloud_kps_keypair_associate" "test" {
   keypair_name  = var.keypair_name
 
   server {
@@ -77,9 +77,9 @@ The following arguments are supported:
   **CoreOS**, **OpenEuler**, **FreeBSD（Other）**, **Kylin V10 64bit**, **UnionTech OS Server 20**,  
   **Euler 64bit** and **CentOS Stream 8 64bit**.
 
-  The [server](#kms_server) structure is documented below.
+  The [server](#kps_server) structure is documented below.
 
-<a name="kms_server"></a>
+<a name="kps_server"></a>
 The `server` block supports:
 
 * `id` - (Required, String, NonUpdatable) Specifies ID of the ECS which need to associate (replace or reset) the SSH keypair.

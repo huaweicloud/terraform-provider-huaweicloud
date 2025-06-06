@@ -14,8 +14,8 @@ func TestAccKeypairsAssociate_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			// Please prepare two valid KMS keypair and one ECS, then config it to the environment variable.
-			acceptance.TestAccPreCheckKmsKeyPair(t)
+			// Please prepare two valid KPS keypair and one ECS, then config it to the environment variable.
+			acceptance.TestAccPreCheckKpsKeyPair(t)
 			acceptance.TestAccPreCheckECSAccount(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
@@ -32,7 +32,7 @@ func TestAccKeypairsAssociate_basic(t *testing.T) {
 
 func testAccKeypairsAssociate_basic() string {
 	return fmt.Sprintf(`
-resource "huaweicloud_kms_keypair_associate" "test" {
+resource "huaweicloud_kps_keypair_associate" "test" {
   keypair_name = "%[1]s"
 
   server {
@@ -45,12 +45,12 @@ resource "huaweicloud_kms_keypair_associate" "test" {
     }
   }
 }
-`, acceptance.HW_KMS_KEYPAIR_NAME_1, acceptance.HW_ECS_ID, acceptance.HW_KMS_KEYPAIR_SSH_PORT, acceptance.HW_ECS_ROOT_PWD)
+`, acceptance.HW_KPS_KEYPAIR_NAME_1, acceptance.HW_ECS_ID, acceptance.HW_KPS_KEYPAIR_SSH_PORT, acceptance.HW_ECS_ROOT_PWD)
 }
 
 func testAccKeypairsAssociate_replace() string {
 	return fmt.Sprintf(`
-resource "huaweicloud_kms_keypair_associate" "test1" {
+resource "huaweicloud_kps_keypair_associate" "test1" {
   keypair_name = "%[1]s"
   
   server {
@@ -63,5 +63,5 @@ resource "huaweicloud_kms_keypair_associate" "test1" {
     }
   }
 }
-`, acceptance.HW_KMS_KEYPAIR_NAME_2, acceptance.HW_ECS_ID, acceptance.HW_KMS_KEYPAIR_SSH_PORT, acceptance.HW_KMS_KEYPAIR_KEY_1)
+`, acceptance.HW_KPS_KEYPAIR_NAME_2, acceptance.HW_ECS_ID, acceptance.HW_KPS_KEYPAIR_SSH_PORT, acceptance.HW_KPS_KEYPAIR_KEY_1)
 }
