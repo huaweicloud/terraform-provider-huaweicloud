@@ -102,6 +102,7 @@ var (
 
 	HW_WAF_ENABLE_FLAG         = os.Getenv("HW_WAF_ENABLE_FLAG")
 	HW_WAF_CERTIFICATE_ID      = os.Getenv("HW_WAF_CERTIFICATE_ID")
+	HW_WAF_DOMAIN_ID           = os.Getenv("HW_WAF_DOMAIN_ID")
 	HW_WAF_TYPE                = os.Getenv("HW_WAF_TYPE")
 	HW_WAF_CLOUD_INSTANCE_FLAG = os.Getenv("HW_WAF_CLOUD_INSTANCE_FLAG")
 	HW_WAF_INTERNATIONAL_FLAG  = os.Getenv("HW_WAF_INTERNATIONAL_FLAG")
@@ -1012,6 +1013,13 @@ func TestAccPreCheckWafGroup(t *testing.T) {
 func TestAccPreCheckWafCertID(t *testing.T) {
 	if HW_WAF_CERTIFICATE_ID == "" {
 		t.Skip("HW_WAF_CERTIFICATE_ID must be set for this acceptance test.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckWafDomainId(t *testing.T) {
+	if HW_WAF_DOMAIN_ID == "" {
+		t.Skip("HW_WAF_DOMAIN_ID must be set for this acceptance test.")
 	}
 }
 
