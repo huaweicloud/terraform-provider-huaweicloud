@@ -16,6 +16,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dew"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
@@ -96,11 +97,31 @@ func ResourceFunctionTrigger() *schema.Resource {
 	}
 }
 
-func buildCreateFunctionTriggerBodyParams(d *schema.ResourceData) map[string]interface{} {
-	return map[string]interface{}{
-		"trigger_type_code": d.Get("type"),
-		"event_data":        utils.StringToJson(d.Get("event_data").(string)),
+// parseEventDataAndDecryptSentisiveParams parses the event data and decrypts the password.
+// The keyword of the encrypted password is start with "encrypted_", its name is defined by the
+// terraform provider and only provider used, so we need to remove the prefix in the request body.
+// For example, the encrypted password is "encrypted_password", the request body should be "password".
+func parseEventDataAndDecryptSentisiveParams(ctx context.Context, meta interface{}, d *schema.ResourceData,
+	eventData interface{}) (map[string]interface{}, error) {
+	sensitiveParams := []string{"password"}
+
+	// The provider produced inconsistent final plan' error occurs when the event data is a map[string]interface{}.
+	// So we need to create a new map to store the event data.
+	mapData := utils.TryMapValueAnalysis(eventData)
+	for k, v := range mapData {
+		if utils.IsStrContainsSliceElement(k, sensitiveParams, true, false) && strings.HasPrefix(k, "encrypted_") {
+			// If the password is encrypted, decrypt it.
+			// And the keyword of the encrypted password is start with "encrypted_", its name is defined by the
+			// terraform provider and only provider used, so we need to remove the prefix in the request body.
+			encrypted, err := dew.DecryptPasswordWithDefaultKmsKey(ctx, meta, d, v.(string))
+			if err != nil {
+				return nil, err
+			}
+			mapData[strings.TrimPrefix(k, "encrypted_")] = encrypted
+			delete(mapData, k)
+		}
 	}
+	return mapData, nil
 }
 
 func resourceFunctionTriggerCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -119,9 +140,18 @@ func resourceFunctionTriggerCreate(ctx context.Context, d *schema.ResourceData, 
 	createPath := client.Endpoint + httpUrl
 	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
 	createPath = strings.ReplaceAll(createPath, "{function_urn}", functionUrn)
+
+	parsedEventData, err := parseEventDataAndDecryptSentisiveParams(ctx, meta, d, utils.StringToJson(d.Get("event_data").(string)))
+	if err != nil {
+		return diag.Errorf("error parsing event data: %s", err)
+	}
+
 	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		JSONBody:         utils.RemoveNil(buildCreateFunctionTriggerBodyParams(d)),
+		JSONBody: utils.RemoveNil(map[string]interface{}{
+			"trigger_type_code": d.Get("type"),
+			"event_data":        parsedEventData,
+		}),
 		MoreHeaders: map[string]string{
 			"Content-Type": "application/json",
 		},
@@ -205,6 +235,21 @@ func GetTriggerById(client *golangsdk.ServiceClient, functionUrn, triggerType, t
 	return utils.FlattenResponse(requestResp)
 }
 
+func skipEventDataAndDecryptPassword(originEventData, eventData interface{}) map[string]interface{} {
+	mapOriginData := utils.TryMapValueAnalysis(originEventData)
+	mapData := utils.TryMapValueAnalysis(eventData)
+
+	for k := range mapData {
+		if utils.IsStrContainsSliceElement(k, []string{"password"}, true, false) {
+			if _, ok := mapOriginData[fmt.Sprintf("encrypted_%s", k)]; ok {
+				delete(mapData, k)
+			}
+		}
+	}
+
+	return mapData
+}
+
 func resourceFunctionTriggerRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg         = meta.(*config.Config)
@@ -228,19 +273,13 @@ func resourceFunctionTriggerRead(_ context.Context, d *schema.ResourceData, meta
 		d.Set("region", region),
 		d.Set("type", utils.PathSearch("trigger_type_code", respBody, nil)),
 		d.Set("status", utils.PathSearch("trigger_status", respBody, nil)),
-		d.Set("event_data", utils.JsonToString(utils.PathSearch("event_data", respBody, nil))),
+		d.Set("event_data", utils.JsonToString(skipEventDataAndDecryptPassword(d.Get("event_data").(string),
+			utils.PathSearch("event_data", respBody, make(map[string]interface{}))))),
 		d.Set("created_at", utils.PathSearch("created_time", respBody, nil)),
 		d.Set("updated_at", utils.PathSearch("last_updated_time", respBody, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
-}
-
-func buildUpdateFunctionTriggerBodyParams(d *schema.ResourceData) map[string]interface{} {
-	return map[string]interface{}{
-		"trigger_status": d.Get("status"),
-		"event_data":     utils.StringToJson(d.Get("event_data").(string)),
-	}
 }
 
 func resourceFunctionTriggerUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -263,9 +302,18 @@ func resourceFunctionTriggerUpdate(ctx context.Context, d *schema.ResourceData, 
 	updatePath = strings.ReplaceAll(updatePath, "{function_urn}", functionUrn)
 	updatePath = strings.ReplaceAll(updatePath, "{trigger_type_code}", triggerType)
 	updatePath = strings.ReplaceAll(updatePath, "{trigger_id}", triggerId)
+
+	parsedEventData, err := parseEventDataAndDecryptSentisiveParams(ctx, meta, d, utils.StringToJson(d.Get("event_data").(string)))
+	if err != nil {
+		return diag.Errorf("error parsing event data: %s", err)
+	}
+
 	updateOpts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		JSONBody:         utils.RemoveNil(buildUpdateFunctionTriggerBodyParams(d)),
+		JSONBody: utils.RemoveNil(map[string]interface{}{
+			"trigger_status": d.Get("status"),
+			"event_data":     parsedEventData,
+		}),
 		MoreHeaders: map[string]string{
 			"Content-Type": "application/json",
 		},
