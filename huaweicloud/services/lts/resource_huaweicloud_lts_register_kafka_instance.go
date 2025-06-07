@@ -11,6 +11,7 @@ import (
 	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dew"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
@@ -60,6 +61,17 @@ func ResourceRegisterKafkaInstance() *schema.Resource {
 							Sensitive:   true,
 							Description: `The password of the SASL_SSL user of the Kafka instance.`,
 						},
+						"encrypted_pwd": {
+							Type:      schema.TypeString,
+							Optional:  true,
+							Sensitive: true,
+							Description: utils.SchemaDesc(
+								`The encrypted password of the SASL_SSL user of the Kafka instance.`,
+								utils.SchemaDescInput{
+									Internal: true,
+								},
+							),
+						},
 					},
 				},
 				Description: `The connection information of the Kafka instance to be registered to the LTS.`,
@@ -87,10 +99,16 @@ func resourceRegisterKafkaInstanceCreate(ctx context.Context, d *schema.Resource
 	}
 	createPath := client.Endpoint + httpUrl
 	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+
+	bodyParams, err := buildCreateRegisterKafkaInstancemBodyParams(ctx, meta, d)
+	if err != nil {
+		return diag.Errorf("error building request body for create register kafka instance: %s", err)
+	}
+
 	createOpts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders:      map[string]string{"Content-Type": "application/json;charset=UTF-8"},
-		JSONBody:         buildCreateRegisterKafkaInstancemBodyParams(d),
+		JSONBody:         bodyParams,
 	}
 
 	requestResp, err := client.Request("POST", createPath, &createOpts)
@@ -113,24 +131,41 @@ func resourceRegisterKafkaInstanceCreate(ctx context.Context, d *schema.Resource
 	return resourceRegisterKafkaInstanceRead(ctx, d, meta)
 }
 
-func buildCreateRegisterKafkaInstancemBodyParams(d *schema.ResourceData) map[string]interface{} {
-	return map[string]interface{}{
+func buildCreateRegisterKafkaInstancemBodyParams(ctx context.Context, meta interface{}, d *schema.ResourceData) (map[string]interface{}, error) {
+	result := map[string]interface{}{
 		"instance_id": d.Get("instance_id"),
 		"kafka_name":  d.Get("kafka_name"),
-		// For non-authenticated Kafka, this parameter must be specified as an empty object, otherwise the interface will report an error.
-		"connect_info": buildConnectInfo(d.Get("connect_info").([]interface{})),
 	}
+
+	connectInfo, err := buildConnectInfo(ctx, meta, d, d.Get("connect_info").([]interface{}))
+	if err != nil {
+		return nil, err
+	}
+	// For non-authenticated Kafka, this parameter must be specified as an empty object, otherwise the interface will report an error.
+	result["connect_info"] = connectInfo
+
+	return result, nil
 }
 
-func buildConnectInfo(connectInfo []interface{}) map[string]interface{} {
+func buildConnectInfo(ctx context.Context, meta interface{}, d *schema.ResourceData, connectInfo []interface{}) (map[string]interface{}, error) {
 	if len(connectInfo) == 0 || connectInfo[0] == nil {
-		return map[string]interface{}{}
+		return map[string]interface{}{}, nil
 	}
 
-	return map[string]interface{}{
+	result := map[string]interface{}{
 		"user_name": utils.PathSearch("user_name", connectInfo[0], nil),
 		"pwd":       utils.PathSearch("pwd", connectInfo[0], nil),
 	}
+
+	if encryptedPwd, ok := utils.PathSearch("encrypted_pwd", connectInfo[0], "").(string); ok && encryptedPwd != "" {
+		decryptedPwd, err := dew.DecryptPasswordWithDefaultKmsKey(ctx, meta, d, encryptedPwd)
+		if err != nil {
+			return nil, err
+		}
+		result["pwd"] = decryptedPwd
+	}
+
+	return result, nil
 }
 
 func resourceRegisterKafkaInstanceRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
