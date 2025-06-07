@@ -98,6 +98,11 @@ func resourceFunctionTriggerStatusActionCreate(ctx context.Context, d *schema.Re
 	updatePath = strings.ReplaceAll(updatePath, "{trigger_type_code}", triggerTypeCode)
 	updatePath = strings.ReplaceAll(updatePath, "{trigger_id}", triggerId)
 
+	parsedEventData, err := parseEventDataAndDecryptSentisiveParams(ctx, meta, d, utils.StringToJson(d.Get("event_data").(string)))
+	if err != nil {
+		return diag.Errorf("error parsing event data: %s", err)
+	}
+
 	opt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders: map[string]string{
@@ -105,7 +110,7 @@ func resourceFunctionTriggerStatusActionCreate(ctx context.Context, d *schema.Re
 		},
 		JSONBody: utils.RemoveNil(map[string]interface{}{
 			"trigger_status": triggerStatus,
-			"event_data":     utils.StringToJson(d.Get("event_data").(string)),
+			"event_data":     parsedEventData,
 		}),
 	}
 

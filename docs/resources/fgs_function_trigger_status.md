@@ -67,6 +67,10 @@ The following arguments are supported:
 
 * `event_data` - (Optional, String, NonUpdatable) Specifies the trigger event data configuration, in JSON format.
 
+~> It is not recommended to reference the event_data returned by the function trigger resource.
+   <br>Instead, it is recommended to reference the same variable source.
+   <br>If not, the terraform will report this error: The provider produced inconsistent final plan.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
