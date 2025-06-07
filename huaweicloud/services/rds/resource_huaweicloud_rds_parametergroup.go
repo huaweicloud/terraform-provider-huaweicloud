@@ -2,19 +2,24 @@ package rds
 
 import (
 	"context"
-	"log"
-	"time"
+	"strings"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	"github.com/chnsz/golangsdk/openstack/rds/v3/configurations"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// ResourceRdsConfiguration is the impl for huaweicloud_rds_parametergroup resource
+var configurationNonUpdatableParams = []string{
+	"datastore", "datastore.*.type", "datastore.*.version",
+}
+
 // @API RDS DELETE /v3/{project_id}/configurations/{id}
 // @API RDS GET /v3/{project_id}/configurations/{id}
 // @API RDS PUT /v3/{project_id}/configurations/{id}
@@ -29,10 +34,7 @@ func ResourceRdsConfiguration() *schema.Resource {
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 
-		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(10 * time.Minute),
-			Delete: schema.DefaultTimeout(10 * time.Minute),
-		},
+		CustomizeDiff: config.FlexibleForceNew(configurationNonUpdatableParams),
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -57,7 +59,6 @@ func ResourceRdsConfiguration() *schema.Resource {
 			"datastore": {
 				Type:     schema.TypeList,
 				Required: true,
-				ForceNew: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -72,6 +73,12 @@ func ResourceRdsConfiguration() *schema.Resource {
 						},
 					},
 				},
+			},
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
 			},
 			"configuration_parameters": {
 				Type:     schema.TypeList,
@@ -121,132 +128,206 @@ func ResourceRdsConfiguration() *schema.Resource {
 	}
 }
 
-func buildValues(d *schema.ResourceData) map[string]string {
-	m := make(map[string]string)
-	for key, val := range d.Get("values").(map[string]interface{}) {
-		m[key] = val.(string)
-	}
-	return m
-}
-
-func buildDatastore(d *schema.ResourceData) configurations.DataStore {
-	datastoreRaw := d.Get("datastore").([]interface{})
-	rawMap := datastoreRaw[0].(map[string]interface{})
-
-	datastore := configurations.DataStore{
-		Type:    rawMap["type"].(string),
-		Version: rawMap["version"].(string),
-	}
-
-	log.Printf("[DEBUG] Datastore: %#v", datastore)
-	return datastore
-}
-
 func resourceRdsConfigurationCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	rdsClient, err := config.RdsV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	var (
+		httpUrl = "v3/{project_id}/configurations"
+		product = "rds"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating RDS Client: %s", err)
+		return diag.Errorf("error creating RDS client: %s", err)
 	}
 
-	createOpts := configurations.CreateOpts{
-		Name:        d.Get("name").(string),
-		Description: d.Get("description").(string),
-		Values:      buildValues(d),
-		DataStore:   buildDatastore(d),
-	}
+	createPath := client.Endpoint + httpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
 
-	log.Printf("[DEBUG] CreateOpts: %#v", createOpts)
-	configuration, err := configurations.Create(rdsClient, createOpts).Extract()
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	createOpt.JSONBody = utils.RemoveNil(buildCreateConfigurationBodyParams(d))
+	createResp, err := client.Request("POST", createPath, &createOpt)
 	if err != nil {
 		return diag.Errorf("error creating RDS configuration: %s", err)
 	}
 
-	log.Printf("[DEBUG] RDS configuration created: %#v", configuration)
-	d.SetId(configuration.Id)
+	createRespBody, err := utils.FlattenResponse(createResp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	id := utils.PathSearch("configuration.id", createRespBody, "").(string)
+	if id == "" {
+		return diag.Errorf("error creating RDS configuration: ID is not found in API response")
+	}
+
+	d.SetId(id)
 
 	return resourceRdsConfigurationRead(ctx, d, meta)
 }
 
-func resourceRdsConfigurationRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	rdsClient, err := config.RdsV3Client(config.GetRegion(d))
+func buildCreateConfigurationBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"name":        d.Get("name"),
+		"description": utils.ValueIgnoreEmpty(d.Get("description")),
+		"datastore":   buildCreateConfigurationDatastore(d),
+		"values":      utils.ValueIgnoreEmpty(d.Get("values")),
+	}
+	return bodyParams
+}
+
+func buildCreateConfigurationDatastore(d *schema.ResourceData) map[string]interface{} {
+	datastore := d.Get("datastore").([]interface{})
+	rawDatastore := datastore[0].(map[string]interface{})
+	bodyParams := map[string]interface{}{
+		"type":    rawDatastore["type"],
+		"version": rawDatastore["version"],
+	}
+	return bodyParams
+}
+
+func resourceRdsConfigurationRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	var mErr *multierror.Error
+
+	var (
+		httpUrl = "v3/{project_id}/configurations/{config_id}"
+		product = "rds"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating RDS client: %s", err)
 	}
 
-	n, err := configurations.Get(rdsClient, d.Id()).Extract()
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{config_id}", d.Id())
+
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving RDS configuration")
 	}
 
-	d.SetId(n.Id)
-	d.Set("name", n.Name)
-	d.Set("description", n.Description)
-	d.Set("created_at", n.Created)
-	d.Set("updated_at", n.Updated)
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
-	datastore := []map[string]string{
-		{
-			"type":    n.DatastoreName,
-			"version": n.DatastoreVersionName,
+	mErr = multierror.Append(
+		mErr,
+		d.Set("region", region),
+		d.Set("name", utils.PathSearch("name", getRespBody, nil)),
+		d.Set("description", utils.PathSearch("description", getRespBody, nil)),
+		d.Set("datastore", flattenConfigurationDatastore(getRespBody)),
+		d.Set("configuration_parameters", flattenConfigurationParameters(getRespBody)),
+		d.Set("created_at", utils.PathSearch("created", getRespBody, nil)),
+		d.Set("updated_at", utils.PathSearch("updated", getRespBody, nil)),
+	)
+
+	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func flattenConfigurationDatastore(resp interface{}) []interface{} {
+	rst := []interface{}{
+		map[string]interface{}{
+			"type":    utils.PathSearch("datastore_name", resp, nil),
+			"version": utils.PathSearch("datastore_version_name", resp, nil),
 		},
 	}
-	d.Set("datastore", datastore)
+	return rst
+}
 
-	parameters := make([]map[string]interface{}, len(n.Parameters))
-	for i, parameter := range n.Parameters {
-		parameters[i] = make(map[string]interface{})
-		parameters[i]["name"] = parameter.Name
-		parameters[i]["value"] = parameter.Value
-		parameters[i]["restart_required"] = parameter.RestartRequired
-		parameters[i]["readonly"] = parameter.ReadOnly
-		parameters[i]["value_range"] = parameter.ValueRange
-		parameters[i]["type"] = parameter.Type
-		parameters[i]["description"] = parameter.Description
+func flattenConfigurationParameters(resp interface{}) []interface{} {
+	curJson := utils.PathSearch("configuration_parameters", resp, make([]interface{}, 0))
+	curArray := curJson.([]interface{})
+	res := make([]interface{}, 0, len(curArray))
+	for _, v := range curArray {
+		res = append(res, map[string]interface{}{
+			"name":             utils.PathSearch("name", v, nil),
+			"value":            utils.PathSearch("value", v, nil),
+			"restart_required": utils.PathSearch("restart_required", v, nil),
+			"readonly":         utils.PathSearch("readonly", v, nil),
+			"value_range":      utils.PathSearch("value_range", v, nil),
+			"type":             utils.PathSearch("type", v, nil),
+			"description":      utils.PathSearch("description", v, nil),
+		})
 	}
-	d.Set("configuration_parameters", parameters)
-	return nil
+	return res
 }
 
 func resourceRdsConfigurationUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	rdsClient, err := config.RdsV3Client(config.GetRegion(d))
-	if err != nil {
-		return diag.Errorf("error creating RDS Client: %s", err)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	if d.HasChanges("name", "description", "values") {
+		var (
+			httpUrl = "v3/{project_id}/configurations/{config_id}"
+			product = "rds"
+		)
+		client, err := cfg.NewServiceClient(product, region)
+		if err != nil {
+			return diag.Errorf("error creating RDS client: %s", err)
+		}
+
+		updatePath := client.Endpoint + httpUrl
+		updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+		updatePath = strings.ReplaceAll(updatePath, "{config_id}", d.Id())
+
+		updateOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+		}
+		updateOpt.JSONBody = utils.RemoveNil(buildUpdateConfigurationBodyParams(d))
+		_, err = client.Request("PUT", updatePath, &updateOpt)
+		if err != nil {
+			return diag.Errorf("error updating RDS configuration: %s", err)
+		}
 	}
 
-	var updateOpts configurations.UpdateOpts
-	if d.HasChange("name") {
-		updateOpts.Name = d.Get("name").(string)
-	}
-	if d.HasChange("description") {
-		updateOpts.Description = d.Get("description").(string)
-	}
-	if d.HasChange("values") {
-		updateOpts.Values = buildValues(d)
-	}
-
-	log.Printf("[DEBUG] updateOpts: %#v", updateOpts)
-	err = configurations.Update(rdsClient, d.Id(), updateOpts).ExtractErr()
-	if err != nil {
-		return diag.Errorf("error updating RDS configuration: %s", err)
-	}
 	return resourceRdsConfigurationRead(ctx, d, meta)
 }
 
+func buildUpdateConfigurationBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"name":        d.Get("name"),
+		"description": d.Get("description"),
+		"values":      d.Get("values"),
+	}
+	return bodyParams
+}
+
 func resourceRdsConfigurationDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	rdsClient, err := config.RdsV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	var (
+		httpUrl = "v3/{project_id}/configurations/{config_id}"
+		product = "rds"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating RDS client: %s", err)
 	}
 
-	err = configurations.Delete(rdsClient, d.Id()).ExtractErr()
+	deletePath := client.Endpoint + httpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = strings.ReplaceAll(deletePath, "{config_id}", d.Id())
+
+	deleteOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+	_, err = client.Request("DELETE", deletePath, &deleteOpt)
 	if err != nil {
 		return diag.Errorf("error deleting RDS configuration: %s", err)
 	}
 
-	d.SetId("")
 	return nil
 }
