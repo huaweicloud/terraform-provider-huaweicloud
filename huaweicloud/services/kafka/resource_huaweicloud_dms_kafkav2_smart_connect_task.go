@@ -559,6 +559,7 @@ func flattenSinkTaskResponse(d *schema.ResourceData, rawParams interface{}) []ma
 	params := map[string]interface{}{
 		"access_key":             d.Get("destination_task.0.access_key"),
 		"secret_key":             d.Get("destination_task.0.secret_key"),
+		"agency_name":            utils.PathSearch("agency_name", rawParams, nil),
 		"consumer_strategy":      utils.PathSearch("consumer_strategy", rawParams, nil),
 		"destination_file_type":  utils.PathSearch("destination_file_type", rawParams, nil),
 		"obs_bucket_name":        utils.PathSearch("obs_bucket_name", rawParams, nil),
