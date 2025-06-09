@@ -122,6 +122,7 @@ var (
 	HW_KPS_KEYPAIR_KEY_1    = os.Getenv("HW_KPS_KEYPAIR_KEY_1")
 	HW_KPS_KEYPAIR_SSH_PORT = os.Getenv("HW_KPS_KEYPAIR_SSH_PORT")
 	HW_KPS_ENABLE_FLAG      = os.Getenv("HW_KPS_ENABLE_FLAG")
+	HW_KPS_FAILED_TASK_ID   = os.Getenv("HW_KPS_FAILED_TASK_ID")
 
 	HW_DEST_REGION          = os.Getenv("HW_DEST_REGION")
 	HW_DEST_PROJECT_ID      = os.Getenv("HW_DEST_PROJECT_ID")
@@ -1713,6 +1714,13 @@ func TestAccPreCheckKmsKeyPrivateKey(t *testing.T) {
 func TestAccPreCheckKpsSSHPort(t *testing.T) {
 	if HW_KPS_KEYPAIR_SSH_PORT == "" {
 		t.Skip("HW_KPS_KEYPAIR_SSH_PORT must be set for acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckKpsTaskId(t *testing.T) {
+	if HW_KPS_FAILED_TASK_ID == "" {
+		t.Skip("HW_KPS_FAILED_TASK_ID must be set for acceptance tests.")
 	}
 }
 
