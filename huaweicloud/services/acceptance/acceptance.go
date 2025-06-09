@@ -280,15 +280,17 @@ var (
 	HW_FGS_GPU_TYPE            = os.Getenv("HW_FGS_GPU_TYPE")
 	HW_FGS_DEPENDENCY_OBS_LINK = os.Getenv("HW_FGS_DEPENDENCY_OBS_LINK")
 
-	HW_KMS_ENVIRONMENT       = os.Getenv("HW_KMS_ENVIRONMENT")
-	HW_KMS_HSM_CLUSTER_ID    = os.Getenv("HW_KMS_HSM_CLUSTER_ID")
-	HW_KMS_KEY_ID            = os.Getenv("HW_KMS_KEY_ID")
-	HW_KMS_ALIAS             = os.Getenv("HW_KMS_ALIAS")
-	HW_KMS_IMPORT_TOKEN      = os.Getenv("HW_KMS_IMPORT_TOKEN")
-	HW_KMS_KEY_MATERIAL      = os.Getenv("HW_KMS_KEY_MATERIAL")
-	HW_KMS_KEY_PRIVATE_KEY   = os.Getenv("HW_KMS_KEY_PRIVATE_KEY")
-	HW_KMS_KEY_PLAINTEXT     = os.Getenv("HW_KMS_KEY_PLAINTEXT")
-	HW_KMS_KEY_PLAINTEXT_LEN = os.Getenv("HW_KMS_KEY_PLAINTEXT_LEN")
+	HW_KMS_ENVIRONMENT         = os.Getenv("HW_KMS_ENVIRONMENT")
+	HW_KMS_HSM_CLUSTER_ID      = os.Getenv("HW_KMS_HSM_CLUSTER_ID")
+	HW_KMS_KEY_ID              = os.Getenv("HW_KMS_KEY_ID")
+	HW_KMS_ALIAS               = os.Getenv("HW_KMS_ALIAS")
+	HW_KMS_IMPORT_TOKEN        = os.Getenv("HW_KMS_IMPORT_TOKEN")
+	HW_KMS_KEY_MATERIAL        = os.Getenv("HW_KMS_KEY_MATERIAL")
+	HW_KMS_KEY_PRIVATE_KEY     = os.Getenv("HW_KMS_KEY_PRIVATE_KEY")
+	HW_KMS_KEY_PLAINTEXT       = os.Getenv("HW_KMS_KEY_PLAINTEXT")
+	HW_KMS_KEY_PLAINTEXT_LEN   = os.Getenv("HW_KMS_KEY_PLAINTEXT_LEN")
+	HW_KMS_KEY_CIPHER_TEXT     = os.Getenv("HW_KMS_KEY_CIPHER_TEXT")
+	HW_KMS_KEY_CIPHER_TEXT_LEN = os.Getenv("HW_KMS_KEY_CIPHER_TEXT_LEN")
 
 	HW_MULTI_ACCOUNT_ENVIRONMENT            = os.Getenv("HW_MULTI_ACCOUNT_ENVIRONMENT")
 	HW_ORGANIZATIONS_OPEN                   = os.Getenv("HW_ORGANIZATIONS_OPEN")
@@ -1716,6 +1718,13 @@ func TestAccPreCheckKmsKeyPrivateKey(t *testing.T) {
 func TestAccPreCheckKmsKeyPlaintext(t *testing.T) {
 	if HW_KMS_KEY_PLAINTEXT == "" || HW_KMS_KEY_PLAINTEXT_LEN == "" {
 		t.Skip("HW_KMS_KEY_PLAINTEXT, HW_KMS_KEY_PLAINTEXT_LEN must be set for acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckKmsKeyCiphertext(t *testing.T) {
+	if HW_KMS_KEY_CIPHER_TEXT == "" || HW_KMS_KEY_CIPHER_TEXT_LEN == "" {
+		t.Skip("HW_KMS_KEY_CIPHER_TEXT, HW_KMS_KEY_CIPHER_TEXT_LEN must be set for acceptance tests.")
 	}
 }
 
