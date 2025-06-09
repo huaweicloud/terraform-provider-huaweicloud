@@ -56,6 +56,8 @@ type ctxType string
 // @API RDS GET /v3/{project_id}/instances/{instance_id}/tde-status
 // @API RDS GET /v3/{project_id}/instances/{instance_id}/second-level-monitor
 // @API RDS GET /v3/{project_id}/instances/{instance_id}/db-auto-upgrade
+// @API RDS GET /v3/{project_id}/instances/{instance_id}/storage-used-space
+// @API RDS GET /v3/{project_id}/instances/{instance_id}/replication/status
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/name
 // @API RDS POST /v3/{project_id}/instances/{instance_id}/migrateslave
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/failover/mode
