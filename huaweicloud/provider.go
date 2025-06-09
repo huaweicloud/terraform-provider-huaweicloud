@@ -547,6 +547,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cbr_tags":                     cbr.DataSourceTags(),
 			"huaweicloud_cbr_vaults_by_tags":           cbr.DataSourceVaultsByTags(),
 			"huaweicloud_cbr_replication_capabilities": cbr.DataSourceCbrReplicationCapabilities(),
+			"huaweicloud_cbr_protectable_instances":    cbr.DataSourceProtectableInstances(),
 
 			"huaweicloud_cbh_instances":          cbh.DataSourceCbhInstances(),
 			"huaweicloud_cbh_flavors":            cbh.DataSourceCbhFlavors(),
