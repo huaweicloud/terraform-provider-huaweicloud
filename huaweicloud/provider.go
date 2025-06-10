@@ -1867,6 +1867,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dds_database_role":               dds.ResourceDatabaseRole(),
 			"huaweicloud_dds_database_user":               dds.ResourceDatabaseUser(),
 			"huaweicloud_dds_instance":                    dds.ResourceDdsInstanceV3(),
+			"huaweicloud_dds_instance_flavor_update":      dds.ResourceDdsInstanceFlavorUpdate(),
 			"huaweicloud_dds_backup":                      dds.ResourceDdsBackup(),
 			"huaweicloud_dds_parameter_template":          dds.ResourceDdsParameterTemplate(),
 			"huaweicloud_dds_audit_log_policy":            dds.ResourceDdsAuditLogPolicy(),
