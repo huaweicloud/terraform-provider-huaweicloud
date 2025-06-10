@@ -1017,6 +1017,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_webtamper_hosts":                hss.DataSourceWebTamperHosts(),
 			"huaweicloud_hss_quotas":                         hss.DataSourceQuotas(),
 			"huaweicloud_hss_policy_groups":                  hss.DataSourcePolicyGroups(),
+			"huaweicloud_hss_asset_users":                    hss.DataSourceAssetUsers(),
 
 			"huaweicloud_identity_permissions": iam.DataSourceIdentityPermissions(),
 			"huaweicloud_identity_role":        iam.DataSourceIdentityRole(),
