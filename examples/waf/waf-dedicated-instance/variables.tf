@@ -1,24 +1,40 @@
 variable "vpc_name" {
-  description = "The name of the Huaweicloud VPC"
-  default     = "tf_vpc_demo"
+  description = "The name of the VPC"
+  type        = string
+}
+
+variable "vpc_cidr" {
+  description = "The CIDR block of the VPC"
+  type        = string
 }
 
 variable "subnet_name" {
-  description = "The name of the Huaweicloud Subnet"
-  default     = "tf_subnet_demo"
+  description = "The name of the subnet"
+  type        = string
 }
 
 variable "security_group_name" {
-  description = "The name of the Huaweicloud Security Group"
-  default     = "tf_secgroup_demo"
+  description = "The name of the security group"
+  type        = string
 }
 
 variable "waf_dedicated_instance_name" {
-  description = "The name of the WAF Dedicated Instance"
-  default     = "tf_instance_demo"
+  description = "The name of the dedicated instance"
+  type        = string
+}
+
+variable "waf_dedicated_instance_specification_code" {
+  description = "The specification code of the dedicated instance"
+  type        = string
 }
 
 variable "waf_policy_name" {
-  description = "The name of the WAF Policy"
-  default     = "tf_policy_demo"
+  description = "The name of the WAF policy"
+  type        = string
+}
+
+variable "enterprise_project_id" {
+  description = "The ID of the enterprise project"
+  type        = string
+  default     = null
 }
