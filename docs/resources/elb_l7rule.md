@@ -120,7 +120,7 @@ The following arguments are supported:
     and `conditions` will be used to specify the key and value.
 
 * `conditions` - (Optional, List) Specifies the matching conditions of the forwarding rule. This parameter is available
-  only when `enhance_l7policy_enable` of the listener is set to **true**. If it is specified, parameter `value` will
+  only when `advanced_forwarding_enabled` of the listener is set to **true**. If it is specified, parameter `value` will
   not take effect, and the value will contain all conditions configured for the forwarding rule. The keys in the list
   must be the same, whereas each value must be unique.
   The [condition](#conditions) structure is documented below.
