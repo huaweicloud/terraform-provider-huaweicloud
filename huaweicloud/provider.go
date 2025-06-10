@@ -1244,6 +1244,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_dr_instances":                     rds.DataSourceRdsDrInstances(),
 			"huaweicloud_rds_dr_relationships":                 rds.DataSourceRdsDrRelationships(),
 			"huaweicloud_rds_lts_configs":                      rds.DataSourceRdsLtsConfigs(),
+			"huaweicloud_rds_list_job_info":                    rds.DataSourceRdsListJobInfo(),
 
 			"huaweicloud_rms_policy_definitions":                       rms.DataSourcePolicyDefinitions(),
 			"huaweicloud_rms_assignment_package_templates":             rms.DataSourceTemplates(),
