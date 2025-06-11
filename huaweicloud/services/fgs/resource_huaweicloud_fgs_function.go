@@ -26,6 +26,7 @@ import (
 // @API FunctionGraph PUT /v2/{project_id}/fgs/functions/{function_urn}/config-max-instance
 // @API FunctionGraph GET /v2/{project_id}/fgs/functions/{function_urn}/config
 // @API FunctionGraph GET /v2/{project_id}/fgs/functions/{function_urn}/versions
+// @API FunctionGraph GET /v2/{project_id}/fgs/functions/{function_urn}/lts-log-detail
 // @API FunctionGraph POST /v2/{project_id}/fgs/functions/{function_urn}/tags/create
 // @API FunctionGraph DELETE /v2/{project_id}/fgs/functions/{function_urn}/tags/delete
 // @API FunctionGraph PUT /v2/{project_id}/fgs/functions/{function_urn}/code
@@ -389,29 +390,22 @@ func ResourceFgsFunction() *schema.Resource {
 				`The key/value pairs to associate with the function.`,
 			),
 			"log_group_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				RequiredWith: []string{
-					"log_stream_id",
-					"log_group_name",
-					"log_stream_name",
-				},
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
 				Description: `The LTS group ID for collecting logs.`,
 			},
 			"log_group_name": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Computed:     true,
-				RequiredWith: []string{"log_group_id"},
-				Description:  `The LTS group name for collecting logs.`,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `The LTS group name for collecting logs.`,
 			},
 			"log_stream_id": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Computed:     true,
-				RequiredWith: []string{"log_group_id"},
-				Description:  `The LTS stream ID for collecting logs.`,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `The LTS stream ID for collecting logs.`,
 			},
 			"log_stream_name": {
 				Type:         schema.TypeString,
@@ -766,20 +760,19 @@ func buildFunctionLogConfig(d *schema.ResourceData) map[string]interface{} {
 		return nil
 	}
 
-	// If the LTS log parameters is not configured (in the creation phase), the service will automatically create an
-	// LTS stream (group will also be created) and associate it with the function.
-	// So, the tfstate records will always have the log group ID and the log stream ID.
-	groupName, ok := d.GetOk("log_group_name") // Only log group name and the log stream name are specified by users.
-	if !ok {
+	params := utils.RemoveNil(map[string]interface{}{
+		"group_id":    utils.ValueIgnoreEmpty(d.Get("log_group_id")),
+		"group_name":  utils.ValueIgnoreEmpty(d.Get("log_group_name")),
+		"stream_id":   utils.ValueIgnoreEmpty(d.Get("log_stream_id")),
+		"stream_name": utils.ValueIgnoreEmpty(d.Get("log_stream_name")),
+	})
+
+	// If the value of `enable_lts_log` parameter is `true`, the corresponding LTS log parameters be configured.
+	if len(params) == 0 {
 		return nil
 	}
 
-	return map[string]interface{}{
-		"group_id":    d.Get("log_group_id"),
-		"group_name":  groupName,
-		"stream_id":   d.Get("log_stream_id"),
-		"stream_name": utils.ValueIgnoreEmpty(d.Get("log_stream_name")),
-	}
+	return params
 }
 
 func buildNetworkControllerTriggerAccessVpcs(triggerAccessVpcs []interface{}) []map[string]interface{} {
@@ -972,7 +965,6 @@ func buildUpdateFunctionMetadataBodyParams(cfg *config.Config, d *schema.Resourc
 		"initializer_timeout": utils.ValueIgnoreEmpty(d.Get("initializer_timeout")),
 		"pre_stop_handler":    utils.ValueIgnoreEmpty(d.Get("pre_stop_handler")),
 		"pre_stop_timeout":    utils.ValueIgnoreEmpty(d.Get("pre_stop_timeout")),
-		"log_config":          buildFunctionLogConfig(d),
 		"domain_names":        utils.ValueIgnoreEmpty(d.Get("dns_list")),
 		"func_vpc":            buildFunctionVpcConfig(d),
 		"func_mounts": buildFunctionMountConfig(d.Get("func_mounts").([]interface{}),
@@ -989,7 +981,6 @@ func buildUpdateFunctionMetadataBodyParams(cfg *config.Config, d *schema.Resourc
 		"heartbeat_handler":            d.Get("heartbeat_handler"),
 		"restore_hook_handler":         d.Get("restore_hook_handler"),
 		"restore_hook_timeout":         d.Get("restore_hook_timeout"),
-		"enable_lts_log":               d.Get("enable_lts_log"),
 		"lts_custom_tag":               utils.ValueIgnoreEmpty(d.Get("lts_custom_tag")),
 		"user_data_encrypt_kms_key_id": utils.ValueIgnoreEmpty(d.Get("user_data_encrypt_kms_key_id")),
 	}
@@ -1317,10 +1308,6 @@ func resourceFunctionCreate(ctx context.Context, d *schema.ResourceData, meta in
 		"concurrency_num", "peering_cidr", "enable_auth_in_header", "enable_class_isolation", "ephemeral_storage",
 		"heartbeat_handler", "restore_hook_handler", "restore_hook_timeout", "lts_custom_tag") {
 		params := buildUpdateFunctionMetadataBodyParams(cfg, d)
-		// If enable_lts_log is set to true when creating, but no other LTS log parameters are set,
-		// the enable_lts_log and log_config parameters must be deleted, otherwise the interface reports an error.
-		delete(params, "enable_lts_log")
-		delete(params, "log_config")
 		err = updateFunctionMetadata(client, funcUrnWithoutVersion, params)
 		if err != nil {
 			return diag.FromErr(err)
@@ -1735,8 +1722,6 @@ func resourceFunctionRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("lts_custom_tag", utils.PathSearch("lts_custom_tag", function, nil)),
 		d.Set("pre_stop_handler", utils.PathSearch("pre_stop_handler", function, nil)),
 		d.Set("pre_stop_timeout", utils.PathSearch("pre_stop_timeout", function, nil)),
-		d.Set("log_group_id", utils.PathSearch("log_group_id", function, nil)),
-		d.Set("log_stream_id", utils.PathSearch("log_stream_id", function, nil)),
 		d.Set("app_agency", utils.PathSearch("app_xrole", function, nil)),
 		d.Set("depend_list", utils.PathSearch("depend_version_list", function, nil)),
 		d.Set("initializer_handler", utils.PathSearch("initializer_handler", function, nil)),
@@ -1770,6 +1755,18 @@ func resourceFunctionRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("version", utils.PathSearch("version", function, nil)),
 	)
 
+	// The metadata API for obtaining function does not return the names of the log group and log stream.
+	logConfiguration, err := getFunctionLogConfiguration(client, funcUrn)
+	if err != nil {
+		log.Printf("[ERROR] Unable to get log configuration: %s", err)
+	}
+	mErr = multierror.Append(mErr,
+		d.Set("log_group_name", utils.PathSearch("group_name", logConfiguration, nil)),
+		d.Set("log_stream_name", utils.PathSearch("stream_name", logConfiguration, nil)),
+		d.Set("log_group_id", utils.PathSearch("group_id", logConfiguration, nil)),
+		d.Set("log_stream_id", utils.PathSearch("stream_id", logConfiguration, nil)),
+	)
+
 	versionConfig, err := flattenFunctionVersions(client, funcUrnWithoutVersion)
 	if err != nil {
 		// Not all regions support the version related API calls.
@@ -1788,6 +1785,27 @@ func resourceFunctionRead(_ context.Context, d *schema.ResourceData, meta interf
 	}
 
 	return nil
+}
+
+func getFunctionLogConfiguration(client *golangsdk.ServiceClient, functionUrn string) (interface{}, error) {
+	httpUrl := "v2/{project_id}/fgs/functions/{function_urn}/lts-log-detail"
+
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{function_urn}", functionUrn)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+	}
+
+	requestResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(requestResp)
 }
 
 func resourceFunctionUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -1820,7 +1838,12 @@ func resourceFunctionUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		"enable_dynamic_memory", "is_stateful_function", "network_controller", "enterprise_project_id", "peering_cidr",
 		"enable_auth_in_header", "enable_class_isolation", "ephemeral_storage", "heartbeat_handler", "restore_hook_handler",
 		"restore_hook_timeout", "lts_custom_tag", "enable_lts_log", "user_data_encrypt_kms_key_id") {
-		err := updateFunctionMetadata(client, funcUrnWithoutVersion, buildUpdateFunctionMetadataBodyParams(cfg, d))
+		params := buildUpdateFunctionMetadataBodyParams(cfg, d)
+		if d.HasChanges("log_group_id", "log_stream_id", "log_group_name", "log_stream_name", "enable_lts_log") {
+			params["enable_lts_log"] = d.Get("enable_lts_log")
+			params["log_config"] = buildFunctionLogConfig(d)
+		}
+		err := updateFunctionMetadata(client, funcUrnWithoutVersion, params)
 		if err != nil {
 			return diag.FromErr(err)
 		}
