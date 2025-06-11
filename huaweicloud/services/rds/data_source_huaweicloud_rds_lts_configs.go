@@ -61,11 +61,10 @@ func DataSourceRdsLtsConfigs() *schema.Resource {
 
 func instanceLtsConfigsSchema() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceRdsMysqlAccountsRead,
 		Schema: map[string]*schema.Schema{
 			"lts_configs": {
 				Type:     schema.TypeList,
-				Elem:     lstConfigsSchema(),
+				Elem:     ltsConfigsSchema(),
 				Computed: true,
 			},
 			"instance": {
@@ -77,9 +76,8 @@ func instanceLtsConfigsSchema() *schema.Resource {
 	}
 }
 
-func lstConfigsSchema() *schema.Resource {
+func ltsConfigsSchema() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceRdsMysqlAccountsRead,
 		Schema: map[string]*schema.Schema{
 			"log_type": {
 				Type:     schema.TypeString,
@@ -103,7 +101,6 @@ func lstConfigsSchema() *schema.Resource {
 
 func instanceInfoSchema() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceRdsMysqlAccountsRead,
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Type:     schema.TypeString,
@@ -189,33 +186,27 @@ func dataSourceRdsLtsConfigsRead(_ context.Context, d *schema.ResourceData, meta
 }
 
 func buildLtsConfigsQueryParams(d *schema.ResourceData) string {
-	query := ""
+	res := ""
 
 	if v, ok := d.GetOk("enterprise_project_id"); ok {
-		query += fmt.Sprintf("&enterprise_project_id=%v", v)
+		res += fmt.Sprintf("&enterprise_project_id=%v", v)
 	}
-
 	if v, ok := d.GetOk("instance_id"); ok {
-		query += fmt.Sprintf("&instance_id=%v", v)
+		res += fmt.Sprintf("&instance_id=%v", v)
 	}
-
 	if v, ok := d.GetOk("instance_name"); ok {
-		query += fmt.Sprintf("&instance_name=%v", v)
+		res += fmt.Sprintf("&instance_name=%v", v)
 	}
-
 	if v, ok := d.GetOk("sort"); ok {
-		query += fmt.Sprintf("&sort=%v", v)
+		res += fmt.Sprintf("&sort=%v", v)
 	}
-
 	if v, ok := d.GetOk("instance_status"); ok {
-		query += fmt.Sprintf("&instance_status=%v", v)
+		res += fmt.Sprintf("&instance_status=%v", v)
 	}
-
-	if query == "" {
-		return ""
+	if res != "" {
+		res = "?" + res[1:]
 	}
-
-	return "?" + query[1:]
+	return res
 }
 
 func flattenInstanceLtsConfigs(resp interface{}) []interface{} {
@@ -244,21 +235,21 @@ func flattenLtsConfigs(resp interface{}) []interface{} {
 		return nil
 	}
 
-	arr, ok := resp.([]interface{})
-	if !ok || len(arr) == 0 {
+	ltsConfigs, ok := resp.([]interface{})
+	if !ok || len(ltsConfigs) == 0 {
 		return nil
 	}
 
-	out := make([]interface{}, 0, len(arr))
-	for _, v := range arr {
-		out = append(out, map[string]interface{}{
+	rst := make([]interface{}, 0, len(ltsConfigs))
+	for _, v := range ltsConfigs {
+		rst = append(rst, map[string]interface{}{
 			"log_type":      utils.PathSearch("log_type", v, nil),
 			"lts_group_id":  utils.PathSearch("lts_group_id", v, nil),
 			"lts_stream_id": utils.PathSearch("lts_stream_id", v, nil),
 			"enabled":       utils.PathSearch("enabled", v, nil),
 		})
 	}
-	return out
+	return rst
 }
 
 func flattenInstanceBasic(resp interface{}) []interface{} {
