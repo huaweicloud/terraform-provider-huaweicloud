@@ -1420,6 +1420,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_waf_dedicated_instances":                  waf.DataSourceWafDedicatedInstances(),
 			"huaweicloud_waf_domains":                              waf.DataSourceWafDomains(),
 			"huaweicloud_waf_instance_groups":                      waf.DataSourceWafInstanceGroups(),
+			"huaweicloud_waf_overviews_statistics":                 waf.DataSourceWafOverviewsStatistics(),
 			"huaweicloud_waf_policies":                             waf.DataSourceWafPolicies(),
 			"huaweicloud_waf_reference_tables":                     waf.DataSourceWafReferenceTables(),
 			"huaweicloud_waf_rules_anti_crawler":                   waf.DataSourceWafRulesAntiCrawler(),
