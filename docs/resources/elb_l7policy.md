@@ -106,7 +106,7 @@ The following arguments are supported:
 
 * `priority` - (Optional, Int) The forwarding policy priority. A smaller value indicates a higher priority. The value
   must be unique for forwarding policies of the same listener. This parameter will take effect only when
-  `enhance_l7policy_enable` of the listener is set to **true**. If `action` is set to **REDIRECT_TO_LISTENER**,
+  `advanced_forwarding_enabled` of the listener is set to **true**. If `action` is set to **REDIRECT_TO_LISTENER**,
   the value can only be 0.
 
 * `description` - (Optional, String) Human-readable description for the L7 Policy.
@@ -152,12 +152,12 @@ The following arguments are supported:
   + Can only be a listener of the same load balancer.
 
 * `redirect_url_config` - (Optional, List) The URL config to which the traffic is redirected.
-  This parameter is mandatory when `action` is set to **REDIRECT_TO_URL**. The `enhance_l7policy_enable` of the
+  This parameter is mandatory when `action` is set to **REDIRECT_TO_URL**. The `advanced_forwarding_enabled` of the
   listener must be set to **true**.
   The [redirect_url_config](#redirect_url_config_object) structure is documented below.
 
 * `fixed_response_config` - (Optional, List) The fixed configuration of the page to which the traffic is
-  redirected. This parameter is mandatory when `action` is set to **FIXED_RESPONSE**. The `enhance_l7policy_enable` of
+  redirected. This parameter is mandatory when `action` is set to **FIXED_RESPONSE**. The `advanced_forwarding_enabled` of
   the listener must be set to **true**.
   The [fixed_response_config](#fixed_response_config_object) structure is documented below.
 
