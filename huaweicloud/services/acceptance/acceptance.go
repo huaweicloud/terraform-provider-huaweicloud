@@ -82,6 +82,8 @@ var (
 	HW_CAE_BUILD_BASE_IMAGE   = os.Getenv("HW_CAE_BUILD_BASE_IMAGE")
 	HW_CAE_IMAGE_URL          = os.Getenv("HW_CAE_IMAGE_URL")
 
+	HW_CBR_EXTERNAL_PROJECT_ID = os.Getenv("HW_CBR_EXTERNAL_PROJECT_ID")
+
 	HW_CBC_UNSUBSCRIBE_RESOURCE_ID = os.Getenv("HW_CBC_UNSUBSCRIBE_RESOURCE_ID")
 
 	HW_MAPREDUCE_CUSTOM           = os.Getenv("HW_MAPREDUCE_CUSTOM")
@@ -1068,6 +1070,20 @@ func TestAccPreCheckElbLoadbalancerID(t *testing.T) {
 func TestAccPreCheckCbhInstanceID(t *testing.T) {
 	if HW_CBH_INSTANCE_ID == "" {
 		t.Skip("HW_CBH_INSTANCE_ID must be set for this acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCBRRegionName(t *testing.T) {
+	if HW_REGION_NAME_1 == "" {
+		t.Skip("HW_REGION_NAME_1 must be set for this acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCBRExternalProjectID(t *testing.T) {
+	if HW_CBR_EXTERNAL_PROJECT_ID == "" {
+		t.Skip("HW_CBR_EXTERNAL_PROJECT_ID must be set for acceptance tests")
 	}
 }
 
