@@ -27,10 +27,10 @@ The following arguments are supported:
 * `region` - (Optional, String) Specifies the region in which to query the resource.
   If omitted, the provider-level region will be used.
 
-* `engine` - (Required, String) Specifies the RDS engine type. The valid values are:
+* `engine` - (Required, String) Specifies the RDS engine type. Value options:
   **mysql**, **postgresql**, **sqlserver**.
 
-* `enterprise_project_id` - (Optional, String) Specifies the project ID of a tenant in a region.
+* `enterprise_project_id` - (Optional, String) Specifies the project ID.
 
 * `instance_id` - (Optional, String) Specifies the instance ID.
 
