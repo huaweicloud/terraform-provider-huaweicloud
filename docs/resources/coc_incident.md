@@ -101,3 +101,11 @@ The `enum_data_list` block supports:
 * `name_zh` - Indicates the Chinese name.
 
 * `name_en` - Indicates the English name.
+
+## Import
+
+The COC incident can be imported using `id`, e.g.
+
+```bash
+$ terraform import huaweicloud_coc_incident.test <id>
+```

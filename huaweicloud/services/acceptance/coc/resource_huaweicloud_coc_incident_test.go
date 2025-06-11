@@ -65,6 +65,11 @@ func TestAccResourceIncident_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "enum_data_list.0.name_en"),
 				),
 			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
