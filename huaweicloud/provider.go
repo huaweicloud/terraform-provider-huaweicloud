@@ -1676,14 +1676,15 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_cbc_resources_unsubscribe": cbc.ResourceResourcesUnsubscribe(),
 
-			"huaweicloud_cbr_backup_share_accepter": cbr.ResourceBackupShareAccepter(),
-			"huaweicloud_cbr_backup_share":          cbr.ResourceBackupShare(),
-			"huaweicloud_cbr_checkpoint":            cbr.ResourceCheckpoint(),
-			"huaweicloud_cbr_organization_policy":   cbr.ResourceOrganizationPolicy(),
-			"huaweicloud_cbr_policy":                cbr.ResourcePolicy(),
-			"huaweicloud_cbr_vault":                 cbr.ResourceVault(),
-			"huaweicloud_cbr_restore":               cbr.ResourceRestore(),
-			"huaweicloud_cbr_migrate":               cbr.ResourceMigrate(),
+			"huaweicloud_cbr_backup_share_accepter":   cbr.ResourceBackupShareAccepter(),
+			"huaweicloud_cbr_backup_share":            cbr.ResourceBackupShare(),
+			"huaweicloud_cbr_checkpoint":              cbr.ResourceCheckpoint(),
+			"huaweicloud_cbr_organization_policy":     cbr.ResourceOrganizationPolicy(),
+			"huaweicloud_cbr_policy":                  cbr.ResourcePolicy(),
+			"huaweicloud_cbr_vault":                   cbr.ResourceVault(),
+			"huaweicloud_cbr_restore":                 cbr.ResourceRestore(),
+			"huaweicloud_cbr_migrate":                 cbr.ResourceMigrate(),
+			"huaweicloud_cbr_vault_migrate_resources": cbr.ResourceVaultMigrateResources(),
 
 			"huaweicloud_cbh_instance":                   cbh.ResourceCBHInstance(),
 			"huaweicloud_cbh_ha_instance":                cbh.ResourceCBHHAInstance(),
