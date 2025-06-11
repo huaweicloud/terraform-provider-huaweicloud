@@ -2415,6 +2415,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_pg_hba":                         rds.ResourcePgHba(),
 			"huaweicloud_rds_pg_sql_limit":                   rds.ResourcePgSqlLimit(),
 			"huaweicloud_rds_pg_plugin_parameter":            rds.ResourcePgPluginParameter(),
+			"huaweicloud_rds_pg_table_restore":               rds.ResourceRdsPgTableRestore(),
 			"huaweicloud_rds_lts_config":                     rds.ResourceRdsLtsConfig(),
 			"huaweicloud_rds_recycling_policy":               rds.ResourceRecyclingPolicy(),
 			"huaweicloud_rds_primary_instance_dr_capability": rds.ResourcePrimaryInstanceDrCapability(),
