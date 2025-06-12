@@ -236,6 +236,7 @@ resource "huaweicloud_fgs_function" "test" {
   code_type   = "inline"
   func_code   = base64encode(var.function_codes)
 
+  enable_lts_log  = true
   log_group_id    = var.log_group_id
   log_stream_id   = var.log_stream_id
   log_group_name  = var.log_group_name
@@ -461,12 +462,14 @@ The following arguments are supported:
 
 * `log_group_name` - (Optional, String) Specifies the LTS group name for collecting logs.
 
-* `log_stream_id` - (Optional, String) Specifies the LTS stream IID for collecting logs.
+* `log_stream_id` - (Optional, String) Specifies the LTS stream ID for collecting logs.
 
 * `log_stream_name` - (Optional, String) Specifies the LTS stream name for collecting logs.
 
--> If the `enable_lts_log` parameter is set to **true**, and the `log_group_id`, `log_group_name`, `log_stream_id` and
-   `log_stream_name` parameters are not specified, the FunctionGraph will automatically create a log group and log stream.
+-> 1. The `log_group_id`, `log_group_name`, `log_stream_id`, and `log_stream_name` are available and used together
+   only when `enable_lts_log` is set to **true**.
+   <br>2. When creating a function, if the `enable_lts_log` parameter is set to **true**, and the corresponding
+   LTS log parameters are not specified, the FunctionGraph will automatically create a log group and log stream.
 
 * `reserved_instances` - (Optional, List) Specifies the reserved instance policies of the function.  
   The [reserved_instances](#function_reserved_instances) structure is documented below.
@@ -532,6 +535,7 @@ The following arguments are supported:
   -> Only Java runtime supports the configurations of the heartbeat and restore hook.
 
 * `lts_custom_tag` - (Optional, Map) Specifies the custom tags configuration that used to filter the LTS logs.
+  This parameter is available only when `enable_lts_log` is set to **true**.
 
   -> This parameter is only supported by the `v2` version of the function.
 
