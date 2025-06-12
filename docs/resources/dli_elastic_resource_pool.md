@@ -15,7 +15,7 @@ Manages an elastic resource pool within HuaweiCloud.
 
 ## Example Usage
 
-### Create an elastic resource pool under the default enterprise project
+### Create a standard edition elastic resource pool under the default enterprise project
 
 ```hcl
 variable "resoure_pool_name" {}
@@ -27,6 +27,22 @@ resource "huaweicloud_dli_elastic_resource_pool" "test" {
   max_cu                = 80
   cidr                  = "192.168.128.0/18"
   enterprise_project_id = "0"
+}
+```
+
+### Create a basic elastic resource pool
+
+```hcl
+variable "resoure_pool_name" {}
+
+resource "huaweicloud_dli_elastic_resource_pool" "test" {
+  name   = var.resoure_pool_name
+  min_cu = 16
+  max_cu = 64
+
+  label = {
+    spec = "basic"
+  }
 }
 ```
 
@@ -43,10 +59,14 @@ The following arguments are supported:
   Changing this will create a new resource.
 
 * `max_cu` - (Required, Int) Specifies the maximum number of CUs for elastic resource pool scaling.
-  The valid value ranges from `64` to `32,000`, the interval is `16`.
+  The interval is `16`.
+  + For standard edition, the valid value ranges from `64` to `32,000`.
+  + For basic edition, the valid value ranges from `16` to `64`.
 
 * `min_cu` - (Required, Int) Specifies the minimum number of CUs for elastic resource pool scaling.
-  The valid value ranges from `64` to `32,000`, the interval is `16`.
+  The interval is `16`.
+  + For standard edition, the valid value ranges from `64` to `32,000`.
+  + For basic edition, the valid value ranges from `16` to `64`.
 
   ~> If the value needs to be updated, the `min_cu` value cannot be greater than the `current_cu` value.
 
@@ -61,6 +81,10 @@ The following arguments are supported:
 
 * `tags` - (Optional, Map, ForceNew) Specifies the key/value pairs to associate with the elastic resource pool.  
   Changing this will create a new resource.
+
+* `label` - (Optional, Map, ForceNew) Specifies the attribute fields of the elastic resource pool.  
+  Changing this will create a new resource.  
+  If not specified, the default is the standard edition. The key/value corresponding to the basic edition is `spec = "basic"`.
 
 ## Attribute Reference
 
@@ -97,4 +121,22 @@ Elastic resource pools can be imported by their `name`, e.g.
 
 ```bash
 $ terraform import huaweicloud_dli_elastic_resource_pool.test <name>
+```
+
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
+API response, security or some other reason. The missing attributes include: `label`.
+It is generally recommended running `terraform plan` after importing a resource.
+You can then decide if changes should be applied to the resource, or the resource definition should be updated to
+align with the resource. Also you can ignore changes as below.
+
+```hcl
+resource "huaweicloud_dli_elastic_resource_pool" "test" {
+  ...
+
+  lifecycle {
+    ignore_changes = [
+      label
+    ]
+  }
+}
 ```
