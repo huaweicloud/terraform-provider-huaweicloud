@@ -43,8 +43,6 @@ type Endpoint struct {
 	ProjectID string `json:"project_id"`
 	// the resource tags
 	Tags []tags.ResourceTag `json:"tags"`
-	// Exception information returned by query resources
-	Error QueryError `json:"error"`
 	// the whitelist for controlling access to the VPC endpoint
 	Whitelist []string `json:"whitelist"`
 	// whether to enable access control
