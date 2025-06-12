@@ -1,0 +1,15 @@
+info:
+    version: ""
+    title: resource_huaweicloud_codearts_pipeline_service_endpoint
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CodeArtsPipeline
+paths:
+    /v1/serviceconnection/endpoints:
+        GET:
+            tag: CodeArtsPipeline
+        POST:
+            tag: CodeArtsPipeline

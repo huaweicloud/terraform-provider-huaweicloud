@@ -1,0 +1,19 @@
+info:
+    version: ""
+    title: resource_huaweicloud_identity_policy_agency_attach
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: IAM
+paths:
+    /v5/agencies/{agency_id}/attached-policies:
+        GET:
+            tag: IAM
+    /v5/policies/{policy_id}/attach-agency:
+        POST:
+            tag: IAM
+    /v5/policies/{policy_id}/detach-agency:
+        POST:
+            tag: IAM

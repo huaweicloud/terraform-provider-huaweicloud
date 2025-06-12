@@ -8,14 +8,14 @@ host: huaweicloud.com
 tags:
     - name: RDS
 paths:
+    /v3.1/{project_id}/instances/{instance_id}/database/{db_name}:
+        DELETE:
+            tag: RDS
     /v3/{project_id}/instances:
         GET:
             tag: RDS
     /v3/{project_id}/instances/{instance_id}/database:
         POST:
-            tag: RDS
-    /v3/{project_id}/instances/{instance_id}/database/{db_name}:
-        DELETE:
             tag: RDS
     /v3/{project_id}/instances/{instance_id}/database/detail:
         GET:

@@ -33,6 +33,9 @@ paths:
     /v2/{project_id}/fgs/functions/{function_urn}/config-max-instance:
         PUT:
             tag: FunctionGraph
+    /v2/{project_id}/fgs/functions/{function_urn}/lts-log-detail:
+        GET:
+            tag: FunctionGraph
     /v2/{project_id}/fgs/functions/{function_urn}/reservedinstances:
         PUT:
             tag: FunctionGraph

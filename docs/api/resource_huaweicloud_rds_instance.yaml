@@ -25,6 +25,9 @@ paths:
     /v3.1/{project_id}/configurations/{config_id}/apply:
         PUT:
             tag: RDS
+    /v3.1/{project_id}/instances/{instance_id}/configurations:
+        PUT:
+            tag: RDS
     /v3/{project_id}/instances:
         GET:
             tag: RDS
@@ -114,6 +117,9 @@ paths:
     /v3/{project_id}/instances/{instance_id}/readonly-status:
         PUT:
             tag: RDS
+    /v3/{project_id}/instances/{instance_id}/replication/status:
+        GET:
+            tag: RDS
     /v3/{project_id}/instances/{instance_id}/second-level-monitor:
         GET:
             tag: RDS
@@ -127,6 +133,9 @@ paths:
             tag: RDS
     /v3/{project_id}/instances/{instance_id}/ssl:
         PUT:
+            tag: RDS
+    /v3/{project_id}/instances/{instance_id}/storage-used-space:
+        GET:
             tag: RDS
     /v3/{project_id}/instances/{instance_id}/tde:
         PUT:

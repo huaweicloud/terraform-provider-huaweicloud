@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_kms_decrypt_datakey
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: KMS
+paths:
+    /v1.0/{project_id}/kms/decrypt-datakey:
+        POST:
+            tag: KMS

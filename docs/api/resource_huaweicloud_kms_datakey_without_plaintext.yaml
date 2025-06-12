@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_kms_datakey_without_plaintext
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: KMS
+paths:
+    /v1.0/{project_id}/kms/create-datakey-without-plaintext:
+        POST:
+            tag: KMS
