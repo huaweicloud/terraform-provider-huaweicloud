@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 1.75.3 (June 12, 2025)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_vpc_subnet: enhance dhcp_domain_name update [GH-6939]
+* resource/huaweicloud_dms_kafkav2_smart_connect_task: add agency_name support [GH-6945]
+
 ## 1.75.2 (June 4, 2025)
 
 ENHANCEMENTS:
