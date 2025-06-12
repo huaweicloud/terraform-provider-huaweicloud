@@ -1,0 +1,30 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_kps_failed_tasks_delete": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to create the resource.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "KPS",
+            "name": "Data Encryption Workshop KPS",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据加密服务-密钥对管理",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

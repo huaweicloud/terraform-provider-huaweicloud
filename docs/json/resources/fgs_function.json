@@ -371,13 +371,19 @@
                           "vpc_id": {
                             "type": "string",
                             "description": "The ID of the VPC that can trigger the function.",
-                            "required": true
+                            "optional": true,
+                            "computed": true
+                          },
+                          "vpc_name": {
+                            "type": "string",
+                            "description": "The ID of the VPC that can trigger the function.",
+                            "optional": true,
+                            "computed": true
                           }
                         },
                         "description": "The configuration of the VPCs that can trigger the function."
                       },
-                      "nesting_mode": "set",
-                      "min_items": 1
+                      "nesting_mode": "set"
                     }
                   },
                   "description": "The network configuration of the function."

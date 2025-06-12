@@ -1,0 +1,159 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_evs_volumes_by_tags": {
+          "block": {
+            "attributes": {
+              "action": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "resources": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "resource_detail": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "attachments": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "attached_at": "string",
+                                  "attachment_id": "string",
+                                  "device": "string",
+                                  "host_name": "string",
+                                  "id": "string",
+                                  "server_id": "string",
+                                  "volume_id": "string"
+                                }
+                              ]
+                            ],
+                            "availability_zone": "string",
+                            "bootable": "string",
+                            "created_at": "string",
+                            "dedicated_storage_id": "string",
+                            "dedicated_storage_name": "string",
+                            "description": "string",
+                            "enterprise_project_id": "string",
+                            "id": "string",
+                            "links": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "href": "string",
+                                  "rel": "string"
+                                }
+                              ]
+                            ],
+                            "metadata": [
+                              "map",
+                              "string"
+                            ],
+                            "multiattach": "bool",
+                            "name": "string",
+                            "os_vol_tenant_attr_tenant_id": "string",
+                            "service_type": "string",
+                            "size": "number",
+                            "snapshot_id": "string",
+                            "status": "string",
+                            "tags": [
+                              "map",
+                              "string"
+                            ],
+                            "updated_at": "string",
+                            "volume_image_metadata": [
+                              "map",
+                              "string"
+                            ],
+                            "volume_type": "string",
+                            "wwn": "string"
+                          }
+                        ]
+                      ],
+                      "resource_id": "string",
+                      "resource_name": "string",
+                      "tags": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "key": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "total_count": {
+                "type": "number",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "matches": {
+                "block": {
+                  "attributes": {
+                    "key": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              },
+              "tags": {
+                "block": {
+                  "attributes": {
+                    "key": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "values": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "EVS",
+            "name": "Elastic Volume Service",
+            "catalog": "Storage",
+            "name_cn": "云硬盘",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}

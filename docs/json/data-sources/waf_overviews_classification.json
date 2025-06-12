@@ -1,0 +1,172 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_waf_overviews_classification": {
+          "block": {
+            "attributes": {
+              "attack_type": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "items": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "key": "string",
+                            "num": "number"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The attack event distribution.",
+                "computed": true
+              },
+              "domain": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "items": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "key": "string",
+                            "num": "number",
+                            "web_tag": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The attacked domain.",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID.",
+                "optional": true
+              },
+              "from": {
+                "type": "number",
+                "description": "Specifies the query start time.",
+                "required": true
+              },
+              "geo": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "items": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "key": "string",
+                            "num": "number"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The attacking source region.",
+                "computed": true
+              },
+              "hosts": {
+                "type": "string",
+                "description": "Specifies the ID of the domain.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instances": {
+                "type": "string",
+                "description": "Specifies the ID of the instance.",
+                "optional": true
+              },
+              "ip": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "items": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "key": "string",
+                            "num": "number"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The attacking source IP address.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "to": {
+                "type": "number",
+                "description": "Specifies the query end time.",
+                "required": true
+              },
+              "top": {
+                "type": "number",
+                "description": "The first several results to query.",
+                "optional": true
+              },
+              "url": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "items": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "host": "string",
+                            "key": "string",
+                            "num": "number"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The attacking URL.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "WAF",
+            "name": "Web Application Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "Web应用防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

@@ -2,40 +2,39 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "resource_schemas": {
-        "huaweicloud_identity_policy_agency_acttach": {
+        "huaweicloud_coc_incident_handle": {
           "block": {
             "attributes": {
-              "agency_id": {
-                "type": "string",
-                "required": true
-              },
-              "attached_at": {
-                "type": "string",
-                "computed": true
-              },
               "id": {
                 "type": "string",
                 "computed": true
               },
-              "policy_id": {
+              "incident_num": {
                 "type": "string",
                 "required": true
               },
-              "policy_name": {
+              "operate_key": {
                 "type": "string",
-                "computed": true
+                "required": true
               },
-              "policy_urn": {
+              "operator": {
                 "type": "string",
-                "computed": true
+                "required": true
+              },
+              "parameter": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
               }
             }
           },
           "product": {
-            "short": "IAM",
-            "name": "Identity and Access Management",
+            "short": "COC",
+            "name": "Cloud Operations Center",
             "catalog": "Management & Governance",
-            "name_cn": "统一身份认证服务",
+            "name_cn": "云运维中心",
             "catalog_cn": "管理与监管"
           }
         }

@@ -1,0 +1,193 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cbr_protectable_instances": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instances": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "children": "string",
+                      "detail": "string",
+                      "id": "string",
+                      "name": "string",
+                      "protectable": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "code": "string",
+                            "message": "string",
+                            "reason": "string",
+                            "result": "bool",
+                            "vault": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "auto_bind": "bool",
+                                  "auto_expand": "bool",
+                                  "billing": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "allocated": "number",
+                                        "charging_mode": "string",
+                                        "cloud_type": "string",
+                                        "consistent_level": "string",
+                                        "frozen_scene": "string",
+                                        "is_multi_az": "bool",
+                                        "object_type": "string",
+                                        "order_id": "string",
+                                        "product_id": "string",
+                                        "protect_type": "string",
+                                        "size": "number",
+                                        "spec_code": "string",
+                                        "status": "string",
+                                        "storage_unit": "string",
+                                        "used": "number"
+                                      }
+                                    ]
+                                  ],
+                                  "bind_rules": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "tags": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "key": "string",
+                                              "value": "string"
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    ]
+                                  ],
+                                  "created_at": "string",
+                                  "description": "string",
+                                  "enterprise_project_id": "string",
+                                  "id": "string",
+                                  "locked": "bool",
+                                  "name": "string",
+                                  "project_id": "string",
+                                  "provider_id": "string",
+                                  "resources": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "backup_count": "number",
+                                        "backup_size": "number",
+                                        "extra_info": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "exclude_volumes": [
+                                                "list",
+                                                "string"
+                                              ]
+                                            }
+                                          ]
+                                        ],
+                                        "id": "string",
+                                        "name": "string",
+                                        "protect_status": "string",
+                                        "size": "number",
+                                        "type": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "smn_notify": "bool",
+                                  "sys_lock_source_service": "string",
+                                  "tags": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "key": "string",
+                                        "value": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "threshold": "number",
+                                  "updated_at": "string",
+                                  "user_id": "string",
+                                  "version": "string"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "size": "number",
+                      "status": "string",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "The protectable instances.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the resource name.",
+                "optional": true
+              },
+              "protectable_type": {
+                "type": "string",
+                "description": "Specifies the object type.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "resource_id": {
+                "type": "string",
+                "description": "Specifies the resource ID.",
+                "optional": true
+              },
+              "server_id": {
+                "type": "string",
+                "description": "Specifies the server ID.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the resource status.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CBR",
+            "name": "Cloud Backup and Recovery",
+            "catalog": "Storage",
+            "name_cn": "云备份",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}

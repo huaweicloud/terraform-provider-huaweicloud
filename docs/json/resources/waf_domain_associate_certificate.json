@@ -1,0 +1,50 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_waf_domain_associate_certificate": {
+          "block": {
+            "attributes": {
+              "certificate_id": {
+                "type": "string",
+                "required": true
+              },
+              "cloud_host_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "premium_host_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "region": {
+                "type": "string"
+              }
+            }
+          },
+          "product": {
+            "short": "WAF",
+            "name": "Web Application Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "Web应用防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

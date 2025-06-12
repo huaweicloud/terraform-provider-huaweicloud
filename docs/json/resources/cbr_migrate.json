@@ -1,0 +1,40 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cbr_migrate": {
+          "block": {
+            "attributes": {
+              "all_regions": {
+                "type": "bool",
+                "description": "Specifies whether to trigger migration in other regions.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to create the resource.",
+                "computed": true
+              },
+              "reservation": {
+                "type": "number",
+                "description": "Specifies the default expansion ratio of the vault.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "CBR",
+            "name": "Cloud Backup and Recovery",
+            "catalog": "Storage",
+            "name_cn": "云备份",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}

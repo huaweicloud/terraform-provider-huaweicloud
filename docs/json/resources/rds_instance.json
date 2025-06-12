@@ -155,6 +155,10 @@
                 "type": "string",
                 "computed": true
               },
+              "replication_status": {
+                "type": "string",
+                "computed": true
+              },
               "rotate_day": {
                 "type": "number",
                 "optional": true
@@ -196,6 +200,19 @@
               },
               "status": {
                 "type": "string",
+                "computed": true
+              },
+              "storage_used_space": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "node_id": "string",
+                      "used": "string"
+                    }
+                  ]
+                ],
                 "computed": true
               },
               "subnet_id": {

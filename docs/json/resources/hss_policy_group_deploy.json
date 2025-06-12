@@ -1,0 +1,53 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_hss_policy_group_deploy": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the ID of the enterprise project.",
+                "optional": true
+              },
+              "host_id_list": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the ID list of servers where the policy group needs to be deployed.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "operate_all": {
+                "type": "bool",
+                "description": "Specifies whether to deploy the policy on all hosts.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region to which the HSS policy group resource belongs.",
+                "computed": true
+              },
+              "target_policy_group_id": {
+                "type": "string",
+                "description": "Specifies the ID of the policy group to be deployed.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

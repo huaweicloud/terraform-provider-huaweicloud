@@ -1,0 +1,49 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_evsv3_volume_transfer_details": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "transfers": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "id": "string",
+                      "links": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "href": "string",
+                            "rel": "string"
+                          }
+                        ]
+                      ],
+                      "name": "string",
+                      "volume_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of volume transfers.",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

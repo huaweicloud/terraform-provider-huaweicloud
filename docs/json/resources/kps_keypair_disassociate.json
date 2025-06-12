@@ -1,0 +1,73 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_kps_keypair_disassociate": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "server": {
+                "block": {
+                  "attributes": {
+                    "id": {
+                      "type": "string",
+                      "description": "Specifies ID of the ECS.",
+                      "required": true
+                    },
+                    "port": {
+                      "type": "number",
+                      "description": "Specifies the SSH listening port.",
+                      "optional": true
+                    }
+                  },
+                  "block_types": {
+                    "auth": {
+                      "block": {
+                        "attributes": {
+                          "key": {
+                            "type": "string",
+                            "description": "Specifies the value of the key.",
+                            "optional": true
+                          },
+                          "type": {
+                            "type": "string",
+                            "description": "Specifies the value of an enumeration type.",
+                            "optional": true
+                          }
+                        },
+                        "description": "Specifies the authentication type."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    }
+                  },
+                  "description": "Specifies the ECS information."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "KPS",
+            "name": "Data Encryption Workshop KPS",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据加密服务-密钥对管理",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

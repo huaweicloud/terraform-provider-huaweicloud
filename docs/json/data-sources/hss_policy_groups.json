@@ -1,0 +1,70 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_policy_groups": {
+          "block": {
+            "attributes": {
+              "container_mode": {
+                "type": "bool",
+                "description": "Specifies whether to query the container edition policy.",
+                "optional": true
+              },
+              "data_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "default_group": "bool",
+                      "deletable": "bool",
+                      "description": "string",
+                      "group_id": "string",
+                      "group_name": "string",
+                      "host_num": "number",
+                      "support_os": "string",
+                      "support_version": "string"
+                    }
+                  ]
+                ],
+                "description": "The policy group list.",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the ID of the enterprise project to which the resource belongs.",
+                "optional": true
+              },
+              "group_id": {
+                "type": "string",
+                "description": "Specifies the policy group ID.",
+                "optional": true
+              },
+              "group_name": {
+                "type": "string",
+                "description": "Specifies the policy group name.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

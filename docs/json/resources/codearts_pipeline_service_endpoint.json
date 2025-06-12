@@ -2,85 +2,73 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "resource_schemas": {
-        "huaweicloud_rds_parametergroup": {
+        "huaweicloud_codearts_pipeline_service_endpoint": {
           "block": {
             "attributes": {
-              "configuration_parameters": {
+              "created_by": {
                 "type": [
                   "list",
                   [
                     "object",
                     {
-                      "description": "string",
-                      "name": "string",
-                      "readonly": "bool",
-                      "restart_required": "bool",
-                      "type": "string",
-                      "value": "string",
-                      "value_range": "string"
+                      "user_id": "string",
+                      "user_name": "string"
                     }
                   ]
                 ],
+                "description": "Indicates the permission information.",
                 "computed": true
-              },
-              "created_at": {
-                "type": "string",
-                "computed": true
-              },
-              "description": {
-                "type": "string",
-                "optional": true
               },
               "id": {
                 "type": "string",
                 "computed": true
               },
+              "module_id": {
+                "type": "string",
+                "description": "Specifies the module ID.",
+                "optional": true
+              },
               "name": {
                 "type": "string",
+                "description": "Specifies the endpoint name.",
+                "optional": true
+              },
+              "project_id": {
+                "type": "string",
+                "description": "Specifies the CodeArts project ID.",
                 "required": true
               },
               "region": {
                 "type": "string",
                 "computed": true
               },
-              "updated_at": {
+              "url": {
                 "type": "string",
-                "computed": true
-              },
-              "values": {
-                "type": [
-                  "map",
-                  "string"
-                ],
+                "description": "Specifies the URL.",
                 "optional": true
               }
             },
             "block_types": {
-              "datastore": {
+              "authorization": {
                 "block": {
                   "attributes": {
-                    "type": {
+                    "parameters": {
                       "type": "string",
-                      "required": true
+                      "description": "Specifies the authentication parameter.",
+                      "optional": true
                     },
-                    "version": {
+                    "scheme": {
                       "type": "string",
-                      "required": true
+                      "description": "Specifies the authentication mode.",
+                      "optional": true
                     }
-                  }
+                  },
+                  "description": "Specifies the permission information."
                 },
                 "nesting_mode": "list",
-                "min_items": 1,
                 "max_items": 1
               }
             }
-          },
-          "product": {
-            "short": "RDS",
-            "name": "Relational Database Service",
-            "catalog": "Databases",
-            "name_cn": "云数据库",
-            "catalog_cn": "数据库"
           }
         }
       }

@@ -2,9 +2,13 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "resource_schemas": {
-        "huaweicloud_rds_parametergroup": {
+        "huaweicloud_rds_parametergroup_copy": {
           "block": {
             "attributes": {
+              "config_id": {
+                "type": "string",
+                "required": true
+              },
               "configuration_parameters": {
                 "type": [
                   "list",
@@ -25,6 +29,19 @@
               },
               "created_at": {
                 "type": "string",
+                "computed": true
+              },
+              "datastore": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "type": "string",
+                      "version": "string"
+                    }
+                  ]
+                ],
                 "computed": true
               },
               "description": {
@@ -53,25 +70,6 @@
                   "string"
                 ],
                 "optional": true
-              }
-            },
-            "block_types": {
-              "datastore": {
-                "block": {
-                  "attributes": {
-                    "type": {
-                      "type": "string",
-                      "required": true
-                    },
-                    "version": {
-                      "type": "string",
-                      "required": true
-                    }
-                  }
-                },
-                "nesting_mode": "list",
-                "min_items": 1,
-                "max_items": 1
               }
             }
           },

@@ -1,0 +1,45 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_enterprise_project_quotas": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "quotas": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "quota": "number",
+                      "type": "string",
+                      "used": "number"
+                    }
+                  ]
+                ],
+                "description": "The list of the resource quotas.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region in which to query the resource quotas.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "EPS",
+            "name": "Enterprise Project Management Service",
+            "catalog": "Management & Governance",
+            "name_cn": "企业项目管理服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}
