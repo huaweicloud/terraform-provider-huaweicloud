@@ -77,7 +77,8 @@ The following arguments are supported:
   Defaults to `172.16.0.0/12`. Changing this will create a new resource.
 
 * `enterprise_project_id` - (Optional, String) Specifies the ID of the enterprise project to which the elastic resource
-  pool belongs.
+  pool belongs.  
+  This parameter is only valid for enterprise users, if omitted, default enterprise project will be used.
 
 * `tags` - (Optional, Map, ForceNew) Specifies the key/value pairs to associate with the elastic resource pool.  
   Changing this will create a new resource.
@@ -124,7 +125,7 @@ $ terraform import huaweicloud_dli_elastic_resource_pool.test <name>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
-API response, security or some other reason. The missing attributes include: `label`.
+API response, security or some other reason. The missing attributes include: `tags` and `label`.
 It is generally recommended running `terraform plan` after importing a resource.
 You can then decide if changes should be applied to the resource, or the resource definition should be updated to
 align with the resource. Also you can ignore changes as below.
@@ -135,7 +136,7 @@ resource "huaweicloud_dli_elastic_resource_pool" "test" {
 
   lifecycle {
     ignore_changes = [
-      label
+      tags, label,
     ]
   }
 }

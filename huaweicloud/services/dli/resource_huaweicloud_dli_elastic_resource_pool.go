@@ -82,6 +82,7 @@ func ResourceElasticResourcePool() *schema.Resource {
 			"enterprise_project_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Computed:    true,
 				Description: `The ID of the enterprise project to which the elastic resource pool belongs.`,
 			},
 			"tags": common.TagsForceNewSchema(),
@@ -171,7 +172,7 @@ func buildCreateElasticResourcePoolBodyParams(cfg *config.Config, d *schema.Reso
 		"max_cu":                     d.Get("max_cu"),
 		"min_cu":                     d.Get("min_cu"),
 		"cidr_in_vpc":                utils.StringIgnoreEmpty(d.Get("cidr").(string)),
-		"enterprise_project_id":      cfg.GetEnterpriseProjectID(d),
+		"enterprise_project_id":      utils.StringIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
 		"tags":                       utils.ExpandResourceTagsMap(d.Get("tags").(map[string]interface{})),
 		"label":                      utils.ValueIgnoreEmpty(d.Get("label")),
 	}
