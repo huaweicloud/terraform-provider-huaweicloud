@@ -317,7 +317,7 @@ func resourceComputeInterfaceAttachRead(_ context.Context, d *schema.ResourceDat
 	}
 	port, err := readVPCPort(vpcClient, id)
 	if err != nil {
-		return diag.Errorf("error retrieving VPC port: %s", err)
+		return common.CheckDeletedDiag(d, err, "error retrieving VPC port")
 	}
 
 	mErr := multierror.Append(nil,
