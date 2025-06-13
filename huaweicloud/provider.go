@@ -1685,6 +1685,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cbr_backup_share_accepter":   cbr.ResourceBackupShareAccepter(),
 			"huaweicloud_cbr_backup_share":            cbr.ResourceBackupShare(),
 			"huaweicloud_cbr_checkpoint":              cbr.ResourceCheckpoint(),
+			"huaweicloud_cbr_checkpoint_copy":         cbr.ResourceCheckpointCopy(),
 			"huaweicloud_cbr_organization_policy":     cbr.ResourceOrganizationPolicy(),
 			"huaweicloud_cbr_policy":                  cbr.ResourcePolicy(),
 			"huaweicloud_cbr_vault":                   cbr.ResourceVault(),

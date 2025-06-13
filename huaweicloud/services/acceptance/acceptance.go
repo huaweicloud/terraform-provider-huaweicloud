@@ -57,14 +57,18 @@ var (
 	HW_RUNNER_PUBLIC_IP              = os.Getenv("HW_RUNNER_PUBLIC_IP")
 
 	// CBR environment
-	HW_CBR_ECS_BACKUP_ID         = os.Getenv("HW_CBR_ECS_BACKUP_ID")         // The ECS backup ID.
-	HW_CBR_ECS_SERVER_ID         = os.Getenv("HW_CBR_ECS_SERVER_ID")         // The ECS ID using to create backup.
-	HW_CBR_EVS_BACKUP_ID_FOR_ECS = os.Getenv("HW_CBR_EVS_BACKUP_ID_FOR_ECS") // The EVS backup ID using for ECS.
-	HW_CBR_EVS_VOLUME_ID_FOR_ECS = os.Getenv("HW_CBR_EVS_VOLUME_ID_FOR_ECS") // The EVS volume ID using for ECS.
-	HW_CBR_EVS_BACKUP_ID         = os.Getenv("HW_CBR_EVS_BACKUP_ID")         // The EVS back ID.
-	HW_CBR_EVS_VOLUME_ID         = os.Getenv("HW_CBR_EVS_VOLUME_ID")         // The EVS volume ID using to create backup.
-	HW_CBR_WORKSPACE_BACKUP_ID   = os.Getenv("HW_CBR_WORKSPACE_BACKUP_ID")   // The Workspace backup ID.
-	HW_CBR_WORKSPACE_RESOURCE_ID = os.Getenv("HW_CBR_WORKSPACE_RESOURCE_ID") // The resource ID using to create backup.
+	HW_CBR_ECS_BACKUP_ID          = os.Getenv("HW_CBR_ECS_BACKUP_ID")          // The ECS backup ID.
+	HW_CBR_ECS_SERVER_ID          = os.Getenv("HW_CBR_ECS_SERVER_ID")          // The ECS ID using to create backup.
+	HW_CBR_EVS_BACKUP_ID_FOR_ECS  = os.Getenv("HW_CBR_EVS_BACKUP_ID_FOR_ECS")  // The EVS backup ID using for ECS.
+	HW_CBR_EVS_VOLUME_ID_FOR_ECS  = os.Getenv("HW_CBR_EVS_VOLUME_ID_FOR_ECS")  // The EVS volume ID using for ECS.
+	HW_CBR_EVS_BACKUP_ID          = os.Getenv("HW_CBR_EVS_BACKUP_ID")          // The EVS back ID.
+	HW_CBR_EVS_VOLUME_ID          = os.Getenv("HW_CBR_EVS_VOLUME_ID")          // The EVS volume ID using to create backup.
+	HW_CBR_WORKSPACE_BACKUP_ID    = os.Getenv("HW_CBR_WORKSPACE_BACKUP_ID")    // The Workspace backup ID.
+	HW_CBR_WORKSPACE_RESOURCE_ID  = os.Getenv("HW_CBR_WORKSPACE_RESOURCE_ID")  // The resource ID using to create backup.
+	HW_CBR_VAULT_ID               = os.Getenv("HW_CBR_VAULT_ID")               // The vault ID.
+	HW_CBR_DESTINATION_PROJECT_ID = os.Getenv("HW_CBR_DESTINATION_PROJECT_ID") // The destination project ID.
+	HW_CBR_DESTINATION_REGION     = os.Getenv("HW_CBR_DESTINATION_REGION")     // The destination region.
+	HW_CBR_DESTINATION_VAULT_ID   = os.Getenv("HW_CBR_DESTINATION_VAULT_ID")   // The destination vault ID.
 
 	HW_VPC_BANDWIDTH_ADDON_PACKAGE_ENABLED = os.Getenv("HW_VPC_BANDWIDTH_ADDON_PACKAGE_ENABLED")
 	HW_VPC_EIP_POOL_ENABLED                = os.Getenv("HW_VPC_EIP_POOL_ENABLED")
@@ -3218,6 +3222,22 @@ func TestAccPreCheckECSBackupRestore(t *testing.T) {
 		HW_CBR_ECS_SERVER_ID,
 		HW_CBR_EVS_BACKUP_ID_FOR_ECS,
 		HW_CBR_EVS_VOLUME_ID_FOR_ECS,
+	}
+
+	for _, v := range targetEnvValues {
+		if v == "" {
+			t.Skipf("%s must be set for the acceptance test", v)
+		}
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCbrCheckpointCopy(t *testing.T) {
+	targetEnvValues := []string{
+		HW_CBR_VAULT_ID,
+		HW_CBR_DESTINATION_PROJECT_ID,
+		HW_CBR_DESTINATION_REGION,
+		HW_CBR_DESTINATION_VAULT_ID,
 	}
 
 	for _, v := range targetEnvValues {
