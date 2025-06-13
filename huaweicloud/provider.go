@@ -1016,6 +1016,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_mysql_diagnosis_instances":      taurusdb.DataSourceGaussDBMysqlDiagnosisInstances(),
 			"huaweicloud_gaussdb_mysql_audit_log_download_links": taurusdb.DataSourceGaussDBMysqlAuditLogDownloadLinks(),
 
+			"huaweicloud_hss_event_unblock_ip":               hss.DataSourceEventUnblockIp(),
 			"huaweicloud_hss_ransomware_protection_policies": hss.DataSourceRansomwareProtectionPolicies(),
 			"huaweicloud_hss_host_groups":                    hss.DataSourceHostGroups(),
 			"huaweicloud_hss_hosts":                          hss.DataSourceHosts(),
