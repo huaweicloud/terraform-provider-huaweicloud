@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.75.4 (June 13, 2025)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_compute_interface_attach: add check deleted support [GH-7014]
+
 ## 1.75.3 (June 12, 2025)
 
 ENHANCEMENTS:
