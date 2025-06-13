@@ -296,7 +296,9 @@ func resourceComputeInterfaceAttachRead(_ context.Context, d *schema.ResourceDat
 	}
 	listNicsResp, err := computeClient.Request("GET", listNicsPath, &listNicsOpt)
 	if err != nil {
-		return diag.Errorf("error getting NIC list: %s", err)
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error.code", "Ecs.0307"),
+			"error retrieving NIC list")
 	}
 	listNicsRespBody, err := utils.FlattenResponse(listNicsResp)
 	if err != nil {
@@ -315,7 +317,7 @@ func resourceComputeInterfaceAttachRead(_ context.Context, d *schema.ResourceDat
 	}
 	port, err := readVPCPort(vpcClient, id)
 	if err != nil {
-		return diag.FromErr(err)
+		return diag.Errorf("error retrieving VPC port: %s", err)
 	}
 
 	mErr := multierror.Append(nil,
@@ -345,7 +347,7 @@ func readVPCPort(vpcClient *golangsdk.ServiceClient, portID string) (interface{}
 
 	getPortResp, err := vpcClient.Request("GET", getPortPath, &getPortOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving VPC port: %s", err)
+		return nil, err
 	}
 	return utils.FlattenResponse(getPortResp)
 }
