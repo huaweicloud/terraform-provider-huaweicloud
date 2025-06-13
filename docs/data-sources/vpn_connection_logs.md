@@ -13,10 +13,10 @@ Use this data source to get the list of VPN connection logs.
 ## Example Usage
 
 ```hcl
-variable "connection_id" {}
+variable "vpn_connection_id" {}
 
 data "huaweicloud_vpn_connection_logs" "test" {
-  connection_id = var.connection_id
+  vpn_connection_id = var.vpn_connection_id
 }
 ```
 
