@@ -310,6 +310,30 @@ func modelartsResourcePoolResourceFlavorSchema() *schema.Resource {
 				Elem:        modelartsResourcePoolResourcesDriverSchema(),
 				Description: `The driver information.`,
 			},
+			"creating_step": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"step": {
+							Type:        schema.TypeInt,
+							Required:    true,
+							ForceNew:    true,
+							Description: `The creation step of the resource pool nodes.`,
+						},
+						"type": {
+							Type:        schema.TypeString,
+							Required:    true,
+							ForceNew:    true,
+							Description: `The type of the resource pool nodes.`,
+						},
+					},
+				},
+				Description: `The creation step configuration of the resource pool nodes.`,
+			},
 			// Internal attribute(s).
 			"volume_group_configs_origin": {
 				Type:     schema.TypeList,
@@ -882,6 +906,8 @@ func buildResourcePoolSpecResources(oldResources, newResources []interface{}) []
 			),
 			"os":     buildResourcePoolResourcesOsInfo(utils.PathSearch("os", newResource, make([]interface{}, 0)).([]interface{})),
 			"driver": buildResourcePoolResourcesDriver(utils.PathSearch("driver", newResource, make([]interface{}, 0)).([]interface{})),
+			"creatingStep": buildResourcePoolResourcesCreatingStep(
+				utils.PathSearch("creating_step", newResource, make([]interface{}, 0)).([]interface{})),
 		})
 	}
 	return result
@@ -1034,6 +1060,17 @@ func buildResourcePoolResourcesDriver(drivers []interface{}) map[string]interfac
 	driver := drivers[0]
 	return map[string]interface{}{
 		"version": utils.ValueIgnoreEmpty(utils.PathSearch("version", driver, nil)),
+	}
+}
+
+func buildResourcePoolResourcesCreatingStep(creatingSteps []interface{}) map[string]interface{} {
+	if len(creatingSteps) < 1 {
+		return nil
+	}
+
+	return map[string]interface{}{
+		"type": utils.ValueIgnoreEmpty(utils.PathSearch("type", creatingSteps[0], nil)),
+		"step": utils.ValueIgnoreEmpty(utils.PathSearch("step", creatingSteps[0], nil)),
 	}
 }
 
@@ -1260,6 +1297,19 @@ func flattenResourcePoolResourcesDriver(driver interface{}) []map[string]interfa
 	}
 }
 
+func flattenResourcePoolResourcesCreatingStep(creatingStep interface{}) []map[string]interface{} {
+	if creatingStep == nil {
+		return nil
+	}
+
+	return []map[string]interface{}{
+		{
+			"step": utils.PathSearch("step", creatingStep, nil),
+			"type": utils.PathSearch("type", creatingStep, nil),
+		},
+	}
+}
+
 func flattenGetResourcePoolResponseBodyResources(resp interface{}) []interface{} {
 	if resp == nil {
 		return nil
@@ -1288,8 +1338,9 @@ func flattenGetResourcePoolResponseBodyResources(resp interface{}) []interface{}
 				v, make([]interface{}, 0)).([]interface{})),
 			"volume_group_configs_origin": flattenResourcePoolResourcesVolumeGroupConfigs(utils.PathSearch("volumeGroupConfigs",
 				v, make([]interface{}, 0)).([]interface{})),
-			"os":     flattenResourcePoolResourcesOsInfo(utils.PathSearch("os", v, nil)),
-			"driver": flattenResourcePoolResourcesDriver(utils.PathSearch("driver", v, nil)),
+			"os":            flattenResourcePoolResourcesOsInfo(utils.PathSearch("os", v, nil)),
+			"driver":        flattenResourcePoolResourcesDriver(utils.PathSearch("driver", v, nil)),
+			"creating_step": flattenResourcePoolResourcesCreatingStep(utils.PathSearch("creatingStep", v, nil)),
 			// Deprecated parameter(s).
 			"post_install": utils.PathSearch("extendParams.post_install", v, nil),
 		})
