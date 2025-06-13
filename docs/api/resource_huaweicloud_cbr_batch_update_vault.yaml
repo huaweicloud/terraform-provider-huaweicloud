@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cbr_batch_update_vault
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CBR
+paths:
+    /v3/{project_id}/vaults/batch-update:
+        PUT:
+            tag: CBR
