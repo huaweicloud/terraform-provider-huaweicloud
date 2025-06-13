@@ -1,5 +1,5 @@
 ---
-subcategory: "Cloud Backup and Recovery"
+subcategory: "Cloud Backup and Recovery (CBR)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_cbr_vault_migrate_resources"
 description: |-
