@@ -528,7 +528,8 @@ func GetSystemTracker(ctsClient *golangsdk.ServiceClient) (interface{}, error) {
 		return nil, err
 	}
 
-	tracker := utils.PathSearch("trackers|[0]", respBody, nil)
+	searchPath := fmt.Sprintf("trackers[?project_id=='%s']|[0]", ctsClient.ProjectID)
+	tracker := utils.PathSearch(searchPath, respBody, nil)
 	if tracker == nil {
 		return nil, golangsdk.ErrDefault404{}
 	}
