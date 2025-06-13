@@ -210,13 +210,17 @@ The `resources` block supports:
 
 * `flavor_id` - (Required, String) Specifies the resource flavor ID.  
 
-* `count` - (Required, Int) Specifies the number of resources of the corresponding flavors.
+* `count` - (Required, Int) Specifies the number of resources of the corresponding flavors.  
+  This parameter must be an integer multiple of `resources.creating_step.step`.  
+  If you want to expand the nodes, you only need to increase the number of nodes to be expanded
+  based on the current parameter value.
 
 * `node_pool` - (Optional, String) Specifies the name of resource pool nodes. It can contain `1` to `50`
   characters, and should start with a letter and ending with a letter or digit, only lowercase letters, digits,
   hyphens (-) are allowed, and cannot end with a hyphen (-).
 
 * `max_count` - (Optional, Int) Specifies the max number of resources of the corresponding flavors.
+  This parameter must be an integer multiple of `resources.creating_step.step`.
 
 * `vpc_id` - (Optional, String) Specifies the VPC ID. It is mandatory when `resources.subnet_id`,
   `resources.security_group_ids` is specified, and can not be specified when `network_id` is specified.
@@ -254,6 +258,10 @@ The `resources` block supports:
 
 * `driver` - (Optional, List) Specifies the driver information.  
   The [driver](#ModelartsResourcePool_Resources_driver) structure is documented below.
+
+* `creating_step` - (Optional, List, ForceNew) Specifies the creation step configuration of the resource pool nodes.  
+  The [creating_step](#ModelartsResourcePool_Resources_creating_step) structure is documented below.  
+  Changing this parameter will create a new resource.
 
 <a name="ModelartsResourcePool_Resources_azs"></a>
 The `azs` block supports:
@@ -342,6 +350,17 @@ The `os` block supports:
 The `driver` block supports:
 
 * `version` - (Optional, String) Specifies the driver version.
+
+<a name="ModelartsResourcePool_Resources_creating_step"></a>
+The `creating_step` block supports:
+
+* `step` - (Required, Int, ForceNew) Specifies the creation step of the resource pool nodes.
+  Changing this parameter will create a new resource.
+
+* `type` - (Required, String, ForceNew) Specifies the type of the resource pool nodes.  
+  Changing this parameter will create a new resource.  
+  The valid values are as follows:
+  + **hyperinstance**
 
 <a name="ModelartsResourcePool_Clusters"></a>
 The `clusters` block supports:
