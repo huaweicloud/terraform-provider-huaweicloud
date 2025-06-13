@@ -278,6 +278,8 @@ var (
 	HW_WORKSPACE_APP_FILE_NAME                     = os.Getenv("HW_WORKSPACE_APP_FILE_NAME")
 	HW_WORKSPACE_USER_NAMES                        = os.Getenv("HW_WORKSPACE_USER_NAMES")
 	HW_WORKSPACE_DESKTOP_POOL_IMAGE_ID             = os.Getenv("HW_WORKSPACE_DESKTOP_POOL_IMAGE_ID")
+	// The ID of the Workspace desktop to query tags.
+	HW_WORKSPACE_DESKTOP_ID = os.Getenv("HW_WORKSPACE_DESKTOP_ID")
 
 	HW_FGS_AGENCY_NAME         = os.Getenv("HW_FGS_AGENCY_NAME")
 	HW_FGS_APP_AGENCY_NAME     = os.Getenv("HW_FGS_APP_AGENCY_NAME")
