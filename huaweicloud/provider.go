@@ -1030,6 +1030,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_resource_quotas":                hss.DataSourceResourceQuotas(),
 			"huaweicloud_hss_auto_launch_statistics":         hss.DataSourceAutoLaunchStatistics(),
 			"huaweicloud_hss_event_unblock_ips":              hss.DataSourceEventUnblockIps(),
+			"huaweicloud_hss_asset_apps":                     hss.DataSourceAssetApps(),
 
 			"huaweicloud_identity_permissions": iam.DataSourceIdentityPermissions(),
 			"huaweicloud_identity_role":        iam.DataSourceIdentityRole(),
