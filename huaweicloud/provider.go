@@ -1439,6 +1439,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_waf_overviews_bandwidth_timeline":         waf.DataSourceWafOverviewsBandwidthTimeline(),
 			"huaweicloud_waf_overviews_classification":             waf.DataSourceWafOverviewsClassification(),
 			"huaweicloud_waf_overviews_qps_timeline":               waf.DataSourceWafOverviewsQPSTimeline(),
+			"huaweicloud_waf_overviews_request_timeline":           waf.DataSourceWafOverviewsRequestTimeline(),
 			"huaweicloud_waf_overviews_statistics":                 waf.DataSourceWafOverviewsStatistics(),
 			"huaweicloud_waf_policies":                             waf.DataSourceWafPolicies(),
 			"huaweicloud_waf_reference_tables":                     waf.DataSourceWafReferenceTables(),
