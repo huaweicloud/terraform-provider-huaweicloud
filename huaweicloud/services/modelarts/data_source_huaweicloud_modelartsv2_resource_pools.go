@@ -244,6 +244,25 @@ func dataV2ResourcePoolResourceSchema() *schema.Resource {
 				Elem:        dataV2ResourcePoolResourceVolumeGroupConfigsSchema(),
 				Description: `The extend configurations of the volume groups.`,
 			},
+			"creating_step": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"step": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `The creation step of the resource pool nodes.`,
+						},
+						"type": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The type of the resource pool nodes.`,
+						},
+					},
+				},
+				Description: `The creation step configuration of the resource pool nodes.`,
+			},
 		},
 	}
 }
@@ -521,6 +540,7 @@ func flattenV2ResourcePoolResources(resources []interface{}) []map[string]interf
 				resource, make([]interface{}, 0)).([]interface{})),
 			"volume_group_configs": flattenResourcePoolResourcesVolumeGroupConfigs(utils.PathSearch("volumeGroupConfigs",
 				resource, make([]interface{}, 0)).([]interface{})),
+			"creating_step": flattenResourcePoolResourcesCreatingStep(utils.PathSearch("creatingStep", resource, nil)),
 		})
 	}
 

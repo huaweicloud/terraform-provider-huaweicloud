@@ -130,6 +130,9 @@ The `resources` block supports:
 * `volume_group_configs` - The extend configurations of the volume groups.  
   The [volume_group_configs](#modelarts_resource_pool_resource_volume_group_configs) structure is documented below.
 
+* `creating_step` - The creation step configuration of the resource pool nodes.  
+  The [creating_step](#data_modelarts_resource_pool_resource_creating_step) structure is documented below.
+
 <a name="modelarts_resource_pool_resource_azs"></a>
 The `azs` block supports:
 
@@ -175,6 +178,13 @@ The `volume_group_configs` block supports:
   The [lvm_config](#modelarts_resource_pool_group_config_lvm_config) structure is documented below.
 
 * `types` - The list of storage types of the volume group.
+
+<a name="data_modelarts_resource_pool_resource_creating_step"></a>
+The `creating_step` block supports:
+
+* `step` - The creation step of the resource pool nodes.
+
+* `type` - The type of the resource pool nodes.
 
 <a name="modelarts_resource_pool_group_config_lvm_config"></a>
 The `lvm_config` block supports:
