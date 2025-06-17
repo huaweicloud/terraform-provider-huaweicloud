@@ -16,7 +16,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API CBR POST /v3/{project_id}/vaults/resource_instances/action
+// @API CBR POST /v3/{project_id}/vault/resource_instances/action
 func DataSourceVaultsByTags() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceVaultsByTagsRead,
