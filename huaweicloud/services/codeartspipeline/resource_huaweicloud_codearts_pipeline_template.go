@@ -64,60 +64,7 @@ func ResourceCodeArtsPipelineTemplate() *schema.Resource {
 				Type:        schema.TypeList,
 				Optional:    true,
 				Description: `Specifies the custom variables.`,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"name": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: `Specifies the custom variable name.`,
-						},
-						"sequence": {
-							Type:        schema.TypeInt,
-							Optional:    true,
-							Description: `Specifies the parameter sequence, starting from 1.`,
-						},
-						"type": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: `Specifies the custom parameter type.`,
-						},
-						"value": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: `Specifies the custom parameter default value.`,
-						},
-						"is_secret": {
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Description: `Specifies whether it is a private parameter.`,
-						},
-						"description": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: `Specifies the parameter description.`,
-						},
-						"is_runtime": {
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Description: `Specifies whether to set parameters at runtime.`,
-						},
-						"is_reset": {
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Description: `Specifies whether to reset.`,
-						},
-						"latest_value": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: `Specifies the last parameter value.`,
-						},
-						"runtime_value": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: `Specifies the value passed in at runtime.`,
-						},
-					},
-				},
+				Elem:        resourceSchemePipelineVariables(),
 			},
 			"description": {
 				Type:        schema.TypeString,
@@ -231,7 +178,7 @@ func buildCreateOrUpdatePipelineTemplateBodyParams(d *schema.ResourceData, domai
 }
 
 func buildPipelineTemplateVariables(d *schema.ResourceData) interface{} {
-	rawVariables := d.Get("variables").([]interface{})
+	rawVariables := d.Get("variables").(*schema.Set).List()
 	if len(rawVariables) == 0 {
 		return nil
 	}
