@@ -925,6 +925,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_evsv3_availability_zones":      evs.DataSourceEvsV3AvailabilityZones(),
 			"huaweicloud_evs_tags":                      evs.DataSourceEvsTags(),
 			"huaweicloud_evs_quotas":                    evs.DataSourceEvsQuotas(),
+			"huaweicloud_evsv3_quotas":                  evs.DataSourceEvsV3Quotas(),
 
 			"huaweicloud_fgs_applications":          fgs.DataSourceApplications(),
 			"huaweicloud_fgs_application_templates": fgs.DataSourceApplicationTemplates(),
