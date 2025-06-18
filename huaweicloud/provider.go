@@ -1037,6 +1037,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_asset_apps":                     hss.DataSourceAssetApps(),
 			"huaweicloud_hss_agent_install_script":           hss.DataSourceAgentInstallScript(),
 			"huaweicloud_hss_asset_port_statistics":          hss.DataSourceAssetPortStatistics(),
+			"huaweicloud_hss_asset_user_statistics":          hss.DataSourceAssetUserStatistics(),
 
 			"huaweicloud_identity_permissions": iam.DataSourceIdentityPermissions(),
 			"huaweicloud_identity_role":        iam.DataSourceIdentityRole(),
