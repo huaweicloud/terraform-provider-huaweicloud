@@ -129,6 +129,7 @@ var (
 	HW_KPS_KEYPAIR_SSH_PORT = os.Getenv("HW_KPS_KEYPAIR_SSH_PORT")
 	HW_KPS_ENABLE_FLAG      = os.Getenv("HW_KPS_ENABLE_FLAG")
 	HW_KPS_FAILED_TASK_ID   = os.Getenv("HW_KPS_FAILED_TASK_ID")
+	HW_CSMS_TASK_ID         = os.Getenv("HW_CSMS_TASK_ID")
 
 	HW_DEST_REGION          = os.Getenv("HW_DEST_REGION")
 	HW_DEST_PROJECT_ID      = os.Getenv("HW_DEST_PROJECT_ID")
@@ -3426,6 +3427,13 @@ func TestAccPrecheckDewFlag(t *testing.T) {
 	// Query the task execution status(running or failed)
 	if HW_DEW_ENABLE_FLAG == "" {
 		t.Skip("HW_DEW_ENABLE_FLAG must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPrecheckCsmsTask(t *testing.T) {
+	if HW_CSMS_TASK_ID == "" {
+		t.Skip("HW_CSMS_TASK_ID must be set for the acceptance test")
 	}
 }
 
