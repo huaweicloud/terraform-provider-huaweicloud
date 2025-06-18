@@ -61,7 +61,7 @@ func ResourceCodeArtsPipelineTemplate() *schema.Resource {
 				Description: `Specifies whether to display the pipeline source.`,
 			},
 			"variables": {
-				Type:        schema.TypeList,
+				Type:        schema.TypeSet,
 				Optional:    true,
 				Description: `Specifies the custom variables.`,
 				Elem:        resourceSchemePipelineVariables(),
