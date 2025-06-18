@@ -728,6 +728,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_csms_secret_version":           dew.DataSourceDewCsmsSecret(),
 			"huaweicloud_csms_secret_versions":          dew.DataSourceDewCsmsSecretVersions(),
 			"huaweicloud_csms_secrets_by_tags":          dew.DataSourceCSMSSecretsByTags(),
+			"huaweicloud_csms_tasks":                    dew.DataSourceCsmsTasks(),
 			"huaweicloud_css_flavors":                   css.DataSourceCssFlavors(),
 			"huaweicloud_css_clusters":                  css.DataSourceCssClusters(),
 			"huaweicloud_css_logstash_pipelines":        css.DataSourceCssLogstashPipelines(),
