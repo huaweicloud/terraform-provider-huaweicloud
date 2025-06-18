@@ -80,11 +80,10 @@ func TestAccPipeline_basic(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:            rName,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateIdFunc:       testPipelineImportState(rName),
-				ImportStateVerifyIgnore: []string{"definition"},
+				ResourceName:      rName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testPipelineImportState(rName),
 			},
 		},
 	})
@@ -244,7 +243,6 @@ resource "huaweicloud_codearts_pipeline" "test" {
     }
   }
 
-
   variables {
     name        = "test_var"
     type        = "string"
@@ -287,10 +285,10 @@ resource "huaweicloud_codearts_pipeline" "test" {
     interval_unit = "s"
   }
 
-  concurrency_control {
-    concurrency_number = 5
-    exceed_action      = "ABORT"
-    enable             = true
+  lifecycle {
+    ignore_changes = [
+      definition,
+    ]
   }
 }
 `, testProject_basic(name), testRepository_basic(name), name, acceptance.HW_USER_ID)
@@ -422,7 +420,6 @@ resource "huaweicloud_codearts_pipeline" "test" {
     }
   }
 
-
   variables {
     name        = "test_var_update"
     type        = "string"
@@ -466,9 +463,15 @@ resource "huaweicloud_codearts_pipeline" "test" {
   }
 
   concurrency_control {
-    concurrency_number = 5
-    exceed_action      = "ABORT"
+    concurrency_number = 1
+    exceed_action      = "QUEUE"
     enable             = true
+  }
+
+  lifecycle {
+    ignore_changes = [
+      definition,
+    ]
   }
 }
 `, testProject_basic(name), testRepository_basic(name), name, acceptance.HW_USER_ID)

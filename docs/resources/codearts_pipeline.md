@@ -336,24 +336,3 @@ The pipeline can be imported using `project_id` and `id` separated by a slash, e
 ```bash
 $ terraform import huaweicloud_codearts_pipeline.test <project_id>/<id>
 ```
-
-Please add the followings if some attributes are missing when importing the resource.
-
-Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
-API response, security or some other reason.
-The missing attributes include: `definition`.
-It is generally recommended running `terraform plan` after importing the resource.
-You can then decide if changes should be applied to the pipeline, or the resource definition should be updated to
-align with the pipeline. Also you can ignore changes as below.
-
-```hcl
-resource "huaweicloud_codearts_pipeline" "test" {
-    ...
-
-  lifecycle {
-    ignore_changes = [
-      definition,
-    ]
-  }
-}
-```

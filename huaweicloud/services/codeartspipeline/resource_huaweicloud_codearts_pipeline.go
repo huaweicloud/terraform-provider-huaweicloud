@@ -311,6 +311,7 @@ func ResourceCodeArtsPipeline() *schema.Resource {
 			"concurrency_control": {
 				Type:        schema.TypeList,
 				Optional:    true,
+				Computed:    true,
 				MaxItems:    1,
 				Description: `Specifies the pipeline concurrency control information.`,
 				Elem: &schema.Resource{
@@ -318,16 +319,19 @@ func ResourceCodeArtsPipeline() *schema.Resource {
 						"concurrency_number": {
 							Type:        schema.TypeInt,
 							Optional:    true,
+							Computed:    true,
 							Description: `Specifies the number of concurrent instances.`,
 						},
 						"exceed_action": {
 							Type:        schema.TypeString,
 							Optional:    true,
+							Computed:    true,
 							Description: `Specifies the policy when the threshold is exceeded.`,
 						},
 						"enable": {
 							Type:        schema.TypeBool,
 							Optional:    true,
+							Computed:    true,
 							Description: `Specifies whether to enable the strategy.`,
 						},
 					},
@@ -711,6 +715,7 @@ func resourcePipelineRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("triggers", flattenPipelineTriggers(getRespBody)),
 		d.Set("concurrency_control", flattenPipelineConcurrencyControl(getRespBody)),
 		d.Set("banned", utils.PathSearch("banned", getRespBody, nil)),
+		d.Set("definition", utils.PathSearch("definition", getRespBody, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
