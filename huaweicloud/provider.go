@@ -605,6 +605,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cciv2_storage_classes":          cci.DataSourceV2StorageClasses(),
 			"huaweicloud_cciv2_hpas":                     cci.DataSourceV2HPAs(),
 			"huaweicloud_cciv2_image_snapshots":          cci.DataSourceV2ImageSnapshots(),
+			"huaweicloud_cciv2_replica_sets":             cci.DataSourceV2ReplicaSets(),
 
 			"huaweicloud_ccm_certificates":               ccm.DataSourceCertificates(),
 			"huaweicloud_ccm_certificate_export":         ccm.DataSourceCertificateExport(),
