@@ -127,6 +127,59 @@ resource "huaweicloud_modelarts_resource_pool" "test" {
 }
 ```
 
+### Prepaid resource pool expansion node (expansion node billing period is one month and auto-renew is disabled)
+
+```hcl
+variable "resource_pool_name" {}
+variable "subnet_id" {}
+variable "vpc_id" {}
+variable "description" {}
+variable "login_user_password" {}
+variable "resource_image_id" {}
+variable "resource_flavor_id" {}
+variable "resource_provider_id" {}
+
+resource "huaweicloud_modelarts_resource_pool" "test" {
+  name        = var.resource_pool_name
+  subnet_id   = var.resource_pool_name
+  vpc_id      = var.subnet_id
+  description = var.description
+
+  metadata {
+    annotations = jsonencode({
+      "os.modelarts/billing.mode" = "1"
+      "os.modelarts/period.type"  = "2"
+      "os.modelarts/period.num"   = "1"
+      "os.modelarts/auto.renew"   = "0"
+      "os.modelarts/auto.pay"     = "1"
+    })
+  }
+
+  resources {
+    flavor_id = var.resource_flavor_id
+    count     = 2
+    max_count = 2
+
+    os {
+      image_id = var.resource_image_id
+    }
+  }
+
+  clusters {
+    provider_id = var.resource_provider_id
+  }
+
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 2
+  auto_renew    = false
+
+  user_login {
+    password = var.login_user_password
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -186,6 +239,11 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `description` - (Optional, String) Specifies the description of the dedicated resource pool.  
+  This parameter and `os.modelarts/description` in `metadata.annotations` are set at the same time, the former will
+  take precedence.
+
+* `metadata` - (Optional, List) Specifies the metadata of the dedicated resource pool.
+  The [metadata](#ModelartsResourcePool_Metadata) structure is documented below.
 
 * `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the resource pool.
   Valid values are **prePaid** and **postPaid**, defaults to **postPaid**.
@@ -203,7 +261,9 @@ The following arguments are supported:
 
 * `auto_renew` - (Optional, String) Specifies whether auto-renew is enabled. Valid values are **true** and **false**.
 
--> **NOTE:** `charging_mode`, `period_unit`, `period`, `auto_renew` are mandatory when `vpc_id` is specified.
+-> 1. `charging_mode`, `period_unit`, `period`, `auto_renew` are mandatory when `vpc_id` is specified.
+   <br>2. When creating a resource pool, if the `charging_mode`, `period_unit`, `period` and `auto_renew` parameters
+   and subscription parameters in the `metadata.annotations` are specified at the same time, the former will take precedence.
 
 <a name="ModelartsResourcePool_ResourceFlavor"></a>
 The `resources` block supports:
@@ -381,6 +441,17 @@ The `user_login` block supports:
 
   -> **NOTE:** Exactly one of `password`, `key_pair_name` should be specified.
 
+<a name="ModelartsResourcePool_Metadata"></a>
+The `metadata` block supports:
+
+* `annotations` - (Optional, String) Specifies the annotations of the resource pool, in JSON format.  
+  For details, please refer to the [document](https://support.huaweicloud.com/intl/en-us/api-modelarts/CreatePool.html#EN-US_TOPIC_0000001868289874__request_PoolAnnotationsCreation).
+
+  -> 1. This parameter only affects the nodes to be expanded, and will be applied to all nodes that are expanded under
+     the `resources` parameter.
+     <br>2. The parameter is not allowed to modify the resource pool billing-related parameters.
+     <br>3. The `os.modelarts/description` cannot be set at the same time as the external `description` parameter.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -417,7 +488,8 @@ $ terraform import huaweicloud_modelarts_resource_pool.test <id>
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include: `period_unit`, `period`, `auto_renew`,
-`user_login.0.password`. It is generally recommended running `terraform plan` after importing a ModelArts resource pool.
+`user_login.0.password`, `metadata`. It is generally recommended running `terraform plan` after importing a ModelArts
+resource pool.
 You can then decide if changes should be applied to the ModelArts resource pool, or the resource definition should be
 updated to align with the ModelArts resource pool. Also, you can ignore changes as below.
 
@@ -427,7 +499,7 @@ resource "huaweicloud_modelarts_resource_pool" "resource_pool" {
 
   lifecycle {
     ignore_changes = [
-      period_unit, period, auto_renew, user_login.0.password
+      period_unit, period, auto_renew, user_login.0.password, metadata
     ]
   }
 }
