@@ -43,21 +43,9 @@ resource "huaweicloud_rds_pg_table_restore" "test" {
 
       tables {
         old_name = "table1"
-        new_name = "hlppddddppddd"
+        new_name = "table1_test_update"
       }
     }
-		databases {
-			database = "test2"
-	
-			schemas {
-				schema = "test1"
-	
-				tables {
-					old_name = "table1"
-					new_name = "table1_update"
-				}
-			}
-  }
 }
 `, acceptance.HW_RDS_INSTANCE_ID)
 }

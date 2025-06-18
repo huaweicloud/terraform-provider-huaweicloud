@@ -83,7 +83,7 @@ func pgTableRestoreDatabaseSchema() *schema.Resource {
 				Required: true,
 			},
 			"schemas": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Elem:     pgTableRestoreSchemasSchema(),
 				Required: true,
 			},
