@@ -20,14 +20,14 @@ resource "huaweicloud_rds_pg_table_restore" "test" {
   restore_time = 1754954459000
 
   databases {
-    database = "test1"
+    database = "test_database"
 
     schemas {
-      schema = "test1"
+      schema = "test_schema"
 
       tables {
-        old_name = "table1"
-        new_name = "table1_update"
+        old_name = "table_name"
+        new_name = "table_update_update"
       }
     }
   }
@@ -38,7 +38,7 @@ resource "huaweicloud_rds_pg_table_restore" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) The region in which the RDS instance exists. If omitted, the
+* `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource. If omitted, the
   provider-level region will be used. Changing this creates a new resource.
 
 * `instance_id` - (Required, String, NonUpdatable) Specifies the ID of RDS PostgreSQL instance.
@@ -51,7 +51,7 @@ The following arguments are supported:
 <a name="databases_struct"></a>
 The `databases` block supports:
 
-* `database` - (Required, String, NonUpdatable) Specifies the name of the database that contains the tables to restore.
+* `database` - (Required, String, NonUpdatable) Specifies the name of the database.
 
 * `schemas` - (Required, List, NonUpdatable) Specifies a list of schemas within the database.
   The [schemas](#schemas_struct) structure is documented below.
@@ -59,7 +59,7 @@ The `databases` block supports:
 <a name="schemas_struct"></a>
 The `schemas` block supports:
 
-* `schema` - (Required, String, NonUpdatable) Specifies the name of the schema containing the tables to be restored.
+* `schema` - (Required, String, NonUpdatable) Specifies the name of the schema.
 
 * `tables` - (Required, List, NonUpdatable) Specifies a list of tables to be restored.
   The [tables](#tables_struct) structure is documented below.

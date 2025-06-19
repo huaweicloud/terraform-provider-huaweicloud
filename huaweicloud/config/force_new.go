@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -39,6 +40,9 @@ func FlexibleForceNew(keys []string, resourceSchemas ...map[string]*schema.Schem
 			for _, k := range keysExpand {
 				if d.Id() != "" && d.HasChange(k) {
 					oldValue, newValue := d.GetChange(k)
+					if cmp.Equal(oldValue, newValue) {
+						continue
+					}
 					if resourceSchema != nil && resourceSchema[k] != nil && resourceSchema[k].DiffSuppressFunc != nil &&
 						resourceSchema[k].DiffSuppressFunc(k, oldValue.(string), newValue.(string), nil) {
 						log.Printf("[DEBUG] ignoring change of %s due to DiffSuppressFunc, %v -> %v", k, oldValue, newValue)
