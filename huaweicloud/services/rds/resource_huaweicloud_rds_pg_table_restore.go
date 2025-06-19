@@ -17,17 +17,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-var pgTableRestoreNonUpdatableParams = []string{
-	"instance_id",
-	"restore_time",
-	"databases",
-	"databases.*.database",
-	"databases.*.schemas",
-	"databases.*.schemas.*.schema",
-	"databases.*.schemas.*.tables",
-	"databases.*.schemas.*.tables.*.old_name",
-	"databases.*.schemas.*.tables.*.new_name",
-}
+var pgTableRestoreNonUpdatableParams = []string{"instance_id", "restore_time", "databases"}
 
 // @API RDS POST /v3/{project_id}/instances/batch/restore/tables
 // @API RDS GET /v3/{project_id}/instances
@@ -61,7 +51,7 @@ func ResourceRdsPgTableRestore() *schema.Resource {
 				Required: true,
 			},
 			"databases": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Elem:     pgTableRestoreDatabaseSchema(),
 				Required: true,
 			},
@@ -99,7 +89,7 @@ func pgTableRestoreSchemasSchema() *schema.Resource {
 				Required: true,
 			},
 			"tables": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Elem:     pgTableRestoreTableSchema(),
 				Required: true,
 			},
@@ -131,11 +121,11 @@ func resourcePgTableRestoreCreate(ctx context.Context, d *schema.ResourceData, m
 		return diag.Errorf("error creating RDS client: %s", err)
 	}
 
-	url := "v3/{project_id}/instances/batch/restore/tables"
-	path := client.Endpoint + url
-	path = strings.ReplaceAll(path, "{project_id}", client.ProjectID)
+	httpUrl := "v3/{project_id}/instances/batch/restore/tables"
+	createPath := client.Endpoint + httpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
 
-	opt := golangsdk.RequestOpts{
+	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders: map[string]string{
 			"Content-Type": "application/json;charset=utf-8",
@@ -143,14 +133,12 @@ func resourcePgTableRestoreCreate(ctx context.Context, d *schema.ResourceData, m
 		JSONBody: utils.RemoveNil(buildPgTablesRestoreBodyParams(d)),
 	}
 
+	instanceID := d.Get("instance_id").(string)
 	retryFunc := func() (interface{}, bool, error) {
-		res, err := client.Request("POST", path, &opt)
+		res, err := client.Request("POST", createPath, &createOpt)
 		retry, err := handleMultiOperationsError(err)
 		return res, retry, err
 	}
-
-	instanceID := d.Get("instance_id").(string)
-
 	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
@@ -161,7 +149,7 @@ func resourcePgTableRestoreCreate(ctx context.Context, d *schema.ResourceData, m
 		PollInterval: 10 * time.Second,
 	})
 	if err != nil {
-		return diag.Errorf("error creating RDS PostgreSQL tables restore: %s", err)
+		return diag.Errorf("error creating RDS PostgreSQL table restore: %s", err)
 	}
 
 	res, err := utils.FlattenResponse(r.(*http.Response))
@@ -169,15 +157,15 @@ func resourcePgTableRestoreCreate(ctx context.Context, d *schema.ResourceData, m
 		return diag.FromErr(err)
 	}
 
-	jobId := utils.PathSearch("restore_result[0].job_id", res, nil)
-	if jobId == nil {
+	jobId := utils.PathSearch("restore_result[0].job_id", res, "").(string)
+	if jobId == "" {
 		return diag.Errorf("error creating RDS PostgreSQL table restore: job_id not found in response")
 	}
 
-	d.SetId(jobId.(string))
+	d.SetId(jobId)
 
-	if err := checkRDSInstanceJobFinish(client, jobId.(string), d.Timeout(schema.TimeoutCreate)); err != nil {
-		return diag.Errorf("error creating RDS PostgreSQL table restore: %s", err)
+	if err = checkRDSInstanceJobFinish(client, jobId, d.Timeout(schema.TimeoutCreate)); err != nil {
+		return diag.FromErr(err)
 	}
 
 	return nil
@@ -189,62 +177,52 @@ func buildPgTablesRestoreBodyParams(d *schema.ResourceData) map[string]interface
 			{
 				"restore_time": d.Get("restore_time"),
 				"instance_id":  d.Get("instance_id"),
-				"databases":    buildPgRestoreDatabases(d.Get("databases")),
+				"databases":    buildPgRestoreDatabases(d.Get("databases").(*schema.Set).List()),
 			},
 		},
 	}
 	return bodyParams
 }
 
-func buildPgRestoreDatabases(databasesRaw interface{}) []map[string]interface{} {
-	rawDatabases := databasesRaw.([]interface{})
-
-	if len(rawDatabases) == 0 {
+func buildPgRestoreDatabases(databasesRaw []interface{}) []map[string]interface{} {
+	if len(databasesRaw) == 0 {
 		return nil
 	}
 
-	databases := make([]map[string]interface{}, len(rawDatabases))
-	for i, db := range rawDatabases {
+	databases := make([]map[string]interface{}, len(databasesRaw))
+	for i, db := range databasesRaw {
 		dbMap := db.(map[string]interface{})
 		databases[i] = map[string]interface{}{
 			"database": dbMap["database"],
-			"schemas":  buildPgRestoreSchemas(convertTypeListToTypeSet(dbMap["schemas"])),
+			"schemas":  buildPgRestoreSchemas(dbMap["schemas"].(*schema.Set).List()),
 		}
 	}
 	return databases
 }
 
-func convertTypeListToTypeSet(schemasRaw interface{}) interface{} {
-	return schemasRaw
-}
-
-func buildPgRestoreSchemas(schemasRaw interface{}) []map[string]interface{} {
-	rawSchemas := schemasRaw.([]interface{})
-
-	if len(rawSchemas) == 0 {
+func buildPgRestoreSchemas(schemasRaw []interface{}) []map[string]interface{} {
+	if len(schemasRaw) == 0 {
 		return nil
 	}
 
-	schemas := make([]map[string]interface{}, len(rawSchemas))
-	for i, sc := range rawSchemas {
+	schemas := make([]map[string]interface{}, len(schemasRaw))
+	for i, sc := range schemasRaw {
 		scMap := sc.(map[string]interface{})
 		schemas[i] = map[string]interface{}{
 			"schema": scMap["schema"],
-			"tables": buildPgRestoreTables(scMap["tables"]),
+			"tables": buildPgRestoreTables(scMap["tables"].(*schema.Set).List()),
 		}
 	}
 	return schemas
 }
 
-func buildPgRestoreTables(tablesRaw interface{}) []map[string]interface{} {
-	rawTables := tablesRaw.([]interface{})
-
-	if len(rawTables) == 0 {
+func buildPgRestoreTables(tablesRaw []interface{}) []map[string]interface{} {
+	if len(tablesRaw) == 0 {
 		return nil
 	}
 
-	tables := make([]map[string]interface{}, len(rawTables))
-	for i, t := range rawTables {
+	tables := make([]map[string]interface{}, len(tablesRaw))
+	for i, t := range tablesRaw {
 		tMap := t.(map[string]interface{})
 		tables[i] = map[string]interface{}{
 			"old_name": tMap["old_name"],
@@ -263,10 +241,12 @@ func resourcePgTableRestoreRead(_ context.Context, _ *schema.ResourceData, _ int
 }
 
 func resourcePgTableRestoreDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+	errorMsg := "Deleting RDS PostgreSQL table restore resource is not supported. The resource is only removed from " +
+		"the state."
 	return diag.Diagnostics{
 		{
 			Severity: diag.Warning,
-			Summary:  "Deleting restoration record is not supported. The record is removed from state only.",
+			Summary:  errorMsg,
 		},
 	}
 }
