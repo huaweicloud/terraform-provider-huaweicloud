@@ -9,6 +9,8 @@ description: ""
 
 Manages a ModelArts dedicated resource pool resource within HuaweiCloud.  
 
+~> If you want to expand hyper instance nodes, the provider version must be `1.75.5` or later.
+
 ## Example Usage
 
 ### create a basic resource pool
@@ -196,6 +198,10 @@ The following arguments are supported:
 * `resources` - (Required, List) Specifies the list of resource specifications in the resource pool.  
   Including resource flavors and the number of resources of the corresponding flavors.
   The [resources](#ModelartsResourcePool_ResourceFlavor) structure is documented below.
+
+  -> If you want to update `resources`, the order of the `resources` list must be consistent with the one used during creation.
+
+  ~> If the updated `resources` list is inconsistent with the created one, the expansion may extend to other node pools.
 
 * `scope` - (Required, List) Specifies the list of job types supported by the resource pool. It is mandatory when
   `network_id` is specified and can not be specified when `vpc_id` is specified. The options are as follows:
@@ -488,8 +494,8 @@ $ terraform import huaweicloud_modelarts_resource_pool.test <id>
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include: `period_unit`, `period`, `auto_renew`,
-`user_login.0.password`, `metadata`. It is generally recommended running `terraform plan` after importing a ModelArts
-resource pool.
+`user_login`, `metadata`. It is generally recommended running `terraform plan` after importing a ModelArts
+resource pool
 You can then decide if changes should be applied to the ModelArts resource pool, or the resource definition should be
 updated to align with the ModelArts resource pool. Also, you can ignore changes as below.
 
@@ -499,7 +505,7 @@ resource "huaweicloud_modelarts_resource_pool" "resource_pool" {
 
   lifecycle {
     ignore_changes = [
-      period_unit, period, auto_renew, user_login.0.password, metadata
+      period_unit, period, auto_renew, user_login, metadata
     ]
   }
 }
