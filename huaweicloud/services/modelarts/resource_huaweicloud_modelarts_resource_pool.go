@@ -17,6 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
@@ -24,6 +25,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
+
+const billingModePostPaid = "0"
 
 // @API ModelArts POST /v2/{project_id}/pools
 // @API ModelArts DELETE /v2/{project_id}/pools/{id}
@@ -68,6 +71,22 @@ func ResourceModelartsResourcePool() *schema.Resource {
 						Required: true,
 					},
 				),
+			},
+			"metadata": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"annotations": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.StringIsJSON,
+							Description:  `The annotations of the resource pool, in JSON format.`,
+						},
+					}},
+				Description: `The metadata of the resource pool.`,
 			},
 			"resources": {
 				Type:        schema.TypeList,
@@ -804,9 +823,15 @@ func buildCreateResourcePoolMetaDataLabelsBodyParams(d *schema.ResourceData) map
 }
 
 func buildCreateResourcePoolMetaDataAnnotationsBodyParams(d *schema.ResourceData) map[string]interface{} {
-	params := map[string]interface{}{
-		"os.modelarts/description": utils.ValueIgnoreEmpty(d.Get("description")),
+	params := make(map[string]interface{})
+	if annotations, ok := d.GetOk("metadata.0.annotations"); ok {
+		params = utils.StringToJson(annotations.(string)).(map[string]interface{})
 	}
+
+	if description, ok := d.GetOk("description"); ok {
+		params["os.modelarts/description"] = description
+	}
+
 	if d.Get("charging_mode") == "prePaid" {
 		params["os.modelarts/billing.mode"] = "1"
 		if d.Get("period_unit") == "month" {
@@ -1115,8 +1140,8 @@ func createResourcePoolWaitingForStateCompleted(ctx context.Context, d *schema.R
 			return createResourcePoolWaitingRespBody, status, nil
 		},
 		Timeout:      t,
-		Delay:        30 * time.Second,
-		PollInterval: 10 * time.Second,
+		Delay:        20 * time.Second,
+		PollInterval: 20 * time.Second,
 	}
 	_, err := stateConf.WaitForStateContext(ctx)
 	return err
@@ -1420,6 +1445,7 @@ func resourceModelartsResourcePoolUpdate(ctx context.Context, d *schema.Resource
 		"description",
 		"scope",
 		"resources",
+		"metadata",
 	}
 
 	if d.HasChanges(updateResourcePoolChanges...) {
@@ -1450,35 +1476,58 @@ func resourceModelartsResourcePoolUpdate(ctx context.Context, d *schema.Resource
 			return diag.Errorf("error updating Modelarts resource pool: %s", err)
 		}
 
-		if d.Get("charging_mode") == "prePaid" {
-			updateModelartsResourcePoolRespBody, err := utils.FlattenResponse(updateModelartsResourcePoolResp)
-			if err != nil {
-				return diag.FromErr(err)
-			}
-			orderId := utils.PathSearch(`metadata.annotations."os.modelarts/order.id"`,
-				updateModelartsResourcePoolRespBody, nil)
-			if orderId == nil {
-				return diag.Errorf("error updating Modelarts resource pool: order ID is not found in API response")
-			}
-			bssClient, err := cfg.BssV2Client(region)
-			if err != nil {
-				return diag.Errorf("error creating BSS v2 client: %s", err)
-			}
-			err = common.WaitOrderComplete(ctx, bssClient, orderId.(string), d.Timeout(schema.TimeoutUpdate))
-			if err != nil {
-				return diag.FromErr(err)
-			}
-			_, err = common.WaitOrderAllResourceComplete(ctx, bssClient, orderId.(string), d.Timeout(schema.TimeoutUpdate))
-			if err != nil {
-				return diag.FromErr(err)
+		// The `nodeBillingMode` indicates the billing mode of the node when scaling the node capacity.
+		nodeBillingMode := ""
+		if annotations, ok := d.GetOk("metadata.0.annotations"); ok {
+			nodeBillingMode = utils.PathSearch(`"os.modelarts/billing.mode"`, utils.StringToJson(annotations.(string)), billingModePostPaid).(string)
+		}
+		// Only when scaling prepaid type nodes, we need to determine the order status.
+		if nodeBillingMode == "1" && d.HasChange("resources") {
+			// Whenever any count in resouces changes, the order status needs to be determined.
+			oldRaw, newRaw := d.GetChange("resources")
+			if isAnyNodeScalling(oldRaw.([]interface{}), newRaw.([]interface{})) {
+				updateRespBody, err := utils.FlattenResponse(updateModelartsResourcePoolResp)
+				if err != nil {
+					return diag.FromErr(err)
+				}
+
+				orderId := utils.PathSearch(`metadata.annotations."os.modelarts/order.id"`, updateRespBody, nil)
+				if orderId == nil {
+					return diag.Errorf("error updating Modelarts resource pool: order ID is not found in API response")
+				}
+
+				bssClient, err := cfg.BssV2Client(region)
+				if err != nil {
+					return diag.Errorf("error creating BSS v2 client: %s", err)
+				}
+				err = common.WaitOrderComplete(ctx, bssClient, orderId.(string), d.Timeout(schema.TimeoutUpdate))
+				if err != nil {
+					return diag.FromErr(err)
+				}
+				_, err = common.WaitOrderAllResourceComplete(ctx, bssClient, orderId.(string), d.Timeout(schema.TimeoutUpdate))
+				if err != nil {
+					return diag.FromErr(err)
+				}
 			}
 		}
+
 		err = updateResourcePoolWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return diag.Errorf("error waiting for the Modelarts resource pool (%s) update to complete: %s", d.Id(), err)
 		}
 	}
 	return resourceModelartsResourcePoolRead(ctx, d, meta)
+}
+
+func isAnyNodeScalling(oldResource, newResource []interface{}) bool {
+	for i, v := range newResource {
+		oldCount := utils.PathSearch(fmt.Sprintf("[%d].count", i), oldResource, 0).(int)
+		newCount := utils.PathSearch("count", v, 0).(int)
+		if oldCount != newCount {
+			return true
+		}
+	}
+	return false
 }
 
 func buildUpdateResourcePoolBodyParams(d *schema.ResourceData) map[string]interface{} {
@@ -1497,14 +1546,49 @@ func buildUpdateResourcePoolMetaDataBodyParams(d *schema.ResourceData) map[strin
 }
 
 func buildUpdateResourcePoolMetaDataAnnotationsBodyParams(d *schema.ResourceData) map[string]interface{} {
-	params := map[string]interface{}{
-		"os.modelarts/description": utils.ValueIgnoreEmpty(d.Get("description")),
+	params := make(map[string]interface{})
+	if annotations, ok := d.GetOk("metadata.0.annotations"); ok {
+		params = utils.StringToJson(annotations.(string)).(map[string]interface{})
 	}
+
 	if d.Get("charging_mode") == "prePaid" {
-		params["os.modelarts/order.id"] = ""
-		params["os.modelarts/auto.pay"] = "1"
+		// Only apply the billing mode related parameters when the billing mode isn't set to post-paid in the annotations manually.
+		if utils.PathSearch(`"os.modelarts/billing.mode"`, params, billingModePostPaid).(string) != billingModePostPaid {
+			params["os.modelarts/order.id"] = ""
+			params["os.modelarts/auto.pay"] = "1"
+		}
 	}
+
+	if description, ok := d.GetOk("description"); ok {
+		params["os.modelarts/description"] = description
+	}
+
+	// If the node pools are not increased, delete the billing mode related parameters.
+	if !isAnyNodePoolIncrease(d) {
+		delete(params, "os.modelarts/billing.mode")
+		delete(params, "os.modelarts/period.num")
+		delete(params, "os.modelarts/period.type")
+		delete(params, "os.modelarts/auto.renew")
+		delete(params, "os.modelarts/promotion.info")
+		delete(params, "os.modelarts/service.console.url")
+		delete(params, "os.modelarts/flavor.resource.ids")
+		delete(params, "os.modelarts/order.id")
+		delete(params, "os.modelarts/auto.pay")
+	}
+
 	return params
+}
+
+func isAnyNodePoolIncrease(d *schema.ResourceData) bool {
+	oldRaw, newRaw := d.GetChange("resources")
+	for i, v := range newRaw.([]interface{}) {
+		oldCount := utils.PathSearch(fmt.Sprintf("[%d].count", i), oldRaw, 0).(int)
+		newCount := utils.PathSearch("count", v, 0).(int)
+		if newCount > oldCount {
+			return true
+		}
+	}
+	return false
 }
 
 func buildUpdateResourcePoolSpecBodyParams(d *schema.ResourceData) map[string]interface{} {
@@ -1588,17 +1672,19 @@ func updateResourcePoolWaitingForStateCompleted(ctx context.Context, d *schema.R
 			}
 
 			creating := utils.PathSearch("status.resources.creating", getResourcePoolRespBody, make([]interface{}, 0)).([]interface{})
-			deleting := utils.PathSearch("status.resources.creating", getResourcePoolRespBody, make([]interface{}, 0)).([]interface{})
+			deleting := utils.PathSearch("status.resources.deleting", getResourcePoolRespBody, make([]interface{}, 0)).([]interface{})
+			creationFailed := utils.PathSearch("status.resources.creationFailed", getResourcePoolRespBody, make([]interface{}, 0)).([]interface{})
+
 			// check if the resource pool is in the process of expanding capacity
-			if len(creating) == 0 && len(deleting) == 0 {
+			if len(creating) == 0 && len(deleting) == 0 && len(creationFailed) == 0 {
 				return getResourcePoolRespBody, "COMPLETED", nil
 			}
 
 			return getResourcePoolRespBody, "PENDING", nil
 		},
 		Timeout:                   t,
-		Delay:                     5 * time.Second,
-		PollInterval:              5 * time.Second,
+		Delay:                     20 * time.Second,
+		PollInterval:              20 * time.Second,
 		ContinuousTargetOccurence: 2,
 	}
 	_, err := stateConf.WaitForStateContext(ctx)
