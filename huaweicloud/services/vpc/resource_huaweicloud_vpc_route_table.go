@@ -201,9 +201,45 @@ func resourceVpcRouteTableUpdate(ctx context.Context, d *schema.ResourceData, me
 		addRaws := new.(*schema.Set).Difference(old.(*schema.Set))
 		delRaws := old.(*schema.Set).Difference(new.(*schema.Set))
 
-		if delLen := delRaws.Len(); delLen > 0 {
-			delRouteOpts := make([]routetables.RouteOpts, delLen)
-			for i, item := range delRaws.List() {
+		var filteredMod []interface{}
+
+		processed := map[string]bool{}
+
+		for _, addItem := range addRaws.List() {
+			addOpts := addItem.(map[string]interface{})
+			addDest := addOpts["destination"].(string)
+
+			for _, delItem := range delRaws.List() {
+				delOpts := delItem.(map[string]interface{})
+				delDest := delOpts["destination"].(string)
+
+				if addDest == delDest && !processed[addDest] {
+					filteredMod = append(filteredMod, addItem)
+					processed[addDest] = true
+					break
+				}
+			}
+		}
+
+		filteredAdd := []interface{}{}
+		for _, item := range addRaws.List() {
+			opts := item.(map[string]interface{})
+			if !processed[opts["destination"].(string)] {
+				filteredAdd = append(filteredAdd, item)
+			}
+		}
+
+		filteredDel := []interface{}{}
+		for _, item := range delRaws.List() {
+			opts := item.(map[string]interface{})
+			if !processed[opts["destination"].(string)] {
+				filteredDel = append(filteredDel, item)
+			}
+		}
+
+		if len(filteredDel) > 0 {
+			delRouteOpts := make([]routetables.RouteOpts, len(filteredDel))
+			for i, item := range filteredDel {
 				opts := item.(map[string]interface{})
 				delRouteOpts[i] = routetables.RouteOpts{
 					Type:        opts["type"].(string),
@@ -214,9 +250,9 @@ func resourceVpcRouteTableUpdate(ctx context.Context, d *schema.ResourceData, me
 			routesOpts["del"] = delRouteOpts
 		}
 
-		if addLen := addRaws.Len(); addLen > 0 {
-			addRouteOpts := make([]routetables.RouteOpts, addLen)
-			for i, item := range addRaws.List() {
+		if len(filteredAdd) > 0 {
+			addRouteOpts := make([]routetables.RouteOpts, len(filteredAdd))
+			for i, item := range filteredAdd {
 				opts := item.(map[string]interface{})
 				desc := opts["description"].(string)
 				addRouteOpts[i] = routetables.RouteOpts{
@@ -228,6 +264,22 @@ func resourceVpcRouteTableUpdate(ctx context.Context, d *schema.ResourceData, me
 			}
 			routesOpts["add"] = addRouteOpts
 		}
+
+		if len(filteredMod) > 0 {
+			modRouteOpts := make([]routetables.RouteOpts, len(filteredMod))
+			for i, item := range filteredMod {
+				opts := item.(map[string]interface{})
+				desc := opts["description"].(string)
+				modRouteOpts[i] = routetables.RouteOpts{
+					Type:        opts["type"].(string),
+					NextHop:     opts["nexthop"].(string),
+					Destination: opts["destination"].(string),
+					Description: &desc,
+				}
+			}
+			routesOpts["mod"] = modRouteOpts
+		}
+
 		updateOpts.Routes = routesOpts
 	}
 
