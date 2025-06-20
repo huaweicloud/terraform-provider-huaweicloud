@@ -74,6 +74,11 @@ func waitForV2NodeBatchUnsubscribeCompleted(ctx context.Context, client *golangs
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
 			nodes, err := listV2ResourcePoolNodes(client, resourcePoolName)
+			// 404: The resource pool does not exist.
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
+				return nil, "COMPLETED", nil
+			}
+
 			if err != nil {
 				return nil, "ERROR", err
 			}
