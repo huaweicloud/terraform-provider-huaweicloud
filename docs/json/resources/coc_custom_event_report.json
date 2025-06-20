@@ -1,0 +1,85 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_coc_custom_event_report": {
+          "block": {
+            "attributes": {
+              "additional": {
+                "type": "string",
+                "optional": true
+              },
+              "alarm_desc": {
+                "type": "string",
+                "required": true
+              },
+              "alarm_id": {
+                "type": "string",
+                "required": true
+              },
+              "alarm_level": {
+                "type": "string",
+                "required": true
+              },
+              "alarm_name": {
+                "type": "string",
+                "required": true
+              },
+              "alarm_source": {
+                "type": "string",
+                "required": true
+              },
+              "alarm_status": {
+                "type": "string",
+                "optional": true
+              },
+              "application_id": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "integration_key": {
+                "type": "string",
+                "required": true
+              },
+              "namespace": {
+                "type": "string",
+                "required": true
+              },
+              "region_id": {
+                "type": "string",
+                "optional": true
+              },
+              "resource_id": {
+                "type": "string",
+                "optional": true
+              },
+              "resource_name": {
+                "type": "string",
+                "optional": true
+              },
+              "time": {
+                "type": "number",
+                "required": true
+              },
+              "url": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "COC",
+            "name": "Cloud Operations Center",
+            "catalog": "Management & Governance",
+            "name_cn": "云运维中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

@@ -136,7 +136,7 @@
                   },
                   "description": "Specifies the custom variables."
                 },
-                "nesting_mode": "list"
+                "nesting_mode": "set"
               }
             }
           }

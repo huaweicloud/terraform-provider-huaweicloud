@@ -1,0 +1,222 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_coc_war_rooms": {
+          "block": {
+            "attributes": {
+              "admin": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "closed_num": {
+                "type": "number",
+                "computed": true
+              },
+              "current_users": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "enterprise_project_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "impacted_application_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "incident_levels": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "incident_num": {
+                "type": "string",
+                "optional": true
+              },
+              "list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "admin": "string",
+                      "change_num": "string",
+                      "circular_level": "string",
+                      "create_time": "number",
+                      "description": "string",
+                      "enterprise_project_id": "string",
+                      "fault_cause": "string",
+                      "fault_impact": "string",
+                      "first_report_time": "number",
+                      "id": "string",
+                      "impacted_application": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "name": "string"
+                          }
+                        ]
+                      ],
+                      "incident": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "failure_level": "string",
+                            "id": "string",
+                            "incident_id": "string",
+                            "incident_url": "string",
+                            "is_change_event": "bool"
+                          }
+                        ]
+                      ],
+                      "occur_time": "number",
+                      "processing_duration": "number",
+                      "recover_leader": [
+                        "list",
+                        "string"
+                      ],
+                      "recover_member": [
+                        "list",
+                        "string"
+                      ],
+                      "recover_time": "number",
+                      "recovery_notification_time": "number",
+                      "regions": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "code": "string",
+                            "name": "string"
+                          }
+                        ]
+                      ],
+                      "restoration_duration": "number",
+                      "source": "string",
+                      "title": "string",
+                      "war_room_num": "string",
+                      "war_room_status": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "name_en": "string",
+                            "name_zh": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "notification_level": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "occur_end_time": {
+                "type": "number",
+                "optional": true
+              },
+              "occur_start_time": {
+                "type": "number",
+                "optional": true
+              },
+              "recover_end_time": {
+                "type": "number",
+                "optional": true
+              },
+              "recover_start_time": {
+                "type": "number",
+                "optional": true
+              },
+              "region_code_list": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "running_num": {
+                "type": "number",
+                "computed": true
+              },
+              "statistic_flag": {
+                "type": "bool",
+                "optional": true
+              },
+              "status": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "title": {
+                "type": "string",
+                "optional": true
+              },
+              "total_num": {
+                "type": "number",
+                "computed": true
+              },
+              "triggered_end_time": {
+                "type": "number",
+                "optional": true
+              },
+              "triggered_start_time": {
+                "type": "number",
+                "optional": true
+              },
+              "war_room_num": {
+                "type": "string",
+                "optional": true
+              },
+              "war_room_nums": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "COC",
+            "name": "Cloud Operations Center",
+            "catalog": "Management & Governance",
+            "name_cn": "云运维中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,126 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cciv2_image_snapshots": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "image_snapshots": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "annotations": [
+                        "map",
+                        "string"
+                      ],
+                      "building_config": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "auto_create_eip": "bool",
+                            "auto_create_eip_attribute": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "bandwidth_charge_mode": "string",
+                                  "bandwidth_id": "string",
+                                  "bandwidth_size": "number",
+                                  "ip_version": "number",
+                                  "type": "string"
+                                }
+                              ]
+                            ],
+                            "eip_id": "string",
+                            "namespace": "string"
+                          }
+                        ]
+                      ],
+                      "creation_timestamp": "string",
+                      "finalizers": [
+                        "list",
+                        "string"
+                      ],
+                      "image_snapshot_size": "number",
+                      "images": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "image": "string"
+                          }
+                        ]
+                      ],
+                      "labels": [
+                        "map",
+                        "string"
+                      ],
+                      "name": "string",
+                      "registries": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "image_pull_secret": "string",
+                            "insecure_skip_verify": "bool",
+                            "plain_http": "bool",
+                            "server": "string"
+                          }
+                        ]
+                      ],
+                      "resource_version": "string",
+                      "status": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "expire_date_time": "string",
+                            "images": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "digest": "string",
+                                  "image": "string",
+                                  "size_bytes": "number"
+                                }
+                              ]
+                            ],
+                            "last_updated_time": "string",
+                            "message": "string",
+                            "phase": "string",
+                            "reason": "string",
+                            "snapshot_id": "string",
+                            "snapshot_name": "string"
+                          }
+                        ]
+                      ],
+                      "ttl_days_after_created": "number",
+                      "uid": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

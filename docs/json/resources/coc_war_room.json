@@ -1,0 +1,199 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_coc_war_room": {
+          "block": {
+            "attributes": {
+              "application_id_list": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "required": true
+              },
+              "application_names": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "optional": true
+              },
+              "change_num": {
+                "type": "string",
+                "computed": true
+              },
+              "circular_level": {
+                "type": "string",
+                "computed": true
+              },
+              "create_time": {
+                "type": "number",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "required": true
+              },
+              "fault_cause": {
+                "type": "string",
+                "computed": true
+              },
+              "fault_impact": {
+                "type": "string",
+                "computed": true
+              },
+              "first_report_time": {
+                "type": "number",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "incident": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "failure_level": "string",
+                      "id": "string",
+                      "incident_id": "string",
+                      "incident_url": "string",
+                      "is_change_event": "bool"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "incident_number": {
+                "type": "string",
+                "required": true
+              },
+              "notification_type": {
+                "type": "string",
+                "optional": true
+              },
+              "occur_time": {
+                "type": "number",
+                "computed": true
+              },
+              "participant": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "optional": true
+              },
+              "processing_duration": {
+                "type": "number",
+                "computed": true
+              },
+              "recover_leader": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              },
+              "recover_member": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              },
+              "recover_time": {
+                "type": "number",
+                "computed": true
+              },
+              "recovery_notification_time": {
+                "type": "number",
+                "computed": true
+              },
+              "region_code_list": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "optional": true
+              },
+              "region_names": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "optional": true
+              },
+              "restoration_duration": {
+                "type": "number",
+                "computed": true
+              },
+              "source": {
+                "type": "string",
+                "computed": true
+              },
+              "war_room_admin": {
+                "type": "string",
+                "required": true
+              },
+              "war_room_id": {
+                "type": "string",
+                "computed": true
+              },
+              "war_room_name": {
+                "type": "string",
+                "required": true
+              },
+              "war_room_status": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "string",
+                      "name_en": "string",
+                      "name_zh": "string",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            },
+            "block_types": {
+              "schedule_group": {
+                "block": {
+                  "attributes": {
+                    "role_id": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "scene_id": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "set",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "COC",
+            "name": "Cloud Operations Center",
+            "catalog": "Management & Governance",
+            "name_cn": "云运维中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_asset_apps": {
+          "block": {
+            "attributes": {
+              "app_name": {
+                "type": "string",
+                "description": "Specifies the software name.",
+                "optional": true
+              },
+              "category": {
+                "type": "string",
+                "description": "Specifies the type.",
+                "optional": true
+              },
+              "data_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "agent_id": "string",
+                      "app_name": "string",
+                      "container_id": "string",
+                      "container_name": "string",
+                      "host_id": "string",
+                      "host_ip": "string",
+                      "host_name": "string",
+                      "recent_scan_time": "number",
+                      "update_time": "number",
+                      "version": "string"
+                    }
+                  ]
+                ],
+                "description": "The software list.",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID.",
+                "optional": true
+              },
+              "host_id": {
+                "type": "string",
+                "description": "Specifies the host ID.",
+                "optional": true
+              },
+              "host_ip": {
+                "type": "string",
+                "description": "Specifies the host IP address.",
+                "optional": true
+              },
+              "host_name": {
+                "type": "string",
+                "description": "Specifies the host name.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "install_dir": {
+                "type": "string",
+                "description": "Specifies the installation directory.",
+                "optional": true
+              },
+              "part_match": {
+                "type": "bool",
+                "description": "Specifies whether to use fuzzy matching.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource.",
+                "computed": true
+              },
+              "version": {
+                "type": "string",
+                "description": "Specifies the software version.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

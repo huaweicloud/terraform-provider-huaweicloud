@@ -1,0 +1,675 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cciv2_replica_sets": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "namespace": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "replica_sets": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "annotations": [
+                        "map",
+                        "string"
+                      ],
+                      "api_version": "string",
+                      "creation_timestamp": "string",
+                      "finalizers": [
+                        "list",
+                        "string"
+                      ],
+                      "kind": "string",
+                      "labels": [
+                        "map",
+                        "string"
+                      ],
+                      "min_ready_seconds": "number",
+                      "name": "string",
+                      "replicas": "number",
+                      "resource_version": "string",
+                      "selector": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "match_expressions": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "key": "string",
+                                  "operator": "string",
+                                  "values": [
+                                    "list",
+                                    "string"
+                                  ]
+                                }
+                              ]
+                            ],
+                            "match_labels": [
+                              "map",
+                              "string"
+                            ]
+                          }
+                        ]
+                      ],
+                      "status": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "available_replicas": "number",
+                            "conditions": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "last_transition_time": "string",
+                                  "message": "string",
+                                  "reason": "string",
+                                  "status": "string",
+                                  "type": "string"
+                                }
+                              ]
+                            ],
+                            "fully_labeled_replicas": "number",
+                            "observed_generation": "number",
+                            "ready_replicas": "number",
+                            "replicas": "number"
+                          }
+                        ]
+                      ],
+                      "template": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "metadata": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "annotations": [
+                                    "map",
+                                    "string"
+                                  ],
+                                  "labels": [
+                                    "map",
+                                    "string"
+                                  ]
+                                }
+                              ]
+                            ],
+                            "spec": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "active_deadline_seconds": "number",
+                                  "affinity": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "node_affinity": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "required_during_scheduling_ignored_during_execution": [
+                                                "list",
+                                                [
+                                                  "object",
+                                                  {
+                                                    "node_selector_terms": [
+                                                      "list",
+                                                      [
+                                                        "object",
+                                                        {
+                                                          "match_expressions": [
+                                                            "list",
+                                                            [
+                                                              "object",
+                                                              {
+                                                                "key": "string",
+                                                                "operator": "string",
+                                                                "values": [
+                                                                  "list",
+                                                                  "string"
+                                                                ]
+                                                              }
+                                                            ]
+                                                          ]
+                                                        }
+                                                      ]
+                                                    ]
+                                                  }
+                                                ]
+                                              ]
+                                            }
+                                          ]
+                                        ],
+                                        "pod_anti_affinity": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "preferred_during_scheduling_ignored_during_execution": [
+                                                "list",
+                                                [
+                                                  "object",
+                                                  {
+                                                    "pod_affinity_term": [
+                                                      "list",
+                                                      [
+                                                        "object",
+                                                        {
+                                                          "label_selector": [
+                                                            "list",
+                                                            [
+                                                              "object",
+                                                              {
+                                                                "match_expressions": [
+                                                                  "list",
+                                                                  [
+                                                                    "object",
+                                                                    {
+                                                                      "key": "string",
+                                                                      "operator": "string",
+                                                                      "values": [
+                                                                        "list",
+                                                                        "string"
+                                                                      ]
+                                                                    }
+                                                                  ]
+                                                                ],
+                                                                "match_labels": [
+                                                                  "map",
+                                                                  "string"
+                                                                ]
+                                                              }
+                                                            ]
+                                                          ],
+                                                          "namespaces": [
+                                                            "list",
+                                                            "string"
+                                                          ],
+                                                          "topology_key": "string"
+                                                        }
+                                                      ]
+                                                    ],
+                                                    "weight": "number"
+                                                  }
+                                                ]
+                                              ],
+                                              "required_during_scheduling_ignored_during_execution": [
+                                                "list",
+                                                [
+                                                  "object",
+                                                  {
+                                                    "label_selector": [
+                                                      "list",
+                                                      [
+                                                        "object",
+                                                        {
+                                                          "match_expressions": [
+                                                            "list",
+                                                            [
+                                                              "object",
+                                                              {
+                                                                "key": "string",
+                                                                "operator": "string",
+                                                                "values": [
+                                                                  "list",
+                                                                  "string"
+                                                                ]
+                                                              }
+                                                            ]
+                                                          ],
+                                                          "match_labels": [
+                                                            "map",
+                                                            "string"
+                                                          ]
+                                                        }
+                                                      ]
+                                                    ],
+                                                    "namespaces": [
+                                                      "list",
+                                                      "string"
+                                                    ],
+                                                    "topology_key": "string"
+                                                  }
+                                                ]
+                                              ]
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    ]
+                                  ],
+                                  "containers": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "args": [
+                                          "list",
+                                          "string"
+                                        ],
+                                        "command": [
+                                          "list",
+                                          "string"
+                                        ],
+                                        "env": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "name": "string",
+                                              "value": "string"
+                                            }
+                                          ]
+                                        ],
+                                        "env_from": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "config_map_ref": [
+                                                "list",
+                                                [
+                                                  "object",
+                                                  {
+                                                    "name": "string",
+                                                    "optional": "bool"
+                                                  }
+                                                ]
+                                              ],
+                                              "prefix": "string",
+                                              "secret_ref": [
+                                                "list",
+                                                [
+                                                  "object",
+                                                  {
+                                                    "name": "string",
+                                                    "optional": "bool"
+                                                  }
+                                                ]
+                                              ]
+                                            }
+                                          ]
+                                        ],
+                                        "image": "string",
+                                        "lifecycle": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "post_start": [
+                                                "list",
+                                                [
+                                                  "object",
+                                                  {
+                                                    "exec": [
+                                                      "list",
+                                                      [
+                                                        "object",
+                                                        {
+                                                          "command": [
+                                                            "list",
+                                                            "string"
+                                                          ]
+                                                        }
+                                                      ]
+                                                    ],
+                                                    "http_get": [
+                                                      "list",
+                                                      [
+                                                        "object",
+                                                        {
+                                                          "host": "string",
+                                                          "http_headers": [
+                                                            "list",
+                                                            [
+                                                              "object",
+                                                              {
+                                                                "name": "string",
+                                                                "value": "string"
+                                                              }
+                                                            ]
+                                                          ],
+                                                          "path": "string",
+                                                          "port": "string",
+                                                          "scheme": "string"
+                                                        }
+                                                      ]
+                                                    ]
+                                                  }
+                                                ]
+                                              ],
+                                              "pre_stop": [
+                                                "list",
+                                                [
+                                                  "object",
+                                                  {
+                                                    "exec": [
+                                                      "list",
+                                                      [
+                                                        "object",
+                                                        {
+                                                          "command": [
+                                                            "list",
+                                                            "string"
+                                                          ]
+                                                        }
+                                                      ]
+                                                    ],
+                                                    "http_get": [
+                                                      "list",
+                                                      [
+                                                        "object",
+                                                        {
+                                                          "host": "string",
+                                                          "http_headers": [
+                                                            "list",
+                                                            [
+                                                              "object",
+                                                              {
+                                                                "name": "string",
+                                                                "value": "string"
+                                                              }
+                                                            ]
+                                                          ],
+                                                          "path": "string",
+                                                          "port": "string",
+                                                          "scheme": "string"
+                                                        }
+                                                      ]
+                                                    ]
+                                                  }
+                                                ]
+                                              ]
+                                            }
+                                          ]
+                                        ],
+                                        "liveness_probe": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "exec": [
+                                                "list",
+                                                [
+                                                  "object",
+                                                  {
+                                                    "command": [
+                                                      "list",
+                                                      "string"
+                                                    ]
+                                                  }
+                                                ]
+                                              ],
+                                              "failure_threshold": "number",
+                                              "http_get": [
+                                                "list",
+                                                [
+                                                  "object",
+                                                  {
+                                                    "host": "string",
+                                                    "http_headers": [
+                                                      "list",
+                                                      [
+                                                        "object",
+                                                        {
+                                                          "name": "string",
+                                                          "value": "string"
+                                                        }
+                                                      ]
+                                                    ],
+                                                    "path": "string",
+                                                    "port": "string",
+                                                    "scheme": "string"
+                                                  }
+                                                ]
+                                              ],
+                                              "initial_delay_seconds": "number",
+                                              "period_seconds": "number",
+                                              "success_threshold": "number",
+                                              "termination_grace_period_seconds": "number"
+                                            }
+                                          ]
+                                        ],
+                                        "name": "string",
+                                        "ports": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "container_port": "number",
+                                              "name": "string",
+                                              "protocol": "string"
+                                            }
+                                          ]
+                                        ],
+                                        "readiness_probe": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "exec": [
+                                                "list",
+                                                [
+                                                  "object",
+                                                  {
+                                                    "command": [
+                                                      "list",
+                                                      "string"
+                                                    ]
+                                                  }
+                                                ]
+                                              ],
+                                              "failure_threshold": "number",
+                                              "http_get": [
+                                                "list",
+                                                [
+                                                  "object",
+                                                  {
+                                                    "host": "string",
+                                                    "http_headers": [
+                                                      "list",
+                                                      [
+                                                        "object",
+                                                        {
+                                                          "name": "string",
+                                                          "value": "string"
+                                                        }
+                                                      ]
+                                                    ],
+                                                    "path": "string",
+                                                    "port": "string",
+                                                    "scheme": "string"
+                                                  }
+                                                ]
+                                              ],
+                                              "initial_delay_seconds": "number",
+                                              "period_seconds": "number",
+                                              "success_threshold": "number",
+                                              "termination_grace_period_seconds": "number"
+                                            }
+                                          ]
+                                        ],
+                                        "resources": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "limits": [
+                                                "map",
+                                                "string"
+                                              ],
+                                              "requests": [
+                                                "map",
+                                                "string"
+                                              ]
+                                            }
+                                          ]
+                                        ],
+                                        "security_context": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "capabilities": [
+                                                "list",
+                                                [
+                                                  "object",
+                                                  {
+                                                    "add": [
+                                                      "list",
+                                                      "string"
+                                                    ],
+                                                    "drop": [
+                                                      "list",
+                                                      "string"
+                                                    ]
+                                                  }
+                                                ]
+                                              ],
+                                              "proc_mount": "string",
+                                              "read_only_root_file_system": "bool",
+                                              "run_as_group": "number",
+                                              "run_as_non_root": "bool",
+                                              "run_as_user": "number"
+                                            }
+                                          ]
+                                        ],
+                                        "startup_probe": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "exec": [
+                                                "list",
+                                                [
+                                                  "object",
+                                                  {
+                                                    "command": [
+                                                      "list",
+                                                      "string"
+                                                    ]
+                                                  }
+                                                ]
+                                              ],
+                                              "failure_threshold": "number",
+                                              "http_get": [
+                                                "list",
+                                                [
+                                                  "object",
+                                                  {
+                                                    "host": "string",
+                                                    "http_headers": [
+                                                      "list",
+                                                      [
+                                                        "object",
+                                                        {
+                                                          "name": "string",
+                                                          "value": "string"
+                                                        }
+                                                      ]
+                                                    ],
+                                                    "path": "string",
+                                                    "port": "string",
+                                                    "scheme": "string"
+                                                  }
+                                                ]
+                                              ],
+                                              "initial_delay_seconds": "number",
+                                              "period_seconds": "number",
+                                              "success_threshold": "number",
+                                              "termination_grace_period_seconds": "number"
+                                            }
+                                          ]
+                                        ],
+                                        "stdin": "bool",
+                                        "stdin_once": "bool",
+                                        "termination_message_path": "string",
+                                        "termination_message_policy": "string",
+                                        "tty": "bool",
+                                        "volume_mounts": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "extend_path_mode": "string",
+                                              "mount_path": "string",
+                                              "name": "string",
+                                              "read_only": "bool",
+                                              "sub_path": "string",
+                                              "sub_path_expr": "string"
+                                            }
+                                          ]
+                                        ],
+                                        "working_dir": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "dns_policy": "string",
+                                  "hostname": "string",
+                                  "image_pull_secrets": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "name": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "node_name": "string",
+                                  "overhead": [
+                                    "map",
+                                    "string"
+                                  ],
+                                  "restart_policy": "string",
+                                  "scheduler_name": "string",
+                                  "set_hostname_as_pqdn": "bool",
+                                  "share_process_namespace": "bool",
+                                  "termination_grace_period_seconds": "number"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "uid": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

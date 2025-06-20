@@ -119,6 +119,20 @@
                 "nesting_mode": "list",
                 "forcenew": true
               },
+              "metadata": {
+                "block": {
+                  "attributes": {
+                    "annotations": {
+                      "type": "string",
+                      "description": "The annotations of the resource pool, in JSON format.",
+                      "optional": true
+                    }
+                  },
+                  "description": "The metadata of the resource pool."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
               "resources": {
                 "block": {
                   "attributes": {
@@ -208,6 +222,28 @@
                         "description": "AZs for resource pool nodes."
                       },
                       "nesting_mode": "set"
+                    },
+                    "creating_step": {
+                      "block": {
+                        "attributes": {
+                          "step": {
+                            "type": "number",
+                            "description": "The creation step of the resource pool nodes.",
+                            "required": true,
+                            "forcenew": true
+                          },
+                          "type": {
+                            "type": "string",
+                            "description": "The type of the resource pool nodes.",
+                            "required": true,
+                            "forcenew": true
+                          }
+                        },
+                        "description": "The creation step configuration of the resource pool nodes."
+                      },
+                      "nesting_mode": "list",
+                      "forcenew": true,
+                      "max_items": 1
                     },
                     "data_volumes": {
                       "block": {

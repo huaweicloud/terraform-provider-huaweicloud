@@ -1,0 +1,72 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cbr_change_order": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "promotion_info": {
+                "type": "string",
+                "description": "Specifies the promotion information for the order.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to create the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "resource_id": {
+                "type": "string",
+                "description": "Specifies the ID of the resource to change.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "product_info": {
+                "block": {
+                  "attributes": {
+                    "product_id": {
+                      "type": "string",
+                      "description": "Specifies the product ID.",
+                      "required": true
+                    },
+                    "resource_size": {
+                      "type": "number",
+                      "description": "Specifies the size of the resource.",
+                      "required": true
+                    },
+                    "resource_size_measure_id": {
+                      "type": "number",
+                      "description": "Specifies the measurement unit of the resource size.",
+                      "required": true
+                    },
+                    "resource_spec_code": {
+                      "type": "string",
+                      "description": "Specifies the spec code of the resource.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies product information."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "CBR",
+            "name": "Cloud Backup and Recovery",
+            "catalog": "Storage",
+            "name_cn": "云备份",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}

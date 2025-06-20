@@ -1,0 +1,650 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cciv2_hpas": {
+          "block": {
+            "attributes": {
+              "hpas": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "behavior": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "scale_down": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "policies": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "period_seconds": "number",
+                                        "type": "string",
+                                        "value": "number"
+                                      }
+                                    ]
+                                  ],
+                                  "select_policy": "string",
+                                  "stabilization_window_seconds": "number"
+                                }
+                              ]
+                            ],
+                            "scale_up": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "policies": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "period_seconds": "number",
+                                        "type": "string",
+                                        "value": "number"
+                                      }
+                                    ]
+                                  ],
+                                  "select_policy": "string",
+                                  "stabilization_window_seconds": "number"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "creation_timestamp": "string",
+                      "max_replicas": "number",
+                      "metrics": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "container_resource": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "container": "string",
+                                  "name": "string",
+                                  "target": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "average_utilization": "number",
+                                        "average_value": [
+                                          "map",
+                                          "string"
+                                        ],
+                                        "type": "string",
+                                        "value": [
+                                          "map",
+                                          "string"
+                                        ]
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ],
+                            "external": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "metric": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "name": "string",
+                                        "selector": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "match_expressions": [
+                                                "list",
+                                                [
+                                                  "object",
+                                                  {
+                                                    "key": "string",
+                                                    "operator": "string",
+                                                    "values": [
+                                                      "map",
+                                                      "string"
+                                                    ]
+                                                  }
+                                                ]
+                                              ],
+                                              "match_labels": [
+                                                "map",
+                                                "string"
+                                              ]
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    ]
+                                  ],
+                                  "target": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "average_utilization": "number",
+                                        "average_value": [
+                                          "map",
+                                          "string"
+                                        ],
+                                        "type": "string",
+                                        "value": [
+                                          "map",
+                                          "string"
+                                        ]
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ],
+                            "object": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "described_object": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "api_version": "string",
+                                        "kind": "string",
+                                        "name": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "metric": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "name": "string",
+                                        "selector": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "match_expressions": [
+                                                "list",
+                                                [
+                                                  "object",
+                                                  {
+                                                    "key": "string",
+                                                    "operator": "string",
+                                                    "values": [
+                                                      "map",
+                                                      "string"
+                                                    ]
+                                                  }
+                                                ]
+                                              ],
+                                              "match_labels": [
+                                                "map",
+                                                "string"
+                                              ]
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    ]
+                                  ],
+                                  "target": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "average_utilization": "number",
+                                        "average_value": [
+                                          "map",
+                                          "string"
+                                        ],
+                                        "type": "string",
+                                        "value": [
+                                          "map",
+                                          "string"
+                                        ]
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ],
+                            "pods": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "metric": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "name": "string",
+                                        "selector": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "match_expressions": [
+                                                "list",
+                                                [
+                                                  "object",
+                                                  {
+                                                    "key": "string",
+                                                    "operator": "string",
+                                                    "values": [
+                                                      "map",
+                                                      "string"
+                                                    ]
+                                                  }
+                                                ]
+                                              ],
+                                              "match_labels": [
+                                                "map",
+                                                "string"
+                                              ]
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    ]
+                                  ],
+                                  "target": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "average_utilization": "number",
+                                        "average_value": [
+                                          "map",
+                                          "string"
+                                        ],
+                                        "type": "string",
+                                        "value": [
+                                          "map",
+                                          "string"
+                                        ]
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ],
+                            "resources": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "name": "string",
+                                  "target": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "average_utilization": "number",
+                                        "average_value": [
+                                          "map",
+                                          "string"
+                                        ],
+                                        "type": "string",
+                                        "value": [
+                                          "map",
+                                          "string"
+                                        ]
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ],
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "min_replicas": "number",
+                      "name": "string",
+                      "namespace": "string",
+                      "resource_version": "string",
+                      "scale_target_ref": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "api_version": "string",
+                            "kind": "string",
+                            "name": "string"
+                          }
+                        ]
+                      ],
+                      "status": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "conditions": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "last_transition_time": "string",
+                                  "message": "string",
+                                  "reason": "string",
+                                  "status": "string",
+                                  "type": "string"
+                                }
+                              ]
+                            ],
+                            "current_metrics": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "container_resource": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "container": "string",
+                                        "name": "string",
+                                        "target": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "average_utilization": "number",
+                                              "average_value": [
+                                                "map",
+                                                "string"
+                                              ],
+                                              "type": "string",
+                                              "value": [
+                                                "map",
+                                                "string"
+                                              ]
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    ]
+                                  ],
+                                  "external": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "metric": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "name": "string",
+                                              "selector": [
+                                                "list",
+                                                [
+                                                  "object",
+                                                  {
+                                                    "match_expressions": [
+                                                      "list",
+                                                      [
+                                                        "object",
+                                                        {
+                                                          "key": "string",
+                                                          "operator": "string",
+                                                          "values": [
+                                                            "map",
+                                                            "string"
+                                                          ]
+                                                        }
+                                                      ]
+                                                    ],
+                                                    "match_labels": [
+                                                      "map",
+                                                      "string"
+                                                    ]
+                                                  }
+                                                ]
+                                              ]
+                                            }
+                                          ]
+                                        ],
+                                        "target": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "average_utilization": "number",
+                                              "average_value": [
+                                                "map",
+                                                "string"
+                                              ],
+                                              "type": "string",
+                                              "value": [
+                                                "map",
+                                                "string"
+                                              ]
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    ]
+                                  ],
+                                  "object": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "described_object": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "api_version": "string",
+                                              "kind": "string",
+                                              "name": "string"
+                                            }
+                                          ]
+                                        ],
+                                        "metric": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "name": "string",
+                                              "selector": [
+                                                "list",
+                                                [
+                                                  "object",
+                                                  {
+                                                    "match_expressions": [
+                                                      "list",
+                                                      [
+                                                        "object",
+                                                        {
+                                                          "key": "string",
+                                                          "operator": "string",
+                                                          "values": [
+                                                            "map",
+                                                            "string"
+                                                          ]
+                                                        }
+                                                      ]
+                                                    ],
+                                                    "match_labels": [
+                                                      "map",
+                                                      "string"
+                                                    ]
+                                                  }
+                                                ]
+                                              ]
+                                            }
+                                          ]
+                                        ],
+                                        "target": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "average_utilization": "number",
+                                              "average_value": [
+                                                "map",
+                                                "string"
+                                              ],
+                                              "type": "string",
+                                              "value": [
+                                                "map",
+                                                "string"
+                                              ]
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    ]
+                                  ],
+                                  "pods": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "metric": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "name": "string",
+                                              "selector": [
+                                                "list",
+                                                [
+                                                  "object",
+                                                  {
+                                                    "match_expressions": [
+                                                      "list",
+                                                      [
+                                                        "object",
+                                                        {
+                                                          "key": "string",
+                                                          "operator": "string",
+                                                          "values": [
+                                                            "map",
+                                                            "string"
+                                                          ]
+                                                        }
+                                                      ]
+                                                    ],
+                                                    "match_labels": [
+                                                      "map",
+                                                      "string"
+                                                    ]
+                                                  }
+                                                ]
+                                              ]
+                                            }
+                                          ]
+                                        ],
+                                        "target": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "average_utilization": "number",
+                                              "average_value": [
+                                                "map",
+                                                "string"
+                                              ],
+                                              "type": "string",
+                                              "value": [
+                                                "map",
+                                                "string"
+                                              ]
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    ]
+                                  ],
+                                  "resources": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "name": "string",
+                                        "target": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "average_utilization": "number",
+                                              "average_value": [
+                                                "map",
+                                                "string"
+                                              ],
+                                              "type": "string",
+                                              "value": [
+                                                "map",
+                                                "string"
+                                              ]
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    ]
+                                  ],
+                                  "type": "string"
+                                }
+                              ]
+                            ],
+                            "current_replicas": "number",
+                            "desired_replicas": "number",
+                            "last_scale_time": "string",
+                            "observed_generation": "number"
+                          }
+                        ]
+                      ],
+                      "uid": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "namespace": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

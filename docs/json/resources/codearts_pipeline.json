@@ -1,0 +1,390 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_codearts_pipeline": {
+          "block": {
+            "attributes": {
+              "banned": {
+                "type": "bool",
+                "description": "Specifies whether the pipeline is banned.",
+                "optional": true,
+                "computed": true
+              },
+              "component_id": {
+                "type": "string",
+                "description": "Specifies the microservice ID.",
+                "optional": true
+              },
+              "create_time": {
+                "type": "number",
+                "description": "Indicates the creation time.",
+                "computed": true
+              },
+              "creator_id": {
+                "type": "string",
+                "description": "Indicates the creator ID.",
+                "computed": true
+              },
+              "creator_name": {
+                "type": "string",
+                "description": "Indicates the creator name.",
+                "computed": true
+              },
+              "definition": {
+                "type": "string",
+                "description": "Specifies the pipeline definition JSON.",
+                "required": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the pipeline description.",
+                "optional": true
+              },
+              "group_id": {
+                "type": "string",
+                "description": "Specifies the pipeline group ID.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_collect": {
+                "type": "bool",
+                "description": "Indicates whether the current user has collected it.",
+                "computed": true
+              },
+              "is_publish": {
+                "type": "bool",
+                "description": "Specifies whether it is a change-triggered pipeline.",
+                "required": true
+              },
+              "manifest_version": {
+                "type": "string",
+                "description": "Specifies the pipeline structure definition version.",
+                "optional": true,
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the pipeline name.",
+                "required": true
+              },
+              "project_id": {
+                "type": "string",
+                "description": "Specifies the CodeArts project ID.",
+                "required": true
+              },
+              "project_name": {
+                "type": "string",
+                "description": "Specifies the project name.",
+                "optional": true,
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "update_time": {
+                "type": "number",
+                "description": "Indicates the last update time.",
+                "computed": true
+              },
+              "updater_id": {
+                "type": "string",
+                "description": "Indicates the last updater ID.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "concurrency_control": {
+                "block": {
+                  "attributes": {
+                    "concurrency_number": {
+                      "type": "number",
+                      "description": "Specifies the number of concurrent instances.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "enable": {
+                      "type": "bool",
+                      "description": "Specifies whether to enable the strategy.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "exceed_action": {
+                      "type": "string",
+                      "description": "Specifies the policy when the threshold is exceeded.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "Specifies the pipeline concurrency control information."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "schedules": {
+                "block": {
+                  "attributes": {
+                    "days_of_week": {
+                      "type": [
+                        "set",
+                        "number"
+                      ],
+                      "description": "Specifies the execution day in a week.",
+                      "optional": true
+                    },
+                    "enable": {
+                      "type": "bool",
+                      "description": "Specifies whether to enable the schedule job.",
+                      "optional": true
+                    },
+                    "end_time": {
+                      "type": "string",
+                      "description": "Specifies the end time.",
+                      "optional": true
+                    },
+                    "interval_time": {
+                      "type": "string",
+                      "description": "Specifies the interval time.",
+                      "optional": true
+                    },
+                    "interval_unit": {
+                      "type": "string",
+                      "description": "Specifies the interval unit.",
+                      "optional": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Specifies the schedule job name.",
+                      "optional": true
+                    },
+                    "start_time": {
+                      "type": "string",
+                      "description": "Specifies the start time.",
+                      "optional": true
+                    },
+                    "time_zone": {
+                      "type": "string",
+                      "description": "Specifies the time zone.",
+                      "optional": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Specifies the schedule job type.",
+                      "optional": true
+                    },
+                    "uuid": {
+                      "type": "string",
+                      "description": "Indicates the ID of a scheduled task.",
+                      "computed": true
+                    }
+                  },
+                  "description": "Specifies the pipeline schedule settings."
+                },
+                "nesting_mode": "set"
+              },
+              "sources": {
+                "block": {
+                  "attributes": {
+                    "type": {
+                      "type": "string",
+                      "description": "Specifies the pipeline source type.",
+                      "optional": true
+                    }
+                  },
+                  "block_types": {
+                    "params": {
+                      "block": {
+                        "attributes": {
+                          "alias": {
+                            "type": "string",
+                            "description": "Specifies the code repository alias.",
+                            "optional": true
+                          },
+                          "codehub_id": {
+                            "type": "string",
+                            "description": "Specifies the CodeArts Repo code repository ID.",
+                            "optional": true
+                          },
+                          "default_branch": {
+                            "type": "string",
+                            "description": "Specifies the default branch.",
+                            "optional": true
+                          },
+                          "endpoint_id": {
+                            "type": "string",
+                            "description": "Specifies the code source endpoint ID.",
+                            "optional": true
+                          },
+                          "git_type": {
+                            "type": "string",
+                            "description": "Specifies the code repository type.",
+                            "optional": true
+                          },
+                          "git_url": {
+                            "type": "string",
+                            "description": "Specifies the HTTPS address of the Git repository.",
+                            "optional": true
+                          },
+                          "repo_name": {
+                            "type": "string",
+                            "description": "Specifies the pipeline source name.",
+                            "optional": true
+                          },
+                          "ssh_git_url": {
+                            "type": "string",
+                            "description": "Specifies the SSH Git address,",
+                            "optional": true
+                          },
+                          "web_url": {
+                            "type": "string",
+                            "description": "Specifies the web page URL.",
+                            "optional": true
+                          }
+                        },
+                        "description": "Specifies the pipeline source parameters."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    }
+                  },
+                  "description": "Specifies the pipeline source information."
+                },
+                "nesting_mode": "set"
+              },
+              "triggers": {
+                "block": {
+                  "attributes": {
+                    "callback_url": {
+                      "type": "string",
+                      "description": "Specifies the callback URL.",
+                      "optional": true
+                    },
+                    "endpoint_id": {
+                      "type": "string",
+                      "description": "Specifies the code source endpoint ID.",
+                      "optional": true
+                    },
+                    "git_type": {
+                      "type": "string",
+                      "description": "Specifies the Git repository type.",
+                      "optional": true
+                    },
+                    "git_url": {
+                      "type": "string",
+                      "description": "Specifies the Git URL.",
+                      "optional": true
+                    },
+                    "hook_id": {
+                      "type": "number",
+                      "description": "Indicates the callback ID.",
+                      "computed": true
+                    },
+                    "is_auto_commit": {
+                      "type": "bool",
+                      "description": "Specifies whether to automatically commit code.",
+                      "optional": true
+                    },
+                    "repo_id": {
+                      "type": "string",
+                      "description": "Specifies the repository ID.",
+                      "optional": true
+                    },
+                    "security_token": {
+                      "type": "string",
+                      "description": "Specifies the User token.",
+                      "optional": true
+                    }
+                  },
+                  "block_types": {
+                    "events": {
+                      "block": {
+                        "attributes": {
+                          "enable": {
+                            "type": "bool",
+                            "description": "Specifies whether it is available.",
+                            "optional": true
+                          },
+                          "type": {
+                            "type": "string",
+                            "description": "Specifies the event type.",
+                            "optional": true
+                          }
+                        },
+                        "description": "Specifies the trigger event list."
+                      },
+                      "nesting_mode": "set"
+                    }
+                  },
+                  "description": "Specifies the pipeline trigger settings."
+                },
+                "nesting_mode": "set"
+              },
+              "variables": {
+                "block": {
+                  "attributes": {
+                    "description": {
+                      "type": "string",
+                      "description": "Specifies the parameter description.",
+                      "optional": true
+                    },
+                    "is_reset": {
+                      "type": "bool",
+                      "description": "Specifies whether to reset.",
+                      "optional": true
+                    },
+                    "is_runtime": {
+                      "type": "bool",
+                      "description": "Specifies whether to set parameters at runtime.",
+                      "optional": true
+                    },
+                    "is_secret": {
+                      "type": "bool",
+                      "description": "Specifies whether it is a private parameter.",
+                      "optional": true
+                    },
+                    "latest_value": {
+                      "type": "string",
+                      "description": "Specifies the last parameter value.",
+                      "optional": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Specifies the custom variable name.",
+                      "optional": true
+                    },
+                    "runtime_value": {
+                      "type": "string",
+                      "description": "Specifies the value passed in at runtime.",
+                      "optional": true
+                    },
+                    "sequence": {
+                      "type": "number",
+                      "description": "Specifies the parameter sequence, starting from 1.",
+                      "optional": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Specifies the custom parameter type.",
+                      "optional": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "description": "Specifies the custom parameter default value.",
+                      "optional": true
+                    }
+                  },
+                  "description": "Specifies the custom variables."
+                },
+                "nesting_mode": "set"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

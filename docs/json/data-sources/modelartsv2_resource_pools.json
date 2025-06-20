@@ -70,6 +70,16 @@
                               ]
                             ],
                             "count": "number",
+                            "creating_step": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "step": "number",
+                                  "type": "string"
+                                }
+                              ]
+                            ],
                             "data_volumes": [
                               "list",
                               [

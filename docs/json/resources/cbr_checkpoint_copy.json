@@ -1,0 +1,60 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cbr_checkpoint_copy": {
+          "block": {
+            "attributes": {
+              "auto_trigger": {
+                "type": "bool",
+                "description": "Specifies whether to automatically trigger the replication.",
+                "optional": true
+              },
+              "destination_project_id": {
+                "type": "string",
+                "description": "Specifies the ID of the destination project to which the backup is to be copied.",
+                "required": true
+              },
+              "destination_region": {
+                "type": "string",
+                "description": "Specifies the ID of the destination region to which the backup is to be copied.",
+                "required": true
+              },
+              "destination_vault_id": {
+                "type": "string",
+                "description": "Specifies the ID of the destination vault to which the backup is to be copied.",
+                "required": true
+              },
+              "enable_acceleration": {
+                "type": "bool",
+                "description": "Specifies whether to enable acceleration for cross-region replication.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to create the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "vault_id": {
+                "type": "string",
+                "description": "Specifies the ID of the source vault.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "CBR",
+            "name": "Cloud Backup and Recovery",
+            "catalog": "Storage",
+            "name_cn": "云备份",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}

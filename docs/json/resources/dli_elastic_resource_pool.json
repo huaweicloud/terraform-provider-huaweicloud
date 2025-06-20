@@ -35,11 +35,21 @@
               "enterprise_project_id": {
                 "type": "string",
                 "description": "The ID of the enterprise project to which the elastic resource pool belongs.",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "id": {
                 "type": "string",
                 "computed": true
+              },
+              "label": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "The attribute fields of the elastic resource pool.",
+                "optional": true,
+                "forcenew": true
               },
               "max_cu": {
                 "type": "number",

@@ -1,0 +1,48 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cbr_batch_update_vault": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to execute the request. \n\t\t\t\t\tIf omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "smn_notify": {
+                "type": "bool",
+                "description": "Specifies whether to enable SMN notification for the vault.",
+                "optional": true
+              },
+              "threshold": {
+                "type": "number",
+                "description": "Specifies the threshold of the vault capacity in GB.",
+                "optional": true
+              },
+              "updated_vaults_id": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The list of vault IDs that have been updated.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CBR",
+            "name": "Cloud Backup and Recovery",
+            "catalog": "Storage",
+            "name_cn": "云备份",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}
