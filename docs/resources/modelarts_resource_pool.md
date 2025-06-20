@@ -7,7 +7,9 @@ description: ""
 
 # huaweicloud_modelarts_resource_pool
 
-Manages a ModelArts dedicated resource pool resource within HuaweiCloud.  
+Manages a ModelArts dedicated resource pool resource within HuaweiCloud.
+
+-> It is recommended to use `huaweicloud_modelartsv2_resource_pool` resource to create resource pool.
 
 ## Example Usage
 
