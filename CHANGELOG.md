@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.75.5 (June 20, 2025)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_vpc_route_table: update changing rule logic [GH-7057]
+
 ## 1.75.4 (June 13, 2025)
 
 ENHANCEMENTS:
