@@ -23,10 +23,12 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cbc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 const billingModePostPaid = "0"
+const billingModePrePaid = "1"
 
 // @API ModelArts POST /v2/{project_id}/pools
 // @API ModelArts DELETE /v2/{project_id}/pools/{id}
@@ -1692,44 +1694,91 @@ func updateResourcePoolWaitingForStateCompleted(ctx context.Context, d *schema.R
 }
 
 func resourceModelartsResourcePoolDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
+	var (
+		cfg              = meta.(*config.Config)
+		region           = cfg.GetRegion(d)
+		resourcePoolName = d.Id()
+	)
+	client, err := cfg.NewServiceClient("modelarts", region)
+	if err != nil {
+		return diag.Errorf("error creating ModelArts client: %s", err)
+	}
+
+	bssClient, err := cfg.NewServiceClient("bssv2", cfg.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("error creating BSS client: %s", err)
+	}
+
+	// If there are nodes in the prepaid billing mode under the resource pool (pre-paid or post-paid), we must unsubscribe the nodes first.
+	if err := unsubscribePrePaidBillingNodes(ctx, client, bssClient, resourcePoolName, d.Timeout(schema.TimeoutDelete)); err != nil {
+		return diag.Errorf("error unsubscribing nodes under specified resource pool(%s): %s", resourcePoolName, err)
+	}
 
 	if d.Get("charging_mode").(string) == "prePaid" {
 		resourcePoolId := d.Get("resource_pool_id")
 		if resourcePoolId == nil {
-			return diag.Errorf("error getting resource ID from the resource pool(%s)", d.Id())
+			return diag.Errorf("error getting resource ID from the resource pool(%s)", resourcePoolName)
 		}
 		if err := common.UnsubscribePrePaidResource(d, cfg, []string{resourcePoolId.(string)}); err != nil {
 			return diag.Errorf("error unsubscribing Modelarts resource pool: %s", err)
 		}
 	} else {
-		err := deleteResourcePool(cfg, d, region)
+		err := deleteResourcePool(client, resourcePoolName)
 		if err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
-	err := deleteResourcePoolWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutDelete))
+	err = deleteResourcePoolWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return diag.Errorf("error waiting for the Modelarts resource pool (%s) deletion to complete: %s", d.Id(), err)
+		return diag.Errorf("error waiting for the Modelarts resource pool (%s) deletion to complete: %s", resourcePoolName, err)
 	}
 	return nil
 }
 
-func deleteResourcePool(cfg *config.Config, d *schema.ResourceData, region string) error {
-	var (
-		deleteResourcePoolHttpUrl = "v2/{project_id}/pools/{id}"
-		deleteResourcePoolProduct = "modelarts"
-	)
-	deleteResourcePoolClient, err := cfg.NewServiceClient(deleteResourcePoolProduct, region)
+func unsubscribePrePaidBillingNodes(ctx context.Context, client, bssClient *golangsdk.ServiceClient, resourcePoolName string,
+	timeout time.Duration) error {
+	nodes, err := listV2ResourcePoolNodes(client, resourcePoolName)
 	if err != nil {
-		return fmt.Errorf("error creating ModelArts client: %s", err)
+		return fmt.Errorf("error querying nodes under specified resource pool(%s): %s", resourcePoolName, err)
 	}
 
-	deleteResourcePoolPath := deleteResourcePoolClient.Endpoint + deleteResourcePoolHttpUrl
-	deleteResourcePoolPath = strings.ReplaceAll(deleteResourcePoolPath, "{project_id}", deleteResourcePoolClient.ProjectID)
-	deleteResourcePoolPath = strings.ReplaceAll(deleteResourcePoolPath, "{id}", d.Id())
+	// Obtain the node IDs list that are in the pre-paid billing mode.
+	deleteNodeIds := utils.PathSearch(
+		fmt.Sprintf(`[?metadata.annotations."os.modelarts/billing.mode"=='%s'].metadata.labels."os.modelarts/resource.id"`,
+			billingModePrePaid),
+		nodes, make([]interface{}, 0)).([]interface{})
+
+	if len(deleteNodeIds) == 0 {
+		return nil
+	}
+
+	// Unsubscribe the pre-paid billing nodes.
+	err = cbc.UnsubscribePrePaidResources(bssClient, deleteNodeIds)
+	if err != nil {
+		return err
+	}
+	err = cbc.WaitForResourcesUnsubscribed(ctx, bssClient, deleteNodeIds, timeout)
+	if err != nil {
+		return fmt.Errorf("error waiting for all nodes to be unsubscribed: %s ", err)
+	}
+
+	err = waitForV2NodeBatchUnsubscribeCompleted(ctx, client, resourcePoolName, deleteNodeIds, timeout)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func deleteResourcePool(client *golangsdk.ServiceClient, resourcePoolName string) error {
+	var (
+		deleteResourcePoolHttpUrl = "v2/{project_id}/pools/{id}"
+	)
+
+	deleteResourcePoolPath := client.Endpoint + deleteResourcePoolHttpUrl
+	deleteResourcePoolPath = strings.ReplaceAll(deleteResourcePoolPath, "{project_id}", client.ProjectID)
+	deleteResourcePoolPath = strings.ReplaceAll(deleteResourcePoolPath, "{id}", resourcePoolName)
 
 	deleteResourcePoolOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -1739,7 +1788,7 @@ func deleteResourcePool(cfg *config.Config, d *schema.ResourceData, region strin
 		MoreHeaders: map[string]string{"Content-Type": "application/json"},
 	}
 
-	_, err = deleteResourcePoolClient.Request("DELETE", deleteResourcePoolPath, &deleteResourcePoolOpt)
+	_, err := client.Request("DELETE", deleteResourcePoolPath, &deleteResourcePoolOpt)
 	if err != nil {
 		return fmt.Errorf("error deleting Modelarts resource pool: %s", err)
 	}
