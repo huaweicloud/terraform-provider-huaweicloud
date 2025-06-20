@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_sdrs_quotas
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: SDRS
+paths:
+    /v1/{project_id}/sdrs/quotas:
+        GET:
+            tag: SDRS

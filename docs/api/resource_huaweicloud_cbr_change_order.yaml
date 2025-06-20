@@ -1,6 +1,6 @@
 info:
     version: ""
-    title: data_source_huaweicloud_cbr_vaults_by_tags
+    title: resource_huaweicloud_cbr_change_order
     description: ""
 schemes:
     - https
@@ -8,6 +8,6 @@ host: huaweicloud.com
 tags:
     - name: CBR
 paths:
-    /v3/{project_id}/vault/resource_instances/action:
+    /v3/{project_id}/orders/change:
         POST:
             tag: CBR

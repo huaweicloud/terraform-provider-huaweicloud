@@ -1,6 +1,6 @@
 info:
     version: ""
-    title: data_source_huaweicloud_cbr_vaults_by_tags
+    title: data_source_huaweicloud_cbr_external_vaults
     description: ""
 schemes:
     - https
@@ -8,6 +8,6 @@ host: huaweicloud.com
 tags:
     - name: CBR
 paths:
-    /v3/{project_id}/vault/resource_instances/action:
-        POST:
+    /v3/{project_id}/vaults/external:
+        GET:
             tag: CBR

@@ -1,0 +1,19 @@
+info:
+    version: ""
+    title: resource_huaweicloud_rds_pg_schema
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: RDS
+paths:
+    /v3/{project_id}/instances:
+        GET:
+            tag: RDS
+    /v3/{project_id}/instances/{instance_id}/schema:
+        POST:
+            tag: RDS
+    /v3/{project_id}/instances/{instance_id}/schema/detail:
+        GET:
+            tag: RDS
