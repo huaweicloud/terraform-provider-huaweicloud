@@ -109,70 +109,7 @@ func ResourceCodeArtsPipeline() *schema.Resource {
 				Type:        schema.TypeSet,
 				Optional:    true,
 				Description: `Specifies the pipeline source information.`,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"type": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: `Specifies the pipeline source type.`,
-						},
-						"params": {
-							Type:        schema.TypeList,
-							Optional:    true,
-							MaxItems:    1,
-							Description: `Specifies the pipeline source parameters.`,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"git_type": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: `Specifies the code repository type.`,
-									},
-									"codehub_id": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: `Specifies the CodeArts Repo code repository ID.`,
-									},
-									"endpoint_id": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: `Specifies the code source endpoint ID.`,
-									},
-									"default_branch": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: `Specifies the default branch.`,
-									},
-									"git_url": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: `Specifies the HTTPS address of the Git repository.`,
-									},
-									"ssh_git_url": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: `Specifies the SSH Git address,`,
-									},
-									"web_url": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: `Specifies the web page URL.`,
-									},
-									"repo_name": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: `Specifies the pipeline source name.`,
-									},
-									"alias": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: `Specifies the code repository alias.`,
-									},
-								},
-							},
-						},
-					},
-				},
+				Elem:        resourceSchemePipelineSources(),
 			},
 			"variables": {
 				Type:        schema.TypeSet,
@@ -184,129 +121,13 @@ func ResourceCodeArtsPipeline() *schema.Resource {
 				Type:        schema.TypeSet,
 				Optional:    true,
 				Description: `Specifies the pipeline schedule settings.`,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"type": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: `Specifies the schedule job type.`,
-						},
-						"name": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: `Specifies the schedule job name.`,
-						},
-						"enable": {
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Description: `Specifies whether to enable the schedule job.`,
-						},
-						"days_of_week": {
-							Type:        schema.TypeSet,
-							Optional:    true,
-							Elem:        &schema.Schema{Type: schema.TypeInt},
-							Description: `Specifies the execution day in a week.`,
-						},
-						"time_zone": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: `Specifies the time zone.`,
-						},
-						"start_time": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: `Specifies the start time.`,
-						},
-						"end_time": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: `Specifies the end time.`,
-						},
-						"interval_time": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: `Specifies the interval time.`,
-						},
-						"interval_unit": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: `Specifies the interval unit.`,
-						},
-						"uuid": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: `Indicates the ID of a scheduled task.`,
-						},
-					},
-				},
+				Elem:        resourceSchemePipelineSchedules(),
 			},
 			"triggers": {
 				Type:        schema.TypeSet,
 				Optional:    true,
 				Description: `Specifies the pipeline trigger settings.`,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"git_url": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: `Specifies the Git URL.`,
-						},
-						"git_type": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: `Specifies the Git repository type.`,
-						},
-						"is_auto_commit": {
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Description: `Specifies whether to automatically commit code.`,
-						},
-						"events": {
-							Type:        schema.TypeSet,
-							Optional:    true,
-							Description: `Specifies the trigger event list.`,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"type": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: `Specifies the event type.`,
-									},
-									"enable": {
-										Type:        schema.TypeBool,
-										Optional:    true,
-										Description: `Specifies whether it is available.`,
-									},
-								},
-							},
-						},
-						"repo_id": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: `Specifies the repository ID.`,
-						},
-						"endpoint_id": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: `Specifies the code source endpoint ID.`,
-						},
-						"callback_url": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: `Specifies the callback URL.`,
-						},
-						"security_token": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: `Specifies the User token.`,
-						},
-						"hook_id": {
-							Type:        schema.TypeInt,
-							Computed:    true,
-							Description: `Indicates the callback ID.`,
-						},
-					},
-				},
+				Elem:        resourceSchemePipelineTriggers(),
 			},
 			"concurrency_control": {
 				Type:        schema.TypeList,
@@ -314,28 +135,7 @@ func ResourceCodeArtsPipeline() *schema.Resource {
 				Computed:    true,
 				MaxItems:    1,
 				Description: `Specifies the pipeline concurrency control information.`,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"concurrency_number": {
-							Type:        schema.TypeInt,
-							Optional:    true,
-							Computed:    true,
-							Description: `Specifies the number of concurrent instances.`,
-						},
-						"exceed_action": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Computed:    true,
-							Description: `Specifies the policy when the threshold is exceeded.`,
-						},
-						"enable": {
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Computed:    true,
-							Description: `Specifies whether to enable the strategy.`,
-						},
-					},
-				},
+				Elem:        resourceSchemePipelineConcurrencyControl(),
 			},
 			"enable_force_new": {
 				Type:         schema.TypeString,
@@ -372,6 +172,230 @@ func ResourceCodeArtsPipeline() *schema.Resource {
 				Type:        schema.TypeBool,
 				Computed:    true,
 				Description: `Indicates whether the current user has collected it.`,
+			},
+		},
+	}
+}
+
+func resourceSchemePipelineSources() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"type": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the pipeline source type.`,
+			},
+			"params": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				MaxItems:    1,
+				Description: `Specifies the pipeline source parameters.`,
+				Elem:        resourceSchemePipelineSourcesParams(),
+			},
+		},
+	}
+}
+
+func resourceSchemePipelineSourcesParams() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"git_type": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the code repository type.`,
+			},
+			"codehub_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the CodeArts Repo code repository ID.`,
+			},
+			"endpoint_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the code source endpoint ID.`,
+			},
+			"default_branch": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the default branch.`,
+			},
+			"git_url": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the HTTPS address of the Git repository.`,
+			},
+			"ssh_git_url": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the SSH Git address,`,
+			},
+			"web_url": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the web page URL.`,
+			},
+			"repo_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the pipeline source name.`,
+			},
+			"alias": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the code repository alias.`,
+			},
+		},
+	}
+}
+
+func resourceSchemePipelineSchedules() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"type": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the schedule job type.`,
+			},
+			"name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the schedule job name.`,
+			},
+			"enable": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Specifies whether to enable the schedule job.`,
+			},
+			"days_of_week": {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeInt},
+				Description: `Specifies the execution day in a week.`,
+			},
+			"time_zone": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the time zone.`,
+			},
+			"start_time": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the start time.`,
+			},
+			"end_time": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the end time.`,
+			},
+			"interval_time": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the interval time.`,
+			},
+			"interval_unit": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the interval unit.`,
+			},
+			"uuid": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the ID of a scheduled task.`,
+			},
+		},
+	}
+}
+
+func resourceSchemePipelineTriggers() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"git_url": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the Git URL.`,
+			},
+			"git_type": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the Git repository type.`,
+			},
+			"is_auto_commit": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Specifies whether to automatically commit code.`,
+			},
+			"events": {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Description: `Specifies the trigger event list.`,
+				Elem:        resourceSchemePipelineTriggersEvents(),
+			},
+			"repo_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the repository ID.`,
+			},
+			"endpoint_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the code source endpoint ID.`,
+			},
+			"callback_url": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the callback URL.`,
+			},
+			"security_token": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the User token.`,
+			},
+			"hook_id": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `Indicates the callback ID.`,
+			},
+		},
+	}
+}
+
+func resourceSchemePipelineTriggersEvents() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"type": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the event type.`,
+			},
+			"enable": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Specifies whether it is available.`,
+			},
+		},
+	}
+}
+
+func resourceSchemePipelineConcurrencyControl() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"concurrency_number": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Computed:    true,
+				Description: `Specifies the number of concurrent instances.`,
+			},
+			"exceed_action": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `Specifies the policy when the threshold is exceeded.`,
+			},
+			"enable": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Computed:    true,
+				Description: `Specifies whether to enable the strategy.`,
 			},
 		},
 	}
@@ -448,7 +472,7 @@ func resourcePipelineCreate(ctx context.Context, d *schema.ResourceData, meta in
 	createPath := client.Endpoint + httpUrl
 	createPath = strings.ReplaceAll(createPath, "{project_id}", projectId)
 	if v, ok := d.GetOk("component_id"); ok {
-		createPath += fmt.Sprintf("component_id=%v", v)
+		createPath += fmt.Sprintf("?component_id=%v", v)
 	}
 
 	createOpt := golangsdk.RequestOpts{
@@ -492,7 +516,6 @@ func buildCreateOrUpdatePipelineBodyParams(d *schema.ResourceData) map[string]in
 		"definition":          d.Get("definition"),
 		"is_publish":          d.Get("is_publish"),
 		"project_name":        utils.ValueIgnoreEmpty(d.Get("project_name")),
-		"component_id":        utils.ValueIgnoreEmpty(d.Get("component_id")),
 		"group_id":            utils.ValueIgnoreEmpty(d.Get("group_id")),
 		"manifest_version":    utils.ValueIgnoreEmpty(d.Get("manifest_version")),
 		"sources":             buildPipelineSources(d),
@@ -891,26 +914,8 @@ func resourcePipelineUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		"sources", "variables", "schedules", "triggers", "concurrency_control",
 	}
 	if d.HasChanges(changes...) {
-		httpUrl := "v5/{project_id}/api/pipelines/{pipeline_id}"
-		updatePath := client.Endpoint + httpUrl
-		updatePath = strings.ReplaceAll(updatePath, "{project_id}", projectId)
-		updatePath = strings.ReplaceAll(updatePath, "{pipeline_id}", d.Id())
-		updateOpt := golangsdk.RequestOpts{
-			KeepResponseBody: true,
-			JSONBody:         utils.RemoveNil(buildCreateOrUpdatePipelineBodyParams(d)),
-		}
-
-		updateResp, err := client.Request("PUT", updatePath, &updateOpt)
-		if err != nil {
-			return diag.Errorf("error updating CodeArts Pipeline: %s", err)
-		}
-		updateRespBody, err := utils.FlattenResponse(updateResp)
-		if err != nil {
+		if err := updatePipeline(client, d); err != nil {
 			return diag.FromErr(err)
-		}
-
-		if err := checkResponseError(updateRespBody, ""); err != nil {
-			return diag.Errorf("error updating CodeArts Pipeline: %s", err)
 		}
 	}
 
@@ -924,6 +929,35 @@ func resourcePipelineUpdate(ctx context.Context, d *schema.ResourceData, meta in
 	}
 
 	return resourcePipelineRead(ctx, d, meta)
+}
+
+func updatePipeline(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	httpUrl := "v5/{project_id}/api/pipelines/{pipeline_id}"
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", d.Get("project_id").(string))
+	updatePath = strings.ReplaceAll(updatePath, "{pipeline_id}", d.Id())
+	if v, ok := d.GetOk("component_id"); ok {
+		updatePath += fmt.Sprintf("?component_id=%v", v)
+	}
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildCreateOrUpdatePipelineBodyParams(d)),
+	}
+
+	updateResp, err := client.Request("PUT", updatePath, &updateOpt)
+	if err != nil {
+		return fmt.Errorf("error updating CodeArts pipeline: %s", err)
+	}
+	updateRespBody, err := utils.FlattenResponse(updateResp)
+	if err != nil {
+		return err
+	}
+
+	if err := checkResponseError(updateRespBody, ""); err != nil {
+		return fmt.Errorf("error updating CodeArts pipeline: %s", err)
+	}
+
+	return nil
 }
 
 func resourcePipelineDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
