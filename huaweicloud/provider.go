@@ -1865,9 +1865,10 @@ func Provider() *schema.Provider {
 			"huaweicloud_cse_microservice_instance":             cse.ResourceMicroserviceInstance(),
 			"huaweicloud_cse_nacos_namespace":                   cse.ResourceNacosNamespace(),
 
-			"huaweicloud_csms_event":                dew.ResourceCsmsEvent(),
-			"huaweicloud_csms_secret":               dew.ResourceSecret(),
-			"huaweicloud_csms_secret_version_state": dew.ResourceSecretVersionState(),
+			"huaweicloud_csms_event":                        dew.ResourceCsmsEvent(),
+			"huaweicloud_csms_secret":                       dew.ResourceSecret(),
+			"huaweicloud_csms_secret_version_state":         dew.ResourceSecretVersionState(),
+			"huaweicloud_csms_scheduled_delete_secret_task": dew.ResourceCsmsScheduledDeleteSecretTask(),
 
 			"huaweicloud_css_cluster":                     css.ResourceCssCluster(),
 			"huaweicloud_css_cluster_restart":             css.ResourceCssClusterRestart(),
