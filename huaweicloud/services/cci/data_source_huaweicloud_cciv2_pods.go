@@ -950,6 +950,39 @@ func podsContainersSchema() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"volume_mounts": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"extend_path_mode": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"mount_path": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"read_only": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"sub_path": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"sub_path_expr": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+			},
 		},
 	}
 
