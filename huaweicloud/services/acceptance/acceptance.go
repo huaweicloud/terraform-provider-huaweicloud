@@ -427,11 +427,12 @@ var (
 	HW_AOM_MULTI_ACCOUNT_AGGREGATION_RULE_ENABLE = os.Getenv("HW_AOM_MULTI_ACCOUNT_AGGREGATION_RULE_ENABLE")
 
 	// the ID of ECS instance which has installed uniagent
-	HW_COC_INSTANCE_ID     = os.Getenv("HW_COC_INSTANCE_ID")
-	HW_COC_APPLICATION_ID  = os.Getenv("HW_COC_APPLICATION_ID")
-	HW_COC_ROLE_ID         = os.Getenv("HW_COC_ROLE_ID")
-	HW_COC_SCENE_ID        = os.Getenv("HW_COC_SCENE_ID")
-	HW_COC_INTEGRATION_KEY = os.Getenv("HW_COC_INTEGRATION_KEY")
+	HW_COC_INSTANCE_ID           = os.Getenv("HW_COC_INSTANCE_ID")
+	HW_COC_APPLICATION_ID        = os.Getenv("HW_COC_APPLICATION_ID")
+	HW_COC_ROLE_ID               = os.Getenv("HW_COC_ROLE_ID")
+	HW_COC_SCENE_ID              = os.Getenv("HW_COC_SCENE_ID")
+	HW_COC_INTEGRATION_KEY       = os.Getenv("HW_COC_INTEGRATION_KEY")
+	HW_COC_INSTANCE_COMPLIANT_ID = os.Getenv("HW_COC_INSTANCE_COMPLIANT_ID")
 
 	// Deprecated
 	HW_SRC_ACCESS_KEY = os.Getenv("HW_SRC_ACCESS_KEY")
@@ -2530,6 +2531,13 @@ func TestAccPreCheckCocSceneID(t *testing.T) {
 func TestAccPreCheckCocIntegrationKey(t *testing.T) {
 	if HW_COC_INTEGRATION_KEY == "" {
 		t.Skip("HW_COC_INTEGRATION_KEY must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCocInstanceCompliantID(t *testing.T) {
+	if HW_COC_INSTANCE_COMPLIANT_ID == "" {
+		t.Skip("HW_COC_INSTANCE_COMPLIANT_ID must be set for the acceptance test")
 	}
 }
 
