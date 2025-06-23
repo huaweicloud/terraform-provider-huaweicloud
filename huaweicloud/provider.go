@@ -1506,6 +1506,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_workspace_app_storage_policies":     workspace.DataSourceAppStoragePolicies(),
 			"huaweicloud_workspace_desktops":                 workspace.DataSourceDesktops(),
 			"huaweicloud_workspace_desktop_tags":             workspace.DataSourceDesktopTags(),
+			"huaweicloud_workspace_desktop_tags_filter":      workspace.DataSourceDesktopTagsFilter(),
 			"huaweicloud_workspace_flavors":                  workspace.DataSourceWorkspaceFlavors(),
 			"huaweicloud_workspace_service":                  workspace.DataSourceService(),
 			"huaweicloud_workspace_tags":                     workspace.DataSourceTags(),
