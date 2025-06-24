@@ -236,52 +236,7 @@ func deploymentsTemplateSpecSchema() *schema.Resource {
 			"containers": {
 				Type:     schema.TypeList,
 				Computed: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"name": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"image": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"env": {
-							Type:     schema.TypeList,
-							Computed: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"name": {
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-									"value": {
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-								},
-							},
-						},
-						"resources": {
-							Type:     schema.TypeList,
-							Computed: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"limits": {
-										Type:     schema.TypeMap,
-										Computed: true,
-										Elem:     &schema.Schema{Type: schema.TypeString},
-									},
-									"requests": {
-										Type:     schema.TypeMap,
-										Computed: true,
-										Elem:     &schema.Schema{Type: schema.TypeString},
-									},
-								},
-							},
-						},
-					},
-				},
+				Elem:     podsContainersSchema(),
 			},
 			"dns_policy": {
 				Type:     schema.TypeString,

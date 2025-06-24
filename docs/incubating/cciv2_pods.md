@@ -276,6 +276,24 @@ The `containers` block supports:
 
 * `working_dir` - The working dir of the containers.
 
+* `volume_mounts` - The volume mounts probe of the container.
+  The [volume_mounts](#containers_volume_mounts) structure is documented below.
+
+<a name="containers_volume_mounts"></a>
+The `volume_mounts` block supports:
+
+* `extend_path_mode` - The extend path mode of the volume mounts.
+
+* `mount_path` - The mount path of the volume mounts.
+
+* `name` - The name of the volume mounts.
+
+* `read_only` - Whether to read only.
+
+* `sub_path` - The sub path of the volume mounts.
+
+* `sub_path_expr` - The sub path expression of the volume mounts.
+
 <a name="pods_containers_env"></a>
 The `env` block supports:
 
