@@ -172,6 +172,10 @@ The following arguments are supported:
   provider-level region will be used. Changing this creates a new rds instance resource.
 
 * `availability_zone` - (Required, List) Specifies the list of AZ name.
+  + If add standby node az to the list, then the instance will change from Single instance to Primary/Standby instance.
+    The value of `flavor` will be changed to the ha mode value, so the value of `flavor` in the script should be changed
+    to the ha mode value too.
+  + If change the standby node az, then the standby node will migrate to new az.
 
 * `name` - (Required, String) Specifies the DB instance name. The DB instance name of the same type must be unique for
   the same tenant. The value must be 4 to 64 characters in length and start with a letter. It is case-sensitive and can
