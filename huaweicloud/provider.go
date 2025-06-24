@@ -2698,6 +2698,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_codearts_pipeline":                  codeartspipeline.ResourceCodeArtsPipeline(),
 			"huaweicloud_codearts_pipeline_action":           codeartspipeline.ResourceCodeArtsPipelineAction(),
+			"huaweicloud_codearts_pipeline_by_template":      codeartspipeline.ResourceCodeArtsPipelineByTemplate(),
 			"huaweicloud_codearts_pipeline_template":         codeartspipeline.ResourceCodeArtsPipelineTemplate(),
 			"huaweicloud_codearts_pipeline_service_endpoint": codeartspipeline.ResourceCodeArtsPipelineServiceEndpoint(),
 
