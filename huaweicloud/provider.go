@@ -2176,6 +2176,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_policy_group_deploy":        hss.ResourcePolicyGroupDeploy(),
 			"huaweicloud_hss_event_unblock_ip":           hss.ResourceEventUnblockIp(),
 			"huaweicloud_hss_event_delete_isolated_file": hss.ResourceEventDeleteIsolatedFile(),
+			"huaweicloud_hss_image_batch_scan":           hss.ResourceImageBatchScan(),
 
 			"huaweicloud_identity_access_key":            iam.ResourceIdentityKey(),
 			"huaweicloud_identity_acl":                   iam.ResourceIdentityACL(),
