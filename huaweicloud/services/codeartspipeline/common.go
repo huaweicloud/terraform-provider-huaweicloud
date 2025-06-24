@@ -69,6 +69,19 @@ func parseJson(v string) interface{} {
 	return data
 }
 
+func encodeIntoJson(v interface{}) interface{} {
+	if v == nil {
+		return nil
+	}
+	rst, err := json.Marshal(v)
+	if err != nil {
+		log.Printf("[DEBUG] Unable to encode into json: %s", err)
+		return nil
+	}
+
+	return string(rst)
+}
+
 func resourceImportStateFuncWithProjectIdAndId(_ context.Context, d *schema.ResourceData,
 	_ interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.Split(d.Id(), "/")
