@@ -1,0 +1,55 @@
+name: hcbp-lint
+
+on:
+  pull_request:
+    branches: [ master ]
+    paths: 
+      - 'examples/**/*.tf'
+      - 'examples/**/*.tfvars'
+
+permissions:
+  contents: read
+  actions: write
+  checks: write
+  pull-requests: write
+
+jobs:
+  lint-examples:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref }}
+
+      - name: Fetch master branch
+        run: git fetch origin master:master
+
+      - name: Lint Terraform Examples
+        id: terraform-lint
+        uses: Lance52259/hcbp-scripts-lint@v2.2.2
+        with:
+          directory: 'examples'
+          fail-on-error: 'true'
+          exclude-paths: '*.md,*.txt,*.json,*.yml,*.yaml'
+          changed-files-only: 'true'
+          base-ref: 'master'
+          performance-monitoring: 'true'
+          report-format: 'both'
+
+      - name: Show Results Summary
+        if: always()
+        run: |
+          echo "📊 Lint Results:"
+          echo "- Result: ${{ steps.terraform-lint.outputs.result }}"
+          echo "- Errors: ${{ steps.terraform-lint.outputs.error-count }}"
+          echo "- Warnings: ${{ steps.terraform-lint.outputs.warning-count }}"
+          echo "- Files Processed: ${{ steps.terraform-lint.outputs.files-processed }}"
+          echo "- Execution Time: ${{ steps.terraform-lint.outputs.execution-time }}s"
+
+      - name: Show Detailed Report on Failure
+        if: failure()
+        run: |
+          echo "=== Detailed Report ==="
+          cat terraform-lint-report.txt || echo "Report not found"
