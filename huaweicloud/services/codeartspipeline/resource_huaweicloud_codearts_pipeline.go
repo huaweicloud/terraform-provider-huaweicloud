@@ -454,6 +454,12 @@ func resourceSchemePipelineVariables() *schema.Resource {
 				Optional:    true,
 				Description: `Specifies the value passed in at runtime.`,
 			},
+			"limits": {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `Specifies the list of enumerated values.`,
+			},
 		},
 	}
 }

@@ -141,6 +141,8 @@ The `variables` block supports:
 
 * `runtime_value` - (Optional, String) Specifies the value passed in at runtime.
 
+* `limits` - (Optional, List) Specifies the list of enumerated values.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:

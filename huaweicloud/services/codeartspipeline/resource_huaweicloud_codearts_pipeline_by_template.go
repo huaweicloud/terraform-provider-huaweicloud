@@ -240,6 +240,13 @@ func resourceSchemePipelineByTemplateVariables() *schema.Resource {
 				Computed:    true,
 				Description: `Specifies the value passed in at runtime.`,
 			},
+			"limits": {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `Specifies the list of enumerated values.`,
+			},
 		},
 	}
 }
