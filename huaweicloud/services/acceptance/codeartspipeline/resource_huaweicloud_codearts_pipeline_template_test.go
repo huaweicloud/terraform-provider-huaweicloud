@@ -51,7 +51,7 @@ func TestAccPipelineTemplate_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "create_time"),
 					resource.TestCheckResourceAttrSet(rName, "update_time"),
 					resource.TestCheckResourceAttr(rName, "variables.0.name", "test_var"),
-					resource.TestCheckResourceAttr(rName, "variables.0.type", "string"),
+					resource.TestCheckResourceAttr(rName, "variables.0.type", "enum"),
 					resource.TestCheckResourceAttr(rName, "variables.0.value", "test_value"),
 				),
 			},
@@ -145,9 +145,10 @@ resource "huaweicloud_codearts_pipeline_template" "test" {
   })
 
   variables {
-    name  = "test_var"
-    type  = "string"
-    value = "test_value"
+    name   = "test_var"
+    type   = "enum"
+    value  = "test_value"
+    limits = ["test", "demo"]
   }
 }
 `, name)

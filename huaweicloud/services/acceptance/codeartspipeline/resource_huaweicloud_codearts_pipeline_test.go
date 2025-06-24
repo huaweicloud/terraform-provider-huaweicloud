@@ -245,10 +245,11 @@ resource "huaweicloud_codearts_pipeline" "test" {
 
   variables {
     name        = "test_var"
-    type        = "string"
+    type        = "enum"
     value       = "test_value"
     description = "test variable"
     is_runtime  = true
+    limits      = ["test", "demo"]
   }
 
   triggers {

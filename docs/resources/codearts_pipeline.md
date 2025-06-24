@@ -295,6 +295,8 @@ The `variables` block supports:
 
 * `value` - (Optional, String) Specifies the custom parameter default value.
 
+* `limits` - (Optional, List) Specifies the list of enumerated values.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:

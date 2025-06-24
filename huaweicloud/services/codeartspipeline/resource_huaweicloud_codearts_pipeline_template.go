@@ -197,6 +197,7 @@ func buildPipelineTemplateVariables(d *schema.ResourceData) interface{} {
 				"is_reset":      utils.ValueIgnoreEmpty(variable["is_reset"]),
 				"latest_value":  utils.ValueIgnoreEmpty(variable["latest_value"]),
 				"runtime_value": utils.ValueIgnoreEmpty(variable["runtime_value"]),
+				"limits":        utils.ValueIgnoreEmpty(variable["limits"].(*schema.Set).List()),
 			}
 			variables = append(variables, customVar)
 		}
@@ -314,6 +315,7 @@ func flattenPipelineTemplateVariables(resp interface{}) []interface{} {
 			"is_reset":      utils.PathSearch("is_reset", variable, nil),
 			"latest_value":  utils.PathSearch("latest_value", variable, nil),
 			"runtime_value": utils.PathSearch("runtime_value", variable, nil),
+			"limits":        utils.PathSearch("limits", variable, nil),
 		}
 		result = append(result, customVar)
 	}
