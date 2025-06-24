@@ -836,6 +836,7 @@ func resourceComputeInstanceRead(_ context.Context, d *schema.ResourceData, meta
 	d.Set("created_at", server.Created.Format(time.RFC3339))
 	d.Set("updated_at", server.Updated.Format(time.RFC3339))
 	d.Set("auto_terminate_time", server.AutoTerminateTime)
+	d.Set("public_ip", computePublicIP(server))
 
 	flavorInfo := server.Flavor
 	d.Set("flavor_id", flavorInfo.ID)
@@ -848,9 +849,6 @@ func resourceComputeInstanceRead(_ context.Context, d *schema.ResourceData, meta
 
 	if server.KeyName != "" {
 		d.Set("key_pair", server.KeyName)
-	}
-	if eip := computePublicIP(server); eip != "" {
-		d.Set("public_ip", eip)
 	}
 
 	// Get the instance network and address information
