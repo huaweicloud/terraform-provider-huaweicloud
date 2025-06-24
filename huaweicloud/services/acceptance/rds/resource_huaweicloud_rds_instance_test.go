@@ -506,6 +506,43 @@ func TestAccRdsInstance_change_billing_mode_to_prepaid(t *testing.T) {
 	})
 }
 
+func TestAccRdsInstance_single_to_ha(t *testing.T) {
+	var instance instances.RdsInstanceResponse
+	name := acceptance.RandomAccResourceName()
+	resourceType := "huaweicloud_rds_instance"
+	resourceName := "huaweicloud_rds_instance.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckRdsInstanceDestroy(resourceType),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccRdsInstance_single_to_ha(name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckRdsInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttrPair(resourceName, "availability_zone.0",
+						"data.huaweicloud_availability_zones.test", "names.0"),
+					resource.TestCheckResourceAttr(resourceName, "flavor", "rds.pg.n1.large.2"),
+				),
+			},
+			{
+				Config: testAccRdsInstance_single_to_ha_update(name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckRdsInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttrPair(resourceName, "availability_zone.0",
+						"data.huaweicloud_availability_zones.test", "names.0"),
+					resource.TestCheckResourceAttrPair(resourceName, "availability_zone.1",
+						"data.huaweicloud_availability_zones.test", "names.1"),
+					resource.TestCheckResourceAttr(resourceName, "flavor", "rds.pg.n1.large.2.ha"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckRdsInstanceDestroy(rsType string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		config := acceptance.TestAccProvider.Meta().(*config.Config)
@@ -1542,6 +1579,64 @@ resource "huaweicloud_rds_instance" "test" {
   period_unit   = "month"
   period        = 1
   auto_renew    = true
+}
+`, testAccRdsInstance_base(), name)
+}
+
+func testAccRdsInstance_single_to_ha(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_rds_instance" "test" {
+  name                = "%[2]s"
+  flavor              = "rds.pg.n1.large.2"
+  security_group_id   = data.huaweicloud_networking_secgroup.test.id
+  subnet_id           = data.huaweicloud_vpc_subnet.test.id
+  vpc_id              = data.huaweicloud_vpc.test.id
+  time_zone           = "UTC+08:00"
+  availability_zone   = [
+    data.huaweicloud_availability_zones.test.names[0],
+  ]
+
+  db {
+    password = "Huangwei!120521"
+    type     = "PostgreSQL"
+    version  = "12"
+  }
+
+  volume {
+    type = "CLOUDSSD"
+    size = 50
+  }
+}
+`, testAccRdsInstance_base(), name)
+}
+
+func testAccRdsInstance_single_to_ha_update(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_rds_instance" "test" {
+  name                = "%[2]s"
+  flavor              = "rds.pg.n1.large.2.ha"
+  security_group_id   = data.huaweicloud_networking_secgroup.test.id
+  subnet_id           = data.huaweicloud_vpc_subnet.test.id
+  vpc_id              = data.huaweicloud_vpc.test.id
+  time_zone           = "UTC+08:00"
+  availability_zone   = [
+    data.huaweicloud_availability_zones.test.names[0],
+    data.huaweicloud_availability_zones.test.names[1],
+  ]
+
+  db {
+    password = "Huangwei!120521"
+    type     = "PostgreSQL"
+    version  = "12"
+  }
+  volume {
+    type = "CLOUDSSD"
+    size = 50
+  }
 }
 `, testAccRdsInstance_base(), name)
 }

@@ -1096,7 +1096,7 @@ func resourceRdsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(err)
 	}
 
-	if err = updateSlaveAvailabilityZone(ctx, d, client); err != nil {
+	if err = updateAvailabilityZone(ctx, cfg, d, client); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -1526,21 +1526,25 @@ func updateRdsInstanceDescription(d *schema.ResourceData, client *golangsdk.Serv
 	return nil
 }
 
-func updateSlaveAvailabilityZone(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+func updateAvailabilityZone(ctx context.Context, cfg *config.Config, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
 	if !d.HasChange("availability_zone") {
 		return nil
 	}
 
 	availabilityZone := d.Get("availability_zone").([]interface{})
 	if len(availabilityZone) == 1 {
-		return errors.New("migrating slave node only supported by primary/standby instance")
+		return errors.New("master node does not support modifying availability zone")
 	}
 
 	oldRaws, newRaws := d.GetChange("availability_zone")
 	oldAzList := oldRaws.([]interface{})
 	newAzList := newRaws.([]interface{})
 	if oldAzList[0].(string) != newAzList[0].(string) {
-		return errors.New("migrating master node of primary/standby instance is not supported")
+		return errors.New("master node does not support modifying availability zone")
+	}
+
+	if len(oldAzList) == 1 && len(newAzList) == 2 {
+		return changeSingleToPrimaryStandby(ctx, cfg, d, client, newAzList[1].(string))
 	}
 
 	instance, err := GetRdsInstanceByID(client, d.Id())
@@ -1562,6 +1566,92 @@ func updateSlaveAvailabilityZone(ctx context.Context, d *schema.ResourceData, cl
 	}
 
 	return nil
+}
+
+func changeSingleToPrimaryStandby(ctx context.Context, cfg *config.Config, d *schema.ResourceData, client *golangsdk.ServiceClient,
+	azCode string) error {
+	var (
+		httpUrl = "v3/{project_id}/instances/{instance_id}/action"
+	)
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Id())
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	updateOpt.JSONBody = utils.RemoveNil(buildChangeSingleToPrimaryStandbyBodyParams(d, azCode))
+
+	retryFunc := func() (interface{}, bool, error) {
+		res, err := client.Request("POST", updatePath, &updateOpt)
+		retry, err := handleMultiOperationsError(err)
+		return res, retry, err
+	}
+	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     rdsInstanceStateRefreshFunc(client, d.Id()),
+		WaitTarget:   []string{"ACTIVE"},
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error changing instance from Single to Primary/Standby: %s ", err)
+	}
+
+	updateRespBody, err := utils.FlattenResponse(r.(*http.Response))
+	if err != nil {
+		return err
+	}
+	jobId := utils.PathSearch("job_id", updateRespBody, "").(string)
+	orderId := utils.PathSearch("order_id", updateRespBody, "").(string)
+	if jobId == "" && orderId == "" {
+		return errors.New("error changing instance from Single to Primary/Standby: job_id and order_id is not " +
+			"found in the API response")
+	}
+
+	if jobId != "" {
+		return checkRDSInstanceJobFinish(client, jobId, d.Timeout(schema.TimeoutUpdate))
+	}
+
+	bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
+	if err != nil {
+		return fmt.Errorf("error creating BSS v2 client: %s", err)
+	}
+	// wait for order success
+	err = common.WaitOrderComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return err
+	}
+
+	stateConf := &resource.StateChangeConf{
+		Target:       []string{"ACTIVE"},
+		Refresh:      rdsInstanceStateRefreshFunc(client, d.Id()),
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		Delay:        1 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+	if _, err = stateConf.WaitForStateContext(ctx); err != nil {
+		return fmt.Errorf("error waiting for instance (%s) changing instance from Single to Primary/Standby: %s",
+			d.Id(), err)
+	}
+
+	return nil
+}
+
+func buildChangeSingleToPrimaryStandbyBodyParams(d *schema.ResourceData, azCode string) map[string]interface{} {
+	params := map[string]interface{}{
+		"az_code_new_node": azCode,
+		"dsspool_id":       utils.ValueIgnoreEmpty(d.Get("dss_pool_id").(string)),
+	}
+	if d.Get("charging_mode").(string) == "prePaid" {
+		params["is_auto_pay"] = true
+	}
+	bodyParams := map[string]interface{}{
+		"single_to_ha": params,
+	}
+	return bodyParams
 }
 
 func migrateStandbyNode(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, slaveNodeId,
@@ -1602,7 +1692,7 @@ func migrateStandbyNode(ctx context.Context, d *schema.ResourceData, client *gol
 	}
 	workflowId := utils.PathSearch("workflowId", updateRespBody, nil)
 	if workflowId == nil {
-		return fmt.Errorf("error migrating slave node(%s): workflowId is not found in the API rsponse", slaveNodeId)
+		return fmt.Errorf("error migrating slave node(%s): workflowId is not found in the API response", slaveNodeId)
 	}
 
 	return checkRDSInstanceJobFinish(client, workflowId.(string), d.Timeout(schema.TimeoutUpdate))
@@ -1619,6 +1709,16 @@ func buildMigrateStandbySlaveBodyParams(slaveNodeId, azCode string) map[string]i
 func updateRdsInstanceFlavor(ctx context.Context, d *schema.ResourceData, cfg *config.Config,
 	client *golangsdk.ServiceClient, instanceID string, isSupportAutoPay bool) error {
 	if !d.HasChange("flavor") {
+		return nil
+	}
+
+	instance, err := GetRdsInstanceByID(client, d.Id())
+	if err != nil {
+		return fmt.Errorf("error getting RDS instance: %s", err)
+	}
+
+	// if the instance is changed from single to primary/standby, the flavor is not needed to update
+	if v := d.Get("flavor").(string); v == instance.FlavorRef {
 		return nil
 	}
 
