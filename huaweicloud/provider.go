@@ -548,6 +548,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cbr_storage_usages":           cbr.DataSourceStorageUsages(),
 			"huaweicloud_cbr_tags":                     cbr.DataSourceTags(),
 			"huaweicloud_cbr_vaults_by_tags":           cbr.DataSourceVaultsByTags(),
+			"huaweicloud_cbr_vaults_summary":           cbr.DataSourceVolumeSummary(),
 			"huaweicloud_cbr_replication_capabilities": cbr.DataSourceCbrReplicationCapabilities(),
 			"huaweicloud_cbr_protectable_instances":    cbr.DataSourceProtectableInstances(),
 			"huaweicloud_cbr_external_vaults":          cbr.DataSourceExternalVaults(),
