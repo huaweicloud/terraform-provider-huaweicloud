@@ -2589,6 +2589,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_sms_task":                                sms.ResourceMigrateTask(),
 			"huaweicloud_sms_migration_project":                   sms.ResourceMigrationProject(),
 			"huaweicloud_sms_migration_project_default":           sms.ResourceMigrateProjectDefault(),
+			"huaweicloud_sms_source_server":                       sms.ResourceSourceServer(),
 			"huaweicloud_sms_source_server_command_result_report": sms.ResourceSourceServerCommandResultReport(),
 
 			"huaweicloud_swr_organization":             swr.ResourceSWROrganization(),
