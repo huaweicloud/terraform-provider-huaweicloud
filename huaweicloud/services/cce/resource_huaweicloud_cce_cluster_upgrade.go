@@ -3,6 +3,7 @@ package cce
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -13,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/cce/v3/clusters"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -21,7 +23,12 @@ import (
 // @API CCE GET /api/v3/projects/{project_id}/clusters/{cluster_id}
 // @API CCE POST /api/v3/projects/{project_id}/clusters/{cluster_id}/operation/upgrade
 // @API CCE GET /api/v3/projects/{project_id}/clusters/{cluster_id}/operation/upgrade/tasks/{task_id}
-var clusterUpgradeNonUpdatableParams = []string{"cluster_id", "target_version", "addons",
+// @API CCE POST /api/v3/projects/{project_id}/clusters/{cluster_id}/operation/precheck
+// @API CCE GET /api/v3/projects/{project_id}/clusters/{cluster_id}/operation/postcheck/tasks/{task_id}
+// @API CCE POST /api/v3.1/projects/{project_id}/clusters/{cluster_id}/operation/snapshot
+// @API CCE GET /api/v3.1/projects/{project_id}/clusters/{cluster_id}/operation/snapshot/tasks
+// @API CCE POST /api/v3/projects/{project_id}/clusters/{cluster_id}/operation/postcheck
+var clusterUpgradeNonUpdatableParams = []string{"cluster_id", "target_version", "addons", "is_snapshot",
 	"addons.*.addon_template_name",
 	"addons.*.operation",
 	"addons.*.version",
@@ -41,7 +48,7 @@ func ResourceClusterUpgrade() *schema.Resource {
 		DeleteContext: resourceClusterUpgradeDelete,
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(20 * time.Minute),
+			Create: schema.DefaultTimeout(60 * time.Minute),
 		},
 
 		CustomizeDiff: config.FlexibleForceNew(clusterUpgradeNonUpdatableParams),
@@ -138,6 +145,10 @@ func ResourceClusterUpgrade() *schema.Resource {
 								}},
 						},
 					}},
+			},
+			"is_snapshot": {
+				Type:     schema.TypeBool,
+				Optional: true,
 			},
 			"enable_force_new": {
 				Type:         schema.TypeString,
@@ -310,6 +321,37 @@ func resourceClusterUpgradeCreate(ctx context.Context, d *schema.ResourceData, m
 		return diag.Errorf("error waiting for CCE cluster to become available: %s", err)
 	}
 
+	cluster, err := clusters.Get(client, clusterID).Extract()
+	if err != nil {
+		return diag.Errorf("error getting CCE cluster: %s", err)
+	}
+	currentVersion := cluster.Spec.Version
+	targetVersion := d.Get("target_version").(string)
+
+	// precheck
+	createPreCheckResp, err := createPreCheck(client, clusterID, currentVersion, targetVersion)
+	if err != nil {
+		return diag.Errorf("error creating CCE cluster precheck: %s", err)
+	}
+	preCheckTaskId := utils.PathSearch("metadata.uid", createPreCheckResp, "").(string)
+	err = clusterPreCheckForStateCompleted(ctx, client, clusterID, preCheckTaskId, d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return diag.Errorf("error waiting for cluster precheck to complete: %s", err)
+	}
+
+	// cluster snapshot
+	if d.Get("is_snapshot").(bool) {
+		createSnapshotResp, err := createSnapshot(client, clusterID)
+		if err != nil {
+			return diag.Errorf("error creating CCE cluster snapshot: %s", err)
+		}
+		snapTaskId := utils.PathSearch("uid", createSnapshotResp, "").(string)
+		err = clusterSnapshotWaitingForStateCompleted(ctx, client, clusterID, snapTaskId, d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			return diag.Errorf("error waiting for cluster snapshot task to complete: %s", err)
+		}
+	}
+
 	var (
 		createClusterUpgradeHttpUrl = "api/v3/projects/{project_id}/clusters/{cluster_id}/operation/upgrade"
 	)
@@ -339,51 +381,220 @@ func resourceClusterUpgradeCreate(ctx context.Context, d *schema.ResourceData, m
 		return diag.FromErr(err)
 	}
 
-	taskID := utils.PathSearch("metadata.uid", createClusterUpgradeRespBody, "")
+	taskID := utils.PathSearch("metadata.uid", createClusterUpgradeRespBody, "").(string)
 	if taskID == "" {
 		return diag.Errorf("error upgrading CCE cluster: task_id is not found in API response")
 	}
 
-	d.SetId(taskID.(string))
+	d.SetId(taskID)
 
-	err = clusterUpgradeWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutCreate))
+	err = clusterUpgradeWaitingForStateCompleted(ctx, client, clusterID, taskID, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.Errorf("error waiting for upgrading cluster task to complete: %s", err)
+	}
+
+	// postcheck
+	err = checkoutAfterUpgrade(client, clusterID, currentVersion, targetVersion)
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
 	return resourceClusterUpgradeRead(ctx, d, meta)
 }
 
-func clusterUpgradeWaitingForStateCompleted(ctx context.Context, d *schema.ResourceData, meta interface{}, t time.Duration) error {
+func createPreCheck(client *golangsdk.ServiceClient, clusterID, currentVersion, targetVersion string) (interface{}, error) {
+	preCheckHttpUrl := "api/v3/projects/{project_id}/clusters/{cluster_id}/operation/precheck"
+	preCheckPath := client.Endpoint + preCheckHttpUrl
+	preCheckPath = strings.ReplaceAll(preCheckPath, "{project_id}", client.ProjectID)
+	preCheckPath = strings.ReplaceAll(preCheckPath, "{cluster_id}", clusterID)
+
+	preCheckOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"kind":       "PreCheckTask",
+			"apiVersion": "v3",
+			"spec": map[string]interface{}{
+				"clusterID":      clusterID,
+				"clusterVersion": currentVersion,
+				"targetVersion":  targetVersion,
+			},
+		},
+	}
+	preCheckResp, err := client.Request("POST", preCheckPath, &preCheckOpt)
+	if err != nil {
+		return nil, fmt.Errorf("error preccheck CCE cluster: %s", err)
+	}
+
+	return utils.FlattenResponse(preCheckResp)
+}
+
+func clusterPreCheckForStateCompleted(ctx context.Context, client *golangsdk.ServiceClient,
+	clusterID, preCheckTaskId string, t time.Duration) error {
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      refreshClusterPreCheckState(client, clusterID, preCheckTaskId),
+		Timeout:      t,
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+	_, err := stateConf.WaitForStateContext(ctx)
+	return err
+}
+
+func refreshClusterPreCheckState(client *golangsdk.ServiceClient, clusterID, preCheckTaskId string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		preCheckTaskHttpUrl := "api/v3/projects/{project_id}/clusters/{cluster_id}/operation/precheck/tasks/{task_id}"
+		preCheckTaskPath := client.Endpoint + preCheckTaskHttpUrl
+		preCheckTaskPath = strings.ReplaceAll(preCheckTaskPath, "{project_id}", client.ProjectID)
+		preCheckTaskPath = strings.ReplaceAll(preCheckTaskPath, "{cluster_id}", clusterID)
+		preCheckTaskPath = strings.ReplaceAll(preCheckTaskPath, "{task_id}", preCheckTaskId)
+
+		preCheckTaskOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+		}
+		preCheckTaskResp, err := client.Request("GET", preCheckTaskPath, &preCheckTaskOpt)
+		if err != nil {
+			return nil, "ERROR", err
+		}
+
+		preCheckTaskRespBody, err := utils.FlattenResponse(preCheckTaskResp)
+		if err != nil {
+			return nil, "ERROR", err
+		}
+		status := utils.PathSearch("status.phase", preCheckTaskRespBody, "").(string)
+
+		targetStatus := []string{
+			"Success",
+		}
+		if utils.StrSliceContains(targetStatus, status) {
+			return preCheckTaskRespBody, "COMPLETED", nil
+		}
+
+		unexpectedStatus := []string{
+			"Failed", "Error",
+		}
+		if utils.StrSliceContains(unexpectedStatus, status) {
+			message := utils.PathSearch("status.message", preCheckTaskRespBody, "").(string)
+			return preCheckTaskRespBody, status, errors.New(message)
+		}
+		return preCheckTaskRespBody, "PENDING", nil
+	}
+}
+
+func clusterSnapshotWaitingForStateCompleted(ctx context.Context, client *golangsdk.ServiceClient,
+	clusterID, snapTaskId string, t time.Duration) error {
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      refreshClusterSnapshotState(client, clusterID, snapTaskId),
+		Timeout:      t,
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+	_, err := stateConf.WaitForStateContext(ctx)
+	return err
+}
+
+func refreshClusterSnapshotState(client *golangsdk.ServiceClient, clusterID, snapTaskId string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		snapshotTaskHttpUrl := "api/v3.1/projects/{project_id}/clusters/{cluster_id}/operation/snapshot/tasks"
+		snapshotTaskPath := client.Endpoint + snapshotTaskHttpUrl
+		snapshotTaskPath = strings.ReplaceAll(snapshotTaskPath, "{project_id}", client.ProjectID)
+		snapshotTaskPath = strings.ReplaceAll(snapshotTaskPath, "{cluster_id}", clusterID)
+
+		snapshotTaskOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+		}
+		snapshotTaskResp, err := client.Request("GET", snapshotTaskPath, &snapshotTaskOpt)
+		if err != nil {
+			return nil, "ERROR", err
+		}
+
+		snapshotTaskRespBody, err := utils.FlattenResponse(snapshotTaskResp)
+		if err != nil {
+			return nil, "ERROR", err
+		}
+		expression := fmt.Sprintf("items[?metadata.uid=='%s']|[0].status.phase", snapTaskId)
+		status := utils.PathSearch(expression, snapshotTaskRespBody, "").(string)
+
+		targetStatus := []string{
+			"Success",
+		}
+		if utils.StrSliceContains(targetStatus, status) {
+			return snapshotTaskRespBody, "COMPLETED", nil
+		}
+
+		unexpectedStatus := []string{
+			"Failed",
+		}
+		if utils.StrSliceContains(unexpectedStatus, status) {
+			return snapshotTaskRespBody, status, nil
+		}
+		return snapshotTaskRespBody, "PENDING", nil
+	}
+}
+
+func createSnapshot(client *golangsdk.ServiceClient, clusterID string) (interface{}, error) {
+	createSnapshotHttpUrl := "api/v3.1/projects/{project_id}/clusters/{cluster_id}/operation/snapshot"
+	createSnapshotPath := client.Endpoint + createSnapshotHttpUrl
+	createSnapshotPath = strings.ReplaceAll(createSnapshotPath, "{project_id}", client.ProjectID)
+	createSnapshotPath = strings.ReplaceAll(createSnapshotPath, "{cluster_id}", clusterID)
+
+	createSnapshotOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	createSnapshotResp, err := client.Request("POST", createSnapshotPath, &createSnapshotOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(createSnapshotResp)
+}
+
+func checkoutAfterUpgrade(client *golangsdk.ServiceClient, clusterID, currentVersion, targetVersion string) error {
+	postCheckHttpUrl := "api/v3/projects/{project_id}/clusters/{cluster_id}/operation/postcheck"
+	postCheckPath := client.Endpoint + postCheckHttpUrl
+	postCheckPath = strings.ReplaceAll(postCheckPath, "{project_id}", client.ProjectID)
+	postCheckPath = strings.ReplaceAll(postCheckPath, "{cluster_id}", clusterID)
+
+	postCheckOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"kind":       "PostCheckTask",
+			"apiVersion": "v3",
+			"spec": map[string]interface{}{
+				"clusterID":      clusterID,
+				"clusterVersion": currentVersion,
+				"targetVersion":  targetVersion,
+			},
+		},
+	}
+	postCheckResp, err := client.Request("POST", postCheckPath, &postCheckOpt)
+	if err != nil {
+		return fmt.Errorf("error confirmation after CCE cluster upgrade: %s", err)
+	}
+
+	postCheckRespBody, err := utils.FlattenResponse(postCheckResp)
+	if err != nil {
+		return err
+	}
+
+	status := utils.PathSearch("status.phase", postCheckRespBody, "").(string)
+	if status != "Success" {
+		return fmt.Errorf("error confirmation after CCE cluster upgrade: %s", status)
+	}
+
+	return nil
+}
+
+func clusterUpgradeWaitingForStateCompleted(ctx context.Context, client *golangsdk.ServiceClient,
+	clusterID, taskID string, t time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
-			config := meta.(*config.Config)
-			region := config.GetRegion(d)
-			var (
-				clusterUpgradeWaitingHttpUrl = "api/v3/projects/{project_id}/clusters/{cluster_id}/operation/upgrade/tasks/{task_id}"
-				clusterUpgradeWaitingProduct = "cce"
-			)
-			client, err := config.NewServiceClient(clusterUpgradeWaitingProduct, region)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error creating CCE Client: %s", err)
-			}
-
-			clusterUpgradeWaitingPath := client.Endpoint + clusterUpgradeWaitingHttpUrl
-			clusterUpgradeWaitingPath = strings.ReplaceAll(clusterUpgradeWaitingPath, "{project_id}", client.ProjectID)
-			clusterUpgradeWaitingPath = strings.ReplaceAll(clusterUpgradeWaitingPath, "{cluster_id}", d.Get("cluster_id").(string))
-			clusterUpgradeWaitingPath = strings.ReplaceAll(clusterUpgradeWaitingPath, "{task_id}", d.Id())
-
-			clusterUpgradeWaitingOpt := golangsdk.RequestOpts{
-				KeepResponseBody: true,
-			}
-			clusterUpgradeWaitingResp, err := client.Request("GET", clusterUpgradeWaitingPath, &clusterUpgradeWaitingOpt)
-			if err != nil {
-				return nil, "ERROR", err
-			}
-
-			clusterUpgradeWaitingRespBody, err := utils.FlattenResponse(clusterUpgradeWaitingResp)
+			clusterUpgradeWaitingRespBody, err := getClusterUpgradeDetail(client, clusterID, taskID)
 			if err != nil {
 				return nil, "ERROR", err
 			}
@@ -411,6 +622,25 @@ func clusterUpgradeWaitingForStateCompleted(ctx context.Context, d *schema.Resou
 	}
 	_, err := stateConf.WaitForStateContext(ctx)
 	return err
+}
+
+func getClusterUpgradeDetail(client *golangsdk.ServiceClient, clusterID, taskID string) (interface{}, error) {
+	getUpgradeDetailHttpUrl := "api/v3/projects/{project_id}/clusters/{cluster_id}/operation/upgrade/tasks/{task_id}"
+
+	getUpgradeDetailPath := client.Endpoint + getUpgradeDetailHttpUrl
+	getUpgradeDetailPath = strings.ReplaceAll(getUpgradeDetailPath, "{project_id}", client.ProjectID)
+	getUpgradeDetailPath = strings.ReplaceAll(getUpgradeDetailPath, "{cluster_id}", clusterID)
+	getUpgradeDetailPath = strings.ReplaceAll(getUpgradeDetailPath, "{task_id}", taskID)
+
+	getUpgradeDetailOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	getUpgradeDetailResp, err := client.Request("GET", getUpgradeDetailPath, &getUpgradeDetailOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(getUpgradeDetailResp)
 }
 
 func resourceClusterUpgradeRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
