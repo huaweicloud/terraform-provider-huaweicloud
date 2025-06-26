@@ -50,83 +50,466 @@ func DataSourceV2ResourcePools() *schema.Resource {
 							Computed:    true,
 							Description: `The metadata configuration of the resource pool.`,
 						},
-						"name": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: `The name of the resource pool.`,
-						},
-						"scope": {
-							Type:        schema.TypeList,
-							Elem:        &schema.Schema{Type: schema.TypeString},
-							Computed:    true,
-							Description: `The list of job types supported by the resource pool.`,
-						},
-						"resources": {
-							Type:        schema.TypeList,
-							Elem:        dataV2ResourcePoolResourceSchema(),
-							Computed:    true,
-							Description: `The list of resource specifications in the resource pool.`,
-						},
-						"network_id": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: `The ModelArts network ID of the resource pool.`,
-						},
-						"prefix": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: `The prefix of the user-defined node name of the resource pool.`,
-						},
-						"vpc_id": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: `The ID of the VPC to which the resource pool belongs.`,
-						},
-						"subnet_id": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: `The network ID of the subnet to which the resource pool belongs.`,
-						},
-						"clusters": {
-							Type:        schema.TypeList,
-							Computed:    true,
-							Elem:        dataV2ResourcePoolClustersSchema(),
-							Description: `The list of the CCE clusters.`,
-						},
-						"user_login": {
-							Type:        schema.TypeList,
-							Computed:    true,
-							Elem:        dataV2ResourcePoolUserLoginSchema(),
-							Description: `The user login info of the resource pool.`,
-						},
-						"workspace_id": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: `The workspace ID of the resource pool.`,
-						},
-						"description": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: `The description of the resource pool.`,
-						},
-						"charging_mode": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: `The charging mode of the resource pool.`,
+						"spec": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"resources": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Elem:        dataV2ResourcePoolSpecResourceSchema(),
+										Description: `The list of resource specifications in the resource pool.`,
+									},
+									"scope": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Elem:        &schema.Schema{Type: schema.TypeString},
+										Description: `The list of job types supported by the resource pool.`,
+									},
+									"network": {
+										Type:     schema.TypeList,
+										Computed: true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"name": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: `The name of the network.`,
+												},
+												"vpc_id": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: `The ID of the VPC.`,
+												},
+												"subnet_id": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: `The ID of the subnet.`,
+												},
+											},
+										},
+										Description: `The network of the resource pool.`,
+									},
+									"user_login": {
+										Type:     schema.TypeList,
+										Computed: true,
+										Elem: &schema.Resource{Schema: map[string]*schema.Schema{
+											"key_pair_name": {
+												Type:        schema.TypeString,
+												Computed:    true,
+												Sensitive:   true,
+												Description: `The name of the key pair.`,
+											},
+										}},
+										Description: `The user login information of the privileged pool.`,
+									},
+									"clusters": {
+										Type:     schema.TypeList,
+										Computed: true,
+										Elem: &schema.Resource{Schema: map[string]*schema.Schema{
+											"provider_id": {
+												Type:        schema.TypeString,
+												Computed:    true,
+												Description: `The provider ID of the cluster.`,
+											},
+											"name": {
+												Type:        schema.TypeString,
+												Computed:    true,
+												Description: `The name of the cluster.`,
+											},
+										}},
+										Description: `The cluster information of the privileged pool.`,
+									},
+								},
+							},
+							Description: `The specification of the resource pool.`,
 						},
 						"status": {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: `The status of the resource pool.`,
 						},
+						// Internal attributes.
+						"name": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: utils.SchemaDesc(
+								`The name of the resource pool.`,
+								utils.SchemaDescInput{
+									Internal: true,
+								},
+							),
+						},
+						"scope": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+							Description: utils.SchemaDesc(
+								`The list of job types supported by the resource pool.`,
+								utils.SchemaDescInput{
+									Internal: true,
+								},
+							),
+						},
+						"resources": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem:     dataV2ResourcePoolResourceSchema(),
+							Description: utils.SchemaDesc(
+								`The list of resource specifications in the resource pool.`,
+								utils.SchemaDescInput{
+									Internal: true,
+								},
+							),
+						},
+						"network_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: utils.SchemaDesc(
+								`The ModelArts network ID of the resource pool.`,
+								utils.SchemaDescInput{
+									Internal: true,
+								},
+							),
+						},
+						"prefix": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: utils.SchemaDesc(
+								`The prefix of the user-defined node name of the resource pool.`,
+								utils.SchemaDescInput{
+									Internal: true,
+								},
+							),
+						},
+						"vpc_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: utils.SchemaDesc(
+								`The ID of the VPC to which the resource pool belongs.`,
+								utils.SchemaDescInput{
+									Internal: true,
+								},
+							),
+						},
+						"subnet_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: utils.SchemaDesc(
+								`The network ID of the subnet to which the resource pool belongs.`,
+								utils.SchemaDescInput{
+									Internal: true,
+								},
+							),
+						},
+						"clusters": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem:     dataV2ResourcePoolClustersSchema(),
+							Description: utils.SchemaDesc(
+								`The list of the CCE clusters.`,
+								utils.SchemaDescInput{
+									Internal: true,
+								},
+							),
+						},
+						"user_login": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem:     dataV2ResourcePoolUserLoginSchema(),
+							Description: utils.SchemaDesc(
+								`The user login info of the resource pool.`,
+								utils.SchemaDescInput{
+									Internal: true,
+								},
+							),
+						},
+						"workspace_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: utils.SchemaDesc(
+								`The workspace ID of the resource pool.`,
+								utils.SchemaDescInput{
+									Internal: true,
+								},
+							),
+						},
+						"description": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: utils.SchemaDesc(
+								`The description of the resource pool.`,
+								utils.SchemaDescInput{
+									Internal: true,
+								},
+							),
+						},
+						"charging_mode": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: utils.SchemaDesc(
+								`The charging mode of the resource pool.`,
+								utils.SchemaDescInput{
+									Internal: true,
+								},
+							),
+						},
 						"resource_pool_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: utils.SchemaDesc(`The resource ID of the resource pool.`,
+								utils.SchemaDescInput{
+									Internal: true,
+								},
+							),
+						},
+					},
+					Description: "All resource pools that match the filter parameters.",
+				},
+				Description: `All resource pools that matched filter parameters.`,
+			},
+		},
+	}
+}
+
+func dataV2ResourcePoolSpecResourceSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"flavor": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The flavor of the resource pool.`,
+			},
+			"count": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The count of the resource pool.`,
+			},
+			"max_count": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The max number of resources of the corresponding flavors.`,
+			},
+			"node_pool": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The name of resource pool nodes.`,
+			},
+			"taints": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{Schema: map[string]*schema.Schema{
+					"key": {
+						Type:        schema.TypeString,
+						Computed:    true,
+						Description: `The key of the taint.`,
+					},
+					"effect": {
+						Type:        schema.TypeString,
+						Computed:    true,
+						Description: `The effect of the taint.`,
+					},
+					"value": {
+						Type:        schema.TypeString,
+						Computed:    true,
+						Description: `The value of the taint.`,
+					},
+				}},
+				Description: `The taint list of the resource pool.`,
+			},
+			"labels": {
+				Type:        schema.TypeMap,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `The key/value pairs labels of resource pool.`,
+			},
+			"tags": common.TagsComputedSchema(
+				`The key/value pairs to associate with the resource pool nodes.`,
+			),
+			"network": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"vpc": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: `The resource ID of the resource pool.`,
+							Description: `The ID of the VPC.`,
+						},
+						"subnet": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The ID of the subnet.`,
+						},
+						"security_groups": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Description: `The ID list of the security group.`,
 						},
 					},
 				},
-				Description: "All application details.",
+				Description: `The network of the privileged pool.`,
+			},
+			"extend_params": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The extend params of the resource pool, in JSON format.`,
+			},
+			"creating_step": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"step": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `The creation step of the resource pool nodes.`,
+						},
+						"type": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The type of the resource pool nodes.`,
+						},
+					},
+				},
+				Description: `The creation step configuration of the resource pool nodes.`,
+			},
+			"root_volume": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"volume_type": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The type of the root volume.`,
+						},
+						"size": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The size of the root volume.`,
+						},
+					},
+				},
+				Description: `The root volume of the resource pool nodes.`,
+			},
+			"data_volumes": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"volume_type": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The type of the data volume.`,
+						},
+						"size": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The size of the data volume.`,
+						},
+						"extend_params": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The extend parameters of the data volume, in JSON format.`,
+						},
+						"count": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `The count of the current data volume configuration.`,
+						},
+					},
+				},
+				Description: `The data volumes of the resource pool nodes.`,
+			},
+			"volume_group_configs": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"volume_group": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The name of the volume group.`,
+						},
+						"docker_thin_pool": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `The percentage of container volumes to data volumes on resource pool nodes.`,
+						},
+						"lvm_config": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"lv_type": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The LVM write mode.`,
+									},
+									"path": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The volume mount path.`,
+									},
+								},
+							},
+							Description: `The configuration of the LVM management.`,
+						},
+						"types": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Description: `The storage types of the volume group.`,
+						},
+					},
+				},
+				Description: `The extend configurations of the volume groups.`,
+			},
+			"os": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The OS name of the image.`,
+						},
+						"image_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The image ID.`,
+						},
+						"image_type": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The image type.`,
+						},
+					},
+				},
+				Description: `The image information for the specified OS.`,
+			},
+			"azs": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"az": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The AZ name`,
+						},
+						"count": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `The number of nodes in the AZ.`,
+						},
+					},
+				},
+				Description: `The AZ list of the resource pool nodes.`,
 			},
 		},
 	}
@@ -165,84 +548,159 @@ func dataV2ResourcePoolResourceSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"flavor_id": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The resource flavor ID.`,
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The resource flavor ID.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
 			},
 			"count": {
-				Type:        schema.TypeInt,
-				Computed:    true,
-				Description: `The number of resources of the corresponding flavors.`,
+				Type:     schema.TypeInt,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The number of resources of the corresponding flavors.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
 			},
 			"node_pool": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The name of resource pool nodes.`,
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The name of resource pool nodes.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
 			},
 			"max_count": {
-				Type:        schema.TypeInt,
-				Computed:    true,
-				Description: `The max number of resources of the corresponding flavors.`,
+				Type:     schema.TypeInt,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The max number of resources of the corresponding flavors.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
 			},
 			"vpc_id": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The ID of the VPC to which the the resource pool nodes belong.`,
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The ID of the VPC to which the the resource pool nodes belong.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
 			},
 			"subnet_id": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The network ID of a subnet to which the the resource pool nodes belong.`,
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The network ID of a subnet to which the the resource pool nodes belong.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
 			},
 			"security_group_ids": {
-				Type:        schema.TypeList,
-				Computed:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: `The security group IDs to which the the resource pool nodes belong.`,
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Description: utils.SchemaDesc(
+					`The security group IDs to which the the resource pool nodes belong.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
 			},
 			"azs": {
-				Type:        schema.TypeList,
-				Computed:    true,
-				Elem:        dataV2ResourcePoolResourceAzsSchema(),
-				Description: `The availability zones for the resource pool nodes.`,
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     dataV2ResourcePoolResourceAzsSchema(),
+				Description: utils.SchemaDesc(
+					`The availability zones for the resource pool nodes.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
 			},
 			"taints": {
-				Type:        schema.TypeList,
-				Computed:    true,
-				Elem:        dataV2ResourcePoolResourceTaintsSchema(),
-				Description: `The taints added to resource pool nodes.`,
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     dataV2ResourcePoolResourceTaintsSchema(),
+				Description: utils.SchemaDesc(
+					`The taints added to resource pool nodes.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
 			},
 			"labels": {
-				Type:        schema.TypeMap,
-				Computed:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: `The labels of resource pool nodes.`,
+				Type:     schema.TypeMap,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Description: utils.SchemaDesc(
+					`The labels of resource pool nodes.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
 			},
 			"tags": common.TagsComputedSchema(
-				`The key/value pairs to associate with the resource pool nodes.`,
+				utils.SchemaDesc(
+					`The key/value pairs to associate with the resource pool nodes.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
 			),
 			"extend_params": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The extend parameters of the resource pool nodes.`,
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The extend parameters of the resource pool nodes.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
 			},
 			"root_volume": {
-				Type:        schema.TypeList,
-				Computed:    true,
-				Elem:        dataV2ResourcePoolResourceRootVolumeSchema(),
-				Description: `The root volume of the resource pool nodes.`,
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     dataV2ResourcePoolResourceRootVolumeSchema(),
+				Description: utils.SchemaDesc(
+					`The root volume of the resource pool nodes.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
 			},
 			"data_volumes": {
-				Type:        schema.TypeList,
-				Computed:    true,
-				Elem:        dataV2ResourcePoolResourceDataVolumesSchema(),
-				Description: `The list of data volumes of the resource pool nodes.`,
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     dataV2ResourcePoolResourceDataVolumesSchema(),
+				Description: utils.SchemaDesc(
+					`The list of data volumes of the resource pool nodes.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
 			},
 			"volume_group_configs": {
-				Type:        schema.TypeSet,
-				Computed:    true,
-				Elem:        dataV2ResourcePoolResourceVolumeGroupConfigsSchema(),
-				Description: `The extend configurations of the volume groups.`,
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     dataV2ResourcePoolResourceVolumeGroupConfigsSchema(),
+				Description: utils.SchemaDesc(
+					`The extend configurations of the volume groups.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
 			},
 			"creating_step": {
 				Type:     schema.TypeList,
@@ -250,18 +708,33 @@ func dataV2ResourcePoolResourceSchema() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"step": {
-							Type:        schema.TypeInt,
-							Computed:    true,
-							Description: `The creation step of the resource pool nodes.`,
+							Type:     schema.TypeInt,
+							Computed: true,
+							Description: utils.SchemaDesc(
+								`The creation step of the resource pool nodes.`,
+								utils.SchemaDescInput{
+									Internal: true,
+								},
+							),
 						},
 						"type": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: `The type of the resource pool nodes.`,
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: utils.SchemaDesc(
+								`The type of the resource pool nodes.`,
+								utils.SchemaDescInput{
+									Internal: true,
+								},
+							),
 						},
 					},
 				},
-				Description: `The creation step configuration of the resource pool nodes.`,
+				Description: utils.SchemaDesc(
+					`The creation step configuration of the resource pool nodes.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
 			},
 		},
 	}
@@ -271,14 +744,24 @@ func dataV2ResourcePoolResourceAzsSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"az": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The AZ name.`,
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The AZ name.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
 			},
 			"count": {
-				Type:        schema.TypeInt,
-				Computed:    true,
-				Description: `The number of nodes for the corresponding AZ.`,
+				Type:     schema.TypeInt,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The number of nodes for the corresponding AZ.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
 			},
 		},
 	}
@@ -288,19 +771,34 @@ func dataV2ResourcePoolResourceTaintsSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"key": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The key of the taint.`,
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The key of the taint.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
 			},
 			"value": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The value of the taint.`,
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The value of the taint.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
 			},
 			"effect": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The effect of the taint.`,
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The effect of the taint.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
 			},
 		},
 	}
@@ -310,14 +808,24 @@ func dataV2ResourcePoolResourceRootVolumeSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"volume_type": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The type of the root volume.`,
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The type of the root volume.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
 			},
 			"size": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The size of the root volume.`,
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The size of the root volume.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
 			},
 		},
 	}
@@ -327,24 +835,44 @@ func dataV2ResourcePoolResourceDataVolumesSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"volume_type": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The type of the data volume.`,
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The type of the data volume.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
 			},
 			"size": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The size of the data volume.`,
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The size of the data volume.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
 			},
 			"extend_params": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The extend parameters of the data volume.`,
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The extend parameters of the data volume.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
 			},
 			"count": {
-				Type:        schema.TypeInt,
-				Computed:    true,
-				Description: `The count of the current data volume configuration.`,
+				Type:     schema.TypeInt,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The count of the current data volume configuration.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
 			},
 		},
 	}
@@ -354,14 +882,24 @@ func dataV2ResourcePoolResourceVolumeGroupConfigsSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"volume_group": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The name of the volume group.`,
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The name of the volume group.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
 			},
 			"docker_thin_pool": {
-				Type:        schema.TypeInt,
-				Computed:    true,
-				Description: `The percentage of container volumes to data volumes on resource pool nodes.`,
+				Type:     schema.TypeInt,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The percentage of container volumes to data volumes on resource pool nodes.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
 			},
 			"lvm_config": {
 				Type:     schema.TypeList,
@@ -369,24 +907,44 @@ func dataV2ResourcePoolResourceVolumeGroupConfigsSchema() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"lv_type": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: `The LVM write mode.`,
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: utils.SchemaDesc(
+								`The LVM write mode.`,
+								utils.SchemaDescInput{
+									Internal: true,
+								},
+							),
 						},
 						"path": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: `The volume mount path.`,
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: utils.SchemaDesc(
+								`The volume mount path.`,
+								utils.SchemaDescInput{
+									Internal: true,
+								},
+							),
 						},
 					},
 				},
-				Description: `The configuration of the LVM management.`,
+				Description: utils.SchemaDesc(
+					`The configuration of the LVM management.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
 			},
 			"types": {
-				Type:        schema.TypeSet,
-				Computed:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: `The list of storage types of the volume group.`,
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Description: utils.SchemaDesc(
+					`The list of storage types of the volume group.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
 			},
 		},
 	}
@@ -396,14 +954,24 @@ func dataV2ResourcePoolClustersSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"provider_id": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The ID of the CCE cluster that resource pool used.`,
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The ID of the CCE cluster that resource pool used.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
 			},
 			"name": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The name of the CCE cluster that resource pool used.`,
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The name of the CCE cluster that resource pool used.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
 			},
 		},
 	}
@@ -413,9 +981,14 @@ func dataV2ResourcePoolUserLoginSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"key_pair_name": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The key pair name of the login user.`,
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The key pair name of the login user.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
 			},
 		},
 	}
@@ -583,6 +1156,170 @@ func flattenV2ResourcePoolChargingMode(chargingMode string) interface{} {
 	return nil
 }
 
+func flattenV2DataResourcePoolResourcesOs(osInfo interface{}) []map[string]interface{} {
+	if osInfo == nil {
+		return nil
+	}
+
+	return []map[string]interface{}{
+		{
+			"name":       utils.PathSearch("name", osInfo, nil),
+			"image_id":   utils.PathSearch("imageId", osInfo, nil),
+			"image_type": utils.PathSearch("iamgeType", osInfo, nil),
+		},
+	}
+}
+
+func flattenV2DataResourcePoolVolumeGroupConfigsLvmConfig(lvmConfig interface{}) []map[string]interface{} {
+	if lvmConfig == nil {
+		return nil
+	}
+
+	return []map[string]interface{}{
+		{
+			"lv_type": utils.PathSearch("lvType", lvmConfig, nil),
+			"path":    utils.PathSearch("path", lvmConfig, nil),
+		},
+	}
+}
+
+func flattenResourcePoolSpecResourcesVolumeGroupConfigs(volumeGroupConfigs []interface{}) []map[string]interface{} {
+	if len(volumeGroupConfigs) < 1 {
+		return nil
+	}
+
+	result := make([]map[string]interface{}, 0, len(volumeGroupConfigs))
+	for _, volumeGroupConfig := range volumeGroupConfigs {
+		result = append(result, map[string]interface{}{
+			"volume_group":     utils.PathSearch("volumeGroup", volumeGroupConfig, nil),
+			"docker_thin_pool": utils.PathSearch("dockerThinPool", volumeGroupConfig, nil),
+			"lvm_config": flattenV2DataResourcePoolVolumeGroupConfigsLvmConfig(utils.PathSearch("lvmConfig",
+				volumeGroupConfig, nil)),
+			"types": utils.PathSearch("types", volumeGroupConfig, make([]interface{}, 0)),
+		})
+	}
+	return result
+}
+
+func flattenV2DataResourcePoolResourcesCreatingStep(creatingStep interface{}) []map[string]interface{} {
+	if creatingStep == nil {
+		return nil
+	}
+
+	return []map[string]interface{}{
+		{
+			"step": utils.PathSearch("step", creatingStep, nil),
+			"type": utils.PathSearch("type", creatingStep, nil),
+		},
+	}
+}
+
+func flattenV2DataResourcePoolResourcesRootVolume(rootVolume interface{}) []map[string]interface{} {
+	if rootVolume == nil {
+		return nil
+	}
+
+	return []map[string]interface{}{
+		{
+			"volume_type": utils.PathSearch("volumeType", rootVolume, nil),
+			"size":        utils.PathSearch("size", rootVolume, nil),
+		},
+	}
+}
+
+func flattenV2DataResourcePoolResourcesDataVolumes(dataVolumes []interface{}) []map[string]interface{} {
+	if len(dataVolumes) < 1 {
+		return nil
+	}
+
+	result := make([]map[string]interface{}, 0, len(dataVolumes))
+	for _, dataVolume := range dataVolumes {
+		result = append(result, map[string]interface{}{
+			"volume_type":   utils.PathSearch("volumeType", dataVolume, nil),
+			"size":          utils.PathSearch("size", dataVolume, nil),
+			"extend_params": utils.JsonToString(utils.PathSearch("extendParams", dataVolume, nil)),
+			"count":         utils.PathSearch("count", dataVolume, nil),
+		})
+	}
+
+	return result
+}
+
+func flattenV2DataResourcePoolSpecResources(resources []interface{}) []map[string]interface{} {
+	if len(resources) < 1 {
+		return nil
+	}
+
+	result := make([]map[string]interface{}, 0, len(resources))
+	for _, resource := range resources {
+		result = append(result, map[string]interface{}{
+			"flavor":        utils.PathSearch("flavor", resource, nil),
+			"count":         utils.PathSearch("count", resource, nil),
+			"max_count":     utils.PathSearch("maxCount", resource, nil),
+			"node_pool":     utils.PathSearch("nodePool", resource, nil),
+			"taints":        flattenV2ResourcePoolResourceTaints(utils.PathSearch("taints", resource, make([]interface{}, 0)).([]interface{})),
+			"labels":        utils.PathSearch("labels", resource, nil),
+			"tags":          utils.FlattenTagsToMap(utils.PathSearch("tags", resource, nil)),
+			"network":       flattenV2DataSourceResourcePoolNetwork(utils.PathSearch("network", resource, nil)),
+			"extend_params": utils.JsonToString(utils.PathSearch("extendParams", resource, nil)),
+			"creating_step": flattenV2DataResourcePoolResourcesCreatingStep(utils.PathSearch("creatingStep", resource, nil)),
+			"root_volume":   flattenV2DataResourcePoolResourcesRootVolume(utils.PathSearch("rootVolume", resource, nil)),
+			"data_volumes": flattenV2DataResourcePoolResourcesDataVolumes(utils.PathSearch("dataVolumes", resource,
+				make([]interface{}, 0)).([]interface{})),
+			"volume_group_configs": flattenResourcePoolSpecResourcesVolumeGroupConfigs(utils.PathSearch("volumeGroupConfigs",
+				resource, make([]interface{}, 0)).([]interface{})),
+			"os":  flattenV2DataResourcePoolResourcesOs(utils.PathSearch("os", resource, nil)),
+			"azs": flattenV2ResourcePoolResourceAzs(utils.PathSearch("azs", resource, make([]interface{}, 0)).([]interface{})),
+		})
+	}
+
+	return result
+}
+
+func flattenV2DataSourceResourcePoolNetwork(network interface{}) []map[string]interface{} {
+	if network == nil {
+		return nil
+	}
+
+	return []map[string]interface{}{
+		{
+			"vpc":             utils.PathSearch("vpc", network, nil),
+			"subnet":          utils.PathSearch("subnet", network, nil),
+			"security_groups": utils.PathSearch("securityGroups", network, nil),
+		},
+	}
+}
+
+func flattenV2DataSourceResourcePoolSpecNetwork(network interface{}) []map[string]interface{} {
+	if network == nil {
+		return nil
+	}
+
+	return []map[string]interface{}{
+		{
+			"name":      utils.PathSearch("name", network, nil),
+			"vpc_id":    utils.PathSearch("vpcId", network, nil),
+			"subnet_id": utils.PathSearch("subnetId", network, nil),
+		},
+	}
+}
+
+func flattenV2ResourcePoolSpec(spec interface{}) []map[string]interface{} {
+	if spec == nil {
+		return nil
+	}
+
+	return []map[string]interface{}{
+		{
+			"resources":  flattenV2DataResourcePoolSpecResources(utils.PathSearch("resources", spec, make([]interface{}, 0)).([]interface{})),
+			"scope":      utils.PathSearch("scope", spec, nil),
+			"network":    flattenV2DataSourceResourcePoolSpecNetwork(utils.PathSearch("network", spec, nil)),
+			"user_login": flattenV2ResourcePoolUserLogin(utils.PathSearch("userLogin", spec, nil)),
+			"clusters":   flattenV2ResourcePoolClusters(utils.PathSearch("clusters", spec, make([]interface{}, 0)).([]interface{})),
+		},
+	}
+}
+
 func flattenV2ResourcePools(resourcePools []interface{}) []map[string]interface{} {
 	if len(resourcePools) < 1 {
 		return nil
@@ -592,8 +1329,10 @@ func flattenV2ResourcePools(resourcePools []interface{}) []map[string]interface{
 	for _, resourcePool := range resourcePools {
 		result = append(result, map[string]interface{}{
 			"metadata": flattenV2ResourcePoolMetadata(utils.PathSearch("metadata", resourcePool, nil)),
-			"name":     utils.PathSearch(`metadata.labels."os.modelarts/name"`, resourcePool, nil),
-			"scope":    utils.PathSearch("spec.scope", resourcePool, nil),
+			"spec":     flattenV2ResourcePoolSpec(utils.PathSearch("spec", resourcePool, nil)),
+			// Internal attributes.
+			"name":  utils.PathSearch(`metadata.labels."os.modelarts/name"`, resourcePool, nil),
+			"scope": utils.PathSearch("spec.scope", resourcePool, nil),
 			"resources": flattenV2ResourcePoolResources(utils.PathSearch("spec.resources",
 				resourcePool, make([]interface{}, 0)).([]interface{})),
 			"network_id": utils.PathSearch("spec.network.name", resourcePool, nil),
