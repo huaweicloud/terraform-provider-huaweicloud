@@ -2489,6 +2489,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_instant_task_delete":            rds.ResourceRdsInstantTaskDelete(),
 			"huaweicloud_rds_instance_minor_version_upgrade": rds.ResourceRdsInstanceMinorVersionUpgrade(),
 			"huaweicloud_rds_unlock_node_readonly_status":    rds.ResourceUnlockNodeReadonlyStatus(),
+			"huaweicloud_rds_wal_log_replay_switch":          rds.ResourceRdsWalLogReplaySwitch(),
 
 			"huaweicloud_rgc_account": rgc.ResourceAccount(),
 
