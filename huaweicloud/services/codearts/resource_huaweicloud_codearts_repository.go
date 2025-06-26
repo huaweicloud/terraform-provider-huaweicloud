@@ -148,6 +148,11 @@ func ResourceRepository() *schema.Resource {
 				Computed:    true,
 				Description: `The last update time.`,
 			},
+			"repository_id": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The repository primart key ID.`,
+			},
 		},
 	}
 }
@@ -310,6 +315,7 @@ func resourceRepositoryRead(_ context.Context, d *schema.ResourceData, meta inte
 		d.Set("create_at", utils.PathSearch("result.create_at", getRepositoryRespBody, nil)),
 		d.Set("update_at", utils.PathSearch("result.update_at", getRepositoryRespBody, nil)),
 		d.Set("visibility_level", utils.PathSearch("result.visibility_level", getRepositoryRespBody, nil)),
+		d.Set("repository_id", utils.PathSearch("result.repository_id", getRepositoryRespBody, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())

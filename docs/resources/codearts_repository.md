@@ -114,6 +114,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `update_at` - The last update time.
 
+* `repository_id` - The repository primart key ID.
+
 ## Import
 
 The repository can be imported using the `id`, e.g.

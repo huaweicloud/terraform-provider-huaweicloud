@@ -956,6 +956,12 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Product: "CodeArtsPipeline",
 	},
 
+	"codearts_build": {
+		Name:    "cloudbuild-ext",
+		Version: "v1",
+		Product: "CodeArtsBuild",
+	},
+
 	// catalog for Data Security Center
 	"dsc": {
 		Name:    "sdg",

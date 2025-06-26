@@ -45,6 +45,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cnad"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/coc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/codearts"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/codeartsbuild"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/codeartsdeploy"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/codeartsinspector"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/codeartspipeline"
@@ -2706,6 +2707,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_codearts_pipeline_by_template":      codeartspipeline.ResourceCodeArtsPipelineByTemplate(),
 			"huaweicloud_codearts_pipeline_template":         codeartspipeline.ResourceCodeArtsPipelineTemplate(),
 			"huaweicloud_codearts_pipeline_service_endpoint": codeartspipeline.ResourceCodeArtsPipelineServiceEndpoint(),
+
+			"huaweicloud_codearts_build_task": codeartsbuild.ResourceCodeArtsBuildTask(),
 
 			"huaweicloud_dsc_instance":           dsc.ResourceDscInstance(),
 			"huaweicloud_dsc_asset_obs":          dsc.ResourceAssetObs(),
