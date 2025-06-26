@@ -1322,6 +1322,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_secmaster_playbook_statistics":       secmaster.DataSourceSecmasterPlaybookStatistics(),
 			"huaweicloud_secmaster_playbook_audit_logs":       secmaster.DataSourceSecmasterPlaybookAuditLogs(),
 			"huaweicloud_secmaster_playbook_monitors":         secmaster.DataSourceSecmasterPlaybookMonitors(),
+			"huaweicloud_secmaster_playbook_approvals":        secmaster.DataSourcePlaybookApprovals(),
 			"huaweicloud_secmaster_alert_rule_metrics":        secmaster.DataSourceSecmasterAlertRuleMetrics(),
 
 			// Querying by Ver.2 APIs
