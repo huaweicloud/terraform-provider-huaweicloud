@@ -17,14 +17,24 @@ jobs:
   lint-examples:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout (Cross-Repo Safe)
         uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
-          ref: ${{ github.head_ref }}
 
-      - name: Fetch master branch
-        run: git fetch origin master:master
+      - name: Fallback Checkout
+        if: failure()
+        uses: actions/checkout@v4
+        with:
+          ref: 'master'
+          fetch-depth: 0
+
+      - name: Ensure Master Branch
+        run: |
+          git fetch origin master:master 2>/dev/null || \
+          git fetch origin || \
+          echo "Warning: Unable to fetch master branch, using base SHA"
 
       - name: Lint Terraform Examples
         id: terraform-lint
@@ -34,7 +44,7 @@ jobs:
           fail-on-error: 'true'
           exclude-paths: '*.md,*.txt,*.json,*.yml,*.yaml'
           changed-files-only: 'true'
-          base-ref: 'master'
+          base-ref: ${{ github.event.pull_request.base.sha }}
           performance-monitoring: 'true'
           report-format: 'both'
 
@@ -48,8 +58,16 @@ jobs:
           echo "- Files Processed: ${{ steps.terraform-lint.outputs.files-processed }}"
           echo "- Execution Time: ${{ steps.terraform-lint.outputs.execution-time }}s"
 
-      - name: Show Detailed Report on Failure
-        if: failure()
+          HEAD_REPO="${{ github.event.pull_request.head.repo.full_name }}"
+          BASE_REPO="${{ github.event.pull_request.base.repo.full_name }}"
+          if [ "$HEAD_REPO" != "$BASE_REPO" ]; then
+            echo "🔀 Cross-repository push detected and handled"
+          fi
+
+      - name: Show Detailed Report on Issues
+        if: failure() || (steps.terraform-lint.outputs.error-count != '0')
         run: |
           echo "=== Detailed Report ==="
-          cat terraform-lint-report.txt || echo "Report not found"
+          cat terraform-lint-report.txt 2>/dev/null || \
+          cat terraform-lint-report-unified-*.txt 2>/dev/null || \
+          echo "Report not found"
