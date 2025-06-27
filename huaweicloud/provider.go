@@ -612,6 +612,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cciv2_image_snapshots":          cci.DataSourceV2ImageSnapshots(),
 			"huaweicloud_cciv2_replica_sets":             cci.DataSourceV2ReplicaSets(),
 			"huaweicloud_cciv2_events":                   cci.DataSourceV2Events(),
+			"huaweicloud_cciv2_resources":                cci.DataSourceV2Resources(),
 
 			"huaweicloud_ccm_certificates":               ccm.DataSourceCertificates(),
 			"huaweicloud_ccm_certificate_export":         ccm.DataSourceCertificateExport(),
