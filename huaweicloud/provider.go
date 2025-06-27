@@ -2520,6 +2520,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_secmaster_alert":                       secmaster.ResourceAlert(),
 			"huaweicloud_secmaster_alert_rule":                  secmaster.ResourceAlertRule(),
 			"huaweicloud_secmaster_data_object_relations":       secmaster.ResourceDataObjectRelations(),
+			"huaweicloud_secmaster_dataspace":                   secmaster.ResourceDataspace(),
 			"huaweicloud_secmaster_playbook":                    secmaster.ResourcePlaybook(),
 			"huaweicloud_secmaster_playbook_enable":             secmaster.ResourcePlaybookEnable(),
 			"huaweicloud_secmaster_playbook_version":            secmaster.ResourcePlaybookVersion(),
