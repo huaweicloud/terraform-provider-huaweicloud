@@ -2,23 +2,23 @@ package rds
 
 import (
 	"context"
+	"fmt"
 	"strconv"
+	"strings"
 
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	"github.com/chnsz/golangsdk/openstack/rds/v3/flavors"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 // @API RDS GET /v3/{project_id}/flavors/{database_name}
-func DataSourceRdsFlavor() *schema.Resource {
+func DataSourceRdsFlavors() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceRdsFlavorRead,
 
@@ -31,9 +31,6 @@ func DataSourceRdsFlavor() *schema.Resource {
 			"db_type": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"MySQL", "PostgreSQL", "SQLServer", "MariaDB",
-				}, true),
 			},
 			"db_version": {
 				Type:     schema.TypeString,
@@ -42,9 +39,6 @@ func DataSourceRdsFlavor() *schema.Resource {
 			"instance_mode": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"ha", "single", "replica",
-				}, false),
 			},
 			"vcpus": {
 				Type:     schema.TypeInt,
@@ -60,6 +54,10 @@ func DataSourceRdsFlavor() *schema.Resource {
 			},
 			"availability_zone": {
 				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"is_flexus": {
+				Type:     schema.TypeBool,
 				Optional: true,
 			},
 			"flavors": {
@@ -106,6 +104,11 @@ func DataSourceRdsFlavor() *schema.Resource {
 							Computed: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
+						"az_status": {
+							Type:     schema.TypeMap,
+							Computed: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
 					},
 				},
 			},
@@ -114,104 +117,122 @@ func DataSourceRdsFlavor() *schema.Resource {
 }
 
 func dataSourceRdsFlavorRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.RdsV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	var mErr *multierror.Error
+
+	var (
+		httpUrl = "v3/{project_id}/flavors/{database_name}"
+		product = "rds"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud rds client: %s", err)
+		return diag.Errorf("error creating RDS client: %s", err)
 	}
 
-	dbType := d.Get("db_type").(string)
-	listOpts := flavors.DbFlavorsOpts{Versionname: d.Get("db_version").(string)}
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{database_name}", d.Get("db_type").(string))
 
-	pages, err := flavors.List(client, listOpts, dbType).AllPages()
+	getFlavorsQueryParams := buildGetFlavorsQueryParams(d)
+	getPath += getFlavorsQueryParams
+
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return fmtp.DiagErrorf(err.Error())
+		return diag.Errorf("error retrieving RDS flavors: %s", err)
 	}
 
-	flavorsResp, err := flavors.ExtractDbFlavors(pages)
+	getRespBody, err := utils.FlattenResponse(getResp)
 	if err != nil {
-		return fmtp.DiagErrorf("Unable to retrieve RDS flavors: %s", err)
+		return diag.FromErr(err)
 	}
 
-	mode := d.Get("instance_mode").(string)
-	az := d.Get("availability_zone").(string)
-	version := d.Get("db_version").(string)
-	groupType := d.Get("group_type").(string)
-
-	var vcpus string
-	if v, ok := d.GetOk("vcpus"); ok {
-		vcpus = strconv.Itoa(v.(int))
-	}
-
-	filter := map[string]interface{}{
-		"Vcpus":        vcpus,
-		"Instancemode": mode,
-		"GroupType":    groupType,
-	}
-	if mem, ok := d.GetOk("memory"); ok {
-		filter["Ram"] = mem.(int)
-	}
-
-	filterFlavors, err := utils.FilterSliceWithField(flavorsResp.Flavorslist, filter)
-
+	dataSourceId, err := uuid.GenerateUUID()
 	if err != nil {
-		return fmtp.DiagErrorf("filter RDS flavors failed: %s", err)
+		return diag.Errorf("unable to generate ID: %s", err)
 	}
+	d.SetId(dataSourceId)
 
-	var resultFlavors []interface{}
-	var ids []string
+	mErr = multierror.Append(
+		mErr,
+		d.Set("region", region),
+		d.Set("flavors", flattenGetFlavors(getRespBody, d)),
+	)
 
-	for _, item := range filterFlavors {
-		flavor := item.(flavors.Flavors)
-
-		// filter availability_zones
-		var azList []string
-		for k, v := range flavor.Azstatus {
-			if v == "normal" && (az == "" || (az != "" && az == k)) {
-				azList = append(azList, k)
-			}
-		}
-
-		// filter db_versions
-		var versionList []string
-		for _, v := range flavor.VersionName {
-			if version == "" || (version != "" && version == v) {
-				versionList = append(versionList, v)
-			}
-		}
-
-		if len(azList) > 0 && len(versionList) > 0 {
-			resultFlavors = append(resultFlavors, flattenRdsFlavor(flavor, azList, versionList))
-		}
-
-		ids = append(ids, flavor.ID)
-
-	}
-
-	logp.Printf("[DEBUG]RDS flavors api return:%d, after filter: %d, %v", len(flavorsResp.Flavorslist), len(resultFlavors), resultFlavors)
-
-	mErr := d.Set("flavors", resultFlavors)
-	if mErr != nil {
-		return fmtp.DiagErrorf("set flavors err:%s", mErr)
-	}
-
-	d.SetId(hashcode.Strings(ids))
-
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func flattenRdsFlavor(flavor flavors.Flavors, azList, versionList []string) map[string]interface{} {
-	vcpus, _ := strconv.Atoi(flavor.Vcpus)
-
-	return map[string]interface{}{
-		"id":                 flavor.ID,
-		"name":               flavor.Speccode,
-		"vcpus":              vcpus,
-		"memory":             flavor.Ram,
-		"group_type":         flavor.GroupType,
-		"instance_mode":      flavor.Instancemode,
-		"mode":               flavor.Instancemode,
-		"availability_zones": azList,
-		"db_versions":        versionList,
+func buildGetFlavorsQueryParams(d *schema.ResourceData) string {
+	res := ""
+	if v, ok := d.GetOk("db_version"); ok {
+		res = fmt.Sprintf("%s&version_name=%v", res, v)
 	}
+	if v, ok := d.GetOk("is_flexus"); ok {
+		res = fmt.Sprintf("%s&is_flexus=%v", res, v)
+	}
+	if res != "" {
+		res = "?" + res[1:]
+	}
+	return res
+}
+
+func flattenGetFlavors(resp interface{}, d *schema.ResourceData) []interface{} {
+	if resp == nil {
+		return nil
+	}
+
+	instanceMode, instanceModeOk := d.GetOk("instance_mode")
+	availabilityZone, availabilityZoneOk := d.GetOk("availability_zone")
+	groupType, groupTypeOk := d.GetOk("group_type")
+	vcpus, vcpusOk := d.GetOk("vcpus")
+	memory, memoryOk := d.GetOk("memory")
+
+	curJson := utils.PathSearch("flavors", resp, make([]interface{}, 0))
+	curArray := curJson.([]interface{})
+	rst := make([]interface{}, 0)
+	for _, v := range curArray {
+		instanceModeRaw := utils.PathSearch("instance_mode", v, nil)
+		if instanceModeOk && instanceMode != instanceModeRaw {
+			continue
+		}
+		groupTypeRaw := utils.PathSearch("group_type", v, nil)
+		if groupTypeOk && groupType != groupTypeRaw {
+			continue
+		}
+		vcpusRaw := utils.PathSearch("vcpus", v, nil)
+		if vcpusOk && fmt.Sprint(vcpus) != fmt.Sprint(vcpusRaw) {
+			continue
+		}
+		memoryRaw := utils.PathSearch("ram", v, nil)
+		if memoryOk && fmt.Sprint(memory) != fmt.Sprint(memoryRaw) {
+			continue
+		}
+		azStatusRaw := utils.PathSearch("az_status", v, make(map[string]interface{})).(map[string]interface{})
+		azList := make([]string, 0)
+		for az, status := range azStatusRaw {
+			if status == "normal" && (!availabilityZoneOk || availabilityZone == az) {
+				azList = append(azList, az)
+			}
+		}
+
+		vcpusValue, _ := strconv.Atoi(vcpusRaw.(string))
+		rst = append(rst, map[string]interface{}{
+			"id":                 utils.PathSearch("id", v, nil),
+			"name":               utils.PathSearch("spec_code", v, nil),
+			"vcpus":              vcpusValue,
+			"memory":             memoryRaw,
+			"group_type":         groupTypeRaw,
+			"mode":               instanceModeRaw,
+			"instance_mode":      instanceModeRaw,
+			"availability_zones": azList,
+			"db_versions":        utils.PathSearch("version_name", v, nil),
+			"az_status":          utils.PathSearch("az_status", v, nil),
+		})
+	}
+	return rst
 }
