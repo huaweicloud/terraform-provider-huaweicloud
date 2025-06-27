@@ -1281,6 +1281,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_wal_log_replay_delay_status":       rds.DataSourceRdsWalLogReplayDelayStatus(),
 			"huaweicloud_rds_wal_log_recovery_time_window":      rds.DataSourceRdsWalLogRecoveryTimeWindow(),
 			"huaweicloud_rds_read_replica_restorable_databases": rds.DataSourceRdsReadReplicaRestorableDatabases(),
+			"huaweicloud_rds_backup_databases":                  rds.DataSourceRdsBackupDatabases(),
 
 			"huaweicloud_rms_policy_definitions":                       rms.DataSourcePolicyDefinitions(),
 			"huaweicloud_rms_assignment_package_templates":             rms.DataSourceTemplates(),
