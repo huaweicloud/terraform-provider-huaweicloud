@@ -127,6 +127,16 @@ func ResourceMigrationTask() *schema.Resource {
 								"source_object.0.list_file_bucket",
 							},
 						},
+						"list_file_num": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
+						"json_auth_file": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
 					},
 				},
 			},
@@ -290,8 +300,43 @@ func ResourceMigrationTask() *schema.Resource {
 							Optional: true,
 							ForceNew: true,
 						},
+						"message_template_name": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
 					},
 				},
+			},
+			"enable_metadata_migration": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+			},
+			"dst_storage_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+			"task_priority": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+			"consistency_check": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+			"enable_requester_pays": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+			},
+			"object_overwrite_mode": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
 			},
 			"name": {
 				Type:     schema.TypeString,
@@ -319,12 +364,14 @@ func buildSrcNodeOpts(rawSrcNode []interface{}) map[string]interface{} {
 		"security_token": utils.ValueIgnoreEmpty(srcNode["security_token"]),
 		"app_id":         utils.ValueIgnoreEmpty(srcNode["app_id"]),
 		"bucket":         utils.ValueIgnoreEmpty(srcNode["bucket"]),
+		"json_auth_file": utils.ValueIgnoreEmpty(srcNode["json_auth_file"]),
 	}
 
 	if srcNode["list_file_bucket"].(string) != "" {
 		srcNodeOpts["list_file"] = map[string]interface{}{
 			"obs_bucket":    srcNode["list_file_bucket"],
 			"list_file_key": srcNode["list_file_key"],
+			"list_file_num": utils.ValueIgnoreEmpty(srcNode["list_file_num"]),
 		}
 	}
 
@@ -464,6 +511,12 @@ func buildcreateTaskBodyParams(d *schema.ResourceData, cfg *config.Config) (map[
 		"enable_restore":                 d.Get("enable_restore"),
 		"enable_failed_object_recording": d.Get("enable_failed_object_recording"),
 		"source_cdn":                     buildSourceCdnOpts(d.Get("source_cdn").([]interface{})),
+		"enable_metadata_migration":      d.Get("enable_metadata_migration").(bool),
+		"enable_requester_pays":          d.Get("enable_requester_pays").(bool),
+		"task_priority":                  utils.ValueIgnoreEmpty(d.Get("task_priority").(string)),
+		"consistency_check":              utils.ValueIgnoreEmpty(d.Get("consistency_check").(string)),
+		"object_overwrite_mode":          utils.ValueIgnoreEmpty(d.Get("object_overwrite_mode").(string)),
+		"dst_storage_policy":             utils.ValueIgnoreEmpty(d.Get("dst_storage_policy").(string)),
 	}
 
 	dstNodeOpts, err := buildDstNodeOpts(cfg, d.Get("destination_object").([]interface{}))
