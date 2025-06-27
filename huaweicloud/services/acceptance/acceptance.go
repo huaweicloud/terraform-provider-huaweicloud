@@ -116,6 +116,7 @@ var (
 	HW_WAF_GROUP_FLAG          = os.Getenv("HW_WAF_GROUP_FLAG")
 	HW_WAF_POLICY_ID           = os.Getenv("HW_WAF_POLICY_ID")
 	HW_WAF_WEB_TAMPER_RULE_ID  = os.Getenv("HW_WAF_WEB_TAMPER_RULE_ID")
+	HW_WAF_ALERT_ID            = os.Getenv("HW_WAF_ALERT_ID")
 
 	HW_ELB_CERT_ID         = os.Getenv("HW_ELB_CERT_ID")
 	HW_ELB_LOADBALANCER_ID = os.Getenv("HW_ELB_LOADBALANCER_ID")
@@ -1069,6 +1070,13 @@ func TestAccPreCheckWafPolicyId(t *testing.T) {
 func TestAccPreCheckWafWebTamperRuleId(t *testing.T) {
 	if HW_WAF_WEB_TAMPER_RULE_ID == "" {
 		t.Skip("HW_WAF_WEB_TAMPER_RULE_ID must be set for this acceptance test.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckWafAlertId(t *testing.T) {
+	if HW_WAF_ALERT_ID == "" {
+		t.Skip("HW_WAF_ALERT_ID must be set for this acceptance test.")
 	}
 }
 
