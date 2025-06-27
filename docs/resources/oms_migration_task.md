@@ -107,6 +107,68 @@ The following arguments are supported:
 * `smn_config` - (Optional, List, ForceNew) Specifies the SMN message sending configuration.
   The [object](#smn_config_object) structure is  documented below. Changing this creates a new resource.
 
+* `object_overwrite_mode` - (Optional, String, ForceNew) Specifies whether to skip a source object or allow the source
+  object to overwrite its paired destination object. Value options are as follows:
+
+  + **NO_OVERWRITE**: indicates the system never allows override. The system always skips source objects and keeps
+  their paired destination objects.
+
+  + **SIZE_LAST_MODIFIED_COMPARISON_OVERWRITE**: indicates the system allows override based on the results of size or
+  modification time checks. If a source object is not as large as or was last modified more recently than its paired
+  destination object, the source object will overwrite the destination object. Otherwise, the source object will be
+  skipped.
+
+  + **CRC64_COMPARISON_OVERWRITE**: indicates the system allows override if the source and destination objects have
+  different CRC64 checksums. This option is only available for migration on Huawei Cloud or from Alibaba Cloud or
+  Tencent Cloud. If a source object has a CRC64 checksum different from the paired destination object, the source
+  object will overwrite the destination object. Otherwise, the source object will be skipped.
+  If any of them doesn't have a CRC64 checksum, their sizes and last modification times are checked.
+
+  + **FULL_OVERWRITE**: indicates the system always allows override. The system always allows source objects to
+  overwrite their paired destination objects.
+
+  The default value is **SIZE_LAST_MODIFIED_COMPARISON_OVERWRITE**. Changing this creates a new resource.
+
+* `consistency_check` - (Optional, String, ForceNew) Specifies the consistency check method, which is used to check
+  whether objects are consistent before and after migration. All check methods take effect for only objects that are
+  in the same encryption status in the source and destination buckets. The check method and results will be recorded
+  in the object list. Value options are as follows:
+
+  + **size_last_modified**: the system checks object consistency with object size and last modification time.
+  If a source object is as large as but was last modified earlier than its paired destination object, the system
+  considers the source object does not need to be migrated or has been already migrated successfully.
+
+  + **crc64**: this option is only available for migration on Huawei Cloud or from Alibaba Cloud or Tencent Cloud. If
+  a source object and its paired destination object have CRC64 checksums, the checksums are checked. Otherwise, their
+  sizes and last modification times are checked.
+
+  + **no_check**: this option is only available for migration of HTTP/HTTPS data. This option takes effect for source
+  objects whose sizes cannot be obtained using the content-length field in the standard HTTP protocol. These source
+  objects will overwrite their paired destination objects directly.
+  If the size of a source object can be obtained, its size and last modification time will be checked.
+
+  The default value is **size_last_modified**. Changing this creates a new resource.
+
+* `enable_requester_pays` - (Optional, Bool, ForceNew) Specifies whether to let the requester make payment.
+  After enabled, the requester pays the request and data transmission fees.
+  Default value: **false**. Changing this creates a new resource.
+
+* `enable_metadata_migration` - (Optional, Bool, ForceNew) Specifies whether metadata migration is enabled. Even if this
+  function is disabled, the ContentType metadata will still be migrated to ensure a successful migration.
+  Default value: **false**. Changing this creates a new resource.
+
+* `task_priority` - (Optional, String, ForceNew) Specifies the task priority.
+  The value can be **HIGH**, **MEDIUM**, or **LOW**. Changing this creates a new resource.
+
+* `dst_storage_policy` - (Optional, String, ForceNew) Specifies the destination storage class.
+  This parameter is required only when the destination is Huawei Cloud OBS. The default value is STANDARD.
+  + **STANDARD**: OBS Standard storage.
+  + **IA**: OBS Infrequent Access storage.
+  + **ARCHIVE**: OBS Archive storage
+  + **DEEP_ARCHIVE**: OBS Deep Archive storage
+  + **SRC_STORAGE_MAPPING**: converts the source storage class into an OBS storage class based on the predefined rules.
+  Changing this creates a new resource.
+
 <a name="source_object_object"></a>
 The `source_object` block supports:
 
@@ -149,6 +211,12 @@ The `source_object` block supports:
 
 * `list_file_key` - (Optional, String, ForceNew) Specifies the object name of the list file or URL list file.
   `list_file_key` is mandatory when `type` is set to **list** or **url_list**. Changing this creates a new resource.
+
+* `list_file_num` - (Optional, String, ForceNew) Specifies the number of stored object list files.
+  Changing this creates a new resource.
+
+* `json_auth_file` - (Optional, String, ForceNew) Specifies the file used for Google Cloud Storage authentication.
+  Changing this creates a new resource.
 
 <a name="destination_object_object"></a>
 The `destination_object` block supports:
@@ -215,6 +283,10 @@ The `smn_config` block supports:
 
 * `language` - (Optional, String, ForceNew) Specifies the SMN message language. The value can be **zh-cn** or
   **en-us**. Default value: **en-us**. Changing this creates a new resource.
+
+* `message_template_name` - (Optional, String, ForceNew) Specifies the message template name.
+  If this parameter is specified, SMN messages are sent using the specified template.
+  Changing this creates a new resource.
 
 ## Attribute Reference
 
