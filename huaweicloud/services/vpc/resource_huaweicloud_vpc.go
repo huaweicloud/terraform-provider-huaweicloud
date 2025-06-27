@@ -98,6 +98,13 @@ func ResourceVirtualPrivateCloudV1() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"block_service_endpoint_states": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: utils.SchemaDesc("", utils.SchemaDescInput{
+					Internal: true,
+				}),
+			},
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -133,9 +140,10 @@ func resourceVirtualPrivateCloudCreate(ctx context.Context, d *schema.ResourceDa
 	}
 
 	createOpts := vpcs.CreateOpts{
-		Name:        d.Get("name").(string),
-		CIDR:        d.Get("cidr").(string),
-		Description: d.Get("description").(string),
+		Name:                       d.Get("name").(string),
+		CIDR:                       d.Get("cidr").(string),
+		Description:                d.Get("description").(string),
+		BlockServiceEndpointStates: d.Get("block_service_endpoint_states").(string),
 	}
 	if v, ok := d.GetOk("enhanced_local_route"); ok {
 		enhancedLocalRoute, _ := strconv.ParseBool(v.(string))

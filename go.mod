@@ -4,7 +4,8 @@ go 1.18
 
 require (
 	github.com/GehirnInc/crypt v0.0.0-20200316065508-bb7000b8a962
-	github.com/chnsz/golangsdk v0.0.0-20250612072604-c4851f639048
+	github.com/chnsz/golangsdk v0.0.0-20250627092804-52ad5c83464b
+	github.com/google/go-cmp v0.6.0
 	github.com/hashicorp/go-cleanhttp v0.5.2
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/hashicorp/go-uuid v1.0.3
@@ -26,7 +27,6 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fatih/color v1.13.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
-	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-checkpoint v0.5.0 // indirect
 	github.com/hashicorp/go-cty v1.4.1-0.20200414143053-d3edf31b6320 // indirect
