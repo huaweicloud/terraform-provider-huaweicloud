@@ -134,6 +134,8 @@ The following arguments are supported:
   The value is the priority of the node pool. **0** indicating the lowest priority.
   A larger value indicates a higher priority.
 
+* `is_snapshot` - (Optional, Bool, NonUpdatable) Specifies whether the cluster is snapshotted.
+
 <a name="addons"></a>
 The `addons` block supports:
 
