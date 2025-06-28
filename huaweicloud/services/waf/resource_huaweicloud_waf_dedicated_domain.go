@@ -1015,149 +1015,169 @@ func updateWafDomainPolicyHost(d *schema.ResourceData, cfg *config.Config) error
 	return nil
 }
 
-func flattenDomainServerAttribute(domain *domains.PremiumHost) []map[string]interface{} {
-	servers := make([]map[string]interface{}, 0, len(domain.Servers))
-	for _, s := range domain.Servers {
-		servers = append(servers, map[string]interface{}{
-			"client_protocol": s.FrontProtocol,
-			"server_protocol": s.BackProtocol,
-			"address":         s.Address,
-			"port":            s.Port,
-			"type":            s.Type,
-			"vpc_id":          s.VpcId,
+func flattenServerAttribute(respBody interface{}) []map[string]interface{} {
+	rawArray := utils.PathSearch("server", respBody, make([]interface{}, 0)).([]interface{})
+	rst := make([]map[string]interface{}, 0, len(rawArray))
+	for _, v := range rawArray {
+		rst = append(rst, map[string]interface{}{
+			"client_protocol": utils.PathSearch("front_protocol", v, nil),
+			"server_protocol": utils.PathSearch("back_protocol", v, nil),
+			"address":         utils.PathSearch("address", v, nil),
+			"port":            utils.PathSearch("port", v, nil),
+			"type":            utils.PathSearch("type", v, nil),
+			"vpc_id":          utils.PathSearch("vpc_id", v, nil),
 		})
 	}
-	return servers
+	return rst
 }
 
-func flattenBlockPageCustomPage(domain *domains.PremiumHost) []map[string]interface{} {
-	if domain.BlockPage.Template != customBlockPageTemplate {
+func flattenCustomPageAttribute(respBody interface{}) []map[string]interface{} {
+	template := utils.PathSearch("block_page.template", respBody, "").(string)
+	if template != "custom" {
 		return nil
 	}
 
-	customPage := domain.BlockPage.CustomPage
 	return []map[string]interface{}{
 		{
-			"http_return_code": customPage.StatusCode,
-			"block_page_type":  customPage.ContentType,
-			"page_content":     customPage.Content,
+			"http_return_code": utils.PathSearch("block_page.custom_page.status_code", respBody, nil),
+			"block_page_type":  utils.PathSearch("block_page.custom_page.content_type", respBody, nil),
+			"page_content":     utils.PathSearch("block_page.custom_page.content", respBody, nil),
 		},
 	}
 }
 
-func flattenConnectionProtection(domain *domains.PremiumHost) []map[string]interface{} {
-	circuitBreaker := domain.CircuitBreaker
+func flattenConnectionProtectionAttribute(respBody interface{}) []map[string]interface{} {
 	return []map[string]interface{}{
 		{
-			"error_threshold":                       circuitBreaker.DeadNum,
-			"error_percentage":                      circuitBreaker.DeadRatio,
-			"initial_downtime":                      circuitBreaker.BlockTime,
-			"multiplier_for_consecutive_breakdowns": circuitBreaker.SuperpositionNum,
-			"pending_url_request_threshold":         circuitBreaker.SuspendNum,
-			"duration":                              circuitBreaker.SusBlockTime,
-			"status":                                circuitBreaker.Switch,
+			"error_threshold":                       utils.PathSearch("circuit_breaker.dead_num", respBody, nil),
+			"error_percentage":                      utils.PathSearch("circuit_breaker.dead_ratio", respBody, nil),
+			"initial_downtime":                      utils.PathSearch("circuit_breaker.block_time", respBody, nil),
+			"multiplier_for_consecutive_breakdowns": utils.PathSearch("circuit_breaker.superposition_num", respBody, nil),
+			"pending_url_request_threshold":         utils.PathSearch("circuit_breaker.suspend_num", respBody, nil),
+			"duration":                              utils.PathSearch("circuit_breaker.sus_block_time", respBody, nil),
+			"status":                                utils.PathSearch("circuit_breaker.switch", respBody, nil),
 		},
 	}
 }
 
-func flattenTimeoutSetting(domain *domains.PremiumHost) []map[string]interface{} {
-	timeoutConfig := domain.TimeoutConfig
+func flattenTimeoutSettingAttribute(respBody interface{}) []map[string]interface{} {
 	return []map[string]interface{}{
 		{
-			"connection_timeout": timeoutConfig.ConnectTimeout,
-			"read_timeout":       timeoutConfig.ReadTimeout,
-			"write_timeout":      timeoutConfig.SendTimeout,
+			"connection_timeout": utils.PathSearch("timeout_config.connect_timeout", respBody, nil),
+			"read_timeout":       utils.PathSearch("timeout_config.read_timeout", respBody, nil),
+			"write_timeout":      utils.PathSearch("timeout_config.send_timeout", respBody, nil),
 		},
 	}
 }
 
-func flattenTrafficMark(domain *domains.PremiumHost) []map[string]interface{} {
-	trafficMark := domain.TrafficMark
+func flattenTrafficMarkAttribute(respBody interface{}) []map[string]interface{} {
 	return []map[string]interface{}{
 		{
-			"ip_tags":     trafficMark.Sip,
-			"session_tag": trafficMark.Cookie,
-			"user_tag":    trafficMark.Params,
+			"ip_tags":     utils.PathSearch("traffic_mark.sip", respBody, nil),
+			"session_tag": utils.PathSearch("traffic_mark.cookie", respBody, nil),
+			"user_tag":    utils.PathSearch("traffic_mark.params", respBody, nil),
 		},
 	}
 }
 
-func flattenComplianceCertificationAttribute(domain *domains.PremiumHost) map[string]interface{} {
-	f := domain.Flag
+func flattenCertificationAttribute(respBody interface{}) map[string]interface{} {
+	pciDssRaw := utils.PathSearch("flag.pci_dss", respBody, "").(string)
+	pci3dsRaw := utils.PathSearch("flag.pci_3ds", respBody, "").(string)
 
-	pciDss, _ := strconv.ParseBool(f["pci_dss"])
-	pci3ds, _ := strconv.ParseBool(f["pci_3ds"])
+	pciDss, _ := strconv.ParseBool(pciDssRaw)
+	pci3ds, _ := strconv.ParseBool(pci3dsRaw)
 	return map[string]interface{}{
 		"pci_dss": pciDss,
 		"pci_3ds": pci3ds,
 	}
 }
 
-func flattenTrafficIdentifierAttribute(domain *domains.PremiumHost) map[string]interface{} {
-	t := domain.TrafficMark
+func flattenIdentifierAttribute(respBody interface{}) map[string]interface{} {
+	sips := utils.PathSearch("traffic_mark.sip", respBody, make([]interface{}, 0)).([]interface{})
+
 	return map[string]interface{}{
-		"ip_tag":      strings.Join(t.Sip, ","),
-		"session_tag": t.Cookie,
-		"user_tag":    t.Params,
+		"ip_tags":     strings.Join(utils.ExpandToStringList(sips), ","),
+		"session_tag": utils.PathSearch("traffic_mark.cookie", respBody, nil),
+		"user_tag":    utils.PathSearch("traffic_mark.params", respBody, nil),
 	}
 }
 
-func flattenAlarmPageAttribute(domain *domains.PremiumHost) map[string]interface{} {
-	t := domain.BlockPage
+func flattenPageAttribute(respBody interface{}) map[string]interface{} {
 	return map[string]interface{}{
-		"template_name": t.Template,
-		"redirect_url":  t.RedirectUrl,
+		"template_name": utils.PathSearch("block_page.template", respBody, nil),
+		"redirect_url":  utils.PathSearch("block_page.redirect_url", respBody, nil),
 	}
 }
 
 func resourceWafDedicatedDomainRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	dedicatedClient, err := cfg.WafDedicatedV1Client(region)
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		mErr    *multierror.Error
+		product = "waf"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating WAF dedicated client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
-	epsID := cfg.GetEnterpriseProjectID(d)
-	dm, err := domains.GetWithEpsID(dedicatedClient, d.Id(), epsID)
+	requestPath := client.Endpoint + "v1/{project_id}/premium-waf/host/{host_id}"
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{host_id}", d.Id())
+	requestPath += buildEpsQueryParams(d, cfg)
+	requestOpt := golangsdk.RequestOpts{
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json;charset=utf8",
+		},
+		KeepResponseBody: true,
+	}
+
+	resp, err := client.Request("GET", requestPath, &requestOpt)
 	if err != nil {
 		// If the dedicated domain does not exist, the response HTTP status code of the details API is 404.
 		return common.CheckDeletedDiag(d, err, "error retrieving WAF dedicated domain")
 	}
 
-	mErr := multierror.Append(nil,
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	mErr = multierror.Append(
+		mErr,
 		d.Set("region", region),
-		d.Set("domain", dm.HostName),
-		d.Set("server", flattenDomainServerAttribute(dm)),
-		d.Set("certificate_id", dm.CertificateId),
-		d.Set("certificate_name", dm.CertificateName),
-		d.Set("policy_id", dm.PolicyId),
-		d.Set("proxy", dm.Proxy),
-		d.Set("protect_status", dm.ProtectStatus),
-		d.Set("access_status", dm.AccessStatus),
-		d.Set("protocol", dm.Protocol),
-		d.Set("tls", dm.Tls),
-		d.Set("cipher", dm.Cipher),
-		d.Set("website_name", dm.WebTag),
-		d.Set("description", dm.Description),
-		d.Set("forward_header_map", dm.ForwardHeaderMap),
-		d.Set("custom_page", flattenBlockPageCustomPage(dm)),
-		d.Set("redirect_url", dm.BlockPage.RedirectUrl),
-		d.Set("connection_protection", flattenConnectionProtection(dm)),
-		d.Set("timeout_settings", flattenTimeoutSetting(dm)),
-		d.Set("traffic_mark", flattenTrafficMark(dm)),
-		d.Set("compliance_certification", flattenComplianceCertificationAttribute(dm)),
-		d.Set("traffic_identifier", flattenTrafficIdentifierAttribute(dm)),
-		d.Set("alarm_page", flattenAlarmPageAttribute(dm)),
+		d.Set("domain", utils.PathSearch("hostname", respBody, nil)),
+		d.Set("server", flattenServerAttribute(respBody)),
+		d.Set("certificate_id", utils.PathSearch("certificateid", respBody, nil)),
+		d.Set("certificate_name", utils.PathSearch("certificatename", respBody, nil)),
+		d.Set("policy_id", utils.PathSearch("policyid", respBody, nil)),
+		d.Set("proxy", utils.PathSearch("proxy", respBody, nil)),
+		d.Set("protect_status", utils.PathSearch("protect_status", respBody, nil)),
+		d.Set("access_status", utils.PathSearch("access_status", respBody, nil)),
+		d.Set("protocol", utils.PathSearch("protocol", respBody, nil)),
+		d.Set("tls", utils.PathSearch("tls", respBody, nil)),
+		d.Set("cipher", utils.PathSearch("cipher", respBody, nil)),
+		d.Set("website_name", utils.PathSearch("web_tag", respBody, nil)),
+		d.Set("description", utils.PathSearch("description", respBody, nil)),
+		d.Set("forward_header_map", utils.PathSearch("forward_header_map", respBody, nil)),
+		d.Set("custom_page", flattenCustomPageAttribute(respBody)),
+		d.Set("redirect_url", utils.PathSearch("block_page.redirect_url", respBody, nil)),
+		d.Set("connection_protection", flattenConnectionProtectionAttribute(respBody)),
+		d.Set("timeout_settings", flattenTimeoutSettingAttribute(respBody)),
+		d.Set("traffic_mark", flattenTrafficMarkAttribute(respBody)),
+		d.Set("compliance_certification", flattenCertificationAttribute(respBody)),
+		d.Set("traffic_identifier", flattenIdentifierAttribute(respBody)),
+		d.Set("alarm_page", flattenPageAttribute(respBody)),
 	)
 
-	if dm.Flag["pci_3ds"] != "" {
-		mErr = multierror.Append(mErr, d.Set("pci_3ds", utils.StringToBool(dm.Flag["pci_3ds"])))
+	if pci3ds := utils.PathSearch("flag.pci_3ds", respBody, "").(string); pci3ds != "" {
+		mErr = multierror.Append(mErr, d.Set("pci_3ds", utils.StringToBool(pci3ds)))
 	}
 
-	if dm.Flag["pci_dss"] != "" {
-		mErr = multierror.Append(mErr, d.Set("pci_dss", utils.StringToBool(dm.Flag["pci_dss"])))
+	if pciDss := utils.PathSearch("flag.pci_dss", respBody, "").(string); pciDss != "" {
+		mErr = multierror.Append(mErr, d.Set("pci_dss", utils.StringToBool(pciDss)))
 	}
+
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
