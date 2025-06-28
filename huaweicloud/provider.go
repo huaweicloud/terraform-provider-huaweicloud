@@ -1738,6 +1738,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cbr_migrate":                  cbr.ResourceMigrate(),
 			"huaweicloud_cbr_vault_migrate_resources":  cbr.ResourceVaultMigrateResources(),
 			"huaweicloud_cbr_batch_update_vault":       cbr.ResourceBatchUpdateVault(),
+			"huaweicloud_cbr_replicate_backup":         cbr.ResourceReplicateBackup(),
 			"huaweicloud_cbr_vault_change_charge_mode": cbr.ResourceVaultChangeChargeMode(),
 			"huaweicloud_cbr_change_order":             cbr.ResourceChangeOrder(),
 

@@ -1116,6 +1116,13 @@ func TestAccPreCheckCBRExternalProjectID(t *testing.T) {
 }
 
 // lintignore:AT003
+func TestAccPreCheckCBRDestinationProjectID(t *testing.T) {
+	if HW_CBR_DESTINATION_PROJECT_ID == "" {
+		t.Skip("HW_CBR_DESTINATION_PROJECT_ID must be set for acceptance tests")
+	}
+}
+
+// lintignore:AT003
 func TestAccPreCheckCBRBackupID(t *testing.T) {
 	if HW_CBR_BACKUP_ID == "" {
 		t.Skip("HW_CBR_BACKUP_ID must be set for acceptance tests")
