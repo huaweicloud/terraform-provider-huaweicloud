@@ -141,7 +141,7 @@ The `steps` block supports:
 
 * `enable` - (Optional, Bool) Specifies whether to enable the step. Defaults to **false**.
 
-* `properties` - (Optional, Map) Specifies the build step properties.
+* `properties` - (Optional, Map) Specifies the build step properties. Value is JSON format string.
 
 * `version` - (Optional, String) Specifies the build step version.
 
@@ -166,13 +166,13 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID.
 
-* `steps` - Specifies the build execution steps.
+* `steps` - Indicates the build execution steps.
   The [steps](#attrblock--steps) structure is documented below.
 
 <a name="attrblock--steps"></a>
 The `steps` block supports:
 
-* `properties_all` - Specifies the build step properties.
+* `properties_all` - Indicates the build step properties.
 
 ## Import
 

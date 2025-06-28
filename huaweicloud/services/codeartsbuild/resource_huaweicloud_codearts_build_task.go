@@ -160,7 +160,7 @@ func resourceSchemeTaskSteps() *schema.Resource {
 				Type:        schema.TypeMap,
 				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: `Specifies the build step properties.`,
+				Description: `Indicates the build step properties.`,
 			},
 		},
 	}
