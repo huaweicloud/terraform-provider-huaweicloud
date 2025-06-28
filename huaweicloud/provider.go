@@ -1868,6 +1868,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_compute_eip_associate":     ecs.ResourceComputeEIPAssociate(),
 			"huaweicloud_compute_volume_attach":     ecs.ResourceComputeVolumeAttach(),
 			"huaweicloud_compute_auto_launch_group": ecs.ResourceComputeAutoLaunchGroup(),
+			"huaweicloud_compute_port_attach":       ecs.ResourceComputePortAttach(),
 
 			"huaweicloud_coc_script":                 coc.ResourceScript(),
 			"huaweicloud_coc_script_execute":         coc.ResourceScriptExecute(),
