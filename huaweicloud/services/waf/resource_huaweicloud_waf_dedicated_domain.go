@@ -367,21 +367,6 @@ func getCertificateNameById(d *schema.ResourceData, cfg *config.Config) (string,
 	return "", nil
 }
 
-func buildCreatePremiumHostOpts(d *schema.ResourceData, cfg *config.Config, certName string) *domains.CreateOpts {
-	return &domains.CreateOpts{
-		CertificateId:       d.Get("certificate_id").(string),
-		CertificateName:     certName,
-		HostName:            d.Get("domain").(string),
-		Proxy:               utils.Bool(d.Get("proxy").(bool)),
-		PolicyId:            d.Get("policy_id").(string),
-		Servers:             buildCreatePremiumHostServerOpts(d),
-		EnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
-		BlockPage:           buildPremiumHostBlockPageOpts(d),
-		ForwardHeaderMap:    buildHostForwardHeaderMapOpts(d),
-		Description:         d.Get("description").(string),
-	}
-}
-
 func buildPremiumHostBlockPageOpts(d *schema.ResourceData) *domains.BlockPage {
 	if v, ok := d.GetOk("redirect_url"); ok {
 		return &domains.BlockPage{
@@ -488,49 +473,409 @@ func buildPremiumHostTrafficMarkOpts(d *schema.ResourceData) *domains.TrafficMar
 	return nil
 }
 
-func buildCreatePremiumHostServerOpts(d *schema.ResourceData) []domains.Server {
+func buildEpsQueryParams(d *schema.ResourceData, cfg *config.Config) string {
+	epsId := cfg.GetEnterpriseProjectID(d)
+	if epsId == "" {
+		return ""
+	}
+	return fmt.Sprintf("?enterprise_project_id=%s", epsId)
+}
+
+func queryCertificateName(client *golangsdk.ServiceClient, d *schema.ResourceData, cfg *config.Config) (string, error) {
+	certID, ok := d.GetOk("certificate_id")
+	if !ok {
+		return "", nil
+	}
+
+	requestPath := client.Endpoint + "v1/{project_id}/waf/certificate/{certificate_id}"
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{certificate_id}", certID.(string))
+	requestPath += buildEpsQueryParams(d, cfg)
+	requestOpt := golangsdk.RequestOpts{
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json;charset=utf8",
+		},
+		KeepResponseBody: true,
+	}
+
+	resp, err := client.Request("GET", requestPath, &requestOpt)
+	if err != nil {
+		return "", fmt.Errorf("error retrieving WAF certificate name according ID: %s, error: %s", certID, err)
+	}
+
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return "", err
+	}
+	return utils.PathSearch("name", respBody, "").(string), nil
+}
+
+func buildCreateDedicatedDomainServerBodyParams(d *schema.ResourceData) []map[string]interface{} {
 	servers := d.Get("server").([]interface{})
-	serverOpts := make([]domains.Server, len(servers))
+	if len(servers) == 0 {
+		return nil
+	}
+
+	serverOpts := make([]map[string]interface{}, len(servers))
 	for i, v := range servers {
-		s := v.(map[string]interface{})
-		serverOpts[i] = domains.Server{
-			FrontProtocol: s["client_protocol"].(string),
-			BackProtocol:  s["server_protocol"].(string),
-			Address:       s["address"].(string),
-			Port:          s["port"].(int),
-			Type:          s["type"].(string),
-			VpcId:         s["vpc_id"].(string),
+		server := v.(map[string]interface{})
+		serverOpts[i] = map[string]interface{}{
+			"front_protocol": server["client_protocol"],
+			"back_protocol":  server["server_protocol"],
+			"address":        server["address"],
+			"port":           server["port"],
+			"type":           utils.ValueIgnoreEmpty(server["type"]),
+			"vpc_id":         utils.ValueIgnoreEmpty(server["vpc_id"]),
 		}
 	}
 	return serverOpts
 }
 
-func resourceWafDedicatedDomainCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	dedicatedClient, err := cfg.WafDedicatedV1Client(cfg.GetRegion(d))
-	if err != nil {
-		return diag.Errorf("error creating WAF dedicated client: %s", err)
+func buildCreateDedicatedDomainBlockPageBodyParams(d *schema.ResourceData) map[string]interface{} {
+	if v, ok := d.GetOk("redirect_url"); ok {
+		return map[string]interface{}{
+			"template":     "redirect",
+			"redirect_url": v,
+		}
 	}
 
-	certName, err := getCertificateNameById(d, cfg)
+	if v, ok := d.GetOk("custom_page"); ok {
+		rawArray, isArray := v.([]interface{})
+		if !isArray || len(rawArray) == 0 {
+			return nil
+		}
+
+		raw, isMap := rawArray[0].(map[string]interface{})
+		if !isMap {
+			return nil
+		}
+		return map[string]interface{}{
+			"template": "custom",
+			"custom_page": map[string]interface{}{
+				"status_code":  utils.ValueIgnoreEmpty(raw["http_return_code"]),
+				"content_type": utils.ValueIgnoreEmpty(raw["block_page_type"]),
+				"content":      utils.ValueIgnoreEmpty(raw["page_content"]),
+			},
+		}
+	}
+
+	return map[string]interface{}{
+		"template": "default",
+	}
+}
+
+func buildCreateDedicatedDomainForwardHeaderMapBodyParams(d *schema.ResourceData) interface{} {
+	if v, ok := d.GetOk("forward_header_map"); ok {
+		return utils.ExpandToStringMap(v.(map[string]interface{}))
+	}
+	return nil
+}
+
+func buildCreateDedicatedDomainBodyParams(d *schema.ResourceData, certName string) map[string]interface{} {
+	return map[string]interface{}{
+		"certificateid":      utils.ValueIgnoreEmpty(d.Get("certificate_id")),
+		"certificatename":    utils.ValueIgnoreEmpty(certName),
+		"hostname":           d.Get("domain"),
+		"proxy":              d.Get("proxy"),
+		"policyid":           utils.ValueIgnoreEmpty(d.Get("policy_id")),
+		"server":             buildCreateDedicatedDomainServerBodyParams(d),
+		"block_page":         buildCreateDedicatedDomainBlockPageBodyParams(d),
+		"forward_header_map": buildCreateDedicatedDomainForwardHeaderMapBodyParams(d),
+		"description":        utils.ValueIgnoreEmpty(d.Get("description")),
+	}
+}
+
+func createDedicatedDomain(client *golangsdk.ServiceClient, d *schema.ResourceData,
+	cfg *config.Config, certName string) (interface{}, error) {
+	requestPath := client.Endpoint + "v1/{project_id}/premium-waf/host"
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath += buildEpsQueryParams(d, cfg)
+	requestOpt := golangsdk.RequestOpts{
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json;charset=utf8",
+		},
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildCreateDedicatedDomainBodyParams(d, certName)),
+	}
+
+	resp, err := client.Request("POST", requestPath, &requestOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(resp)
+}
+
+func buildUpdateDedicatedDomainFlag(d *schema.ResourceData) (map[string]interface{}, error) {
+	pci3ds := d.Get("pci_3ds").(bool)
+	pciDss := d.Get("pci_dss").(bool)
+	if !pci3ds && !pciDss {
+		return nil, nil
+	}
+
+	// required tls="TLS v1.2" && cipher="cipher_2"
+	if d.Get("tls").(string) != "TLS v1.2" || d.Get("cipher").(string) != "cipher_2" {
+		return nil, fmt.Errorf("pci_3ds and pci_dss must be used together with tls and cipher. " +
+			"Tls must be set to TLS v1.2, and cipher must be set to cipher_2")
+	}
+	return map[string]interface{}{
+		"pci_3ds": strconv.FormatBool(pci3ds),
+		"pci_dss": strconv.FormatBool(pciDss),
+	}, nil
+}
+
+func buildUpdateDedicatedDomainCircuitBreakerOpts(d *schema.ResourceData) map[string]interface{} {
+	if v, ok := d.GetOk("connection_protection"); ok {
+		rawArray, isArray := v.([]interface{})
+		if !isArray || len(rawArray) == 0 {
+			return nil
+		}
+
+		raw, isMap := rawArray[0].(map[string]interface{})
+		if !isMap {
+			return nil
+		}
+
+		return map[string]interface{}{
+			"dead_num":          raw["error_threshold"],
+			"dead_ratio":        raw["error_percentage"],
+			"block_time":        raw["initial_downtime"],
+			"superposition_num": raw["multiplier_for_consecutive_breakdowns"],
+			"suspend_num":       raw["pending_url_request_threshold"],
+			"sus_block_time":    raw["duration"],
+			"switch":            raw["status"],
+		}
+	}
+	return nil
+}
+
+func buildUpdateDedicatedDomainTimeoutConfigOpts(d *schema.ResourceData) map[string]interface{} {
+	if v, ok := d.GetOk("timeout_settings"); ok {
+		rawArray, isArray := v.([]interface{})
+		if !isArray || len(rawArray) == 0 {
+			return nil
+		}
+
+		raw, isMap := rawArray[0].(map[string]interface{})
+		if !isMap {
+			return nil
+		}
+
+		return map[string]interface{}{
+			"connect_timeout": raw["connection_timeout"],
+			"read_timeout":    raw["read_timeout"],
+			"send_timeout":    raw["write_timeout"],
+		}
+	}
+	return nil
+}
+
+func buildUpdateDedicatedDomainTrafficMarkOpts(d *schema.ResourceData) map[string]interface{} {
+	if v, ok := d.GetOk("traffic_mark"); ok {
+		rawArray, isArray := v.([]interface{})
+		if !isArray || len(rawArray) == 0 {
+			return nil
+		}
+
+		raw, isMap := rawArray[0].(map[string]interface{})
+		if !isMap {
+			return nil
+		}
+
+		return map[string]interface{}{
+			"sip":    utils.ValueIgnoreEmpty(raw["ip_tags"]),
+			"cookie": utils.ValueIgnoreEmpty(raw["session_tag"]),
+			"params": utils.ValueIgnoreEmpty(raw["user_tag"]),
+		}
+	}
+	return nil
+}
+
+func buildUpdateDedicatedDomainBlockPageOpts(d *schema.ResourceData) map[string]interface{} {
+	if v, ok := d.GetOk("redirect_url"); ok {
+		return map[string]interface{}{
+			"template":     "redirect",
+			"redirect_url": v,
+		}
+	}
+
+	if v, ok := d.GetOk("custom_page"); ok {
+		rawArray, isArray := v.([]interface{})
+		if !isArray || len(rawArray) == 0 {
+			return nil
+		}
+
+		raw, isMap := rawArray[0].(map[string]interface{})
+		if !isMap {
+			return nil
+		}
+		return map[string]interface{}{
+			"template": "custom",
+			"custom_page": map[string]interface{}{
+				"status_code":  raw["http_return_code"],
+				"content_type": raw["block_page_type"],
+				"content":      raw["page_content"],
+			},
+		}
+	}
+	return map[string]interface{}{
+		"template": "default",
+	}
+}
+
+func buildUpdateDedicatedDomainForwardHeaderMapOpts(d *schema.ResourceData) interface{} {
+	if v, ok := d.GetOk("forward_header_map"); ok {
+		return utils.ExpandToStringMap(v.(map[string]interface{}))
+	}
+	return nil
+}
+
+func buildUpdateDedicatedDomainBodyParams(client *golangsdk.ServiceClient, d *schema.ResourceData,
+	cfg *config.Config) (map[string]interface{}, error) {
+	updateOpts := map[string]interface{}{}
+
+	if d.HasChanges("tls", "cipher", "pci_3ds", "pci_dss") {
+		updateOpts["tls"] = utils.ValueIgnoreEmpty(d.Get("tls"))
+		updateOpts["cipher"] = utils.ValueIgnoreEmpty(d.Get("cipher"))
+		// `pci_3ds` and `pci_dss` must be used together with `tls` and `cipher`.
+		if d.HasChanges("pci_3ds", "pci_dss") {
+			flag, err := buildUpdateDedicatedDomainFlag(d)
+			if err != nil {
+				return nil, err
+			}
+			updateOpts["flag"] = flag
+		}
+	}
+
+	if d.HasChange("website_name") {
+		updateOpts["web_tag"] = d.Get("website_name")
+	}
+
+	if d.HasChange("connection_protection") {
+		updateOpts["circuit_breaker"] = buildUpdateDedicatedDomainCircuitBreakerOpts(d)
+	}
+
+	if d.IsNewResource() && updateOpts["circuit_breaker"] == nil {
+		// When creating new resource, if field `connection_protection` is empty, make configure `switch` to false.
+		// Otherwise, when querying the details interface, the corresponding field will be empty.
+		updateOpts["circuit_breaker"] = map[string]interface{}{
+			"switch": false,
+		}
+	}
+
+	if d.HasChange("timeout_settings") {
+		updateOpts["timeout_config"] = buildUpdateDedicatedDomainTimeoutConfigOpts(d)
+	}
+
+	if d.HasChange("traffic_mark") {
+		updateOpts["traffic_mark"] = buildUpdateDedicatedDomainTrafficMarkOpts(d)
+	}
+
+	if d.HasChange("proxy") && !d.IsNewResource() {
+		updateOpts["proxy"] = d.Get("proxy")
+	}
+
+	if d.HasChange("certificate_id") && !d.IsNewResource() {
+		if v, ok := d.GetOk("certificate_id"); ok {
+			certName, err := queryCertificateName(client, d, cfg)
+			if err != nil {
+				return nil, err
+			}
+			updateOpts["certificatename"] = certName
+			updateOpts["certificateid"] = v
+		}
+	}
+
+	if d.HasChanges("custom_page", "redirect_url") && !d.IsNewResource() {
+		updateOpts["block_page"] = buildUpdateDedicatedDomainBlockPageOpts(d)
+	}
+
+	if d.HasChange("description") && !d.IsNewResource() {
+		updateOpts["description"] = d.Get("description")
+	}
+
+	if d.HasChange("forward_header_map") && !d.IsNewResource() {
+		updateOpts["forward_header_map"] = buildUpdateDedicatedDomainForwardHeaderMapOpts(d)
+	}
+
+	return updateOpts, nil
+}
+
+func updateDedicatedDomain(client *golangsdk.ServiceClient, d *schema.ResourceData, cfg *config.Config) error {
+	updateOpts, err := buildUpdateDedicatedDomainBodyParams(client, d, cfg)
+	if err != nil {
+		return fmt.Errorf("error building update dedicated domain body params: %s", err)
+	}
+
+	requestPath := client.Endpoint + "v1/{project_id}/premium-waf/host/{host_id}"
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{host_id}", d.Id())
+	requestPath += buildEpsQueryParams(d, cfg)
+	requestOpt := golangsdk.RequestOpts{
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json;charset=utf8",
+		},
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(updateOpts),
+	}
+
+	_, err = client.Request("PUT", requestPath, &requestOpt)
+	return err
+}
+
+func updateDedicatedDomainProtectStatus(client *golangsdk.ServiceClient, d *schema.ResourceData, cfg *config.Config) error {
+	requestPath := client.Endpoint + "v1/{project_id}/premium-waf/host/{host_id}/protect-status"
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{host_id}", d.Id())
+	requestPath += buildEpsQueryParams(d, cfg)
+	requestOpt := golangsdk.RequestOpts{
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json;charset=utf8",
+		},
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"protect_status": d.Get("protect_status"),
+		},
+	}
+
+	_, err := client.Request("PUT", requestPath, &requestOpt)
+	return err
+}
+
+func resourceWafDedicatedDomainCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		product = "waf"
+	)
+	client, err := cfg.NewServiceClient(product, region)
+	if err != nil {
+		return diag.Errorf("error creating WAF client: %s", err)
+	}
+
+	certName, err := queryCertificateName(client, d, cfg)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	createOpts := buildCreatePremiumHostOpts(d, cfg, certName)
-	domain, err := domains.Create(dedicatedClient, *createOpts)
+	respBody, err := createDedicatedDomain(client, d, cfg, certName)
 	if err != nil {
 		return diag.Errorf("error creating WAF dedicated domain: %s", err)
 	}
-	d.SetId(domain.Id)
 
-	if err := updateWafDedicatedDomain(dedicatedClient, d, cfg); err != nil {
-		return diag.FromErr(err)
+	id := utils.PathSearch("id", respBody, "").(string)
+	if id == "" {
+		return diag.Errorf("error creating WAF dedicated domain: ID is not found in API response")
+	}
+	d.SetId(id)
+
+	if err := updateDedicatedDomain(client, d, cfg); err != nil {
+		return diag.Errorf("error updating WAF dedicated domain in create operation: %s", err)
 	}
 
-	if d.Get("protect_status").(int) != protectStatusEnable {
-		if err := updateWafDedicatedDomainProtectStatus(dedicatedClient, d, cfg); err != nil {
-			return diag.FromErr(err)
+	if d.Get("protect_status").(int) != 1 {
+		if err := updateDedicatedDomainProtectStatus(client, d, cfg); err != nil {
+			return diag.Errorf("error updating WAF dedicated domain protect status in create operation: %s", err)
 		}
 	}
 
