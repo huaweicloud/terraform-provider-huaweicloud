@@ -24,6 +24,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+var backupNonUpdatableParams = []string{"name", "instance_id", "description", "databases",
+	"databases.*.name"}
+
 // @API RDS DELETE /v3/{project_id}/backups/{id}
 // @API RDS GET /v3/{project_id}/backups
 // @API RDS POST /v3/{project_id}/backups
@@ -31,10 +34,13 @@ func ResourceBackup() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceBackupCreate,
 		ReadContext:   resourceBackupRead,
+		UpdateContext: resourceBackupUpdate,
 		DeleteContext: resourceBackupDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: backupImportState,
 		},
+
+		CustomizeDiff: config.FlexibleForceNew(backupNonUpdatableParams),
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
@@ -51,20 +57,17 @@ func ResourceBackup() *schema.Resource {
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Backup name.`,
 			},
 			"instance_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Instance ID.`,
 			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				ForceNew:    true,
 				Description: `The description about the backup.`,
 			},
 			"databases": {
@@ -72,7 +75,6 @@ func ResourceBackup() *schema.Resource {
 				Elem:        BackupBackupDatabaseSchema(),
 				Optional:    true,
 				Computed:    true,
-				ForceNew:    true,
 				Description: `List of self-built Microsoft SQL Server databases that are partially backed up.`,
 			},
 			"begin_time": {
@@ -110,7 +112,6 @@ func BackupBackupDatabaseSchema() *schema.Resource {
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Database to be backed up for Microsoft SQL Server.`,
 			},
 		},
@@ -361,6 +362,10 @@ func buildGetBackupQueryParams(d *schema.ResourceData) string {
 		res = "?" + res[1:]
 	}
 	return res
+}
+
+func resourceBackupUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+	return nil
 }
 
 func resourceBackupDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
