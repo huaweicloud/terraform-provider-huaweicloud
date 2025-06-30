@@ -3,6 +3,7 @@ package waf
 import (
 	"context"
 	"fmt"
+	"log"
 	"strconv"
 
 	"github.com/hashicorp/go-multierror"
@@ -11,10 +12,19 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/waf_hw/v1/domains"
+	"github.com/chnsz/golangsdk/openstack/waf_hw/v1/policies"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+)
+
+const (
+	protectStatusEnable = 1
+
+	defaultBlockPageTemplate  = "default"
+	customBlockPageTemplate   = "custom"
+	redirectBlockPageTemplate = "redirect"
 )
 
 // @API WAF GET /v1/{project_id}/waf/instance/{instance_id}
@@ -126,7 +136,7 @@ func ResourceWafDomain() *schema.Resource {
 				Optional: true,
 				Computed: true,
 				MaxItems: 1,
-				Elem:     dedicatedDomainTrafficMarkSchema(),
+				Elem:     domainTrafficMarkSchema(),
 			},
 			"website_name": {
 				Type:     schema.TypeString,
@@ -189,6 +199,73 @@ func ResourceWafDomain() *schema.Resource {
 	}
 }
 
+func domainCustomPageSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"http_return_code": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"block_page_type": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"page_content": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+		},
+	}
+	return &sc
+}
+
+func domainTimeoutSettingSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"connection_timeout": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+			"read_timeout": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+			"write_timeout": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+		},
+	}
+	return &sc
+}
+
+func domainTrafficMarkSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"ip_tags": {
+				Type:     schema.TypeList,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Optional: true,
+				Computed: true,
+			},
+			"session_tag": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"user_tag": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+		},
+	}
+	return &sc
+}
+
 func domainServerSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
@@ -238,6 +315,13 @@ func buildCreateDomainHostOpts(d *schema.ResourceData, cfg *config.Config) *doma
 		WebTag:              d.Get("website_name").(string),
 		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 	}
+}
+
+func buildHostForwardHeaderMapOpts(d *schema.ResourceData) map[string]string {
+	if v, ok := d.GetOk("forward_header_map"); ok {
+		return utils.ExpandToStringMap(v.(map[string]interface{}))
+	}
+	return nil
 }
 
 func buildWafDomainServers(d *schema.ResourceData) []domains.ServerOpts {
@@ -596,6 +680,34 @@ func resourceWafDomainUpdate(ctx context.Context, d *schema.ResourceData, meta i
 	}
 
 	return resourceWafDomainRead(ctx, d, meta)
+}
+
+func updateWafDomainPolicyHost(d *schema.ResourceData, cfg *config.Config) error {
+	client, err := cfg.WafV1Client(cfg.GetRegion(d))
+	if err != nil {
+		return fmt.Errorf("error creating WAF client: %s", err)
+	}
+
+	oVal, nVal := d.GetChange("policy_id")
+	newPolicyId := nVal.(string)
+	oldPolicyId := oVal.(string)
+
+	epsID := cfg.GetEnterpriseProjectID(d)
+	updateHostsOpts := policies.UpdateHostsOpts{
+		Hosts:               []string{d.Id()},
+		EnterpriseProjectId: epsID,
+	}
+	log.Printf("[DEBUG] Bind WAF domain %s to policy %s", d.Id(), newPolicyId)
+
+	if _, err := policies.UpdateHosts(client, newPolicyId, updateHostsOpts).Extract(); err != nil {
+		return fmt.Errorf("error updating WAF policy hosts: %s", err)
+	}
+
+	if err := policies.DeleteWithEpsID(client, oldPolicyId, epsID).ExtractErr(); err != nil {
+		// If other domains are using this policy, the deletion will fail.
+		log.Printf("[WARN] error deleting WAF policy %s: %s", oldPolicyId, err)
+	}
+	return nil
 }
 
 func resourceWafDomainDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
