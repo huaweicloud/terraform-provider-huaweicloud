@@ -122,6 +122,9 @@ func dataSourcePolicyGroupsRead(_ context.Context, d *schema.ResourceData, meta 
 
 	listPolicyGroupsOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		// When using this API on the European site, not adding the `region` parameter in the headers will result in an
+		// error. After consulting the HSS service, it is confirmed that the `region` needs to be added here.
+		MoreHeaders: map[string]string{"region": region},
 	}
 
 	for {
