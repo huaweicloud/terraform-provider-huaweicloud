@@ -1141,6 +1141,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_live_channels":             live.DataSourceLiveChannels(),
 			"huaweicloud_live_cdn_ips":              live.DataSourceLiveCdnIps(),
 
+			"huaweicloud_lts_alarms":                       lts.DataSourceAlarms(),
 			"huaweicloud_lts_aom_accesses":                 lts.DataSourceAOMAccesses(),
 			"huaweicloud_lts_cce_accesses":                 lts.DataSourceCceAccesses(),
 			"huaweicloud_lts_groups":                       lts.DataSourceLtsGroups(),
