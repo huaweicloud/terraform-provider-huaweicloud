@@ -1,0 +1,7 @@
+vpc_name            = "tf_test_vpc"
+vpc_cidr            = "192.168.0.0/16"
+subnet_name         = "tf_test_subnet"
+security_group_name = "tf_test_security_group"
+desktop_user_name   = "tf_test_user"
+desktop_user_email  = "test@example.com"
+cloud_desktop_name  = "tf-test-desktop"
