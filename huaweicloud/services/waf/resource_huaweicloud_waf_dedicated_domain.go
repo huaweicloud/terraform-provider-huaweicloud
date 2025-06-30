@@ -2,6 +2,7 @@ package waf
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"strconv"
@@ -13,7 +14,6 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/waf_hw/v1/policies"
-	domains "github.com/chnsz/golangsdk/openstack/waf_hw/v1/premium_domains"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -497,7 +497,7 @@ func buildUpdateDedicatedDomainFlag(d *schema.ResourceData) (map[string]interfac
 
 	// required tls="TLS v1.2" && cipher="cipher_2"
 	if d.Get("tls").(string) != "TLS v1.2" || d.Get("cipher").(string) != "cipher_2" {
-		return nil, fmt.Errorf("pci_3ds and pci_dss must be used together with tls and cipher. " +
+		return nil, errors.New("pci_3ds and pci_dss must be used together with tls and cipher. " +
 			"Tls must be set to TLS v1.2, and cipher must be set to cipher_2")
 	}
 	return map[string]interface{}{
@@ -612,6 +612,7 @@ func buildUpdateDedicatedDomainForwardHeaderMapOpts(d *schema.ResourceData) inte
 	return nil
 }
 
+//nolint:gocyclo
 func buildUpdateDedicatedDomainBodyParams(client *golangsdk.ServiceClient, d *schema.ResourceData,
 	cfg *config.Config) (map[string]interface{}, error) {
 	updateOpts := map[string]interface{}{}
@@ -1042,19 +1043,42 @@ func resourceWafDedicatedDomainUpdate(ctx context.Context, d *schema.ResourceDat
 	return resourceWafDedicatedDomainRead(ctx, d, meta)
 }
 
+func buildDeleteDedicatedDomainQueryParams(d *schema.ResourceData, cfg *config.Config) string {
+	rst := fmt.Sprintf("?keepPolicy=%v", d.Get("keep_policy"))
+	epsId := cfg.GetEnterpriseProjectID(d)
+	if epsId == "" {
+		return rst
+	}
+	return fmt.Sprintf("%s&enterprise_project_id=%s", rst, epsId)
+}
+
 func resourceWafDedicatedDomainDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	dedicatedClient, err := cfg.WafDedicatedV1Client(cfg.GetRegion(d))
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		product = "waf"
+	)
+
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating WAF dedicated client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
-	keepPolicy := d.Get("keep_policy").(bool)
-	epsID := cfg.GetEnterpriseProjectID(d)
-	_, err = domains.DeleteWithEpsID(dedicatedClient, keepPolicy, d.Id(), epsID)
-	if err != nil {
+	requestPath := client.Endpoint + "v1/{project_id}/premium-waf/host/{host_id}"
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{host_id}", d.Id())
+	requestPath += buildDeleteDedicatedDomainQueryParams(d, cfg)
+	requestOpt := golangsdk.RequestOpts{
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json;charset=utf8",
+		},
+		KeepResponseBody: true,
+	}
+
+	if _, err := client.Request("DELETE", requestPath, &requestOpt); err != nil {
 		// If the dedicated domain does not exist, the response HTTP status code of the deletion API is 404.
 		return common.CheckDeletedDiag(d, err, "error deleting WAF dedicated domain")
 	}
+
 	return nil
 }
