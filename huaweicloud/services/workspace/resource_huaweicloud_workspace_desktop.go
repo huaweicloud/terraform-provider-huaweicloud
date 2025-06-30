@@ -164,10 +164,11 @@ func ResourceDesktop() *schema.Resource {
 				},
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: utils.SuppressCaseDiffs(),
 			},
 			"email_notification": {
 				Type:     schema.TypeBool,
