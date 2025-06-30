@@ -1,5 +1,21 @@
 # CHANGELOG
 
+## 1.76.0 (June 30, 2025)
+
+* **New Resource:**
+  + `huaweicloud_cbr_replicate_backup` [GH-7111]
+  + `huaweicloud_sdrs_protected_instance_delete_nic` [GH-7096]
+  + `huaweicloud_rds_restore_read_replica_database` [GH-7095]
+  + `huaweicloud_sdrs_protected_instance_add_nic` [GH-7091]
+
+* **New Data Source:**
+  + `huaweicloud_rds_backup_database` [GH-7110]
+  + `huaweicloud_cbr_backup_metadata` [GH-7088]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_workspace_desktop: suppress diff for name case changing [GH-7115]
+
 ## 1.75.5 (June 20, 2025)
 
 ENHANCEMENTS:
