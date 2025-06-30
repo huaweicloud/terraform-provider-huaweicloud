@@ -1,34 +1,5 @@
-# Create a security group.
-resource "huaweicloud_networking_secgroup" "test" {
-  name                 = "test-secgroup-demo"
-  delete_default_rules = true
-}
-
-# Create a VPC.
-resource "huaweicloud_vpc" "test" {
-  name = "test-vpc-demo"
-  cidr = "192.168.0.0/16"
-}
-
-# Create a VPC subnet.
-resource "huaweicloud_vpc_subnet" "test" {
-  name       = "test-vpc-subnet-demo"
-  vpc_id     = huaweicloud_vpc.test.id
-  cidr       = "192.168.0.0/24"
-  gateway_ip = "192.168.0.1"
-}
-
-# List the availability zones in the current region.
 data "huaweicloud_availability_zones" "test" {}
 
-# Query the specified system image.
-data "huaweicloud_images_image" "test" {
-  name        = "Ubuntu 18.04 server 64bit"
-  visibility  = "public"
-  most_recent = true
-}
-
-# List the ecs flavors in the specified availability zone.
 data "huaweicloud_compute_flavors" "test" {
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
   performance_type  = "normal"
@@ -36,42 +7,54 @@ data "huaweicloud_compute_flavors" "test" {
   memory_size       = 4
 }
 
-# Create a KPS keypair.
-resource "huaweicloud_kps_keypair" "acc_key" {
-  name       = "test-keypair-demo"
-  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDAjpC1hwiOCCmKEWxJ4qzTTsJbKzndLo1BCz5PcwtUnflmU+gHJtWMZKpuEGVi29h0A/+ydKek1O18k10Ff+4tyFjiHDQAT9+OfgWf7+b1yK+qDip3X1C0UPMbwHlTfSGWLGZquwhvEFx9k3h/M+VtMvwR1lJ9LUyTAImnNjWG7TAIPmui30HvM2UiFEmqkr4ijq45MyX2+fLIePLRIFuu1p4whjHAQYufqyno3BS48icQb4p6iVEZPo4AE2o9oIyQvj2mx4dk5Y8CgSETOZTYDOR3rU2fZTRDRgPJDH9FWvQjF5tA0p3d9CoWWd2s6GKKbfoUIi8R/Db1BSPJwkqB jrp-hp-pc"
+data "huaweicloud_images_images" "test" {
+  flavor_id  = try(data.huaweicloud_compute_flavors.test.flavors[0].id, "")
+  visibility = "public"
+  os         = "Ubuntu"
 }
 
-# Create a AS configuration.
-resource "huaweicloud_as_configuration" "acc_as_config"{
-  scaling_configuration_name = "test-as-configuration-demo"
+resource "huaweicloud_networking_secgroup" "test" {
+  name                 = var.security_group_name
+  delete_default_rules = true
+}
+
+resource "huaweicloud_kps_keypair" "test" {
+  name       = var.kps_key_pair_name
+  public_key = var.kps_public_key
+}
+
+resource "huaweicloud_as_configuration" "test" {
+  scaling_configuration_name = var.as_configuration_name
   instance_config {
-    image              = data.huaweicloud_images_image.test.id
-    flavor             = data.huaweicloud_compute_flavors.test.ids[0]
-    key_name           = huaweicloud_kps_keypair.acc_key.id
+    image              = try(data.huaweicloud_images_images.test.images[0].id, "")
+    flavor             = try(data.huaweicloud_compute_flavors.test.flavors[0].id, "")
+    key_name           = huaweicloud_kps_keypair.test.id
     security_group_ids = [huaweicloud_networking_secgroup.test.id]
 
-    metadata = {
-      some_key = "some_value"
-    }
-    user_data = <<EOT
-#!/bin/sh
-echo "Hello World! The time is now $(date -R)!" | tee /root/output.txt
-EOT
+    metadata  = var.as_metadata
+    user_data = var.as_user_data
 
-    disk {
-      size        = 40
-      volume_type = "SSD"
-      disk_type   = "SYS"
+    dynamic "disk" {
+      for_each = var.as_disks
+
+      content {
+        size        = disk.value["size"]
+        volume_type = disk.value["volume_type"]
+        disk_type   = disk.value["disk_type"]
+      }
     }
 
-    public_ip {
-      eip {
-        ip_type = "5_bgp"
-        bandwidth {
-          size          = 10
-          share_type    = "PER"
-          charging_mode = "traffic"
+    dynamic "public_ip" {
+      for_each = var.as_public_ip
+
+      content {
+        eip {
+          ip_type = public_ip.value.eip.ip_type
+          bandwidth {
+            size          = public_ip.value.eip.bandwidth.size
+            share_type    = public_ip.value.eip.bandwidth.share_type
+            charging_mode = public_ip.value.eip.bandwidth.charging_mode
+          }
         }
       }
     }
