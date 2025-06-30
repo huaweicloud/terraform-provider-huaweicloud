@@ -1,0 +1,41 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_secmaster_dataspace": {
+          "block": {
+            "attributes": {
+              "dataspace_name": {
+                "type": "string",
+                "required": true
+              },
+              "description": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,94 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cciv2_events": {
+          "block": {
+            "attributes": {
+              "events": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "action": "string",
+                      "api_version": "string",
+                      "count": "number",
+                      "event_time": "string",
+                      "first_timestamp": "string",
+                      "involved_object": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "field_path": "string",
+                            "kind": "string",
+                            "name": "string",
+                            "namespace": "string",
+                            "resource_version": "string",
+                            "uid": "string"
+                          }
+                        ]
+                      ],
+                      "kind": "string",
+                      "last_timestamp": "string",
+                      "message": "string",
+                      "metadata": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "annotations": [
+                              "map",
+                              "string"
+                            ],
+                            "creation_timestamp": "string",
+                            "name": "string",
+                            "namespace": "string",
+                            "resource_version": "string",
+                            "uid": "string"
+                          }
+                        ]
+                      ],
+                      "reason": "string",
+                      "reporting_component": "string",
+                      "reporting_instance": "string",
+                      "source": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "component": "string",
+                            "host": "string"
+                          }
+                        ]
+                      ],
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "namespace": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

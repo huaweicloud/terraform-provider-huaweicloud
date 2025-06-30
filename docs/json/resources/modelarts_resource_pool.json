@@ -229,20 +229,17 @@
                           "step": {
                             "type": "number",
                             "description": "The creation step of the resource pool nodes.",
-                            "required": true,
-                            "forcenew": true
+                            "required": true
                           },
                           "type": {
                             "type": "string",
                             "description": "The type of the resource pool nodes.",
-                            "required": true,
-                            "forcenew": true
+                            "required": true
                           }
                         },
                         "description": "The creation step configuration of the resource pool nodes."
                       },
                       "nesting_mode": "list",
-                      "forcenew": true,
                       "max_items": 1
                     },
                     "data_volumes": {

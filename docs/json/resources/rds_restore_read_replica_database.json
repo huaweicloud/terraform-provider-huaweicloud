@@ -1,0 +1,51 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_rds_restore_read_replica_database": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "databases": {
+                "block": {
+                  "attributes": {
+                    "new_name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "old_name": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "set",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "RDS",
+            "name": "Relational Database Service",
+            "catalog": "Databases",
+            "name_cn": "云数据库",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

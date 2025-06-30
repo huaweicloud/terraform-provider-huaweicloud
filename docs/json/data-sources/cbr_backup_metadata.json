@@ -1,0 +1,70 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cbr_backup_metadata": {
+          "block": {
+            "attributes": {
+              "backup_id": {
+                "type": "string",
+                "required": true
+              },
+              "backups": {
+                "type": "string",
+                "computed": true
+              },
+              "flavor": {
+                "type": "string",
+                "computed": true
+              },
+              "floatingips": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "interface": {
+                "type": "string",
+                "computed": true
+              },
+              "ports": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "server": {
+                "type": "string",
+                "computed": true
+              },
+              "volumes": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CBR",
+            "name": "Cloud Backup and Recovery",
+            "catalog": "Storage",
+            "name_cn": "云备份",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}

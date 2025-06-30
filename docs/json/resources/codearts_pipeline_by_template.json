@@ -2,7 +2,7 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "resource_schemas": {
-        "huaweicloud_codearts_pipeline": {
+        "huaweicloud_codearts_pipeline_by_template": {
           "block": {
             "attributes": {
               "banned": {
@@ -34,7 +34,8 @@
               "definition": {
                 "type": "string",
                 "description": "Specifies the pipeline definition JSON.",
-                "required": true
+                "optional": true,
+                "computed": true
               },
               "description": {
                 "type": "string",
@@ -85,6 +86,11 @@
               "region": {
                 "type": "string",
                 "computed": true
+              },
+              "template_id": {
+                "type": "string",
+                "description": "Specifies the CodeArts template ID.",
+                "required": true
               },
               "update_time": {
                 "type": "number",
@@ -253,7 +259,8 @@
                   },
                   "description": "Specifies the pipeline source information."
                 },
-                "nesting_mode": "set"
+                "nesting_mode": "set",
+                "min_items": 1
               },
               "triggers": {
                 "block": {
@@ -329,22 +336,26 @@
                     "description": {
                       "type": "string",
                       "description": "Specifies the parameter description.",
-                      "optional": true
+                      "optional": true,
+                      "computed": true
                     },
                     "is_reset": {
                       "type": "bool",
                       "description": "Specifies whether to reset.",
-                      "optional": true
+                      "optional": true,
+                      "computed": true
                     },
                     "is_runtime": {
                       "type": "bool",
                       "description": "Specifies whether to set parameters at runtime.",
-                      "optional": true
+                      "optional": true,
+                      "computed": true
                     },
                     "is_secret": {
                       "type": "bool",
                       "description": "Specifies whether it is a private parameter.",
-                      "optional": true
+                      "optional": true,
+                      "computed": true
                     },
                     "latest_value": {
                       "type": "string",
@@ -357,32 +368,38 @@
                         "string"
                       ],
                       "description": "Specifies the list of enumerated values.",
-                      "optional": true
+                      "optional": true,
+                      "computed": true
                     },
                     "name": {
                       "type": "string",
                       "description": "Specifies the custom variable name.",
-                      "optional": true
+                      "optional": true,
+                      "computed": true
                     },
                     "runtime_value": {
                       "type": "string",
                       "description": "Specifies the value passed in at runtime.",
-                      "optional": true
+                      "optional": true,
+                      "computed": true
                     },
                     "sequence": {
                       "type": "number",
                       "description": "Specifies the parameter sequence, starting from 1.",
-                      "optional": true
+                      "optional": true,
+                      "computed": true
                     },
                     "type": {
                       "type": "string",
                       "description": "Specifies the custom parameter type.",
-                      "optional": true
+                      "optional": true,
+                      "computed": true
                     },
                     "value": {
                       "type": "string",
                       "description": "Specifies the custom parameter default value.",
-                      "optional": true
+                      "optional": true,
+                      "computed": true
                     }
                   },
                   "description": "Specifies the custom variables."

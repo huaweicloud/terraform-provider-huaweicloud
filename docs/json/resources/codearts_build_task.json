@@ -1,0 +1,283 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_codearts_build_task": {
+          "block": {
+            "attributes": {
+              "arch": {
+                "type": "string",
+                "description": "Specifies the architecture of the build machine.",
+                "required": true
+              },
+              "auto_update_sub_module": {
+                "type": "string",
+                "description": "Specifies whether to automatically update submodules.",
+                "optional": true
+              },
+              "build_config_type": {
+                "type": "string",
+                "description": "Specifies the build task configuration type.",
+                "optional": true
+              },
+              "build_if_code_updated": {
+                "type": "bool",
+                "description": "Specifies whether to enable the code commit trigger build switch.",
+                "optional": true
+              },
+              "flavor": {
+                "type": "string",
+                "description": "Specifies the specification of the execution machine.",
+                "optional": true
+              },
+              "group_id": {
+                "type": "string",
+                "description": "Specifies the task group ID.",
+                "optional": true
+              },
+              "host_type": {
+                "type": "string",
+                "description": "Specifies the host type.",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the build task.",
+                "required": true
+              },
+              "project_id": {
+                "type": "string",
+                "description": "Specifies the CodeArts project ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "parameters": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "description": "Specifies the parameter definition name.",
+                      "optional": true
+                    }
+                  },
+                  "block_types": {
+                    "params": {
+                      "block": {
+                        "attributes": {
+                          "name": {
+                            "type": "string",
+                            "description": "Specifies the parameter field name.",
+                            "optional": true
+                          },
+                          "value": {
+                            "type": "string",
+                            "description": "Specifies the parameter field value.",
+                            "optional": true
+                          }
+                        },
+                        "block_types": {
+                          "limits": {
+                            "block": {
+                              "attributes": {
+                                "disable": {
+                                  "type": "string",
+                                  "description": "Specifies whether it is effective.",
+                                  "optional": true
+                                },
+                                "display_name": {
+                                  "type": "string",
+                                  "description": "Specifies the displayed name of the parameter.",
+                                  "optional": true
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "Specifies the parameter name.",
+                                  "optional": true
+                                }
+                              },
+                              "description": "Specifies the enumeration parameter restrictions."
+                            },
+                            "nesting_mode": "set"
+                          }
+                        },
+                        "description": "Specifies the build execution sub-parameters."
+                      },
+                      "nesting_mode": "set"
+                    }
+                  },
+                  "description": "Specifies the build execution parameter list."
+                },
+                "nesting_mode": "set"
+              },
+              "scms": {
+                "block": {
+                  "attributes": {
+                    "branch": {
+                      "type": "string",
+                      "description": "Specifies the branch name.",
+                      "optional": true
+                    },
+                    "build_type": {
+                      "type": "string",
+                      "description": "Specifies the build type.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "depth": {
+                      "type": "string",
+                      "description": "Specifies the depth.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "enable_git_lfs": {
+                      "type": "bool",
+                      "description": "Specifies whether to enable Git LFS.",
+                      "optional": true
+                    },
+                    "endpoint_id": {
+                      "type": "string",
+                      "description": "Specifies the endpoint ID.",
+                      "optional": true
+                    },
+                    "group_name": {
+                      "type": "string",
+                      "description": "Specifies the group name.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "is_auto_build": {
+                      "type": "bool",
+                      "description": "Specifies whether to automatically build.",
+                      "optional": true
+                    },
+                    "repo_id": {
+                      "type": "string",
+                      "description": "Specifies the repository ID.",
+                      "required": true
+                    },
+                    "repo_name": {
+                      "type": "string",
+                      "description": "Specifies the repository name.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "scm_type": {
+                      "type": "string",
+                      "description": "Specifies the source code management type.",
+                      "required": true
+                    },
+                    "source": {
+                      "type": "string",
+                      "description": "Specifies the source type.",
+                      "optional": true
+                    },
+                    "url": {
+                      "type": "string",
+                      "description": "Specifies the repository URL.",
+                      "required": true
+                    },
+                    "web_url": {
+                      "type": "string",
+                      "description": "Specifies the web URL of the repository.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the build execution SCM."
+                },
+                "nesting_mode": "list"
+              },
+              "steps": {
+                "block": {
+                  "attributes": {
+                    "enable": {
+                      "type": "bool",
+                      "description": "Specifies whether to enable the step.",
+                      "optional": true
+                    },
+                    "module_id": {
+                      "type": "string",
+                      "description": "Specifies the build step module ID.",
+                      "required": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Specifies the build step name.",
+                      "required": true
+                    },
+                    "properties": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "description": "Specifies the build step properties.",
+                      "optional": true
+                    },
+                    "properties_all": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "description": "Specifies the build step properties.",
+                      "computed": true
+                    },
+                    "version": {
+                      "type": "string",
+                      "description": "Specifies the build step version.",
+                      "optional": true
+                    }
+                  },
+                  "description": "Specifies the build execution steps."
+                },
+                "nesting_mode": "list"
+              },
+              "triggers": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "description": "Specifies the trigger type.",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "parameters": {
+                      "block": {
+                        "attributes": {
+                          "name": {
+                            "type": "string",
+                            "description": "Specifies the parameter name.",
+                            "required": true
+                          },
+                          "value": {
+                            "type": "string",
+                            "description": "Specifies the parameter value.",
+                            "required": true
+                          }
+                        },
+                        "description": "Specifies the custom parameters."
+                      },
+                      "nesting_mode": "set",
+                      "min_items": 1
+                    }
+                  },
+                  "description": "Specifies the collection of timed task triggers."
+                },
+                "nesting_mode": "list"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

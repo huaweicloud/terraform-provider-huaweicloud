@@ -1,0 +1,99 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_apig_instances_filter": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instances": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "resource_id": "string",
+                      "resource_name": "string",
+                      "tags": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "key": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "All dedicated instances that match the filter parameters.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "without_any_tag": {
+                "type": "bool",
+                "description": "Whether to query resources without tags. Defaults to **false**.",
+                "optional": true
+              }
+            },
+            "block_types": {
+              "matches": {
+                "block": {
+                  "attributes": {
+                    "key": {
+                      "type": "string",
+                      "description": "The key to be matched.",
+                      "optional": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "description": "The value of the matching field.",
+                      "optional": true
+                    }
+                  },
+                  "description": "The fields to be queried."
+                },
+                "nesting_mode": "list"
+              },
+              "tags": {
+                "block": {
+                  "attributes": {
+                    "key": {
+                      "type": "string",
+                      "description": "The key of the tag.",
+                      "optional": true
+                    },
+                    "values": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The list of values of the tag.",
+                      "optional": true
+                    }
+                  },
+                  "description": "The list of the tags to be queried."
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

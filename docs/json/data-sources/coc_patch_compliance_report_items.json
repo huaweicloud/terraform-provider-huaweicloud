@@ -1,0 +1,94 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_coc_patch_compliance_report_items": {
+          "block": {
+            "attributes": {
+              "classification": {
+                "type": "string",
+                "description": "Specifies the category.",
+                "optional": true
+              },
+              "compliance_items": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "classification": "string",
+                      "compliance_level": "string",
+                      "instance_id": "string",
+                      "patch_detail": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "installed_time": "number",
+                            "patch_baseline_id": "string",
+                            "patch_baseline_name": "string",
+                            "patch_status": "string"
+                          }
+                        ]
+                      ],
+                      "severity_level": "string",
+                      "title": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the patch compliance information.",
+                "computed": true
+              },
+              "compliance_level": {
+                "type": "string",
+                "description": "Specifies the compliance level.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_compliant_id": {
+                "type": "string",
+                "description": "Specifies the compliance report ID.",
+                "required": true
+              },
+              "patch_status": {
+                "type": "string",
+                "description": "Specifies the patch status.",
+                "optional": true
+              },
+              "severity_level": {
+                "type": "string",
+                "description": "Specifies the severity level.",
+                "optional": true
+              },
+              "sort_dir": {
+                "type": "string",
+                "description": "Specifies the sorting order.",
+                "optional": true
+              },
+              "sort_key": {
+                "type": "string",
+                "description": "Specifies the sorting field.",
+                "optional": true
+              },
+              "title": {
+                "type": "string",
+                "description": "Specifies the patch name.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "COC",
+            "name": "Cloud Operations Center",
+            "catalog": "Management & Governance",
+            "name_cn": "云运维中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

@@ -514,6 +514,20 @@
                             "termination_message_path": "string",
                             "termination_message_policy": "string",
                             "tty": "bool",
+                            "volume_mounts": [
+                              "set",
+                              [
+                                "object",
+                                {
+                                  "extend_path_mode": "string",
+                                  "mount_path": "string",
+                                  "name": "string",
+                                  "read_only": "bool",
+                                  "sub_path": "string",
+                                  "sub_path_expr": "string"
+                                }
+                              ]
+                            ],
                             "working_dir": "string"
                           }
                         ]
@@ -894,6 +908,20 @@
                             "termination_message_path": "string",
                             "termination_message_policy": "string",
                             "tty": "bool",
+                            "volume_mounts": [
+                              "set",
+                              [
+                                "object",
+                                {
+                                  "extend_path_mode": "string",
+                                  "mount_path": "string",
+                                  "name": "string",
+                                  "read_only": "bool",
+                                  "sub_path": "string",
+                                  "sub_path_expr": "string"
+                                }
+                              ]
+                            ],
                             "working_dir": "string"
                           }
                         ]
@@ -1273,6 +1301,20 @@
                             "termination_message_path": "string",
                             "termination_message_policy": "string",
                             "tty": "bool",
+                            "volume_mounts": [
+                              "set",
+                              [
+                                "object",
+                                {
+                                  "extend_path_mode": "string",
+                                  "mount_path": "string",
+                                  "name": "string",
+                                  "read_only": "bool",
+                                  "sub_path": "string",
+                                  "sub_path_expr": "string"
+                                }
+                              ]
+                            ],
                             "working_dir": "string"
                           }
                         ]

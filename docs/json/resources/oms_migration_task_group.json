@@ -25,6 +25,11 @@
                 "computed": true,
                 "forcenew": true
               },
+              "dst_storage_policy": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
               "enable_failed_object_recording": {
                 "type": "bool",
                 "optional": true,
@@ -35,6 +40,11 @@
                 "type": "bool",
                 "optional": true,
                 "computed": true,
+                "forcenew": true
+              },
+              "enable_metadata_migration": {
+                "type": "bool",
+                "optional": true,
                 "forcenew": true
               },
               "enable_requester_pays": {

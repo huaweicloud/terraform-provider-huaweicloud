@@ -1,0 +1,356 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_codearts_pipeline_run_detail": {
+          "block": {
+            "attributes": {
+              "artifacts": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "download_url": "string",
+                      "name": "string",
+                      "package_type": "string",
+                      "version": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the artifacts after running a pipeline.",
+                "computed": true
+              },
+              "component_id": {
+                "type": "string",
+                "description": "Indicates the microservice ID.",
+                "computed": true
+              },
+              "current_system_time": {
+                "type": "number",
+                "description": "Indicates the current system time.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Indicates the pipeline running description.",
+                "computed": true
+              },
+              "detail_url": {
+                "type": "string",
+                "description": "Indicates the pipeline detail URL.",
+                "computed": true
+              },
+              "end_time": {
+                "type": "number",
+                "description": "Indicates the end time.",
+                "computed": true
+              },
+              "executor_id": {
+                "type": "string",
+                "description": "Indicates the executor ID.",
+                "computed": true
+              },
+              "executor_name": {
+                "type": "string",
+                "description": "Indicates the executor name.",
+                "computed": true
+              },
+              "group_id": {
+                "type": "string",
+                "description": "Indicates the pipeline group ID.",
+                "computed": true
+              },
+              "group_name": {
+                "type": "string",
+                "description": "Indicates the pipeline group name.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_publish": {
+                "type": "bool",
+                "description": "Indicates whether the pipeline is a change-triggered pipeline.",
+                "computed": true
+              },
+              "language": {
+                "type": "string",
+                "description": "Indicates the language.",
+                "computed": true
+              },
+              "manifest_version": {
+                "type": "string",
+                "description": "Indicates the pipeline version.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Indicates the pipeline name.",
+                "computed": true
+              },
+              "pipeline_id": {
+                "type": "string",
+                "description": "Specifies the pipeline ID.",
+                "required": true
+              },
+              "pipeline_run_id": {
+                "type": "string",
+                "description": "Specifies the pipeline run ID.",
+                "optional": true
+              },
+              "project_id": {
+                "type": "string",
+                "description": "Specifies the CodeArts project ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "run_number": {
+                "type": "number",
+                "description": "Indicates the pipeline running sequence number.",
+                "computed": true
+              },
+              "sources": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "params": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "alias": "string",
+                            "build_params": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "action": "string",
+                                  "build_type": "string",
+                                  "codehub_id": "string",
+                                  "commit_id": "string",
+                                  "event_type": "string",
+                                  "merge_id": "string",
+                                  "message": "string",
+                                  "source_branch": "string",
+                                  "source_codehub_http_url": "string",
+                                  "source_codehub_id": "string",
+                                  "source_codehub_url": "string",
+                                  "tag": "string",
+                                  "target_branch": "string"
+                                }
+                              ]
+                            ],
+                            "codehub_id": "string",
+                            "default_branch": "string",
+                            "endpoint_id": "string",
+                            "git_type": "string",
+                            "git_url": "string",
+                            "repo_name": "string",
+                            "ssh_git_url": "string",
+                            "web_url": "string"
+                          }
+                        ]
+                      ],
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the pipeline source information.",
+                "computed": true
+              },
+              "stages": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "category": "string",
+                      "condition": "string",
+                      "depends_on": [
+                        "list",
+                        "string"
+                      ],
+                      "end_time": "number",
+                      "id": "string",
+                      "identifier": "string",
+                      "is_select": "bool",
+                      "jobs": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "async": "bool",
+                            "category": "string",
+                            "condition": "string",
+                            "depends_on": [
+                              "list",
+                              "string"
+                            ],
+                            "end_time": "number",
+                            "exec_id": "string",
+                            "id": "string",
+                            "identifier": "string",
+                            "is_select": "bool",
+                            "last_dispatch_id": "string",
+                            "message": "string",
+                            "name": "string",
+                            "resource": "string",
+                            "sequence": "number",
+                            "start_time": "number",
+                            "status": "string",
+                            "steps": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "business_type": "string",
+                                  "end_time": "number",
+                                  "endpoint_ids": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "id": "string",
+                                  "identifier": "string",
+                                  "inputs": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "key": "string",
+                                        "value": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "last_dispatch_id": "string",
+                                  "message": "string",
+                                  "multi_step_editable": "number",
+                                  "name": "string",
+                                  "official_task_version": "string",
+                                  "sequence": "number",
+                                  "start_time": "number",
+                                  "status": "string",
+                                  "task": "string"
+                                }
+                              ]
+                            ],
+                            "timeout": "string"
+                          }
+                        ]
+                      ],
+                      "name": "string",
+                      "parallel": "string",
+                      "post": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "business_type": "string",
+                            "end_time": "number",
+                            "endpoint_ids": [
+                              "list",
+                              "string"
+                            ],
+                            "id": "string",
+                            "identifier": "string",
+                            "inputs": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "key": "string",
+                                  "value": "string"
+                                }
+                              ]
+                            ],
+                            "last_dispatch_id": "string",
+                            "message": "string",
+                            "multi_step_editable": "number",
+                            "name": "string",
+                            "official_task_version": "string",
+                            "sequence": "number",
+                            "start_time": "number",
+                            "status": "string",
+                            "task": "string"
+                          }
+                        ]
+                      ],
+                      "pre": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "business_type": "string",
+                            "end_time": "number",
+                            "endpoint_ids": [
+                              "list",
+                              "string"
+                            ],
+                            "id": "string",
+                            "identifier": "string",
+                            "inputs": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "key": "string",
+                                  "value": "string"
+                                }
+                              ]
+                            ],
+                            "last_dispatch_id": "string",
+                            "message": "string",
+                            "multi_step_editable": "number",
+                            "name": "string",
+                            "official_task_version": "string",
+                            "sequence": "number",
+                            "start_time": "number",
+                            "status": "string",
+                            "task": "string"
+                          }
+                        ]
+                      ],
+                      "run_always": "bool",
+                      "sequence": "number",
+                      "start_time": "number",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the stage running information.",
+                "computed": true
+              },
+              "start_time": {
+                "type": "number",
+                "description": "Indicates the start time.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Indicates the pipeline run status.",
+                "computed": true
+              },
+              "subject_id": {
+                "type": "string",
+                "description": "Indicates the pipeline run ID.",
+                "computed": true
+              },
+              "trigger_type": {
+                "type": "string",
+                "description": "Indicates the trigger type.",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

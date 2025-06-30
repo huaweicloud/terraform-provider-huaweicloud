@@ -108,6 +108,14 @@
                       "description": "Specifies the last parameter value.",
                       "optional": true
                     },
+                    "limits": {
+                      "type": [
+                        "set",
+                        "string"
+                      ],
+                      "description": "Specifies the list of enumerated values.",
+                      "optional": true
+                    },
                     "name": {
                       "type": "string",
                       "description": "Specifies the custom variable name.",

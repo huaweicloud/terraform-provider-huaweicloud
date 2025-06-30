@@ -258,6 +258,14 @@
                                     [
                                       "object",
                                       {
+                                        "args": [
+                                          "list",
+                                          "string"
+                                        ],
+                                        "command": [
+                                          "list",
+                                          "string"
+                                        ],
                                         "env": [
                                           "list",
                                           [
@@ -268,8 +276,234 @@
                                             }
                                           ]
                                         ],
+                                        "env_from": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "config_map_ref": [
+                                                "list",
+                                                [
+                                                  "object",
+                                                  {
+                                                    "name": "string",
+                                                    "optional": "bool"
+                                                  }
+                                                ]
+                                              ],
+                                              "prefix": "string",
+                                              "secret_ref": [
+                                                "list",
+                                                [
+                                                  "object",
+                                                  {
+                                                    "name": "string",
+                                                    "optional": "bool"
+                                                  }
+                                                ]
+                                              ]
+                                            }
+                                          ]
+                                        ],
                                         "image": "string",
+                                        "lifecycle": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "post_start": [
+                                                "list",
+                                                [
+                                                  "object",
+                                                  {
+                                                    "exec": [
+                                                      "list",
+                                                      [
+                                                        "object",
+                                                        {
+                                                          "command": [
+                                                            "list",
+                                                            "string"
+                                                          ]
+                                                        }
+                                                      ]
+                                                    ],
+                                                    "http_get": [
+                                                      "list",
+                                                      [
+                                                        "object",
+                                                        {
+                                                          "host": "string",
+                                                          "http_headers": [
+                                                            "list",
+                                                            [
+                                                              "object",
+                                                              {
+                                                                "name": "string",
+                                                                "value": "string"
+                                                              }
+                                                            ]
+                                                          ],
+                                                          "path": "string",
+                                                          "port": "string",
+                                                          "scheme": "string"
+                                                        }
+                                                      ]
+                                                    ]
+                                                  }
+                                                ]
+                                              ],
+                                              "pre_stop": [
+                                                "list",
+                                                [
+                                                  "object",
+                                                  {
+                                                    "exec": [
+                                                      "list",
+                                                      [
+                                                        "object",
+                                                        {
+                                                          "command": [
+                                                            "list",
+                                                            "string"
+                                                          ]
+                                                        }
+                                                      ]
+                                                    ],
+                                                    "http_get": [
+                                                      "list",
+                                                      [
+                                                        "object",
+                                                        {
+                                                          "host": "string",
+                                                          "http_headers": [
+                                                            "list",
+                                                            [
+                                                              "object",
+                                                              {
+                                                                "name": "string",
+                                                                "value": "string"
+                                                              }
+                                                            ]
+                                                          ],
+                                                          "path": "string",
+                                                          "port": "string",
+                                                          "scheme": "string"
+                                                        }
+                                                      ]
+                                                    ]
+                                                  }
+                                                ]
+                                              ]
+                                            }
+                                          ]
+                                        ],
+                                        "liveness_probe": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "exec": [
+                                                "list",
+                                                [
+                                                  "object",
+                                                  {
+                                                    "command": [
+                                                      "list",
+                                                      "string"
+                                                    ]
+                                                  }
+                                                ]
+                                              ],
+                                              "failure_threshold": "number",
+                                              "http_get": [
+                                                "list",
+                                                [
+                                                  "object",
+                                                  {
+                                                    "host": "string",
+                                                    "http_headers": [
+                                                      "list",
+                                                      [
+                                                        "object",
+                                                        {
+                                                          "name": "string",
+                                                          "value": "string"
+                                                        }
+                                                      ]
+                                                    ],
+                                                    "path": "string",
+                                                    "port": "string",
+                                                    "scheme": "string"
+                                                  }
+                                                ]
+                                              ],
+                                              "initial_delay_seconds": "number",
+                                              "period_seconds": "number",
+                                              "success_threshold": "number",
+                                              "termination_grace_period_seconds": "number"
+                                            }
+                                          ]
+                                        ],
                                         "name": "string",
+                                        "ports": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "container_port": "number",
+                                              "name": "string",
+                                              "protocol": "string"
+                                            }
+                                          ]
+                                        ],
+                                        "readiness_probe": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "exec": [
+                                                "list",
+                                                [
+                                                  "object",
+                                                  {
+                                                    "command": [
+                                                      "list",
+                                                      "string"
+                                                    ]
+                                                  }
+                                                ]
+                                              ],
+                                              "failure_threshold": "number",
+                                              "http_get": [
+                                                "list",
+                                                [
+                                                  "object",
+                                                  {
+                                                    "host": "string",
+                                                    "http_headers": [
+                                                      "list",
+                                                      [
+                                                        "object",
+                                                        {
+                                                          "name": "string",
+                                                          "value": "string"
+                                                        }
+                                                      ]
+                                                    ],
+                                                    "path": "string",
+                                                    "port": "string",
+                                                    "scheme": "string"
+                                                  }
+                                                ]
+                                              ],
+                                              "initial_delay_seconds": "number",
+                                              "period_seconds": "number",
+                                              "success_threshold": "number",
+                                              "termination_grace_period_seconds": "number"
+                                            }
+                                          ]
+                                        ],
                                         "resources": [
                                           "list",
                                           [
@@ -285,7 +519,103 @@
                                               ]
                                             }
                                           ]
-                                        ]
+                                        ],
+                                        "security_context": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "capabilities": [
+                                                "list",
+                                                [
+                                                  "object",
+                                                  {
+                                                    "add": [
+                                                      "list",
+                                                      "string"
+                                                    ],
+                                                    "drop": [
+                                                      "list",
+                                                      "string"
+                                                    ]
+                                                  }
+                                                ]
+                                              ],
+                                              "proc_mount": "string",
+                                              "read_only_root_file_system": "bool",
+                                              "run_as_group": "number",
+                                              "run_as_non_root": "bool",
+                                              "run_as_user": "number"
+                                            }
+                                          ]
+                                        ],
+                                        "startup_probe": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "exec": [
+                                                "list",
+                                                [
+                                                  "object",
+                                                  {
+                                                    "command": [
+                                                      "list",
+                                                      "string"
+                                                    ]
+                                                  }
+                                                ]
+                                              ],
+                                              "failure_threshold": "number",
+                                              "http_get": [
+                                                "list",
+                                                [
+                                                  "object",
+                                                  {
+                                                    "host": "string",
+                                                    "http_headers": [
+                                                      "list",
+                                                      [
+                                                        "object",
+                                                        {
+                                                          "name": "string",
+                                                          "value": "string"
+                                                        }
+                                                      ]
+                                                    ],
+                                                    "path": "string",
+                                                    "port": "string",
+                                                    "scheme": "string"
+                                                  }
+                                                ]
+                                              ],
+                                              "initial_delay_seconds": "number",
+                                              "period_seconds": "number",
+                                              "success_threshold": "number",
+                                              "termination_grace_period_seconds": "number"
+                                            }
+                                          ]
+                                        ],
+                                        "stdin": "bool",
+                                        "stdin_once": "bool",
+                                        "termination_message_path": "string",
+                                        "termination_message_policy": "string",
+                                        "tty": "bool",
+                                        "volume_mounts": [
+                                          "set",
+                                          [
+                                            "object",
+                                            {
+                                              "extend_path_mode": "string",
+                                              "mount_path": "string",
+                                              "name": "string",
+                                              "read_only": "bool",
+                                              "sub_path": "string",
+                                              "sub_path_expr": "string"
+                                            }
+                                          ]
+                                        ],
+                                        "working_dir": "string"
                                       }
                                     ]
                                   ],

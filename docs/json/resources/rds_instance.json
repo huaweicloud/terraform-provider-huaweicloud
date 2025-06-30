@@ -65,6 +65,10 @@
                 "type": "string",
                 "computed": true
               },
+              "is_flexus": {
+                "type": "bool",
+                "optional": true
+              },
               "lower_case_table_names": {
                 "type": "string",
                 "optional": true,

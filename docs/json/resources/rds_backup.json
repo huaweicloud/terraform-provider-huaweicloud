@@ -19,8 +19,7 @@
                 "type": "string",
                 "description": "The description about the backup.",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "end_time": {
                 "type": "string",
@@ -34,14 +33,12 @@
               "instance_id": {
                 "type": "string",
                 "description": "Instance ID.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "name": {
                 "type": "string",
                 "description": "Backup name.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "region": {
                 "type": "string",
@@ -65,14 +62,12 @@
                     "name": {
                       "type": "string",
                       "description": "Database to be backed up for Microsoft SQL Server.",
-                      "required": true,
-                      "forcenew": true
+                      "required": true
                     }
                   },
                   "description": "List of self-built Microsoft SQL Server databases that are partially backed up."
                 },
-                "nesting_mode": "list",
-                "forcenew": true
+                "nesting_mode": "list"
               }
             }
           },

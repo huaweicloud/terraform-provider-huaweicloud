@@ -1,0 +1,36 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cbr_update_backup": {
+          "block": {
+            "attributes": {
+              "backup_id": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string"
+              }
+            }
+          },
+          "product": {
+            "short": "CBR",
+            "name": "Cloud Backup and Recovery",
+            "catalog": "Storage",
+            "name_cn": "云备份",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_waf_modify_alarm_notification": {
+          "block": {
+            "attributes": {
+              "alert_id": {
+                "type": "string",
+                "required": true
+              },
+              "enabled": {
+                "type": "bool",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_all_enterprise_project": {
+                "type": "bool",
+                "optional": true
+              },
+              "locale": {
+                "type": "string",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "nearly_expired_time": {
+                "type": "string",
+                "optional": true
+              },
+              "notice_class": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string"
+              },
+              "sendfreq": {
+                "type": "number",
+                "optional": true
+              },
+              "threat": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "times": {
+                "type": "number",
+                "optional": true
+              },
+              "topic_urn": {
+                "type": "string",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "WAF",
+            "name": "Web Application Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "Web应用防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

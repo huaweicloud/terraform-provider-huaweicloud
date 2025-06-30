@@ -1,0 +1,155 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_lts_alarms": {
+          "block": {
+            "attributes": {
+              "alarm_level_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The list of alarm levels.",
+                "optional": true
+              },
+              "alarms": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "annotations": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "alarm_action_rule_name": "string",
+                            "alarm_rule_alias": "string",
+                            "alarm_rule_url": "string",
+                            "alarm_status": "string",
+                            "condition_expression": "string",
+                            "condition_expression_with_value": "string",
+                            "current_value": "string",
+                            "frequency": "string",
+                            "log_info": "string",
+                            "message": "string",
+                            "notification_frequency": "string",
+                            "old_annotations": "string",
+                            "recovery_policy": "bool",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "arrives_at": "number",
+                      "ends_at": "number",
+                      "id": "string",
+                      "metadata": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "event_id": "string",
+                            "event_name": "string",
+                            "event_severity": "string",
+                            "event_subtype": "string",
+                            "event_type": "string",
+                            "log_group_name": "string",
+                            "log_stream_name": "string",
+                            "lts_alarm_type": "string",
+                            "resource_id": "string",
+                            "resource_provider": "string",
+                            "resource_type": "string"
+                          }
+                        ]
+                      ],
+                      "starts_at": "number",
+                      "timeout": "number",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the queried alarms.",
+                "computed": true
+              },
+              "end_time": {
+                "type": "number",
+                "description": "The end time of a customized time segment, in milliseconds.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "search": {
+                "type": "string",
+                "description": "The keyword search criteria.",
+                "optional": true
+              },
+              "start_time": {
+                "type": "number",
+                "description": "The start time of a customized time segment, in milliseconds.",
+                "optional": true
+              },
+              "step": {
+                "type": "number",
+                "description": "The step of the query, in milliseconds.",
+                "optional": true
+              },
+              "time_range": {
+                "type": "string",
+                "description": "The time range of the alarm to be queried, in minutes.",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The type of the alarm to be queried.",
+                "required": true
+              },
+              "whether_custom_field": {
+                "type": "bool",
+                "description": "Whether to customize the query time range.",
+                "optional": true
+              }
+            },
+            "block_types": {
+              "sort": {
+                "block": {
+                  "attributes": {
+                    "order": {
+                      "type": "string",
+                      "description": "The sort mode of the alarm.",
+                      "required": true
+                    },
+                    "order_by": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The fields to be sorted.",
+                      "required": true
+                    }
+                  },
+                  "description": "The sort criteria of the queried alarms."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "LTS",
+            "name": "Log Tank Service",
+            "catalog": "Management & Governance",
+            "name_cn": "云日志服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

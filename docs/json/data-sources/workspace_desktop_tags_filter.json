@@ -1,0 +1,164 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_workspace_desktop_tags_filter": {
+          "block": {
+            "attributes": {
+              "desktops": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "resource_detail": "string",
+                      "resource_id": "string",
+                      "resource_name": "string",
+                      "tags": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "key": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The list of desktops that match the filter parameters.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the desktop tags are located.",
+                "computed": true
+              },
+              "without_any_tag": {
+                "type": "bool",
+                "description": "Whether to query resources without any tag.",
+                "optional": true
+              }
+            },
+            "block_types": {
+              "matches": {
+                "block": {
+                  "attributes": {
+                    "key": {
+                      "type": "string",
+                      "description": "The name of desktop property.",
+                      "required": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "description": "The value of desktop property.",
+                      "required": true
+                    }
+                  },
+                  "description": "The list of matching rules to filter desktops."
+                },
+                "nesting_mode": "list"
+              },
+              "not_tags": {
+                "block": {
+                  "attributes": {
+                    "key": {
+                      "type": "string",
+                      "description": "The key of tag.",
+                      "required": true
+                    },
+                    "values": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The list of tag values that matched corresponding key.",
+                      "required": true
+                    }
+                  },
+                  "description": "The list of tags to filter desktops. Resources must not contain specified tags."
+                },
+                "nesting_mode": "list"
+              },
+              "not_tags_any": {
+                "block": {
+                  "attributes": {
+                    "key": {
+                      "type": "string",
+                      "description": "The key of tag.",
+                      "required": true
+                    },
+                    "values": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The list of tag values that matched corresponding key.",
+                      "required": true
+                    }
+                  },
+                  "description": "The list of tags to filter desktops. Resources must not contain any of specified tags."
+                },
+                "nesting_mode": "list"
+              },
+              "tags": {
+                "block": {
+                  "attributes": {
+                    "key": {
+                      "type": "string",
+                      "description": "The key of tag.",
+                      "required": true
+                    },
+                    "values": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The list of tag values that matched corresponding key.",
+                      "required": true
+                    }
+                  },
+                  "description": "The list of tags to filter desktops. Resources must contain all specified tags."
+                },
+                "nesting_mode": "list"
+              },
+              "tags_any": {
+                "block": {
+                  "attributes": {
+                    "key": {
+                      "type": "string",
+                      "description": "The key of tag.",
+                      "required": true
+                    },
+                    "values": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The list of tag values that matched corresponding key.",
+                      "required": true
+                    }
+                  },
+                  "description": "The list of tags to filter desktops. Resources must contain at least one of specified tags."
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

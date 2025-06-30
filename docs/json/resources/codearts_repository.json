@@ -87,6 +87,11 @@
                 "type": "string",
                 "computed": true
               },
+              "repository_id": {
+                "type": "number",
+                "description": "The repository primart key ID.",
+                "computed": true
+              },
               "ssh_url": {
                 "type": "string",
                 "description": "The SSH URL that used to the fork repository.",
