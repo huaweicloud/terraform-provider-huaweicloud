@@ -12,6 +12,7 @@ import (
 
 	"github.com/chnsz/golangsdk"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -203,7 +204,9 @@ func resourcePgSqlLimitRead(_ context.Context, d *schema.ResourceData, meta inte
 
 	sqlLimit, err := getSqlLimit(client, d, "id", d.Get("sql_limit_id").(string))
 	if err != nil {
-		return diag.FromErr(err)
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error_code", "DBS.01010340"),
+			"error retrieving RDS PostgreSQL SQL limit")
 	}
 
 	isEffective := utils.PathSearch("is_effective", sqlLimit, false).(bool)
@@ -246,7 +249,7 @@ func getSqlLimit(client *golangsdk.ServiceClient, d *schema.ResourceData, queryF
 		getPath = getBasePath + buildGetSqlLimitQueryParams(currentTotal)
 		getResp, err := client.Request("GET", getPath, &getOpt)
 		if err != nil {
-			return nil, fmt.Errorf("error retrieving RDS PostgreSQL SQL limit: %s", err)
+			return nil, err
 		}
 
 		getRespBody, err := utils.FlattenResponse(getResp)
