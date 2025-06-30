@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -334,32 +335,38 @@ func resourceRdsReadReplicaInstanceCreate(ctx context.Context, d *schema.Resourc
 		return diag.FromErr(err)
 	}
 
-	if v, ok := d.GetOk("db.0.port"); ok && v.(int) != res.Port {
+	port := utils.PathSearch("port", res, float64(0)).(float64)
+	if v, ok := d.GetOk("db.0.port"); ok && v.(int) != int(port) {
 		if err = updateRdsInstanceDBPort(ctx, d, client, instanceID); err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
-	if v, ok := d.GetOk("security_group_id"); ok && v.(string) != res.SecurityGroupId {
+	securityGroupId := utils.PathSearch("security_group_id", res, "").(string)
+	if v, ok := d.GetOk("security_group_id"); ok && v.(string) != securityGroupId {
 		if err = updateRdsInstanceSecurityGroup(ctx, d, client, instanceID); err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
-	if v, ok := d.GetOk("volume.0.size"); ok && v.(int) != res.Volume.Size {
+	volumeSize := utils.PathSearch("volume.size", res, float64(0)).(float64)
+	if v, ok := d.GetOk("volume.0.size"); ok && v.(int) != int(volumeSize) {
 		if err = updateRdsInstanceVolumeSize(ctx, d, config, client, instanceID); err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
-	if v, ok := d.GetOk("fixed_ip"); ok && v.(string) != res.PrivateIps[0] {
+	fixedIp := utils.PathSearch("private_ips[0]", res, "").(string)
+	if v, ok := d.GetOk("fixed_ip"); ok && v.(string) != fixedIp {
 		if err = updateRdsInstanceFixedIp(ctx, d, client, instanceID); err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
-	if v, ok := d.GetOk("ssl_enable"); ok && v.(bool) != res.EnableSsl {
-		if strings.ToLower(res.DataStore.Type) != "mysql" {
+	enableSsl := utils.PathSearch("enable_ssl", res, false).(bool)
+	if v, ok := d.GetOk("ssl_enable"); ok && v.(bool) != enableSsl {
+		dataStoreType := utils.PathSearch("datastore.type", res, "").(string)
+		if strings.ToLower(dataStoreType) != "mysql" {
 			return diag.Errorf("only MySQL database support SSL enable and disable")
 		}
 		err = configRdsInstanceSSL(ctx, d, client, d.Id())
@@ -374,7 +381,7 @@ func resourceRdsReadReplicaInstanceCreate(ctx context.Context, d *schema.Resourc
 				return diag.FromErr(err)
 			}
 		} else {
-			if err = disableVolumeAutoExpand(ctx, d.Timeout(schema.TimeoutCreate), client, instanceID); err != nil {
+			if err = disableVolumeAutoExpand(ctx, d.Timeout(schema.TimeoutCreate), client, d); err != nil {
 				return diag.FromErr(err)
 			}
 		}
@@ -413,81 +420,51 @@ func resourceRdsReadReplicaInstanceRead(ctx context.Context, d *schema.ResourceD
 	instanceID := d.Id()
 	instance, err := GetRdsInstanceByID(client, instanceID)
 	if err != nil {
-		return diag.FromErr(err)
-	}
-	if instance.Id == "" {
-		d.SetId("")
-		return nil
+		return common.CheckDeletedDiag(d, err, "error getting RDS replice instance")
 	}
 
-	log.Printf("[DEBUG] Retrieved rds read replica instance %s: %#v", instanceID, instance)
-	d.Set("name", instance.Name)
-	d.Set("description", instance.Alias)
-	d.Set("flavor", instance.FlavorRef)
-	d.Set("region", instance.Region)
-	d.Set("private_ips", instance.PrivateIps)
-	d.Set("public_ips", instance.PublicIps)
-	d.Set("vpc_id", instance.VpcId)
-	d.Set("subnet_id", instance.SubnetId)
-	d.Set("security_group_id", instance.SecurityGroupId)
-	d.Set("type", instance.Type)
-	d.Set("status", instance.Status)
-	d.Set("enterprise_project_id", instance.EnterpriseProjectId)
-	d.Set("ssl_enable", instance.EnableSsl)
-	d.Set("tags", utils.TagsToMap(instance.Tags))
+	mErr := multierror.Append(nil,
+		d.Set("name", utils.PathSearch("name", instance, nil)),
+		d.Set("description", utils.PathSearch("alias", instance, nil)),
+		d.Set("flavor", utils.PathSearch("flavor_ref", instance, nil)),
+		d.Set("region", utils.PathSearch("region", instance, nil)),
+		d.Set("private_ips", utils.PathSearch("private_ips", instance, nil)),
+		d.Set("public_ips", utils.PathSearch("public_ips", instance, nil)),
+		d.Set("vpc_id", utils.PathSearch("vpc_id", instance, nil)),
+		d.Set("subnet_id", utils.PathSearch("subnet_id", instance, nil)),
+		d.Set("security_group_id", utils.PathSearch("security_group_id", instance, nil)),
+		d.Set("type", utils.PathSearch("type", instance, nil)),
+		d.Set("status", utils.PathSearch("status", instance, nil)),
+		d.Set("enterprise_project_id", utils.PathSearch("enterprise_project_id", instance, nil)),
+		d.Set("ssl_enable", utils.PathSearch("enable_ssl", instance, nil)),
+		d.Set("tags", utils.FlattenTagsToMap(utils.PathSearch("tags", instance, make([]interface{}, 0)))),
+		d.Set("fixed_ip", utils.PathSearch("private_ips[0]", instance, nil)),
+		d.Set("availability_zone", utils.PathSearch("nodes[0].availability_zone", instance, nil)),
+		d.Set("primary_instance_id", utils.PathSearch("related_instance[?type=='replica_of']|[0].id", instance, nil)),
+		d.Set("volume", flattenInstanceVolume(client, instance, instanceID)),
+		d.Set("db", flattenReplicaInstanceDb(instance)),
+	)
 
-	if len(instance.PrivateIps) > 0 {
-		d.Set("fixed_ip", instance.PrivateIps[0])
-	}
-
-	az := expandAvailabilityZone(instance)
-	d.Set("availability_zone", az)
-
-	if primaryInstanceID, err := expandPrimaryInstanceID(instance); err == nil {
-		d.Set("primary_instance_id", primaryInstanceID)
-	} else {
-		return diag.FromErr(err)
-	}
-
-	maintainWindow := strings.Split(instance.MaintenanceWindow, "-")
-	if len(maintainWindow) == 2 {
-		d.Set("maintain_begin", maintainWindow[0])
-		d.Set("maintain_end", maintainWindow[1])
+	if v := utils.PathSearch("maintenance_window", instance, "").(string); v != "" {
+		maintainWindow := strings.Split(v, "-")
+		mErr = multierror.Append(mErr, d.Set("maintain_begin", maintainWindow[0]))
+		mErr = multierror.Append(mErr, d.Set("maintain_end", maintainWindow[1]))
 	}
 
-	volumeList := make([]map[string]interface{}, 0, 1)
-	volume := map[string]interface{}{
-		"type":               instance.Volume.Type,
-		"size":               instance.Volume.Size,
-		"disk_encryption_id": instance.DiskEncryptionId,
-	}
-	// Only MySQL engines are supported.
-	resp, err := instances.GetAutoExpand(client, instanceID)
-	if err != nil {
-		log.Printf("[ERROR] error query automatic expansion configuration of the instance storage: %s", err)
-	}
-	if resp.SwitchOption {
-		volume["limit_size"] = resp.LimitSize
-		volume["trigger_threshold"] = resp.TriggerThreshold
-	}
-	volumeList = append(volumeList, volume)
-	if err = d.Set("volume", volumeList); err != nil {
-		return diag.Errorf("error saving volume to RDS read replica instance (%s): %s", instanceID, err)
-	}
+	diagErr := setRdsInstanceParameters(ctx, d, client, instanceID)
+	resErr := append(diag.FromErr(mErr.ErrorOrNil()), diagErr...)
 
-	dbList := make([]map[string]interface{}, 0, 1)
+	return resErr
+}
+
+func flattenReplicaInstanceDb(instance interface{}) []interface{} {
 	database := map[string]interface{}{
-		"type":      instance.DataStore.Type,
-		"version":   instance.DataStore.Version,
-		"port":      instance.Port,
-		"user_name": instance.DbUserName,
+		"type":      utils.PathSearch("datastore.type", instance, nil),
+		"version":   utils.PathSearch("datastore.version", instance, nil),
+		"port":      utils.PathSearch("port", instance, nil),
+		"user_name": utils.PathSearch("db_user_name", instance, nil),
 	}
-	dbList = append(dbList, database)
-	if err := d.Set("db", dbList); err != nil {
-		return diag.Errorf("error saving data base to RDS read replica instance (%s): %s", instanceID, err)
-	}
-
-	return setRdsInstanceParameters(ctx, d, client, instanceID)
+	return []interface{}{database}
 }
 
 func resourceRdsReadReplicaInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -585,21 +562,6 @@ func updateRdsInstanceAutoRenew(d *schema.ResourceData, config *config.Config) e
 		}
 	}
 	return nil
-}
-
-func expandAvailabilityZone(resp *instances.RdsInstanceResponse) string {
-	node := resp.Nodes[0]
-	return node.AvailabilityZone
-}
-
-func expandPrimaryInstanceID(resp *instances.RdsInstanceResponse) (string, error) {
-	relatedInst := resp.RelatedInstance
-	for _, relate := range relatedInst {
-		if relate.Type == "replica_of" {
-			return relate.Id, nil
-		}
-	}
-	return "", fmt.Errorf("error when get primary instance id for replica %s", resp.Id)
 }
 
 func buildRdsReplicaInstanceVolume(d *schema.ResourceData) *instances.Volume {

@@ -238,7 +238,7 @@ resource "huaweicloud_networking_secgroup_rule" "ingress" {
   ports             = 8634
   protocol          = "tcp"
   remote_ip_prefix  = "0.0.0.0/0"
-  security_group_id = huaweicloud_networking_secgroup.test.id
+  security_group_id = data.huaweicloud_networking_secgroup.test.id
 }
 
 data "huaweicloud_rds_flavors" "test" {

@@ -2,17 +2,19 @@ package rds
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"strings"
 
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/chnsz/golangsdk/openstack/rds/v3/instances"
+	"github.com/chnsz/golangsdk/pagination"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
 // @API RDS GET /v3/{project_id}/instances
@@ -50,6 +52,10 @@ func DataSourceRdsInstances() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"group_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"instances": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -75,6 +81,10 @@ func DataSourceRdsInstances() *schema.Resource {
 							Computed: true,
 						},
 						"id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"type": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -238,144 +248,184 @@ func DataSourceRdsInstances() *schema.Resource {
 	}
 }
 
-func dataSourceRdsInstancesRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.RdsV3Client(config.GetRegion(d))
+func dataSourceRdsInstancesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	var mErr *multierror.Error
+
+	var (
+		product = "rds"
+		httpUrl = "v3/{project_id}/instances"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud RDS client: %s", err)
+		return diag.Errorf("error creating RDS client: %s", err)
 	}
 
-	listOpts := instances.ListOpts{
-		Name:          d.Get("name").(string),
-		Type:          d.Get("type").(string),
-		DataStoreType: d.Get("datastore_type").(string),
-		VpcId:         d.Get("vpc_id").(string),
-		SubnetId:      d.Get("subnet_id").(string),
-	}
+	listPath := client.Endpoint + httpUrl
+	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
+	listPath += buildListInstancesQueryParams(d)
 
-	pages, err := instances.List(client, listOpts).AllPages()
-	if err != nil {
-		return fmtp.DiagErrorf("Unable to list instances: %s", err)
-	}
-
-	allInstances, err := instances.ExtractRdsInstances(pages)
-	if err != nil {
-		return fmtp.DiagErrorf("Unable to retrieve instances: %s", err)
-	}
-
-	filter := map[string]interface{}{
-		"EnterpriseProjectId": d.Get("enterprise_project_id").(string),
-	}
-	filteredInstances, err := utils.FilterSliceWithField(allInstances.Instances, filter)
+	listResp, err := pagination.ListAllItems(
+		client,
+		"offset",
+		listPath,
+		&pagination.QueryOpts{MarkerField: ""})
 
 	if err != nil {
-		return fmtp.DiagErrorf("filter RDS flavors failed: %s", err)
+		return diag.Errorf("error retrieving RDS instances: %s", err)
 	}
 
-	var instancesToSet []map[string]interface{}
-	var instancesIds []string
-
-	for _, item := range filteredInstances {
-		instanceInAll := item.(instances.RdsInstanceResponse)
-		instanceToSet := map[string]interface{}{
-			"id":                    instanceInAll.Id,
-			"region":                instanceInAll.Region,
-			"name":                  instanceInAll.Name,
-			"status":                instanceInAll.Status,
-			"created":               instanceInAll.Created,
-			"ha_replication_mode":   instanceInAll.Ha.ReplicationMode,
-			"vpc_id":                instanceInAll.VpcId,
-			"subnet_id":             instanceInAll.SubnetId,
-			"security_group_id":     instanceInAll.SecurityGroupId,
-			"flavor":                instanceInAll.FlavorRef,
-			"time_zone":             instanceInAll.TimeZone,
-			"enterprise_project_id": instanceInAll.EnterpriseProjectId,
-			"tags":                  utils.TagsToMap(instanceInAll.Tags),
-		}
-
-		instanceID := instanceInAll.Id
-		instancesIds = append(instancesIds, instanceID)
-
-		// publicIps
-		publicIps := make([]interface{}, len(instanceInAll.PublicIps))
-		for i, v := range instanceInAll.PublicIps {
-			publicIps[i] = v
-		}
-		instanceToSet["public_ips"] = publicIps
-
-		// privateIps
-		privateIps := make([]string, len(instanceInAll.PrivateIps))
-		for i, v := range instanceInAll.PrivateIps {
-			privateIps[i] = v
-		}
-		instanceToSet["private_ips"] = privateIps
-
-		if len(privateIps) > 0 {
-			instanceToSet["fixed_ip"] = privateIps[0]
-		}
-
-		// volume
-		volume := make([]map[string]interface{}, 1)
-		volume[0] = map[string]interface{}{
-			"type":               instanceInAll.Volume.Type,
-			"size":               instanceInAll.Volume.Size,
-			"disk_encryption_id": instanceInAll.DiskEncryptionId,
-		}
-		instanceToSet["volume"] = volume
-
-		// db
-		database := make([]map[string]interface{}, 1)
-		database[0] = map[string]interface{}{
-			"type":      instanceInAll.DataStore.Type,
-			"version":   instanceInAll.DataStore.Version,
-			"port":      instanceInAll.Port,
-			"user_name": instanceInAll.DbUserName,
-		}
-		instanceToSet["db"] = database
-
-		// backup
-		backup := make([]map[string]interface{}, 1)
-		backup[0] = map[string]interface{}{
-			"start_time": instanceInAll.BackupStrategy.StartTime,
-			"keep_days":  instanceInAll.BackupStrategy.KeepDays,
-		}
-		instanceToSet["backup_strategy"] = backup
-
-		// nodes
-		nodes := make([]map[string]interface{}, len(instanceInAll.Nodes))
-		for i, v := range instanceInAll.Nodes {
-			nodes[i] = map[string]interface{}{
-				"id":                v.Id,
-				"name":              v.Name,
-				"role":              v.Role,
-				"status":            v.Status,
-				"availability_zone": v.AvailabilityZone,
-			}
-		}
-		instanceToSet["nodes"] = nodes
-
-		// az
-		az1 := instanceInAll.Nodes[0].AvailabilityZone
-		if strings.HasSuffix(instanceInAll.FlavorRef, ".ha") {
-			if len(instanceInAll.Nodes) < 2 {
-				return fmtp.DiagErrorf("[DEBUG] Error saving availability zone to RDS instance (%s): "+
-					"HA mode must have two availability zone", instanceID)
-			}
-			az2 := instanceInAll.Nodes[1].AvailabilityZone
-			if instanceInAll.Nodes[1].Role == "master" {
-				instanceToSet["availability_zone"] = []string{az2, az1}
-			} else {
-				instanceToSet["availability_zone"] = []string{az1, az2}
-			}
-		} else {
-			instanceToSet["availability_zone"] = []string{az1}
-		}
-
-		instancesToSet = append(instancesToSet, instanceToSet)
+	listRespJson, err := json.Marshal(listResp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	var listRespBody interface{}
+	err = json.Unmarshal(listRespJson, &listRespBody)
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
-	d.SetId(hashcode.Strings(instancesIds))
-	d.Set("instances", instancesToSet)
+	dataSourceId, err := uuid.GenerateUUID()
+	if err != nil {
+		return diag.Errorf("unable to generate ID: %s", err)
+	}
+	d.SetId(dataSourceId)
 
-	return nil
+	mErr = multierror.Append(
+		mErr,
+		d.Set("region", region),
+		d.Set("instances", flattenListInstancesBody(listRespBody, d)),
+	)
+
+	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func buildListInstancesQueryParams(d *schema.ResourceData) string {
+	res := ""
+	if v, ok := d.GetOk("name"); ok {
+		res = fmt.Sprintf("%s&name=%v", res, v)
+	}
+	if v, ok := d.GetOk("type"); ok {
+		res = fmt.Sprintf("%s&type=%v", res, v)
+	}
+	if v, ok := d.GetOk("datastore_type"); ok {
+		res = fmt.Sprintf("%s&datastore_type=%v", res, v)
+	}
+	if v, ok := d.GetOk("vpc_id"); ok {
+		res = fmt.Sprintf("%s&vpc_id=%v", res, v)
+	}
+	if v, ok := d.GetOk("subnet_id"); ok {
+		res = fmt.Sprintf("%s&subnet_id=%v", res, v)
+	}
+	if v, ok := d.GetOk("group_type"); ok {
+		res = fmt.Sprintf("%s&group_type=%v", res, v)
+	}
+	if res != "" {
+		res = "?" + res[1:]
+	}
+	return res
+}
+
+func flattenListInstancesBody(resp interface{}, d *schema.ResourceData) []interface{} {
+	if resp == nil {
+		return nil
+	}
+
+	enterpriseProjectId, enterpriseProjectIdOk := d.GetOk("enterprise_project_id")
+	curJson := utils.PathSearch("instances", resp, make([]interface{}, 0))
+	curArray := curJson.([]interface{})
+	rst := make([]interface{}, 0)
+	for _, v := range curArray {
+		enterpriseProjectIdRaw := utils.PathSearch("enterprise_project_id", v, nil)
+		if enterpriseProjectIdOk && enterpriseProjectId != enterpriseProjectIdRaw {
+			continue
+		}
+		instance := map[string]interface{}{
+			"id":                    utils.PathSearch("id", v, nil),
+			"region":                utils.PathSearch("region", v, nil),
+			"name":                  utils.PathSearch("name", v, nil),
+			"type":                  utils.PathSearch("type", v, nil),
+			"status":                utils.PathSearch("status", v, nil),
+			"created":               utils.PathSearch("created", v, nil),
+			"ha_replication_mode":   utils.PathSearch("ha.replication_mode", v, nil),
+			"vpc_id":                utils.PathSearch("vpc_id", v, nil),
+			"subnet_id":             utils.PathSearch("subnet_id", v, nil),
+			"security_group_id":     utils.PathSearch("security_group_id", v, nil),
+			"flavor":                utils.PathSearch("flavor_ref", v, nil),
+			"time_zone":             utils.PathSearch("time_zone", v, nil),
+			"ssl_enable":            utils.PathSearch("enable_ssl", v, nil),
+			"enterprise_project_id": enterpriseProjectIdRaw,
+			"tags":                  utils.FlattenTagsToMap(utils.PathSearch("tags", v, make([]interface{}, 0))),
+			"public_ips":            utils.PathSearch("public_ips", v, nil),
+			"private_ips":           utils.PathSearch("private_ips", v, nil),
+			"fixed_ip":              utils.PathSearch("private_ips[0]", v, nil),
+			"volume":                flattenInstancesVolume(v),
+			"db":                    flattenInstancesDb(v),
+			"backup_strategy":       flattenInstancesBackupStrategy(v),
+			"nodes":                 flattenInstancesNodes(v),
+		}
+		instanceType := utils.PathSearch("type", v, "").(string)
+		var az []string
+		if instanceType == "Ha" {
+			masterNodeAz := utils.PathSearch("nodes[?role=='master']|[0].availability_zone", v, "").(string)
+			slaveNodeAz := utils.PathSearch("nodes[?role=='slave']|[0].availability_zone", v, "").(string)
+			az = []string{masterNodeAz, slaveNodeAz}
+		} else if instanceType == "Single" || instanceType == "Replica" {
+			az = []string{utils.PathSearch("nodes[0].availability_zone", v, "").(string)}
+		}
+		instance["availability_zone"] = az
+
+		rst = append(rst, instance)
+	}
+	return rst
+}
+
+func flattenInstancesVolume(instance interface{}) []interface{} {
+	volume := map[string]interface{}{
+		"type":               utils.PathSearch("volume.type", instance, nil),
+		"size":               utils.PathSearch("volume.size", instance, nil),
+		"disk_encryption_id": utils.PathSearch("disk_encryption_id", instance, nil),
+	}
+
+	return []interface{}{volume}
+}
+
+func flattenInstancesDb(instance interface{}) []interface{} {
+	database := map[string]interface{}{
+		"type":      utils.PathSearch("datastore.type", instance, nil),
+		"version":   utils.PathSearch("datastore.version", instance, nil),
+		"port":      utils.PathSearch("port", instance, nil),
+		"user_name": utils.PathSearch("db_user_name", instance, nil),
+	}
+	return []interface{}{database}
+}
+
+func flattenInstancesBackupStrategy(instance interface{}) []interface{} {
+	backup := map[string]interface{}{
+		"start_time": utils.PathSearch("backup_strategy.start_time", instance, nil),
+		"keep_days":  utils.PathSearch("backup_strategy.keep_days", instance, nil),
+	}
+	return []interface{}{backup}
+}
+
+func flattenInstancesNodes(instance interface{}) []interface{} {
+	nodesJson := utils.PathSearch("nodes", instance, make([]interface{}, 0))
+	nodeArray := nodesJson.([]interface{})
+	if len(nodeArray) < 1 {
+		return nil
+	}
+
+	rst := make([]interface{}, 0, len(nodeArray))
+	for _, v := range nodeArray {
+		rst = append(rst, map[string]interface{}{
+			"id":                utils.PathSearch("id", v, nil),
+			"name":              utils.PathSearch("name", v, nil),
+			"role":              utils.PathSearch("role", v, nil),
+			"status":            utils.PathSearch("status", v, nil),
+			"availability_zone": utils.PathSearch("availability_zone", v, nil),
+		})
+	}
+	return rst
 }

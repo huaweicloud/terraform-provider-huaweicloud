@@ -2,7 +2,8 @@
 subcategory: "Relational Database Service (RDS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_rds_instances"
-description: ""
+description: |-
+  Use this data source to list all available RDS instances.
 ---
 
 # huaweicloud_rds_instances
@@ -36,6 +37,8 @@ data "huaweicloud_rds_instances" "this" {
 
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project id.
 
+* `group_type` - (Optional, String) Specifies whether query flexus RDS instances. Value options: **flexus**.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -49,6 +52,8 @@ The `instances` block supports:
 * `region` - The region of the instance.
 
 * `name` - Indicates the name of the instance.
+
+* `type` - Indicates the type of the instance.
 
 * `availability_zone` - Indicates the availability zone name.
 
