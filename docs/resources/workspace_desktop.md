@@ -121,6 +121,10 @@ The following arguments are supported:
   The name must start with a letter or digit and cannot end with a hyphen.
   Changing this will create a new resource.
 
+  ~> Some images will cause the names in `.tfstate` file to be set to uppercase.
+     Although this will not cause changes by terraform commands, special processing is required when subsequent
+     resources reference this field.
+
 * `email_notification` - (Optional, Bool, ForceNew) Specifies whether to send emails to user mailbox during important
   operations.  
   Defaults to **false**. Changing this will create a new resource.
