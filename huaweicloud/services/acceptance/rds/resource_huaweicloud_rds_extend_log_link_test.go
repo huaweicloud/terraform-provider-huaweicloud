@@ -96,6 +96,37 @@ func TestAccRdsExtendLogLink_basic(t *testing.T) {
 	})
 }
 
+func testRdsExtendLogLink_base(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_rds_instance" "test" {
+  name              = "%[2]s"
+  flavor            = "rds.mssql.spec.se.s6.large.2"
+  availability_zone = [data.huaweicloud_availability_zones.test.names[0]]
+  security_group_id = data.huaweicloud_networking_secgroup.test.id
+  subnet_id         = data.huaweicloud_vpc_subnet.test.id
+  vpc_id            = data.huaweicloud_vpc.test.id
+  charging_mode     = "postPaid"
+
+  db {
+    password = "Huangwei!120521"
+    type     = "SQLServer"
+    version  = "2022_SE"
+  }
+
+  volume {
+    type = "ULTRAHIGH"
+    size = 40
+  }
+}
+
+data "huaweicloud_rds_extend_log_files" "test" {
+  instance_id = huaweicloud_rds_instance.test.id
+}
+`, testAccRdsInstance_base(), name, name)
+}
+
 func testRdsExtendLogLink_basic(name string) string {
 	return fmt.Sprintf(`
 %s
@@ -104,5 +135,5 @@ resource "huaweicloud_rds_extend_log_link" "test" {
   instance_id = huaweicloud_rds_instance.test.id
   file_name   = data.huaweicloud_rds_extend_log_files.test.files[0].file_name
 }
-`, testDataSourceDataSourceRdsExtendLogFiles_basic(name))
+`, testRdsExtendLogLink_base(name))
 }
