@@ -134,7 +134,8 @@ func resourceSQLAuditRead(_ context.Context, d *schema.ResourceData, meta interf
 	if err != nil {
 		return diag.Errorf("error getting RDS instance: %s", err)
 	}
-	if instance.Id == "" {
+	instanceId := utils.PathSearch("id", instance, "").(string)
+	if instanceId == "" {
 		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
 	}
 

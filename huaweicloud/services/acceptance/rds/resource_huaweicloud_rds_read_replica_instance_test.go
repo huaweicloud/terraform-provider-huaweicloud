@@ -6,28 +6,31 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
-	"github.com/chnsz/golangsdk/openstack/rds/v3/instances"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
 func TestAccReadReplicaInstance_basic(t *testing.T) {
-	var replica instances.RdsInstanceResponse
-	name := acceptance.RandomAccResourceName()
+	var instance interface{}
+	rName := acceptance.RandomAccResourceName()
 	updateName := acceptance.RandomAccResourceName()
-	resourceType := "huaweicloud_rds_read_replica_instance"
 	resourceName := "huaweicloud_rds_read_replica_instance.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&instance,
+		getResourceInstance,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckRdsInstanceDestroy(resourceType),
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccReadReplicaInstance_basic(name),
+				Config: testAccReadReplicaInstance_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckRdsInstanceExists(resourceName, &replica),
-					resource.TestCheckResourceAttr(resourceName, "name", name),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "description", "test_description"),
 					resource.TestCheckResourceAttrPair(resourceName, "primary_instance_id",
 						"huaweicloud_rds_instance.test", "id"),
@@ -37,8 +40,6 @@ func TestAccReadReplicaInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "type", "Replica"),
 					resource.TestCheckResourceAttrPair(resourceName, "security_group_id",
 						"huaweicloud_networking_secgroup.test_secgroup.0", "id"),
-					resource.TestCheckResourceAttrPair(resourceName, "enterprise_project_id",
-						"huaweicloud_enterprise_project.test.0", "id"),
 					resource.TestCheckResourceAttr(resourceName, "ssl_enable", "true"),
 					resource.TestCheckResourceAttr(resourceName, "db.0.port", "8888"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.type", "CLOUDSSD"),
@@ -54,9 +55,9 @@ func TestAccReadReplicaInstance_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccReadReplicaInstance_update(name, updateName),
+				Config: testAccReadReplicaInstance_update(rName, updateName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckRdsInstanceExists(resourceName, &replica),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", updateName),
 					resource.TestCheckResourceAttr(resourceName, "description", "test_description_update"),
 					resource.TestCheckResourceAttrPair(resourceName, "primary_instance_id",
@@ -66,8 +67,6 @@ func TestAccReadReplicaInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "type", "Replica"),
 					resource.TestCheckResourceAttrPair(resourceName, "security_group_id",
 						"huaweicloud_networking_secgroup.test_secgroup.1", "id"),
-					resource.TestCheckResourceAttrPair(resourceName, "enterprise_project_id",
-						"huaweicloud_enterprise_project.test.1", "id"),
 					resource.TestCheckResourceAttr(resourceName, "ssl_enable", "false"),
 					resource.TestCheckResourceAttr(resourceName, "db.0.port", "8889"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.type", "CLOUDSSD"),
@@ -95,28 +94,33 @@ func TestAccReadReplicaInstance_basic(t *testing.T) {
 }
 
 func TestAccReadReplicaInstance_prePaid(t *testing.T) {
-	var replica instances.RdsInstanceResponse
-	name := acceptance.RandomAccResourceName()
-	resourceType := "huaweicloud_rds_read_replica_instance"
+	var instance interface{}
+	rName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_rds_read_replica_instance.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&instance,
+		getResourceInstance,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckRdsInstanceDestroy(resourceType),
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccReadReplicaInstance_prePaid(name),
+				Config: testAccReadReplicaInstance_prePaid(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckRdsInstanceExists(resourceName, &replica),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "auto_renew", "true"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "50"),
 				),
 			},
 			{
-				Config: testAccReadReplicaInstance_prePaid_update(name),
+				Config: testAccReadReplicaInstance_prePaid_update(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckRdsInstanceExists(resourceName, &replica),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "auto_renew", "false"),
 					resource.TestCheckResourceAttr(resourceName, "volume.0.size", "60"),
 				),
@@ -178,24 +182,16 @@ resource "huaweicloud_networking_secgroup" "test_secgroup" {
   delete_default_rules = true
 }
 
-resource "huaweicloud_enterprise_project" "test" {
-  count = 2
-
-  name        = "%[2]s_${count.index}"
-  description = "terraform test"
-}
-
 resource "huaweicloud_rds_read_replica_instance" "test" {
-  name                  = "%[2]s"
-  description           = "test_description"
-  flavor                = data.huaweicloud_rds_flavors.replica.flavors[0].name
-  primary_instance_id   = huaweicloud_rds_instance.test.id
-  availability_zone     = data.huaweicloud_availability_zones.test.names[0]
-  security_group_id     = huaweicloud_networking_secgroup.test_secgroup[0].id
-  ssl_enable            = true
-  maintain_begin        = "06:00"
-  maintain_end          = "09:00"
-  enterprise_project_id = huaweicloud_enterprise_project.test[0].id
+  name                = "%[2]s"
+  description         = "test_description"
+  flavor              = data.huaweicloud_rds_flavors.replica.flavors[0].name
+  primary_instance_id = huaweicloud_rds_instance.test.id
+  availability_zone   = data.huaweicloud_availability_zones.test.names[0]
+  security_group_id   = huaweicloud_networking_secgroup.test_secgroup[0].id
+  ssl_enable          = true
+  maintain_begin      = "06:00"
+  maintain_end        = "09:00"
 
   db {
     port = 8888
@@ -241,24 +237,16 @@ resource "huaweicloud_networking_secgroup" "test_secgroup" {
   delete_default_rules = true
 }
 
-resource "huaweicloud_enterprise_project" "test" {
-  count = 2
-
-  name        = "%[2]s_${count.index}"
-  description = "terraform test"
-}
-
 resource "huaweicloud_rds_read_replica_instance" "test" {
-  name                  = "%[2]s"
-  description           = "test_description_update"
-  flavor                = data.huaweicloud_rds_flavors.replica.flavors[0].name
-  primary_instance_id   = huaweicloud_rds_instance.test.id
-  availability_zone     = data.huaweicloud_availability_zones.test.names[0]
-  security_group_id     = huaweicloud_networking_secgroup.test_secgroup[1].id
-  ssl_enable            = false
-  maintain_begin        = "15:00"
-  maintain_end          = "17:00"
-  enterprise_project_id = huaweicloud_enterprise_project.test[1].id
+  name                = "%[2]s"
+  description         = "test_description_update"
+  flavor              = data.huaweicloud_rds_flavors.replica.flavors[0].name
+  primary_instance_id = huaweicloud_rds_instance.test.id
+  availability_zone   = data.huaweicloud_availability_zones.test.names[0]
+  security_group_id   = huaweicloud_networking_secgroup.test_secgroup[1].id
+  ssl_enable          = false
+  maintain_begin      = "15:00"
+  maintain_end        = "17:00"
 
   db {
     port = 8889
@@ -298,15 +286,15 @@ data "huaweicloud_rds_flavors" "replica" {
 }
 
 resource "huaweicloud_rds_read_replica_instance" "test" {
-  name                  = "%[2]s"
-  description           = "test_description"
-  flavor                = data.huaweicloud_rds_flavors.replica.flavors[0].name
-  primary_instance_id   = huaweicloud_rds_instance.test.id
-  availability_zone     = data.huaweicloud_availability_zones.test.names[0]
-  security_group_id     = huaweicloud_networking_secgroup.test.id
-  ssl_enable            = true
-  maintain_begin        = "06:00"
-  maintain_end          = "09:00"
+  name                = "%[2]s"
+  description         = "test_description"
+  flavor              = data.huaweicloud_rds_flavors.replica.flavors[0].name
+  primary_instance_id = huaweicloud_rds_instance.test.id
+  availability_zone   = data.huaweicloud_availability_zones.test.names[0]
+  security_group_id   = huaweicloud_networking_secgroup.test.id
+  ssl_enable          = true
+  maintain_begin      = "06:00"
+  maintain_end        = "09:00"
 
   db {
     port = 8888

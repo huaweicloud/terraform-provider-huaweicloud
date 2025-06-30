@@ -27,6 +27,7 @@ var (
 		"DBS.280011":   {},
 		"DBS.280343":   {},
 		"DBS.280816":   {},
+		"DBS.01010337": {},
 		"DBS.01280030": {}, // instance status is illegal
 	}
 )

@@ -278,7 +278,7 @@ func resourceRdsLtsConfigImportState(_ context.Context, d *schema.ResourceData, 
 	mErr := multierror.Append(nil,
 		d.Set("instance_id", parts[0]),
 		d.Set("log_type", parts[1]),
-		d.Set("engine", strings.ToLower(instance.DataStore.Type)),
+		d.Set("engine", strings.ToLower(utils.PathSearch("datastore.type", instance, "").(string))),
 	)
 
 	return []*schema.ResourceData{d}, mErr.ErrorOrNil()
