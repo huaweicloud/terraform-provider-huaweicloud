@@ -31,6 +31,8 @@ import (
 
 type ctxType string
 
+var instanceNonUpdatableParams = []string{"vpc_id", "subnet_id", "lower_case_table_names", "time_zone"}
+
 // ResourceRdsInstance is the impl for huaweicloud_rds_instance resource
 // @API RDS POST /v3/{project_id}/instances
 // @API RDS GET /v3/{project_id}/jobs
@@ -88,9 +90,12 @@ func ResourceRdsInstance() *schema.Resource {
 		ReadContext:   resourceRdsInstanceRead,
 		UpdateContext: resourceRdsInstanceUpdate,
 		DeleteContext: resourceRdsInstanceDelete,
+
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+
+		CustomizeDiff: config.FlexibleForceNew(instanceNonUpdatableParams),
 
 		Timeouts: &schema.ResourceTimeout{
 			Create:  schema.DefaultTimeout(30 * time.Minute),
@@ -220,12 +225,10 @@ func ResourceRdsInstance() *schema.Resource {
 			"vpc_id": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"subnet_id": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"security_group_id": {
 				Type:     schema.TypeString,
@@ -256,10 +259,22 @@ func ResourceRdsInstance() *schema.Resource {
 					},
 				},
 			},
+			"incre_backup_policy": {
+				Type:     schema.TypeList,
+				Required: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"interval": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+					},
+				},
+			},
 			"lower_case_table_names": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
@@ -398,7 +413,6 @@ func ResourceRdsInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 			},
 			"parameters": {
 				Type: schema.TypeSet,
@@ -716,6 +730,10 @@ func resourceRdsInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(err)
 	}
 
+	if err := updateRdsIncreBackupPolicy(ctx, d, client); err != nil {
+		return diag.FromErr(err)
+	}
+
 	if action, ok := d.GetOk("power_action"); ok && action == "OFF" {
 		err = updatePowerAction(ctx, d, client, action.(string))
 		if err != nil {
@@ -895,6 +913,10 @@ func resourceRdsInstanceRead(ctx context.Context, d *schema.ResourceData, meta i
 	status := utils.PathSearch("status", instance, "").(string)
 	if status != "SHUTDOWN" {
 		mErr = multierror.Append(mErr, d.Set("backup_strategy", flattenInstanceBackupStrategy(client, instance, instanceID)))
+	}
+
+	if isSQLServerDatabase(d) {
+		mErr = multierror.Append(mErr, updateRdsIncreBackupPolicy(ctx, d, client))
 	}
 
 	if isMySQLDatabase(d) {
@@ -1211,7 +1233,12 @@ func resourceRdsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 	if err := updateRdsInstanceVolumeSize(ctx, d, cfg, client, instanceID); err != nil {
 		return diag.FromErr(err)
 	}
+
 	if err := updateRdsInstanceBackupStrategy(d, client, instanceID); err != nil {
+		return diag.FromErr(err)
+	}
+
+	if err := updateRdsIncreBackupPolicy(ctx, d, client); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -1924,6 +1951,91 @@ func updateRdsInstanceBackupStrategy(d *schema.ResourceData, client *golangsdk.S
 	}
 
 	return nil
+}
+
+func updateRdsIncreBackupPolicy(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	if !isSQLServerDatabase(d) || !d.HasChange("incre_backup_policy") {
+		return nil
+	}
+	oldRaws, newRaws := d.GetChange("incre_backup_policy")
+	putPolicy := newRaws.([]interface{})
+	getPolicy := oldRaws.([]interface{})
+
+	if len(getPolicy) > 0 {
+		err := doUpdateIncreBackupPolicy(ctx, d, client, "GET", getPolicy)
+		if err != nil {
+			return err
+		}
+	}
+	if len(putPolicy) > 0 {
+		err := doUpdateIncreBackupPolicy(ctx, d, client, "PUT", putPolicy)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func doUpdateIncreBackupPolicy(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, method string,
+	policyRaw []interface{}) error {
+	var (
+		httpUrl = "v3/{project_id}/instances/{instance_id}/incre-backup/policy"
+	)
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Id())
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildIncreBackupPolicyBodyParams(policyRaw)),
+	}
+
+	retryFunc := func() (interface{}, bool, error) {
+		res, err := client.Request(method, updatePath, &updateOpt)
+		retry, err := handleMultiOperationsError(err)
+		return res, retry, err
+	}
+	res, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     rdsInstanceStateRefreshFunc(client, d.Id()),
+		WaitTarget:   []string{"ACTIVE"},
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating RDS instance (%s) incremental backup policy: %s", d.Id(), err)
+	}
+
+	updateRespBody, err := utils.FlattenResponse(res.(*http.Response))
+	if err != nil {
+		return err
+	}
+
+	jobId := utils.PathSearch("job_id", updateRespBody, nil)
+	if jobId == nil {
+		return fmt.Errorf("error updating RDS instance (%s) incremental backup policy: job_id is not found in the API rsponse", d.Id())
+	}
+
+	return checkRDSInstanceJobFinish(client, jobId.(string), d.Timeout(schema.TimeoutUpdate))
+}
+
+func buildIncreBackupPolicyBodyParams(policyRaw []interface{}) map[string]interface{} {
+	if len(policyRaw) == 0 {
+		return map[string]interface{}{}
+	}
+
+	rawMap := policyRaw[0].(map[string]interface{})
+	policy := map[string]interface{}{
+		"interval": rawMap["interval"],
+	}
+
+	bodyParams := map[string]interface{}{
+		"incre_backup_policy": policy,
+	}
+	return bodyParams
 }
 
 func updateRdsInstanceDBPort(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,

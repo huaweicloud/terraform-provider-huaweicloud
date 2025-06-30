@@ -192,10 +192,9 @@ The following arguments are supported:
 * `db` - (Required, List, ForceNew) Specifies the database information. Structure is documented below. Changing this
   parameter will create a new resource.
 
-* `vpc_id` - (Required, String, ForceNew) Specifies the VPC ID. Changing this parameter will create a new resource.
+* `vpc_id` - (Required, String, NonUpdatable) Specifies the VPC ID.
 
-* `subnet_id` - (Required, String, ForceNew) Specifies the network id of a subnet. Changing this parameter will create a
-  new resource.
+* `subnet_id` - (Required, String, NonUpdatable) Specifies the network id of a subnet.
 
 * `security_group_id` - (Required, String) Specifies the security group which the RDS DB instance belongs to.
 
@@ -217,8 +216,8 @@ The following arguments are supported:
   -> **NOTE:** **async** indicates the asynchronous replication mode. **semisync** indicates the semi-synchronous
   replication mode. **sync** indicates the synchronous replication mode.
 
-* `lower_case_table_names` - (Optional, String, ForceNew) Specifies the case-sensitive state of the database table name,
-  the default value is "1". Changing this parameter will create a new resource.
+* `lower_case_table_names` - (Optional, String, NonUpdatable) Specifies the case-sensitive state of the database table name,
+  the default value is "1".
     + 0: Table names are stored as fixed and table names are case-sensitive.
     + 1: Table names will be stored in lower case and table names are not case-sensitive.
 
@@ -226,7 +225,7 @@ The following arguments are supported:
 
 * `collation` - (Optional, String) Specifies the Character Set, only available to Microsoft SQL Server DB instances.
 
-* `time_zone` - (Optional, String, ForceNew) Specifies the UTC time zone. For MySQL and PostgreSQL Chinese mainland site
+* `time_zone` - (Optional, String, NonUpdatable) Specifies the UTC time zone. For MySQL and PostgreSQL Chinese mainland site
   and international site use UTC by default. The value ranges from UTC-12:00 to UTC+12:00 at the full hour. For
   Microsoft SQL Server international site use UTC by default and Chinese mainland site use China Standard Time. The time
   zone is expressed as a character string, refer to
@@ -275,8 +274,13 @@ The following arguments are supported:
 * `parameters` - (Optional, List) Specify an array of one or more parameters to be set to the RDS instance after
   launched. You can check on console to see which parameters supported. Structure is documented below.
 
-* `binlog_retention_hours` - (Optional, Int) Specify the binlog retention period in hours. This parameter applies only to
-  MySQL Server databases. Value range: `0` to `168` (7x24).
+* `binlog_retention_hours` - (Optional, Int) Specify the binlog retention period in hours. This parameter applies only
+  to MySQL Server databases. Value range: `0` to `168` (7x24).
+
+* `incre_backup_policy` - (Required, List) Specify the incremental backup configuration.
+  The `incre_backup_policy` block supports:
+
+* `interval` - (Optional, Int) Specify interval for incremental backup, in minutes.
 
 * `msdtc_hosts` - (Optional, List) Specify the host information for MSDTC.
   The [msdtc_hosts](#RdsInstance_MsdtcHosts) structure is documented below.

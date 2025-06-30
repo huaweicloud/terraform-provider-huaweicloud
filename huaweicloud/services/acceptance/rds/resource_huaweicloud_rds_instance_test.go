@@ -409,6 +409,33 @@ func TestAccRdsInstance_sqlserver_msdtc_hosts(t *testing.T) {
 	})
 }
 
+func TestAccRdsInstance_updateIncreBackupPolicy(t *testing.T) {
+	var instance interface{}
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_rds_instance.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&instance,
+		getResourceInstance,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccRdsInstance_updateIncreBackupPolicy_basic(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "incre_backup_policy.0.interval", "15"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccRdsInstance_mariadb(t *testing.T) {
 	var instance interface{}
 	rName := acceptance.RandomAccResourceName()
@@ -1304,6 +1331,36 @@ resource "huaweicloud_rds_instance" "test" {
   }
 }
 `, testAccRdsInstance_sqlserver_msdtcHosts_base(name), name)
+}
+
+func testAccRdsInstance_updateIncreBackupPolicy_basic(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_rds_instance" "test" {
+  name              = "%[2]s"
+  flavor            = "rds.mssql.spec.se.s3.large.2"
+  security_group_id = data.huaweicloud_networking_secgroup.test.id
+  subnet_id         = data.huaweicloud_vpc_subnet.test.id
+  vpc_id            = data.huaweicloud_vpc.test.id
+  charging_mode     = "postPaid"
+  availability_zone = [data.huaweicloud_availability_zones.test.names[0]]
+
+  db {
+    type    = "SQLServer"
+    version = "2022_SE"
+  }
+
+  volume {
+    type = "ULTRAHIGH"
+    size = 40
+  }
+
+  incre_backup_policy {
+    interval = 15
+  }
+}
+`, testAccRdsInstance_base(), name)
 }
 
 func testAccRdsInstance_sqlserver_msdtcHosts_update(name string) string {
