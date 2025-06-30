@@ -348,7 +348,35 @@ func flattenTransfersElemLogTransferInfo(transferInfo interface{}) []interface{}
 			"log_storage_format":  utils.PathSearch("log_storage_format", transferInfo, nil),
 			"log_transfer_status": utils.PathSearch("log_transfer_status", transferInfo, nil),
 			"log_agency_transfer": flattenLogTransferInfoLogAgency(transferInfo),
-			"log_transfer_detail": flattenLogTransferInfoLogTransferDetail(transferInfo),
+			"log_transfer_detail": flattenDataLogTransferInfoLogTransferDetail(transferInfo),
+		},
+	}
+}
+
+func flattenDataLogTransferInfoLogTransferDetail(resp interface{}) []interface{} {
+	logTransferDetail := utils.PathSearch("log_transfer_detail", resp, nil)
+	if logTransferDetail == nil {
+		return nil
+	}
+
+	return []interface{}{
+		map[string]interface{}{
+			"obs_period":           utils.PathSearch("obs_period", logTransferDetail, nil),
+			"obs_period_unit":      utils.PathSearch("obs_period_unit", logTransferDetail, nil),
+			"obs_bucket_name":      utils.PathSearch("obs_bucket_name", logTransferDetail, nil),
+			"obs_transfer_path":    utils.PathSearch("obs_transfer_path", logTransferDetail, nil),
+			"obs_dir_prefix_name":  utils.PathSearch("obs_dir_pre_fix_name", logTransferDetail, nil),
+			"obs_prefix_name":      utils.PathSearch("obs_prefix_name", logTransferDetail, nil),
+			"obs_eps_id":           utils.PathSearch("obs_eps_id", logTransferDetail, nil),
+			"obs_encrypted_enable": utils.PathSearch("obs_encrypted_enable", logTransferDetail, nil),
+			"obs_encrypted_id":     utils.PathSearch("obs_encrypted_id", logTransferDetail, nil),
+			"obs_time_zone":        utils.PathSearch("obs_time_zone", logTransferDetail, nil),
+			"obs_time_zone_id":     utils.PathSearch("obs_time_zone_id", logTransferDetail, nil),
+			"dis_id":               utils.PathSearch("dis_id", logTransferDetail, nil),
+			"dis_name":             utils.PathSearch("dis_name", logTransferDetail, nil),
+			"kafka_id":             utils.PathSearch("kafka_id", logTransferDetail, nil),
+			"kafka_topic":          utils.PathSearch("kafka_topic", logTransferDetail, nil),
+			"delivery_tags":        utils.PathSearch("tags", logTransferDetail, nil),
 		},
 	}
 }

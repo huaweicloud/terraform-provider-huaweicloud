@@ -2,6 +2,7 @@ package lts
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -15,7 +16,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getLtsTransferResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getTransferResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	region := acceptance.HW_REGION_NAME
 	// getTransfer: Query the log transfer task.
 	var (
@@ -56,17 +57,16 @@ func getLtsTransferResourceFunc(cfg *config.Config, state *terraform.ResourceSta
 	return getTransferRespBody, nil
 }
 
-func TestAccLtsTransfer_basic(t *testing.T) {
+func TestAccTransfer_basic(t *testing.T) {
 	var obj interface{}
 
-	name := acceptance.RandomAccResourceName()
-	obsName := acceptance.RandomAccResourceNameWithDash()
+	name := acceptance.RandomAccResourceNameWithDash()
 	rName := "huaweicloud_lts_transfer.test"
 
 	rc := acceptance.InitResourceCheck(
 		rName,
 		&obj,
-		getLtsTransferResourceFunc,
+		getTransferResourceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -75,12 +75,12 @@ func TestAccLtsTransfer_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testLtsTransfer_basic(name, obsName),
+				Config: testTransfer_basic_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(rName, "log_group_id", "huaweicloud_lts_group.group", "id"),
+					resource.TestCheckResourceAttrPair(rName, "log_group_id", "huaweicloud_lts_group.test", "id"),
 					resource.TestCheckResourceAttrPair(rName, "log_streams.0.log_stream_id",
-						"huaweicloud_lts_stream.stream", "id"),
+						"huaweicloud_lts_stream.test", "id"),
 					resource.TestCheckResourceAttr(rName, "log_transfer_info.0.log_transfer_type", "OBS"),
 					resource.TestCheckResourceAttr(rName, "log_transfer_info.0.log_transfer_mode", "cycle"),
 					resource.TestCheckResourceAttr(rName, "log_transfer_info.0.log_storage_format", "RAW"),
@@ -97,12 +97,12 @@ func TestAccLtsTransfer_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testLtsTransfer_basic_update(name, obsName),
+				Config: testTransfer_basic_step2(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(rName, "log_group_id", "huaweicloud_lts_group.group", "id"),
+					resource.TestCheckResourceAttrPair(rName, "log_group_id", "huaweicloud_lts_group.test", "id"),
 					resource.TestCheckResourceAttrPair(rName, "log_streams.0.log_stream_id",
-						"huaweicloud_lts_stream.stream", "id"),
+						"huaweicloud_lts_stream.test", "id"),
 					resource.TestCheckResourceAttr(rName, "log_transfer_info.0.log_transfer_type", "OBS"),
 					resource.TestCheckResourceAttr(rName, "log_transfer_info.0.log_transfer_mode", "cycle"),
 					resource.TestCheckResourceAttr(rName, "log_transfer_info.0.log_storage_format", "RAW"),
@@ -127,16 +127,23 @@ func TestAccLtsTransfer_basic(t *testing.T) {
 	})
 }
 
-func testLtsTransfer_basic(name, obsName string) string {
+func testAccTransfer_base(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_lts_group" "group" {
+resource "huaweicloud_lts_group" "test" {
   group_name  = "%[1]s"
-  ttl_in_days = 1
+  ttl_in_days = 30
 }
-resource "huaweicloud_lts_stream" "stream" {
-  group_id    = huaweicloud_lts_group.group.id
+
+resource "huaweicloud_lts_stream" "test" {
+  group_id    = huaweicloud_lts_group.test.id
   stream_name = "%[1]s"
 }
+`, name)
+}
+
+func testTransfer_basic_step1(name string) string {
+	return fmt.Sprintf(`
+%[1]s
 
 resource "huaweicloud_obs_bucket" "output" {
   bucket        = "%[2]s"
@@ -145,10 +152,10 @@ resource "huaweicloud_obs_bucket" "output" {
 }
 
 resource "huaweicloud_lts_transfer" "test" {
-  log_group_id = huaweicloud_lts_group.group.id
+  log_group_id = huaweicloud_lts_group.test.id
 
   log_streams {
-    log_stream_id = huaweicloud_lts_stream.stream.id
+    log_stream_id = huaweicloud_lts_stream.test.id
   }
 
   log_transfer_info {
@@ -168,19 +175,12 @@ resource "huaweicloud_lts_transfer" "test" {
     }
   }
 }
-`, name, obsName)
+`, testAccTransfer_base(name), name)
 }
 
-func testLtsTransfer_basic_update(name, obsName string) string {
+func testTransfer_basic_step2(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_lts_group" "group" {
-  group_name  = "%[1]s"
-  ttl_in_days = 1
-}
-resource "huaweicloud_lts_stream" "stream" {
-  group_id    = huaweicloud_lts_group.group.id
-  stream_name = "%[1]s"
-}
+%[1]s
 
 resource "huaweicloud_obs_bucket" "output" {
   bucket        = "%[2]s"
@@ -189,10 +189,10 @@ resource "huaweicloud_obs_bucket" "output" {
 }
 
 resource "huaweicloud_lts_transfer" "test" {
-  log_group_id = huaweicloud_lts_group.group.id
+  log_group_id = huaweicloud_lts_group.test.id
 
   log_streams {
-    log_stream_id = huaweicloud_lts_stream.stream.id
+    log_stream_id = huaweicloud_lts_stream.test.id
   }
 
   log_transfer_info {
@@ -212,10 +212,10 @@ resource "huaweicloud_lts_transfer" "test" {
     }
   }
 }
-`, name, obsName)
+`, testAccTransfer_base(name), name)
 }
 
-func TestAccLtsTransfer_dis(t *testing.T) {
+func TestAccTransfer_dis(t *testing.T) {
 	var obj interface{}
 
 	name := acceptance.RandomAccResourceName()
@@ -224,7 +224,7 @@ func TestAccLtsTransfer_dis(t *testing.T) {
 	rc := acceptance.InitResourceCheck(
 		rName,
 		&obj,
-		getLtsTransferResourceFunc,
+		getTransferResourceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -233,12 +233,12 @@ func TestAccLtsTransfer_dis(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testLtsTransfer_dis(name, "ENABLE"),
+				Config: testTransfer_dis(name, "ENABLE"),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(rName, "log_group_id", "huaweicloud_lts_group.group", "id"),
+					resource.TestCheckResourceAttrPair(rName, "log_group_id", "huaweicloud_lts_group.test", "id"),
 					resource.TestCheckResourceAttrPair(rName, "log_streams.0.log_stream_id",
-						"huaweicloud_lts_stream.stream", "id"),
+						"huaweicloud_lts_stream.test", "id"),
 					resource.TestCheckResourceAttr(rName, "log_transfer_info.0.log_transfer_type", "DIS"),
 					resource.TestCheckResourceAttr(rName, "log_transfer_info.0.log_transfer_mode", "realTime"),
 					resource.TestCheckResourceAttr(rName, "log_transfer_info.0.log_storage_format", "RAW"),
@@ -251,12 +251,12 @@ func TestAccLtsTransfer_dis(t *testing.T) {
 				),
 			},
 			{
-				Config: testLtsTransfer_dis(name, "DISABLE"),
+				Config: testTransfer_dis(name, "DISABLE"),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(rName, "log_group_id", "huaweicloud_lts_group.group", "id"),
+					resource.TestCheckResourceAttrPair(rName, "log_group_id", "huaweicloud_lts_group.test", "id"),
 					resource.TestCheckResourceAttrPair(rName, "log_streams.0.log_stream_id",
-						"huaweicloud_lts_stream.stream", "id"),
+						"huaweicloud_lts_stream.test", "id"),
 					resource.TestCheckResourceAttr(rName, "log_transfer_info.0.log_transfer_type", "DIS"),
 					resource.TestCheckResourceAttr(rName, "log_transfer_info.0.log_transfer_mode", "realTime"),
 					resource.TestCheckResourceAttr(rName, "log_transfer_info.0.log_storage_format", "RAW"),
@@ -277,34 +277,27 @@ func TestAccLtsTransfer_dis(t *testing.T) {
 	})
 }
 
-func testLtsTransfer_dis(name, status string) string {
+func testTransfer_dis(name, status string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_lts_group" "group" {
-  group_name  = "%[1]s"
-  ttl_in_days = 1
-}
-resource "huaweicloud_lts_stream" "stream" {
-  group_id    = huaweicloud_lts_group.group.id
-  stream_name = "%[1]s"
-}
+%[1]s
 
 resource "huaweicloud_dis_stream" "test" {
-  stream_name     = "%[1]s"
+  stream_name     = "%[2]s"
   partition_count = 1
 }
 
 resource "huaweicloud_lts_transfer" "test" {
-  log_group_id = huaweicloud_lts_group.group.id
+  log_group_id = huaweicloud_lts_group.test.id
 
   log_streams {
-    log_stream_id = huaweicloud_lts_stream.stream.id
+    log_stream_id = huaweicloud_lts_stream.test.id
   }
 
   log_transfer_info {
     log_transfer_type   = "DIS"
     log_transfer_mode   = "realTime"
     log_storage_format  = "RAW"
-    log_transfer_status = "%[2]s"
+    log_transfer_status = "%[3]s"
 
     log_transfer_detail {
       dis_id   = huaweicloud_dis_stream.test.stream_id
@@ -312,21 +305,20 @@ resource "huaweicloud_lts_transfer" "test" {
     }
   }
 }
-`, name, status)
+`, testAccTransfer_base(name), name, status)
 }
 
-func TestAccLtsTransfer_agency(t *testing.T) {
+func TestAccTransfer_agency(t *testing.T) {
 	var obj interface{}
 
-	name := acceptance.RandomAccResourceName()
-	obsName := acceptance.RandomAccResourceNameWithDash()
+	name := acceptance.RandomAccResourceNameWithDash()
 	rName := "huaweicloud_lts_transfer.test"
 	rNameObs := "huaweicloud_lts_transfer.test2"
 
 	rc := acceptance.InitResourceCheck(
 		rName,
 		&obj,
-		getLtsTransferResourceFunc,
+		getTransferResourceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -340,12 +332,12 @@ func TestAccLtsTransfer_agency(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testLtsTransfer_agency(name, obsName, "ENABLE"),
+				Config: testTransfer_agency(name, "ENABLE"),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(rName, "log_group_id", "huaweicloud_lts_group.group", "id"),
+					resource.TestCheckResourceAttrPair(rName, "log_group_id", "huaweicloud_lts_group.test", "id"),
 					resource.TestCheckResourceAttrPair(rName, "log_streams.0.log_stream_id",
-						"huaweicloud_lts_stream.stream_1", "id"),
+						"huaweicloud_lts_stream.test", "id"),
 					resource.TestCheckResourceAttr(rName, "log_transfer_info.0.log_transfer_type", "DIS"),
 					resource.TestCheckResourceAttr(rName, "log_transfer_info.0.log_transfer_mode", "realTime"),
 					resource.TestCheckResourceAttr(rName, "log_transfer_info.0.log_storage_format", "RAW"),
@@ -364,7 +356,7 @@ func TestAccLtsTransfer_agency(t *testing.T) {
 						acceptance.HW_PROJECT_ID),
 					resource.TestCheckResourceAttrSet(rName, "log_group_name"),
 
-					resource.TestCheckResourceAttrPair(rNameObs, "log_group_id", "huaweicloud_lts_group.group", "id"),
+					resource.TestCheckResourceAttrPair(rNameObs, "log_group_id", "huaweicloud_lts_group.test", "id"),
 					resource.TestCheckResourceAttrPair(rNameObs, "log_streams.0.log_stream_id",
 						"huaweicloud_lts_stream.stream_2", "id"),
 					resource.TestCheckResourceAttr(rNameObs, "log_transfer_info.0.log_transfer_type", "OBS"),
@@ -383,7 +375,7 @@ func TestAccLtsTransfer_agency(t *testing.T) {
 				),
 			},
 			{
-				Config: testLtsTransfer_agency(name, obsName, "DISABLE"),
+				Config: testTransfer_agency(name, "DISABLE"),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "log_transfer_info.0.log_transfer_status", "DISABLE"),
@@ -399,25 +391,17 @@ func TestAccLtsTransfer_agency(t *testing.T) {
 	})
 }
 
-func testLtsTransfer_agency(name, obsName, status string) string {
+func testTransfer_agency(name, status string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_lts_group" "group" {
-  group_name  = "%[1]s"
-  ttl_in_days = 1
-}
-
-resource "huaweicloud_lts_stream" "stream_1" {
-  group_id    = huaweicloud_lts_group.group.id
-  stream_name = "%[1]s"
-}
+%[1]s
 
 resource "huaweicloud_lts_stream" "stream_2" {
-  group_id    = huaweicloud_lts_group.group.id
-  stream_name = "%[1]s_obs"
+  group_id    = huaweicloud_lts_group.test.id
+  stream_name = "%[2]s_obs"
 }
 
 resource "huaweicloud_dis_stream" "test" {
-  stream_name     = "%[1]s"
+  stream_name     = "%[2]s"
   partition_count = 1
 }
 
@@ -428,7 +412,7 @@ resource "huaweicloud_obs_bucket" "output" {
 }
 
 resource "huaweicloud_identity_agency" "test" {
-  name                  = "%[1]s"
+  name                  = "%[2]s"
   description           = "This is a test agency"
   delegated_domain_name = "%[4]s"
 
@@ -438,10 +422,10 @@ resource "huaweicloud_identity_agency" "test" {
 }
 
 resource "huaweicloud_lts_transfer" "test" {
-  log_group_id = huaweicloud_lts_group.group.id
+  log_group_id = huaweicloud_lts_group.test.id
 
   log_streams {
-    log_stream_id = huaweicloud_lts_stream.stream_1.id
+    log_stream_id = huaweicloud_lts_stream.test.id
   }
 
   log_transfer_info {
@@ -465,7 +449,7 @@ resource "huaweicloud_lts_transfer" "test" {
 }
 
 resource "huaweicloud_lts_transfer" "test2" {
-  log_group_id = huaweicloud_lts_group.group.id
+  log_group_id = huaweicloud_lts_group.test.id
 
   log_streams {
     log_stream_id = huaweicloud_lts_stream.stream_2.id
@@ -495,5 +479,136 @@ resource "huaweicloud_lts_transfer" "test2" {
     }
   }
 }
-`, name, obsName, status, acceptance.HW_DOMAIN_NAME, acceptance.HW_DOMAIN_ID, acceptance.HW_PROJECT_ID)
+`, testAccTransfer_base(name), name, status, acceptance.HW_DOMAIN_NAME, acceptance.HW_DOMAIN_ID, acceptance.HW_PROJECT_ID)
+}
+
+// Before running this test, please ensure the kafka instance is registered in the LTS service.
+func TestAccTransfer_dms(t *testing.T) {
+	var (
+		transfer interface{}
+		name     = acceptance.RandomAccResourceName()
+		rName    = "huaweicloud_lts_transfer.test"
+		rc       = acceptance.InitResourceCheck(rName, &transfer, getTransferResourceFunc)
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckLtsDmsTransfer(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccTransfer_dms_step1(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(rName, "log_group_id", "huaweicloud_lts_group.test", "id"),
+					resource.TestCheckResourceAttrPair(rName, "log_streams.0.log_stream_id", "huaweicloud_lts_stream.test", "id"),
+					resource.TestCheckResourceAttrPair(rName, "log_streams.0.log_stream_name", "huaweicloud_lts_stream.test", "stream_name"),
+					resource.TestCheckResourceAttr(rName, "log_transfer_info.0.log_transfer_type", "DMS"),
+					resource.TestCheckResourceAttr(rName, "log_transfer_info.0.log_transfer_mode", "realTime"),
+					resource.TestCheckResourceAttr(rName, "log_transfer_info.0.log_storage_format", "JSON"),
+					resource.TestCheckResourceAttr(rName, "log_transfer_info.0.log_transfer_status", "DISABLE"),
+					resource.TestCheckResourceAttr(rName, "log_transfer_info.0.log_transfer_detail.0.kafka_id",
+						acceptance.HW_LTS_REGISTERED_KAFKA_INSTANCE_ID),
+					resource.TestCheckResourceAttrPair(rName, "log_transfer_info.0.log_transfer_detail.0.kafka_topic",
+						"huaweicloud_dms_kafka_topic.test", "name"),
+					resource.TestCheckResourceAttr(rName, "log_transfer_info.0.log_transfer_detail.0.lts_tags.#", "2"),
+					resource.TestCheckResourceAttr(rName, "log_transfer_info.0.log_transfer_detail.0.stream_tags.0", "all"),
+					resource.TestCheckResourceAttr(rName, "log_transfer_info.0.log_transfer_detail.0.struct_fields.0", "all"),
+					resource.TestCheckResourceAttr(rName, "log_transfer_info.0.log_transfer_detail.0.invalid_field_value", "not_matched_field"),
+					resource.TestMatchResourceAttr(rName, "created_at",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
+				),
+			},
+			{
+				Config: testAccTransfer_dms_step2(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "log_transfer_info.0.log_transfer_detail.0.lts_tags.#", "1"),
+					resource.TestCheckResourceAttr(rName, "log_transfer_info.0.log_transfer_detail.0.lts_tags.0", "all"),
+					resource.TestCheckResourceAttr(rName, "log_transfer_info.0.log_transfer_detail.0.stream_tags.#", "0"),
+					resource.TestCheckResourceAttr(rName, "log_transfer_info.0.log_transfer_detail.0.struct_fields.#", "0"),
+					resource.TestCheckResourceAttr(rName, "log_transfer_info.0.log_transfer_detail.0.invalid_field_value", ""),
+				),
+			},
+			{
+				ResourceName:      rName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccTransfer_dms_step1(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_dms_kafka_topic" "test" {
+  instance_id = "%[2]s"
+  name        = "%[3]s"
+  partitions  = 3
+}
+
+resource "huaweicloud_lts_transfer" "test" {
+  log_group_id = huaweicloud_lts_group.test.id
+
+  log_streams {
+    log_stream_id   = huaweicloud_lts_stream.test.id
+    log_stream_name = huaweicloud_lts_stream.test.stream_name
+  }
+
+  log_transfer_info {
+    log_transfer_type   = "DMS"
+    log_transfer_mode   = "realTime"
+    log_storage_format  = "JSON"
+    log_transfer_status = "DISABLE"
+
+    log_transfer_detail {
+      kafka_id            = "%[2]s"
+      kafka_topic         = huaweicloud_dms_kafka_topic.test.name
+      lts_tags            = ["hostName", "collectTime"]
+      stream_tags         = ["all"]
+      struct_fields       = ["all"]
+      invalid_field_value = "not_matched_field"
+    }
+  }
+}
+`, testAccTransfer_base(name), acceptance.HW_LTS_REGISTERED_KAFKA_INSTANCE_ID, name)
+}
+
+func testAccTransfer_dms_step2(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_dms_kafka_topic" "test" {
+  instance_id = "%[2]s"
+  name        = "%[3]s"
+  partitions  = 3
+}
+
+resource "huaweicloud_lts_transfer" "test" {
+  log_group_id = huaweicloud_lts_group.test.id
+
+  log_streams {
+    log_stream_id   = huaweicloud_lts_stream.test.id
+    log_stream_name = huaweicloud_lts_stream.test.stream_name
+  }
+
+  log_transfer_info {
+    log_transfer_type   = "DMS"
+    log_transfer_mode   = "realTime"
+    log_storage_format  = "JSON"
+    log_transfer_status = "DISABLE"
+
+    log_transfer_detail {
+      kafka_id    = "%[2]s"
+      kafka_topic = huaweicloud_dms_kafka_topic.test.name
+      lts_tags    = ["all"]
+    }
+  }
+}
+`, testAccTransfer_base(name), acceptance.HW_LTS_REGISTERED_KAFKA_INSTANCE_ID, name)
 }

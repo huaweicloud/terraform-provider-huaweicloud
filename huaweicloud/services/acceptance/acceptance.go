@@ -599,6 +599,9 @@ var (
 	HW_LTS_CLUSTER_ID_ANOTHER     = os.Getenv("HW_LTS_CLUSTER_ID_ANOTHER")
 	HW_LTS_CLUSTER_NAME_ANOTHER   = os.Getenv("HW_LTS_CLUSTER_NAME_ANOTHER")
 	HW_LTS_ALARM_ACTION_RULE_NAME = os.Getenv("HW_LTS_ALARM_ACTION_RULE_NAME")
+	// When registering Kafka using the huaweicloud_lts_register_kafka_instance resource, the interface may time out.
+	// Therefore, use HW_LTS_REGISTERED_KAFKA_INSTANCE_ID instead.
+	HW_LTS_REGISTERED_KAFKA_INSTANCE_ID = os.Getenv("HW_LTS_REGISTERED_KAFKA_INSTANCE_ID")
 
 	HW_VPCEP_SERVICE_ID = os.Getenv("HW_VPCEP_SERVICE_ID")
 
@@ -2401,6 +2404,13 @@ func TestAccPreCheckLtsStructConfigCustom(t *testing.T) {
 func TestAccPreCheckLtsAlarmActionRuleName(t *testing.T) {
 	if HW_LTS_ALARM_ACTION_RULE_NAME == "" {
 		t.Skip("HW_LTS_ALARM_ACTION_RULE_NAME must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckLtsDmsTransfer(t *testing.T) {
+	if HW_LTS_REGISTERED_KAFKA_INSTANCE_ID == "" {
+		t.Skip("HW_LTS_REGISTERED_KAFKA_INSTANCE_ID must be set for the acceptance test")
 	}
 }
 
