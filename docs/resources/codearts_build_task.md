@@ -141,7 +141,7 @@ The `steps` block supports:
 
 * `enable` - (Optional, Bool) Specifies whether to enable the step. Defaults to **false**.
 
-* `properties` - (Optional, Map) Specifies the build step properties.
+* `properties` - (Optional, Map) Specifies the build step properties. Value is JSON format string.
 
 * `version` - (Optional, String) Specifies the build step version.
 
