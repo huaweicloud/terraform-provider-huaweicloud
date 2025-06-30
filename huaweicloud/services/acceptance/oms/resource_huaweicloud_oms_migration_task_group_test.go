@@ -226,6 +226,7 @@ resource "huaweicloud_oms_migration_task_group" "test" {
   consistency_check              = "crc64"
   enable_requester_pays          = true
   enable_failed_object_recording = true
+  enable_metadata_migration      = true
 
   bandwidth_policy {
     max_bandwidth = 1
