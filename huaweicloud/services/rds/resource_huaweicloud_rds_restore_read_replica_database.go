@@ -14,7 +14,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-var restoreReadReplicaDatabaseNonUpdatableParams = []string{"instance_id", "databases", "is_fast_restore"}
+var restoreReadReplicaDatabaseNonUpdatableParams = []string{"instance_id", "databases"}
 
 // @API RDS POST /v3/{project_id}/instances/{instance_id}/log-replay/database
 func ResourceRdsRestoreReadReplicaDatabase() *schema.Resource {
