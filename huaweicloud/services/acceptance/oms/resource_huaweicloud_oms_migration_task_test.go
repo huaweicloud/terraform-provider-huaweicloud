@@ -205,6 +205,8 @@ resource "huaweicloud_oms_migration_task" "test" {
   type        = "object"
   description = "test task"
 
+  enable_metadata_migration = true
+
   bandwidth_policy {
     max_bandwidth = 1
     start         = "15:00"

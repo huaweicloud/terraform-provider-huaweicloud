@@ -226,6 +226,19 @@ The following arguments are supported:
   name during migration. The [object](#source_cdn_object) structure is documented below.
   Changing this creates a new resource.
 
+* `enable_metadata_migration` - (Optional, Bool, ForceNew) Specifies whether metadata migration is enabled. Even if this
+  function is disabled, the ContentType metadata will still be migrated to ensure a successful migration.
+  Default value: **false**. Changing this creates a new resource.
+
+* `dst_storage_policy` - (Optional, String, ForceNew) Specifies the destination storage class.
+  This parameter is required only when the destination is Huawei Cloud OBS. The default value is STANDARD.
+  + **STANDARD**: OBS Standard storage.
+  + **IA**: OBS Infrequent Access storage.
+  + **ARCHIVE**: OBS Archive storage
+  + **DEEP_ARCHIVE**: OBS Deep Archive storage
+  + **SRC_STORAGE_MAPPING**: converts the source storage class into an OBS storage class based on the predefined rules.
+  Changing this creates a new resource.
+
 <a name="source_object_object"></a>
 The `source_object` block supports:
 

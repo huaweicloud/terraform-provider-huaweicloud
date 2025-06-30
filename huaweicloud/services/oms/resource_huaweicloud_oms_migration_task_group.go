@@ -268,6 +268,16 @@ func ResourceMigrationTaskGroup() *schema.Resource {
 					},
 				},
 			},
+			"enable_metadata_migration": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+			},
+			"dst_storage_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 			"status": {
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -412,6 +422,8 @@ func buildTaskGroupCreateOpts(conf *config.Config, d *schema.ResourceData) (map[
 		"enable_requester_pays":          utils.ValueIgnoreEmpty(d.Get("enable_requester_pays")),
 		"object_overwrite_mode":          utils.ValueIgnoreEmpty(d.Get("object_overwrite_mode")),
 		"consistency_check":              utils.ValueIgnoreEmpty(d.Get("consistency_check")),
+		"enable_metadata_migration":      d.Get("enable_metadata_migration").(bool),
+		"dst_storage_policy":             utils.ValueIgnoreEmpty(d.Get("dst_storage_policy").(string)),
 	}
 
 	return createOpts, nil

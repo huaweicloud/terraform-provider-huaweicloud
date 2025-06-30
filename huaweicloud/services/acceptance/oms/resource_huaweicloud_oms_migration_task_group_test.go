@@ -58,7 +58,7 @@ func TestAccMigrationTaskGroup_prefix(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckOmsInstance(t)
+			// acceptance.TestAccPreCheckOmsInstance(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -226,6 +226,7 @@ resource "huaweicloud_oms_migration_task_group" "test" {
   consistency_check              = "crc64"
   enable_requester_pays          = true
   enable_failed_object_recording = true
+  enable_metadata_migration      = true
 
   bandwidth_policy {
     max_bandwidth = 1
