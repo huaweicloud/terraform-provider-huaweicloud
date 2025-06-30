@@ -28,32 +28,25 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `name` - (Required, String, ForceNew) Backup name.  
+* `name` - (Required, String, NonUpdatable) Backup name.  
   It must be `4` to `64` characters long, start with a letter, and contain only letters (case-sensitive),
   digits, hyphens (-), and underscores (_).
 
-  Changing this parameter will create a new resource.
+* `instance_id` - (Required, String, NonUpdatable) Instance ID.
 
-* `instance_id` - (Required, String, ForceNew) Instance ID.
-
-  Changing this parameter will create a new resource.
-
-* `description` - (Optional, String, ForceNew) The description about the backup.  
+* `description` - (Optional, String, NonUpdatable) The description about the backup.  
   It contains a maximum of `256` characters and cannot contain the following special characters: `>!<"&'=`.
 
-  Changing this parameter will create a new resource.
-
-* `databases` - (Optional, List, ForceNew) List of self-built Microsoft SQL Server databases that are partially
+* `databases` - (Optional, List, NonUpdatable) List of self-built Microsoft SQL Server databases that are partially
   backed up.  
   (Only Microsoft SQL Server supports partial backups.).
 
-  Changing this parameter will create a new resource.
 The [BackupDatabase](#Backup_BackupDatabase) structure is documented below.
 
 <a name="Backup_BackupDatabase"></a>
 The `BackupDatabase` block supports:
 
-* `name` - (Required, String, ForceNew) Database to be backed up for Microsoft SQL Server.
+* `name` - (Required, String, NonUpdatable) Database to be backed up for Microsoft SQL Server.
 
 ## Attribute Reference
 
