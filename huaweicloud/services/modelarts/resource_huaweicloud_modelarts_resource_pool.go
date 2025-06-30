@@ -9,10 +9,12 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -23,10 +25,14 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cbc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-const billingModePostPaid = "0"
+const (
+	billingModePostPaid = "0"
+	billingModePrePaid  = "1"
+)
 
 // @API ModelArts POST /v2/{project_id}/pools
 // @API ModelArts DELETE /v2/{project_id}/pools/{id}
@@ -44,7 +50,7 @@ func ResourceModelartsResourcePool() *schema.Resource {
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(90 * time.Minute),
 			Update: schema.DefaultTimeout(90 * time.Minute),
-			Delete: schema.DefaultTimeout(30 * time.Minute),
+			Delete: schema.DefaultTimeout(90 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -238,9 +244,10 @@ func modelartsResourcePoolResourceFlavorSchema() *schema.Resource {
 			},
 			"tags": common.TagsSchema(),
 			"extend_params": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringIsJSON,
 				DiffSuppressFunc: func(_, o, n string, _ *schema.ResourceData) bool {
 					// The current SuppressMapDiffs method just only supports object type sub-parameters, and does not
 					// support list type sub-parameters.
@@ -333,112 +340,22 @@ func modelartsResourcePoolResourceFlavorSchema() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"step": {
 							Type:        schema.TypeInt,
 							Required:    true,
-							ForceNew:    true,
 							Description: `The creation step of the resource pool nodes.`,
 						},
 						"type": {
 							Type:        schema.TypeString,
 							Required:    true,
-							ForceNew:    true,
 							Description: `The type of the resource pool nodes.`,
 						},
 					},
 				},
 				Description: `The creation step configuration of the resource pool nodes.`,
-			},
-			// Internal attribute(s).
-			"volume_group_configs_origin": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"volume_group": {
-							Type:     schema.TypeString,
-							Computed: true,
-							Description: utils.SchemaDesc(
-								`The script configuration value of this change is also the original value used for the new value
-next time in the list build method and reorder. The corresponding parameter name is 'volume_group_configs.volume_group'.`,
-								utils.SchemaDescInput{
-									Internal: true,
-								},
-							),
-						},
-						"docker_thin_pool": {
-							Type:     schema.TypeInt,
-							Computed: true,
-							Description: utils.SchemaDesc(
-								`The script configuration value of this change is also the original value used for the new value
-next time in the list build method and reorder. The corresponding parameter name is 'volume_group_configs.docker_thin_pool'.`,
-								utils.SchemaDescInput{
-									Internal: true,
-								},
-							),
-						},
-						"lvm_config": {
-							Type:     schema.TypeList,
-							Computed: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"lv_type": {
-										Type:     schema.TypeString,
-										Computed: true,
-										Description: utils.SchemaDesc(
-											`The script configuration value of this change is also the original value used for the new value
-next time in the list build method and reorder. The corresponding parameter name is 'volume_group_configs.lvm_config.lv_type'.`,
-											utils.SchemaDescInput{
-												Internal: true,
-											},
-										),
-									},
-									"path": {
-										Type:     schema.TypeString,
-										Computed: true,
-										Description: utils.SchemaDesc(
-											`The script configuration value of this change is also the original value used for the new value
-next time in the list build method and reorder. The corresponding parameter name is 'volume_group_configs.lvm_config.path'.`,
-											utils.SchemaDescInput{
-												Internal: true,
-											},
-										),
-									},
-								},
-							},
-							Description: utils.SchemaDesc(
-								`The script configuration value of this change is also the original value used for the new value
-next time in the list build method and reorder. The corresponding parameter name is 'volume_group_configs.lvm_config'.`,
-								utils.SchemaDescInput{
-									Internal: true,
-								},
-							),
-						},
-						"types": {
-							Type:     schema.TypeList,
-							Computed: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-							Description: utils.SchemaDesc(
-								`The script configuration value of this change is also the original value used for the new value
-next time in the list build method and reorder. The corresponding parameter name is 'volume_group_configs.types'.`,
-								utils.SchemaDescInput{
-									Internal: true,
-								},
-							),
-						},
-					},
-				},
-				Description: utils.SchemaDesc(
-					`The script configuration value of this change is also the original value used for the new value
-next time in the list build method and reorder. The corresponding parameter name is 'volume_group_configs'.`,
-					utils.SchemaDescInput{
-						Internal: true,
-					},
-				),
 			},
 			// Deprecated parameter(s).
 			"post_install": {
@@ -533,9 +450,10 @@ func modelartsResourcePoolResourcesDataVolumeSchema() *schema.Resource {
 				Description: `The size of the data volume.`,
 			},
 			"extend_params": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringIsJSON,
 				DiffSuppressFunc: func(_, o, n string, _ *schema.ResourceData) bool {
 					// The current SuppressMapDiffs method just only supports object type sub-parameters, and does not
 					// support list type sub-parameters.
@@ -696,24 +614,20 @@ func driverStatusRefreshFunc(cfg *config.Config, region string, d *schema.Resour
 			return "No matches found", "COMPLETED", nil
 		}
 
+		// Statuses: Creating, Upgrading, Running and Abnormal.
 		for _, status := range driverStatuses {
-			if status == "Abnormal" {
-				return resourcePool, "ERROR", fmt.Errorf("unexpect status (%s)", status)
-			}
-
-			if status != "Running" {
-				return resourcePool, "PENDING", nil
+			if utils.StrSliceContains([]string{"Running", "Abnormal"}, status.(string)) {
+				return resourcePool, "COMPLETED", nil
 			}
 		}
 
-		return resourcePool, "COMPLETED", nil
+		return resourcePool, "PENDING", nil
 	}
 }
 
 func resourceModelartsResourcePoolCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-
 	var (
 		createResourcePoolHttpUrl = "v2/{project_id}/pools"
 		createResourcePoolProduct = "modelarts"
@@ -849,12 +763,10 @@ func buildCreateResourcePoolMetaDataAnnotationsBodyParams(d *schema.ResourceData
 }
 
 func buildCreateResourcePoolSpecBodyParams(d *schema.ResourceData) map[string]interface{} {
-	oldResourcesVal, newResourcesVal := d.GetChange("resources")
-
 	params := map[string]interface{}{
 		"type":      "Dedicate",
 		"scope":     utils.ValueIgnoreEmpty(d.Get("scope").(*schema.Set).List()),
-		"resources": buildResourcePoolSpecResources(oldResourcesVal.([]interface{}), newResourcesVal.([]interface{})),
+		"resources": buildCreateResourcePoolSpecResources(d.Get("resources").([]interface{})),
 		"userLogin": buildCreateResourcePoolSpecUserLoginBodyParams(d),
 		"network":   buildCreateResourcePoolSpecNetworkBodyParams(d),
 		"clusters":  buildCreateResourcePoolSpecClustersBodyParams(d),
@@ -898,43 +810,74 @@ func buildCreateResourcePoolSpecClustersBodyParams(d *schema.ResourceData) []int
 	return nil
 }
 
-func buildResourcePoolSpecResources(oldResources, newResources []interface{}) []map[string]interface{} {
-	result := make([]map[string]interface{}, 0, len(newResources))
-
-	for i, newResource := range newResources {
+func buildCreateResourcePoolSpecResources(resources []interface{}) []map[string]interface{} {
+	result := make([]map[string]interface{}, 0, len(resources))
+	for _, v := range resources {
 		result = append(result, map[string]interface{}{
-			"flavor":   utils.ValueIgnoreEmpty(utils.PathSearch("flavor_id", newResource, nil)),
-			"count":    utils.ValueIgnoreEmpty(utils.PathSearch("count", newResource, nil)),
-			"nodePool": utils.ValueIgnoreEmpty(utils.PathSearch("node_pool", newResource, nil)),
-			"maxCount": utils.ValueIgnoreEmpty(utils.PathSearch("max_count", newResource, nil)),
-			"azs": buildResourcePoolResourcesAzs(utils.PathSearch("azs", newResource,
+			"flavor":   utils.ValueIgnoreEmpty(utils.PathSearch("flavor_id", v, nil)),
+			"count":    utils.ValueIgnoreEmpty(utils.PathSearch("count", v, nil)),
+			"nodePool": utils.ValueIgnoreEmpty(utils.PathSearch("node_pool", v, nil)),
+			"maxCount": utils.ValueIgnoreEmpty(utils.PathSearch("max_count", v, nil)),
+			"azs": buildResourcePoolResourcesAzs(utils.PathSearch("azs", v,
 				schema.NewSet(schema.HashString, nil)).(*schema.Set)),
-			"network": buildResourcePoolSpecResourcesNetworkBodyParams(newResource),
-			"taints": buildResourcePoolResourcesTaints(utils.PathSearch("taints", newResource,
+			"network": buildResourcePoolSpecResourcesNetworkBodyParams(v),
+			"taints": buildResourcePoolResourcesTaints(utils.PathSearch("taints", v,
 				schema.NewSet(schema.HashString, nil)).(*schema.Set)),
-			"tags":   utils.ExpandResourceTags(utils.PathSearch("tags", newResource, make(map[string]interface{})).(map[string]interface{})),
-			"labels": utils.ValueIgnoreEmpty(utils.PathSearch("labels", newResource, nil)),
-			"extendParams": buildResourcePoolResourcesExtendParamsBodyParams(
-				utils.PathSearch(fmt.Sprintf("[%d].extend_params", i), oldResources, "{}").(string),
-				utils.PathSearch("extend_params", newResource, "{}").(string),
-				utils.PathSearch("post_install", newResource, "").(string),
+			"tags": utils.ValueIgnoreEmpty(utils.ExpandResourceTags(utils.PathSearch("tags", v,
+				make(map[string]interface{})).(map[string]interface{}))),
+			"labels": utils.ValueIgnoreEmpty(utils.PathSearch("labels", v, nil)),
+			"extendParams": buildCreateResourcePoolResourcesExtendParamsBodyParams(
+				utils.PathSearch("extend_params", v, "{}").(string),
+				utils.PathSearch("post_install", v, "").(string),
 			),
-			"rootVolume": buildResourcePoolResourcesRootVolume(utils.PathSearch("root_volume", newResource,
+
+			"rootVolume": buildResourcePoolResourcesRootVolume(utils.PathSearch("root_volume", v,
 				make([]interface{}, 0)).([]interface{})),
-			"dataVolumes": buildResourcePoolResourcesDataVolumes(
-				utils.PathSearch(fmt.Sprintf("[%d].data_volumes", i), oldResources, make([]interface{}, 0)).([]interface{}),
-				utils.PathSearch("data_volumes", newResource, make([]interface{}, 0)).([]interface{}),
-			),
+			"dataVolumes": buildCreateResourcePoolResourcesDataVolumes(utils.PathSearch("data_volumes", v,
+				make([]interface{}, 0)).([]interface{})),
 			"volumeGroupConfigs": buildResourcePoolResourcesVolumeGroupConfigs(
-				utils.PathSearch(fmt.Sprintf("[%d].volume_group_configs_origin", i), oldResources, make([]interface{}, 0)).([]interface{}),
-				utils.PathSearch("volume_group_configs", newResource, schema.NewSet(schema.HashString, nil)).(*schema.Set).List(),
+				make([]interface{}, 0),
+				utils.PathSearch("volume_group_configs", v, schema.NewSet(schema.HashString, nil)).(*schema.Set).List(),
 			),
-			"os":     buildResourcePoolResourcesOsInfo(utils.PathSearch("os", newResource, make([]interface{}, 0)).([]interface{})),
-			"driver": buildResourcePoolResourcesDriver(utils.PathSearch("driver", newResource, make([]interface{}, 0)).([]interface{})),
+			"os":     buildResourcePoolResourcesOsInfo(utils.PathSearch("os", v, make([]interface{}, 0)).([]interface{})),
+			"driver": buildResourcePoolResourcesDriver(utils.PathSearch("driver", v, make([]interface{}, 0)).([]interface{})),
 			"creatingStep": buildResourcePoolResourcesCreatingStep(
-				utils.PathSearch("creating_step", newResource, make([]interface{}, 0)).([]interface{})),
+				utils.PathSearch("creating_step", v, make([]interface{}, 0)).([]interface{})),
 		})
 	}
+	return result
+}
+
+func buildCreateResourcePoolResourcesExtendParamsBodyParams(extendParams, postInstall string) map[string]interface{} {
+	result := make(map[string]interface{})
+
+	if postInstall != "" {
+		result["post_install"] = postInstall
+	}
+
+	if objExtendParams := utils.TryMapValueAnalysis(utils.StringToJson(extendParams)); len(objExtendParams) > 0 {
+		for k, v := range objExtendParams {
+			result[k] = v
+		}
+	}
+	return result
+}
+
+func buildCreateResourcePoolResourcesDataVolumes(dataVolumes []interface{}) []map[string]interface{} {
+	if len(dataVolumes) < 1 {
+		return nil
+	}
+
+	result := make([]map[string]interface{}, len(dataVolumes))
+	for i, dataVolume := range dataVolumes {
+		result[i] = map[string]interface{}{
+			"volumeType":   utils.PathSearch("volume_type", dataVolume, nil),
+			"size":         utils.PathSearch("size", dataVolume, nil),
+			"extendParams": utils.StringToJson(utils.PathSearch("extend_params", dataVolume, "").(string)),
+			"count":        utils.ValueIgnoreEmpty(utils.PathSearch("count", dataVolume, nil)),
+		}
+	}
+
 	return result
 }
 
@@ -952,7 +895,6 @@ func buildResourcePoolSpecResourcesNetworkBodyParams(resourceRaw interface{}) ma
 
 func buildResourcePoolResourcesExtendParamsBodyParams(oldExtendParams, newExtendParams, postInstall string) map[string]interface{} {
 	extendParams := utils.TryMapValueAnalysis(utils.StringToJson(oldExtendParams))
-
 	if postInstall != "" {
 		extendParams["post_install"] = postInstall
 	}
@@ -975,28 +917,6 @@ func buildResourcePoolResourcesRootVolume(rootVolumes []interface{}) map[string]
 		"volumeType": utils.PathSearch("volume_type", rootVolume, nil),
 		"size":       utils.PathSearch("size", rootVolume, nil),
 	}
-}
-
-func buildResourcePoolResourcesDataVolumes(oldDataVolumes, newDataVolumes []interface{}) []map[string]interface{} {
-	if len(newDataVolumes) < 1 {
-		return nil
-	}
-
-	result := make([]map[string]interface{}, 0, len(newDataVolumes))
-	for i, dataVolume := range newDataVolumes {
-		result = append(result, map[string]interface{}{
-			"volumeType": utils.PathSearch("volume_type", dataVolume, nil),
-			"size":       utils.PathSearch("size", dataVolume, nil),
-			"extendParams": buildResourcePoolResourcesExtendParamsBodyParams(
-				utils.PathSearch(fmt.Sprintf("[%d].extend_params", i), oldDataVolumes, "").(string),
-				utils.PathSearch("extend_params", dataVolume, "").(string),
-				"",
-			),
-			"count": utils.ValueIgnoreEmpty(utils.PathSearch("count", dataVolume, nil)),
-		})
-	}
-
-	return result
 }
 
 func buildResourcePoolResourcesVolumeGroupConfigs(oldVolumeGroupConfigs, newVolumeGroupConfigs []interface{}) []map[string]interface{} {
@@ -1116,12 +1036,7 @@ func createResourcePoolWaitingForStateCompleted(ctx context.Context, d *schema.R
 				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `status.phase`)
 			}
 
-			if utils.PathSearch("status.resources.abnormal", createResourcePoolWaitingRespBody, nil) != nil {
-				return nil, "ERROR", fmt.Errorf("error creating resource pool: the resource pool is abnormal")
-			}
-
 			status := fmt.Sprintf("%v", statusRaw)
-
 			targetStatus := []string{
 				"Running",
 			}
@@ -1361,8 +1276,6 @@ func flattenGetResourcePoolResponseBodyResources(resp interface{}) []interface{}
 				v, make([]interface{}, 0)).([]interface{})),
 			"volume_group_configs": flattenResourcePoolResourcesVolumeGroupConfigs(utils.PathSearch("volumeGroupConfigs",
 				v, make([]interface{}, 0)).([]interface{})),
-			"volume_group_configs_origin": flattenResourcePoolResourcesVolumeGroupConfigs(utils.PathSearch("volumeGroupConfigs",
-				v, make([]interface{}, 0)).([]interface{})),
 			"os":            flattenResourcePoolResourcesOsInfo(utils.PathSearch("os", v, nil)),
 			"driver":        flattenResourcePoolResourcesDriver(utils.PathSearch("driver", v, nil)),
 			"creating_step": flattenResourcePoolResourcesCreatingStep(utils.PathSearch("creatingStep", v, nil)),
@@ -1438,8 +1351,11 @@ func flattenResourcePoolResourcesTags(resp interface{}) map[string]interface{} {
 }
 
 func resourceModelartsResourcePoolUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
+	var (
+		cfg            = meta.(*config.Config)
+		region         = cfg.GetRegion(d)
+		oldRaw, newRaw = d.GetChange("resources")
+	)
 
 	updateResourcePoolChanges := []string{
 		"description",
@@ -1484,8 +1400,7 @@ func resourceModelartsResourcePoolUpdate(ctx context.Context, d *schema.Resource
 		// Only when scaling prepaid type nodes, we need to determine the order status.
 		if nodeBillingMode == "1" && d.HasChange("resources") {
 			// Whenever any count in resouces changes, the order status needs to be determined.
-			oldRaw, newRaw := d.GetChange("resources")
-			if isAnyNodeScalling(oldRaw.([]interface{}), newRaw.([]interface{})) {
+			if isAnyNodeScallingUp(oldRaw.([]interface{}), newRaw.([]interface{})) {
 				updateRespBody, err := utils.FlattenResponse(updateModelartsResourcePoolResp)
 				if err != nil {
 					return diag.FromErr(err)
@@ -1516,14 +1431,21 @@ func resourceModelartsResourcePoolUpdate(ctx context.Context, d *schema.Resource
 			return diag.Errorf("error waiting for the Modelarts resource pool (%s) update to complete: %s", d.Id(), err)
 		}
 	}
+
 	return resourceModelartsResourcePoolRead(ctx, d, meta)
 }
 
-func isAnyNodeScalling(oldResource, newResource []interface{}) bool {
-	for i, v := range newResource {
-		oldCount := utils.PathSearch(fmt.Sprintf("[%d].count", i), oldResource, 0).(int)
+func isAnyNodeScallingUp(oldResource, newResource []interface{}) bool {
+	for _, v := range newResource {
+		matchedOldResource := findResourceByFlavorAndNodePoolAndCreatingStep(oldResource,
+			utils.PathSearch("flavor_id", v, "").(string),
+			utils.PathSearch("node_pool", v, "").(string),
+			utils.JsonToString(utils.PathSearch("creating_step[0]", v, nil)),
+		)
+
+		oldCount := utils.PathSearch("count", matchedOldResource, 0).(int)
 		newCount := utils.PathSearch("count", v, 0).(int)
-		if oldCount != newCount {
+		if oldCount < newCount {
 			return true
 		}
 	}
@@ -1592,13 +1514,413 @@ func isAnyNodePoolIncrease(d *schema.ResourceData) bool {
 }
 
 func buildUpdateResourcePoolSpecBodyParams(d *schema.ResourceData) map[string]interface{} {
-	oldResourcesVal, newResourcesVal := d.GetChange("resources")
-
+	oldResourcesVal, _ := d.GetChange("resources")
+	rawConfig := d.GetRawConfig()
 	params := map[string]interface{}{
 		"scope":     utils.ValueIgnoreEmpty(d.Get("scope").(*schema.Set).List()),
-		"resources": buildResourcePoolSpecResources(oldResourcesVal.([]interface{}), newResourcesVal.([]interface{})),
+		"resources": buildUpdateResourcePoolSpecResources(rawConfig, oldResourcesVal.([]interface{})),
 	}
 	return params
+}
+
+func getConfigFileResources(rawConfig cty.Value) interface{} {
+	if rawConfig.IsNull() || !rawConfig.IsKnown() || !rawConfig.Type().IsObjectType() {
+		return nil
+	}
+
+	return rawConfig.GetAttr("resources")
+}
+
+func isRawConfigListExist(elem cty.Value, key string) bool {
+	if !elem.Type().HasAttribute(key) {
+		return false
+	}
+
+	attr := elem.GetAttr(key)
+	if attr.IsNull() || !attr.IsKnown() || !attr.Type().IsListType() || attr.LengthInt() < 1 {
+		return false
+	}
+
+	return true
+}
+
+func getRawConfigSetValueByKey(elem cty.Value, key string) interface{} {
+	if !elem.Type().HasAttribute(key) {
+		return nil
+	}
+
+	raw := elem.GetAttr(key)
+	if raw.IsNull() || !raw.IsKnown() || !raw.Type().IsSetType() || raw.LengthInt() < 1 {
+		return nil
+	}
+
+	return raw
+}
+
+// Get the value of string type from the raw config file.
+func getConfigFileStringValueByKey(elem cty.Value, key string) string {
+	if !elem.Type().HasAttribute(key) {
+		return ""
+	}
+
+	raw := elem.GetAttr(key)
+	if raw.IsNull() || !raw.IsKnown() || raw.Type() != cty.String {
+		return ""
+	}
+
+	return raw.AsString()
+}
+
+// Get the value of int type from the raw config file.
+func getConfigFileIntValueByKey(elem cty.Value, key string) int {
+	if !elem.Type().HasAttribute(key) {
+		return 0
+	}
+
+	raw := elem.GetAttr(key)
+	if raw.IsNull() || !raw.IsKnown() || raw.Type() != cty.Number {
+		return 0
+	}
+
+	rawValue, _ := raw.AsBigFloat().Int64()
+	return int(rawValue)
+}
+
+func getResourcesCreatingStepFromConfigFile(resourceElem cty.Value) string {
+	var configFileCreatringStep string
+	if resourceElem.Type().HasAttribute("creating_step") {
+		creatingStepElem := resourceElem.GetAttr("creating_step")
+		if !creatingStepElem.IsNull() && creatingStepElem.IsKnown() && creatingStepElem.Type().IsListType() && creatingStepElem.LengthInt() > 0 {
+			configFileCreatringStep = utils.JsonToString(map[string]interface{}{
+				"step": getConfigFileIntValueByKey(creatingStepElem.Index(cty.NumberIntVal(0)), "step"),
+				"type": getConfigFileStringValueByKey(creatingStepElem.Index(cty.NumberIntVal(0)), "type"),
+			})
+		}
+	}
+	return configFileCreatringStep
+}
+
+func getMatchedResourceFromConfigfile(newResource cty.Value, oldResources []interface{}) interface{} {
+	var (
+		newFlavor        = getConfigFileStringValueByKey(newResource, "flavor_id")
+		newNodePool      = getConfigFileStringValueByKey(newResource, "node_pool")
+		newCreatringStep = getResourcesCreatingStepFromConfigFile(newResource)
+	)
+
+	return findResourceByFlavorAndNodePoolAndCreatingStep(oldResources, newFlavor, newNodePool, newCreatringStep)
+}
+
+func findResourceByFlavorAndNodePoolAndCreatingStep(oldResources []interface{}, flavor string, nodePool string, creatingStep string) interface{} {
+	for _, oldResource := range oldResources {
+		var (
+			oldNodePool     = utils.PathSearch("node_pool", oldResource, "").(string)
+			oldFlavor       = utils.PathSearch("flavor_id", oldResource, "").(string)
+			oldCreatingStep = utils.JsonToString(utils.PathSearch("creating_step[0]", oldResource, nil))
+		)
+
+		if nodePool != "" &&
+			oldNodePool == nodePool &&
+			oldFlavor == flavor &&
+			oldCreatingStep == creatingStep {
+			return oldResource
+		}
+
+		pattern := regexp.MustCompile(fmt.Sprintf(`^%s-default|$`, oldFlavor))
+		if nodePool == "" &&
+			pattern.MatchString(oldNodePool) &&
+			oldFlavor == flavor && oldCreatingStep == creatingStep {
+			return oldResource
+		}
+	}
+
+	return nil
+}
+
+// Get the value of string type from the old resource by config file key.
+func getStringValueByConfigFileKey(elem cty.Value, key string, oldResource interface{}) interface{} {
+	if !elem.Type().HasAttribute(key) {
+		return utils.ValueIgnoreEmpty(utils.PathSearch(key, oldResource, nil))
+	}
+
+	raw := elem.GetAttr(key)
+	if raw.IsNull() || !raw.IsKnown() || raw.Type() != cty.String {
+		return utils.ValueIgnoreEmpty(utils.PathSearch(key, oldResource, nil))
+	}
+
+	return utils.ValueIgnoreEmpty(raw.AsString())
+}
+
+// Get the value of int type from the old resource by config file key.
+func getIntValueByConfigFileKey(elem cty.Value, key string, oldResource interface{}) interface{} {
+	num := getConfigFileIntValueByKey(elem, key)
+	if num != 0 {
+		return num
+	}
+
+	return utils.PathSearch(key, oldResource, nil)
+}
+
+func buildSecurityGroupIdsByConfigFileKey(elem cty.Value, key string, oldResource interface{}) interface{} {
+	raw := getRawConfigSetValueByKey(elem, key)
+	if raw == nil {
+		return utils.ValueIgnoreEmpty(utils.ExpandToStringListBySet(utils.PathSearch(key, oldResource,
+			schema.NewSet(schema.HashString, nil)).(*schema.Set)))
+	}
+
+	securityGroupIdsRaw := raw.(cty.Value)
+	securityGroupIds := make([]string, securityGroupIdsRaw.LengthInt())
+	for i, securityGroupId := range securityGroupIdsRaw.AsValueSlice() {
+		securityGroupIds[i] = securityGroupId.AsString()
+	}
+	return utils.ValueIgnoreEmpty(securityGroupIds)
+}
+
+func buildUpdateResourcePoolResourceLabels(elem cty.Value, key string, oldResource interface{}) interface{} {
+	if !elem.Type().HasAttribute(key) {
+		return utils.ValueIgnoreEmpty(utils.PathSearch(key, oldResource, nil))
+	}
+
+	raw := elem.GetAttr(key)
+	if raw.IsNull() || !raw.IsKnown() || !raw.Type().IsMapType() {
+		return utils.ValueIgnoreEmpty(utils.PathSearch(key, oldResource, nil))
+	}
+
+	labels := make(map[string]interface{})
+	for k, v := range raw.AsValueMap() {
+		labels[k] = v.AsString()
+	}
+	return utils.ValueIgnoreEmpty(labels)
+}
+
+func buildUpdateResourcePoolResourceAzs(resourceElem cty.Value, oldResource interface{}) interface{} {
+	raw := getRawConfigSetValueByKey(resourceElem, "azs")
+	if raw == nil {
+		return buildResourcePoolResourcesAzs(utils.PathSearch("azs", oldResource, schema.NewSet(schema.HashString, nil)).(*schema.Set))
+	}
+
+	azs := raw.(cty.Value)
+	result := make([]map[string]interface{}, azs.LengthInt())
+	for i, az := range azs.AsValueSlice() {
+		result[i] = map[string]interface{}{
+			"az":    utils.ValueIgnoreEmpty(getConfigFileStringValueByKey(az, "az")),
+			"count": utils.ValueIgnoreEmpty(getConfigFileIntValueByKey(az, "count")),
+		}
+	}
+	return result
+}
+
+func buildUpdateResourcePoolResourceNetwork(resourceElem cty.Value, oldResource interface{}) interface{} {
+	return utils.RemoveNil(map[string]interface{}{
+		"vpc":            getStringValueByConfigFileKey(resourceElem, "vpc_id", oldResource),
+		"subnet":         getStringValueByConfigFileKey(resourceElem, "subnet_id", oldResource),
+		"securityGroups": buildSecurityGroupIdsByConfigFileKey(resourceElem, "security_group_ids", oldResource),
+	})
+}
+
+func buildUpdateResourcePoolResourceTaints(resourceElem cty.Value, oldResource interface{}) interface{} {
+	raw := getRawConfigSetValueByKey(resourceElem, "taints")
+	if raw == nil {
+		return buildResourcePoolResourcesTaints(utils.PathSearch("taints", oldResource, schema.NewSet(schema.HashString, nil)).(*schema.Set))
+	}
+
+	taints := raw.(cty.Value)
+	result := make([]map[string]interface{}, taints.LengthInt())
+	for i, taint := range taints.AsValueSlice() {
+		result[i] = map[string]interface{}{
+			"key":    taint.GetAttr("key").AsString(),
+			"effect": taint.GetAttr("effect").AsString(),
+			"value":  utils.ValueIgnoreEmpty(getConfigFileStringValueByKey(taint, "value")),
+		}
+	}
+	return result
+}
+
+func buildUpdateResourcePoolResourceTags(resourceElem cty.Value) interface{} {
+	if !resourceElem.Type().HasAttribute("tags") {
+		return nil
+	}
+
+	tags := resourceElem.GetAttr("tags")
+	if tags.IsNull() || !tags.IsKnown() || !tags.Type().IsMapType() {
+		return nil
+	}
+
+	result := make([]map[string]interface{}, 0)
+	for k, v := range tags.AsValueMap() {
+		tagMap := map[string]interface{}{
+			"key": k,
+		}
+		if v.Type() == cty.String && !v.IsNull() && v.IsKnown() {
+			tagMap["value"] = v.AsString()
+		}
+
+		result = append(result, tagMap)
+	}
+	return result
+}
+
+func buildUpdateResourcePoolResourceRootVolume(resourceElem cty.Value, oldResource interface{}) interface{} {
+	if !isRawConfigListExist(resourceElem, "root_volume") {
+		return buildResourcePoolResourcesRootVolume(utils.PathSearch("root_volume", oldResource, make([]interface{}, 0)).([]interface{}))
+	}
+
+	rootVolume := resourceElem.GetAttr("root_volume")
+	return map[string]interface{}{
+		"volumeType": rootVolume.Index(cty.NumberIntVal(0)).GetAttr("volume_type").AsString(),
+		"size":       rootVolume.Index(cty.NumberIntVal(0)).GetAttr("size").AsString(),
+	}
+}
+
+func buildUpdateResourcePoolResourceDataVolumes(resourceElem cty.Value, oldResource interface{}) interface{} {
+	if !isRawConfigListExist(resourceElem, "data_volumes") {
+		return buildCreateResourcePoolResourcesDataVolumes(utils.PathSearch("data_volumes", oldResource,
+			make([]interface{}, 0)).([]interface{}))
+	}
+
+	dataVolumes := resourceElem.GetAttr("data_volumes")
+	result := make([]map[string]interface{}, dataVolumes.LengthInt())
+	for i, dataVolume := range dataVolumes.AsValueSlice() {
+		result[i] = map[string]interface{}{
+			"volumeType": dataVolume.GetAttr("volume_type").AsString(),
+			"size":       dataVolume.GetAttr("size").AsString(),
+			"extendParams": buildResourcePoolResourcesExtendParamsBodyParams(
+				utils.PathSearch(fmt.Sprintf("[%d].extend_params", i), oldResource, "").(string),
+				getConfigFileStringValueByKey(dataVolume, "extend_params"),
+				"",
+			),
+			"count": utils.ValueIgnoreEmpty(getConfigFileIntValueByKey(dataVolume, "count")),
+		}
+	}
+	return result
+}
+
+func buildUpdateResourcePoolResourceOs(resourceElem cty.Value, oldResource interface{}) interface{} {
+	if !isRawConfigListExist(resourceElem, "os") {
+		return buildResourcePoolResourcesOsInfo(utils.PathSearch("os", oldResource, make([]interface{}, 0)).([]interface{}))
+	}
+
+	os := resourceElem.GetAttr("os")
+	return map[string]interface{}{
+		"name":      utils.ValueIgnoreEmpty(getConfigFileStringValueByKey(os.Index(cty.NumberIntVal(0)), "name")),
+		"imageId":   utils.ValueIgnoreEmpty(getConfigFileStringValueByKey(os.Index(cty.NumberIntVal(0)), "image_id")),
+		"imageType": utils.ValueIgnoreEmpty(getConfigFileStringValueByKey(os.Index(cty.NumberIntVal(0)), "image_type")),
+	}
+}
+
+func buildUpdateResourcePoolResourceDriver(resourceElem cty.Value, oldResource interface{}) interface{} {
+	if !isRawConfigListExist(resourceElem, "driver") {
+		return buildResourcePoolResourcesDriver(utils.PathSearch("driver", oldResource, make([]interface{}, 0)).([]interface{}))
+	}
+
+	driver := resourceElem.GetAttr("driver")
+	return utils.RemoveNil(map[string]interface{}{
+		"version": utils.ValueIgnoreEmpty(getConfigFileStringValueByKey(driver.Index(cty.NumberIntVal(0)), "version")),
+	})
+}
+
+func buildUpdateResourcePoolResourceCreatingStep(resourceElem cty.Value, oldResource interface{}) interface{} {
+	if !isRawConfigListExist(resourceElem, "creating_step") {
+		return buildResourcePoolResourcesCreatingStep(utils.PathSearch("creating_step", oldResource, make([]interface{}, 0)).([]interface{}))
+	}
+
+	creatingStep := resourceElem.GetAttr("creating_step")
+	return map[string]interface{}{
+		"type": creatingStep.Index(cty.NumberIntVal(0)).GetAttr("type").AsString(),
+		"step": getConfigFileIntValueByKey(creatingStep.Index(cty.NumberIntVal(0)), "step"),
+	}
+}
+
+func buildUpdateResourcePoolSpecResources(rawConfig cty.Value, oldResources []interface{}) []map[string]interface{} {
+	resources := getConfigFileResources(rawConfig)
+	if resources == nil {
+		return nil
+	}
+
+	newResources := resources.(cty.Value)
+	result := make([]map[string]interface{}, 0, newResources.LengthInt())
+	for _, newResource := range newResources.AsValueSlice() {
+		matchedOldResource := getMatchedResourceFromConfigfile(newResource, oldResources)
+		resourceMap := map[string]interface{}{
+			// Required parameters.
+			"flavor": getStringValueByConfigFileKey(newResource, "flavor_id", matchedOldResource),
+			"count":  getIntValueByConfigFileKey(newResource, "count", matchedOldResource),
+			// Only Optional parameter(s).
+			"tags": buildUpdateResourcePoolResourceTags(newResource),
+			// The parameters of the Computed behavior.
+			"nodePool": getStringValueByConfigFileKey(newResource, "node_pool", matchedOldResource),
+			"maxCount": getIntValueByConfigFileKey(newResource, "max_count", matchedOldResource),
+			"azs":      buildUpdateResourcePoolResourceAzs(newResource, matchedOldResource),
+			"network":  buildUpdateResourcePoolResourceNetwork(newResource, matchedOldResource),
+			"taints":   buildUpdateResourcePoolResourceTaints(newResource, matchedOldResource),
+			"labels":   buildUpdateResourcePoolResourceLabels(newResource, "labels", matchedOldResource),
+			"extendParams": buildResourcePoolResourcesExtendParamsBodyParams(
+				utils.PathSearch("extend_params", matchedOldResource, "{}").(string),
+				getConfigFileStringValueByKey(newResource, "extend_params"),
+				getConfigFileStringValueByKey(newResource, "post_install"),
+			),
+			"rootVolume":  buildUpdateResourcePoolResourceRootVolume(newResource, matchedOldResource),
+			"dataVolumes": buildUpdateResourcePoolResourceDataVolumes(newResource, matchedOldResource),
+			"volumeGroupConfigs": buildResourcePoolResourcesVolumeGroupConfigs(
+				utils.PathSearch("volume_group_configs", matchedOldResource, schema.NewSet(schema.HashString, nil)).(*schema.Set).List(),
+				buildUpdateResourcePoolResourceVolumeGroupConfigs(newResource),
+			),
+			"os":           buildUpdateResourcePoolResourceOs(newResource, matchedOldResource),
+			"driver":       buildUpdateResourcePoolResourceDriver(newResource, matchedOldResource),
+			"creatingStep": buildUpdateResourcePoolResourceCreatingStep(newResource, matchedOldResource),
+		}
+		result = append(result, resourceMap)
+	}
+	return result
+}
+
+func buildUpdateResourcePoolResourceVolumeGroupConfigs(resourceElem cty.Value) []interface{} {
+	raw := getRawConfigSetValueByKey(resourceElem, "volume_group_configs")
+	if raw == nil {
+		return make([]interface{}, 0)
+	}
+
+	volumeGroupConfigs := raw.(cty.Value)
+	result := make([]interface{}, volumeGroupConfigs.LengthInt())
+	for i, volumeGroupConfigElem := range volumeGroupConfigs.AsValueSlice() {
+		result[i] = map[string]interface{}{
+			"volume_group":     volumeGroupConfigElem.GetAttr("volume_group").AsString(),
+			"docker_thin_pool": getConfigFileIntValueByKey(volumeGroupConfigElem, "docker_thin_pool"),
+			"lvm_config":       buildUpdateResourceVolumeGroupConfigsLvmConfig(volumeGroupConfigElem),
+			"types":            buildUpdateResourcePoolResourceVolumeGroupConfigsTypes(volumeGroupConfigElem),
+		}
+	}
+	return result
+}
+
+func buildUpdateResourceVolumeGroupConfigsLvmConfig(resourceElem cty.Value) []interface{} {
+	if !isRawConfigListExist(resourceElem, "lvm_config") {
+		return make([]interface{}, 0)
+	}
+
+	lvmConfig := resourceElem.GetAttr("lvm_config")
+	return []interface{}{
+		map[string]interface{}{
+			"lv_type": lvmConfig.Index(cty.NumberIntVal(0)).GetAttr("lv_type").AsString(),
+			"path":    getConfigFileStringValueByKey(lvmConfig.Index(cty.NumberIntVal(0)), "path"),
+		},
+	}
+}
+
+func buildUpdateResourcePoolResourceVolumeGroupConfigsTypes(elem cty.Value) []interface{} {
+	if !elem.Type().HasAttribute("types") {
+		return nil
+	}
+
+	raw := elem.GetAttr("types")
+	if raw.IsNull() || !raw.IsKnown() || !raw.Type().IsListType() || raw.LengthInt() < 1 {
+		return nil
+	}
+
+	types := make([]interface{}, raw.LengthInt())
+	for i, typeElem := range raw.AsValueSlice() {
+		types[i] = typeElem.AsString()
+	}
+	return types
 }
 
 func buildResourcePoolResourcesAzs(azSet *schema.Set) []map[string]interface{} {
@@ -1692,57 +2014,104 @@ func updateResourcePoolWaitingForStateCompleted(ctx context.Context, d *schema.R
 }
 
 func resourceModelartsResourcePoolDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
+	var (
+		cfg              = meta.(*config.Config)
+		region           = cfg.GetRegion(d)
+		resourcePoolName = d.Id()
+	)
+
+	client, err := cfg.NewServiceClient("modelarts", region)
+	if err != nil {
+		return diag.Errorf("error creating ModelArts client: %s", err)
+	}
+
+	bssClient, err := cfg.NewServiceClient("bssv2", region)
+	if err != nil {
+		return diag.Errorf("error creating BSS client: %s", err)
+	}
+
+	// If there are nodes in the prepaid billing mode under the resource pool (pre-paid or post-paid), we must unsubscribe the nodes first.
+	if err := unsubscribePrePaidBillingNodes(ctx, client, bssClient, resourcePoolName, d.Timeout(schema.TimeoutDelete)); err != nil {
+		return diag.Errorf("error unsubscribing nodes under specified resource pool (%s): %s", resourcePoolName, err)
+	}
+
+	// When there is no node in the resource pool, the resource pool will be automatically deleted.
+	_, err = queryResourcePool(cfg, region, d)
+	if _, ok := err.(golangsdk.ErrDefault404); ok {
+		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error deleting resource pool (%s)", resourcePoolName))
+	}
 
 	if d.Get("charging_mode").(string) == "prePaid" {
 		resourcePoolId := d.Get("resource_pool_id")
 		if resourcePoolId == nil {
-			return diag.Errorf("error getting resource ID from the resource pool(%s)", d.Id())
+			return diag.Errorf("error getting resource ID from the resource pool (%s)", d.Id())
 		}
 		if err := common.UnsubscribePrePaidResource(d, cfg, []string{resourcePoolId.(string)}); err != nil {
 			return diag.Errorf("error unsubscribing Modelarts resource pool: %s", err)
 		}
 	} else {
-		err := deleteResourcePool(cfg, d, region)
+		err := deleteResourcePool(client, resourcePoolName)
 		if err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
-	err := deleteResourcePoolWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutDelete))
+	err = deleteResourcePoolWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return diag.Errorf("error waiting for the Modelarts resource pool (%s) deletion to complete: %s", d.Id(), err)
 	}
 	return nil
 }
 
-func deleteResourcePool(cfg *config.Config, d *schema.ResourceData, region string) error {
-	var (
-		deleteResourcePoolHttpUrl = "v2/{project_id}/pools/{id}"
-		deleteResourcePoolProduct = "modelarts"
-	)
-	deleteResourcePoolClient, err := cfg.NewServiceClient(deleteResourcePoolProduct, region)
-	if err != nil {
-		return fmt.Errorf("error creating ModelArts client: %s", err)
-	}
-
-	deleteResourcePoolPath := deleteResourcePoolClient.Endpoint + deleteResourcePoolHttpUrl
-	deleteResourcePoolPath = strings.ReplaceAll(deleteResourcePoolPath, "{project_id}", deleteResourcePoolClient.ProjectID)
-	deleteResourcePoolPath = strings.ReplaceAll(deleteResourcePoolPath, "{id}", d.Id())
+func deleteResourcePool(client *golangsdk.ServiceClient, resourcePoolName string) error {
+	deleteHttpUrl := "v2/{project_id}/pools/{pool_name}"
+	deletePath := client.Endpoint + deleteHttpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = strings.ReplaceAll(deletePath, "{pool_name}", resourcePoolName)
 
 	deleteResourcePoolOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: map[string]string{"Content-Type": "application/json"},
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
-	_, err = deleteResourcePoolClient.Request("DELETE", deleteResourcePoolPath, &deleteResourcePoolOpt)
+	_, err := client.Request("DELETE", deletePath, &deleteResourcePoolOpt)
 	if err != nil {
 		return fmt.Errorf("error deleting Modelarts resource pool: %s", err)
 	}
+	return nil
+}
+
+func unsubscribePrePaidBillingNodes(ctx context.Context, client, bssClient *golangsdk.ServiceClient, resourcePoolName string,
+	timeout time.Duration) error {
+	nodes, err := listV2ResourcePoolNodes(client, resourcePoolName)
+	if err != nil {
+		return fmt.Errorf("error querying nodes under specified resource pool (%s): %s", resourcePoolName, err)
+	}
+
+	// Obtain the node IDs list that are in the pre-paid billing mode.
+	deleteNodeIds := utils.PathSearch(
+		fmt.Sprintf(`[?metadata.annotations."os.modelarts/billing.mode"=='%s'].metadata.labels."os.modelarts/resource.id"`, billingModePrePaid),
+		nodes, make([]interface{}, 0)).([]interface{})
+
+	if len(deleteNodeIds) == 0 {
+		return nil
+	}
+
+	// Unsubscribe the pre-paid billing nodes.
+	err = cbc.UnsubscribePrePaidResources(bssClient, deleteNodeIds)
+	if err != nil {
+		return err
+	}
+	err = cbc.WaitForResourcesUnsubscribed(ctx, bssClient, deleteNodeIds, timeout)
+	if err != nil {
+		return fmt.Errorf("error waiting for all nodes to be unsubscribed: %s ", err)
+	}
+
+	err = waitForV2NodeBatchUnsubscribeCompleted(ctx, client, resourcePoolName, deleteNodeIds, timeout)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

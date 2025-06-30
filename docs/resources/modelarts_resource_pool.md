@@ -199,9 +199,7 @@ The following arguments are supported:
   Including resource flavors and the number of resources of the corresponding flavors.
   The [resources](#ModelartsResourcePool_ResourceFlavor) structure is documented below.
 
-  -> If you want to update `resources`, the order of the `resources` list must be consistent with the one used during creation.
-
-  ~> If the updated `resources` list is inconsistent with the created one, the expansion may extend to other node pools.
+-> If there are billing nodes in the resource pool, you cannot scale down or delete the node pool through this resource.
 
 * `scope` - (Required, List) Specifies the list of job types supported by the resource pool. It is mandatory when
   `network_id` is specified and can not be specified when `vpc_id` is specified. The options are as follows:
@@ -281,6 +279,9 @@ The `resources` block supports:
   If you want to expand the nodes, you only need to increase the number of nodes to be expanded
   based on the current parameter value.
 
+  -> If there are billing nodes under the resource pool, use `huaweicloud_modelartsv2_node_batch_delete` to delete
+     the on-demand nodes and use `huaweicloud_modelartsv2_node_batch_delete` to unsubscribe the billing nodes.
+
 * `node_pool` - (Optional, String) Specifies the name of resource pool nodes. It can contain `1` to `50`
   characters, and should start with a letter and ending with a letter or digit, only lowercase letters, digits,
   hyphens (-) are allowed, and cannot end with a hyphen (-).
@@ -325,9 +326,8 @@ The `resources` block supports:
 * `driver` - (Optional, List) Specifies the driver information.  
   The [driver](#ModelartsResourcePool_Resources_driver) structure is documented below.
 
-* `creating_step` - (Optional, List, ForceNew) Specifies the creation step configuration of the resource pool nodes.  
-  The [creating_step](#ModelartsResourcePool_Resources_creating_step) structure is documented below.  
-  Changing this parameter will create a new resource.
+* `creating_step` - (Optional, List) Specifies the creation step configuration of the resource pool nodes.  
+  The [creating_step](#ModelartsResourcePool_Resources_creating_step) structure is documented below.
 
 <a name="ModelartsResourcePool_Resources_azs"></a>
 The `azs` block supports:
@@ -420,11 +420,9 @@ The `driver` block supports:
 <a name="ModelartsResourcePool_Resources_creating_step"></a>
 The `creating_step` block supports:
 
-* `step` - (Required, Int, ForceNew) Specifies the creation step of the resource pool nodes.
-  Changing this parameter will create a new resource.
+* `step` - (Required, Int) Specifies the creation step of the resource pool nodes.
 
-* `type` - (Required, String, ForceNew) Specifies the type of the resource pool nodes.  
-  Changing this parameter will create a new resource.  
+* `type` - (Required, String) Specifies the type of the resource pool nodes.
   The valid values are as follows:
   + **hyperinstance**
 
