@@ -1,12 +1,12 @@
 ---
 subcategory: "AI Development Platform (ModelArts)"
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_modelarts_node_batch_unsubscribe"
+page_title: "HuaweiCloud: huaweicloud_modelartsv2_node_batch_unsubscribe"
 description: |-
   Use this resource to batch unsubscribe the ModelArts nodes within HuaweiCloud.
 ---
 
-# huaweicloud_modelarts_node_batch_unsubscribe
+# huaweicloud_modelartsv2_node_batch_unsubscribe
 
 Use this resource to batch delete the ModelArts nodes within HuaweiCloud.
 
@@ -23,7 +23,7 @@ variable "node_ids" {
   type = list(string)
 }
 
-resource "huaweicloud_modelarts_node_batch_unsubscribe" "test" {
+resource "huaweicloud_modelartsv2_node_batch_unsubscribe" "test" {
   resource_pool_name = var.resource_pool_name
   node_ids           = var.node_ids
 }
