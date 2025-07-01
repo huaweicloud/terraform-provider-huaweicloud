@@ -9,6 +9,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
@@ -16,6 +17,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
+
+var pgDatabasePrivilegeNonUpdatableParams = []string{"instance_id", "db_name"}
 
 // @API RDS POST /v3/{project_id}/instances/{instance_id}/db_privilege
 // @API RDS GET /v3/{project_id}/instances
@@ -26,6 +29,8 @@ func ResourcePgDatabasePrivilege() *schema.Resource {
 		UpdateContext: resourcePgDatabasePrivilegeUpdate,
 		ReadContext:   resourcePgDatabasePrivilegeRead,
 		DeleteContext: resourcePgDatabasePrivilegeDelete,
+
+		CustomizeDiff: config.FlexibleForceNew(pgDatabasePrivilegeNonUpdatableParams),
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
@@ -43,13 +48,11 @@ func ResourcePgDatabasePrivilege() *schema.Resource {
 			"instance_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the ID of the RDS PostgreSQL instance.`,
 			},
 			"db_name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the database name.`,
 			},
 			"users": {
@@ -57,6 +60,12 @@ func ResourcePgDatabasePrivilege() *schema.Resource {
 				Elem:        pgDatabasePrivilegeCreateUserSchema(),
 				Required:    true,
 				Description: `Specifies the account that associated with the database`,
+			},
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
 			},
 		},
 	}
