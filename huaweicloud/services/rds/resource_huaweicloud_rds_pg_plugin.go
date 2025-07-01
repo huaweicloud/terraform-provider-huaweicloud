@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/pagination"
@@ -20,18 +21,23 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+var pgPluginNonUpdatableParams = []string{"instance_id", "name", "database_name"}
+
 // @API RDS POST /v3/{project_id}/instances/{instance_id}/extensions
 // @API RDS GET /v3/{project_id}/instances
 // @API RDS GET /v3/{project_id}/instances/{instance_id}/extensions
 // @API RDS DELETE /v3/{project_id}/instances/{instance_id}/extensions
 func ResourceRdsPgPlugin() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceRdsPgPluginCreate,
-		ReadContext:   resourceRdsPgPluginRead,
-		DeleteContext: resourceRdsPgPluginDelete,
+		CreateContext: resourceRdsPgInstancePluginCreate,
+		ReadContext:   resourceRdsPgInstancePluginRead,
+		UpdateContext: resourceRdsPgInstancePluginUpdate,
+		DeleteContext: resourceRdsPgInstancePluginDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+
+		CustomizeDiff: config.FlexibleForceNew(pgPluginNonUpdatableParams),
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
@@ -48,17 +54,14 @@ func ResourceRdsPgPlugin() *schema.Resource {
 			"instance_id": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"database_name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"version": {
 				Type:     schema.TypeString,
@@ -71,6 +74,12 @@ func ResourceRdsPgPlugin() *schema.Resource {
 			"description": {
 				Type:     schema.TypeString,
 				Computed: true,
+			},
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
 			},
 		},
 	}
@@ -140,7 +149,7 @@ func parseErrCode(resp interface{}) string {
 	return errCode.(string)
 }
 
-func resourceRdsPgPluginCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceRdsPgInstancePluginCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
@@ -197,10 +206,10 @@ func resourceRdsPgPluginCreate(ctx context.Context, d *schema.ResourceData, meta
 	id := fmt.Sprintf("%s/%s/%s", d.Get("instance_id").(string), d.Get("database_name").(string), d.Get("name").(string))
 	d.SetId(id)
 
-	return resourceRdsPgPluginRead(ctx, d, cfg)
+	return resourceRdsPgInstancePluginRead(ctx, d, cfg)
 }
 
-func resourceRdsPgPluginRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceRdsPgInstancePluginRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	getPgPluginClient, err := cfg.NewServiceClient("rds", region)
@@ -241,7 +250,11 @@ func buildDeletePgPluginBody(d *schema.ResourceData) map[string]interface{} {
 	return bodyParams
 }
 
-func resourceRdsPgPluginDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceRdsPgInstancePluginUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+	return nil
+}
+
+func resourceRdsPgInstancePluginDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 

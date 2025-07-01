@@ -29,14 +29,11 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `instance_id` - (Required, String, ForceNew) Specifies the PostgreSQL instance ID.
-  Changing this parameter will create a new resource.
+* `instance_id` - (Required, String, NonUpdatable) Specifies the PostgreSQL instance ID.
 
-* `name` - (Required, String, ForceNew) Specifies the plugin name.
-  Changing this parameter will create a new resource.
+* `name` - (Required, String, NonUpdatable) Specifies the plugin name.
 
-* `database_name` - (Required, String, ForceNew) Specifies the database name.
-  Changing this parameter will create a new resource.
+* `database_name` - (Required, String, NonUpdatable) Specifies the database name.
 
 ## Attribute Reference
 

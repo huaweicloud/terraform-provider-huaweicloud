@@ -106,12 +106,12 @@ resource "huaweicloud_rds_instance" "test" {
 
   db {
     type    = "PostgreSQL"
-    version = "12"
+    version = "16"
   }
 
   volume {
     type = "CLOUDSSD"
-    size = 50
+    size = 40
   }
 }
 `, testAccRdsInstance_base(), name)
