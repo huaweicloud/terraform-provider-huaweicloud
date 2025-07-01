@@ -31,11 +31,11 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
   If omitted, the provider-level region will be used. Changing this creates a new resource.
 
-* `instance_id` - (Required, String, ForceNew) Specifies the ID of an RDS instance. Changing this creates a new resource.
+* `instance_id` - (Required, String, NonUpdatable) Specifies the ID of an RDS instance.
 
-* `public_ip` - (Required, String, ForceNew) Specifies the EIP address to be bound. Changing this creates a new resource.
+* `public_ip` - (Required, String, NonUpdatable) Specifies the EIP address to be bound.
 
-* `public_ip_id` - (Required, String, ForceNew) Specifies the EIP ID. Changing this creates a new resource.
+* `public_ip_id` - (Required, String, NonUpdatable) Specifies the EIP ID.
 
 ## Attribute Reference
 

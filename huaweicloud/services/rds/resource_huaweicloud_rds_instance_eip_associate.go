@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
@@ -18,6 +19,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+var eipAssociateNonUpdatableParams = []string{"instance_id", "public_ip", "public_ip_id"}
+
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/public-ip
 // @API RDS GET /v3/{project_id}/instances
 // @API RDS GET /v3/{project_id}/jobs
@@ -25,7 +28,10 @@ func ResourceRdsInstanceEipAssociate() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceRdsInstanceEipAssociateCreate,
 		ReadContext:   resourceRdsInstanceEipAssociateRead,
+		UpdateContext: resourceRdsInstanceEipAssociateUpdate,
 		DeleteContext: resourceRdsInstanceEipAssociateDelete,
+
+		CustomizeDiff: config.FlexibleForceNew(eipAssociateNonUpdatableParams),
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
@@ -46,17 +52,20 @@ func ResourceRdsInstanceEipAssociate() *schema.Resource {
 			"instance_id": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"public_ip": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"public_ip_id": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
+			},
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
 			},
 		},
 	}
@@ -147,6 +156,10 @@ func resourceRdsInstanceEipAssociateRead(_ context.Context, d *schema.ResourceDa
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func resourceRdsInstanceEipAssociateUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+	return nil
 }
 
 func resourceRdsInstanceEipAssociateDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
