@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
@@ -20,6 +21,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
+
+var pgHbaNonUpdatableParams = []string{"instance_id"}
 
 // @API RDS POST /v3/{project_id}/instances/{instance_id}/hba-info
 // @API RDS GET /v3/{project_id}/instances/{instance_id}/hba-info
@@ -29,9 +32,12 @@ func ResourcePgHba() *schema.Resource {
 		UpdateContext: resourcePgHbaCreateOrUpdate,
 		ReadContext:   resourcePgHbaRead,
 		DeleteContext: resourcePgHbaDelete,
+
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+
+		CustomizeDiff: config.FlexibleForceNew(pgHbaNonUpdatableParams),
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -43,7 +49,6 @@ func ResourcePgHba() *schema.Resource {
 			"instance_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the ID of the RDS PostgreSQL instance.`,
 			},
 			"host_based_authentications": {
@@ -51,6 +56,12 @@ func ResourcePgHba() *schema.Resource {
 				Elem:        pgHbaHostBasedAuthenticationSchema(),
 				Required:    true,
 				Description: `Specifies the list of host based authentications.`,
+			},
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
 			},
 		},
 	}
