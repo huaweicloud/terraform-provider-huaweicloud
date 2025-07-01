@@ -27,7 +27,7 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which to create the RDS binlog resource. If omitted, the
   provider-level region will be used. Changing this creates a new resource.
 
-* `instance_id` - (Required, String, ForceNew) Specifies the RDS MySQL instance ID. Changing this will create a new resource.
+* `instance_id` - (Required, String, NonUpdatable) Specifies the RDS MySQL instance ID.
 
 * `binlog_retention_hours` - (Required, Int) Specifies the binlog retention period. Value range: `1` to `168` (7x24).
 
