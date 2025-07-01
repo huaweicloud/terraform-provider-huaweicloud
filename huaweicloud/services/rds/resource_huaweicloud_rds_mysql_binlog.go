@@ -23,6 +23,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+var mysqlBinlogNonUpdatableParams = []string{"instance_id"}
+
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/binlog/clear-policy
 // @API RDS GET /v3/{project_id}/instances
 func ResourceMysqlBinlog() *schema.Resource {
@@ -31,9 +33,12 @@ func ResourceMysqlBinlog() *schema.Resource {
 		UpdateContext: resourceMysqlBinlogCreateOrUpdate,
 		ReadContext:   resourceMysqlBinlogRead,
 		DeleteContext: resourceMysqlBinlogDelete,
+
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+
+		CustomizeDiff: config.FlexibleForceNew(mysqlBinlogNonUpdatableParams),
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -45,12 +50,17 @@ func ResourceMysqlBinlog() *schema.Resource {
 			"instance_id": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"binlog_retention_hours": {
 				Type:         schema.TypeInt,
 				Required:     true,
 				ValidateFunc: validation.IntAtLeast(1),
+			},
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
 			},
 		},
 	}
