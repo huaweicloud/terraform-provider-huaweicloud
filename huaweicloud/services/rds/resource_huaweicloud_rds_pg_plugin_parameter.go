@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
@@ -18,6 +19,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
+
+var pgPluginParameterNonUpdatableParams = []string{"instance_id", "name"}
 
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/parameter/{name}
 // @API RDS GET /v3/{project_id}/instances/{instance_id}/parameter/{name}
@@ -28,9 +31,12 @@ func ResourcePgPluginParameter() *schema.Resource {
 		ReadContext:   resourcePgPluginParameterRead,
 		UpdateContext: resourcePgPluginParameterCreateOrUpdate,
 		DeleteContext: resourcePgPluginParameterDelete,
+
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceRdsPgPluginParameterImportState,
 		},
+
+		CustomizeDiff: config.FlexibleForceNew(pgPluginParameterNonUpdatableParams),
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
@@ -47,13 +53,11 @@ func ResourcePgPluginParameter() *schema.Resource {
 			"instance_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the ID of RDS instance.`,
 			},
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the name of the plugin parameter.`,
 			},
 			"values": {
@@ -72,6 +76,12 @@ func ResourcePgPluginParameter() *schema.Resource {
 				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: `Indicates the default values of the plugin parameter.`,
+			},
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
 			},
 		},
 	}
