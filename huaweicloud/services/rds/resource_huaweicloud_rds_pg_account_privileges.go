@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/pagination"
@@ -18,6 +19,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
+
+var pgAccountPrivilegesNonUpdatableParams = []string{"instance_id", "user_name"}
 
 // @API RDS POST /v3/{project_id}/instances/{instance_id}/db-user-privilege
 // @API RDS GET /v3/{project_id}/instances
@@ -28,9 +31,12 @@ func ResourcePgAccountPrivileges() *schema.Resource {
 		UpdateContext: resourcePgAccountPrivilegesUpdate,
 		ReadContext:   resourcePgAccountPrivilegesRead,
 		DeleteContext: resourcePgAccountPrivilegesDelete,
+
 		Importer: &schema.ResourceImporter{
 			StateContext: resourcePgAccountPrivilegesImportState,
 		},
+
+		CustomizeDiff: config.FlexibleForceNew(pgAccountPrivilegesNonUpdatableParams),
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
@@ -48,13 +54,11 @@ func ResourcePgAccountPrivileges() *schema.Resource {
 			"instance_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the ID of the RDS PostgreSQL instance.`,
 			},
 			"user_name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the username of the account.`,
 			},
 			"role_privileges": {
@@ -68,6 +72,12 @@ func ResourcePgAccountPrivileges() *schema.Resource {
 				Optional:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: `Specifies the list of system role privileges.`,
+			},
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
 			},
 		},
 	}
