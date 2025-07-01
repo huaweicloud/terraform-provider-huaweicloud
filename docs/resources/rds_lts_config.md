@@ -33,14 +33,13 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
   If omitted, the provider-level region will be used. Changing this creates a new resource.
 
-* `engine` - (Required, String, ForceNew) Specifies the engine of the RDS instance.
-  Value options: **mysql**, **postgresql**, **sqlserver**. Changing this creates a new resource.
+* `engine` - (Required, String, NonUpdatable) Specifies the engine of the RDS instance.
+  Value options: **mysql**, **postgresql**, **sqlserver**.
 
-* `instance_id` - (Required, String, ForceNew) Specifies the ID of the RDS instance.
-  Changing this creates a new resource.
+* `instance_id` - (Required, String, NonUpdatable) Specifies the ID of the RDS instance.
 
-* `log_type` - (Required, String, ForceNew) Specifies the type of the LTS log config.
-  Value options: **error_log**, **slow_log**, **audit_log**. Changing this creates a new resource.
+* `log_type` - (Required, String, NonUpdatable) Specifies the type of the LTS log config.
+  Value options: **error_log**, **slow_log**, **audit_log**.
 
 * `lts_group_id` - (Required, String) Specifies the ID of the LTS log group.
 
