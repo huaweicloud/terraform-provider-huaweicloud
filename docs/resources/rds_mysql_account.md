@@ -29,10 +29,10 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which to create the rds account resource. If omitted, the
   provider-level region will be used. Changing this creates a new resource.
 
-* `instance_id` - (Required, String, ForceNew) Specifies the rds instance id. Changing this will create a new resource.
+* `instance_id` - (Required, String, NonUpdatable) Specifies the rds instance id.
 
-* `name` - (Required, String, ForceNew) Specifies the username of the db account. Only lowercase letters, digits,
-  hyphens (-), and underscores (_) are allowed. Changing this will create a new resource.
+* `name` - (Required, String, NonUpdatable) Specifies the username of the db account. Only lowercase letters, digits,
+  hyphens (-), and underscores (_) are allowed.
   + If the database version is MySQL 5.6, the username consists of 1 to 16 characters.
   + If the database version is MySQL 5.7 or 8.0, the username consists of 1 to 32 characters.
 
@@ -40,13 +40,11 @@ The following arguments are supported:
   long and contain only letters(case-sensitive), digits, and special characters(~!@#$%^*-_=+?,()&). The value must be
   different from `name` or `name` spelled backwards.
 
-* `hosts` - (Optional, List, ForceNew) Specifies the IP addresses that are allowed to access your DB instance.
+* `hosts` - (Optional, List, NonUpdatable) Specifies the IP addresses that are allowed to access your DB instance.
   + If the IP address is set to %, all IP addresses are allowed to access your instance.
   + If the IP address is set to 10.10.10.%, all IP addresses in the subnet 10.10.10.X are allowed to access
     your instance.
   + Multiple IP addresses can be added.
-
-  Changing this parameter will create a new resource.
 
 * `description` - (Optional, String) Specifies remarks of the database account. The parameter must be 1 to 512
   characters long and is supported only for MySQL 8.0.25 and later versions.
