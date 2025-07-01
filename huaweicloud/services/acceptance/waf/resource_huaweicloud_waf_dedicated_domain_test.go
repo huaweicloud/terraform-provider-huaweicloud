@@ -112,12 +112,7 @@ func TestAccDedicateDomain_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "website_name", fmt.Sprintf("%s_update", randName)),
 					resource.TestCheckResourceAttr(resourceName, "description", "test description update"),
 					resource.TestCheckResourceAttr(resourceName, "redirect_url", "${http_host}/error.html"),
-					resource.TestCheckResourceAttr(resourceName, "server.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "server.0.client_protocol", "HTTPS"),
-					resource.TestCheckResourceAttr(resourceName, "server.0.server_protocol", "HTTP"),
-					resource.TestCheckResourceAttr(resourceName, "server.0.port", "8443"),
-					resource.TestCheckResourceAttr(resourceName, "server.0.address", "119.8.0.14"),
-					resource.TestCheckResourceAttr(resourceName, "server.1.address", "119.8.0.15"),
+					resource.TestCheckResourceAttr(resourceName, "server.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "forward_header_map.key2", "$request_length"),
 					resource.TestCheckResourceAttr(resourceName, "forward_header_map.key3", "$remote_addr"),
 					resource.TestCheckResourceAttr(resourceName, "connection_protection.0.error_threshold", "1000"),
@@ -141,6 +136,7 @@ func TestAccDedicateDomain_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "custom_page.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "connection_protection.0.error_threshold", "2147483647"),
 					resource.TestCheckResourceAttr(resourceName, "connection_protection.0.error_percentage", "99"),
 					resource.TestCheckResourceAttr(resourceName, "connection_protection.0.initial_downtime", "2147483647"),
@@ -205,13 +201,102 @@ func TestAccDedicateDomain_basic(t *testing.T) {
 
 func testAccWafDedicatedDomain_base(name, certificateBody string) string {
 	return fmt.Sprintf(`
-%[1]s
+resource "huaweicloud_waf_certificate" "test" {
+  name                  = "%[1]s"
+  enterprise_project_id = "%[2]s"
+
+  certificate = <<EOT
+%[3]s
+EOT
+
+  private_key = <<EOT
+-----BEGIN PRIVATE KEY-----
+MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCvmuH5ViGtGOle
+vJ8vOoN3Ak4pp3SescdAfQa/r4cOz/bmBqBcZJTX9HODhiQzdemyLLs9aOkQXYIc
+8OrcaIsjns92XITVDpFW0ThGyjhTZdELj9LsbIcVzNPPclTcebZBlzAyX0oLqpHK
+73OUYQY2E6l44U9G8Id763Bnws9NRn3cg0qufrlUgdim/pYZ8ubjvlDJ9eEIhcsu
+9zu8c8i2+8qLjEsonx5PrwzNlYP3JqAmZ2dcbQeSPfv5U6ZceKEZfegK+Cxv4rFd
+5F4Rdxl+SAIY+6mr7qu1dAlcVMLSQcLlJLRWQ5NmqL9xju7Fbj2VZt+L6nb512iK
+aedPo2GfAgMBAAECggEAeMAvDS3uAEI2Dx/y8h3xUn9yUfBFH+6tTanrXxoK6+OT
+Kj96O64qL4l3eQRflkdJiGx74FFomglCtDXxudflfXvxurkJ2hunUySQ5xScwLQt
+mB6w8kP6a8IqD+bVdbn32ohk6u5dU0JZ+ErJlklVZRAGJAoCYox5DXwrEh6CP+bJ
+pItgjv71tEEnX5sScQwV7FMRbjsPzXoJp8vCQjlUdetM1fk9rs3R2WSeFbPgLLtC
+xY0+8Hexy0q6BLmyPZvFCaVIAzAHCYeCyzPK3xcm4odbrBmRL/amOg24CCny065N
+MU9RFhEjQsY1RaK7dgkvjsntUZvU+aDcL8o6djOTuQKBgQDlDN/j2ntpGCtbTWH0
+cVTW13Ze7U7iE3BfDO3m4VYP3Xi/v5FI8nHlmLrcl30H1dPKvMTec0dCBOqD1wzF
+KiqHy8ELowO2CbXMYJpjuPzXH40/AE3eOJVTJM8mOeuFdeFgYCd/9cB7o5jfTA5Y
+4zj8EmcRzsH1rNSnvo7/O9q6+wKBgQDERDSvP8RScEbzDKuN6uhzj1K2CAEnY6//
+rDA1so18UhAie9NcAvlKa46jQTOcYD77g5h0WSlNt9ZbK9Plq9CY9psI0KNqN3Fl
+YVKOKdD5m6Rifmg+lt8KLc/WocQ10DXpPTXzzuRlN/TaMDdN2pedEre/0AAMs8Ia
+MIUnu4oyrQKBgQC6b6BNdqi9Ak9IIdR5g0XrGbXfzolGu0vcEkoSg5fpkfuXF/bJ
+yY2rtIVkyGmc1w9tFfmol2yI8Ddy2LgsRAYaQl7/edCre3vev0LrqMck0ynE/hpj
+purkojF6i+qI10p7h8ie/wmNmbv1BZMoBst7Yf9DH2gA8IynfRQn7DA9wQKBgGaU
+M2kJDgX8UsjDbYKuLTIAzb0AMAIzUxBxIX1fRh2dEnvDdjOYBk1EK/fdoyjvENwJ
+6ouc8j6BgBKEtKpMg6j+8wbHbTGdqrHPDQPqjSN4mpEz+i4EUqySRxep0tBBc3vl
+FybHko3okhvbqXwSbL2Ww90HzI7XAPMJOv8KQO+9AoGBAJxxftNWvypBXGkPCdH2
+f3ikvT2Vef9QZjqkvtipCecAkjM6ReLshVsdqFSv/ZmsVUeNKoTHvX2GnhweJM44
+x7N2mFK4skBzVtMVbjAHVjG78UitVu+FrzqGreaJXHaduhgUH2iFWfw09joOotAM
+X7ioLbTeWGBqFM+C80PkdBNp
+-----END PRIVATE KEY-----
+EOT
+}
+
+resource "huaweicloud_waf_certificate" "test-update" {
+  name                  = "%[1]s_update"
+  enterprise_project_id = "%[2]s"
+
+  certificate = <<EOT
+%[4]s
+EOT
+
+  private_key = <<EOT
+-----BEGIN PRIVATE KEY-----
+MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCvmuH5ViGtGOle
+vJ8vOoN3Ak4pp3SescdAfQa/r4cOz/bmBqBcZJTX9HODhiQzdemyLLs9aOkQXYIc
+8OrcaIsjns92XITVDpFW0ThGyjhTZdELj9LsbIcVzNPPclTcebZBlzAyX0oLqpHK
+73OUYQY2E6l44U9G8Id763Bnws9NRn3cg0qufrlUgdim/pYZ8ubjvlDJ9eEIhcsu
+9zu8c8i2+8qLjEsonx5PrwzNlYP3JqAmZ2dcbQeSPfv5U6ZceKEZfegK+Cxv4rFd
+5F4Rdxl+SAIY+6mr7qu1dAlcVMLSQcLlJLRWQ5NmqL9xju7Fbj2VZt+L6nb512iK
+aedPo2GfAgMBAAECggEAeMAvDS3uAEI2Dx/y8h3xUn9yUfBFH+6tTanrXxoK6+OT
+Kj96O64qL4l3eQRflkdJiGx74FFomglCtDXxudflfXvxurkJ2hunUySQ5xScwLQt
+mB6w8kP6a8IqD+bVdbn32ohk6u5dU0JZ+ErJlklVZRAGJAoCYox5DXwrEh6CP+bJ
+pItgjv71tEEnX5sScQwV7FMRbjsPzXoJp8vCQjlUdetM1fk9rs3R2WSeFbPgLLtC
+xY0+8Hexy0q6BLmyPZvFCaVIAzAHCYeCyzPK3xcm4odbrBmRL/amOg24CCny065N
+MU9RFhEjQsY1RaK7dgkvjsntUZvU+aDcL8o6djOTuQKBgQDlDN/j2ntpGCtbTWH0
+cVTW13Ze7U7iE3BfDO3m4VYP3Xi/v5FI8nHlmLrcl30H1dPKvMTec0dCBOqD1wzF
+KiqHy8ELowO2CbXMYJpjuPzXH40/AE3eOJVTJM8mOeuFdeFgYCd/9cB7o5jfTA5Y
+4zj8EmcRzsH1rNSnvo7/O9q6+wKBgQDERDSvP8RScEbzDKuN6uhzj1K2CAEnY6//
+rDA1so18UhAie9NcAvlKa46jQTOcYD77g5h0WSlNt9ZbK9Plq9CY9psI0KNqN3Fl
+YVKOKdD5m6Rifmg+lt8KLc/WocQ10DXpPTXzzuRlN/TaMDdN2pedEre/0AAMs8Ia
+MIUnu4oyrQKBgQC6b6BNdqi9Ak9IIdR5g0XrGbXfzolGu0vcEkoSg5fpkfuXF/bJ
+yY2rtIVkyGmc1w9tFfmol2yI8Ddy2LgsRAYaQl7/edCre3vev0LrqMck0ynE/hpj
+purkojF6i+qI10p7h8ie/wmNmbv1BZMoBst7Yf9DH2gA8IynfRQn7DA9wQKBgGaU
+M2kJDgX8UsjDbYKuLTIAzb0AMAIzUxBxIX1fRh2dEnvDdjOYBk1EK/fdoyjvENwJ
+6ouc8j6BgBKEtKpMg6j+8wbHbTGdqrHPDQPqjSN4mpEz+i4EUqySRxep0tBBc3vl
+FybHko3okhvbqXwSbL2Ww90HzI7XAPMJOv8KQO+9AoGBAJxxftNWvypBXGkPCdH2
+f3ikvT2Vef9QZjqkvtipCecAkjM6ReLshVsdqFSv/ZmsVUeNKoTHvX2GnhweJM44
+x7N2mFK4skBzVtMVbjAHVjG78UitVu+FrzqGreaJXHaduhgUH2iFWfw09joOotAM
+X7ioLbTeWGBqFM+C80PkdBNp
+-----END PRIVATE KEY-----
+EOT
+
+  lifecycle {
+    ignore_changes = [
+      certificate,
+    ]
+  }
+}
+
+resource "huaweicloud_waf_policy" "test" {
+  name                  = "%[1]s"
+  enterprise_project_id = "%[2]s"
+}
 
 # Using this datasource to get the vpc_id to which the dedicated instance belongs.
 data "huaweicloud_waf_dedicated_instances" "test" {
   enterprise_project_id = "%[2]s"
 }
-`, testAccWafCertificate_basic(name, certificateBody), acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST, certificateBody, generateCertificateBody())
 }
 
 func testAccWafDedicatedDomain_basic(name, certificateBody string) string {
@@ -277,6 +362,7 @@ func testAccWafDedicatedDomain_update1(name, certificateBody string) string {
 resource "huaweicloud_waf_dedicated_domain" "test" {
   domain                = "www.%[2]s.com"
   certificate_id        = huaweicloud_waf_certificate.test.id
+  policy_id             = huaweicloud_waf_policy.test.id
   keep_policy           = false
   proxy                 = true
   tls                   = "TLS v1.2"
@@ -293,16 +379,7 @@ resource "huaweicloud_waf_dedicated_domain" "test" {
     client_protocol = "HTTPS"
     server_protocol = "HTTP"
     address         = "119.8.0.14"
-    port            = 8443
-    type            = "ipv4"
-    vpc_id          = data.huaweicloud_waf_dedicated_instances.test.instances[0].vpc_id
-  }
-
-  server {
-    client_protocol = "HTTPS"
-    server_protocol = "HTTP"
-    address         = "119.8.0.15"
-    port            = 8443
+    port            = 8080
     type            = "ipv4"
     vpc_id          = data.huaweicloud_waf_dedicated_instances.test.instances[0].vpc_id
   }
@@ -343,7 +420,8 @@ func testAccWafDedicatedDomain_update2(name, certificateBody string) string {
 
 resource "huaweicloud_waf_dedicated_domain" "test" {
   domain                = "www.%[2]s.com"
-  certificate_id        = huaweicloud_waf_certificate.test.id
+  certificate_id        = huaweicloud_waf_certificate.test-update.id
+  policy_id             = huaweicloud_waf_policy.test.id
   keep_policy           = false
   proxy                 = true
   tls                   = "TLS v1.2"
@@ -353,27 +431,28 @@ resource "huaweicloud_waf_dedicated_domain" "test" {
   protect_status        = 0
   website_name          = "%[2]s_update"
   description           = "test description update"
-  redirect_url          = "$${http_host}/error.html"
   enterprise_project_id = "%[3]s"
 
   server {
     client_protocol = "HTTPS"
     server_protocol = "HTTP"
     address         = "119.8.0.14"
-    port            = 8443
+    port            = 8080
     type            = "ipv4"
     vpc_id          = data.huaweicloud_waf_dedicated_instances.test.instances[0].vpc_id
   }
 
-  server {
-    client_protocol = "HTTPS"
-    server_protocol = "HTTP"
-    address         = "119.8.0.15"
-    port            = 8443
-    type            = "ipv4"
-    vpc_id          = data.huaweicloud_waf_dedicated_instances.test.instances[0].vpc_id
+  custom_page {
+    http_return_code = "404"
+    block_page_type  = "application/json"
+    page_content     = <<EOF
+{
+  "event_id": "$${waf_event_id}",
+  "error_msg": "error message"
+}
+EOF
   }
-
+  
   forward_header_map = {
     "key2" = "$request_length"
     "key3" = "$remote_addr"
@@ -405,6 +484,7 @@ func testAccWafDedicatedDomain_update3(name, certificateBody string) string {
 resource "huaweicloud_waf_dedicated_domain" "test" {
   domain                = "www.%[2]s.com"
   certificate_id        = huaweicloud_waf_certificate.test.id
+  policy_id             = huaweicloud_waf_policy.test.id
   keep_policy           = false
   proxy                 = true
   tls                   = "TLS v1.2"
@@ -421,16 +501,7 @@ resource "huaweicloud_waf_dedicated_domain" "test" {
     client_protocol = "HTTPS"
     server_protocol = "HTTP"
     address         = "119.8.0.14"
-    port            = 8443
-    type            = "ipv4"
-    vpc_id          = data.huaweicloud_waf_dedicated_instances.test.instances[0].vpc_id
-  }
-
-  server {
-    client_protocol = "HTTPS"
-    server_protocol = "HTTP"
-    address         = "119.8.0.15"
-    port            = 8443
+    port            = 8080
     type            = "ipv4"
     vpc_id          = data.huaweicloud_waf_dedicated_instances.test.instances[0].vpc_id
   }
@@ -462,11 +533,6 @@ resource "huaweicloud_waf_dedicated_domain" "test" {
 func testAccWafDedicatedDomain_policy(name, certificateBody string) string {
 	return fmt.Sprintf(`
 %[1]s
-
-resource "huaweicloud_waf_policy" "test" {
-  name                  = "%[2]s"
-  enterprise_project_id = "%[3]s"
-}
 
 resource "huaweicloud_waf_dedicated_domain" "test" {
   domain         = "www.%[2]s.com"

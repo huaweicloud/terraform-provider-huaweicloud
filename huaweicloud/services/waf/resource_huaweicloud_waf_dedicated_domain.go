@@ -13,19 +13,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/waf_hw/v1/policies"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-)
-
-const (
-	protectStatusEnable = 1
-
-	defaultBlockPageTemplate  = "default"
-	customBlockPageTemplate   = "custom"
-	redirectBlockPageTemplate = "redirect"
 )
 
 // @API WAF DELETE /v1/{project_id}/waf/policy/{policy_id}
@@ -126,7 +117,7 @@ func ResourceWafDedicatedDomain() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				MaxItems: 1,
-				Elem:     domainCustomPageSchema(),
+				Elem:     dedicatedDomainCustomPageSchema(),
 			},
 			"redirect_url": {
 				Type:     schema.TypeString,
@@ -160,7 +151,7 @@ func ResourceWafDedicatedDomain() *schema.Resource {
 				Optional: true,
 				Computed: true,
 				MaxItems: 1,
-				Elem:     domainTimeoutSettingSchema(),
+				Elem:     dedicatedDomainTimeoutSettingSchema(),
 			},
 			"traffic_mark": {
 				Type:     schema.TypeList,
@@ -238,7 +229,7 @@ func dedicatedDomainServerSchema() *schema.Resource {
 	return &sc
 }
 
-func domainCustomPageSchema() *schema.Resource {
+func dedicatedDomainCustomPageSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"http_return_code": {
@@ -301,7 +292,7 @@ func dedicatedDomainConnectionProtectionSchema() *schema.Resource {
 	return &sc
 }
 
-func domainTimeoutSettingSchema() *schema.Resource {
+func dedicatedDomainTimeoutSettingSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"connection_timeout": {
@@ -346,13 +337,6 @@ func dedicatedDomainTrafficMarkSchema() *schema.Resource {
 		},
 	}
 	return &sc
-}
-
-func buildHostForwardHeaderMapOpts(d *schema.ResourceData) map[string]string {
-	if v, ok := d.GetOk("forward_header_map"); ok {
-		return utils.ExpandToStringMap(v.(map[string]interface{}))
-	}
-	return nil
 }
 
 func buildEpsQueryParams(d *schema.ResourceData, cfg *config.Config) string {
@@ -763,34 +747,6 @@ func resourceWafDedicatedDomainCreate(ctx context.Context, d *schema.ResourceDat
 	}
 
 	return resourceWafDedicatedDomainRead(ctx, d, meta)
-}
-
-func updateWafDomainPolicyHost(d *schema.ResourceData, cfg *config.Config) error {
-	client, err := cfg.WafV1Client(cfg.GetRegion(d))
-	if err != nil {
-		return fmt.Errorf("error creating WAF client: %s", err)
-	}
-
-	oVal, nVal := d.GetChange("policy_id")
-	newPolicyId := nVal.(string)
-	oldPolicyId := oVal.(string)
-
-	epsID := cfg.GetEnterpriseProjectID(d)
-	updateHostsOpts := policies.UpdateHostsOpts{
-		Hosts:               []string{d.Id()},
-		EnterpriseProjectId: epsID,
-	}
-	log.Printf("[DEBUG] Bind WAF domain %s to policy %s", d.Id(), newPolicyId)
-
-	if _, err := policies.UpdateHosts(client, newPolicyId, updateHostsOpts).Extract(); err != nil {
-		return fmt.Errorf("error updating WAF policy hosts: %s", err)
-	}
-
-	if err := policies.DeleteWithEpsID(client, oldPolicyId, epsID).ExtractErr(); err != nil {
-		// If other domains are using this policy, the deletion will fail.
-		log.Printf("[WARN] error deleting WAF policy %s: %s", oldPolicyId, err)
-	}
-	return nil
 }
 
 func flattenServerAttribute(respBody interface{}) []map[string]interface{} {
