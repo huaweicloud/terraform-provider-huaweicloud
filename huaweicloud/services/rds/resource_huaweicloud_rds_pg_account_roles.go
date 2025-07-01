@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/pagination"
@@ -18,6 +19,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
+
+var pgAccountRolesNonUpdatableParams = []string{"instance_id", "user"}
 
 // @API RDS POST /v3/{project_id}/instances/{instance_id}/db-user-role
 // @API RDS GET /v3/{project_id}/instances
@@ -29,9 +32,12 @@ func ResourcePgAccountRoles() *schema.Resource {
 		UpdateContext: resourcePgAccountRolesUpdate,
 		ReadContext:   resourcePgAccountRolesRead,
 		DeleteContext: resourcePgAccountRolesDelete,
+
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+
+		CustomizeDiff: config.FlexibleForceNew(pgAccountRolesNonUpdatableParams),
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
@@ -49,13 +55,11 @@ func ResourcePgAccountRoles() *schema.Resource {
 			"instance_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the ID of the RDS PostgreSQL instance.`,
 			},
 			"user": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the username of the account.`,
 			},
 			"roles": {
@@ -63,6 +67,12 @@ func ResourcePgAccountRoles() *schema.Resource {
 				Required:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: `Specifies the list of roles.`,
+			},
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
 			},
 		},
 	}
