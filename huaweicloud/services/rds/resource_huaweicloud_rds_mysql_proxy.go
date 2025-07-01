@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
@@ -17,6 +18,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
+
+var mysqlProxyNonUpdatableParams = []string{"instance_id", "flavor", "node_num", "proxy_name", "proxy_mode", "subnet_id"}
 
 // @API RDS POST /v3/{project_id}/instances/{instance_id}/proxy/open
 // @API RDS GET /v3/{project_id}/instances
@@ -30,9 +33,12 @@ func ResourceMysqlProxy() *schema.Resource {
 		ReadContext:   resourceMysqlProxyRead,
 		UpdateContext: resourceMysqlProxyUpdate,
 		DeleteContext: resourceMysqlProxyDelete,
+
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceMysqlMySQLProxyImportState,
 		},
+
+		CustomizeDiff: config.FlexibleForceNew(mysqlProxyNonUpdatableParams),
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
@@ -50,34 +56,28 @@ func ResourceMysqlProxy() *schema.Resource {
 			"instance_id": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"flavor": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"node_num": {
 				Type:     schema.TypeInt,
 				Required: true,
-				ForceNew: true,
 			},
 			"proxy_name": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Computed: true,
 			},
 			"proxy_mode": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Computed: true,
 			},
 			"subnet_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Computed: true,
 			},
 			"route_mode": {
@@ -180,6 +180,12 @@ func ResourceMysqlProxy() *schema.Resource {
 			"support_transaction_split": {
 				Type:     schema.TypeBool,
 				Computed: true,
+			},
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
 			},
 		},
 	}

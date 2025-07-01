@@ -47,35 +47,23 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which to create the RDS MySQL proxy resource. If omitted,
   the provider-level region will be used. Changing this creates a new resource.
 
-* `instance_id` - (Required, String, ForceNew) Specifies the ID of the RDS MySQL instance.
-  
-  Changing this will create a new resource.
+* `instance_id` - (Required, String, NonUpdatable) Specifies the ID of the RDS MySQL instance.
 
-* `flavor` - (Required, String, ForceNew) Specifies the flavor of the proxy.
+* `flavor` - (Required, String, NonUpdatable) Specifies the flavor of the proxy.
   + When the site supports the proxy in primary/standby mode, this parameter does not take effect.
 
-  Changing this will create a new resource.
-
-* `node_num` - (Required, Int, ForceNew) Specifies the node number of the proxy nodes.
+* `node_num` - (Required, Int, NonUpdatable) Specifies the node number of the proxy nodes.
   + When the site supports the proxy in primary/standby mode, set this parameter to **2**.
   + When the site supports the proxy in cluster mode, the minimum value of this parameter is **2**.
 
-  Changing this will create a new resource.
-
-* `proxy_name` - (Optional, String, ForceNew) Specifies the name of the proxy. The name must start with a letter and
+* `proxy_name` - (Optional, String, NonUpdatable) Specifies the name of the proxy. The name must start with a letter and
   consist of **4** to **64** characters. Only letters, digits, hyphens (-), underscores (_), and periods (.) are allowed.
 
-  Changing this will create a new resource.
-
-* `proxy_mode` - (Optional, String, ForceNew) Specifies the read/write mode of the proxy. Value options:
+* `proxy_mode` - (Optional, String, NonUpdatable) Specifies the read/write mode of the proxy. Value options:
   + **readwrite(default value)**: read and write.
   + **readonly**: read-only.
 
-  Changing this will create a new resource.
-
-* `subnet_id` - (Optional, String, ForceNew) Specifies the network ID of a subnet.
-
-  Changing this will create a new resource.
+* `subnet_id` - (Optional, String, NonUpdatable) Specifies the network ID of a subnet.
 
 * `route_mode` - (Optional, Int) Specifies the routing policy of the proxy. Value options:
   + **0**: weighted load balancing.
