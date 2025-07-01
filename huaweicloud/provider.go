@@ -1360,9 +1360,10 @@ func Provider() *schema.Provider {
 			"huaweicloud_smn_logtanks":            smn.DataSourceSmnLogtanks(),
 			"huaweicloud_smn_topic_subscriptions": smn.DataSourceSmnTopicSubscriptions(),
 
-			"huaweicloud_sms_source_servers":     sms.DataSourceServers(),
-			"huaweicloud_sms_agent_configs":      sms.DataSourceSmsAgentConfigs(),
-			"huaweicloud_sms_migration_projects": sms.DataSourceSmsMigrationProjects(),
+			"huaweicloud_sms_source_servers":         sms.DataSourceServers(),
+			"huaweicloud_sms_agent_configs":          sms.DataSourceSmsAgentConfigs(),
+			"huaweicloud_sms_migration_projects":     sms.DataSourceSmsMigrationProjects(),
+			"huaweicloud_sms_source_server_overview": sms.DataSourceSmsSourceServerOverview(),
 
 			"huaweicloud_sfs_turbos":            sfsturbo.DataSourceTurbos(),
 			"huaweicloud_sfs_turbos_by_tags":    sfsturbo.DataSourceSfsTurbosByTags(),
