@@ -29,13 +29,9 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which to create the rds instance resource. If omitted, the
   provider-level region will be used. Changing this creates a new resource.
 
-* `instance_id` - (Required, String, ForceNew) Specifies the ID of instance.
+* `instance_id` - (Required, String, NonUpdatable) Specifies the ID of instance.
 
-  Changing this creates a new resource.
-
-* `db_name` - (Required, String, ForceNew) Specifies the name of the database.
-
-  Changing this creates a new resource.
+* `db_name` - (Required, String, NonUpdatable) Specifies the name of the database.
 
 ## Attribute Reference
 
