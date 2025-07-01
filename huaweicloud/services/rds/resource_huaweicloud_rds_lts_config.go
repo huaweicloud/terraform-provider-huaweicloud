@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/pagination"
@@ -18,6 +19,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
+
+var ltsConfigNonUpdatableParams = []string{"instance_id", "engine", "log_type"}
 
 // @API RDS POST /v3/{project_id}/{engine}/instances/logs/lts-configs
 // @API RDS GET /v3/{project_id}/{engine}/instances/logs/lts-configs
@@ -28,9 +31,12 @@ func ResourceRdsLtsConfig() *schema.Resource {
 		ReadContext:   resourceRdsLtsConfigRead,
 		UpdateContext: resourceRdsLtsConfigCreateOrUpdate,
 		DeleteContext: resourceRdsLtsConfigDelete,
+
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceRdsLtsConfigImportState,
 		},
+
+		CustomizeDiff: config.FlexibleForceNew(ltsConfigNonUpdatableParams),
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
@@ -47,19 +53,16 @@ func ResourceRdsLtsConfig() *schema.Resource {
 			"instance_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the ID of the RDS instance.`,
 			},
 			"engine": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the engine of the RDS instance.`,
 			},
 			"log_type": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the type of the LTS log.`,
 			},
 			"lts_group_id": {
@@ -71,6 +74,12 @@ func ResourceRdsLtsConfig() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: `Specifies the ID of the LTS log stream.`,
+			},
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
 			},
 		},
 	}
