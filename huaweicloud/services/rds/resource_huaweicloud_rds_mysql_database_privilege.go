@@ -17,6 +17,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/pagination"
@@ -25,6 +26,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
+
+var mysqlDatabasePrivilegeNonUpdatableParams = []string{"instance_id", "db_name"}
 
 // @API RDS DELETE /v3/{project_id}/instances/{instance_id}/db_privilege
 // @API RDS POST /v3/{project_id}/instances/{instance_id}/db_privilege
@@ -36,9 +39,12 @@ func ResourceMysqlDatabasePrivilege() *schema.Resource {
 		UpdateContext: resourceMysqlDatabasePrivilegeUpdate,
 		ReadContext:   resourceMysqlDatabasePrivilegeRead,
 		DeleteContext: resourceMysqlDatabasePrivilegeDelete,
+
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+
+		CustomizeDiff: config.FlexibleForceNew(mysqlDatabasePrivilegeNonUpdatableParams),
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
@@ -56,13 +62,11 @@ func ResourceMysqlDatabasePrivilege() *schema.Resource {
 			"instance_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the ID of the RDS Mysql instance.`,
 			},
 			"db_name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the database name.`,
 			},
 			"users": {
@@ -70,6 +74,12 @@ func ResourceMysqlDatabasePrivilege() *schema.Resource {
 				Required:    true,
 				Description: `Specifies the account that associated with the database.`,
 				Elem:        mysqlDatabasePrivilegeUserSchema(),
+			},
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
 			},
 		},
 	}
