@@ -19,7 +19,7 @@ variable "instance_id" {}
 
 resource "huaweicloud_dds_instance_node_num_update" "test" {
   instance_id = var.instance_id
-  type        = "shard"
+  type        = "mongos"
   spec_code   = "dds.mongodb.s6.medium.4.mongos"
   num         = "2"
 }
