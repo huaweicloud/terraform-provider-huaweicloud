@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
@@ -16,13 +17,18 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+var mysqlProxyRestartNonUpdatableParams = []string{"instance_id", "proxy_id"}
+
 // @API RDS POST /v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/restart
 // @API RDS GET /v3/{project_id}/jobs
 func ResourceMysqlProxyRestart() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceMysqlProxyRestartCreate,
 		ReadContext:   resourceMysqlProxyRestartRead,
+		UpdateContext: resourceMysqlProxyRestartUpdate,
 		DeleteContext: resourceMysqlProxyRestartDelete,
+
+		CustomizeDiff: config.FlexibleForceNew(mysqlProxyRestartNonUpdatableParams),
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
@@ -38,12 +44,16 @@ func ResourceMysqlProxyRestart() *schema.Resource {
 			"instance_id": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"proxy_id": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
+			},
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
 			},
 		},
 	}
@@ -113,6 +123,10 @@ func resourceMysqlProxyRestartCreate(ctx context.Context, d *schema.ResourceData
 }
 
 func resourceMysqlProxyRestartRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+	return nil
+}
+
+func resourceMysqlProxyRestartUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	return nil
 }
 
