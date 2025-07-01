@@ -10,6 +10,7 @@ import (
 
 const (
 	buildTaskNotFoundErr = "DEVCB.00031006"
+	templateNotFoundErr  = "DEV.CB.0520002"
 )
 
 // checkResponseError use to check whether the CodeArts Build API response with OkCode but body contains error code.
