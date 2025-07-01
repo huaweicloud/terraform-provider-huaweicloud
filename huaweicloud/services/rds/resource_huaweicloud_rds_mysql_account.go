@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/pagination"
@@ -24,6 +25,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
+
+var mysqlAccountNonUpdatableParams = []string{"instance_id", "name", "hosts"}
 
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/db-users/{user_name}/comment
 // @API RDS POST /v3/{project_id}/instances/{instance_id}/db_user
@@ -37,9 +40,12 @@ func ResourceMysqlAccount() *schema.Resource {
 		UpdateContext: resourceMysqlAccountUpdate,
 		ReadContext:   resourceMysqlAccountRead,
 		DeleteContext: resourceMysqlAccountDelete,
+
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+
+		CustomizeDiff: config.FlexibleForceNew(mysqlAccountNonUpdatableParams),
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
@@ -57,13 +63,11 @@ func ResourceMysqlAccount() *schema.Resource {
 			"instance_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the ID of the RDS Mysql instance.`,
 			},
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the username of the DB account.`,
 			},
 			"password": {
@@ -77,13 +81,18 @@ func ResourceMysqlAccount() *schema.Resource {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Optional:    true,
 				Computed:    true,
-				ForceNew:    true,
 				Description: `Specifies the IP addresses that are allowed to access your DB instance.`,
 			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `Specifies remarks of the DB account.`,
+			},
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
 			},
 		},
 	}
