@@ -159,7 +159,7 @@ resource "huaweicloud_rds_pg_account" "test" {
 
   instance_id = huaweicloud_rds_instance.test.id
   name        = "%[2]s_${count.index}"
-  password    = "Test@12345678"
+  password    = "Terraform145@"
 }
 `, common.TestBaseNetwork(name), name)
 }
