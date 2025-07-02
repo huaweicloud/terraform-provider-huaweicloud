@@ -370,9 +370,21 @@ func resourceIAMAgencyV3Read(_ context.Context, d *schema.ResourceData, meta int
 	}
 
 	agencyID := d.Id()
-	a, err := agency.Get(iamClient, agencyID).Extract()
+	var a *agency.Agency
+
+	a, err = agency.Get(iamClient, agencyID).Extract()
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "IAM agency")
+		if _, ok := err.(golangsdk.ErrDefault404); !ok || !d.IsNewResource() {
+			return common.CheckDeletedDiag(d, err, "error retrieving IAM agency")
+		}
+
+		// if got 404 error in new resource, wait 10 seconds and try again
+		// lintignore:R018
+		time.Sleep(10 * time.Second)
+		a, err = agency.Get(iamClient, agencyID).Extract()
+		if err != nil {
+			return common.CheckDeletedDiag(d, err, "error retrieving IAM agency")
+		}
 	}
 
 	log.Printf("[DEBUG] retrieved IAM agency %s: %#v", agencyID, a)
