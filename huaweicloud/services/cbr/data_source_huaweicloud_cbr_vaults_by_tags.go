@@ -2,6 +2,7 @@ package cbr
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -27,16 +28,16 @@ func DataSourceVaultsByTags() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"action": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
 			"without_any_tag": {
 				Type:     schema.TypeBool,
-				Optional: true,
-			},
-			"cloud_type": {
-				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"tags": {
@@ -46,11 +47,11 @@ func DataSourceVaultsByTags() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"key": {
 							Type:     schema.TypeString,
-							Optional: true,
+							Required: true,
 						},
 						"values": {
 							Type:     schema.TypeList,
-							Optional: true,
+							Required: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
 					},
@@ -63,11 +64,11 @@ func DataSourceVaultsByTags() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"key": {
 							Type:     schema.TypeString,
-							Optional: true,
+							Required: true,
 						},
 						"values": {
 							Type:     schema.TypeList,
-							Optional: true,
+							Required: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
 					},
@@ -80,11 +81,11 @@ func DataSourceVaultsByTags() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"key": {
 							Type:     schema.TypeString,
-							Optional: true,
+							Required: true,
 						},
 						"values": {
 							Type:     schema.TypeList,
-							Optional: true,
+							Required: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
 					},
@@ -97,11 +98,11 @@ func DataSourceVaultsByTags() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"key": {
 							Type:     schema.TypeString,
-							Optional: true,
+							Required: true,
 						},
 						"values": {
 							Type:     schema.TypeList,
-							Optional: true,
+							Required: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
 					},
@@ -114,19 +115,15 @@ func DataSourceVaultsByTags() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"key": {
 							Type:     schema.TypeString,
-							Optional: true,
+							Required: true,
 						},
 						"values": {
 							Type:     schema.TypeList,
-							Optional: true,
+							Required: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
 					},
 				},
-			},
-			"object_type": {
-				Type:     schema.TypeString,
-				Optional: true,
 			},
 			"matches": {
 				Type:     schema.TypeList,
@@ -135,14 +132,22 @@ func DataSourceVaultsByTags() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"key": {
 							Type:     schema.TypeString,
-							Optional: true,
+							Required: true,
 						},
 						"value": {
 							Type:     schema.TypeString,
-							Optional: true,
+							Required: true,
 						},
 					},
 				},
+			},
+			"cloud_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"object_type": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"total_count": {
 				Type:     schema.TypeInt,
@@ -160,27 +165,7 @@ func DataSourceVaultsByTags() *schema.Resource {
 func dataResourceDetailSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"tags": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"key": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"value": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-					},
-				},
-			},
 			"resource_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"resource_name": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -197,6 +182,26 @@ func dataResourceDetailSchema() *schema.Resource {
 					},
 				},
 			},
+			"tags": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"key": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"value": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+			},
+			"resource_name": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"sys_tags": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -204,7 +209,7 @@ func dataResourceDetailSchema() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"key": {
 							Type:     schema.TypeString,
-							Optional: true,
+							Computed: true,
 						},
 						"value": {
 							Type:     schema.TypeString,
@@ -221,6 +226,15 @@ func dataResourceDetailSchema() *schema.Resource {
 func dataResourceDetailVaultSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
+			"billing": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     dataResourceDetailVaultBillingSchema(),
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -229,7 +243,7 @@ func dataResourceDetailVaultSchema() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"description": {
+			"provider_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -237,55 +251,6 @@ func dataResourceDetailVaultSchema() *schema.Resource {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem:     dataResourceDetailVaultResourcesSchema(),
-			},
-			"provider_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"enterprise_project_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"auto_bind": {
-				Type:     schema.TypeBool,
-				Computed: true,
-			},
-			"bind_rules": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"key": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"value": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-					},
-				},
-			},
-			"auto_expand": {
-				Type:     schema.TypeBool,
-				Computed: true,
-			},
-			"smn_notify": {
-				Type:     schema.TypeBool,
-				Computed: true,
-			},
-			"threshold": {
-				Type:     schema.TypeInt,
-				Computed: true,
-			},
-			"billing": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem:     dataResourceDetailVaultBillingSchema(),
 			},
 			"tags": {
 				Type:     schema.TypeList,
@@ -303,44 +268,64 @@ func dataResourceDetailVaultSchema() *schema.Resource {
 					},
 				},
 			},
-			"backup_name_prefix": {
+			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"demand_billing": {
+			"auto_bind": {
 				Type:     schema.TypeBool,
 				Computed: true,
 			},
-			"cbc_delete_count": {
+			"bind_rules": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"tags": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"key": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"value": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			"user_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"auto_expand": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+			"smn_notify": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+			"threshold": {
 				Type:     schema.TypeInt,
-				Computed: true,
-			},
-			"frozen": {
-				Type:     schema.TypeBool,
-				Computed: true,
-			},
-			"availability_zone": {
-				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"sys_lock_source_service": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"supplier": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"locked": {
 				Type:     schema.TypeBool,
-				Computed: true,
-			},
-			"cross_account": {
-				Type:     schema.TypeBool,
-				Computed: true,
-			},
-			"cross_account_urn": {
-				Type:     schema.TypeString,
 				Computed: true,
 			},
 		},
@@ -351,11 +336,20 @@ func dataResourceDetailVaultSchema() *schema.Resource {
 func dataResourceDetailVaultResourcesSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"id": {
-				Type:     schema.TypeString,
+			"extra_info": {
+				Type:     schema.TypeList,
 				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"exclude_volumes": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
+					},
+				},
 			},
-			"type": {
+			"id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -363,12 +357,16 @@ func dataResourceDetailVaultResourcesSchema() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"auto_protect": {
-				Type:     schema.TypeBool,
+			"protect_status": {
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"size": {
 				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"type": {
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"backup_size": {
@@ -378,35 +376,6 @@ func dataResourceDetailVaultResourcesSchema() *schema.Resource {
 			"backup_count": {
 				Type:     schema.TypeInt,
 				Computed: true,
-			},
-			"protect_status": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"extra_info": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"retention_duration": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"name": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"description": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"exclude_volumes": {
-							Type:     schema.TypeList,
-							Computed: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-						},
-					},
-				},
 			},
 		},
 	}
@@ -432,7 +401,7 @@ func dataResourceDetailVaultBillingSchema() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"frozen_scene": {
+			"object_type": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -448,20 +417,12 @@ func dataResourceDetailVaultBillingSchema() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"object_type": {
-				Type:     schema.TypeString,
+			"size": {
+				Type:     schema.TypeInt,
 				Computed: true,
 			},
 			"spec_code": {
 				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"is_multi_az": {
-				Type:     schema.TypeBool,
-				Computed: true,
-			},
-			"is_double_az": {
-				Type:     schema.TypeBool,
 				Computed: true,
 			},
 			"status": {
@@ -476,12 +437,12 @@ func dataResourceDetailVaultBillingSchema() *schema.Resource {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-			"size": {
-				Type:     schema.TypeInt,
+			"frozen_scene": {
+				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"partner_bp_id": {
-				Type:     schema.TypeString,
+			"is_multi_az": {
+				Type:     schema.TypeBool,
 				Computed: true,
 			},
 		},
@@ -559,118 +520,115 @@ func flattenAllVaultsByTags(resp []interface{}) []map[string]interface{} {
 			"resource_name":   utils.PathSearch("resource_name", resource, nil),
 			"tags":            flattenVaultTags(utils.PathSearch("tags", resource, make([]interface{}, 0)).([]interface{})),
 			"resource_detail": flattenResourceDetail(utils.PathSearch("resource_detail.vault", resource, nil)),
+			"sys_tags":        flattenVaultTags(utils.PathSearch("sys_tags", resource, make([]interface{}, 0)).([]interface{})),
 		}
 		results = append(results, resourceMap)
 	}
 	return results
 }
 
-func flattenResourceDetail(res interface{}) []interface{} {
+func flattenResourceDetail(res interface{}) []map[string]interface{} {
 	if res == nil {
 		return nil
 	}
-	return []interface{}{
-		map[string]interface{}{
-			"vault": flattenVault(res),
-		},
+	result := map[string]interface{}{
+		"vault": flattenVault(res),
 	}
+	return []map[string]interface{}{result}
 }
 
-func flattenVault(vaultMap interface{}) []interface{} {
+func flattenVault(vaultMap interface{}) []map[string]interface{} {
 	if vaultMap == nil {
 		return nil
 	}
-
-	return []interface{}{
-		map[string]interface{}{
-			"id":                    utils.PathSearch("id", vaultMap, nil),
-			"name":                  utils.PathSearch("name", vaultMap, nil),
-			"provider_id":           utils.PathSearch("provider_id", vaultMap, nil),
-			"created_at":            utils.PathSearch("created_at", vaultMap, nil),
-			"enterprise_project_id": utils.PathSearch("enterprise_project_id", vaultMap, nil),
-			"auto_bind":             utils.PathSearch("auto_bind", vaultMap, nil),
-			"auto_expand":           utils.PathSearch("auto_expand", vaultMap, nil),
-			"smn_notify":            utils.PathSearch("smn_notify", vaultMap, nil),
-			"threshold":             utils.PathSearch("threshold", vaultMap, nil),
-			"bind_rules":            flattenVaultBindRules(utils.PathSearch("bind_rules", vaultMap, nil)),
-			"resources":             flattenVaultRes(utils.PathSearch("resources", vaultMap, make([]interface{}, 0)).([]interface{})),
-			"billing":               flattenVaultBilling(utils.PathSearch("billing", vaultMap, nil)),
-			"tags":                  flattenVaultTags(utils.PathSearch("tags", vaultMap, make([]interface{}, 0)).([]interface{})),
-		},
+	result := map[string]interface{}{
+		"id":                      utils.PathSearch("id", vaultMap, nil),
+		"name":                    utils.PathSearch("name", vaultMap, nil),
+		"description":             utils.PathSearch("description", vaultMap, nil),
+		"provider_id":             utils.PathSearch("provider_id", vaultMap, nil),
+		"enterprise_project_id":   utils.PathSearch("enterprise_project_id", vaultMap, nil),
+		"auto_bind":               utils.PathSearch("auto_bind", vaultMap, nil),
+		"user_id":                 utils.PathSearch("user_id", vaultMap, nil),
+		"created_at":              utils.PathSearch("created_at", vaultMap, nil),
+		"auto_expand":             utils.PathSearch("auto_expand", vaultMap, nil),
+		"smn_notify":              utils.PathSearch("smn_notify", vaultMap, nil),
+		"threshold":               utils.PathSearch("threshold", vaultMap, nil),
+		"sys_lock_source_service": utils.PathSearch("sys_lock_source_service", vaultMap, nil),
+		"locked":                  utils.PathSearch("locked", vaultMap, nil),
+		"bind_rules":              flattenVaultBindRules(utils.PathSearch("bind_rules", vaultMap, nil)),
+		"resources":               flattenVaultRes(utils.PathSearch("resources", vaultMap, make([]interface{}, 0)).([]interface{})),
+		"billing":                 flattenVaultBilling(utils.PathSearch("billing", vaultMap, nil)),
+		"tags":                    flattenVaultTags(utils.PathSearch("tags", vaultMap, make([]interface{}, 0)).([]interface{})),
 	}
+	return []map[string]interface{}{result}
 }
 
-func flattenVaultRes(resources []interface{}) []interface{} {
-	rst := make([]interface{}, 0, len(resources))
-
+func flattenVaultRes(resources []interface{}) []map[string]interface{} {
+	results := make([]map[string]interface{}, 0, len(resources))
 	for _, res := range resources {
-		rst = append(rst, map[string]interface{}{
+		result := map[string]interface{}{
 			"id":             utils.PathSearch("id", res, nil),
 			"type":           utils.PathSearch("type", res, nil),
 			"name":           utils.PathSearch("name", res, nil),
-			"auto_protect":   utils.PathSearch("auto_protect", res, nil),
 			"size":           utils.PathSearch("size", res, nil),
 			"backup_size":    utils.PathSearch("backup_size", res, nil),
 			"backup_count":   utils.PathSearch("backup_count", res, nil),
 			"protect_status": utils.PathSearch("protect_status", res, nil),
 			"extra_info":     flattenVaultResourcesExtraInfo(res),
-		})
+		}
+		results = append(results, result)
 	}
-	return rst
+	return results
 }
 
-func flattenVaultResourcesExtraInfo(tags interface{}) []map[string]interface{} {
-	if tags == nil {
+func flattenVaultResourcesExtraInfo(res interface{}) []map[string]interface{} {
+	if res == nil {
 		return nil
 	}
-	tagMap := utils.PathSearch("extra_info", tags, make(map[string]interface{}, 0)).(map[string]interface{})
-	rst := make([]map[string]interface{}, 0, len(tagMap))
-	for key, value := range tagMap {
-		rst = append(rst, map[string]interface{}{
-			"key":   key,
-			"value": value,
-		})
+	extraInfo := utils.PathSearch("extra_info", res, nil)
+	if extraInfo == nil {
+		return nil
 	}
-	return rst
+	excludeVolumes := utils.PathSearch("exclude_volumes", extraInfo, []interface{}{}).([]interface{})
+	result := map[string]interface{}{
+		"exclude_volumes": utils.ExpandToStringList(excludeVolumes),
+	}
+	return []map[string]interface{}{result}
 }
 
-func flattenVaultBilling(billing interface{}) []interface{} {
+func flattenVaultBilling(billing interface{}) []map[string]interface{} {
 	if billing == nil {
 		return nil
 	}
-
-	return []interface{}{
-		map[string]interface{}{
-			"allocated":        utils.PathSearch("allocated", billing, nil),
-			"cloud_type":       utils.PathSearch("cloud_type", billing, nil),
-			"consistent_level": utils.PathSearch("consistent_level", billing, nil),
-			"charging_mode":    utils.PathSearch("charging_mode", billing, nil),
-			"order_id":         utils.PathSearch("order_id", billing, nil),
-			"product_id":       utils.PathSearch("product_id", billing, nil),
-			"protect_type":     utils.PathSearch("protect_type", billing, nil),
-			"object_type":      utils.PathSearch("object_type", billing, nil),
-			"spec_code":        utils.PathSearch("spec_code", billing, nil),
-			"used":             utils.PathSearch("used", billing, 0),
-			"status":           utils.PathSearch("status", billing, nil),
-			"size":             utils.PathSearch("size", billing, 0),
-			"is_multi_az":      utils.PathSearch("is_multi_az", billing, nil),
-			"is_double_az":     utils.PathSearch("is_double_az", billing, nil),
-			"storage_unit":     utils.PathSearch("storage_unit", billing, nil),
-			"partner_bp_id":    utils.PathSearch("partner_bp_id", billing, nil),
-		},
+	result := map[string]interface{}{
+		"allocated":        utils.PathSearch("allocated", billing, nil),
+		"charging_mode":    utils.PathSearch("charging_mode", billing, nil),
+		"cloud_type":       utils.PathSearch("cloud_type", billing, nil),
+		"consistent_level": utils.PathSearch("consistent_level", billing, nil),
+		"object_type":      utils.PathSearch("object_type", billing, nil),
+		"order_id":         utils.PathSearch("order_id", billing, nil),
+		"product_id":       utils.PathSearch("product_id", billing, nil),
+		"protect_type":     utils.PathSearch("protect_type", billing, nil),
+		"size":             utils.PathSearch("size", billing, nil),
+		"spec_code":        utils.PathSearch("spec_code", billing, nil),
+		"status":           utils.PathSearch("status", billing, nil),
+		"storage_unit":     utils.PathSearch("storage_unit", billing, nil),
+		"used":             utils.PathSearch("used", billing, nil),
+		"frozen_scene":     utils.PathSearch("frozen_scene", billing, nil),
+		"is_multi_az":      utils.PathSearch("is_multi_az", billing, nil),
 	}
+	return []map[string]interface{}{result}
 }
 
-func flattenVaultBindRules(rules interface{}) []interface{} {
+func flattenVaultBindRules(rules interface{}) []map[string]interface{} {
 	if rules == nil {
 		return nil
 	}
-	return []interface{}{
-		map[string]interface{}{
-			"key":   utils.PathSearch("key", rules, nil),
-			"value": utils.PathSearch("value", rules, nil),
-		},
+	tags := flattenVaultTags(utils.PathSearch("tags", rules, make([]interface{}, 0)).([]interface{}))
+	result := map[string]interface{}{
+		"tags": tags,
 	}
+	return []map[string]interface{}{result}
 }
 
 func flattenVaultTags(tags []interface{}) []map[string]interface{} {
@@ -687,10 +645,20 @@ func flattenVaultTags(tags []interface{}) []map[string]interface{} {
 	return rst
 }
 
+func buildVaultsByTagsQueryParams(epsId string) string {
+	queryParams := ""
+	if epsId != "" {
+		queryParams = fmt.Sprintf("%s?enterprise_project_id=%v", queryParams, epsId)
+	}
+
+	return queryParams
+}
+
 func dataSourceVaultsByTagsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg     = meta.(*config.Config)
 		region  = cfg.GetRegion(d)
+		epsID   = cfg.GetEnterpriseProjectID(d)
 		httpUrl = "v3/{project_id}/vault/resource_instances/action"
 		product = "cbr"
 	)
@@ -701,6 +669,8 @@ func dataSourceVaultsByTagsRead(_ context.Context, d *schema.ResourceData, meta 
 
 	requestPath := client.Endpoint + httpUrl
 	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath += buildVaultsByTagsQueryParams(epsID)
+
 	var allVaults []interface{}
 	offset := 0
 	totalCount := 0
