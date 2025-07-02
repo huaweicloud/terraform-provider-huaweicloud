@@ -48,7 +48,7 @@ func TestAccDcsInstances_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "port", "6388"),
 					resource.TestCheckResourceAttrPair(resourceName, "flavor",
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
-					resource.TestCheckResourceAttr(resourceName, "capacity", "0.125"),
+					resource.TestCheckResourceAttr(resourceName, "capacity", "1"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "22:00:00"),
@@ -58,8 +58,6 @@ func TestAccDcsInstances_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.id", "1"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "timeout"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "100"),
-					resource.TestCheckResourceAttrPair(resourceName, "enterprise_project_id",
-						"huaweicloud_enterprise_project.test.0", "id"),
 					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
 					resource.TestCheckResourceAttrSet(resourceName, "domain_name"),
 					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
@@ -90,7 +88,7 @@ func TestAccDcsInstances_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "port", "6389"),
 					resource.TestCheckResourceAttrPair(resourceName, "flavor",
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
-					resource.TestCheckResourceAttr(resourceName, "capacity", "0.5"),
+					resource.TestCheckResourceAttr(resourceName, "capacity", "2"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
 					resource.TestCheckResourceAttr(resourceName, "maintain_end", "07:00:00"),
 					resource.TestCheckResourceAttr(resourceName, "backup_policy.0.begin_at", "01:00-02:00"),
@@ -99,8 +97,6 @@ func TestAccDcsInstances_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.id", "10"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "latency-monitor-threshold"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "120"),
-					resource.TestCheckResourceAttrPair(resourceName, "enterprise_project_id",
-						"huaweicloud_enterprise_project.test.1", "id"),
 					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
 					resource.TestCheckResourceAttrSet(resourceName, "launched_at"),
 					resource.TestCheckResourceAttrSet(resourceName, "subnet_cidr"),
@@ -1045,16 +1041,9 @@ data "huaweicloud_vpc_subnet" "test" {
 }
 
 data "huaweicloud_dcs_flavors" "test" {
-  cache_mode     = "ha"
-  capacity       = 0.125
-  engine_version = "5.0"
-}
-
-resource "huaweicloud_enterprise_project" "test" {
-  count = 2
-
-  name        = "%[1]s_${count.index}"
-  description = "terraform test"
+  cache_mode       = "ha"
+  capacity         = 1
+  cpu_architecture = "x86_64"
 }
 
 resource "huaweicloud_dcs_instance" "instance_1" {
@@ -1063,15 +1052,13 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   password           = "Huawei_test"
   engine             = "Redis"
   port               = 6388
-  capacity           = 0.125
+  capacity           = 1
   vpc_id             = data.huaweicloud_vpc.test.id
   subnet_id          = data.huaweicloud_vpc_subnet.test.id
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin     = "22:00:00"
   maintain_end       = "23:00:00"
-
-  enterprise_project_id = huaweicloud_enterprise_project.test[0].id
 
   backup_policy {
     backup_type = "auto"
@@ -1115,16 +1102,9 @@ data "huaweicloud_vpc_subnet" "test" {
 }
 
 data "huaweicloud_dcs_flavors" "test" {
-  cache_mode     = "ha"
-  capacity       = 0.5
-  engine_version = "5.0"
-}
-
-resource "huaweicloud_enterprise_project" "test" {
-  count = 2
-
-  name        = "%[1]s_${count.index}"
-  description = "terraform test"
+  cache_mode       = "ha"
+  capacity         = 2
+  cpu_architecture = "x86_64"
 }
 
 resource "huaweicloud_dcs_instance" "instance_1" {
@@ -1133,15 +1113,13 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   password           = "Huawei_test"
   engine             = "Redis"
   port               = 6389
-  capacity           = 0.5
+  capacity           = 2
   vpc_id             = data.huaweicloud_vpc.test.id
   subnet_id          = data.huaweicloud_vpc_subnet.test.id
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin     = "06:00:00"
   maintain_end       = "07:00:00"
-
-  enterprise_project_id = huaweicloud_enterprise_project.test[1].id
 
   backup_policy {
     backup_type = "auto"
