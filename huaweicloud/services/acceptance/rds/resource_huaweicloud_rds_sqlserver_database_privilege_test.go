@@ -129,6 +129,35 @@ func TestAccSQLServerDatabasePrivilege_basic(t *testing.T) {
 	})
 }
 
+func testAccRdsSQLServerDatabasePrivilege_base(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+resource "huaweicloud_rds_instance" "test" {
+  name              = "%[2]s"
+  flavor            = "rds.mssql.spec.se.s6.large.2"
+  availability_zone = [data.huaweicloud_availability_zones.test.names[0]]
+  security_group_id = data.huaweicloud_networking_secgroup.test.id
+  subnet_id         = data.huaweicloud_vpc_subnet.test.id
+  vpc_id            = data.huaweicloud_vpc.test.id
+  charging_mode     = "postPaid"
+  db {
+    password = "Huangwei!120521"
+    type     = "SQLServer"
+    version  = "2022_SE"
+  }
+  volume {
+    type = "ULTRAHIGH"
+    size = 40
+  }
+}
+resource "huaweicloud_rds_sqlserver_database" "test" {
+  depends_on  = [huaweicloud_rds_instance.test]
+  instance_id = huaweicloud_rds_instance.test.id
+  name        = "%[3]s"
+}
+`, testAccRdsInstance_base(), name, name)
+}
+
 func testSQLServerDatabasePrivilege_basic(name string) string {
 	return fmt.Sprintf(`
 %[1]s
@@ -136,7 +165,7 @@ func testSQLServerDatabasePrivilege_basic(name string) string {
 resource "huaweicloud_rds_sqlserver_account" "account_1" {
   instance_id = huaweicloud_rds_instance.test.id
   name        = "%[2]s_1"
-  password    = "Test@12345678"
+  password    = "Terraform145@"
 }
 
 resource "huaweicloud_rds_sqlserver_database_privilege" "test" {
@@ -147,7 +176,7 @@ resource "huaweicloud_rds_sqlserver_database_privilege" "test" {
     name = huaweicloud_rds_sqlserver_account.account_1.name
   }
 }
-`, testSQLServerDatabase_basic(name), name)
+`, testAccRdsSQLServerDatabasePrivilege_base(name), name)
 }
 
 func testSQLServerDatabasePrivilege_basic_update(name string) string {
@@ -157,13 +186,13 @@ func testSQLServerDatabasePrivilege_basic_update(name string) string {
 resource "huaweicloud_rds_sqlserver_account" "account_1" {
   instance_id = huaweicloud_rds_instance.test.id
   name        = "%[2]s_1"
-  password    = "Test@12345678"
+  password    = "Terraform145@"
 }
 
 resource "huaweicloud_rds_sqlserver_account" "account_2" {
   instance_id = huaweicloud_rds_instance.test.id
   name        = "%[2]s_2"
-  password    = "Test@12345678"
+  password    = "Terraform145@"
 }
 
 resource "huaweicloud_rds_sqlserver_database_privilege" "test" {

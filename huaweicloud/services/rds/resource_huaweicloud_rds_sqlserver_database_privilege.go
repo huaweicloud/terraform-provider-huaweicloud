@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/pagination"
@@ -27,6 +28,8 @@ import (
 
 const maxElementsPerRequest = 50
 
+var sqlServerDatabasePrivilegeNonUpdatableParams = []string{"instance_id", "db_name"}
+
 // @API RDS GET /v3/{project_id}/instances/{instance_id}/database/db_user
 // @API RDS DELETE /v3/{project_id}/instances/{instance_id}/db_privilege
 // @API RDS POST /v3/{project_id}/instances/{instance_id}/db_privilege
@@ -37,9 +40,12 @@ func ResourceSQLServerDatabasePrivilege() *schema.Resource {
 		UpdateContext: resourceSQLServerDatabasePrivilegeUpdate,
 		ReadContext:   resourceSQLServerDatabasePrivilegeRead,
 		DeleteContext: resourceSQLServerDatabasePrivilegeDelete,
+
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+
+		CustomizeDiff: config.FlexibleForceNew(sqlServerDatabasePrivilegeNonUpdatableParams),
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
@@ -57,13 +63,11 @@ func ResourceSQLServerDatabasePrivilege() *schema.Resource {
 			"instance_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the ID of the RDS SQL Server instance.`,
 			},
 			"db_name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the database name.`,
 			},
 			"users": {
@@ -71,6 +75,12 @@ func ResourceSQLServerDatabasePrivilege() *schema.Resource {
 				Elem:        sQLServerDatabasePrivilegeCreateUserSchema(),
 				Required:    true,
 				Description: `Specifies the account that associated with the database`,
+			},
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
 			},
 		},
 	}
