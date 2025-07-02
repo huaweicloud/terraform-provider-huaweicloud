@@ -45,9 +45,9 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which to create the RDS database privilege resource. If omitted,
   the provider-level region will be used. Changing this creates a new resource.
 
-* `instance_id` - (Required, String, ForceNew) Specifies the RDS instance ID. Changing this will create a new resource.
+* `instance_id` - (Required, String, NonUpdatable) Specifies the RDS instance ID.
 
-* `db_name` - (Required, String, ForceNew) Specifies the database name. Changing this creates a new resource.
+* `db_name` - (Required, String, NonUpdatable) Specifies the database name.
 
 * `users` - (Required, List) Specifies the account that associated with the database.
   The [users](#users_struct) structure is documented below.
