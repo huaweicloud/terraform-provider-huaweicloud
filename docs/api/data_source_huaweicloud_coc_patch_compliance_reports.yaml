@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_coc_patch_compliance_reports
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: COC
+paths:
+    /v1/patch/instance/compliant:
+        GET:
+            tag: COC

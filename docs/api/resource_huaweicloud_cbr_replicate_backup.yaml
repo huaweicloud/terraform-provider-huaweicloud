@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cbr_replicate_backup
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CBR
+paths:
+    /v3/{project_id}/backups/{backup_id}/replicate:
+        POST:
+            tag: CBR

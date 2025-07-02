@@ -11,3 +11,10 @@ paths:
     /v1/{project_id}/workspaces:
         POST:
             tag: SecMaster
+    /v1/{project_id}/workspaces/{workspace_id}:
+        DELETE:
+            tag: SecMaster
+        GET:
+            tag: SecMaster
+        PUT:
+            tag: SecMaster

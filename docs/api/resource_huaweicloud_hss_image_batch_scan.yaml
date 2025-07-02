@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_hss_image_batch_scan
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: HSS
+paths:
+    /v5/{project_id}/image/batch-scan:
+        POST:
+            tag: HSS

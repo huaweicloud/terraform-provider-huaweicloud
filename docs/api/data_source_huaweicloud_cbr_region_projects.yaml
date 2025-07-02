@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_cbr_region_projects
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CBR
+paths:
+    /v3/region-projects:
+        GET:
+            tag: CBR

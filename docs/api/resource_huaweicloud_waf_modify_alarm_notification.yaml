@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_waf_modify_alarm_notification
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: WAF
+paths:
+    /v2/{project_id}/waf/alert/{alert_id}:
+        PUT:
+            tag: WAF

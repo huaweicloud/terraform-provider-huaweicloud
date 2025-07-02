@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_sdrs_delete_protected_groups_failed_tasks
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: SDRS
+paths:
+    /v1/{project_id}/task-center/failure-jobs/batch:
+        DELETE:
+            tag: SDRS

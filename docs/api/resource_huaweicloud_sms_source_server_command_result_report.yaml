@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_sms_source_server_command_result_report
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: SMS
+paths:
+    /v3/sources/{server_id}/command_result:
+        POST:
+            tag: SMS

@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_sdrs_protected_instance_delete_nic
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: SDRS
+paths:
+    /v1/{project_id}/jobs/{job_id}:
+        GET:
+            tag: SDRS
+    /v1/{project_id}/protected-instances/{protected_instance_id}/nic/delete:
+        POST:
+            tag: SDRS
