@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.76.1 (July 2, 2025)
+
+ENHANCEMENTS:
+
+* update docs for temporary security credentials and backend [GH-7170]
+
 ## 1.76.0 (June 30, 2025)
 
 * **New Resource:**
