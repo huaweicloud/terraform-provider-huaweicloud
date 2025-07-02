@@ -85,10 +85,25 @@ provider "huaweicloud" {
 }
 ```
 
+Temporary security credentials can be provided by adding an `security_token` with `access_key` and `secret_key`
+in-line in the provider block:
+
+Usage:
+
+```hcl
+provider "huaweicloud" {
+  region         = "cn-north-4"
+  access_key     = "my-access-key"
+  secret_key     = "my-secret-key"
+  security_token = "my-security-token"
+}
+```
+
 ### Environment variables
 
 You can provide your credentials via the `HW_ACCESS_KEY` and
 `HW_SECRET_KEY` environment variables, representing your Huawei Cloud Access Key and Secret Key, respectively.
+For temporary security credentials, need to add one more environment variable `HW_SECURITY_TOKEN`.
 
 ```hcl
 provider "huaweicloud" {}
