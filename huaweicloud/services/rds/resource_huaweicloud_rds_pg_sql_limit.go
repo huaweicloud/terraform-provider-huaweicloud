@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
@@ -16,6 +17,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
+
+var pgSqlLimitNonUpdatableParams = []string{"instance_id", "db_name", "query_id", "query_string", "search_path"}
 
 // @API RDS POST /v3/{project_id}/instances/{instance_id}/sql-limit
 // @API RDS GET /v3/{project_id}/instances/{instance_id}/sql-limit
@@ -28,9 +31,12 @@ func ResourcePgSqlLimit() *schema.Resource {
 		UpdateContext: resourcePgSqlLimitUpdate,
 		ReadContext:   resourcePgSqlLimitRead,
 		DeleteContext: resourcePgSqlLimitDelete,
+
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceRdsSqlLimitImportState,
 		},
+
+		CustomizeDiff: config.FlexibleForceNew(pgSqlLimitNonUpdatableParams),
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
@@ -48,26 +54,22 @@ func ResourcePgSqlLimit() *schema.Resource {
 			"instance_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the ID of the RDS PostgreSQL instance.`,
 			},
 			"db_name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the name of the database.`,
 			},
 			"query_id": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ForceNew:     true,
 				ExactlyOneOf: []string{"query_id", "query_string"},
 				Description:  `Specifies the query ID`,
 			},
 			"query_string": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `Specifies the text form of SQL statement.`,
 			},
 			"max_concurrency": {
@@ -83,7 +85,6 @@ func ResourcePgSqlLimit() *schema.Resource {
 			"search_path": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `Specifies the query order for names that are not schema qualified.`,
 			},
 			"switch": {
@@ -101,6 +102,12 @@ func ResourcePgSqlLimit() *schema.Resource {
 				Type:        schema.TypeBool,
 				Computed:    true,
 				Description: `Indicates whether the SQL limit is effective.`,
+			},
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
 			},
 		},
 	}
