@@ -29,16 +29,12 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `instance_id` - (Required, String, ForceNew) Specifies the ID of the RDS PostgreSQL instance.
+* `instance_id` - (Required, String, NonUpdatable) Specifies the ID of the RDS PostgreSQL instance.
 
-  Changing this parameter will create a new resource.
-
-* `name` - (Required, String, ForceNew) Specifies the username of the DB account. The username contains 1 to 63
+* `name` - (Required, String, NonUpdatable) Specifies the username of the DB account. The username contains 1 to 63
   characters, including letters, digits, and underscores (_). It cannot start with pg or a digit and must be different
   from system usernames. System users include **rdsAdmin**, **rdsMetric**, **rdsBackup**, **rdsRepl**, **rdsProxy**,
   and **rdsDdm**.
-
-  Changing this parameter will create a new resource.
 
 * `password` - (Required, String) Specifies the password of the DB account. The value must be 8 to 32 characters long
   and contain at least three types of the following characters: uppercase letters, lowercase letters, digits, and special
