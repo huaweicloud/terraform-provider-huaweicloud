@@ -327,6 +327,7 @@ func getDcsBackup(instanceID, backupID string, client *golangsdk.ServiceClient) 
 
 	getDdmSchemasOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		OkCodes:          []int{200, 204},
 	}
 
 	var currentTotal int

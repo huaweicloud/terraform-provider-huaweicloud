@@ -39,6 +39,7 @@ func getDcsBackupResourceFunc(cfg *config.Config, state *terraform.ResourceState
 
 	getDdmSchemasOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		OkCodes:          []int{200, 204},
 	}
 
 	var currentTotal int
