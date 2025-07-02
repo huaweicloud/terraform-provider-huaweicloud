@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
@@ -16,13 +17,19 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+var restoreNonUpdatableParams = []string{"target_instance_id", "source_instance_id", "type", "backup_id",
+	"restore_time", "database_name"}
+
 // @API RDS POST /v3.1/{project_id}/instances/recovery
 // @API RDS GET /v3/{project_id}/instances
 func ResourceRdsRestore() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceRdsRestoreCreate,
 		ReadContext:   resourceRdsRestoreRead,
+		UpdateContext: resourceRdsRestoreUpdate,
 		DeleteContext: resourceRdsRestoreDelete,
+
+		CustomizeDiff: config.FlexibleForceNew(restoreNonUpdatableParams),
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(60 * time.Minute),
@@ -37,40 +44,40 @@ func ResourceRdsRestore() *schema.Resource {
 			"target_instance_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the target instance ID.`,
 			},
 			"source_instance_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the source instance ID.`,
 			},
 			"type": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `Specifies the restoration type.`,
 			},
 			"backup_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `Specifies the ID of the backup to be restored.`,
 			},
 			"restore_time": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				ForceNew:     true,
 				ExactlyOneOf: []string{"backup_id"},
 				Description:  `Specifies the time point of data restoration in the UNIX timestamp format.`,
 			},
 			"database_name": {
 				Type:        schema.TypeMap,
 				Optional:    true,
-				ForceNew:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: `Specifies the databases that will be restored.`,
+			},
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
 			},
 		},
 	}
@@ -157,6 +164,10 @@ func buildCreateRestoreBodyParams(d *schema.ResourceData) map[string]interface{}
 }
 
 func resourceRdsRestoreRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+	return nil
+}
+
+func resourceRdsRestoreUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	return nil
 }
 
