@@ -38,7 +38,7 @@ use S3 backend to store state files in OBS.
 
 Although the terraform block does not accept variables or locals and all backend configuration values must be hardcoded,
 you can provide the credentials via the **AWS_ACCESS_KEY_ID** and **AWS_SECRET_ACCESS_KEY** environment variables to
-access OBS, respectively.
+access OBS, respectively. For temporary security credentials, need to add one more environment variable `AWS_SESSION_TOKEN`.
 
 ```bash
 export AWS_ACCESS_KEY_ID="your accesskey"
@@ -83,6 +83,13 @@ terraform {
     skip_s3_checksum            = true
   }
 }
+```
+
+* The following environment variables should be applied when using Terraform version after **v1.11.1**:
+
+```sh
+$ export AWS_RESPONSE_CHECKSUM_VALIDATION=when_required
+$ export AWS_REQUEST_CHECKSUM_CALCULATION=when_required
 ```
 
 ### Argument Reference
