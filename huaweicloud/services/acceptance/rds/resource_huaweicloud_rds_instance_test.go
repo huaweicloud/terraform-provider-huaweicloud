@@ -1133,10 +1133,8 @@ resource "huaweicloud_networking_secgroup_rule" "ingress" {
 
 data "huaweicloud_rds_flavors" "test" {
   db_type       = "SQLServer"
-  db_version    = "2017_EE"
+  db_version    = "2022_SE"
   instance_mode = "single"
-  group_type    = "dedicated"
-  vcpus         = 4
 }
 
 resource "huaweicloud_rds_instance" "test" {
@@ -1146,7 +1144,6 @@ resource "huaweicloud_rds_instance" "test" {
   security_group_id = data.huaweicloud_networking_secgroup.test.id
   subnet_id         = data.huaweicloud_vpc_subnet.test.id
   vpc_id            = data.huaweicloud_vpc.test.id
-  collation         = "Chinese_PRC_CI_AS"
   tde_enabled       = true
 
   availability_zone = [
@@ -1156,12 +1153,12 @@ resource "huaweicloud_rds_instance" "test" {
   db {
     password = "Huangwei!120521"
     type     = "SQLServer"
-    version  = "2017_EE"
+    version  = "2022_SE"
     port     = 8634
   }
 
   volume {
-    type = "CLOUDSSD"
+    type = "ULTRAHIGH"
     size = 40
   }
 }
@@ -1183,10 +1180,8 @@ resource "huaweicloud_networking_secgroup_rule" "ingress" {
 
 data "huaweicloud_rds_flavors" "test" {
   db_type       = "SQLServer"
-  db_version    = "2017_EE"
+  db_version    = "2022_SE"
   instance_mode = "single"
-  group_type    = "dedicated"
-  vcpus         = 4
 }
 
 resource "huaweicloud_rds_instance" "test" {
@@ -1196,7 +1191,6 @@ resource "huaweicloud_rds_instance" "test" {
   security_group_id = data.huaweicloud_networking_secgroup.test.id
   subnet_id         = data.huaweicloud_vpc_subnet.test.id
   vpc_id            = data.huaweicloud_vpc.test.id
-  collation         = "Chinese_PRC_CI_AI"
 
   availability_zone = [
     data.huaweicloud_availability_zones.test.names[0],
@@ -1205,12 +1199,12 @@ resource "huaweicloud_rds_instance" "test" {
   db {
     password = "Huangwei!120521"
     type     = "SQLServer"
-    version  = "2017_EE"
+    version  = "2022_SE"
     port     = 8634
   }
 
   volume {
-    type = "CLOUDSSD"
+    type = "ULTRAHIGH"
     size = 40
   }
 }
