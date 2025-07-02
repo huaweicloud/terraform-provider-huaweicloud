@@ -425,6 +425,9 @@ var (
 	// The SecMaster playbook version ID
 	HW_SECMASTER_VERSION_ID = os.Getenv("HW_SECMASTER_VERSION_ID")
 
+	// The SecMaster alert ID
+	HW_SECMASTER_ALERT_ID = os.Getenv("HW_SECMASTER_ALERT_ID")
+
 	HW_MODELARTS_HAS_SUBSCRIBE_MODEL = os.Getenv("HW_MODELARTS_HAS_SUBSCRIBE_MODEL")
 	HW_MODELARTS_USER_LOGIN_PASSWORD = os.Getenv("HW_MODELARTS_USER_LOGIN_PASSWORD")
 	HW_MODELARTS_DEVSERVER_FLAVOR    = os.Getenv("HW_MODELARTS_DEVSERVER_FLAVOR")
@@ -2245,6 +2248,13 @@ func TestAccPreCheckSecMaster(t *testing.T) {
 func TestAccPreCheckSecMasterVersionId(t *testing.T) {
 	if HW_SECMASTER_VERSION_ID == "" {
 		t.Skip("HW_SECMASTER_VERSION_ID must be set for SecMaster acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckSecMasterAlertId(t *testing.T) {
+	if HW_SECMASTER_ALERT_ID == "" {
+		t.Skip("HW_SECMASTER_ALERT_ID must be set for SecMaster acceptance tests")
 	}
 }
 
