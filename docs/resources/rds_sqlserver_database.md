@@ -27,16 +27,12 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `instance_id` - (Required, String, ForceNew) Specifies the ID of the RDS SQLServer instance.
+* `instance_id` - (Required, String, NonUpdatable) Specifies the ID of the RDS SQLServer instance.
 
-  Changing this parameter will create a new resource.
-
-* `name` - (Required, String, ForceNew) Specifies the database name. The database name can contain 1 to 64 characters,
+* `name` - (Required, String, NonUpdatable) Specifies the database name. The database name can contain 1 to 64 characters,
   and can include letters, digits, hyphens (-), underscores (_), and periods (.). It cannot start or end with an RDS for
   SQL Server system database name. RDS for SQL Server system databases include **master**, **msdb**, **model**,
   **tempdb**, **resource**, and **rdsadmin**.
-
-  Changing this parameter will create a new resource.
 
 ## Attribute Reference
 

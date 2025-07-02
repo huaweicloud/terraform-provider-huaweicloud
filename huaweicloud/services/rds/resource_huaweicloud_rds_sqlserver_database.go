@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/pagination"
@@ -25,6 +26,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+var sqlServerDatabaseNonUpdatableParams = []string{"instance_id", "name"}
+
 // @API RDS POST /v3/{project_id}/instances/{instance_id}/database
 // @API RDS GET /v3/{project_id}/instances
 // @API RDS GET /v3/{project_id}/instances/{instance_id}/database/detail
@@ -33,10 +36,14 @@ func ResourceSQLServerDatabase() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceSQLServerDatabaseCreate,
 		ReadContext:   resourceSQLServerDatabaseRead,
+		UpdateContext: resourceSQLServerDatabaseUpdate,
 		DeleteContext: resourceSQLServerDatabaseDelete,
+
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+
+		CustomizeDiff: config.FlexibleForceNew(sqlServerDatabaseNonUpdatableParams),
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
@@ -54,13 +61,11 @@ func ResourceSQLServerDatabase() *schema.Resource {
 			"instance_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the ID of the RDS SQLServer instance.`,
 			},
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the database name.`,
 			},
 			"character_set": {
@@ -72,6 +77,12 @@ func ResourceSQLServerDatabase() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Indicates the database status.`,
+			},
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
 			},
 		},
 	}
@@ -198,6 +209,10 @@ func resourceSQLServerDatabaseRead(_ context.Context, d *schema.ResourceData, me
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func resourceSQLServerDatabaseUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+	return nil
 }
 
 func resourceSQLServerDatabaseDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
