@@ -1146,7 +1146,7 @@ func resourceComputeInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 	if d.HasChange("tags") {
 		tagErr := utils.UpdateResourceTags(ecsClient, d, "cloudservers", serverID)
 		if tagErr != nil {
-			return diag.Errorf("error updating tags of instance:%s, err:%s", serverID, err)
+			return diag.Errorf("error updating tags of instance:%s, err:%s", serverID, tagErr)
 		}
 	}
 
