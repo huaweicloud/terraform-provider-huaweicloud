@@ -8,8 +8,7 @@
               "character_set": {
                 "type": "string",
                 "description": "Specifies the character set used by the database.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "description": {
                 "type": "string",
@@ -23,14 +22,12 @@
               "instance_id": {
                 "type": "string",
                 "description": "Specifies the ID of the RDS Mysql instance.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "name": {
                 "type": "string",
                 "description": "Specifies the database name.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "region": {
                 "type": "string",

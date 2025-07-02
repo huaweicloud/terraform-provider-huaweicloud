@@ -2,33 +2,37 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "resource_schemas": {
-        "huaweicloud_rds_mysql_proxy_restart": {
+        "huaweicloud_secmaster_clone_playbook_version": {
           "block": {
             "attributes": {
               "id": {
                 "type": "string",
                 "computed": true
               },
-              "instance_id": {
-                "type": "string",
-                "required": true
-              },
-              "proxy_id": {
+              "name": {
                 "type": "string",
                 "required": true
               },
               "region": {
                 "type": "string",
                 "computed": true
+              },
+              "version_id": {
+                "type": "string",
+                "required": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "required": true
               }
             }
           },
           "product": {
-            "short": "RDS",
-            "name": "Relational Database Service",
-            "catalog": "Databases",
-            "name_cn": "云数据库",
-            "catalog_cn": "数据库"
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
           }
         }
       }

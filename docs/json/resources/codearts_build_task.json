@@ -227,7 +227,7 @@
                         "map",
                         "string"
                       ],
-                      "description": "Specifies the build step properties.",
+                      "description": "Indicates the build step properties.",
                       "computed": true
                     },
                     "version": {

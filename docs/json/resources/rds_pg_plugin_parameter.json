@@ -20,14 +20,12 @@
               "instance_id": {
                 "type": "string",
                 "description": "Specifies the ID of RDS instance.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "name": {
                 "type": "string",
                 "description": "Specifies the name of the plugin parameter.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "region": {
                 "type": "string",

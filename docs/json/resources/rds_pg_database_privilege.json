@@ -8,8 +8,7 @@
               "db_name": {
                 "type": "string",
                 "description": "Specifies the database name.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "id": {
                 "type": "string",
@@ -18,8 +17,7 @@
               "instance_id": {
                 "type": "string",
                 "description": "Specifies the ID of the RDS PostgreSQL instance.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "region": {
                 "type": "string",

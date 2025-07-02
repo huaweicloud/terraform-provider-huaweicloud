@@ -2,33 +2,37 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "resource_schemas": {
-        "huaweicloud_rds_mysql_proxy_restart": {
+        "huaweicloud_sms_source_server_command_result_report": {
           "block": {
             "attributes": {
+              "command_name": {
+                "type": "string",
+                "required": true
+              },
               "id": {
                 "type": "string",
                 "computed": true
               },
-              "instance_id": {
+              "result": {
                 "type": "string",
                 "required": true
               },
-              "proxy_id": {
+              "result_detail": {
                 "type": "string",
                 "required": true
               },
-              "region": {
+              "server_id": {
                 "type": "string",
-                "computed": true
+                "required": true
               }
             }
           },
           "product": {
-            "short": "RDS",
-            "name": "Relational Database Service",
-            "catalog": "Databases",
-            "name_cn": "云数据库",
-            "catalog_cn": "数据库"
+            "short": "SMS",
+            "name": "Server Migration Service",
+            "catalog": "Migration",
+            "name_cn": "主机迁移服务",
+            "catalog_cn": "迁移"
           }
         }
       }

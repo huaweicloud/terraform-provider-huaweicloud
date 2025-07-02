@@ -8,8 +8,7 @@
               "engine": {
                 "type": "string",
                 "description": "Specifies the engine of the RDS instance.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "id": {
                 "type": "string",
@@ -18,14 +17,12 @@
               "instance_id": {
                 "type": "string",
                 "description": "Specifies the ID of the RDS instance.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "log_type": {
                 "type": "string",
                 "description": "Specifies the type of the LTS log.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "lts_group_id": {
                 "type": "string",

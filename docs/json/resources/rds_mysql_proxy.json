@@ -27,8 +27,7 @@
               },
               "flavor": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "flavor_group_type": {
                 "type": "string",
@@ -44,8 +43,7 @@
               },
               "instance_id": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "memory": {
                 "type": "string",
@@ -57,8 +55,7 @@
               },
               "node_num": {
                 "type": "number",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "nodes": {
                 "type": [
@@ -87,14 +84,12 @@
               "proxy_mode": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "proxy_name": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "region": {
                 "type": "string",
@@ -120,8 +115,7 @@
               "subnet_id": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "support_balance_route_mode": {
                 "type": "bool",
