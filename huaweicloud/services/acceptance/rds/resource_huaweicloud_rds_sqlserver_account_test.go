@@ -87,7 +87,7 @@ func TestAccSQLServerAccount_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testSQLServerAccount_basic(name, "Test@12345678"),
+				Config: testSQLServerAccount_basic(name, "Terraform145@"),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "instance_id",
@@ -97,7 +97,7 @@ func TestAccSQLServerAccount_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testSQLServerAccount_basic(name, "Test@1234567890"),
+				Config: testSQLServerAccount_basic(name, "Terraform145@"),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "instance_id",
@@ -119,10 +119,30 @@ func testSQLServerAccount_basic(name, password string) string {
 	return fmt.Sprintf(`
 %[1]s
 
+resource "huaweicloud_rds_instance" "test" {
+  name              = "%[2]s"
+  flavor            = "rds.mssql.spec.se.s3.large.2"
+  availability_zone = [data.huaweicloud_availability_zones.test.names[0]]
+  security_group_id = data.huaweicloud_networking_secgroup.test.id
+  subnet_id         = data.huaweicloud_vpc_subnet.test.id
+  vpc_id            = data.huaweicloud_vpc.test.id
+
+  db {
+    password = "Terraform145@"
+    type     = "SQLServer"
+    version  = "2022_SE"
+  }
+
+  volume {
+    type = "ULTRAHIGH"
+    size = 40
+  }
+}
+
 resource "huaweicloud_rds_sqlserver_account" "test" {
   instance_id = huaweicloud_rds_instance.test.id
-  name        = "%[2]s"
-  password    = "%[3]s"
+  name        = "%[3]s"
+  password    = "%[4]s"
 }
-`, testAccRdsInstance_sqlserver(name), name, password)
+`, testAccRdsInstance_base(), name, name, password)
 }
