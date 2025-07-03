@@ -466,10 +466,24 @@ In addition to all arguments above, the following attributes are exported:
 
 * `resource_pool_id` - Indicates the resource ID of the resource pool.
 
-* `clusters` - Indicates the list of the CCE clusters.
-  The [clusters](#ModelartsResourcePool_Clusters) structure is documented below.
+* `resources` - The list of the resource pool resources.  
+  The [resources](#ModelartsResourcePool_Resources_attr) structure is documented below.
 
-<a name="ModelartsResourcePool_Clusters"></a>
+* `clusters` - The list of the CCE clusters.  
+  The [clusters](#ModelartsResourcePool_Clusters_attr) structure is documented below.
+
+<a name="ModelartsResourcePool_Resources_attr"></a>
+The `resources` block supports:
+
+* `root_volume` - The root volume of the resource pool nodes.  
+  The [root_volume](#ModelartsResourcePool_Resources_root_volume_attr) structure is documented below.
+
+<a name="ModelartsResourcePool_Resources_root_volume_attr"></a>
+The `root_volume` block supports:
+
+* `extend_params` - The extend parameters of the root volume, in JSON format.
+
+<a name="ModelartsResourcePool_Clusters_attr"></a>
 The `clusters` block supports:
 
 * `name` - Indicates the name of the CCE cluster.

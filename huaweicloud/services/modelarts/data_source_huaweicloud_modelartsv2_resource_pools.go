@@ -391,6 +391,11 @@ func dataV2ResourcePoolSpecResourceSchema() *schema.Resource {
 							Computed:    true,
 							Description: `The size of the root volume.`,
 						},
+						"extend_params": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The extend parameters of the root volume, in JSON format.`,
+						},
 					},
 				},
 				Description: `The root volume of the resource pool nodes.`,
@@ -827,6 +832,16 @@ func dataV2ResourcePoolResourceRootVolumeSchema() *schema.Resource {
 					},
 				),
 			},
+			"extend_params": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The extend parameters of the root volume, in JSON format.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
+			},
 		},
 	}
 }
@@ -1221,8 +1236,9 @@ func flattenV2DataResourcePoolResourcesRootVolume(rootVolume interface{}) []map[
 
 	return []map[string]interface{}{
 		{
-			"volume_type": utils.PathSearch("volumeType", rootVolume, nil),
-			"size":        utils.PathSearch("size", rootVolume, nil),
+			"volume_type":   utils.PathSearch("volumeType", rootVolume, nil),
+			"size":          utils.PathSearch("size", rootVolume, nil),
+			"extend_params": utils.JsonToString(utils.PathSearch("extendParams", rootVolume, nil)),
 		},
 	}
 }
