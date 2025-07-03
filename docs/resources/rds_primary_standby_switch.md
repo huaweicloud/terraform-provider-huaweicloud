@@ -27,14 +27,10 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which to create the rds instance resource. If omitted, the
   provider-level region will be used. Changing this creates a new resource.
 
-* `instance_id` - (Required, String, ForceNew) Specifies the ID of instance.
+* `instance_id` - (Required, String, NonUpdatable) Specifies the ID of instance.
 
-  Changing this creates a new resource.
-
-* `force` - (Optional, Bool, ForceNew) Specifies whether to perform a forcible primary/standby switchover. This parameter
-  is valid only for the PostgreSQL DB engine.
-
-  Changing this creates a new resource.
+* `force` - (Optional, Bool, NonUpdatable) Specifies whether to perform a forcible primary/standby switchover.
+  This parameter is valid only for the PostgreSQL DB engine.
 
 ## Attribute Reference
 

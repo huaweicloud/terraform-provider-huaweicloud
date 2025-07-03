@@ -33,7 +33,7 @@ data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_rds_flavors" "test" {
   db_type       = "PostgreSQL"
-  db_version    = "14"
+  db_version    = "16"
   instance_mode = "ha"
   group_type    = "dedicated"
   vcpus         = 2
@@ -55,7 +55,7 @@ resource "huaweicloud_rds_instance" "pg" {
 
   db {
     type    = "PostgreSQL"
-    version = "14"
+    version = "16"
   }
 
   volume {

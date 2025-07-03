@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
@@ -16,13 +17,18 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+var primaryStandbySwitchNonUpdatableParams = []string{"instance_id", "force"}
+
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/failover
 // @API RDS GET /v3/{project_id}/jobs
 func ResourceRdsPrimaryStandbySwitch() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceRdsPrimaryStandbySwitchCreate,
 		ReadContext:   resourceRdsPrimaryStandbySwitchRead,
+		UpdateContext: resourceRdsPrimaryStandbySwitchUpdate,
 		DeleteContext: resourceRdsPrimaryStandbySwitchDelete,
+
+		CustomizeDiff: config.FlexibleForceNew(primaryStandbySwitchNonUpdatableParams),
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
@@ -37,14 +43,18 @@ func ResourceRdsPrimaryStandbySwitch() *schema.Resource {
 			"instance_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the ID of instance.`,
 			},
 			"force": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				ForceNew:    true,
 				Description: `Specifies whether to perform a forcible primary/standby switchover.`,
+			},
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
 			},
 		},
 	}
@@ -118,6 +128,10 @@ func buildCreatePrimaryStandbySwitchBodyParams(d *schema.ResourceData) map[strin
 }
 
 func resourceRdsPrimaryStandbySwitchRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+	return nil
+}
+
+func resourceRdsPrimaryStandbySwitchUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	return nil
 }
 
