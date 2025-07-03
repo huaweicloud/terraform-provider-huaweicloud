@@ -29,9 +29,7 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `instance_id` - (Required, String, ForceNew) Specifies the ID of the RDS instance.
-
-  Changing this parameter will create a new resource.
+* `instance_id` - (Required, String, NonUpdatable) Specifies the ID of the RDS instance.
 
 * `keep_days` - (Required, Int) Specifies the number of days for storing audit logs. Value ranges from `1` to `732`.
 
