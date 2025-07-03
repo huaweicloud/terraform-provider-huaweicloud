@@ -631,7 +631,7 @@ func resourceRdsInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error waiting for RDS instance (%s) creation completed: %s", instanceID, err)
 	}
 
-	if err = updateRdsInstanceDescription(d, client, instanceID); err != nil {
+	if err = updateRdsInstanceDescription(ctx, d, client); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -1086,50 +1086,26 @@ func setRdsInstanceParameters(ctx context.Context, d *schema.ResourceData, clien
 }
 
 func setAutoUpgradeSwitchOption(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
-	var (
-		httpUrl = "v3/{project_id}/instances/{instance_id}/db-auto-upgrade"
-	)
-
-	getPath := client.Endpoint + httpUrl
-	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
-	getPath = strings.ReplaceAll(getPath, "{instance_id}", d.Id())
-
-	getOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-	getResp, err := client.Request("GET", getPath, &getOpt)
+	getRespBody, err := getInstanceField(client, getInstanceFieldParams{
+		httpUrl:    "v3/{project_id}/instances/{instance_id}/db-auto-upgrade",
+		httpMethod: "GET",
+		pathParams: map[string]string{"instance_id": d.Id()},
+	})
 	if err != nil {
 		log.Printf("[WARN] error retrieving RDS instance(%s) auto upgrade switch option: %s", d.Id(), err)
-		return nil
-	}
-	getRespBody, err := utils.FlattenResponse(getResp)
-	if err != nil {
-		log.Printf("[WARN] error flatten get RDS instance(%s) auto upgrade switch option response: %s", d.Id(), err)
 		return nil
 	}
 	return d.Set("minor_version_auto_upgrade_enabled", utils.PathSearch("switch_option", getRespBody, nil))
 }
 
 func setStorageUsedSpace(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
-	var (
-		httpUrl = "v3/{project_id}/instances/{instance_id}/storage-used-space"
-	)
-
-	getPath := client.Endpoint + httpUrl
-	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
-	getPath = strings.ReplaceAll(getPath, "{instance_id}", d.Id())
-
-	getOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-	getResp, err := client.Request("GET", getPath, &getOpt)
+	getRespBody, err := getInstanceField(client, getInstanceFieldParams{
+		httpUrl:    "v3/{project_id}/instances/{instance_id}/storage-used-space",
+		httpMethod: "GET",
+		pathParams: map[string]string{"instance_id": d.Id()},
+	})
 	if err != nil {
-		log.Printf("[WARN] error retrieving RDS instance(%s) storage used space: %s", d.Id(), err)
-		return nil
-	}
-	getRespBody, err := utils.FlattenResponse(getResp)
-	if err != nil {
-		log.Printf("[WARN] error flatten get RDS instance(%s) storage used space response: %s", d.Id(), err)
+		log.Printf("[WARN] error retrieving get RDS instance(%s) storage used space: %s", d.Id(), err)
 		return nil
 	}
 	return d.Set("storage_used_space", flattenInstanceResponseBodyStorageUsedSpace(getRespBody))
@@ -1146,25 +1122,13 @@ func flattenInstanceResponseBodyStorageUsedSpace(resp interface{}) []interface{}
 }
 
 func setReplicationStatus(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
-	var (
-		httpUrl = "v3/{project_id}/instances/{instance_id}/replication/status"
-	)
-
-	getPath := client.Endpoint + httpUrl
-	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
-	getPath = strings.ReplaceAll(getPath, "{instance_id}", d.Id())
-
-	getOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-	getResp, err := client.Request("GET", getPath, &getOpt)
+	getRespBody, err := getInstanceField(client, getInstanceFieldParams{
+		httpUrl:    "v3/{project_id}/instances/{instance_id}/replication/status",
+		httpMethod: "GET",
+		pathParams: map[string]string{"instance_id": d.Id()},
+	})
 	if err != nil {
 		log.Printf("[WARN] error retrieving RDS instance(%s) replication status: %s", d.Id(), err)
-		return nil
-	}
-	getRespBody, err := utils.FlattenResponse(getResp)
-	if err != nil {
-		log.Printf("[WARN] error flatten get RDS instance(%s) replication status response: %s", d.Id(), err)
 		return nil
 	}
 	return d.Set("replication_status", utils.PathSearch("replication_status", getRespBody, nil))
@@ -1192,11 +1156,11 @@ func resourceRdsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 		}
 	}
 
-	if err := updateRdsInstanceName(d, client, instanceID); err != nil {
+	if err = updateRdsInstanceName(ctx, d, client); err != nil {
 		return diag.FromErr(err)
 	}
 
-	if err = updateRdsInstanceDescription(d, client, instanceID); err != nil {
+	if err = updateRdsInstanceDescription(ctx, d, client); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -1554,37 +1518,52 @@ func restartRdsInstance(ctx context.Context, timeout time.Duration, client *gola
 	return nil
 }
 
-func updateRdsInstanceName(d *schema.ResourceData, client *golangsdk.ServiceClient, instanceID string) error {
+func updateRdsInstanceName(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
 	if !d.HasChange("name") {
 		return nil
 	}
 
-	renameOpts := instances.RenameInstanceOpts{
-		Name: d.Get("name").(string),
+	err := updateRdsInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:          "v3/{project_id}/instances/{instance_id}/name",
+		httpMethod:       "PUT",
+		pathParams:       map[string]string{"instance_id": d.Id()},
+		updateBodyParams: buildUpdateRdsInstanceNameBodyParams(d),
+	})
+	if err != nil {
+		return fmt.Errorf("error renaming RDS instance (%s): %s", d.Id(), err)
 	}
-	r := instances.Rename(client, renameOpts, instanceID)
-	if r.Result.Err != nil {
-		return fmt.Errorf("error renaming RDS instance (%s): %s", instanceID, r.Err)
-	}
-
 	return nil
 }
 
-func updateRdsInstanceDescription(d *schema.ResourceData, client *golangsdk.ServiceClient, instanceID string) error {
+func buildUpdateRdsInstanceNameBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"name": d.Get("name").(string),
+	}
+	return bodyParams
+}
+
+func updateRdsInstanceDescription(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
 	if !d.HasChange("description") {
 		return nil
 	}
 
-	modifyAliasOpts := instances.ModifyAliasOpts{
-		Alias: d.Get("description").(string),
+	err := updateRdsInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:          "v3/{project_id}/instances/{instance_id}/alias",
+		httpMethod:       "PUT",
+		pathParams:       map[string]string{"instance_id": d.Id()},
+		updateBodyParams: utils.RemoveNil(buildUpdateRdsInstanceDescriptionBodyParams(d)),
+	})
+	if err != nil {
+		return fmt.Errorf("error modify RDS instance (%s) description: %s", d.Id(), err)
 	}
-	log.Printf("[DEBUG] Modify RDS instance description opts: %+v", modifyAliasOpts)
-	r := instances.ModifyAlias(client, modifyAliasOpts, instanceID)
-	if r.Err != nil {
-		return fmt.Errorf("error modify RDS instance (%s) description: %s", instanceID, r.Err)
-	}
-
 	return nil
+}
+
+func buildUpdateRdsInstanceDescriptionBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"alias": utils.ValueIgnoreEmpty(d.Get("description").(string)),
+	}
+	return bodyParams
 }
 
 func updateAvailabilityZone(ctx context.Context, cfg *config.Config, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
@@ -1624,73 +1603,24 @@ func updateAvailabilityZone(ctx context.Context, cfg *config.Config, d *schema.R
 
 func changeSingleToPrimaryStandby(ctx context.Context, cfg *config.Config, d *schema.ResourceData, client *golangsdk.ServiceClient,
 	azCode string) error {
-	var (
-		httpUrl = "v3/{project_id}/instances/{instance_id}/action"
-	)
-	updatePath := client.Endpoint + httpUrl
-	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
-	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Id())
-
-	updateOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-	updateOpt.JSONBody = utils.RemoveNil(buildChangeSingleToPrimaryStandbyBodyParams(d, azCode))
-
-	retryFunc := func() (interface{}, bool, error) {
-		res, err := client.Request("POST", updatePath, &updateOpt)
-		retry, err := handleMultiOperationsError(err)
-		return res, retry, err
-	}
-	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
-		Ctx:          ctx,
-		RetryFunc:    retryFunc,
-		WaitFunc:     rdsInstanceStateRefreshFunc(client, d.Id()),
-		WaitTarget:   []string{"ACTIVE"},
-		Timeout:      d.Timeout(schema.TimeoutUpdate),
-		DelayTimeout: 10 * time.Second,
-		PollInterval: 10 * time.Second,
-	})
-	if err != nil {
-		return fmt.Errorf("error changing instance from Single to Primary/Standby: %s ", err)
-	}
-
-	updateRespBody, err := utils.FlattenResponse(r.(*http.Response))
-	if err != nil {
-		return err
-	}
-	jobId := utils.PathSearch("job_id", updateRespBody, "").(string)
-	orderId := utils.PathSearch("order_id", updateRespBody, "").(string)
-	if jobId == "" && orderId == "" {
-		return errors.New("error changing instance from Single to Primary/Standby: job_id and order_id is not " +
-			"found in the API response")
-	}
-
-	if jobId != "" {
-		return checkRDSInstanceJobFinish(client, jobId, d.Timeout(schema.TimeoutUpdate))
-	}
-
 	bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmt.Errorf("error creating BSS v2 client: %s", err)
 	}
-	// wait for order success
-	err = common.WaitOrderComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutUpdate))
+	err = updateRdsInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:              "v3/{project_id}/instances/{instance_id}/action",
+		httpMethod:           "POST",
+		pathParams:           map[string]string{"instance_id": d.Id()},
+		updateBodyParams:     utils.RemoveNil(buildChangeSingleToPrimaryStandbyBodyParams(d, azCode)),
+		isRetry:              true,
+		timeout:              schema.TimeoutUpdate,
+		checkJobExpression:   "job_id",
+		checkOrderExpression: "order_id",
+		bssClient:            bssClient,
+	})
 	if err != nil {
-		return err
+		return fmt.Errorf("error changing instance from Single to Primary/Standby: %s", err)
 	}
-
-	stateConf := &resource.StateChangeConf{
-		Target:       []string{"ACTIVE"},
-		Refresh:      rdsInstanceStateRefreshFunc(client, d.Id()),
-		Timeout:      d.Timeout(schema.TimeoutUpdate),
-		Delay:        1 * time.Second,
-		PollInterval: 10 * time.Second,
-	}
-	if _, err = stateConf.WaitForStateContext(ctx); err != nil {
-		return fmt.Errorf("error waiting for instance (%s) changing instance from Single to Primary/Standby: %s",
-			d.Id(), err)
-	}
-
 	return nil
 }
 
@@ -2638,63 +2568,78 @@ func buildAutoUpgradeSwitchOptionBodyParams(d *schema.ResourceData) map[string]i
 }
 
 func updatePowerAction(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, powerAction string) error {
-	var job *instances.JobResponse
-	var err error
-	var action string
 	switch powerAction {
 	case "ON":
-		job, err = instances.Startup(client, d.Id()).Extract()
-		if err != nil {
-			return fmt.Errorf("error starting instance (%s): %s", d.Id(), err)
+		if err := startupInstance(ctx, d, client); err != nil {
+			return err
 		}
-		action = "start"
 	case "OFF":
-		retryFunc := func() (interface{}, bool, error) {
-			res, err := instances.Shutdown(client, d.Id()).Extract()
-			retry, err := handleMultiOperationsError(err)
-			return res, retry, err
+		if err := shutdownInstance(ctx, d, client); err != nil {
+			return err
 		}
-		res, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
-			Ctx:          ctx,
-			RetryFunc:    retryFunc,
-			WaitFunc:     rdsInstanceStateRefreshFunc(client, d.Id()),
-			WaitTarget:   []string{"ACTIVE"},
-			Timeout:      d.Timeout(schema.TimeoutUpdate),
-			DelayTimeout: 1 * time.Second,
-			PollInterval: 10 * time.Second,
-		})
-		if err != nil {
-			return fmt.Errorf("error stopping instance (%s): %s", d.Id(), err)
-		}
-		job = res.(*instances.JobResponse)
-		action = "stop"
 	case "REBOOT":
-		retryFunc := func() (interface{}, bool, error) {
-			res, err := instances.RebootInstance(client, d.Id()).Extract()
-			retry, err := handleMultiOperationsError(err)
-			return res, retry, err
+		if err := rebootInstance(ctx, d, client); err != nil {
+			return err
 		}
-		res, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
-			Ctx:          ctx,
-			RetryFunc:    retryFunc,
-			WaitFunc:     rdsInstanceStateRefreshFunc(client, d.Id()),
-			WaitTarget:   []string{"ACTIVE"},
-			Timeout:      d.Timeout(schema.TimeoutUpdate),
-			DelayTimeout: 1 * time.Second,
-			PollInterval: 10 * time.Second,
-		})
-		if err != nil {
-			return fmt.Errorf("error stopping instance (%s): %s", d.Id(), err)
-		}
-		job = res.(*instances.JobResponse)
-		action = "reboot"
 	default:
 		return fmt.Errorf("the value of power_action(%s) is error, it should be in [ON, OFF, BEBOOT]", powerAction)
+
 	}
-	if err = checkRDSInstanceJobFinish(client, job.GetJobId(), d.Timeout(schema.TimeoutUpdate)); err != nil {
-		return fmt.Errorf("error waiting for RDS instance (%s) to %s: %s", d.Id(), action, err)
+
+	return nil
+}
+
+func startupInstance(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	err := updateRdsInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:            "v3/{project_id}/instances/{instance_id}/action/startup",
+		httpMethod:         "POST",
+		pathParams:         map[string]string{"instance_id": d.Id()},
+		updateBodyParams:   make(map[string]interface{}),
+		checkJobExpression: "job_id",
+	})
+	if err != nil {
+		return fmt.Errorf("error starting instance (%s): %s", d.Id(), err)
 	}
 	return nil
+}
+
+func shutdownInstance(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	err := updateRdsInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:            "v3/{project_id}/instances/{instance_id}/action/shutdown",
+		httpMethod:         "POST",
+		pathParams:         map[string]string{"instance_id": d.Id()},
+		updateBodyParams:   make(map[string]interface{}),
+		isRetry:            true,
+		timeout:            schema.TimeoutUpdate,
+		checkJobExpression: "job_id",
+	})
+	if err != nil {
+		return fmt.Errorf("error stopping instance (%s): %s", d.Id(), err)
+	}
+	return nil
+}
+
+func rebootInstance(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	err := updateRdsInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:            "v3/{project_id}/instances/{instance_id}/action",
+		httpMethod:         "POST",
+		pathParams:         map[string]string{"instance_id": d.Id()},
+		updateBodyParams:   buildRebootInstanceBodyParams(),
+		isRetry:            true,
+		timeout:            schema.TimeoutUpdate,
+		checkJobExpression: "job_id",
+	})
+	if err != nil {
+		return fmt.Errorf("error rebooting instance (%s): %s", d.Id(), err)
+	}
+	return nil
+}
+
+func buildRebootInstanceBodyParams() map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"restart": make(map[string]interface{}),
+	}
+	return bodyParams
 }
 
 func enableVolumeAutoExpand(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,

@@ -327,7 +327,7 @@ func resourceRdsReadReplicaInstanceCreate(ctx context.Context, d *schema.Resourc
 		return diag.FromErr(err)
 	}
 
-	if err = updateRdsInstanceDescription(d, client, instanceID); err != nil {
+	if err = updateRdsInstanceDescription(ctx, d, client); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -481,11 +481,11 @@ func resourceRdsReadReplicaInstanceUpdate(ctx context.Context, d *schema.Resourc
 
 	instanceID := d.Id()
 
-	if err = updateRdsInstanceName(d, client, instanceID); err != nil {
+	if err = updateRdsInstanceName(ctx, d, client); err != nil {
 		return diag.FromErr(err)
 	}
 
-	if err = updateRdsInstanceDescription(d, client, instanceID); err != nil {
+	if err = updateRdsInstanceDescription(ctx, d, client); err != nil {
 		return diag.FromErr(err)
 	}
 
