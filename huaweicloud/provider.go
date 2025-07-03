@@ -711,6 +711,9 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_codearts_pipeline_run_detail": codeartspipeline.DataSourceCodeartsPipelineRunDetail(),
 
+			"huaweicloud_codearts_build_tasks":        codeartsbuild.DataSourceCodeArtsBuildTasks(),
+			"huaweicloud_codearts_build_task_records": codeartsbuild.DataSourceCodeArtsBuildTaskRecords(),
+
 			"huaweicloud_cts_notifications": cts.DataSourceNotifications(),
 			"huaweicloud_cts_traces":        cts.DataSourceCtsTraces(),
 			"huaweicloud_cts_trackers":      cts.DataSourceCtsTrackers(),
