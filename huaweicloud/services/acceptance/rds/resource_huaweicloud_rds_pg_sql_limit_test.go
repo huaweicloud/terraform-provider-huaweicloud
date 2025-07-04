@@ -12,7 +12,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
@@ -130,23 +129,22 @@ func testPgSqlLimit_base(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-data "huaweicloud_availability_zones" "test" {}
-
-data "huaweicloud_rds_flavors" "test" {
-  db_type       = "PostgreSQL"
-  db_version    = "14"
-  instance_mode = "single"
-  group_type    = "dedicated"
-  vcpus         = 8
+data "huaweicloud_rds_flavors" "available" {
+  db_type           = "PostgreSQL"
+  db_version        = "16"
+  instance_mode     = "single"
+  group_type        = "general"
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  vcpus             = 2
 }
 
 resource "huaweicloud_rds_instance" "test" {
   name              = "%[2]s"
-  flavor            = data.huaweicloud_rds_flavors.test.flavors[0].name
-  security_group_id = huaweicloud_networking_secgroup.test.id
-  subnet_id         = huaweicloud_vpc_subnet.test.id
-  vpc_id            = huaweicloud_vpc.test.id
+  flavor            = data.huaweicloud_rds_flavors.available.flavors[0].name
   availability_zone = [data.huaweicloud_availability_zones.test.names[0]]
+  security_group_id = data.huaweicloud_networking_secgroup.test.id
+  subnet_id         = data.huaweicloud_vpc_subnet.test.id
+  vpc_id            = data.huaweicloud_vpc.test.id
 
   parameters {
     name  = "rds_pg_sql_ccl.enable_ccl"
@@ -154,9 +152,8 @@ resource "huaweicloud_rds_instance" "test" {
   }
 
   db {
-    password = "Huangwei!120521"
-    type     = "PostgreSQL"
-    version  = "12"
+    type    = "PostgreSQL"
+    version = "16"
   }
 
   volume {
@@ -164,7 +161,6 @@ resource "huaweicloud_rds_instance" "test" {
     size = 100
   }
 }
-
 
 resource "huaweicloud_rds_pg_database" "test" {
   instance_id = huaweicloud_rds_instance.test.id
@@ -178,7 +174,7 @@ resource "huaweicloud_rds_pg_plugin" "test" {
   name          = "rds_pg_sql_ccl"
   database_name = "%[2]s"
 }
-`, common.TestBaseNetwork(name), name)
+`, testAccRdsInstance_base(), name)
 }
 
 func testPgSqlLimit_basic(name string) string {
