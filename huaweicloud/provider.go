@@ -2537,6 +2537,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_secmaster_incident":                    secmaster.ResourceIncident(),
 			"huaweicloud_secmaster_indicator":                   secmaster.ResourceIndicator(),
+			"huaweicloud_secmaster_alert_convert_incident":      secmaster.ResourceAlertConvertIncident(),
 			"huaweicloud_secmaster_alert":                       secmaster.ResourceAlert(),
 			"huaweicloud_secmaster_alert_rule":                  secmaster.ResourceAlertRule(),
 			"huaweicloud_secmaster_clone_playbook_version":      secmaster.ResourceClonePlaybookAndVersion(),
