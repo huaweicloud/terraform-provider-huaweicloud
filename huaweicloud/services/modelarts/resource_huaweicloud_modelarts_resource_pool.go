@@ -35,9 +35,10 @@ const (
 )
 
 // @API ModelArts POST /v2/{project_id}/pools
-// @API ModelArts DELETE /v2/{project_id}/pools/{id}
 // @API ModelArts GET /v2/{project_id}/pools/{id}
 // @API ModelArts PATCH /v2/{project_id}/pools/{id}
+// @API ModelArts DELETE /v2/{project_id}/pools/{id}
+// @API ModelArts GET /v2/{project_id}/pools/{pool_name}/nodes
 func ResourceModelartsResourcePool() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceModelartsResourcePoolCreate,
