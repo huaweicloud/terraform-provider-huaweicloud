@@ -1,12 +1,21 @@
 package rds
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"strings"
+	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 var (
@@ -214,4 +223,125 @@ func handleTimeoutError(err error) bool {
 		}
 	}
 	return false
+}
+
+type updateInstanceFieldParams struct {
+	httpUrl              string
+	httpMethod           string
+	pathParams           map[string]string
+	updateBodyParams     interface{}
+	isRetry              bool
+	timeout              string
+	checkJobExpression   string
+	checkOrderExpression string
+	bssClient            *golangsdk.ServiceClient
+}
+
+func updateRdsInstanceField(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
+	params updateInstanceFieldParams) error {
+	updatePath := client.Endpoint + params.httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	for pathParam, value := range params.pathParams {
+		updatePath = strings.ReplaceAll(updatePath, fmt.Sprintf("{%s}", pathParam), value)
+	}
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         params.updateBodyParams,
+	}
+
+	var res interface{}
+	var err error
+	if params.isRetry {
+		retryFunc := func() (interface{}, bool, error) {
+			r, err := client.Request(params.httpMethod, updatePath, &updateOpt)
+			retry, err := handleMultiOperationsError(err)
+			return r, retry, err
+		}
+		res, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+			Ctx:          ctx,
+			RetryFunc:    retryFunc,
+			WaitFunc:     rdsInstanceStateRefreshFunc(client, d.Id()),
+			WaitTarget:   []string{"ACTIVE"},
+			Timeout:      d.Timeout(params.timeout),
+			DelayTimeout: 10 * time.Second,
+			PollInterval: 10 * time.Second,
+		})
+	} else {
+		res, err = client.Request(params.httpMethod, updatePath, &updateOpt)
+	}
+	if err != nil {
+		return err
+	}
+
+	if params.checkJobExpression == "" && params.checkOrderExpression == "" {
+		return nil
+	}
+
+	updateRespBody, err := utils.FlattenResponse(res.(*http.Response))
+	if err != nil {
+		return err
+	}
+
+	jobId := utils.PathSearch(params.checkJobExpression, updateRespBody, "").(string)
+	orderId := utils.PathSearch(params.checkOrderExpression, updateRespBody, "").(string)
+	if jobId == "" && orderId == "" {
+		if params.checkJobExpression != "" && params.checkOrderExpression != "" {
+			return fmt.Errorf(" %s and %s is not found in the API response", params.checkJobExpression, params.checkOrderExpression)
+		}
+		if params.checkJobExpression != "" {
+			return fmt.Errorf(" %s is not found in the API response", params.checkJobExpression)
+		}
+		return fmt.Errorf(" %s is not found in the API response", params.checkOrderExpression)
+	}
+
+	if jobId != "" {
+		err = checkRDSInstanceJobFinish(client, jobId, d.Timeout(params.timeout))
+		if err != nil {
+			return err
+		}
+	}
+	if orderId != "" {
+		// wait for order success
+		err = common.WaitOrderComplete(ctx, params.bssClient, orderId, d.Timeout(params.timeout))
+		if err != nil {
+			return err
+		}
+
+		stateConf := &resource.StateChangeConf{
+			Target:       []string{"ACTIVE"},
+			Refresh:      rdsInstanceStateRefreshFunc(client, d.Id()),
+			Timeout:      d.Timeout(schema.TimeoutUpdate),
+			Delay:        1 * time.Second,
+			PollInterval: 10 * time.Second,
+		}
+		if _, err = stateConf.WaitForStateContext(ctx); err != nil {
+			return fmt.Errorf("error waiting for instance (%s) to ready: %s", d.Id(), err)
+		}
+	}
+
+	return nil
+}
+
+type getInstanceFieldParams struct {
+	httpUrl    string
+	httpMethod string
+	pathParams map[string]string
+}
+
+func getInstanceField(client *golangsdk.ServiceClient, params getInstanceFieldParams) (interface{}, error) {
+	getPath := client.Endpoint + params.httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	for pathParam, value := range params.pathParams {
+		getPath = strings.ReplaceAll(getPath, fmt.Sprintf("{%s}", pathParam), value)
+	}
+
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	getResp, err := client.Request(params.httpMethod, getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+	return utils.FlattenResponse(getResp)
 }
