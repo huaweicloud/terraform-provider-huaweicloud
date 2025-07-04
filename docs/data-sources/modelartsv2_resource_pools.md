@@ -175,6 +175,8 @@ The `root_volume` block supports:
 
 * `volume_type` - The type of the root volume.
 
+* `extend_params` - The extend parameters of the root volume, in JSON format.
+
 <a name="modelarts_v2_resource_pools_spec_resources_data_volumes"></a>
 The `data_volumes` block supports:
 

@@ -431,6 +431,18 @@ func modelartsResourcePoolResourcesRootVolumeSchema() *schema.Resource {
 				Required:    true,
 				Description: `The size of the root volume.`,
 			},
+			"extend_params": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringIsJSON,
+				Description: utils.SchemaDesc(
+					`The extend parameters of the root volume, in JSON format.`,
+					utils.SchemaDescInput{
+						Computed: true,
+					},
+				),
+			},
 		},
 	}
 	return &sc
@@ -830,7 +842,6 @@ func buildCreateResourcePoolSpecResources(resources []interface{}) []map[string]
 				utils.PathSearch("extend_params", v, "{}").(string),
 				utils.PathSearch("post_install", v, "").(string),
 			),
-
 			"rootVolume": buildResourcePoolResourcesRootVolume(utils.PathSearch("root_volume", v,
 				make([]interface{}, 0)).([]interface{})),
 			"dataVolumes": buildCreateResourcePoolResourcesDataVolumes(utils.PathSearch("data_volumes", v,
@@ -914,8 +925,9 @@ func buildResourcePoolResourcesRootVolume(rootVolumes []interface{}) map[string]
 
 	rootVolume := rootVolumes[0]
 	return map[string]interface{}{
-		"volumeType": utils.PathSearch("volume_type", rootVolume, nil),
-		"size":       utils.PathSearch("size", rootVolume, nil),
+		"volumeType":   utils.PathSearch("volume_type", rootVolume, nil),
+		"size":         utils.PathSearch("size", rootVolume, nil),
+		"extendParams": utils.StringToJson(utils.PathSearch("extend_params", rootVolume, "").(string)),
 	}
 }
 
@@ -1156,8 +1168,9 @@ func flattenResourcePoolResourcesRootVolume(rootVolume interface{}) []map[string
 
 	return []map[string]interface{}{
 		{
-			"volume_type": utils.PathSearch("volumeType", rootVolume, nil),
-			"size":        utils.PathSearch("size", rootVolume, nil),
+			"volume_type":   utils.PathSearch("volumeType", rootVolume, nil),
+			"size":          utils.PathSearch("size", rootVolume, nil),
+			"extend_params": utils.JsonToString(utils.PathSearch("extendParams", rootVolume, nil)),
 		},
 	}
 }
@@ -1768,6 +1781,11 @@ func buildUpdateResourcePoolResourceRootVolume(resourceElem cty.Value, oldResour
 	return map[string]interface{}{
 		"volumeType": rootVolume.Index(cty.NumberIntVal(0)).GetAttr("volume_type").AsString(),
 		"size":       rootVolume.Index(cty.NumberIntVal(0)).GetAttr("size").AsString(),
+		"extendParams": buildResourcePoolResourcesExtendParamsBodyParams(
+			utils.PathSearch("root_volume[0].extend_params", oldResource, "").(string),
+			getConfigFileStringValueByKey(rootVolume.Index(cty.NumberIntVal(0)), "extend_params"),
+			"",
+		),
 	}
 }
 
@@ -1784,7 +1802,7 @@ func buildUpdateResourcePoolResourceDataVolumes(resourceElem cty.Value, oldResou
 			"volumeType": dataVolume.GetAttr("volume_type").AsString(),
 			"size":       dataVolume.GetAttr("size").AsString(),
 			"extendParams": buildResourcePoolResourcesExtendParamsBodyParams(
-				utils.PathSearch(fmt.Sprintf("[%d].extend_params", i), oldResource, "").(string),
+				utils.PathSearch(fmt.Sprintf("data_volumes[%d].extend_params", i), oldResource, "").(string),
 				getConfigFileStringValueByKey(dataVolume, "extend_params"),
 				"",
 			),
