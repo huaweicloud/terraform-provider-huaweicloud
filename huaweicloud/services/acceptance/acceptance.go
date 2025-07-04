@@ -188,6 +188,7 @@ var (
 
 	HW_DMS_ENVIRONMENT   = os.Getenv("HW_DMS_ENVIRONMENT")
 	HW_SMS_SOURCE_SERVER = os.Getenv("HW_SMS_SOURCE_SERVER")
+	HW_SMS_TASK_ID       = os.Getenv("HW_SMS_TASK_ID")
 
 	HW_DLI_AUTHORIZED_USER_NAME         = os.Getenv("HW_DLI_AUTHORIZED_USER_NAME")
 	HW_DLI_FLINK_JAR_OBS_PATH           = os.Getenv("HW_DLI_FLINK_JAR_OBS_PATH")
@@ -924,6 +925,13 @@ func TestAccPreCheckApigChannelRelatedInfo(t *testing.T) {
 func TestAccPreCheckSms(t *testing.T) {
 	if HW_SMS_SOURCE_SERVER == "" {
 		t.Skip("HW_SMS_SOURCE_SERVER must be set for SMS acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckSmsTaskID(t *testing.T) {
+	if HW_SMS_TASK_ID == "" {
+		t.Skip("HW_SMS_TASK_ID must be set for SMS acceptance tests")
 	}
 }
 
