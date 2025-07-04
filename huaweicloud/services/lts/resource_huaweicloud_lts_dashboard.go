@@ -11,6 +11,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/chnsz/golangsdk"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/entity"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/httpclient_go"
@@ -145,15 +148,25 @@ func resourceLtsDashBoardRead(_ context.Context, d *schema.ResourceData, meta in
 	header["content-type"] = "application/json;charset=UTF8"
 	client.WithMethod(httpclient_go.MethodGet).WithUrl("v2/" + cfg.GetProjectID(region) + "/dashboards?id=" + d.Id()).WithHeader(header)
 	response, err := client.Do()
-	body, diags := client.CheckDeletedDiag(d, err, response, "error retrieving LtsDashBoard")
-	if body == nil {
-		return diags
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, "error retrieving dashboard")
 	}
+
+	defer response.Body.Close()
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	rlt := entity.ReadDashBoardResp{}
 	err = json.Unmarshal(body, &rlt)
 	d.Set("region", region)
-	if err != nil || len(rlt.Results) == 0 {
-		return diag.Errorf("error read lts dash board %s", d.Id())
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	if len(rlt.Results) == 0 {
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, fmt.Sprintf("error retrieving dashboard %s", d.Id()))
 	}
 	mErr := multierror.Append(nil,
 		d.Set("title", rlt.Results[0].Title),

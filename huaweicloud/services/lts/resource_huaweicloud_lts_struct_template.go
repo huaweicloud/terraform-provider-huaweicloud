@@ -12,6 +12,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
+	"github.com/chnsz/golangsdk"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/entity"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/httpclient_go"
@@ -202,10 +205,23 @@ func resourceLtsStructTemplateRead(_ context.Context, d *schema.ResourceData, me
 		d.Get("log_group_id").(string) + "&logStreamId=" + d.Get("log_stream_id").(string)).
 		WithHeader(header)
 	resp, err := client.Do()
-	body, diags := client.CheckDeletedDiag(d, err, resp, "error StructTemplate read instance")
-	if body == nil {
-		return diags
+	if err != nil {
+		// SVCSTG.ALS.200201: The log group or log stream does not exist.
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", "SVCSTG.ALS.200201"),
+			"error getting struct template")
 	}
+
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	// The structuring configuration is not exist.
+	if string(body) == `""` {
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "error retrieving struct template")
+	}
+
 	body = body[1 : len(body)-1]
 	body2 := strings.ReplaceAll(string(body), `\\\`, "**")
 	body3 := strings.ReplaceAll(body2, `\`, "")
