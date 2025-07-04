@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
@@ -18,6 +19,14 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
+
+var nonUpdatableDedicatedDomainParams = []string{
+	"domain",
+	"enterprise_project_id",
+	"loadbalancer_id",
+	"listener_id",
+	"protocol_port",
+}
 
 // @API WAF DELETE /v1/{project_id}/waf/policy/{policy_id}
 // @API WAF PATCH /v1/{project_id}/waf/policy/{policy_id}
@@ -38,6 +47,8 @@ func ResourceWafDedicatedDomain() *schema.Resource {
 			StateContext: resourceWAFImportState,
 		},
 
+		CustomizeDiff: config.FlexibleForceNew(nonUpdatableDedicatedDomainParams),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
@@ -48,12 +59,14 @@ func ResourceWafDedicatedDomain() *schema.Resource {
 			"domain": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
+			// This field is required in the API documentation.
+			// In order to create domain in ELB mode, it needs to be changed to Optional.
+			// The reason for this change is a problem with the API documentation.
 			"server": {
 				Type:     schema.TypeList,
-				Required: true,
-				ForceNew: true,
+				Optional: true,
+				Computed: true,
 				MaxItems: 80,
 				Elem:     dedicatedDomainServerSchema(),
 			},
@@ -106,7 +119,7 @@ func ResourceWafDedicatedDomain() *schema.Resource {
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
+				Computed: true,
 			},
 			"website_name": {
 				Type:     schema.TypeString,
@@ -160,6 +173,39 @@ func ResourceWafDedicatedDomain() *schema.Resource {
 				MaxItems: 1,
 				Elem:     dedicatedDomainTrafficMarkSchema(),
 			},
+			// Fields `mode`, `loadbalancer_id`, `listener_id`, `protocol_port`, and `pool_ids` are only valid in ELB mode.
+			// In fact, field `mode` does not support editing. In order to be consistent with the API, forceNew is not added.
+			"mode": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"loadbalancer_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"listener_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"protocol_port": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+			"pool_ids": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
+			},
 			"access_status": {
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -177,6 +223,25 @@ func ResourceWafDedicatedDomain() *schema.Resource {
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			"timestamp": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"extend": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			"flag": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     flagSchema(),
+			},
+			"block_page": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     blockPageSchema(),
+			},
 			"compliance_certification": {
 				Type:     schema.TypeMap,
 				Computed: true,
@@ -191,38 +256,101 @@ func ResourceWafDedicatedDomain() *schema.Resource {
 	}
 }
 
+func blockPageSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"template": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"custom_page": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     customPageSchema(),
+			},
+			"redirect_url": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+		},
+	}
+	return &sc
+}
+
+func customPageSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"status_code": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"content_type": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"content": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+		},
+	}
+	return &sc
+}
+
+func flagSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"pci_3ds": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"pci_dss": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"cname": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"is_dual_az": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"ipv6": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+		},
+	}
+	return &sc
+}
+
 func dedicatedDomainServerSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"client_protocol": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"server_protocol": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"address": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"port": {
 				Type:     schema.TypeInt,
 				Required: true,
-				ForceNew: true,
 			},
 			"type": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"vpc_id": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 		},
 	}
@@ -390,8 +518,8 @@ func buildCreateDedicatedDomainServerBodyParams(d *schema.ResourceData) []map[st
 			"back_protocol":  server["server_protocol"],
 			"address":        server["address"],
 			"port":           server["port"],
-			"type":           utils.ValueIgnoreEmpty(server["type"]),
-			"vpc_id":         utils.ValueIgnoreEmpty(server["vpc_id"]),
+			"type":           server["type"],
+			"vpc_id":         server["vpc_id"],
 		}
 	}
 	return serverOpts
@@ -448,6 +576,10 @@ func buildCreateDedicatedDomainBodyParams(d *schema.ResourceData, certName strin
 		"block_page":         buildCreateDedicatedDomainBlockPageBodyParams(d),
 		"forward_header_map": buildCreateDedicatedDomainForwardHeaderMapBodyParams(d),
 		"description":        utils.ValueIgnoreEmpty(d.Get("description")),
+		"mode":               utils.ValueIgnoreEmpty(d.Get("mode")),
+		"loadbalancer_id":    utils.ValueIgnoreEmpty(d.Get("loadbalancer_id")),
+		"listener_id":        utils.ValueIgnoreEmpty(d.Get("listener_id")),
+		"protocol_port":      d.Get("protocol_port"), // A value of zero for this field is meaningful.
 	}
 }
 
@@ -596,10 +728,33 @@ func buildUpdateDedicatedDomainForwardHeaderMapOpts(d *schema.ResourceData) inte
 	return nil
 }
 
+func buildUpdateDedicatedDomainServerBodyParams(d *schema.ResourceData) []map[string]interface{} {
+	servers := d.Get("server").([]interface{})
+	if len(servers) == 0 {
+		return nil
+	}
+
+	serverOpts := make([]map[string]interface{}, len(servers))
+	for i, v := range servers {
+		server := v.(map[string]interface{})
+		serverOpts[i] = map[string]interface{}{
+			"front_protocol": server["client_protocol"],
+			"back_protocol":  server["server_protocol"],
+			"address":        server["address"],
+			"port":           server["port"],
+			"type":           server["type"],
+			"vpc_id":         server["vpc_id"],
+		}
+	}
+	return serverOpts
+}
+
 //nolint:gocyclo
 func buildUpdateDedicatedDomainBodyParams(client *golangsdk.ServiceClient, d *schema.ResourceData,
 	cfg *config.Config) (map[string]interface{}, error) {
-	updateOpts := map[string]interface{}{}
+	updateOpts := map[string]interface{}{
+		"mode": utils.ValueIgnoreEmpty(d.Get("mode")),
+	}
 
 	if d.HasChanges("tls", "cipher", "pci_3ds", "pci_dss") {
 		updateOpts["tls"] = utils.ValueIgnoreEmpty(d.Get("tls"))
@@ -636,6 +791,15 @@ func buildUpdateDedicatedDomainBodyParams(client *golangsdk.ServiceClient, d *sc
 
 	if d.HasChange("traffic_mark") {
 		updateOpts["traffic_mark"] = buildUpdateDedicatedDomainTrafficMarkOpts(d)
+	}
+
+	// The test environment is missing, and this field has not been tested.
+	if d.HasChange("pool_ids") {
+		updateOpts["pool_ids"] = d.Get("pool_ids")
+	}
+
+	if d.HasChange("server") && !d.IsNewResource() {
+		updateOpts["server"] = buildUpdateDedicatedDomainServerBodyParams(d)
 	}
 
 	if d.HasChange("proxy") && !d.IsNewResource() {
@@ -751,6 +915,10 @@ func resourceWafDedicatedDomainCreate(ctx context.Context, d *schema.ResourceDat
 
 func flattenServerAttribute(respBody interface{}) []map[string]interface{} {
 	rawArray := utils.PathSearch("server", respBody, make([]interface{}, 0)).([]interface{})
+	if len(rawArray) == 0 {
+		return nil
+	}
+
 	rst := make([]map[string]interface{}, 0, len(rawArray))
 	for _, v := range rawArray {
 		rst = append(rst, map[string]interface{}{
@@ -843,6 +1011,53 @@ func flattenPageAttribute(respBody interface{}) map[string]interface{} {
 	}
 }
 
+func flattenFlagAttribute(respBody interface{}) []map[string]interface{} {
+	rawMap := utils.PathSearch("flag", respBody, nil)
+	if rawMap == nil {
+		return nil
+	}
+
+	return []map[string]interface{}{
+		{
+			"pci_3ds":    utils.PathSearch("pci_3ds", rawMap, nil),
+			"pci_dss":    utils.PathSearch("pci_dss", rawMap, nil),
+			"cname":      utils.PathSearch("cname", rawMap, nil),
+			"is_dual_az": utils.PathSearch("is_dual_az", rawMap, nil),
+			"ipv6":       utils.PathSearch("ipv6", rawMap, nil),
+		},
+	}
+}
+
+func flattenBlockPageCustomPageAttribute(respBody interface{}) []map[string]interface{} {
+	rawMap := utils.PathSearch("custom_page", respBody, nil)
+	if rawMap == nil {
+		return nil
+	}
+
+	return []map[string]interface{}{
+		{
+			"status_code":  utils.PathSearch("status_code", rawMap, nil),
+			"content_type": utils.PathSearch("content_type", rawMap, nil),
+			"content":      utils.PathSearch("content", rawMap, nil),
+		},
+	}
+}
+
+func flattenBlockPageAttribute(respBody interface{}) []map[string]interface{} {
+	rawMap := utils.PathSearch("block_page", respBody, nil)
+	if rawMap == nil {
+		return nil
+	}
+
+	return []map[string]interface{}{
+		{
+			"template":     utils.PathSearch("template", rawMap, nil),
+			"custom_page":  flattenBlockPageCustomPageAttribute(rawMap),
+			"redirect_url": utils.PathSearch("redirect_url", rawMap, nil),
+		},
+	}
+}
+
 func resourceWafDedicatedDomainRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg     = meta.(*config.Config)
@@ -902,6 +1117,15 @@ func resourceWafDedicatedDomainRead(_ context.Context, d *schema.ResourceData, m
 		d.Set("compliance_certification", flattenCertificationAttribute(respBody)),
 		d.Set("traffic_identifier", flattenIdentifierAttribute(respBody)),
 		d.Set("alarm_page", flattenPageAttribute(respBody)),
+		d.Set("timestamp", utils.PathSearch("timestamp", respBody, nil)),
+		d.Set("extend", utils.PathSearch("extend", respBody, nil)),
+		d.Set("flag", flattenFlagAttribute(respBody)),
+		d.Set("block_page", flattenBlockPageAttribute(respBody)),
+		d.Set("mode", utils.PathSearch("mode", respBody, nil)),
+		d.Set("loadbalancer_id", utils.PathSearch("loadbalancer_id", respBody, nil)),
+		d.Set("listener_id", utils.PathSearch("listener_id", respBody, nil)),
+		d.Set("protocol_port", utils.PathSearch("protocol_port", respBody, nil)),
+		d.Set("enterprise_project_id", utils.PathSearch("enterprise_project_id", respBody, nil)),
 	)
 
 	if pci3ds := utils.PathSearch("flag.pci_3ds", respBody, "").(string); pci3ds != "" {

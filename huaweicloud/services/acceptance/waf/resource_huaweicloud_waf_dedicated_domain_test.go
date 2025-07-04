@@ -11,6 +11,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func getWafDedicateDomainResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -112,7 +113,11 @@ func TestAccDedicateDomain_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "website_name", fmt.Sprintf("%s_update", randName)),
 					resource.TestCheckResourceAttr(resourceName, "description", "test description update"),
 					resource.TestCheckResourceAttr(resourceName, "redirect_url", "${http_host}/error.html"),
-					resource.TestCheckResourceAttr(resourceName, "server.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "server.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "server.0.address", "119.8.2.14"),
+					resource.TestCheckResourceAttr(resourceName, "server.0.port", "8083"),
+					resource.TestCheckResourceAttr(resourceName, "server.1.address", "119.8.0.14"),
+					resource.TestCheckResourceAttr(resourceName, "server.1.port", "8080"),
 					resource.TestCheckResourceAttr(resourceName, "forward_header_map.key2", "$request_length"),
 					resource.TestCheckResourceAttr(resourceName, "forward_header_map.key3", "$remote_addr"),
 					resource.TestCheckResourceAttr(resourceName, "connection_protection.0.error_threshold", "1000"),
@@ -137,6 +142,7 @@ func TestAccDedicateDomain_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(resourceName, "custom_page.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "server.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "connection_protection.0.error_threshold", "2147483647"),
 					resource.TestCheckResourceAttr(resourceName, "connection_protection.0.error_percentage", "99"),
 					resource.TestCheckResourceAttr(resourceName, "connection_protection.0.initial_downtime", "2147483647"),
@@ -378,11 +384,20 @@ resource "huaweicloud_waf_dedicated_domain" "test" {
   server {
     client_protocol = "HTTPS"
     server_protocol = "HTTP"
+    address         = "119.8.2.14"
+    port            = 8083
+    type            = "ipv4"
+    vpc_id          = data.huaweicloud_waf_dedicated_instances.test.instances[0].vpc_id
+  }
+
+  server {
+    client_protocol = "HTTPS"
+    server_protocol = "HTTP"
     address         = "119.8.0.14"
     port            = 8080
     type            = "ipv4"
     vpc_id          = data.huaweicloud_waf_dedicated_instances.test.instances[0].vpc_id
-  }
+  }  
 
   forward_header_map = {
     "key2" = "$request_length"
@@ -554,4 +569,213 @@ resource "huaweicloud_waf_dedicated_domain" "test" {
   }
 }
 `, testAccWafDedicatedDomain_base(name, certificateBody), name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+}
+
+func TestAccDedicateDomain_cloud_elb_domain(t *testing.T) {
+	var (
+		obj interface{}
+
+		randName     = acceptance.RandomAccResourceName()
+		resourceName = "huaweicloud_waf_dedicated_domain.test"
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getWafDedicateDomainResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPrecheckWafInstance(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccWafDedicatedDomain_cloud_elb_domain_basic(randName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(resourceName, "loadbalancer_id", "huaweicloud_elb_loadbalancer.test", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "listener_id", "huaweicloud_elb_listener.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "domain", "119.8.5.14"),
+					resource.TestCheckResourceAttr(resourceName, "mode", "elb-shared"),
+					resource.TestCheckResourceAttr(resourceName, "description", "test description"),
+					resource.TestCheckResourceAttr(resourceName, "protocol_port", "8080"),
+					resource.TestCheckResourceAttr(resourceName, "website_name", "test-web-tag"),
+					resource.TestCheckResourceAttrSet(resourceName, "access_status"),
+					resource.TestCheckResourceAttrSet(resourceName, "alarm_page.%"),
+					resource.TestCheckResourceAttrSet(resourceName, "compliance_certification.%"),
+					resource.TestCheckResourceAttrSet(resourceName, "policy_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "protect_status"),
+					resource.TestCheckResourceAttrSet(resourceName, "protocol"),
+					resource.TestCheckResourceAttrSet(resourceName, "proxy"),
+					resource.TestCheckResourceAttrSet(resourceName, "traffic_identifier.%"),
+					resource.TestCheckResourceAttrSet(resourceName, "connection_protection.#"),
+					resource.TestCheckResourceAttrSet(resourceName, "timeout_settings.#"),
+					resource.TestCheckResourceAttrSet(resourceName, "traffic_mark.#"),
+					resource.TestCheckResourceAttrSet(resourceName, "enterprise_project_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "extend.%"),
+					resource.TestCheckResourceAttrSet(resourceName, "flag.#"),
+					resource.TestCheckResourceAttrSet(resourceName, "timestamp"),
+					resource.TestCheckResourceAttrSet(resourceName, "block_page.#"),
+				),
+			},
+			{
+				Config: testAccWafDedicatedDomain_cloud_elb_domain_update(randName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(resourceName, "loadbalancer_id", "huaweicloud_elb_loadbalancer.test", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "listener_id", "huaweicloud_elb_listener.test", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "policy_id", "huaweicloud_waf_policy.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "domain", "119.8.5.14"),
+					resource.TestCheckResourceAttr(resourceName, "mode", "elb-shared"),
+					resource.TestCheckResourceAttr(resourceName, "description", "test description update"),
+					resource.TestCheckResourceAttr(resourceName, "protocol_port", "8080"),
+					resource.TestCheckResourceAttr(resourceName, "website_name", "test-web-tag-update"),
+					resource.TestCheckResourceAttr(resourceName, "traffic_identifier.ip_tags", "ip_tag,$remote_addr"),
+					resource.TestCheckResourceAttr(resourceName, "traffic_identifier.session_tag", "session_tag"),
+					resource.TestCheckResourceAttr(resourceName, "traffic_identifier.user_tag", "user_tag"),
+					resource.TestCheckResourceAttrSet(resourceName, "access_status"),
+					resource.TestCheckResourceAttrSet(resourceName, "alarm_page.%"),
+					resource.TestCheckResourceAttrSet(resourceName, "compliance_certification.%"),
+					resource.TestCheckResourceAttrSet(resourceName, "protect_status"),
+					resource.TestCheckResourceAttrSet(resourceName, "protocol"),
+					resource.TestCheckResourceAttrSet(resourceName, "proxy"),
+					resource.TestCheckResourceAttrSet(resourceName, "connection_protection.#"),
+					resource.TestCheckResourceAttrSet(resourceName, "timeout_settings.#"),
+					resource.TestCheckResourceAttrSet(resourceName, "traffic_mark.#"),
+					resource.TestCheckResourceAttrSet(resourceName, "enterprise_project_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "extend.%"),
+					resource.TestCheckResourceAttrSet(resourceName, "flag.#"),
+					resource.TestCheckResourceAttrSet(resourceName, "timestamp"),
+					resource.TestCheckResourceAttrSet(resourceName, "block_page.#"),
+				),
+			},
+			{
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"keep_policy"},
+				ImportStateIdFunc:       testWAFResourceImportState(resourceName),
+			},
+		},
+	})
+}
+
+func testAccWafDedicatedDomain_cloud_elb_domain_base(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_vpc_eip" "test" {
+  publicip {
+    type = "5_bgp"
+  }
+
+  bandwidth {
+    name        = "%[2]s"
+    size        = 5
+    share_type  = "PER"
+    charge_mode = "traffic"
+  }
+}
+
+resource "huaweicloud_elb_loadbalancer" "test" {
+  name                = "%[2]s"
+  vpc_id              = huaweicloud_vpc.test.id
+  ipv4_subnet_id      = huaweicloud_vpc_subnet.test.ipv4_subnet_id
+  ipv4_eip_id         = huaweicloud_vpc_eip.test.id
+  waf_failure_action  = "forward"
+  autoscaling_enabled = true
+
+  availability_zone = [
+    data.huaweicloud_availability_zones.test.names[0]
+  ]
+
+  backend_subnets = [
+    huaweicloud_vpc_subnet.test.id
+  ]
+
+  protection_status = "nonProtection"
+
+  tags = {
+    key   = "value"
+    owner = "terraform"
+  }
+}
+
+resource "huaweicloud_elb_listener" "test" {
+  name                        = "%[2]s"
+  description                 = "test description"
+  protocol                    = "HTTP"
+  protocol_port               = 8080
+  loadbalancer_id             = huaweicloud_elb_loadbalancer.test.id
+  advanced_forwarding_enabled = false
+  max_connection              = 1000
+  cps                         = 100
+
+  idle_timeout     = 62
+  request_timeout  = 63
+  response_timeout = 64
+
+  tags = {
+    key   = "value"
+    owner = "terraform"
+  }
+}
+`, common.TestVpc(name), name)
+}
+
+func testAccWafDedicatedDomain_cloud_elb_domain_basic(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_waf_dedicated_domain" "test" {
+  loadbalancer_id = huaweicloud_elb_loadbalancer.test.id
+  listener_id     = huaweicloud_elb_listener.test.id
+  domain          = "119.8.5.14"
+  mode            = "elb-shared"
+  description     = "test description"
+  protocol_port   = 8080
+  website_name    = "test-web-tag"
+
+  lifecycle {
+    ignore_changes = [ proxy ]
+  }
+}
+`, testAccWafDedicatedDomain_cloud_elb_domain_base(name))
+}
+
+func testAccWafDedicatedDomain_cloud_elb_domain_update(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_waf_policy" "test" {
+  name = "%[2]s"
+}
+
+resource "huaweicloud_waf_dedicated_domain" "test" {
+  loadbalancer_id = huaweicloud_elb_loadbalancer.test.id
+  listener_id     = huaweicloud_elb_listener.test.id
+  domain          = "119.8.5.14"
+  mode            = "elb-shared"
+  description     = "test description update"
+  protocol_port   = 8080
+  website_name    = "test-web-tag-update"
+  policy_id       = huaweicloud_waf_policy.test.id
+
+  traffic_mark {
+    ip_tags     = ["ip_tag", "$remote_addr"]
+    session_tag = "session_tag"
+    user_tag    = "user_tag"
+  }
+
+  lifecycle {
+    ignore_changes = [ proxy ]
+  }
+}
+`, testAccWafDedicatedDomain_cloud_elb_domain_base(name), name)
 }
