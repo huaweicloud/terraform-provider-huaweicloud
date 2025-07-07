@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.76.2 (July 7, 2025)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_modelartsv2_node_batch_unsubscribe: use v2 resource name [GH-7116]
+
 ## 1.76.1 (July 2, 2025)
 
 ENHANCEMENTS:
