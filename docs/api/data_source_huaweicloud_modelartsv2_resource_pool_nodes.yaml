@@ -8,6 +8,6 @@ host: huaweicloud.com
 tags:
     - name: ModelArts
 paths:
-    /v2/{project_id}/pools/{pool_name}/nodepools/{nodepool_name}/nodes:
+    /v2/{project_id}/pools/{pool_name}/nodes:
         GET:
             tag: ModelArts

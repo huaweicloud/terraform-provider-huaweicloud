@@ -18,3 +18,6 @@ paths:
             tag: ModelArts
         PATCH:
             tag: ModelArts
+    /v2/{project_id}/pools/{pool_name}/nodes:
+        GET:
+            tag: ModelArts
