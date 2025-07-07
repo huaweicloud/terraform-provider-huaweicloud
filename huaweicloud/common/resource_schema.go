@@ -12,6 +12,7 @@ func TagsSchema(description ...string) *schema.Schema {
 	schemaObj := schema.Schema{
 		Type:     schema.TypeMap,
 		Optional: true,
+		Computed: true,
 		Elem:     &schema.Schema{Type: schema.TypeString},
 	}
 	if len(description) > 0 {
@@ -26,6 +27,7 @@ func TagsForceNewSchema(description ...string) *schema.Schema {
 		Type:     schema.TypeMap,
 		Optional: true,
 		ForceNew: true,
+		Computed: true,
 		Elem:     &schema.Schema{Type: schema.TypeString},
 	}
 	if len(description) > 0 {

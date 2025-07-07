@@ -27,6 +27,8 @@ func ResourceCrossAccountAccess() *schema.Resource {
 		ReadContext:   resourceCrossAccountAccessRead,
 		DeleteContext: resourceHostAccessConfigDelete,
 
+		CustomizeDiff: config.MergeDefaultTags(),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,

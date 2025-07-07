@@ -66,6 +66,7 @@ func ResourceNodePool() *schema.Resource {
 		CustomizeDiff: customdiff.All(
 			config.FlexibleForceNew(nodePoolNonUpdatableParams),
 			ignoreDiffIfScaleGroupsEqual(),
+			config.MergeDefaultTags(),
 		),
 
 		Importer: &schema.ResourceImporter{

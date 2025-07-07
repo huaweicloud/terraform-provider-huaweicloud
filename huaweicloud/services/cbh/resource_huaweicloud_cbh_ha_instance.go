@@ -64,6 +64,7 @@ func ResourceCBHHAInstance() *schema.Resource {
 
 				return nil
 			},
+			config.MergeDefaultTags(),
 		),
 
 		Timeouts: &schema.ResourceTimeout{

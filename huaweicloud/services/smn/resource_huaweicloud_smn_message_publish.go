@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -34,7 +35,10 @@ func ResourceMessagePublish() *schema.Resource {
 		ReadContext:   resourceMessagePublishRead,
 		DeleteContext: resourceMessagePublishDelete,
 
-		CustomizeDiff: config.FlexibleForceNew(messagePublishNonUpdatableParams),
+		CustomizeDiff: customdiff.All(
+			config.FlexibleForceNew(messagePublishNonUpdatableParams),
+			config.MergeDefaultTags(),
+		),
 
 		Schema: map[string]*schema.Schema{
 			"region": {

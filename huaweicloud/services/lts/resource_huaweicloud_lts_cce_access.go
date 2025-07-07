@@ -32,6 +32,8 @@ func ResourceCceAccessConfig() *schema.Resource {
 			StateContext: cceAccessConfigResourceImportState,
 		},
 
+		CustomizeDiff: config.MergeDefaultTags(),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
