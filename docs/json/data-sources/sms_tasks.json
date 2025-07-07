@@ -1,0 +1,168 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_sms_tasks": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the ID of the enterprise project to be queried.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the task name.",
+                "optional": true
+              },
+              "source_server_id": {
+                "type": "string",
+                "description": "Specifies the source server ID.",
+                "optional": true
+              },
+              "state": {
+                "type": "string",
+                "description": "Specifies the migration task status.",
+                "optional": true
+              },
+              "task_id": {
+                "type": "string",
+                "description": "Specifies the task ID.",
+                "optional": true
+              },
+              "tasks": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "agent_cpu_usage": "number",
+                      "agent_disk_io": "number",
+                      "agent_mem_usage": "number",
+                      "clone_server": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "name": "string",
+                            "vm_id": "string"
+                          }
+                        ]
+                      ],
+                      "compress_rate": "number",
+                      "create_date": "number",
+                      "enterprise_project_id": "string",
+                      "error_json": "string",
+                      "estimate_complete_time": "number",
+                      "id": "string",
+                      "log_collect_status": "string",
+                      "migrate_speed": "number",
+                      "migration_ip": "string",
+                      "name": "string",
+                      "need_migration_test": "bool",
+                      "network_check_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "cpu_usage": "number",
+                            "destination_connectivity": "bool",
+                            "domain_connectivity": "bool",
+                            "evaluation_result": "string",
+                            "loss_percentage": "number",
+                            "mem_usage": "number",
+                            "migration_speed": "number",
+                            "network_delay": "number",
+                            "network_jitter": "number"
+                          }
+                        ]
+                      ],
+                      "os_type": "string",
+                      "priority": "number",
+                      "source_server": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "ip": "string",
+                            "name": "string",
+                            "oem_system": "bool",
+                            "os_type": "string",
+                            "os_version": "string",
+                            "state": "string"
+                          }
+                        ]
+                      ],
+                      "special_config": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "config_key": "string",
+                            "config_status": "string",
+                            "config_value": "string"
+                          }
+                        ]
+                      ],
+                      "speed_limit": "number",
+                      "start_target_server": "bool",
+                      "state": "string",
+                      "sub_tasks": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "end_date": "number",
+                            "id": "number",
+                            "name": "string",
+                            "process_trace": "string",
+                            "progress": "number",
+                            "start_date": "number"
+                          }
+                        ]
+                      ],
+                      "syncing": "bool",
+                      "target_server": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "ip": "string",
+                            "name": "string",
+                            "os_type": "string",
+                            "os_version": "string",
+                            "vm_id": "string"
+                          }
+                        ]
+                      ],
+                      "total_cpu_usage": "number",
+                      "total_disk_io": "number",
+                      "total_mem_usage": "number",
+                      "total_time": "number",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the information about the queried tasks.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "SMS",
+            "name": "Server Migration Service",
+            "catalog": "Migration",
+            "name_cn": "主机迁移服务",
+            "catalog_cn": "迁移"
+          }
+        }
+      }
+    }
+  }
+}

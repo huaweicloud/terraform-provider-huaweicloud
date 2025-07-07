@@ -8,8 +8,7 @@
               "force": {
                 "type": "bool",
                 "description": "Specifies whether to perform a forcible primary/standby switchover.",
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "id": {
                 "type": "string",
@@ -18,8 +17,7 @@
               "instance_id": {
                 "type": "string",
                 "description": "Specifies the ID of instance.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "region": {
                 "type": "string"

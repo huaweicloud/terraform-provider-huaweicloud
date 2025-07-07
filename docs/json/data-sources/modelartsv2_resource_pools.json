@@ -140,6 +140,7 @@
                                     [
                                       "object",
                                       {
+                                        "extend_params": "string",
                                         "size": "string",
                                         "volume_type": "string"
                                       }

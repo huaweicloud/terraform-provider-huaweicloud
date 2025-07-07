@@ -17,14 +17,12 @@
               "instance_id": {
                 "type": "string",
                 "description": "Specifies the ID of the RDS SQLServer instance.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "name": {
                 "type": "string",
                 "description": "Specifies the database name.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "region": {
                 "type": "string",

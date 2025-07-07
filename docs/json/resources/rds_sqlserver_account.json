@@ -12,14 +12,12 @@
               "instance_id": {
                 "type": "string",
                 "description": "Specifies the ID of the RDS SQLServer instance.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "name": {
                 "type": "string",
                 "description": "Specifies the username of the DB account.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "password": {
                 "type": "string",

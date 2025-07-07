@@ -1,0 +1,66 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_workspace_app_center_availability_zones": {
+          "block": {
+            "attributes": {
+              "availability_zones": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "availability_zone": "string",
+                      "default_availability_zone": "bool",
+                      "display_name": "string",
+                      "i18n": [
+                        "map",
+                        "string"
+                      ],
+                      "product_ids": [
+                        "list",
+                        "string"
+                      ],
+                      "sold_out": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "products": [
+                              "list",
+                              "string"
+                            ]
+                          }
+                        ]
+                      ],
+                      "visible": "bool"
+                    }
+                  ]
+                ],
+                "description": "The list of availability zones.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the availability zones are located.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

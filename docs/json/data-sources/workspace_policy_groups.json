@@ -1,0 +1,99 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_workspace_policy_groups": {
+          "block": {
+            "attributes": {
+              "description": {
+                "type": "string",
+                "description": "The description of the policy group.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "policy_group_id": {
+                "type": "string",
+                "description": "The ID of the policy group.",
+                "optional": true
+              },
+              "policy_group_name": {
+                "type": "string",
+                "description": "The name of the policy group.",
+                "optional": true
+              },
+              "policy_groups": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "description": "string",
+                      "policies": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "audio": "string",
+                            "client": "string",
+                            "custom": "string",
+                            "display": "string",
+                            "file_and_clipboard": "string",
+                            "keyboard_mouse": "string",
+                            "peripherals": "string",
+                            "personalized_data_mgmt": "string",
+                            "record_audit": "string",
+                            "seamless": "string",
+                            "session": "string",
+                            "virtual_channel": "string",
+                            "watermark": "string"
+                          }
+                        ]
+                      ],
+                      "policy_group_id": "string",
+                      "policy_group_name": "string",
+                      "priority": "number",
+                      "targets": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "target_id": "string",
+                            "target_name": "string",
+                            "target_type": "string"
+                          }
+                        ]
+                      ],
+                      "update_time": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of policy groups that match the filter parameters.",
+                "computed": true
+              },
+              "priority": {
+                "type": "number",
+                "description": "The priority of the policy group.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region in which to query the data source.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

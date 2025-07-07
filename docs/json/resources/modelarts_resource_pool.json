@@ -317,6 +317,11 @@
                     "root_volume": {
                       "block": {
                         "attributes": {
+                          "extend_params": {
+                            "type": "string",
+                            "description": "The extend parameters of the root volume, in JSON format.",
+                            "computed": true
+                          },
                           "size": {
                             "type": "string",
                             "description": "The size of the root volume.",
