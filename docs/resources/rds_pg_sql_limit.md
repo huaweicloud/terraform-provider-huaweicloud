@@ -32,30 +32,23 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which to create the rds PostgreSQL SQL limit resource. If omitted,
   the provider-level region will be used. Changing this creates a new resource.
 
-* `instance_id` - (Required, String, ForceNew) Specifies the ID of RDS PostgreSQL instance.
+* `instance_id` - (Required, String, NonUpdatable) Specifies the ID of RDS PostgreSQL instance.
 
-  Changing this parameter will create a new resource.
-
-* `db_name` - (Required, String, ForceNew) Specifies the name of the database.
-
-  Changing this parameter will create a new resource.
+* `db_name` - (Required, String, NonUpdatable) Specifies the name of the database.
 
 * `max_concurrency` - (Required, Int) Specifies the number of SQL statements executed simultaneously.
   Value ranges from `0` to `50000`. `0` means no limit.
 
 * `max_waiting` - (Required, Int) Specifies the max waiting time in seconds.
 
-* `query_id` - (Optional, String, ForceNew) Specifies the query ID. Value ranges: **-9223372036854775808~9223372036854775807**.
+* `query_id` - (Optional, String, NonUpdatable) Specifies the query ID.
+  Value ranges: **-9223372036854775808~9223372036854775807**.
 
-  Changing this parameter will create a new resource.
-
-* `query_string` - (Optional, String, ForceNew) Specifies the text form of SQL statement.
-
-  Changing this parameter will create a new resource.
+* `query_string` - (Optional, String, NonUpdatable) Specifies the text form of SQL statement.
 
   -> **NOTE:** Exactly one of `query_id`, `query_string` should be specified.
 
-* `search_path` - (Optional, String, ForceNew) Specifies the query order for names that are not schema qualified.
+* `search_path` - (Optional, String, NonUpdatable) Specifies the query order for names that are not schema qualified.
   Defaults to **public**,
 
 * `switch` - (Optional, String) Specifies the SQL limit switch. Value options: **open**, **close**.
