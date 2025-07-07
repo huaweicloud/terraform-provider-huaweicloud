@@ -2737,9 +2737,10 @@ func Provider() *schema.Provider {
 			"huaweicloud_codearts_pipeline_template":         codeartspipeline.ResourceCodeArtsPipelineTemplate(),
 			"huaweicloud_codearts_pipeline_service_endpoint": codeartspipeline.ResourceCodeArtsPipelineServiceEndpoint(),
 
-			"huaweicloud_codearts_build_task":        codeartsbuild.ResourceCodeArtsBuildTask(),
-			"huaweicloud_codearts_build_template":    codeartsbuild.ResourceCodeArtsBuildTemplate(),
-			"huaweicloud_codearts_build_task_action": codeartsbuild.ResourceCodeArtsBuildTaskAction(),
+			"huaweicloud_codearts_build_task":         codeartsbuild.ResourceCodeArtsBuildTask(),
+			"huaweicloud_codearts_build_template":     codeartsbuild.ResourceCodeArtsBuildTemplate(),
+			"huaweicloud_codearts_build_task_action":  codeartsbuild.ResourceCodeArtsBuildTaskAction(),
+			"huaweicloud_codearts_build_log_download": codeartsbuild.ResourceCodeArtsBuildLogDownload(),
 
 			"huaweicloud_dsc_instance":           dsc.ResourceDscInstance(),
 			"huaweicloud_dsc_asset_obs":          dsc.ResourceAssetObs(),
