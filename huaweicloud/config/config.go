@@ -108,6 +108,7 @@ type Config struct {
 
 	// SigningAlgorithm is used to select encryption algorithm
 	SigningAlgorithm string
+	DefaultTags      map[string]interface{}
 }
 
 func (c *Config) LoadAndValidate() error {

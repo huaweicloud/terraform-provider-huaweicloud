@@ -39,6 +39,8 @@ func ResourceHostAccessConfig() *schema.Resource {
 			StateContext: hostAccessConfigResourceImportState,
 		},
 
+		CustomizeDiff: config.MergeDefaultTags(),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,

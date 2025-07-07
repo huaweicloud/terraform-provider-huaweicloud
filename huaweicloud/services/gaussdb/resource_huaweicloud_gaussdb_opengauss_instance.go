@@ -11,6 +11,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -64,12 +65,16 @@ func ResourceOpenGaussInstance() *schema.Resource {
 			Update: schema.DefaultTimeout(150 * time.Minute),
 			Delete: schema.DefaultTimeout(45 * time.Minute),
 		},
-		CustomizeDiff: func(_ context.Context, d *schema.ResourceDiff, v interface{}) error {
-			if d.HasChange("coordinator_num") {
-				return d.SetNewComputed("private_ips")
-			}
-			return nil
-		},
+
+		CustomizeDiff: customdiff.All(
+			func(_ context.Context, d *schema.ResourceDiff, _ interface{}) error {
+				if d.HasChange("coordinator_num") {
+					return d.SetNewComputed("private_ips")
+				}
+				return nil
+			},
+			config.MergeDefaultTags(),
+		),
 
 		Schema: map[string]*schema.Schema{
 			"region": {

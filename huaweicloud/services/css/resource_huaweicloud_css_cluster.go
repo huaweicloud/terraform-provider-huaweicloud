@@ -10,6 +10,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -489,7 +490,10 @@ func ResourceCssCluster() *schema.Resource {
 			Delete: schema.DefaultTimeout(60 * time.Minute),
 		},
 
-		CustomizeDiff: config.FlexibleForceNew(clusterNonUpdatableParams, cssClusterSchema),
+		CustomizeDiff: customdiff.All(
+			config.FlexibleForceNew(clusterNonUpdatableParams, cssClusterSchema),
+			config.MergeDefaultTags(),
+		),
 
 		Schema: cssClusterSchema,
 	}

@@ -41,6 +41,8 @@ func ResourceElasticResourcePool() *schema.Resource {
 			StateContext: resourceAssociationImportState,
 		},
 
+		CustomizeDiff: config.MergeDefaultTags(),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:        schema.TypeString,

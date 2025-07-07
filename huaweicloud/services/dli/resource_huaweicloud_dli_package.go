@@ -33,6 +33,8 @@ func ResourceDliPackageV2() *schema.Resource {
 		UpdateContext: ResourceDliDependentPackageV2Update,
 		DeleteContext: ResourceDliDependentPackageV2Delete,
 
+		CustomizeDiff: config.MergeDefaultTags(),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,

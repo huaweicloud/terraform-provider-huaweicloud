@@ -30,6 +30,8 @@ func ResourceDmsInstancesV1() *schema.Resource {
 		},
 		DeprecationMessage: "use huaweicloud_dms_kafka_instance or huaweicloud_dms_rabbitmq_instance instead",
 
+		CustomizeDiff: config.MergeDefaultTags(),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
