@@ -135,7 +135,8 @@ func resourceDDSInstanceParametersModifyRead(ctx context.Context, d *schema.Reso
 	}
 	getParametersResp, err := client.Request("GET", getParametersPath, &getParametersOpt)
 	if err != nil {
-		return diag.Errorf("error getting instance(%s) params info: %s", instId, err)
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", "DBS.216031"),
+			"error retrieving DDS parameter")
 	}
 
 	getParametersRespBody, err := utils.FlattenResponse(getParametersResp)

@@ -12,6 +12,7 @@ import (
 
 	"github.com/chnsz/golangsdk"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -105,7 +106,7 @@ func resourceDDSRecyclePolicyRead(_ context.Context, d *schema.ResourceData, met
 
 	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return diag.Errorf("error getting DDS recycle policy: %s", err)
+		return common.CheckDeletedDiag(d, err, "error retrieving DDS recycle policy")
 	}
 
 	getRespBody, err := utils.FlattenResponse(getResp)
