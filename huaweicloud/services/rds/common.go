@@ -235,6 +235,7 @@ type updateInstanceFieldParams struct {
 	checkJobExpression   string
 	checkOrderExpression string
 	bssClient            *golangsdk.ServiceClient
+	isWaitInstanceReady  bool
 }
 
 func updateRdsInstanceField(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
@@ -274,7 +275,7 @@ func updateRdsInstanceField(ctx context.Context, d *schema.ResourceData, client 
 		return err
 	}
 
-	if params.checkJobExpression == "" && params.checkOrderExpression == "" {
+	if params.checkJobExpression == "" && params.checkOrderExpression == "" && !params.isWaitInstanceReady {
 		return nil
 	}
 
@@ -285,14 +286,20 @@ func updateRdsInstanceField(ctx context.Context, d *schema.ResourceData, client 
 
 	jobId := utils.PathSearch(params.checkJobExpression, updateRespBody, "").(string)
 	orderId := utils.PathSearch(params.checkOrderExpression, updateRespBody, "").(string)
-	if jobId == "" && orderId == "" {
-		if params.checkJobExpression != "" && params.checkOrderExpression != "" {
-			return fmt.Errorf(" %s and %s is not found in the API response", params.checkJobExpression, params.checkOrderExpression)
+	switch {
+	case params.checkJobExpression != "" && params.checkOrderExpression != "":
+		if jobId == "" && orderId == "" {
+			return fmt.Errorf(" %s and %s is not found in the API response", params.checkJobExpression,
+				params.checkOrderExpression)
 		}
-		if params.checkJobExpression != "" {
+	case params.checkJobExpression != "" && params.checkOrderExpression == "":
+		if jobId == "" {
 			return fmt.Errorf(" %s is not found in the API response", params.checkJobExpression)
 		}
-		return fmt.Errorf(" %s is not found in the API response", params.checkOrderExpression)
+	case params.checkJobExpression == "" && params.checkOrderExpression != "":
+		if orderId == "" {
+			return fmt.Errorf(" %s is not found in the API response", params.checkOrderExpression)
+		}
 	}
 
 	if jobId != "" {
@@ -302,12 +309,12 @@ func updateRdsInstanceField(ctx context.Context, d *schema.ResourceData, client 
 		}
 	}
 	if orderId != "" {
-		// wait for order success
 		err = common.WaitOrderComplete(ctx, params.bssClient, orderId, d.Timeout(params.timeout))
 		if err != nil {
 			return err
 		}
-
+	}
+	if params.isWaitInstanceReady {
 		stateConf := &resource.StateChangeConf{
 			Target:       []string{"ACTIVE"},
 			Refresh:      rdsInstanceStateRefreshFunc(client, d.Id()),

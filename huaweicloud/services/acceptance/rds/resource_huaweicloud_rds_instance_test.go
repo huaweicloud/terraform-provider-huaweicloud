@@ -1158,7 +1158,7 @@ resource "huaweicloud_rds_instance" "test" {
   }
 
   volume {
-    type = "ULTRAHIGH"
+    type = "CLOUDSSD"
     size = 40
   }
 }

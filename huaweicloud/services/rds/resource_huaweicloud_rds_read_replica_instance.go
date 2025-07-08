@@ -331,34 +331,34 @@ func resourceRdsReadReplicaInstanceCreate(ctx context.Context, d *schema.Resourc
 		return diag.FromErr(err)
 	}
 
-	if err = updateRdsInstanceMaintainWindow(d, client, instanceID); err != nil {
+	if err = updateRdsInstanceMaintainWindow(ctx, d, client); err != nil {
 		return diag.FromErr(err)
 	}
 
 	port := utils.PathSearch("port", res, float64(0)).(float64)
 	if v, ok := d.GetOk("db.0.port"); ok && v.(int) != int(port) {
-		if err = updateRdsInstanceDBPort(ctx, d, client, instanceID); err != nil {
+		if err = updateRdsInstanceDBPort(ctx, d, client); err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
 	securityGroupId := utils.PathSearch("security_group_id", res, "").(string)
 	if v, ok := d.GetOk("security_group_id"); ok && v.(string) != securityGroupId {
-		if err = updateRdsInstanceSecurityGroup(ctx, d, client, instanceID); err != nil {
+		if err = updateRdsInstanceSecurityGroup(ctx, d, client); err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
 	volumeSize := utils.PathSearch("volume.size", res, float64(0)).(float64)
 	if v, ok := d.GetOk("volume.0.size"); ok && v.(int) != int(volumeSize) {
-		if err = updateRdsInstanceVolumeSize(ctx, d, config, client, instanceID); err != nil {
+		if err = updateRdsInstanceVolumeSize(ctx, d, config, client); err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
 	fixedIp := utils.PathSearch("private_ips[0]", res, "").(string)
 	if v, ok := d.GetOk("fixed_ip"); ok && v.(string) != fixedIp {
-		if err = updateRdsInstanceFixedIp(ctx, d, client, instanceID); err != nil {
+		if err = updateRdsInstanceFixedIp(ctx, d, client); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -369,7 +369,7 @@ func resourceRdsReadReplicaInstanceCreate(ctx context.Context, d *schema.Resourc
 		if strings.ToLower(dataStoreType) != "mysql" {
 			return diag.Errorf("only MySQL database support SSL enable and disable")
 		}
-		err = configRdsInstanceSSL(ctx, d, client, d.Id())
+		err = configRdsInstanceSSL(ctx, d, client)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -377,11 +377,11 @@ func resourceRdsReadReplicaInstanceCreate(ctx context.Context, d *schema.Resourc
 
 	if v, ok := d.GetOk("volume.0.limit_size"); ok {
 		if v.(int) > 0 {
-			if err = enableVolumeAutoExpand(ctx, d, client, instanceID, v.(int)); err != nil {
+			if err = enableVolumeAutoExpand(ctx, d, client, v.(int)); err != nil {
 				return diag.FromErr(err)
 			}
 		} else {
-			if err = disableVolumeAutoExpand(ctx, d.Timeout(schema.TimeoutCreate), client, d); err != nil {
+			if err = disableVolumeAutoExpand(ctx, schema.TimeoutCreate, client, d); err != nil {
 				return diag.FromErr(err)
 			}
 		}
@@ -489,31 +489,31 @@ func resourceRdsReadReplicaInstanceUpdate(ctx context.Context, d *schema.Resourc
 		return diag.FromErr(err)
 	}
 
-	if err = updateRdsInstanceVolumeSize(ctx, d, cfg, client, instanceID); err != nil {
+	if err = updateRdsInstanceVolumeSize(ctx, d, cfg, client); err != nil {
 		return diag.FromErr(err)
 	}
 
-	if err = updateRdsInstanceMaintainWindow(d, client, instanceID); err != nil {
+	if err = updateRdsInstanceMaintainWindow(ctx, d, client); err != nil {
 		return diag.FromErr(err)
 	}
 
-	if err = updateRdsInstanceDBPort(ctx, d, client, instanceID); err != nil {
+	if err = updateRdsInstanceDBPort(ctx, d, client); err != nil {
 		return diag.FromErr(err)
 	}
 
-	if err = updateRdsInstanceFixedIp(ctx, d, client, instanceID); err != nil {
+	if err = updateRdsInstanceFixedIp(ctx, d, client); err != nil {
 		return diag.FromErr(err)
 	}
 
-	if err = updateRdsInstanceSecurityGroup(ctx, d, client, instanceID); err != nil {
+	if err = updateRdsInstanceSecurityGroup(ctx, d, client); err != nil {
 		return diag.FromErr(err)
 	}
 
-	if err = updateRdsInstanceSSLConfig(ctx, d, client, instanceID); err != nil {
+	if err = updateRdsInstanceSSLConfig(ctx, d, client); err != nil {
 		return diag.FromErr(err)
 	}
 
-	if err = updateRdsInstanceFlavor(ctx, d, cfg, client, instanceID, false); err != nil {
+	if err = updateRdsInstanceFlavor(ctx, d, cfg, client, false); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -525,7 +525,7 @@ func resourceRdsReadReplicaInstanceUpdate(ctx context.Context, d *schema.Resourc
 		return diag.FromErr(err)
 	}
 
-	if err = updateVolumeAutoExpand(ctx, d, client, instanceID); err != nil {
+	if err = updateVolumeAutoExpand(ctx, d, client); err != nil {
 		return diag.FromErr(err)
 	}
 
