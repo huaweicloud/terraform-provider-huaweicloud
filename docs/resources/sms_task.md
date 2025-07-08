@@ -72,8 +72,35 @@ The following arguments are supported:
 * `action` - (Optional, String) Specifies the operation after the task is created.
   The value can be **start**, **stop** and **restart**.
 
+* `speed_limit` - (Optional, List) Specifies the information about the time period-based rate limiting rules.
+  The [speed_limit](#speed_limit_struct) structure is documented below.
+
+* `configurations` - (Optional, List) Specifies the settings of advanced migration options.
+  The [configurations](#configurations_struct) structure is documented below.
+
 * `project_id` - (Optional, String, ForceNew) Specifies the project ID where the target server is located.
   If omitted, the default project in the region will be used. Changing this parameter will create a new resource.
+
+<a name="speed_limit_struct"></a>
+The `speed_limit` block supports:
+
+* `start` - (Required, String) Specifies the start time of a period. The format is **XX:XX**.
+
+* `end` - (Required, String) Specifies the end time of a period. The format is **XX:XX**.
+
+* `speed` - (Required, Int) Specifies the migration rate limit for the specified period, the unit is Mbit/s.
+
+* `over_speed_threshold` - (Optional, Float) Specifies the overspeed threshold for stopping migration, the unit is percentage.
+
+<a name="configurations_struct"></a>
+The `configurations` block supports:
+
+* `config_key` - (Required, String) Specifies the advanced migration option.
+  The value can be **EXCLUDE_MIGRATE_PATH**, **SYNC_EXCLUDE_PATH**, **ONLY_SYNC_PATH** and so on.
+
+* `config_value` - (Required, String) Specifies the value specified for the advanced migration option.
+
+* `config_status` - (Optional, String) Specifies the reserved field that describes the configuration status.
 
 <a name="target_server_disks_object"></a>
 The `target_server_disks` block supports:
@@ -126,10 +153,18 @@ The `physical_volumes` block supports:
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID in UUID format.
-* `state` - The status of the migration task.
-* `enterprise_project_id` - The enterprise project id of the target server.
-* `target_server_name` - The name of the target server.
-* `migrate_speed` - The migration rate, in MB/s.
+
+* `state` - Indicates the status of the migration task.
+
+* `enterprise_project_id` - Indicates the enterprise project id of the target server.
+
+* `target_server_name` - Indicates the name of the target server.
+
+* `migrate_speed` - Indicates the migration rate, in MB/s.
+
+* `passphrase` - Indicates the certificate passphrase of the secure transmission channel.
+
+* `migrate_type` - Indicates the migration method.
 
 ## Timeouts
 
