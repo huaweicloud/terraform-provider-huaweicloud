@@ -239,7 +239,7 @@ type updateInstanceFieldParams struct {
 }
 
 func updateRdsInstanceField(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
-	params updateInstanceFieldParams) error {
+	params updateInstanceFieldParams) (interface{}, error) {
 	updatePath := client.Endpoint + params.httpUrl
 	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
 	for pathParam, value := range params.pathParams {
@@ -272,16 +272,15 @@ func updateRdsInstanceField(ctx context.Context, d *schema.ResourceData, client 
 		res, err = client.Request(params.httpMethod, updatePath, &updateOpt)
 	}
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if params.checkJobExpression == "" && params.checkOrderExpression == "" && !params.isWaitInstanceReady {
-		return nil
+		return nil, nil
 	}
-
 	updateRespBody, err := utils.FlattenResponse(res.(*http.Response))
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	jobId := utils.PathSearch(params.checkJobExpression, updateRespBody, "").(string)
@@ -289,29 +288,29 @@ func updateRdsInstanceField(ctx context.Context, d *schema.ResourceData, client 
 	switch {
 	case params.checkJobExpression != "" && params.checkOrderExpression != "":
 		if jobId == "" && orderId == "" {
-			return fmt.Errorf(" %s and %s is not found in the API response", params.checkJobExpression,
+			return nil, fmt.Errorf(" %s and %s is not found in the API response", params.checkJobExpression,
 				params.checkOrderExpression)
 		}
 	case params.checkJobExpression != "" && params.checkOrderExpression == "":
 		if jobId == "" {
-			return fmt.Errorf(" %s is not found in the API response", params.checkJobExpression)
+			return nil, fmt.Errorf(" %s is not found in the API response", params.checkJobExpression)
 		}
 	case params.checkJobExpression == "" && params.checkOrderExpression != "":
 		if orderId == "" {
-			return fmt.Errorf(" %s is not found in the API response", params.checkOrderExpression)
+			return nil, fmt.Errorf(" %s is not found in the API response", params.checkOrderExpression)
 		}
 	}
 
 	if jobId != "" {
 		err = checkRDSInstanceJobFinish(client, jobId, d.Timeout(params.timeout))
 		if err != nil {
-			return err
+			return nil, err
 		}
 	}
 	if orderId != "" {
 		err = common.WaitOrderComplete(ctx, params.bssClient, orderId, d.Timeout(params.timeout))
 		if err != nil {
-			return err
+			return nil, err
 		}
 	}
 	if params.isWaitInstanceReady {
@@ -323,11 +322,11 @@ func updateRdsInstanceField(ctx context.Context, d *schema.ResourceData, client 
 			PollInterval: 10 * time.Second,
 		}
 		if _, err = stateConf.WaitForStateContext(ctx); err != nil {
-			return fmt.Errorf("error waiting for instance (%s) to ready: %s", d.Id(), err)
+			return nil, fmt.Errorf("error waiting for instance (%s) to ready: %s", d.Id(), err)
 		}
 	}
 
-	return nil
+	return updateRespBody, err
 }
 
 type getInstanceFieldParams struct {
@@ -345,6 +344,7 @@ func getInstanceField(client *golangsdk.ServiceClient, params getInstanceFieldPa
 
 	getOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 	getResp, err := client.Request(params.httpMethod, getPath, &getOpt)
 	if err != nil {

@@ -389,11 +389,7 @@ func resourceRdsReadReplicaInstanceCreate(ctx context.Context, d *schema.Resourc
 
 	// Set Parameters
 	if parametersRaw := d.Get("parameters").(*schema.Set); parametersRaw.Len() > 0 {
-		clientV31, err := config.RdsV31Client(config.GetRegion(d))
-		if err != nil {
-			return diag.Errorf("error creating RDS V3.1 client: %s", err)
-		}
-		if err = initializeParameters(ctx, d, client, clientV31, instanceID, parametersRaw); err != nil {
+		if err = initializeParameters(ctx, d, client, parametersRaw); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -451,7 +447,7 @@ func resourceRdsReadReplicaInstanceRead(ctx context.Context, d *schema.ResourceD
 		mErr = multierror.Append(mErr, d.Set("maintain_end", maintainWindow[1]))
 	}
 
-	diagErr := setRdsInstanceParameters(ctx, d, client, instanceID)
+	diagErr := setRdsInstanceParameters(ctx, d, client)
 	resErr := append(diag.FromErr(mErr.ErrorOrNil()), diagErr...)
 
 	return resErr
@@ -473,10 +469,6 @@ func resourceRdsReadReplicaInstanceUpdate(ctx context.Context, d *schema.Resourc
 	client, err := cfg.RdsV3Client(region)
 	if err != nil {
 		return diag.Errorf("error creating rds v3 client: %s ", err)
-	}
-	clientV31, err := cfg.RdsV31Client(region)
-	if err != nil {
-		return diag.Errorf("error creating RDS V3.1 client: %s", err)
 	}
 
 	instanceID := d.Id()
@@ -521,7 +513,7 @@ func resourceRdsReadReplicaInstanceUpdate(ctx context.Context, d *schema.Resourc
 		return diag.FromErr(err)
 	}
 
-	if ctx, err = updateRdsParameters(ctx, d, client, clientV31, instanceID); err != nil {
+	if ctx, err = updateRdsParameters(ctx, d, client); err != nil {
 		return diag.FromErr(err)
 	}
 
