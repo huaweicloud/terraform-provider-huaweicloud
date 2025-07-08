@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -29,6 +30,11 @@ import (
 // @API SMS GET /v3/tasks/{id}
 // @API SMS DELETE /v3/tasks/{id}
 // @API ECS GET /v1/{project_id}/cloudservers/{server_id}
+// @API SMS POST /v3/tasks/{task_id}/speed-limit
+// @API SMS GET /v3/tasks/{task_id}/speed-limit
+// @API SMS GET /v3/tasks/{task_id}/passphrase
+// @API SMS POST /v3/tasks/{task_id}/configuration-setting
+// @API SMS GET /v3/tasks/{task_id}/configuration-setting
 func ResourceMigrateTask() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceMigrateTaskCreate,
@@ -213,6 +219,50 @@ func ResourceMigrateTask() *schema.Resource {
 					"start", "stop", "restart",
 				}, false),
 			},
+			"speed_limit": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"start": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"end": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"speed": {
+							Type:     schema.TypeInt,
+							Required: true,
+						},
+						"over_speed_threshold": {
+							Type:     schema.TypeFloat,
+							Optional: true,
+						},
+					},
+				},
+			},
+			"configurations": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"config_key": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"config_value": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"config_status": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+					},
+				},
+			},
 			"target_server_name": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -227,6 +277,14 @@ func ResourceMigrateTask() *schema.Resource {
 			},
 			"migrate_speed": {
 				Type:     schema.TypeFloat,
+				Computed: true,
+			},
+			"passphrase": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"migrate_type": {
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 		},
@@ -456,6 +514,20 @@ func resourceMigrateTaskCreate(ctx context.Context, d *schema.ResourceData, meta
 		}
 	}
 
+	if _, ok := d.GetOk("speed_limit"); ok {
+		err = updateSmsTaskSpeedLimit(smsClient, id, d.Get("speed_limit").(*schema.Set).List())
+		if err != nil {
+			return diag.Errorf("error set task speed limit: %s", err)
+		}
+	}
+
+	if _, ok := d.GetOk("configurations"); ok {
+		err = updateSmsTaskConfigurationSetting(smsClient, id, d.Get("configurations").(*schema.Set).List())
+		if err != nil {
+			return diag.Errorf("error set task configurations: %s", err)
+		}
+	}
+
 	return resourceMigrateTaskRead(ctx, d, meta)
 }
 
@@ -488,11 +560,99 @@ func resourceMigrateTaskRead(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("enterprise_project_id", migTask.EnterpriseProjectId),
 		d.Set("migrate_speed", migTask.MigrateSpeed),
 	)
+
+	getHttpUrl := "v3/tasks/{task_id}/speed-limit"
+	if speedLimit, err := getTaskRelatedPropsByOnlyUrl(smsClient, d.Id(), getHttpUrl); err == nil {
+		mErr = multierror.Append(mErr,
+			d.Set("speed_limit", flattenSmsTaskSpeedLimit(
+				utils.PathSearch("speed_limit", speedLimit, make([]interface{}, 0)).([]interface{}))),
+		)
+	} else {
+		log.Printf("[WARN] error fetching task speed limit (%s): %s", d.Id(), err)
+	}
+
+	getHttpUrl = "v3/tasks/{task_id}/configuration-setting"
+	if configurations, err := getTaskRelatedPropsByOnlyUrl(smsClient, d.Id(), getHttpUrl); err == nil {
+		mErr = multierror.Append(mErr,
+			d.Set("migrate_type", utils.PathSearch("migrate_type", configurations, nil)),
+			d.Set("configurations", flattenSmsTaskConfigurations(
+				utils.PathSearch("configurations", configurations, make([]interface{}, 0)).([]interface{}))),
+		)
+	} else {
+		log.Printf("[WARN] error fetching task configurations (%s): %s", d.Id(), err)
+	}
+
+	getHttpUrl = "v3/tasks/{task_id}/passphrase"
+	if passphrase, err := getTaskRelatedPropsByOnlyUrl(smsClient, d.Id(), getHttpUrl); err == nil {
+		mErr = multierror.Append(mErr,
+			d.Set("passphrase", utils.PathSearch("passphrase", passphrase, nil)),
+		)
+	} else {
+		log.Printf("[WARN] error fetching task passphrase (%s): %s", d.Id(), err)
+	}
+
 	if err := mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error setting SMS migrate task fields: %s", err)
 	}
 
 	return nil
+}
+
+func flattenSmsTaskConfigurations(paramsList []interface{}) []interface{} {
+	if len(paramsList) == 0 {
+		return nil
+	}
+	rst := make([]interface{}, 0, len(paramsList))
+	for _, params := range paramsList {
+		m := map[string]interface{}{
+			"config_key":    utils.PathSearch("config_key", params, nil),
+			"config_value":  utils.PathSearch("config_value", params, nil),
+			"config_status": utils.PathSearch("config_status", params, nil),
+		}
+		rst = append(rst, m)
+	}
+
+	return rst
+}
+
+func flattenSmsTaskSpeedLimit(paramsList []interface{}) []interface{} {
+	if len(paramsList) == 0 {
+		return nil
+	}
+	rst := make([]interface{}, 0, len(paramsList))
+	for _, params := range paramsList {
+		m := map[string]interface{}{
+			"start":                utils.PathSearch("start", params, nil),
+			"end":                  utils.PathSearch("end", params, nil),
+			"speed":                utils.PathSearch("speed", params, nil),
+			"over_speed_threshold": utils.PathSearch("over_speed_threshold", params, nil),
+		}
+		rst = append(rst, m)
+	}
+
+	return rst
+}
+
+func getTaskRelatedPropsByOnlyUrl(client *golangsdk.ServiceClient, taskId string, getHttpUrl string) (interface{}, error) {
+	getPath := client.Endpoint + getHttpUrl
+	getPath = strings.ReplaceAll(getPath, "{task_id}", taskId)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return nil, fmt.Errorf("error flattening task related properties: %s", err)
+	}
+
+	return getRespBody, nil
 }
 
 func resourceMigrateTaskUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -511,7 +671,97 @@ func resourceMigrateTaskUpdate(ctx context.Context, d *schema.ResourceData, meta
 		}
 	}
 
+	if d.HasChange("speed_limit") {
+		err = updateSmsTaskSpeedLimit(smsClient, d.Id(), d.Get("speed_limit").(*schema.Set).List())
+		if err != nil {
+			return diag.Errorf("error updating task speed limit: %s", err)
+		}
+	}
+
+	if d.HasChange("configurations") {
+		err = updateSmsTaskConfigurationSetting(smsClient, d.Id(), d.Get("configurations").(*schema.Set).List())
+		if err != nil {
+			return diag.Errorf("error updating task configurations: %s", err)
+		}
+	}
+
 	return resourceMigrateTaskRead(ctx, d, meta)
+}
+
+func updateSmsTaskConfigurationSetting(smsClient *golangsdk.ServiceClient, taskID string, configurationSettingParams []interface{}) error {
+	updateHttpUrl := "v3/tasks/{task_id}/configuration-setting"
+	updatePath := smsClient.Endpoint + updateHttpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{task_id}", taskID)
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+		JSONBody: utils.RemoveNil(buildUpdateTaskConfigurationSettingBodyParams(configurationSettingParams)),
+	}
+
+	_, err := smsClient.Request("POST", updatePath, &updateOpt)
+	return err
+}
+
+func buildUpdateTaskConfigurationSettingBodyParams(rawParams []interface{}) map[string]interface{} {
+	if len(rawParams) == 0 {
+		return nil
+	}
+
+	configurationSettingParams := make([]interface{}, len(rawParams))
+	for i, v := range rawParams {
+		configurationSettingParams[i] = map[string]interface{}{
+			"config_key":    utils.PathSearch("config_key", v, nil),
+			"config_value":  utils.PathSearch("config_value", v, nil),
+			"config_status": utils.ValueIgnoreEmpty(utils.PathSearch("config_status", v, nil)),
+		}
+	}
+
+	bodyParams := map[string]interface{}{
+		"configurations": configurationSettingParams,
+	}
+
+	return bodyParams
+}
+
+func updateSmsTaskSpeedLimit(smsClient *golangsdk.ServiceClient, taskID string, speedLimitParams []interface{}) error {
+	updateHttpUrl := "v3/tasks/{task_id}/speed-limit"
+	updatePath := smsClient.Endpoint + updateHttpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{task_id}", taskID)
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+		JSONBody: utils.RemoveNil(buildUpdateTaskSpeedLimitBodyParams(speedLimitParams)),
+	}
+
+	_, err := smsClient.Request("POST", updatePath, &updateOpt)
+	return err
+}
+
+func buildUpdateTaskSpeedLimitBodyParams(rawParams []interface{}) map[string]interface{} {
+	if len(rawParams) == 0 {
+		return nil
+	}
+
+	speedLimitParams := make([]interface{}, len(rawParams))
+	for i, v := range rawParams {
+		speedLimitParams[i] = map[string]interface{}{
+			"start": utils.PathSearch("start", v, nil),
+			"end":   utils.PathSearch("end", v, nil),
+			"speed": utils.PathSearch("speed", v, nil),
+			"over_speed_threshold": utils.ValueIgnoreEmpty(
+				utils.PathSearch("over_speed_threshold", v, nil)),
+		}
+	}
+
+	bodyParams := map[string]interface{}{
+		"speed_limit": speedLimitParams,
+	}
+
+	return bodyParams
 }
 
 func resourceMigrateTaskDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
