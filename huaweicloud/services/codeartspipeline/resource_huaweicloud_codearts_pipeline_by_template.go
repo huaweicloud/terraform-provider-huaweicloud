@@ -26,6 +26,8 @@ var pipelineByTemplateNonUpdatableParams = []string{
 // @API CodeArtsPipeline DELETE /v5/{project_id}/api/pipelines/{pipeline_id}
 // @API CodeArtsPipeline PUT /v5/{project_id}/api/pipelines/{pipeline_id}/unban
 // @API CodeArtsPipeline PUT /v5/{project_id}/api/pipelines/{pipeline_id}/ban
+// @API CodeArtsPipeline POST /v5/{project_id}/api/pipeline/variable/group/relation
+// @API CodeArtsPipeline GET /v5/{project_id}/api/pipeline/variable/group/pipeline
 func ResourceCodeArtsPipelineByTemplate() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourcePipelineByTemplateCreate,
@@ -137,6 +139,12 @@ func ResourceCodeArtsPipelineByTemplate() *schema.Resource {
 				MaxItems:    1,
 				Description: `Specifies the pipeline concurrency control information.`,
 				Elem:        resourceSchemePipelineConcurrencyControl(),
+			},
+			"parameter_groups": {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `Specifies the list of parameter groups.`,
 			},
 			"enable_force_new": {
 				Type:         schema.TypeString,
@@ -306,8 +314,19 @@ func resourcePipelineByTemplateCreate(ctx context.Context, d *schema.ResourceDat
 		}
 	}
 
+	if _, ok := d.GetOk("parameter_groups"); ok {
+		if err := updatePipelineField(client, d, updatePipelineFieldParams{
+			bindParameterGroupHttpUrl,
+			"POST",
+			buildUpdatePipelineParameterGroups(d),
+			nil,
+		}); err != nil {
+			return diag.Errorf("error updating pipeline parameter groups: %s", err)
+		}
+	}
+
 	if d.Get("banned").(bool) {
-		if err := updatePipelineBanned(client, banHttpUrl, projectId, d.Id()); err != nil {
+		if err := updatePipelineField(client, d, updatePipelineFieldParams{banHttpUrl, "PUT", nil, nil}); err != nil {
 			return diag.Errorf("error banning pipeline: %s", err)
 		}
 	}
@@ -344,5 +363,10 @@ func updatePipelineAfterCreateByPipeline(client *golangsdk.ServiceClient, d *sch
 		}
 	}
 
-	return updatePipeline(client, d)
+	return updatePipelineField(client, d, updatePipelineFieldParams{
+		updatePipelinehttpUrl,
+		"PUT",
+		utils.RemoveNil(buildCreateOrUpdatePipelineBodyParams(d)),
+		[]string{"component_id"},
+	})
 }

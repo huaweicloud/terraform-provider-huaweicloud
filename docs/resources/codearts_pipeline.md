@@ -167,6 +167,8 @@ The following arguments are supported:
 
 * `banned` - (Optional, Bool) Specifies whether the pipeline is banned. Defaults to **false**.
 
+* `parameter_groups` - (Optional, List) Specifies the parameter groups associated with.
+
 <a name="block--sources"></a>
 The `sources` block supports:
 
