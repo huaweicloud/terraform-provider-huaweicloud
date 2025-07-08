@@ -15,13 +15,14 @@ import (
 )
 
 const (
-	pipelineNotFoundError = "DEVPIPE.00011401"
-	templateNotFoundError = "DEVPIPE.00011203"
-	projectNotFoundError  = "DEV_21_100169"
-	projectNotFoundError2 = "DEVPIPE.00011412"
-	projectNotFoundError3 = "DEVPIPE.30021001"
-	groupNotFoundError    = "DEVPIPE.00014007"
-	tagNotFoundError      = "DEVPIPE.00014024"
+	pipelineNotFoundError       = "DEVPIPE.00011401"
+	templateNotFoundError       = "DEVPIPE.00011203"
+	projectNotFoundError        = "DEV_21_100169"
+	projectNotFoundError2       = "DEVPIPE.00011412"
+	projectNotFoundError3       = "DEVPIPE.30021001"
+	groupNotFoundError          = "DEVPIPE.00014007"
+	tagNotFoundError            = "DEVPIPE.00014024"
+	parameterGroupNotFoundError = "DEVPIPE.00014033"
 )
 
 // checkResponseError use to check whether the CodeArts Pipeline API response body contains error code.
