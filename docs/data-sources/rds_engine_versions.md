@@ -2,12 +2,13 @@
 subcategory: "Relational Database Service (RDS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_rds_engine_versions"
-description: ""
+description: |-
+  Use this data source to obtain all version information of the specified engine type of RDS.
 ---
 
 # huaweicloud_rds_engine_versions
 
-Use this data source to obtain all version information of the specified engine type of HuaweiCloud RDS.
+Use this data source to obtain all version information of the specified engine type of RDS.
 
 ## Example Usage
 
@@ -29,12 +30,14 @@ data "huaweicloud_rds_engine_versions" "test" {
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - Data source ID in hashcode format.
+* `id` - The data source ID.
 
-* `versions` - List of RDS versions. Structure is documented below.
+* `versions` - Indicates the list of RDS versions.
+  The [versions](#versions_struct) structure is documented below.
 
-The `versions` block contains:
+<a name="versions_struct"></a>
+The `versions` block supports:
 
-* `id` - Version ID.
+* `id` - Indicates the version ID.
 
-* `name` - Version name.
+* `name` - Indicates the version name.
