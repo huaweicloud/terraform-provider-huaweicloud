@@ -174,6 +174,42 @@ func ResourceModelartsResourcePool() *schema.Resource {
 				Computed:    true,
 				Description: `The resource ID of the resource pool.`,
 			},
+			// Internal attributes(s).
+			"resources_order_origin": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"node_pool": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: utils.SchemaDesc(`The name of the node pool under resource pool.`,
+								utils.SchemaDescInput{Internal: true},
+							),
+						},
+						"flavor_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: utils.SchemaDesc(
+								`The flavor of the node pool.`,
+								utils.SchemaDescInput{Internal: true},
+							),
+						},
+						"creating_step": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: utils.SchemaDesc(
+								`The creating step of the node pool, in JSON format.`,
+								utils.SchemaDescInput{Internal: true},
+							),
+						},
+					},
+				},
+				Description: utils.SchemaDesc(
+					`The script configuration value after the last change, according to which the resources are sorted.`,
+					utils.SchemaDescInput{Internal: true},
+				),
+			},
 		},
 	}
 }
@@ -678,6 +714,10 @@ func resourceModelartsResourcePoolCreate(ctx context.Context, d *schema.Resource
 	}
 	d.SetId(id.(string))
 
+	if err = d.Set("resources_order_origin", refreshResourcesOrderOrigin(d.GetRawConfig())); err != nil {
+		log.Printf("[ERROR] error saving resources_order_origin field for creating resource pool: %s", err)
+	}
+
 	if d.Get("charging_mode") == "prePaid" {
 		// wait 30 seconds so that the resource pool can be queried
 		// lintignore:R018
@@ -1098,7 +1138,11 @@ func resourceModelartsResourcePoolRead(_ context.Context, d *schema.ResourceData
 		d.Set("description", utils.PathSearch(`metadata.annotations."os.modelarts/description"`,
 			getModelartsResourcePoolRespBody, nil)),
 		d.Set("scope", utils.PathSearch("spec.scope", getModelartsResourcePoolRespBody, nil)),
-		d.Set("resources", flattenGetResourcePoolResponseBodyResources(getModelartsResourcePoolRespBody)),
+		d.Set("resources", flattenGetResourcePoolResponseBodyResources(
+			utils.PathSearch("spec.resources", getModelartsResourcePoolRespBody, make([]interface{}, 0)).([]interface{}),
+			d.Get("resources_order_origin").([]interface{})),
+		),
+
 		d.Set("network_id", utils.PathSearch("spec.network.name", getModelartsResourcePoolRespBody, nil)),
 		d.Set("vpc_id", utils.PathSearch("spec.network.vpcId", getModelartsResourcePoolRespBody, nil)),
 		d.Set("subnet_id", utils.PathSearch("spec.network.subnetId", getModelartsResourcePoolRespBody, nil)),
@@ -1264,14 +1308,46 @@ func flattenResourcePoolResourcesCreatingStep(creatingStep interface{}) []map[st
 	}
 }
 
-func flattenGetResourcePoolResponseBodyResources(resp interface{}) []interface{} {
-	if resp == nil {
+func orderResourcesByResourcesOrderOrigin(resources, resourcesOrderOrigin []interface{}) []interface{} {
+	if len(resourcesOrderOrigin) == 0 {
+		return resources
+	}
+
+	sortedResources := make([]interface{}, 0)
+	// According to the `resources_order_origin` to sort the `resources.
+	for _, v := range resourcesOrderOrigin {
+		// Find matching resource in resources array based on flavor, node_pool and creating_step.
+		_, index := findResourceByFlavorAndNodePoolAndCreatingStep(
+			resources,
+			utils.PathSearch("flavor", v, "").(string),
+			utils.PathSearch("node_pool", v, "").(string),
+			utils.PathSearch("creating_step", v, "").(string),
+		)
+
+		// -1 means no matching resource is found in resources.
+		if index == -1 {
+			continue
+		}
+
+		// Add the found resource to the sorted resources list.
+		sortedResources = append(sortedResources, resources[index])
+		// Remove the processed resource from the original array.
+		resources = append(resources[:index], resources[index+1:]...)
+	}
+
+	// Add any remaining unsorted resources to the end of the sorted list.
+	sortedResources = append(sortedResources, resources...)
+	return sortedResources
+}
+
+func flattenGetResourcePoolResponseBodyResources(respResources, resourcesOrderOrigin []interface{}) []interface{} {
+	if len(respResources) == 0 {
 		return nil
 	}
-	curJson := utils.PathSearch("spec.resources", resp, make([]interface{}, 0))
-	curArray := curJson.([]interface{})
-	rst := make([]interface{}, 0, len(curArray))
-	for _, v := range curArray {
+
+	sortedResources := orderResourcesByResourcesOrderOrigin(respResources, resourcesOrderOrigin)
+	rst := make([]interface{}, 0, len(sortedResources))
+	for _, v := range sortedResources {
 		rst = append(rst, map[string]interface{}{
 			"flavor_id":          utils.PathSearch("flavor", v, nil),
 			"count":              utils.PathSearch("count", v, nil),
@@ -1364,6 +1440,25 @@ func flattenResourcePoolResourcesTags(resp interface{}) map[string]interface{} {
 	return rst
 }
 
+func refreshResourcesOrderOrigin(rawConfig cty.Value) []interface{} {
+	raw := getConfigFileResources(rawConfig)
+	if raw == nil {
+		return make([]interface{}, 0)
+	}
+
+	resources := raw.(cty.Value)
+	result := make([]interface{}, resources.LengthInt())
+	for i, resourceElem := range resources.AsValueSlice() {
+		result[i] = map[string]interface{}{
+			"flavor_id":     getConfigFileStringValueByKey(resourceElem, "flavor_id"),
+			"node_pool":     getConfigFileStringValueByKey(resourceElem, "node_pool"),
+			"creating_step": getResourcesCreatingStepFromConfigFile(resourceElem),
+		}
+	}
+
+	return result
+}
+
 func resourceModelartsResourcePoolUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg            = meta.(*config.Config)
@@ -1404,6 +1499,10 @@ func resourceModelartsResourcePoolUpdate(ctx context.Context, d *schema.Resource
 		updateModelartsResourcePoolResp, err := updateResourcePoolClient.Request("PATCH", updateResourcePoolPath, &updateResourcePoolOpt)
 		if err != nil {
 			return diag.Errorf("error updating Modelarts resource pool: %s", err)
+		}
+
+		if err = d.Set("resources_order_origin", refreshResourcesOrderOrigin(d.GetRawConfig())); err != nil {
+			log.Printf("[ERROR] error saving resources_order_origin field for updating resource pool: %s", err)
 		}
 
 		// The `nodeBillingMode` indicates the billing mode of the node when scaling the node capacity.
@@ -1451,7 +1550,7 @@ func resourceModelartsResourcePoolUpdate(ctx context.Context, d *schema.Resource
 
 func isAnyNodeScallingUp(oldResource, newResource []interface{}) bool {
 	for _, v := range newResource {
-		matchedOldResource := findResourceByFlavorAndNodePoolAndCreatingStep(oldResource,
+		matchedOldResource, _ := findResourceByFlavorAndNodePoolAndCreatingStep(oldResource,
 			utils.PathSearch("flavor_id", v, "").(string),
 			utils.PathSearch("node_pool", v, "").(string),
 			utils.JsonToString(utils.PathSearch("creating_step[0]", v, nil)),
@@ -1621,11 +1720,13 @@ func getMatchedResourceFromConfigfile(newResource cty.Value, oldResources []inte
 		newCreatringStep = getResourcesCreatingStepFromConfigFile(newResource)
 	)
 
-	return findResourceByFlavorAndNodePoolAndCreatingStep(oldResources, newFlavor, newNodePool, newCreatringStep)
+	resources, _ := findResourceByFlavorAndNodePoolAndCreatingStep(oldResources, newFlavor, newNodePool, newCreatringStep)
+	return resources
 }
 
-func findResourceByFlavorAndNodePoolAndCreatingStep(oldResources []interface{}, flavor string, nodePool string, creatingStep string) interface{} {
-	for _, oldResource := range oldResources {
+func findResourceByFlavorAndNodePoolAndCreatingStep(oldResources []interface{}, flavor string, nodePool string,
+	creatingStep string) (interface{}, int) {
+	for index, oldResource := range oldResources {
 		var (
 			oldNodePool     = utils.PathSearch("node_pool", oldResource, "").(string)
 			oldFlavor       = utils.PathSearch("flavor_id", oldResource, "").(string)
@@ -1636,18 +1737,18 @@ func findResourceByFlavorAndNodePoolAndCreatingStep(oldResources []interface{}, 
 			oldNodePool == nodePool &&
 			oldFlavor == flavor &&
 			oldCreatingStep == creatingStep {
-			return oldResource
+			return oldResource, index
 		}
 
 		pattern := regexp.MustCompile(fmt.Sprintf(`^%s-default|$`, oldFlavor))
 		if nodePool == "" &&
 			pattern.MatchString(oldNodePool) &&
 			oldFlavor == flavor && oldCreatingStep == creatingStep {
-			return oldResource
+			return oldResource, index
 		}
 	}
 
-	return nil
+	return nil, -1
 }
 
 // Get the value of string type from the old resource by config file key.
