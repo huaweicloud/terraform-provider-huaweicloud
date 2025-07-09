@@ -265,7 +265,7 @@ func modelartsResourcePoolResourceFlavorSchema() *schema.Resource {
 				Description: `The root volume of the resource pool nodes.`,
 			},
 			"data_volumes": {
-				Type:        schema.TypeList,
+				Type:        schema.TypeSet,
 				Elem:        modelartsResourcePoolResourcesDataVolumeSchema(),
 				Optional:    true,
 				Computed:    true,
@@ -846,7 +846,7 @@ func buildCreateResourcePoolSpecResources(resources []interface{}) []map[string]
 			"rootVolume": buildResourcePoolResourcesRootVolume(utils.PathSearch("root_volume", v,
 				make([]interface{}, 0)).([]interface{})),
 			"dataVolumes": buildCreateResourcePoolResourcesDataVolumes(utils.PathSearch("data_volumes", v,
-				make([]interface{}, 0)).([]interface{})),
+				schema.NewSet(schema.HashString, nil)).(*schema.Set)),
 			"volumeGroupConfigs": buildResourcePoolResourcesVolumeGroupConfigs(
 				make([]interface{}, 0),
 				utils.PathSearch("volume_group_configs", v, schema.NewSet(schema.HashString, nil)).(*schema.Set).List(),
@@ -875,13 +875,13 @@ func buildCreateResourcePoolResourcesExtendParamsBodyParams(extendParams, postIn
 	return result
 }
 
-func buildCreateResourcePoolResourcesDataVolumes(dataVolumes []interface{}) []map[string]interface{} {
-	if len(dataVolumes) < 1 {
+func buildCreateResourcePoolResourcesDataVolumes(dataVolumes *schema.Set) []map[string]interface{} {
+	if dataVolumes.Len() < 1 {
 		return nil
 	}
 
-	result := make([]map[string]interface{}, len(dataVolumes))
-	for i, dataVolume := range dataVolumes {
+	result := make([]map[string]interface{}, dataVolumes.Len())
+	for i, dataVolume := range dataVolumes.List() {
 		result[i] = map[string]interface{}{
 			"volumeType":   utils.PathSearch("volume_type", dataVolume, nil),
 			"size":         utils.PathSearch("size", dataVolume, nil),
@@ -1793,7 +1793,7 @@ func buildUpdateResourcePoolResourceRootVolume(resourceElem cty.Value, oldResour
 func buildUpdateResourcePoolResourceDataVolumes(resourceElem cty.Value, oldResource interface{}) interface{} {
 	if !isRawConfigListExist(resourceElem, "data_volumes") {
 		return buildCreateResourcePoolResourcesDataVolumes(utils.PathSearch("data_volumes", oldResource,
-			make([]interface{}, 0)).([]interface{}))
+			schema.NewSet(schema.HashString, nil)).(*schema.Set))
 	}
 
 	dataVolumes := resourceElem.GetAttr("data_volumes")
