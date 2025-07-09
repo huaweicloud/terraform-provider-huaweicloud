@@ -34,18 +34,6 @@ func TestAccDesktopPoolAction_basic(t *testing.T) {
 	})
 }
 
-func testAccDesktopPoolAction_basic(name string) string {
-	return fmt.Sprintf(`
-%[1]s
-
-resource "huaweicloud_workspace_desktop_pool_action" "test" {
-  pool_id = huaweicloud_workspace_desktop_pool.test.id
-  op_type = "os-start"
-  type    = "SOFT"
-}
-`, testAccDesktopPoolAction_base(name))
-}
-
 func testAccDesktopPoolAction_base(name string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_workspace_service" "test" {}
@@ -100,4 +88,16 @@ resource "huaweicloud_workspace_desktop_pool" "test" {
   }
 }
 `, name)
+}
+
+func testAccDesktopPoolAction_basic(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_workspace_desktop_pool_action" "test" {
+  pool_id = huaweicloud_workspace_desktop_pool.test.id
+  op_type = "os-start"
+  type    = "SOFT"
+}
+`, testAccDesktopPoolAction_base(name))
 }
