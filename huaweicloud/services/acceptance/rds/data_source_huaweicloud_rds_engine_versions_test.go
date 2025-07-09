@@ -1,7 +1,6 @@
 package rds
 
 import (
-	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -19,15 +18,22 @@ func TestAccRdsEngineVersionsV3DataSource_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccRdsEngineVersionsV3DataSource_basic,
+				Config: testDataSourceRdsEngineVersions_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(dataSourceName, "type", "MySQL"),
-					resource.TestMatchResourceAttr(dataSourceName, "versions.#", regexp.MustCompile("\\d+")),
+					resource.TestCheckResourceAttrSet(dataSourceName, "versions.#"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "versions.0.id"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "versions.0.name"),
 				),
 			},
 		},
 	})
 }
 
-const testAccRdsEngineVersionsV3DataSource_basic string = "data \"huaweicloud_rds_engine_versions\" \"test\" {}"
+func testDataSourceRdsEngineVersions_basic() string {
+	return `
+data "huaweicloud_rds_engine_versions" "test" {
+  type = "MySQL"
+}
+`
+}

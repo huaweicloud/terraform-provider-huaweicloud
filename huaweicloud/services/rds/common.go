@@ -275,12 +275,12 @@ func updateRdsInstanceField(ctx context.Context, d *schema.ResourceData, client 
 		return nil, err
 	}
 
-	if params.checkJobExpression == "" && params.checkOrderExpression == "" && !params.isWaitInstanceReady {
-		return nil, nil
-	}
 	updateRespBody, err := utils.FlattenResponse(res.(*http.Response))
 	if err != nil {
 		return nil, err
+	}
+	if params.checkJobExpression == "" && params.checkOrderExpression == "" && !params.isWaitInstanceReady {
+		return updateRespBody, nil
 	}
 
 	jobId := utils.PathSearch(params.checkJobExpression, updateRespBody, "").(string)
