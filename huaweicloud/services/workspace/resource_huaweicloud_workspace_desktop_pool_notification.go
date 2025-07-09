@@ -2,12 +2,10 @@ package workspace
 
 import (
 	"context"
-	"errors"
 	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -114,73 +112,13 @@ func resourceDesktopPoolNotificationCreate(ctx context.Context, d *schema.Resour
 	// Backup job ID proves that the request was successful
 	d.SetId(jobId)
 
-	status, err := waitForDesktopPoolNotificationJobCompleted(ctx, client, jobId, d.Timeout(schema.TimeoutCreate))
+	status, err := waitForJobCompleted(ctx, client, jobId, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.Errorf("error waiting for the job (%s) to completed: %s", jobId, err)
 	}
 	d.Set("status", status)
 
 	return resourceDesktopPoolNotificationRead(ctx, d, meta)
-}
-
-func waitForDesktopPoolNotificationJobCompleted(ctx context.Context, client *golangsdk.ServiceClient, jobId string,
-	timeout time.Duration) (string, error) {
-	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"PENDING"},
-		Target:       []string{"COMPLETED"},
-		Refresh:      refreshDesktopPoolNotificationJobFunc(client, jobId),
-		Timeout:      timeout,
-		Delay:        10 * time.Second,
-		PollInterval: 15 * time.Second,
-	}
-
-	resp, err := stateConf.WaitForStateContext(ctx)
-	if err != nil {
-		return "ERROR", err
-	}
-
-	status := utils.PathSearch("status", resp, "NONE").(string)
-	if status == "COMPLETE" {
-		status = "SUCCESS"
-	}
-	return status, nil
-}
-
-func refreshDesktopPoolNotificationJobFunc(client *golangsdk.ServiceClient, jobId string) resource.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		var (
-			httpUrl  = "v2/{project_id}/workspace-jobs/{job_id}"
-			listOpts = golangsdk.RequestOpts{
-				KeepResponseBody: true,
-				MoreHeaders: map[string]string{
-					"Content-Type": "application/json",
-				},
-			}
-		)
-
-		listPath := client.Endpoint + httpUrl
-		listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
-		listPath = strings.ReplaceAll(listPath, "{job_id}", jobId)
-		resp, err := client.Request("GET", listPath, &listOpts)
-		if err != nil {
-			return resp, "ERROR", err
-		}
-
-		respBody, err := utils.FlattenResponse(resp)
-		if err != nil {
-			return resp, "ERROR", err
-		}
-
-		status := utils.PathSearch("status", respBody, "").(string)
-		if status == "" {
-			return resp, "ERROR", errors.New("dispatch message job failed")
-		}
-
-		if utils.StrSliceContains([]string{"COMPLETE", "SUCCESS", "FAIL"}, status) {
-			return resp, "COMPLETED", nil
-		}
-		return resp, "PENDING", nil
-	}
 }
 
 func resourceDesktopPoolNotificationRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
