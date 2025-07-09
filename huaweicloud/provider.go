@@ -1387,6 +1387,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_sms_task_consistency_results":             sms.DataSourceSmsTaskConsistencyResults(),
 			"huaweicloud_sms_tasks":                                sms.DataSourceSmsTasks(),
 			"huaweicloud_sms_task_ssl_certificate_and_private_key": sms.DataSourceSmsTaskSslCertificateAndPrivateKey(),
+			"huaweicloud_sms_server_templates":                     sms.DataSourceSmsServerTemplates(),
 
 			"huaweicloud_sfs_turbos":            sfsturbo.DataSourceTurbos(),
 			"huaweicloud_sfs_turbos_by_tags":    sfsturbo.DataSourceSfsTurbosByTags(),
