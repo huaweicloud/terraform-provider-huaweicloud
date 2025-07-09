@@ -556,6 +556,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cbr_protectable_instances":    cbr.DataSourceProtectableInstances(),
 			"huaweicloud_cbr_external_vaults":          cbr.DataSourceExternalVaults(),
 			"huaweicloud_cbr_migrate_status":           cbr.DataSourceMigrateStatus(),
+			"huaweicloud_cbr_operation_logs":           cbr.DataSourceOperationLogs(),
 
 			"huaweicloud_cbh_instances":          cbh.DataSourceCbhInstances(),
 			"huaweicloud_cbh_flavors":            cbh.DataSourceCbhFlavors(),
