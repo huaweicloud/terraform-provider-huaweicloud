@@ -10,6 +10,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/chnsz/golangsdk"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/entity"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/internal/httpclient_go"
@@ -177,15 +180,26 @@ func resourceAomMappingRuleRead(_ context.Context, d *schema.ResourceData, meta 
 	header["content-type"] = "application/json;charset=UTF8"
 	client.WithMethod(httpclient_go.MethodGet).WithUrl("v2/" + cfg.GetProjectID(region) + "/lts/aom-mapping/" + d.Id()).WithHeader(header)
 	response, err := client.Do()
-	body, diags := client.CheckDeletedDiag(d, err, response, "error retrieving AomMappingRule")
-	if body == nil {
-		return diags
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, "error retrieving AOM mapping rule")
 	}
+
+	defer response.Body.Close()
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	rlt := make([]entity.AomMappingRequestInfo, 0)
 	err = json.Unmarshal(body, &rlt)
 	if err != nil {
 		return diag.Errorf("error retrieving AomMappingRule %s", d.Id())
 	}
+
+	if len(rlt) == 0 {
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "error getting AOM mapping rule")
+	}
+
 	mErr := multierror.Append(nil,
 		d.Set("rule_name", rlt[0].RuleName),
 		d.Set("cluster_id", rlt[0].RuleInfo.ClusterId),
