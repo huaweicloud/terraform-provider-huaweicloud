@@ -11,6 +11,9 @@ Manages a ModelArts dedicated resource pool resource within HuaweiCloud.
 
 ~> If you want to expand hyper instance nodes, the provider version must be `1.75.5` or later.
 
+-> When importing a resource pool, resources may change due to order reasons. Please synchronize manually or use
+  `lifecycle.ignore_changes` to ignore it.
+
 ## Example Usage
 
 ### create a basic resource pool
