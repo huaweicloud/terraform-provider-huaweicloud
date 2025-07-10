@@ -1,0 +1,53 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_sms_source_server_errors": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "migproject": {
+                "type": "string",
+                "description": "Specifies the migration project ID.",
+                "optional": true
+              },
+              "migration_errors": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "error_json": "string",
+                      "host_name": "string",
+                      "name": "string",
+                      "source_id": "string",
+                      "source_ip": "string",
+                      "target_ip": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the details of failed source servers.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "SMS",
+            "name": "Server Migration Service",
+            "catalog": "Migration",
+            "name_cn": "主机迁移服务",
+            "catalog_cn": "迁移"
+          }
+        }
+      }
+    }
+  }
+}

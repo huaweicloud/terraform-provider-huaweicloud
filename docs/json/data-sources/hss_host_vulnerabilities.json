@@ -1,0 +1,133 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_host_vulnerabilities": {
+          "block": {
+            "attributes": {
+              "data_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "app_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "app_name": "string",
+                            "app_path": "string",
+                            "app_version": "string",
+                            "upgrade_version": "string"
+                          }
+                        ]
+                      ],
+                      "app_name": "string",
+                      "app_path": "string",
+                      "app_version": "string",
+                      "cve_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "cve_id": "string",
+                            "cvss": "number"
+                          }
+                        ]
+                      ],
+                      "description": "string",
+                      "disabled_operate_types": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "operate_type": "string",
+                            "reason": "string"
+                          }
+                        ]
+                      ],
+                      "first_scan_time": "number",
+                      "is_affect_business": "bool",
+                      "label_list": [
+                        "list",
+                        "string"
+                      ],
+                      "repair_cmd": "string",
+                      "repair_necessity": "string",
+                      "repair_priority": "string",
+                      "repair_success_num": "number",
+                      "scan_time": "number",
+                      "severity_level": "string",
+                      "solution_detail": "string",
+                      "status": "string",
+                      "support_restore": "bool",
+                      "type": "string",
+                      "url": "string",
+                      "version": "string",
+                      "vul_id": "string",
+                      "vul_name": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of host vulnerabilities.",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID to which the hosts belong.",
+                "optional": true
+              },
+              "handle_status": {
+                "type": "string",
+                "description": "Specifies the handling status.",
+                "optional": true
+              },
+              "host_id": {
+                "type": "string",
+                "description": "Specifies the host ID.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "repair_priority": {
+                "type": "string",
+                "description": "Specifies the fixing priority.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the vulnerability status.",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the vulnerability type.",
+                "optional": true
+              },
+              "vul_name": {
+                "type": "string",
+                "description": "Specifies the vulnerability name.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

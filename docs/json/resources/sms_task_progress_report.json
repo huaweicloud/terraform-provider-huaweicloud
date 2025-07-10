@@ -1,0 +1,93 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_sms_task_progress_report": {
+          "block": {
+            "attributes": {
+              "agent_cpu_usage": {
+                "type": "number",
+                "optional": true
+              },
+              "agent_disk_io": {
+                "type": "number",
+                "optional": true
+              },
+              "agent_mem_usage": {
+                "type": "number",
+                "optional": true
+              },
+              "agent_time": {
+                "type": "string",
+                "optional": true
+              },
+              "compress_rate": {
+                "type": "number",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "migrate_speed": {
+                "type": "number",
+                "optional": true
+              },
+              "need_migration_test": {
+                "type": "bool",
+                "optional": true
+              },
+              "process_trace": {
+                "type": "string",
+                "required": true
+              },
+              "progress": {
+                "type": "number",
+                "required": true
+              },
+              "remain_time": {
+                "type": "number",
+                "optional": true
+              },
+              "replicatesize": {
+                "type": "number",
+                "required": true
+              },
+              "subtask_name": {
+                "type": "string",
+                "required": true
+              },
+              "task_id": {
+                "type": "string",
+                "required": true
+              },
+              "total_cpu_usage": {
+                "type": "number",
+                "optional": true
+              },
+              "total_disk_io": {
+                "type": "number",
+                "optional": true
+              },
+              "total_mem_usage": {
+                "type": "number",
+                "optional": true
+              },
+              "totalsize": {
+                "type": "number",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "SMS",
+            "name": "Server Migration Service",
+            "catalog": "Migration",
+            "name_cn": "主机迁移服务",
+            "catalog_cn": "迁移"
+          }
+        }
+      }
+    }
+  }
+}

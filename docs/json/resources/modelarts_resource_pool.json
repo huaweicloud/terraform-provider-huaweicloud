@@ -270,7 +270,7 @@
                         },
                         "description": "The data volumes of the resource pool nodes."
                       },
-                      "nesting_mode": "list"
+                      "nesting_mode": "set"
                     },
                     "driver": {
                       "block": {

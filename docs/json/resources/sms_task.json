@@ -21,6 +21,10 @@
                 "type": "number",
                 "computed": true
               },
+              "migrate_type": {
+                "type": "string",
+                "computed": true
+              },
               "migration_ip": {
                 "type": "string",
                 "optional": true,
@@ -30,6 +34,10 @@
                 "type": "string",
                 "required": true,
                 "forcenew": true
+              },
+              "passphrase": {
+                "type": "string",
+                "computed": true
               },
               "project_id": {
                 "type": "string",
@@ -89,6 +97,48 @@
               }
             },
             "block_types": {
+              "configurations": {
+                "block": {
+                  "attributes": {
+                    "config_key": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "config_status": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "config_value": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "set"
+              },
+              "speed_limit": {
+                "block": {
+                  "attributes": {
+                    "end": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "over_speed_threshold": {
+                      "type": "number",
+                      "optional": true
+                    },
+                    "speed": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "start": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "set"
+              },
               "target_server_disks": {
                 "block": {
                   "attributes": {
