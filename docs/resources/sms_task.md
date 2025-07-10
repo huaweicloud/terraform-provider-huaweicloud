@@ -72,6 +72,23 @@ The following arguments are supported:
 * `action` - (Optional, String) Specifies the operation after the task is created.
   The value can be **start**, **stop** and **restart**.
 
+* `auto_start` - (Optional, Bool, NonUpdatable) Specifies whether to automatically start the migration. Defaults to **false**.
+
+* `use_ipv6` - (Optional, Bool, NonUpdatable) Specifies whether to use IPv6. Defaults to **false**.
+
+* `start_network_check` - (Optional, Bool, NonUpdatable) Specifies whether to measure the network performance. Defaults
+  to **false**.
+
+* `migrate_speed_limit` - (Optional, Int, NonUpdatable) Specifies the migration speed limit.
+
+* `over_speed_threshold` - (Optional, Float, NonUpdatable) Specifies the overspeed threshold for stopping migration.
+
+* `is_need_consistency_check` - (Optional, Bool, NonUpdatable) Specifies whether consistency verification is enabled.
+  Defaults to **false**.
+
+* `need_migration_test` - (Optional, Bool, NonUpdatable) Specifies whether migration drilling is enabled. Defaults to
+  **false**.
+
 * `speed_limit` - (Optional, List) Specifies the information about the time period-based rate limiting rules.
   The [speed_limit](#speed_limit_struct) structure is documented below.
 
@@ -181,7 +198,8 @@ terraform import huaweicloud_sms_task.demo 6402c49b-7d9a-413e-8b5f-a7307f7d5679
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
-API response. The missing attributes include: `use_public_ip`, `syncing` and `action`.
+API response. The missing attributes include: `action`, `auto_start`, `start_network_check`, `over_speed_threshold` and
+`is_need_consistency_check`.
 It is generally recommended running `terraform plan` after importing a migration task.
 You can then decide if changes should be applied to the task, or the resource definition should be
 updated to align with the task. Also you can ignore changes as below.
@@ -192,7 +210,7 @@ resource "huaweicloud_sms_task" "demo" {
 
   lifecycle {
     ignore_changes = [
-      use_public_ip, syncing, action,
+      syncing, action, auto_start, start_network_check, over_speed_threshold, is_need_consistency_check,
     ]
   }
 }
