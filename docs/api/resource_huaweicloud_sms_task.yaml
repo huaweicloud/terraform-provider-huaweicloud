@@ -25,3 +25,16 @@ paths:
     /v3/tasks/{id}/action:
         POST:
             tag: SMS
+    /v3/tasks/{task_id}/configuration-setting:
+        GET:
+            tag: SMS
+        POST:
+            tag: SMS
+    /v3/tasks/{task_id}/passphrase:
+        GET:
+            tag: SMS
+    /v3/tasks/{task_id}/speed-limit:
+        GET:
+            tag: SMS
+        POST:
+            tag: SMS
