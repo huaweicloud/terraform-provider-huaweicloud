@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.76.3 (July 10, 2025)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_modelarts_resource_pool: add data_volumes sorting logic [GH-7222]
+
 ## 1.76.2 (July 7, 2025)
 
 ENHANCEMENTS:
