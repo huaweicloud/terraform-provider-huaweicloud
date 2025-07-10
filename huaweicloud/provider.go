@@ -1061,6 +1061,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_asset_user_statistics":          hss.DataSourceAssetUserStatistics(),
 			"huaweicloud_hss_asset_statistics":               hss.DataSourceAssetStatistics(),
 			"huaweicloud_hss_container_nodes":                hss.DataSourceContainerNodes(),
+			"huaweicloud_hss_container_kubernetes":           hss.DataSourceContainerKubernetes(),
 			"huaweicloud_hss_vulnerability_statistics":       hss.DataSourceVulnerabilityStatistics(),
 
 			"huaweicloud_identity_permissions": iam.DataSourceIdentityPermissions(),
