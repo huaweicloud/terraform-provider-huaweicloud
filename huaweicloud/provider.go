@@ -1056,6 +1056,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_resource_quotas":                hss.DataSourceResourceQuotas(),
 			"huaweicloud_hss_auto_launch_statistics":         hss.DataSourceAutoLaunchStatistics(),
 			"huaweicloud_hss_event_unblock_ips":              hss.DataSourceEventUnblockIps(),
+			"huaweicloud_hss_event_system_user_white_lists":  hss.DataSourceEventSystemUserWhiteLists(),
 			"huaweicloud_hss_asset_apps":                     hss.DataSourceAssetApps(),
 			"huaweicloud_hss_agent_install_script":           hss.DataSourceAgentInstallScript(),
 			"huaweicloud_hss_asset_port_statistics":          hss.DataSourceAssetPortStatistics(),
