@@ -2126,6 +2126,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_evs_volume":                     evs.ResourceEvsVolume(),
 			"huaweicloud_evs_snapshot_rollback":          evs.ResourceSnapshotRollBack(),
 			"huaweicloud_evs_volume_metadata":            evs.ResourceVolumeMetadata(),
+			"huaweicloud_evs_volume_retype":              evs.ResourceVolumeRetype(),
 			"huaweicloud_evs_volume_transfer":            evs.ResourceVolumeTransfer(),
 			"huaweicloud_evsv3_volume_transfer":          evs.ResourceV3VolumeTransfer(),
 			"huaweicloud_evs_volume_transfer_accepter":   evs.ResourceVolumeTransferAccepter(),
