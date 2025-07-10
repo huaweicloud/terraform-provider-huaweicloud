@@ -7,10 +7,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk/openstack/sms/v3/tasks"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/sms"
 )
 
 func getMigrationTaskResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -19,17 +18,17 @@ func getMigrationTaskResourceFunc(conf *config.Config, state *terraform.Resource
 		return nil, fmt.Errorf("error creating SMS client: %s", err)
 	}
 
-	return tasks.Get(client, state.Primary.ID)
+	return sms.GetSmsTask(client, state.Primary.ID)
 }
 
 func TestAccMigrationTask_basic(t *testing.T) {
-	var migration tasks.MigrateTask
+	var obj interface{}
 	name := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_sms_task.migration"
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
-		&migration,
+		&obj,
 		getMigrationTaskResourceFunc,
 	)
 
@@ -74,10 +73,11 @@ func TestAccMigrationTask_basic(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:            resourceName,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"use_public_ip", "syncing", "action"},
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{"action", "auto_start", "start_network_check", "over_speed_threshold",
+					"is_need_consistency_check"},
 			},
 		},
 	})
@@ -88,10 +88,17 @@ func testAccMigrationTask_basic(name string) string {
 %s
 
 resource "huaweicloud_sms_task" "migration" {
-  type             = "MIGRATE_FILE"
-  os_type          = "LINUX"
-  source_server_id = data.huaweicloud_sms_source_servers.source.servers[0].id
-  vm_template_id   = huaweicloud_sms_server_template.test.id
+  type                      = "MIGRATE_FILE"
+  os_type                   = "LINUX"
+  source_server_id          = data.huaweicloud_sms_source_servers.source.servers[0].id
+  vm_template_id            = huaweicloud_sms_server_template.test.id
+  auto_start                = true
+  use_ipv6                  = true
+  start_network_check       = true
+  migrate_speed_limit       = 10
+  over_speed_threshold      = 50.0
+  is_need_consistency_check = true
+  need_migration_test       = true
 
   speed_limit {
     start                = "00:00"
@@ -114,10 +121,17 @@ func testAccMigrationTask_update(name string) string {
 %s
 
 resource "huaweicloud_sms_task" "migration" {
-  type             = "MIGRATE_FILE"
-  os_type          = "LINUX"
-  source_server_id = data.huaweicloud_sms_source_servers.source.servers[0].id
-  vm_template_id   = huaweicloud_sms_server_template.test.id
+  type                      = "MIGRATE_FILE"
+  os_type                   = "LINUX"
+  source_server_id          = data.huaweicloud_sms_source_servers.source.servers[0].id
+  vm_template_id            = huaweicloud_sms_server_template.test.id
+  auto_start                = true
+  use_ipv6                  = true
+  start_network_check       = true
+  migrate_speed_limit       = 10
+  over_speed_threshold      = 50.0
+  is_need_consistency_check = true
+  need_migration_test       = true
 
   speed_limit {
     start                = "01:00"
