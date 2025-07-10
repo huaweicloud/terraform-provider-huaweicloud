@@ -1,66 +1,99 @@
-data "huaweicloud_availability_zones" "myaz" {}
+locals {
+  az          = var.availability_zone == "" ? try(data.huaweicloud_availability_zones.test[0].names[0], null) : var.availability_zone
+  subnet_cidr = var.subnet_cidr == "" ? cidrsubnet(try(huaweicloud_vpc.test[0].cidr, "192.168.0.0/16"), 8, 0) : var.subnet_cidr
+  gateway     = var.gateway == "" ? cidrhost(cidrsubnet(try(huaweicloud_vpc.test[0].cidr, "192.168.0.0/16"), 8, 0), 1) : var.gateway
+}
 
-resource "huaweicloud_vpc" "myvpc" {
+data "huaweicloud_availability_zones" "test" {
+  count = var.availability_zone == "" ? 1 : 0
+}
+
+data "huaweicloud_rds_flavors" "test" {
+  count = var.flavor_id == "" ? 1 : 0
+
+  db_type           = var.db_type
+  db_version        = var.db_version
+  instance_mode     = var.instance_mode
+  group_type        = var.group_type
+  vcpus             = var.vcpus
+  availability_zone = local.az
+}
+
+resource "huaweicloud_vpc" "test" {
+  count = var.vpc_id == "" ? 1 : 0
+
   name = var.vpc_name
   cidr = var.vpc_cidr
 }
 
-resource "huaweicloud_vpc_subnet" "mysubnet" {
-  vpc_id      = huaweicloud_vpc.myvpc.id
-  name        = var.subnet_name
-  cidr        = var.subnet_cidr
-  gateway_ip  = var.subnet_gateway
-  primary_dns = var.primary_dns
+resource "huaweicloud_vpc_subnet" "test" {
+  count = var.subnet_id == "" ? 1 : 0
+
+  vpc_id            = try(huaweicloud_vpc.test[0].id, null)
+  name              = var.subnet_name
+  cidr              = local.subnet_cidr
+  gateway_ip        = local.gateway
+  availability_zone = local.az
+  primary_dns       = var.primary_dns
 }
 
-resource "huaweicloud_networking_secgroup" "mysecgroup" {
-  name        = "mysecgroup"
-  description = "a basic security group"
+resource "huaweicloud_networking_secgroup" "test" {
+  count = var.secgroup_id == "" ? 1 : 0
+
+  name = var.secgroup_name
 }
 
-resource "huaweicloud_networking_secgroup_rule" "allow_rds" {
-  direction         = "ingress"
+resource "huaweicloud_networking_secgroup_rule" "test" {
+  count = var.secgroup_id == "" ? 1 : 0
+
+  security_group_id = try(huaweicloud_networking_secgroup.test[0].id, null)
+  direction         = "egress"
   ethertype         = "IPv4"
-  protocol          = "tcp"
-  port_range_min    = 3306
-  port_range_max    = 3306
-  remote_ip_prefix  = var.allow_cidr
-  security_group_id = huaweicloud_networking_secgroup.mysecgroup.id
+  remote_ip_prefix  = var.vpc_cidr
+  port_range_max    = var.db_port
+  port_range_min    = var.db_port
+  protocol          = var.protocol
 }
 
-resource "random_password" "mypassword" {
+resource "random_password" "test" {
   length           = 12
   special          = true
-  override_special = "!@#%^*-_=+"
+  override_special = "!@%^*-_=+"
 }
 
-resource "huaweicloud_rds_instance" "myinstance" {
-  name                = "mysql_instance"
-  flavor              = "rds.mysql.c2.large.ha"
-  ha_replication_mode = "async"
-  vpc_id              = huaweicloud_vpc.myvpc.id
-  subnet_id           = huaweicloud_vpc_subnet.mysubnet.id
-  security_group_id   = huaweicloud_networking_secgroup.mysecgroup.id
-  availability_zone = [
-    data.huaweicloud_availability_zones.myaz.names[0],
-    data.huaweicloud_availability_zones.myaz.names[1]
-  ]
+resource "huaweicloud_rds_instance" "test" {
+  name              = var.instance_name
+  flavor            = var.flavor_id != "" ? var.flavor_id : try(data.huaweicloud_rds_flavors.test[0].flavors[0].name, null)
+  vpc_id            = var.vpc_id != "" ? var.vpc_id : huaweicloud_vpc.test[0].id
+  subnet_id         = var.subnet_id != "" ? var.subnet_id : huaweicloud_vpc_subnet.test[0].id
+  security_group_id = var.secgroup_id != "" ? var.secgroup_id : huaweicloud_networking_secgroup.test[0].id
+  charging_mode     = var.charging_mode
+  availability_zone = [local.az]
 
   db {
-    type     = "MySQL"
-    version  = "8.0"
-    password = random_password.mypassword.result
+    type     = var.db_type
+    version  = var.db_version
+    password = random_password.test.result
+    port     = var.db_port
   }
+
   volume {
-    type = "ULTRAHIGH"
-    size = 40
+    type = var.volume_type
+    size = var.volume_size
+  }
+
+  backup_strategy {
+    start_time = var.backup_time_window
+    keep_days  = var.backup_keep_days
   }
 }
 
-resource "huaweicloud_vpc_eip" "myeip" {
+resource "huaweicloud_vpc_eip" "test" {
+
   publicip {
     type = "5_bgp"
   }
+
   bandwidth {
     name        = "test"
     size        = 5
@@ -69,13 +102,14 @@ resource "huaweicloud_vpc_eip" "myeip" {
   }
 }
 
-# get the port of rds instance by private_ip
-data "huaweicloud_networking_port" "rds_port" {
-  network_id = huaweicloud_vpc_subnet.mysubnet.id
-  fixed_ip   = huaweicloud_rds_instance.myinstance.private_ips[0]
+data "huaweicloud_networking_port" "test" {
+  network_id = huaweicloud_vpc_subnet.test.id
+  fixed_ip   = huaweicloud_rds_instance.test.fixed_ip
+
+  depends_on = [ huaweicloud_rds_instance.test ]
 }
 
-resource "huaweicloud_vpc_eip_associate" "associated" {
-  public_ip = huaweicloud_vpc_eip.myeip.address
-  port_id   = data.huaweicloud_networking_port.rds_port.id
+resource "huaweicloud_vpc_eip_associate" "test" {
+  public_ip = huaweicloud_vpc_eip.test.address
+  port_id   = data.huaweicloud_networking_port.test.id
 }
