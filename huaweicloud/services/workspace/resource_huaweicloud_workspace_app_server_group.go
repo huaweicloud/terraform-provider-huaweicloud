@@ -17,7 +17,7 @@ import (
 )
 
 // @API WORKSPACEAPP POST /v1/{project_id}/app-server-groups
-// @API WORKSPACEAPP GET /v1/{project_id}/app-server-groups
+// @API WORKSPACEAPP GET /v1/{project_id}/app-server-group
 // @API WORKSPACEAPP PATCH /v1/{project_id}/app-server-groups/{server_group_id}
 // @API WORKSPACEAPP POST /v1/{project_id}/app-server-groups/{server_group_id}
 func ResourceAppServerGroup() *schema.Resource {
@@ -202,6 +202,53 @@ func ResourceAppServerGroup() *schema.Resource {
 				Computed:    true,
 				Description: `The NAS storage directory mounting policy on the APS.`,
 			},
+			"project_name": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The name of the project.`,
+			},
+			"image_min_disk": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The minimum memory required to run the image, in MB.`,
+			},
+			"flavors": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `The list of server flavors.`,
+				Elem:        v1WorkspaceAppServersGroupFlavorSchema(),
+			},
+		},
+	}
+}
+
+func v1WorkspaceAppServersGroupFlavorSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The ID of the flavor.`,
+			},
+			"links": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `The quick link information for relevant tags corresponding to server specifications.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"href": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The corresponding shortcut link.`,
+						},
+						"rel": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The shortcut link tag name.`,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -335,6 +382,10 @@ func resourceAppServerGroupRead(_ context.Context, d *schema.ResourceData, meta 
 		d.Set("primary_server_group_id", utils.PathSearch("primary_server_group_ids|[0]", serverGroup, nil)),
 		d.Set("enabled", utils.PathSearch("server_group_status", serverGroup, nil)),
 		d.Set("storage_mount_policy", utils.PathSearch("storage_mount_policy", serverGroup, nil)),
+		d.Set("project_name", utils.PathSearch("project_name", serverGroup, nil)),
+		d.Set("image_min_disk", utils.PathSearch("image_min_disk", serverGroup, nil)),
+		d.Set("flavors", flattenAppServerGroupFlavor(utils.PathSearch("flavors", serverGroup,
+			make([]interface{}, 0)).([]interface{}))),
 	)
 
 	if err = mErr.ErrorOrNil(); err != nil {
@@ -343,12 +394,12 @@ func resourceAppServerGroupRead(_ context.Context, d *schema.ResourceData, meta 
 	return nil
 }
 
-// GetServerGroupById is amethod used to query server group detail by server group ID.
+// GetServerGroupById is a method used to query server group detail by server group ID.
 func GetServerGroupById(client *golangsdk.ServiceClient, serverGroupId string) (interface{}, error) {
-	httpUrl := "v1/{project_id}/app-server-groups"
+	httpUrl := "v1/{project_id}/app-server-groups/{server_group_id}"
 	getPath := client.Endpoint + httpUrl
 	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
-	getPath = fmt.Sprintf("%s?server_group_id=%s", getPath, serverGroupId)
+	getPath = strings.ReplaceAll(getPath, "{server_group_id}", serverGroupId)
 	getOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 	}
@@ -362,11 +413,40 @@ func GetServerGroupById(client *golangsdk.ServiceClient, serverGroupId string) (
 		return nil, fmt.Errorf("unable to parsing server group from API response: %s", err)
 	}
 
-	serverGroup := utils.PathSearch("items|[0]", respBody, nil)
-	if serverGroup == nil {
-		return nil, golangsdk.ErrDefault404{}
+	return respBody, nil
+}
+
+func flattenAppServerGroupFlavorLinks(links []interface{}) []map[string]interface{} {
+	if len(links) < 1 {
+		return nil
 	}
-	return serverGroup, nil
+
+	result := make([]map[string]interface{}, 0, len(links))
+	for _, link := range links {
+		result = append(result, map[string]interface{}{
+			"href": utils.PathSearch("href", link, nil),
+			"rel":  utils.PathSearch("rel", link, nil),
+		})
+	}
+
+	return result
+}
+
+func flattenAppServerGroupFlavor(flavors []interface{}) []map[string]interface{} {
+	if len(flavors) < 1 {
+		return nil
+	}
+
+	result := make([]map[string]interface{}, 0, len(flavors))
+	for _, flavor := range flavors {
+		links := utils.PathSearch("links", flavor, make([]interface{}, 0)).([]interface{})
+		result = append(result, map[string]interface{}{
+			"id":    utils.PathSearch("id", flavor, nil),
+			"links": flattenAppServerGroupFlavorLinks(links),
+		})
+	}
+
+	return result
 }
 
 func resourceAppServerGroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
