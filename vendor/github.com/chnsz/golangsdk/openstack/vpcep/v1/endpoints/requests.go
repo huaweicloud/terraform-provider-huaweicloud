@@ -48,9 +48,10 @@ type CreateOpts struct {
 
 // PolicyStatement represents the Statement of the gateway
 type PolicyStatement struct {
-	Effect   string   `json:"Effect" required:"true"`
-	Action   []string `json:"Action" required:"true"`
-	Resource []string `json:"Resource" required:"true"`
+	Effect    string                 `json:"Effect" required:"true"`
+	Action    []string               `json:"Action" required:"true"`
+	Resource  []string               `json:"Resource" required:"true"`
+	Condition map[string]interface{} `json:"Condition,omitempty"`
 }
 
 // ToEndpointCreateMap assembles a request body based on the contents of a CreateOpts.

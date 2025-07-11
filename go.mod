@@ -4,9 +4,10 @@ go 1.18
 
 require (
 	github.com/GehirnInc/crypt v0.0.0-20200316065508-bb7000b8a962
-	github.com/chnsz/golangsdk v0.0.0-20250627092804-52ad5c83464b
+	github.com/chnsz/golangsdk v0.0.0-20250710040004-31389bdf82c1
 	github.com/google/go-cmp v0.6.0
 	github.com/hashicorp/go-cleanhttp v0.5.2
+	github.com/hashicorp/go-cty v1.4.1-0.20200414143053-d3edf31b6320
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/hashicorp/go-uuid v1.0.3
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.24.0
@@ -29,7 +30,6 @@ require (
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-checkpoint v0.5.0 // indirect
-	github.com/hashicorp/go-cty v1.4.1-0.20200414143053-d3edf31b6320 // indirect
 	github.com/hashicorp/go-hclog v1.2.1 // indirect
 	github.com/hashicorp/go-plugin v1.4.4 // indirect
 	github.com/hashicorp/go-version v1.6.0 // indirect
