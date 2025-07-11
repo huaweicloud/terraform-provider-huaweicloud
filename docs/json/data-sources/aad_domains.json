@@ -1,0 +1,53 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_aad_domains": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "items": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cname": "string",
+                      "domain_id": "string",
+                      "domain_name": "string",
+                      "enterprise_project_id": "string",
+                      "protocol": [
+                        "list",
+                        "string"
+                      ],
+                      "real_server_type": "number",
+                      "real_servers": "string",
+                      "waf_status": "number"
+                    }
+                  ]
+                ],
+                "description": "The list of domains.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "AAD",
+            "name": "Advanced Anti-DDoS",
+            "catalog": "Security & Compliance",
+            "name_cn": "DDoS高防",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

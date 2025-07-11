@@ -1,0 +1,100 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_codearts_build_tasks": {
+          "block": {
+            "attributes": {
+              "build_status": {
+                "type": "string",
+                "description": "Specifies the build status filter condition.",
+                "optional": true
+              },
+              "by_group": {
+                "type": "bool",
+                "description": "Specifies whether to group.",
+                "optional": true
+              },
+              "creator_id": {
+                "type": "string",
+                "description": "Specifies the creator ID.",
+                "optional": true
+              },
+              "group_path_id": {
+                "type": "string",
+                "description": "Specifies the group ID.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "project_id": {
+                "type": "string",
+                "description": "Specifies the CodeArts project ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "search": {
+                "type": "string",
+                "description": "Specifies the search condition.",
+                "optional": true
+              },
+              "sort_field": {
+                "type": "string",
+                "description": "Specifies the sorting field.",
+                "optional": true
+              },
+              "sort_order": {
+                "type": "string",
+                "description": "Specifies the sorting order.",
+                "optional": true
+              },
+              "tasks": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "build_project_id": "string",
+                      "build_time": "number",
+                      "creator": "string",
+                      "disabled": "bool",
+                      "favorite": "bool",
+                      "health_score": "number",
+                      "id": "string",
+                      "is_copy": "bool",
+                      "is_delete": "bool",
+                      "is_execute": "bool",
+                      "is_finished": "bool",
+                      "is_forbidden": "bool",
+                      "is_modify": "bool",
+                      "is_view": "bool",
+                      "last_build_status": "string",
+                      "last_build_time": "number",
+                      "last_build_user": "string",
+                      "last_build_user_id": "string",
+                      "last_job_running_status": "string",
+                      "name": "string",
+                      "repo_id": "string",
+                      "scm_type": "string",
+                      "scm_web_url": "string",
+                      "source_code": "string",
+                      "trigger_type": "string",
+                      "user_name": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the task list.",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
