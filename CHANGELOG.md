@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.76.4 (July 11, 2025)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_vpcep_endpoint: add condition support [GH-7237]
+
 ## 1.76.3 (July 10, 2025)
 
 ENHANCEMENTS:
