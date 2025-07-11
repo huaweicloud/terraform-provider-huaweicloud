@@ -3,10 +3,8 @@ package dcs
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -15,7 +13,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
@@ -42,12 +39,6 @@ var (
 	chargingMode = map[int]string{
 		0: chargeModePostPaid,
 		1: chargeModePrePaid,
-	}
-
-	redisEngineVersion = map[string]bool{
-		"4.0": true,
-		"5.0": true,
-		"6.0": true,
 	}
 
 	operateErrorCode = map[string]bool{
@@ -112,8 +103,8 @@ func ResourceDcsInstance() *schema.Resource {
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(120 * time.Minute),
-			Update: schema.DefaultTimeout(120 * time.Minute),
+			Create: schema.DefaultTimeout(60 * time.Minute),
+			Update: schema.DefaultTimeout(60 * time.Minute),
 			Delete: schema.DefaultTimeout(15 * time.Minute),
 		},
 
@@ -137,9 +128,6 @@ func ResourceDcsInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"Redis", "Memcached",
-				}, true),
 			},
 			"engine_version": {
 				Type:     schema.TypeString,
@@ -252,23 +240,17 @@ func ResourceDcsInstance() *schema.Resource {
 							Optional: true,
 						},
 						"backup_type": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							ValidateFunc: validation.StringInSlice([]string{"auto", "manual"}, false),
+							Type:     schema.TypeString,
+							Optional: true,
 						},
 						"begin_at": {
 							Type:     schema.TypeString,
 							Required: true,
-							ValidateFunc: validation.StringMatch(
-								regexp.MustCompile(`^([0-1]\d|2[0-3]):00-([0-1]\d|2[0-3]):00$`),
-								"format must be HH:00-HH:00",
-							),
 						},
 						"period_type": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							Default:      "weekly",
-							ValidateFunc: validation.StringInSlice([]string{"weekly"}, false),
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  "weekly",
 						},
 						"backup_at": {
 							Type:     schema.TypeList,
@@ -583,39 +565,6 @@ func buildBackupPolicyParams(d *schema.ResourceData) *instances.InstanceBackupPo
 	return backupPolicyOpts
 }
 
-func resourceDcsInstancesCheck(d *schema.ResourceData) error {
-	engineVersion := d.Get("engine_version").(string)
-	secGroupID := d.Get("security_group_id").(string)
-
-	// check for Redis 4.0, 5.0 and 6.0
-	if _, ok := redisEngineVersion[engineVersion]; ok {
-		if secGroupID != "" {
-			return fmt.Errorf("security_group_id is not supported for Redis 4.0, 5.0 and 6.0. " +
-				"please configure the whitelists alternatively")
-		}
-	} else if engineVersion == "3.0" {
-		// check for Memcached and Redis 3.0
-		if secGroupID == "" {
-			return fmt.Errorf("security_group_id is mandatory for this DCS instance")
-		}
-	}
-
-	return nil
-}
-
-func buildBssParamParams(d *schema.ResourceData) instances.DcsBssParam {
-	bp := instances.DcsBssParam{
-		ChargingMode: d.Get("charging_mode").(string),
-	}
-	if strings.EqualFold(bp.ChargingMode, chargeModePrePaid) {
-		bp.IsAutoRenew = d.Get("auto_renew").(string)
-		bp.PeriodType = d.Get("period_unit").(string)
-		bp.PeriodNum = d.Get("period").(int)
-		bp.IsAutoPay = common.GetAutoPay(d)
-	}
-	return bp
-}
-
 func buildDcsTagsParams(tagsMap map[string]interface{}) []dcsTags.ResourceTag {
 	tagArr := make([]dcsTags.ResourceTag, 0, len(tagsMap))
 	for k, v := range tagsMap {
@@ -682,25 +631,21 @@ func refreshForWhiteListEnableStatus(c *golangsdk.ServiceClient, id string) reso
 func resourceDcsInstancesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-	client, err := cfg.DcsV2Client(region)
+
+	var (
+		httpUrl = "v2/{project_id}/instances"
+		product = "dcs"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating DCS Client(v2): %s", err)
+		return diag.Errorf("error creating DCS client: %s", err)
 	}
 
-	if err = resourceDcsInstancesCheck(d); err != nil {
-		return diag.FromErr(err)
-	}
+	createPath := client.Endpoint + httpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
 
-	// noPasswordAccess
-	noPasswordAccess := true
-	if d.Get("access_user").(string) != "" || d.Get("password").(string) != "" {
-		noPasswordAccess = false
-	}
-	// resourceSpecCode
-	resourceSpecCode := d.Get("flavor").(string)
-	if pid, ok := d.GetOk("product_id"); ok {
-		productID := pid.(string)
-		resourceSpecCode = productID[0 : len(productID)-2]
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
 
 	// azCodes
@@ -714,67 +659,35 @@ func resourceDcsInstancesCreate(ctx context.Context, d *schema.ResourceData, met
 			return diag.FromErr(err)
 		}
 	}
+	requestBody := buildCreateInstanceBodyParams(d, azCodes, cfg)
+	requestBody["password"] = utils.ValueIgnoreEmpty(d.Get("password"))
+	createOpt.JSONBody = utils.RemoveNil(requestBody)
 
-	// build a creation options
-	createOpts := instances.CreateOpts{
-		Name:                d.Get("name").(string),
-		Engine:              d.Get("engine").(string),
-		EngineVersion:       d.Get("engine_version").(string),
-		Capacity:            d.Get("capacity").(float64),
-		InstanceNum:         1,
-		SpecCode:            resourceSpecCode,
-		AzCodes:             azCodes,
-		Port:                d.Get("port").(int),
-		VpcId:               d.Get("vpc_id").(string),
-		SubnetId:            d.Get("subnet_id").(string),
-		SecurityGroupId:     d.Get("security_group_id").(string),
-		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
-		Description:         d.Get("description").(string),
-		PrivateIp:           d.Get("private_ip").(string),
-		MaintainBegin:       d.Get("maintain_begin").(string),
-		MaintainEnd:         d.Get("maintain_end").(string),
-		NoPasswordAccess:    &noPasswordAccess,
-		AccessUser:          d.Get("access_user").(string),
-		TemplateId:          d.Get("template_id").(string),
-		BssParam:            buildBssParamParams(d),
-		Tags:                buildDcsTagsParams(d.Get("tags").(map[string]interface{})),
+	createResp, err := client.Request("POST", createPath, &createOpt)
+	if err != nil {
+		return diag.Errorf("error creating DCS instance: %s", err)
 	}
 
-	// build and set rename command if configured.
-	renameCmds := d.Get("rename_commands").(map[string]interface{})
-	if createOpts.Engine == "Redis" && len(renameCmds) > 0 {
-		createOpts.RenameCommands = createRenameCommandsOpt(renameCmds)
+	createRespBody, err := utils.FlattenResponse(createResp)
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
-	// build and set backup policy if configured.
-	backupPolicy := buildBackupPolicyParams(d)
-	if backupPolicy != nil {
-		createOpts.BackupPolicy = backupPolicy
+	id := utils.PathSearch("instances[0].instance_id", createRespBody, "").(string)
+	if id == "" {
+		return diag.Errorf("error creating DCS instance: ID is not found in API response")
 	}
-	log.Printf("[DEBUG] Create DCS instance options(hide password) : %#v", createOpts)
-
-	// Add password here so it wouldn't go in the above log entry
-	createOpts.Password = d.Get("password").(string)
-
-	// create instance
-	r, err := instances.Create(client, createOpts)
-	if err != nil || len(r.Instances) == 0 {
-		return diag.Errorf("error in creating DCS instance : %s", err)
-	}
-	id := r.Instances[0].InstanceId
 	d.SetId(id)
 
-	// If charging mode is PrePaid, wait for the order to be completed.
-	if strings.EqualFold(d.Get("charging_mode").(string), chargeModePrePaid) {
-		err = waitForOrderComplete(ctx, d, cfg, region, r.OrderId)
+	orderId := utils.PathSearch("order_id", createRespBody, "").(string)
+	if orderId != "" {
+		err = waitForOrderComplete(ctx, d, cfg, region, orderId)
 		if err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
-	// wait for the instance to be created successfully and in running state
-	err = waitForDcsInstanceCompleted(ctx, client, id, d.Timeout(schema.TimeoutCreate),
-		[]string{"CREATING"}, []string{"RUNNING"})
+	err = waitForDcsInstanceRunning(ctx, client, id, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -828,6 +741,118 @@ func resourceDcsInstancesCreate(ctx context.Context, d *schema.ResourceData, met
 	}
 
 	return resourceDcsInstancesRead(ctx, d, meta)
+}
+
+func buildCreateInstanceBodyParams(d *schema.ResourceData, azCodes []string, cfg *config.Config) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"name":                   d.Get("name"),
+		"engine":                 d.Get("engine"),
+		"engine_version":         utils.ValueIgnoreEmpty(d.Get("engine_version")),
+		"capacity":               d.Get("capacity"),
+		"instance_num":           1,
+		"az_codes":               azCodes,
+		"port":                   utils.ValueIgnoreEmpty(d.Get("port")),
+		"vpc_id":                 d.Get("vpc_id"),
+		"subnet_id":              d.Get("subnet_id"),
+		"security_group_id":      utils.ValueIgnoreEmpty(d.Get("security_group_id")),
+		"enterprise_project_id":  utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
+		"description":            utils.ValueIgnoreEmpty(d.Get("description")),
+		"private_ip":             utils.ValueIgnoreEmpty(d.Get("private_ip")),
+		"maintain_begin":         utils.ValueIgnoreEmpty(d.Get("maintain_begin")),
+		"maintain_end":           utils.ValueIgnoreEmpty(d.Get("maintain_end")),
+		"access_user":            utils.ValueIgnoreEmpty(d.Get("access_user")),
+		"template_id":            utils.ValueIgnoreEmpty(d.Get("template_id")),
+		"bss_param":              buildCreateInstanceBssParamBodyParams(d),
+		"rename_commands":        buildCreateInstanceRenameCommandsBodyParams(d),
+		"instance_backup_policy": buildCreateInstanceBackupPolicyBodyParams(d),
+		"tags":                   utils.ValueIgnoreEmpty(utils.ExpandResourceTags(d.Get("tags").(map[string]interface{}))),
+	}
+	// resourceSpecCode
+	resourceSpecCode := d.Get("flavor").(string)
+	if pid, ok := d.GetOk("product_id"); ok {
+		productID := pid.(string)
+		resourceSpecCode = productID[0 : len(productID)-2]
+	}
+	bodyParams["spec_code"] = resourceSpecCode
+
+	// noPasswordAccess
+	if d.Get("access_user").(string) == "" && d.Get("password").(string) == "" {
+		bodyParams["no_password_access"] = true
+	}
+
+	return bodyParams
+}
+
+func buildCreateInstanceBssParamBodyParams(d *schema.ResourceData) map[string]interface{} {
+	if d.Get("charging_mode") != "prePaid" {
+		return nil
+	}
+
+	bodyParams := map[string]interface{}{
+		"charging_mode": d.Get("charging_mode"),
+		"period_type":   d.Get("period_unit"),
+		"period_num":    d.Get("period"),
+		"is_auto_renew": d.Get("auto_renew"),
+	}
+	if d.Get("auto_pay").(string) != "false" {
+		bodyParams["is_auto_pay"] = true
+	}
+	return bodyParams
+}
+
+func buildCreateInstanceRenameCommandsBodyParams(d *schema.ResourceData) map[string]interface{} {
+	renameCmds := d.Get("rename_commands").(map[string]interface{})
+	if d.Get("engine") != "Redis" || len(renameCmds) == 0 {
+		return nil
+	}
+	return renameCmds
+}
+
+func buildCreateInstanceBackupPolicyBodyParams(d *schema.ResourceData) map[string]interface{} {
+	backupPolicyList, backupPolicyListOk := d.GetOk("backup_policy")
+	_, backupAtOk := d.GetOk("backup_at")
+	if !backupPolicyListOk && !backupAtOk {
+		return nil
+	}
+
+	if backupAtOk {
+		bodyParams := map[string]interface{}{
+			"backup_type": d.Get("backup_type").(string),
+			"save_days":   utils.ValueIgnoreEmpty(d.Get("save_days")),
+			"periodical_backup_plan": map[string]interface{}{
+				"begin_at":    d.Get("begin_at"),
+				"period_type": d.Get("period_type"),
+				"backup_at":   utils.ExpandToIntList(d.Get("backup_at").([]interface{})),
+			},
+		}
+		return bodyParams
+	}
+
+	if len(backupPolicyList.([]interface{})) == 0 {
+		return nil
+	}
+
+	backupPolicy := backupPolicyList.([]interface{})[0].(map[string]interface{})
+	backupType := backupPolicy["backup_type"].(string)
+	if len(backupType) == 0 || backupType == "manual" {
+		return nil
+	}
+
+	bodyParams := map[string]interface{}{
+		"backup_type":            backupPolicy["backup_type"],
+		"save_days":              backupPolicy["save_days"],
+		"periodical_backup_plan": buildCreateInstanceBackupPolicyPlanBodyParams(backupPolicy),
+	}
+	return bodyParams
+}
+
+func buildCreateInstanceBackupPolicyPlanBodyParams(backupPolicy map[string]interface{}) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"begin_at":    backupPolicy["begin_at"].(string),
+		"period_type": backupPolicy["period_type"].(string),
+		"backup_at":   utils.ExpandToIntList(backupPolicy["backup_at"].([]interface{})),
+	}
+	return bodyParams
 }
 
 func updateParameters(ctx context.Context, timeout time.Duration, client *golangsdk.ServiceClient, instanceID string,
@@ -964,11 +989,10 @@ func waitForOrderComplete(ctx context.Context, d *schema.ResourceData, cfg *conf
 	return err
 }
 
-func waitForDcsInstanceCompleted(ctx context.Context, c *golangsdk.ServiceClient, id string, timeout time.Duration,
-	padding []string, target []string) error {
+func waitForDcsInstanceRunning(ctx context.Context, c *golangsdk.ServiceClient, id string, timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
-		Pending:                   padding,
-		Target:                    target,
+		Pending:                   []string{"PENDING"},
+		Target:                    []string{"RUNNING"},
 		Refresh:                   refreshDcsInstanceState(c, id),
 		Timeout:                   timeout,
 		Delay:                     10 * time.Second,
@@ -977,114 +1001,93 @@ func waitForDcsInstanceCompleted(ctx context.Context, c *golangsdk.ServiceClient
 	}
 	_, err := stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmt.Errorf("[DEBUG] error while waiting to create/resize/delete DCS instance. %s : %v",
-			id, err)
+		return fmt.Errorf("error waiting instance(%s) to ready: %s", id, err)
 	}
 	return nil
 }
 
-func refreshDcsInstanceState(c *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
+func refreshDcsInstanceState(client *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		r, err := instances.Get(c, id)
+		instance, err := getDcsInstanceByID(client, id)
 		if err != nil {
-			err404 := golangsdk.ErrDefault404{}
-			if errors.As(err, &err404) {
-				return &(instances.DcsInstance{}), "DELETED", nil
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
+				return "", "DELETED", nil
 			}
-			return nil, "Error", err
+			return nil, "ERROR", err
 		}
-		return r, r.Status, nil
+		status := utils.PathSearch("status", instance, "").(string)
+
+		failStatus := []string{"CREATEFAILED", "ERROR", "FROZEN"}
+		if utils.StrSliceContains(failStatus, status) {
+			return instance, "ERROR", fmt.Errorf("unexpect status: %s", status)
+		}
+		if status == "RUNNING" {
+			return instance, status, nil
+		}
+		return instance, "PENDING", nil
 	}
 }
 
 func resourceDcsInstancesRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	regin := cfg.GetRegion(d)
-	client, err := cfg.DcsV2Client(regin)
-	if err != nil {
-		return diag.Errorf("error creating DCS Client(v2): %s", err)
-	}
+	region := cfg.GetRegion(d)
 
-	r, err := instances.Get(client, d.Id())
-	if err != nil {
-		return common.CheckDeletedDiag(d, err, "DCS instance")
-	}
-	log.Printf("[DEBUG] Get DCS instance : %#v", r)
-
-	// capacity
-	capacity := r.Capacity
-	if capacity == 0 {
-		capacity, _ = strconv.ParseFloat(r.CapacityMinor, floatBitSize)
-	}
-
-	securityGroupID := r.SecurityGroupId
-	// If security_group_id is not set, the default value is returned: securityGroupId. Bad design.
-	if securityGroupID == "securityGroupId" {
-		securityGroupID = ""
-	}
-
-	// batch set attributes
-	mErr := multierror.Append(nil,
-		d.Set("region", regin),
-		d.Set("name", r.Name),
-		d.Set("engine", r.Engine),
-		d.Set("engine_version", r.EngineVersion),
-		d.Set("capacity", capacity),
-		d.Set("flavor", r.SpecCode),
-		d.Set("availability_zones", r.AzCodes),
-		d.Set("vpc_id", r.VpcId),
-		d.Set("vpc_name", r.VpcName),
-		d.Set("subnet_id", r.SubnetId),
-		d.Set("subnet_name", r.SubnetName),
-		d.Set("subnet_cidr", r.SubnetCidr),
-		d.Set("security_group_id", securityGroupID),
-		d.Set("security_group_name", r.SecurityGroupName),
-		d.Set("enterprise_project_id", r.EnterpriseProjectId),
-		d.Set("description", r.Description),
-		d.Set("private_ip", r.Ip),
-		d.Set("ip", r.Ip),
-		d.Set("maintain_begin", r.MaintainBegin),
-		d.Set("maintain_end", r.MaintainEnd),
-		d.Set("charging_mode", chargingMode[r.ChargingMode]),
-		d.Set("port", r.Port),
-		d.Set("status", r.Status),
-		d.Set("used_memory", r.UsedMemory),
-		d.Set("max_memory", r.MaxMemory),
-		d.Set("domain_name", r.DomainName),
-		d.Set("user_id", r.UserId),
-		d.Set("user_name", r.UserName),
-		d.Set("access_user", r.AccessUser),
-		d.Set("ssl_enable", r.EnableSsl),
-		d.Set("created_at", r.CreatedAt),
-		d.Set("launched_at", r.LaunchedAt),
-		d.Set("cache_mode", r.CacheMode),
-		d.Set("cpu_type", r.CpuType),
-		d.Set("readonly_domain_name", r.ReadOnlyDomainName),
-		d.Set("replica_count", r.ReplicaCount),
-		d.Set("transparent_client_ip_enable", r.TransparentClientIpEnable),
-		d.Set("bandwidth_info", setBandWidthInfo(&r.BandWidthDetail)),
-		d.Set("product_type", r.ProductType),
-		d.Set("sharding_count", r.ShardingCount),
+	var (
+		product = "dcs"
 	)
-
-	if mErr.ErrorOrNil() != nil {
-		return diag.Errorf("error setting DCS instance attributes: %s", mErr)
+	client, err := cfg.NewServiceClient(product, region)
+	if err != nil {
+		return diag.Errorf("error creating DCS client: %s", err)
 	}
 
-	// set backup_policy attribute
-	backupPolicy := r.BackupPolicy
-	if len(backupPolicy.Policy.BackupType) > 0 {
-		bakPolicy := []map[string]interface{}{
-			{
-				"backup_type": backupPolicy.Policy.BackupType,
-				"save_days":   backupPolicy.Policy.SaveDays,
-				"begin_at":    backupPolicy.Policy.PeriodicalBackupPlan.BeginAt,
-				"period_type": backupPolicy.Policy.PeriodicalBackupPlan.PeriodType,
-				"backup_at":   backupPolicy.Policy.PeriodicalBackupPlan.BackupAt,
-			},
-		}
-		mErr = multierror.Append(mErr, d.Set("backup_policy", bakPolicy))
+	instance, err := getDcsInstanceByID(client, d.Id())
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, "error getting DCS instance")
 	}
+
+	mErr := multierror.Append(nil,
+		d.Set("region", region),
+		d.Set("name", utils.PathSearch("name", instance, nil)),
+		d.Set("engine", utils.PathSearch("engine", instance, nil)),
+		d.Set("engine_version", utils.PathSearch("engine_version", instance, nil)),
+		d.Set("capacity", utils.PathSearch("capacity", instance, nil)),
+		d.Set("flavor", utils.PathSearch("spec_code", instance, nil)),
+		d.Set("availability_zones", utils.PathSearch("az_codes", instance, nil)),
+		d.Set("vpc_id", utils.PathSearch("vpc_id", instance, nil)),
+		d.Set("vpc_name", utils.PathSearch("vpc_name", instance, nil)),
+		d.Set("subnet_id", utils.PathSearch("subnet_id", instance, nil)),
+		d.Set("subnet_name", utils.PathSearch("subnet_name", instance, nil)),
+		d.Set("subnet_cidr", utils.PathSearch("subnet_cidr", instance, nil)),
+		d.Set("security_group_id", utils.PathSearch("security_group_id", instance, nil)),
+		d.Set("security_group_name", utils.PathSearch("security_group_name", instance, nil)),
+		d.Set("enterprise_project_id", utils.PathSearch("enterprise_project_id", instance, nil)),
+		d.Set("description", utils.PathSearch("description", instance, nil)),
+		d.Set("private_ip", utils.PathSearch("ip", instance, nil)),
+		d.Set("ip", utils.PathSearch("ip", instance, nil)),
+		d.Set("maintain_begin", utils.PathSearch("maintain_begin", instance, nil)),
+		d.Set("maintain_end", utils.PathSearch("maintain_end", instance, nil)),
+		d.Set("charging_mode", chargingMode[int(utils.PathSearch("charging_mode", instance, float64(0)).(float64))]),
+		d.Set("port", utils.PathSearch("port", instance, nil)),
+		d.Set("status", utils.PathSearch("status", instance, nil)),
+		d.Set("used_memory", utils.PathSearch("used_memory", instance, nil)),
+		d.Set("max_memory", utils.PathSearch("max_memory", instance, nil)),
+		d.Set("domain_name", utils.PathSearch("domain_name", instance, nil)),
+		d.Set("user_id", utils.PathSearch("user_id", instance, nil)),
+		d.Set("user_name", utils.PathSearch("user_name", instance, nil)),
+		d.Set("access_user", utils.PathSearch("access_user", instance, nil)),
+		d.Set("ssl_enable", utils.PathSearch("enable_ssl", instance, nil)),
+		d.Set("created_at", utils.PathSearch("created_at", instance, nil)),
+		d.Set("launched_at", utils.PathSearch("launched_at", instance, nil)),
+		d.Set("cache_mode", utils.PathSearch("cache_mode", instance, nil)),
+		d.Set("cpu_type", utils.PathSearch("cpu_type", instance, nil)),
+		d.Set("readonly_domain_name", utils.PathSearch("readonly_domain_name", instance, nil)),
+		d.Set("replica_count", utils.PathSearch("replica_count", instance, nil)),
+		d.Set("transparent_client_ip_enable", utils.PathSearch("transparent_client_ip_enable", instance, nil)),
+		d.Set("bandwidth_info", flattenInstanceBandWidth(instance)),
+		d.Set("product_type", utils.PathSearch("product_type", instance, nil)),
+		d.Set("sharding_count", utils.PathSearch("sharding_count", instance, nil)),
+		d.Set("backup_policy", flattenInstanceBackupPolicy(instance)),
+	)
 
 	// set tags
 	if resourceTags, err := tags.Get(client, "instances", d.Id()).Extract(); err == nil {
@@ -1126,6 +1129,71 @@ func resourceDcsInstancesRead(ctx context.Context, d *schema.ResourceData, meta 
 
 	diagErr := setDcsInstanceParameters(ctx, d, client, d.Id())
 	return append(diagErr, diag.FromErr(mErr.ErrorOrNil())...)
+}
+
+func getDcsInstanceByID(client *golangsdk.ServiceClient, instanceId string) (interface{}, error) {
+	var (
+		httpUrl = "v2/{project_id}/instances/{instance_id}"
+	)
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{instance_id}", instanceId)
+
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(getResp)
+}
+
+func flattenInstanceBandWidth(instance interface{}) []interface{} {
+	bandwidth := utils.PathSearch("bandwidth_info", instance, nil)
+	if bandwidth == nil {
+		return nil
+	}
+
+	rst := []interface{}{
+		map[string]interface{}{
+			"bandwidth": utils.PathSearch("bandwidth", bandwidth, nil),
+			"begin_time": utils.FormatTimeStampRFC3339(int64(utils.PathSearch("begin_time",
+				bandwidth, float64(0)).(float64))/1000, false),
+			"current_time": utils.FormatTimeStampRFC3339(int64(utils.PathSearch("current_time",
+				bandwidth, float64(0)).(float64))/1000, false),
+			"end_time": utils.FormatTimeStampRFC3339(int64(utils.PathSearch("end_time",
+				bandwidth, float64(0)).(float64))/1000, false),
+			"expand_count":         utils.PathSearch("expand_count", bandwidth, nil),
+			"expand_effect_time":   utils.PathSearch("expand_effect_time", bandwidth, nil),
+			"expand_interval_time": utils.PathSearch("expand_interval_time", bandwidth, nil),
+			"max_expand_count":     utils.PathSearch("max_expand_count", bandwidth, nil),
+			"next_expand_time": utils.FormatTimeStampRFC3339(int64(utils.PathSearch("next_expand_time",
+				bandwidth, float64(0)).(float64))/1000, false),
+			"task_running": utils.PathSearch("task_running", bandwidth, nil),
+		},
+	}
+	return rst
+}
+
+func flattenInstanceBackupPolicy(instance interface{}) []interface{} {
+	backupPolicy := utils.PathSearch("instance_backup_policy.policy", instance, nil)
+	if backupPolicy == nil {
+		return nil
+	}
+
+	rst := []interface{}{
+		map[string]interface{}{
+			"backup_type": utils.PathSearch("backup_type", backupPolicy, nil),
+			"save_days":   utils.PathSearch("save_days", backupPolicy, nil),
+			"begin_at":    utils.PathSearch("periodical_backup_plan.begin_at", backupPolicy, nil),
+			"period_type": utils.PathSearch("periodical_backup_plan.period_type", backupPolicy, nil),
+			"backup_at":   utils.PathSearch("periodical_backup_plan.backup_at", backupPolicy, nil),
+		},
+	}
+	return rst
 }
 
 func setDcsInstanceParameters(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
@@ -1401,8 +1469,7 @@ func resizeDcsInstance(ctx context.Context, d *schema.ResourceData, meta interfa
 		}
 
 		// wait for dcs instance change
-		err = waitForDcsInstanceCompleted(ctx, client, d.Id(), d.Timeout(schema.TimeoutUpdate),
-			[]string{"EXTENDING", "RESTARTING"}, []string{"RUNNING"})
+		err = waitForDcsInstanceRunning(ctx, client, d.Id(), d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
@@ -1517,50 +1584,84 @@ func handleOperationError(err error) (bool, error) {
 
 func resourceDcsInstancesDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, err := cfg.DcsV2Client(cfg.GetRegion(d))
+	region := cfg.GetRegion(d)
+
+	client, err := cfg.NewServiceClient("dcs", region)
 	if err != nil {
-		return diag.Errorf("error creating DCS Client(v2): %s", err)
+		return diag.Errorf("error creating DCS client: %s", err)
 	}
 
-	var retryFunc func() (interface{}, bool, error)
 	// for prePaid mode, we should unsubscribe the resource
 	if d.Get("charging_mode").(string) == chargeModePrePaid {
-		retryFunc = func() (interface{}, bool, error) {
+		retryFunc := func() (interface{}, bool, error) {
 			err = common.UnsubscribePrePaidResource(d, cfg, []string{d.Id()})
 			retry, err := handleOperationError(err)
 			return nil, retry, err
 		}
+		_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+			Ctx:          ctx,
+			RetryFunc:    retryFunc,
+			WaitFunc:     refreshDcsInstanceState(client, d.Id()),
+			WaitTarget:   []string{"RUNNING"},
+			Timeout:      d.Timeout(schema.TimeoutDelete),
+			DelayTimeout: 1 * time.Second,
+			PollInterval: 10 * time.Second,
+		})
+		if err != nil {
+			return diag.Errorf("error unsubscribe DCS instance: %s", err)
+		}
 	} else {
-		retryFunc = func() (interface{}, bool, error) {
-			err = instances.Delete(client, d.Id())
-			retry, err := handleOperationError(err)
-			return nil, retry, err
+		err = deleteDcsInstance(ctx, d, client)
+		if err != nil {
+			return diag.FromErr(err)
 		}
 	}
-	_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+
+	// Waiting to delete success
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"RUNNING", "PENDING"},
+		Target:       []string{"DELETED"},
+		Refresh:      refreshDcsInstanceState(client, d.Id()),
+		Timeout:      d.Timeout(schema.TimeoutDelete),
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+	_, err = stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return diag.Errorf("error waiting instance(%s) to delete: %s", d.Id(), err)
+	}
+
+	return nil
+}
+
+func deleteDcsInstance(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	httpUrl := "v2/{project_id}/instances/{instance_id}"
+	deletePath := client.Endpoint + httpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = strings.ReplaceAll(deletePath, "{instance_id}", d.Id())
+
+	deleteOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	retryFunc := func() (interface{}, bool, error) {
+		_, err := client.Request("DELETE", deletePath, &deleteOpt)
+		retry, err := handleOperationError(err)
+		return nil, retry, err
+	}
+	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
 		WaitFunc:     refreshDcsInstanceState(client, d.Id()),
 		WaitTarget:   []string{"RUNNING"},
 		Timeout:      d.Timeout(schema.TimeoutDelete),
-		DelayTimeout: 1 * time.Second,
+		DelayTimeout: 10 * time.Second,
 		PollInterval: 10 * time.Second,
 	})
 	if err != nil {
-		if d.Get("charging_mode").(string) == chargeModePrePaid {
-			return diag.Errorf("error unsubscribing DCS redis instance: %s", err)
-		}
-		return diag.FromErr(err)
+		return err
 	}
-
-	// Waiting to delete success
-	err = waitForDcsInstanceCompleted(ctx, client, d.Id(), d.Timeout(schema.TimeoutDelete),
-		[]string{"RUNNING"}, []string{"DELETED"})
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	d.SetId("")
 	return nil
 }
 
@@ -1627,22 +1728,5 @@ func updateSslStatusRefreshFunc(c *golangsdk.ServiceClient, id string) resource.
 			return nil, "Error", err
 		}
 		return r, strconv.FormatBool(r.Enable), nil
-	}
-}
-
-func setBandWidthInfo(bandWidthInfo *instances.BandWidthInfo) []map[string]interface{} {
-	return []map[string]interface{}{
-		{
-			"bandwidth":            bandWidthInfo.BandWidth,
-			"begin_time":           utils.FormatTimeStampRFC3339(int64(bandWidthInfo.BeginTime)/1000, false),
-			"current_time":         utils.FormatTimeStampRFC3339(int64(bandWidthInfo.CurrentTime)/1000, false),
-			"end_time":             utils.FormatTimeStampRFC3339(int64(bandWidthInfo.EndTime)/1000, false),
-			"expand_count":         bandWidthInfo.ExpandCount,
-			"expand_effect_time":   bandWidthInfo.ExpandEffectTime,
-			"expand_interval_time": bandWidthInfo.ExpandIntervalTime,
-			"max_expand_count":     bandWidthInfo.MaxExpandCount,
-			"next_expand_time":     utils.FormatTimeStampRFC3339(int64(bandWidthInfo.NextExpandTime)/1000, false),
-			"task_running":         bandWidthInfo.TaskRunning,
-		},
 	}
 }
