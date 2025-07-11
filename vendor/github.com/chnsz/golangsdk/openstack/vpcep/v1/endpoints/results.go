@@ -71,9 +71,10 @@ type QueryError struct {
 }
 
 type PolicyStatementResult struct {
-	Effect   string   `json:"Effect"`
-	Action   []string `json:"Action"`
-	Resource []string `json:"Resource"`
+	Effect    string                 `json:"Effect"`
+	Action    []string               `json:"Action"`
+	Resource  []string               `json:"Resource"`
+	Condition map[string]interface{} `json:"Condition"`
 }
 
 type commonResult struct {
