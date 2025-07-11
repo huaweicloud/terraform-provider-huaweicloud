@@ -15,22 +15,22 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-var desktopPoolNotificationNonUpdateParams = []string{"pool_id", "notifications"}
+var desktopPoolActionNonUpdateParams = []string{"pool_id", "op_type", "type"}
 
-// @API Workspace POST /v2/{project_id}/desktop-pools/{pool_id}/notifications
+// @API Workspace POST /v2/{project_id}/desktop-pools/{pool_id}/action
 // @API Workspace GET /v2/{project_id}/workspace-jobs/{job_id}
-func ResourceDesktopPoolNotification() *schema.Resource {
+func ResourceDesktopPoolAction() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceDesktopPoolNotificationCreate,
-		ReadContext:   resourceDesktopPoolNotificationRead,
-		UpdateContext: resourceDesktopPoolNotificationUpdate,
-		DeleteContext: resourceDesktopPoolNotificationDelete,
+		CreateContext: resourceDesktopPoolActionCreate,
+		ReadContext:   resourceDesktopPoolActionRead,
+		UpdateContext: resourceDesktopPoolActionUpdate,
+		DeleteContext: resourceDesktopPoolActionDelete,
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(3 * time.Minute),
+			Create: schema.DefaultTimeout(10 * time.Minute),
 		},
 
-		CustomizeDiff: config.FlexibleForceNew(desktopPoolNotificationNonUpdateParams),
+		CustomizeDiff: config.FlexibleForceNew(desktopPoolActionNonUpdateParams),
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -45,15 +45,20 @@ func ResourceDesktopPoolNotification() *schema.Resource {
 				Required:    true,
 				Description: `The ID of the desktop pool.`,
 			},
-			"notifications": {
+			"op_type": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: `The message want to dispatch.`,
+				Description: `The type of desktop pool operation.`,
+			},
+			"type": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `Whether the operation is mandatory.`,
 			},
 			"status": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `The status of notification dispatch task.`,
+				Description: `The status of operation dispatch task.`,
 			},
 			// Internal parameter(s).
 			"enable_force_new": {
@@ -66,17 +71,18 @@ func ResourceDesktopPoolNotification() *schema.Resource {
 	}
 }
 
-func buildDesktopPoolNotificationBodyParams(d *schema.ResourceData) map[string]interface{} {
+func buildDesktopPoolActionBodyParams(d *schema.ResourceData) map[string]interface{} {
 	return map[string]interface{}{
-		"notifications": d.Get("notifications"),
+		"op_type": d.Get("op_type"),
+		"type":    d.Get("type"),
 	}
 }
 
-func resourceDesktopPoolNotificationCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDesktopPoolActionCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg     = meta.(*config.Config)
 		region  = cfg.GetRegion(d)
-		httpUrl = "v2/{project_id}/desktop-pools/{pool_id}/notifications"
+		httpUrl = "v2/{project_id}/desktop-pools/{pool_id}/action"
 		poolID  = d.Get("pool_id").(string)
 	)
 	client, err := cfg.NewServiceClient("workspace", region)
@@ -92,12 +98,12 @@ func resourceDesktopPoolNotificationCreate(ctx context.Context, d *schema.Resour
 		MoreHeaders: map[string]string{
 			"Content-Type": "application/json",
 		},
-		JSONBody: buildDesktopPoolNotificationBodyParams(d),
+		JSONBody: buildDesktopPoolActionBodyParams(d),
 	}
 
 	resp, err := client.Request("POST", createPath, &opt)
 	if err != nil {
-		return diag.Errorf("error creating desktop pool notification: %s", err)
+		return diag.Errorf("error dispatching desktop pool operation: %s", err)
 	}
 
 	respBody, err := utils.FlattenResponse(resp)
@@ -107,7 +113,7 @@ func resourceDesktopPoolNotificationCreate(ctx context.Context, d *schema.Resour
 
 	jobId := utils.PathSearch("job_id", respBody, "").(string)
 	if jobId == "" {
-		return diag.Errorf("unable to job ID from API response")
+		return diag.Errorf("unable find job ID from API response")
 	}
 	// Backup job ID proves that the request was successful
 	d.SetId(jobId)
@@ -118,19 +124,19 @@ func resourceDesktopPoolNotificationCreate(ctx context.Context, d *schema.Resour
 	}
 	d.Set("status", status)
 
-	return resourceDesktopPoolNotificationRead(ctx, d, meta)
+	return resourceDesktopPoolActionRead(ctx, d, meta)
 }
 
-func resourceDesktopPoolNotificationRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceDesktopPoolActionRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	return nil
 }
 
-func resourceDesktopPoolNotificationUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceDesktopPoolActionUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	return nil
 }
 
-func resourceDesktopPoolNotificationDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
-	errorMsg := `This resource is a one-time action resource using to dispatch desktop pool message. Deleting this resource will
+func resourceDesktopPoolActionDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+	errorMsg := `This resource is a one-time action resource using to operate desktop pool. Deleting this resource will
 not clear the corresponding request record, but will only remove the resource information from the tfstate file.`
 	return diag.Diagnostics{
 		diag.Diagnostic{
