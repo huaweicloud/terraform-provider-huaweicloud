@@ -1772,6 +1772,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cbr_vault_change_charge_mode": cbr.ResourceVaultChangeChargeMode(),
 			"huaweicloud_cbr_change_order":             cbr.ResourceChangeOrder(),
 			"huaweicloud_cbr_update_backup":            cbr.ResourceUpdateBackup(),
+			"huaweicloud_cbr_vault_set_resource":       cbr.ResourceVaultSetResource(),
 
 			"huaweicloud_cbh_instance":                   cbh.ResourceCBHInstance(),
 			"huaweicloud_cbh_ha_instance":                cbh.ResourceCBHHAInstance(),
