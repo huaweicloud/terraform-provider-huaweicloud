@@ -1055,6 +1055,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_asset_user_statistics":          hss.DataSourceAssetUserStatistics(),
 			"huaweicloud_hss_asset_users":                    hss.DataSourceAssetUsers(),
 			"huaweicloud_hss_auto_launch_statistics":         hss.DataSourceAutoLaunchStatistics(),
+			"huaweicloud_hss_auto_launchs":                   hss.DataSourceAutoLaunchs(),
 			"huaweicloud_hss_container_kubernetes":           hss.DataSourceContainerKubernetes(),
 			"huaweicloud_hss_container_nodes":                hss.DataSourceContainerNodes(),
 			"huaweicloud_hss_event_system_user_white_lists":  hss.DataSourceEventSystemUserWhiteLists(),
