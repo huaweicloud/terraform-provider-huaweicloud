@@ -2713,6 +2713,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_waf_instance_group":                      waf.ResourceWafInstanceGroup(),
 			"huaweicloud_waf_instance_group_associate":            waf.ResourceWafInstGroupAssociate(),
 
+			"huaweicloud_workspace_app_action":                workspace.ResourceAppAction(),
 			"huaweicloud_workspace_app_group_authorization":   workspace.ResourceAppGroupAuthorization(),
 			"huaweicloud_workspace_app_group":                 workspace.ResourceWorkspaceAppGroup(),
 			"huaweicloud_workspace_app_image_server":          workspace.ResourceAppImageServer(),
