@@ -461,6 +461,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_aad_block_statistics":         aad.DataSourceBlockStatistics(),
 			"huaweicloud_aad_unblock_records":          aad.DataSourceUnblockRecords(),
 			"huaweicloud_aad_domains":                  aad.DataSourceAadDomains(),
+			"huaweicloud_aad_source_ips":               aad.DataSourceAadSourceIps(),
 
 			"huaweicloud_antiddos_config_ranges":                antiddos.DataSourceConfigRanges(),
 			"huaweicloud_antiddos_weekly_protection_statistics": antiddos.DataSourceWeeklyProtectionStatistics(),
