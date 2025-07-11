@@ -353,8 +353,8 @@ The `bandwidth_info` block supports:
 
 This resource provides the following timeouts configuration options:
 
-* `create` - Default is 120 minutes.
-* `update` - Default is 120 minutes.
+* `create` - Default is 60 minutes.
+* `update` - Default is 60 minutes.
 * `delete` - Default is 15 minutes.
 
 ## Import

@@ -2,33 +2,54 @@ package dcs
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk/openstack/dcs/v2/instances"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getDcsResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := c.DcsV2Client(acceptance.HW_REGION_NAME)
+func getDcsResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	region := acceptance.HW_REGION_NAME
+	var (
+		httpUrl = "v2/{project_id}/instances/{instance_id}"
+		product = "dcs"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return nil, fmt.Errorf("error creating DCS client(V2): %s", err)
+		return nil, fmt.Errorf("error creating DCS client: %s", err)
 	}
-	return instances.Get(client, state.Primary.ID)
+
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{instance_id}", state.Primary.ID)
+
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving DCS instance: %s", err)
+	}
+
+	return utils.FlattenResponse(getResp)
 }
 
 func TestAccDcsInstances_basic(t *testing.T) {
-	var instance instances.DcsInstance
+	var instance interface{}
+
 	var instanceName = acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_dcs_instance.instance_1"
+	rName := "huaweicloud_dcs_instance.test"
 
 	rc := acceptance.InitResourceCheck(
-		resourceName,
+		rName,
 		&instance,
 		getDcsResourceFunc,
 	)
@@ -42,85 +63,85 @@ func TestAccDcsInstances_basic(t *testing.T) {
 				Config: testAccDcsV1Instance_basic(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", instanceName),
-					resource.TestCheckResourceAttr(resourceName, "engine", "Redis"),
-					resource.TestCheckResourceAttr(resourceName, "engine_version", "5.0"),
-					resource.TestCheckResourceAttr(resourceName, "port", "6388"),
-					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+					resource.TestCheckResourceAttr(rName, "name", instanceName),
+					resource.TestCheckResourceAttr(rName, "engine", "Redis"),
+					resource.TestCheckResourceAttr(rName, "engine_version", "5.0"),
+					resource.TestCheckResourceAttr(rName, "port", "6388"),
+					resource.TestCheckResourceAttrPair(rName, "flavor",
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
-					resource.TestCheckResourceAttr(resourceName, "capacity", "1"),
-					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
-					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "22:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "23:00:00"),
-					resource.TestCheckResourceAttrPair(resourceName, "availability_zones.0",
+					resource.TestCheckResourceAttr(rName, "capacity", "1"),
+					resource.TestCheckResourceAttr(rName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(rName, "tags.owner", "terraform"),
+					resource.TestCheckResourceAttr(rName, "maintain_begin", "22:00:00"),
+					resource.TestCheckResourceAttr(rName, "maintain_end", "23:00:00"),
+					resource.TestCheckResourceAttrPair(rName, "availability_zones.0",
 						"data.huaweicloud_availability_zones.test", "names.0"),
-					resource.TestCheckResourceAttr(resourceName, "parameters.0.id", "1"),
-					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "timeout"),
-					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "100"),
-					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
-					resource.TestCheckResourceAttrSet(resourceName, "domain_name"),
-					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
-					resource.TestCheckResourceAttrSet(resourceName, "launched_at"),
-					resource.TestCheckResourceAttrSet(resourceName, "subnet_cidr"),
-					resource.TestCheckResourceAttrSet(resourceName, "cache_mode"),
-					resource.TestCheckResourceAttrSet(resourceName, "cpu_type"),
-					resource.TestCheckResourceAttrSet(resourceName, "replica_count"),
-					resource.TestCheckResourceAttrSet(resourceName, "readonly_domain_name"),
-					resource.TestCheckResourceAttrSet(resourceName, "transparent_client_ip_enable"),
-					resource.TestCheckResourceAttrSet(resourceName, "sharding_count"),
-					resource.TestCheckResourceAttrSet(resourceName, "product_type"),
-					resource.TestCheckResourceAttrSet(resourceName, "bandwidth_info.0.bandwidth"),
-					resource.TestCheckResourceAttr(resourceName, "bandwidth_info.0.begin_time", ""),
-					resource.TestCheckResourceAttrSet(resourceName, "bandwidth_info.0.current_time"),
-					resource.TestCheckResourceAttr(resourceName, "bandwidth_info.0.end_time", ""),
-					resource.TestCheckResourceAttrSet(resourceName, "bandwidth_info.0.expand_count"),
-					resource.TestCheckResourceAttrSet(resourceName, "bandwidth_info.0.expand_effect_time"),
-					resource.TestCheckResourceAttrSet(resourceName, "bandwidth_info.0.expand_interval_time"),
-					resource.TestCheckResourceAttrSet(resourceName, "bandwidth_info.0.max_expand_count"),
-					resource.TestCheckResourceAttr(resourceName, "bandwidth_info.0.next_expand_time", ""),
-					resource.TestCheckResourceAttrSet(resourceName, "bandwidth_info.0.task_running"),
+					resource.TestCheckResourceAttr(rName, "parameters.0.id", "1"),
+					resource.TestCheckResourceAttr(rName, "parameters.0.name", "timeout"),
+					resource.TestCheckResourceAttr(rName, "parameters.0.value", "100"),
+					resource.TestCheckResourceAttrSet(rName, "private_ip"),
+					resource.TestCheckResourceAttrSet(rName, "domain_name"),
+					resource.TestCheckResourceAttrSet(rName, "created_at"),
+					resource.TestCheckResourceAttrSet(rName, "launched_at"),
+					resource.TestCheckResourceAttrSet(rName, "subnet_cidr"),
+					resource.TestCheckResourceAttrSet(rName, "cache_mode"),
+					resource.TestCheckResourceAttrSet(rName, "cpu_type"),
+					resource.TestCheckResourceAttrSet(rName, "replica_count"),
+					resource.TestCheckResourceAttrSet(rName, "readonly_domain_name"),
+					resource.TestCheckResourceAttrSet(rName, "transparent_client_ip_enable"),
+					resource.TestCheckResourceAttrSet(rName, "sharding_count"),
+					resource.TestCheckResourceAttrSet(rName, "product_type"),
+					resource.TestCheckResourceAttrSet(rName, "bandwidth_info.0.bandwidth"),
+					resource.TestCheckResourceAttr(rName, "bandwidth_info.0.begin_time", ""),
+					resource.TestCheckResourceAttrSet(rName, "bandwidth_info.0.current_time"),
+					resource.TestCheckResourceAttr(rName, "bandwidth_info.0.end_time", ""),
+					resource.TestCheckResourceAttrSet(rName, "bandwidth_info.0.expand_count"),
+					resource.TestCheckResourceAttrSet(rName, "bandwidth_info.0.expand_effect_time"),
+					resource.TestCheckResourceAttrSet(rName, "bandwidth_info.0.expand_interval_time"),
+					resource.TestCheckResourceAttrSet(rName, "bandwidth_info.0.max_expand_count"),
+					resource.TestCheckResourceAttr(rName, "bandwidth_info.0.next_expand_time", ""),
+					resource.TestCheckResourceAttrSet(rName, "bandwidth_info.0.task_running"),
 				),
 			},
 			{
 				Config: testAccDcsV1Instance_updated(instanceName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "port", "6389"),
-					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+					resource.TestCheckResourceAttr(rName, "port", "6389"),
+					resource.TestCheckResourceAttrPair(rName, "flavor",
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
-					resource.TestCheckResourceAttr(resourceName, "capacity", "2"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "07:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "backup_policy.0.begin_at", "01:00-02:00"),
-					resource.TestCheckResourceAttr(resourceName, "backup_policy.0.save_days", "2"),
-					resource.TestCheckResourceAttr(resourceName, "backup_policy.0.backup_at.#", "3"),
-					resource.TestCheckResourceAttr(resourceName, "parameters.0.id", "10"),
-					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "latency-monitor-threshold"),
-					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "120"),
-					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
-					resource.TestCheckResourceAttrSet(resourceName, "launched_at"),
-					resource.TestCheckResourceAttrSet(resourceName, "subnet_cidr"),
-					resource.TestCheckResourceAttrSet(resourceName, "cache_mode"),
-					resource.TestCheckResourceAttrSet(resourceName, "cpu_type"),
-					resource.TestCheckResourceAttrSet(resourceName, "replica_count"),
-					resource.TestCheckResourceAttrSet(resourceName, "readonly_domain_name"),
-					resource.TestCheckResourceAttrSet(resourceName, "transparent_client_ip_enable"),
-					resource.TestCheckResourceAttrSet(resourceName, "sharding_count"),
-					resource.TestCheckResourceAttrSet(resourceName, "product_type"),
-					resource.TestCheckResourceAttrSet(resourceName, "bandwidth_info.0.bandwidth"),
-					resource.TestCheckResourceAttr(resourceName, "bandwidth_info.0.begin_time", ""),
-					resource.TestCheckResourceAttrSet(resourceName, "bandwidth_info.0.current_time"),
-					resource.TestCheckResourceAttr(resourceName, "bandwidth_info.0.end_time", ""),
-					resource.TestCheckResourceAttrSet(resourceName, "bandwidth_info.0.expand_count"),
-					resource.TestCheckResourceAttrSet(resourceName, "bandwidth_info.0.expand_effect_time"),
-					resource.TestCheckResourceAttrSet(resourceName, "bandwidth_info.0.expand_interval_time"),
-					resource.TestCheckResourceAttrSet(resourceName, "bandwidth_info.0.max_expand_count"),
-					resource.TestCheckResourceAttr(resourceName, "bandwidth_info.0.next_expand_time", ""),
-					resource.TestCheckResourceAttrSet(resourceName, "bandwidth_info.0.task_running"),
+					resource.TestCheckResourceAttr(rName, "capacity", "2"),
+					resource.TestCheckResourceAttr(rName, "maintain_begin", "06:00:00"),
+					resource.TestCheckResourceAttr(rName, "maintain_end", "07:00:00"),
+					resource.TestCheckResourceAttr(rName, "backup_policy.0.begin_at", "01:00-02:00"),
+					resource.TestCheckResourceAttr(rName, "backup_policy.0.save_days", "2"),
+					resource.TestCheckResourceAttr(rName, "backup_policy.0.backup_at.#", "3"),
+					resource.TestCheckResourceAttr(rName, "parameters.0.id", "10"),
+					resource.TestCheckResourceAttr(rName, "parameters.0.name", "latency-monitor-threshold"),
+					resource.TestCheckResourceAttr(rName, "parameters.0.value", "120"),
+					resource.TestCheckResourceAttrSet(rName, "created_at"),
+					resource.TestCheckResourceAttrSet(rName, "launched_at"),
+					resource.TestCheckResourceAttrSet(rName, "subnet_cidr"),
+					resource.TestCheckResourceAttrSet(rName, "cache_mode"),
+					resource.TestCheckResourceAttrSet(rName, "cpu_type"),
+					resource.TestCheckResourceAttrSet(rName, "replica_count"),
+					resource.TestCheckResourceAttrSet(rName, "readonly_domain_name"),
+					resource.TestCheckResourceAttrSet(rName, "transparent_client_ip_enable"),
+					resource.TestCheckResourceAttrSet(rName, "sharding_count"),
+					resource.TestCheckResourceAttrSet(rName, "product_type"),
+					resource.TestCheckResourceAttrSet(rName, "bandwidth_info.0.bandwidth"),
+					resource.TestCheckResourceAttr(rName, "bandwidth_info.0.begin_time", ""),
+					resource.TestCheckResourceAttrSet(rName, "bandwidth_info.0.current_time"),
+					resource.TestCheckResourceAttr(rName, "bandwidth_info.0.end_time", ""),
+					resource.TestCheckResourceAttrSet(rName, "bandwidth_info.0.expand_count"),
+					resource.TestCheckResourceAttrSet(rName, "bandwidth_info.0.expand_effect_time"),
+					resource.TestCheckResourceAttrSet(rName, "bandwidth_info.0.expand_interval_time"),
+					resource.TestCheckResourceAttrSet(rName, "bandwidth_info.0.max_expand_count"),
+					resource.TestCheckResourceAttr(rName, "bandwidth_info.0.next_expand_time", ""),
+					resource.TestCheckResourceAttrSet(rName, "bandwidth_info.0.task_running"),
 				),
 			},
 			{
-				ResourceName:      resourceName,
+				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"password", "auto_renew", "period", "period_unit", "rename_commands",
@@ -132,12 +153,13 @@ func TestAccDcsInstances_basic(t *testing.T) {
 }
 
 func TestAccDcsInstances_ha_change_capacity(t *testing.T) {
-	var instance instances.DcsInstance
+	var instance interface{}
+
 	var instanceName = acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_dcs_instance.instance_1"
+	rName := "huaweicloud_dcs_instance.test"
 
 	rc := acceptance.InitResourceCheck(
-		resourceName,
+		rName,
 		&instance,
 		getDcsResourceFunc,
 	)
@@ -151,45 +173,45 @@ func TestAccDcsInstances_ha_change_capacity(t *testing.T) {
 				Config: testAccDcsV1Instance_ha(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", instanceName),
-					resource.TestCheckResourceAttr(resourceName, "engine", "Redis"),
-					resource.TestCheckResourceAttr(resourceName, "engine_version", "5.0"),
-					resource.TestCheckResourceAttr(resourceName, "port", "6388"),
-					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+					resource.TestCheckResourceAttr(rName, "name", instanceName),
+					resource.TestCheckResourceAttr(rName, "engine", "Redis"),
+					resource.TestCheckResourceAttr(rName, "engine_version", "5.0"),
+					resource.TestCheckResourceAttr(rName, "port", "6388"),
+					resource.TestCheckResourceAttrPair(rName, "flavor",
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
-					resource.TestCheckResourceAttr(resourceName, "capacity", "1"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "22:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "23:00:00"),
-					resource.TestCheckResourceAttrPair(resourceName, "availability_zones.0",
+					resource.TestCheckResourceAttr(rName, "capacity", "1"),
+					resource.TestCheckResourceAttr(rName, "maintain_begin", "22:00:00"),
+					resource.TestCheckResourceAttr(rName, "maintain_end", "23:00:00"),
+					resource.TestCheckResourceAttrPair(rName, "availability_zones.0",
 						"data.huaweicloud_availability_zones.test", "names.0"),
-					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
-					resource.TestCheckResourceAttrSet(resourceName, "domain_name"),
+					resource.TestCheckResourceAttrSet(rName, "private_ip"),
+					resource.TestCheckResourceAttrSet(rName, "domain_name"),
 				),
 			},
 			{
 				Config: testAccDcsV1Instance_ha_expand_capacity(instanceName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "port", "6388"),
-					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+					resource.TestCheckResourceAttr(rName, "port", "6388"),
+					resource.TestCheckResourceAttrPair(rName, "flavor",
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
-					resource.TestCheckResourceAttr(resourceName, "capacity", "4"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "07:00:00"),
+					resource.TestCheckResourceAttr(rName, "capacity", "4"),
+					resource.TestCheckResourceAttr(rName, "maintain_begin", "06:00:00"),
+					resource.TestCheckResourceAttr(rName, "maintain_end", "07:00:00"),
 				),
 			},
 			{
 				Config: testAccDcsV1Instance_ha_reduce_capacity(instanceName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "port", "6388"),
-					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+					resource.TestCheckResourceAttr(rName, "port", "6388"),
+					resource.TestCheckResourceAttrPair(rName, "flavor",
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
-					resource.TestCheckResourceAttr(resourceName, "capacity", "1"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "07:00:00"),
+					resource.TestCheckResourceAttr(rName, "capacity", "1"),
+					resource.TestCheckResourceAttr(rName, "maintain_begin", "06:00:00"),
+					resource.TestCheckResourceAttr(rName, "maintain_end", "07:00:00"),
 				),
 			},
 			{
-				ResourceName:      resourceName,
+				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"password", "auto_renew", "period", "period_unit", "rename_commands",
@@ -201,12 +223,13 @@ func TestAccDcsInstances_ha_change_capacity(t *testing.T) {
 }
 
 func TestAccDcsInstances_ha_expand_replica(t *testing.T) {
-	var instance instances.DcsInstance
+	var instance interface{}
+
 	var instanceName = acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_dcs_instance.instance_1"
+	rName := "huaweicloud_dcs_instance.test"
 
 	rc := acceptance.InitResourceCheck(
-		resourceName,
+		rName,
 		&instance,
 		getDcsResourceFunc,
 	)
@@ -220,34 +243,34 @@ func TestAccDcsInstances_ha_expand_replica(t *testing.T) {
 				Config: testAccDcsV1Instance_ha(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", instanceName),
-					resource.TestCheckResourceAttr(resourceName, "engine", "Redis"),
-					resource.TestCheckResourceAttr(resourceName, "engine_version", "5.0"),
-					resource.TestCheckResourceAttr(resourceName, "port", "6388"),
-					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+					resource.TestCheckResourceAttr(rName, "name", instanceName),
+					resource.TestCheckResourceAttr(rName, "engine", "Redis"),
+					resource.TestCheckResourceAttr(rName, "engine_version", "5.0"),
+					resource.TestCheckResourceAttr(rName, "port", "6388"),
+					resource.TestCheckResourceAttrPair(rName, "flavor",
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
-					resource.TestCheckResourceAttr(resourceName, "capacity", "1"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "22:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "23:00:00"),
-					resource.TestCheckResourceAttrPair(resourceName, "availability_zones.0",
+					resource.TestCheckResourceAttr(rName, "capacity", "1"),
+					resource.TestCheckResourceAttr(rName, "maintain_begin", "22:00:00"),
+					resource.TestCheckResourceAttr(rName, "maintain_end", "23:00:00"),
+					resource.TestCheckResourceAttrPair(rName, "availability_zones.0",
 						"data.huaweicloud_availability_zones.test", "names.0"),
-					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
-					resource.TestCheckResourceAttrSet(resourceName, "domain_name"),
+					resource.TestCheckResourceAttrSet(rName, "private_ip"),
+					resource.TestCheckResourceAttrSet(rName, "domain_name"),
 				),
 			},
 			{
 				Config: testAccDcsV1Instance_ha_expand_replica(instanceName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "port", "6388"),
-					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+					resource.TestCheckResourceAttr(rName, "port", "6388"),
+					resource.TestCheckResourceAttrPair(rName, "flavor",
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
-					resource.TestCheckResourceAttr(resourceName, "capacity", "1"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "07:00:00"),
+					resource.TestCheckResourceAttr(rName, "capacity", "1"),
+					resource.TestCheckResourceAttr(rName, "maintain_begin", "06:00:00"),
+					resource.TestCheckResourceAttr(rName, "maintain_end", "07:00:00"),
 				),
 			},
 			{
-				ResourceName:      resourceName,
+				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"password", "auto_renew", "period", "period_unit", "rename_commands",
@@ -259,12 +282,13 @@ func TestAccDcsInstances_ha_expand_replica(t *testing.T) {
 }
 
 func TestAccDcsInstances_ha_to_proxy(t *testing.T) {
-	var instance instances.DcsInstance
+	var instance interface{}
+
 	var instanceName = acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_dcs_instance.instance_1"
+	rName := "huaweicloud_dcs_instance.test"
 
 	rc := acceptance.InitResourceCheck(
-		resourceName,
+		rName,
 		&instance,
 		getDcsResourceFunc,
 	)
@@ -278,34 +302,34 @@ func TestAccDcsInstances_ha_to_proxy(t *testing.T) {
 				Config: testAccDcsV1Instance_ha(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", instanceName),
-					resource.TestCheckResourceAttr(resourceName, "engine", "Redis"),
-					resource.TestCheckResourceAttr(resourceName, "engine_version", "5.0"),
-					resource.TestCheckResourceAttr(resourceName, "port", "6388"),
-					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+					resource.TestCheckResourceAttr(rName, "name", instanceName),
+					resource.TestCheckResourceAttr(rName, "engine", "Redis"),
+					resource.TestCheckResourceAttr(rName, "engine_version", "5.0"),
+					resource.TestCheckResourceAttr(rName, "port", "6388"),
+					resource.TestCheckResourceAttrPair(rName, "flavor",
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
-					resource.TestCheckResourceAttr(resourceName, "capacity", "1"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "22:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "23:00:00"),
-					resource.TestCheckResourceAttrPair(resourceName, "availability_zones.0",
+					resource.TestCheckResourceAttr(rName, "capacity", "1"),
+					resource.TestCheckResourceAttr(rName, "maintain_begin", "22:00:00"),
+					resource.TestCheckResourceAttr(rName, "maintain_end", "23:00:00"),
+					resource.TestCheckResourceAttrPair(rName, "availability_zones.0",
 						"data.huaweicloud_availability_zones.test", "names.0"),
-					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
-					resource.TestCheckResourceAttrSet(resourceName, "domain_name"),
+					resource.TestCheckResourceAttrSet(rName, "private_ip"),
+					resource.TestCheckResourceAttrSet(rName, "domain_name"),
 				),
 			},
 			{
 				Config: testAccDcsV1Instance_ha_to_proxy(instanceName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "port", "6388"),
-					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+					resource.TestCheckResourceAttr(rName, "port", "6388"),
+					resource.TestCheckResourceAttrPair(rName, "flavor",
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
-					resource.TestCheckResourceAttr(resourceName, "capacity", "4"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "07:00:00"),
+					resource.TestCheckResourceAttr(rName, "capacity", "4"),
+					resource.TestCheckResourceAttr(rName, "maintain_begin", "06:00:00"),
+					resource.TestCheckResourceAttr(rName, "maintain_end", "07:00:00"),
 				),
 			},
 			{
-				ResourceName:      resourceName,
+				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"password", "auto_renew", "period", "period_unit", "rename_commands",
@@ -317,12 +341,13 @@ func TestAccDcsInstances_ha_to_proxy(t *testing.T) {
 }
 
 func TestAccDcsInstances_rw_change_capacity(t *testing.T) {
-	var instance instances.DcsInstance
+	var instance interface{}
+
 	var instanceName = acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_dcs_instance.instance_1"
+	rName := "huaweicloud_dcs_instance.test"
 
 	rc := acceptance.InitResourceCheck(
-		resourceName,
+		rName,
 		&instance,
 		getDcsResourceFunc,
 	)
@@ -336,45 +361,45 @@ func TestAccDcsInstances_rw_change_capacity(t *testing.T) {
 				Config: testAccDcsV1Instance_rw(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", instanceName),
-					resource.TestCheckResourceAttr(resourceName, "engine", "Redis"),
-					resource.TestCheckResourceAttr(resourceName, "engine_version", "5.0"),
-					resource.TestCheckResourceAttr(resourceName, "port", "6388"),
-					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+					resource.TestCheckResourceAttr(rName, "name", instanceName),
+					resource.TestCheckResourceAttr(rName, "engine", "Redis"),
+					resource.TestCheckResourceAttr(rName, "engine_version", "5.0"),
+					resource.TestCheckResourceAttr(rName, "port", "6388"),
+					resource.TestCheckResourceAttrPair(rName, "flavor",
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
-					resource.TestCheckResourceAttr(resourceName, "capacity", "8"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "22:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "23:00:00"),
-					resource.TestCheckResourceAttrPair(resourceName, "availability_zones.0",
+					resource.TestCheckResourceAttr(rName, "capacity", "8"),
+					resource.TestCheckResourceAttr(rName, "maintain_begin", "22:00:00"),
+					resource.TestCheckResourceAttr(rName, "maintain_end", "23:00:00"),
+					resource.TestCheckResourceAttrPair(rName, "availability_zones.0",
 						"data.huaweicloud_availability_zones.test", "names.0"),
-					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
-					resource.TestCheckResourceAttrSet(resourceName, "domain_name"),
+					resource.TestCheckResourceAttrSet(rName, "private_ip"),
+					resource.TestCheckResourceAttrSet(rName, "domain_name"),
 				),
 			},
 			{
 				Config: testAccDcsV1Instance_rw_expand_capacity(instanceName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "port", "6388"),
-					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+					resource.TestCheckResourceAttr(rName, "port", "6388"),
+					resource.TestCheckResourceAttrPair(rName, "flavor",
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
-					resource.TestCheckResourceAttr(resourceName, "capacity", "16"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "07:00:00"),
+					resource.TestCheckResourceAttr(rName, "capacity", "16"),
+					resource.TestCheckResourceAttr(rName, "maintain_begin", "06:00:00"),
+					resource.TestCheckResourceAttr(rName, "maintain_end", "07:00:00"),
 				),
 			},
 			{
 				Config: testAccDcsV1Instance_rw_reduce_capacity(instanceName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "port", "6388"),
-					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+					resource.TestCheckResourceAttr(rName, "port", "6388"),
+					resource.TestCheckResourceAttrPair(rName, "flavor",
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
-					resource.TestCheckResourceAttr(resourceName, "capacity", "8"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "07:00:00"),
+					resource.TestCheckResourceAttr(rName, "capacity", "8"),
+					resource.TestCheckResourceAttr(rName, "maintain_begin", "06:00:00"),
+					resource.TestCheckResourceAttr(rName, "maintain_end", "07:00:00"),
 				),
 			},
 			{
-				ResourceName:      resourceName,
+				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"password", "auto_renew", "period", "period_unit", "rename_commands",
@@ -386,12 +411,13 @@ func TestAccDcsInstances_rw_change_capacity(t *testing.T) {
 }
 
 func TestAccDcsInstances_rw_expand_replica(t *testing.T) {
-	var instance instances.DcsInstance
+	var instance interface{}
+
 	var instanceName = acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_dcs_instance.instance_1"
+	rName := "huaweicloud_dcs_instance.test"
 
 	rc := acceptance.InitResourceCheck(
-		resourceName,
+		rName,
 		&instance,
 		getDcsResourceFunc,
 	)
@@ -405,34 +431,34 @@ func TestAccDcsInstances_rw_expand_replica(t *testing.T) {
 				Config: testAccDcsV1Instance_rw(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", instanceName),
-					resource.TestCheckResourceAttr(resourceName, "engine", "Redis"),
-					resource.TestCheckResourceAttr(resourceName, "engine_version", "5.0"),
-					resource.TestCheckResourceAttr(resourceName, "port", "6388"),
-					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+					resource.TestCheckResourceAttr(rName, "name", instanceName),
+					resource.TestCheckResourceAttr(rName, "engine", "Redis"),
+					resource.TestCheckResourceAttr(rName, "engine_version", "5.0"),
+					resource.TestCheckResourceAttr(rName, "port", "6388"),
+					resource.TestCheckResourceAttrPair(rName, "flavor",
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
-					resource.TestCheckResourceAttr(resourceName, "capacity", "8"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "22:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "23:00:00"),
-					resource.TestCheckResourceAttrPair(resourceName, "availability_zones.0",
+					resource.TestCheckResourceAttr(rName, "capacity", "8"),
+					resource.TestCheckResourceAttr(rName, "maintain_begin", "22:00:00"),
+					resource.TestCheckResourceAttr(rName, "maintain_end", "23:00:00"),
+					resource.TestCheckResourceAttrPair(rName, "availability_zones.0",
 						"data.huaweicloud_availability_zones.test", "names.0"),
-					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
-					resource.TestCheckResourceAttrSet(resourceName, "domain_name"),
+					resource.TestCheckResourceAttrSet(rName, "private_ip"),
+					resource.TestCheckResourceAttrSet(rName, "domain_name"),
 				),
 			},
 			{
 				Config: testAccDcsV1Instance_rw_expand_replica(instanceName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "port", "6388"),
-					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+					resource.TestCheckResourceAttr(rName, "port", "6388"),
+					resource.TestCheckResourceAttrPair(rName, "flavor",
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
-					resource.TestCheckResourceAttr(resourceName, "capacity", "8"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "07:00:00"),
+					resource.TestCheckResourceAttr(rName, "capacity", "8"),
+					resource.TestCheckResourceAttr(rName, "maintain_begin", "06:00:00"),
+					resource.TestCheckResourceAttr(rName, "maintain_end", "07:00:00"),
 				),
 			},
 			{
-				ResourceName:      resourceName,
+				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"password", "auto_renew", "period", "period_unit", "rename_commands",
@@ -444,12 +470,13 @@ func TestAccDcsInstances_rw_expand_replica(t *testing.T) {
 }
 
 func TestAccDcsInstances_rw_to_proxy(t *testing.T) {
-	var instance instances.DcsInstance
+	var instance interface{}
+
 	var instanceName = acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_dcs_instance.instance_1"
+	rName := "huaweicloud_dcs_instance.test"
 
 	rc := acceptance.InitResourceCheck(
-		resourceName,
+		rName,
 		&instance,
 		getDcsResourceFunc,
 	)
@@ -463,34 +490,34 @@ func TestAccDcsInstances_rw_to_proxy(t *testing.T) {
 				Config: testAccDcsV1Instance_rw(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", instanceName),
-					resource.TestCheckResourceAttr(resourceName, "engine", "Redis"),
-					resource.TestCheckResourceAttr(resourceName, "engine_version", "5.0"),
-					resource.TestCheckResourceAttr(resourceName, "port", "6388"),
-					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+					resource.TestCheckResourceAttr(rName, "name", instanceName),
+					resource.TestCheckResourceAttr(rName, "engine", "Redis"),
+					resource.TestCheckResourceAttr(rName, "engine_version", "5.0"),
+					resource.TestCheckResourceAttr(rName, "port", "6388"),
+					resource.TestCheckResourceAttrPair(rName, "flavor",
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
-					resource.TestCheckResourceAttr(resourceName, "capacity", "8"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "22:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "23:00:00"),
-					resource.TestCheckResourceAttrPair(resourceName, "availability_zones.0",
+					resource.TestCheckResourceAttr(rName, "capacity", "8"),
+					resource.TestCheckResourceAttr(rName, "maintain_begin", "22:00:00"),
+					resource.TestCheckResourceAttr(rName, "maintain_end", "23:00:00"),
+					resource.TestCheckResourceAttrPair(rName, "availability_zones.0",
 						"data.huaweicloud_availability_zones.test", "names.0"),
-					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
-					resource.TestCheckResourceAttrSet(resourceName, "domain_name"),
+					resource.TestCheckResourceAttrSet(rName, "private_ip"),
+					resource.TestCheckResourceAttrSet(rName, "domain_name"),
 				),
 			},
 			{
 				Config: testAccDcsV1Instance_rw_to_proxy(instanceName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "port", "6388"),
-					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+					resource.TestCheckResourceAttr(rName, "port", "6388"),
+					resource.TestCheckResourceAttrPair(rName, "flavor",
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
-					resource.TestCheckResourceAttr(resourceName, "capacity", "8"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "07:00:00"),
+					resource.TestCheckResourceAttr(rName, "capacity", "8"),
+					resource.TestCheckResourceAttr(rName, "maintain_begin", "06:00:00"),
+					resource.TestCheckResourceAttr(rName, "maintain_end", "07:00:00"),
 				),
 			},
 			{
-				ResourceName:      resourceName,
+				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"password", "auto_renew", "period", "period_unit", "rename_commands",
@@ -502,12 +529,13 @@ func TestAccDcsInstances_rw_to_proxy(t *testing.T) {
 }
 
 func TestAccDcsInstances_proxy_change_capacity(t *testing.T) {
-	var instance instances.DcsInstance
+	var instance interface{}
+
 	var instanceName = acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_dcs_instance.instance_1"
+	rName := "huaweicloud_dcs_instance.test"
 
 	rc := acceptance.InitResourceCheck(
-		resourceName,
+		rName,
 		&instance,
 		getDcsResourceFunc,
 	)
@@ -521,45 +549,45 @@ func TestAccDcsInstances_proxy_change_capacity(t *testing.T) {
 				Config: testAccDcsV1Instance_proxy(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", instanceName),
-					resource.TestCheckResourceAttr(resourceName, "engine", "Redis"),
-					resource.TestCheckResourceAttr(resourceName, "engine_version", "5.0"),
-					resource.TestCheckResourceAttr(resourceName, "port", "6388"),
-					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+					resource.TestCheckResourceAttr(rName, "name", instanceName),
+					resource.TestCheckResourceAttr(rName, "engine", "Redis"),
+					resource.TestCheckResourceAttr(rName, "engine_version", "5.0"),
+					resource.TestCheckResourceAttr(rName, "port", "6388"),
+					resource.TestCheckResourceAttrPair(rName, "flavor",
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
-					resource.TestCheckResourceAttr(resourceName, "capacity", "4"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "22:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "23:00:00"),
-					resource.TestCheckResourceAttrPair(resourceName, "availability_zones.0",
+					resource.TestCheckResourceAttr(rName, "capacity", "4"),
+					resource.TestCheckResourceAttr(rName, "maintain_begin", "22:00:00"),
+					resource.TestCheckResourceAttr(rName, "maintain_end", "23:00:00"),
+					resource.TestCheckResourceAttrPair(rName, "availability_zones.0",
 						"data.huaweicloud_availability_zones.test", "names.0"),
-					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
-					resource.TestCheckResourceAttrSet(resourceName, "domain_name"),
+					resource.TestCheckResourceAttrSet(rName, "private_ip"),
+					resource.TestCheckResourceAttrSet(rName, "domain_name"),
 				),
 			},
 			{
 				Config: testAccDcsV1Instance_proxy_expand_capacity(instanceName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "port", "6388"),
-					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+					resource.TestCheckResourceAttr(rName, "port", "6388"),
+					resource.TestCheckResourceAttrPair(rName, "flavor",
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
-					resource.TestCheckResourceAttr(resourceName, "capacity", "16"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "07:00:00"),
+					resource.TestCheckResourceAttr(rName, "capacity", "16"),
+					resource.TestCheckResourceAttr(rName, "maintain_begin", "06:00:00"),
+					resource.TestCheckResourceAttr(rName, "maintain_end", "07:00:00"),
 				),
 			},
 			{
 				Config: testAccDcsV1Instance_proxy_reduce_capacity(instanceName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "port", "6388"),
-					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+					resource.TestCheckResourceAttr(rName, "port", "6388"),
+					resource.TestCheckResourceAttrPair(rName, "flavor",
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
-					resource.TestCheckResourceAttr(resourceName, "capacity", "8"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "07:00:00"),
+					resource.TestCheckResourceAttr(rName, "capacity", "8"),
+					resource.TestCheckResourceAttr(rName, "maintain_begin", "06:00:00"),
+					resource.TestCheckResourceAttr(rName, "maintain_end", "07:00:00"),
 				),
 			},
 			{
-				ResourceName:      resourceName,
+				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"password", "auto_renew", "period", "period_unit", "rename_commands",
@@ -571,12 +599,13 @@ func TestAccDcsInstances_proxy_change_capacity(t *testing.T) {
 }
 
 func TestAccDcsInstances_proxy_to_ha(t *testing.T) {
-	var instance instances.DcsInstance
+	var instance interface{}
+
 	var instanceName = acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_dcs_instance.instance_1"
+	rName := "huaweicloud_dcs_instance.test"
 
 	rc := acceptance.InitResourceCheck(
-		resourceName,
+		rName,
 		&instance,
 		getDcsResourceFunc,
 	)
@@ -590,34 +619,34 @@ func TestAccDcsInstances_proxy_to_ha(t *testing.T) {
 				Config: testAccDcsV1Instance_proxy(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", instanceName),
-					resource.TestCheckResourceAttr(resourceName, "engine", "Redis"),
-					resource.TestCheckResourceAttr(resourceName, "engine_version", "5.0"),
-					resource.TestCheckResourceAttr(resourceName, "port", "6388"),
-					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+					resource.TestCheckResourceAttr(rName, "name", instanceName),
+					resource.TestCheckResourceAttr(rName, "engine", "Redis"),
+					resource.TestCheckResourceAttr(rName, "engine_version", "5.0"),
+					resource.TestCheckResourceAttr(rName, "port", "6388"),
+					resource.TestCheckResourceAttrPair(rName, "flavor",
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
-					resource.TestCheckResourceAttr(resourceName, "capacity", "4"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "22:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "23:00:00"),
-					resource.TestCheckResourceAttrPair(resourceName, "availability_zones.0",
+					resource.TestCheckResourceAttr(rName, "capacity", "4"),
+					resource.TestCheckResourceAttr(rName, "maintain_begin", "22:00:00"),
+					resource.TestCheckResourceAttr(rName, "maintain_end", "23:00:00"),
+					resource.TestCheckResourceAttrPair(rName, "availability_zones.0",
 						"data.huaweicloud_availability_zones.test", "names.0"),
-					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
-					resource.TestCheckResourceAttrSet(resourceName, "domain_name"),
+					resource.TestCheckResourceAttrSet(rName, "private_ip"),
+					resource.TestCheckResourceAttrSet(rName, "domain_name"),
 				),
 			},
 			{
 				Config: testAccDcsV1Instance_proxy_to_ha(instanceName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "port", "6388"),
-					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+					resource.TestCheckResourceAttr(rName, "port", "6388"),
+					resource.TestCheckResourceAttrPair(rName, "flavor",
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
-					resource.TestCheckResourceAttr(resourceName, "capacity", "4"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "07:00:00"),
+					resource.TestCheckResourceAttr(rName, "capacity", "4"),
+					resource.TestCheckResourceAttr(rName, "maintain_begin", "06:00:00"),
+					resource.TestCheckResourceAttr(rName, "maintain_end", "07:00:00"),
 				),
 			},
 			{
-				ResourceName:      resourceName,
+				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"password", "auto_renew", "period", "period_unit", "rename_commands",
@@ -629,12 +658,13 @@ func TestAccDcsInstances_proxy_to_ha(t *testing.T) {
 }
 
 func TestAccDcsInstances_proxy_to_rw(t *testing.T) {
-	var instance instances.DcsInstance
+	var instance interface{}
+
 	var instanceName = acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_dcs_instance.instance_1"
+	rName := "huaweicloud_dcs_instance.test"
 
 	rc := acceptance.InitResourceCheck(
-		resourceName,
+		rName,
 		&instance,
 		getDcsResourceFunc,
 	)
@@ -648,34 +678,34 @@ func TestAccDcsInstances_proxy_to_rw(t *testing.T) {
 				Config: testAccDcsV1Instance_proxy(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", instanceName),
-					resource.TestCheckResourceAttr(resourceName, "engine", "Redis"),
-					resource.TestCheckResourceAttr(resourceName, "engine_version", "5.0"),
-					resource.TestCheckResourceAttr(resourceName, "port", "6388"),
-					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+					resource.TestCheckResourceAttr(rName, "name", instanceName),
+					resource.TestCheckResourceAttr(rName, "engine", "Redis"),
+					resource.TestCheckResourceAttr(rName, "engine_version", "5.0"),
+					resource.TestCheckResourceAttr(rName, "port", "6388"),
+					resource.TestCheckResourceAttrPair(rName, "flavor",
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
-					resource.TestCheckResourceAttr(resourceName, "capacity", "4"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "22:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "23:00:00"),
-					resource.TestCheckResourceAttrPair(resourceName, "availability_zones.0",
+					resource.TestCheckResourceAttr(rName, "capacity", "4"),
+					resource.TestCheckResourceAttr(rName, "maintain_begin", "22:00:00"),
+					resource.TestCheckResourceAttr(rName, "maintain_end", "23:00:00"),
+					resource.TestCheckResourceAttrPair(rName, "availability_zones.0",
 						"data.huaweicloud_availability_zones.test", "names.0"),
-					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
-					resource.TestCheckResourceAttrSet(resourceName, "domain_name"),
+					resource.TestCheckResourceAttrSet(rName, "private_ip"),
+					resource.TestCheckResourceAttrSet(rName, "domain_name"),
 				),
 			},
 			{
 				Config: testAccDcsV1Instance_proxy_to_rw(instanceName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "port", "6388"),
-					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+					resource.TestCheckResourceAttr(rName, "port", "6388"),
+					resource.TestCheckResourceAttrPair(rName, "flavor",
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
-					resource.TestCheckResourceAttr(resourceName, "capacity", "8"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "07:00:00"),
+					resource.TestCheckResourceAttr(rName, "capacity", "8"),
+					resource.TestCheckResourceAttr(rName, "maintain_begin", "06:00:00"),
+					resource.TestCheckResourceAttr(rName, "maintain_end", "07:00:00"),
 				),
 			},
 			{
-				ResourceName:      resourceName,
+				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"password", "auto_renew", "period", "period_unit", "rename_commands",
@@ -687,12 +717,13 @@ func TestAccDcsInstances_proxy_to_rw(t *testing.T) {
 }
 
 func TestAccDcsInstances_cluster_change_capacity(t *testing.T) {
-	var instance instances.DcsInstance
+	var instance interface{}
+
 	var instanceName = acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_dcs_instance.instance_1"
+	rName := "huaweicloud_dcs_instance.test"
 
 	rc := acceptance.InitResourceCheck(
-		resourceName,
+		rName,
 		&instance,
 		getDcsResourceFunc,
 	)
@@ -706,45 +737,45 @@ func TestAccDcsInstances_cluster_change_capacity(t *testing.T) {
 				Config: testAccDcsV1Instance_cluster(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", instanceName),
-					resource.TestCheckResourceAttr(resourceName, "engine", "Redis"),
-					resource.TestCheckResourceAttr(resourceName, "engine_version", "5.0"),
-					resource.TestCheckResourceAttr(resourceName, "port", "6388"),
-					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+					resource.TestCheckResourceAttr(rName, "name", instanceName),
+					resource.TestCheckResourceAttr(rName, "engine", "Redis"),
+					resource.TestCheckResourceAttr(rName, "engine_version", "5.0"),
+					resource.TestCheckResourceAttr(rName, "port", "6388"),
+					resource.TestCheckResourceAttrPair(rName, "flavor",
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
-					resource.TestCheckResourceAttr(resourceName, "capacity", "4"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "22:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "23:00:00"),
-					resource.TestCheckResourceAttrPair(resourceName, "availability_zones.0",
+					resource.TestCheckResourceAttr(rName, "capacity", "4"),
+					resource.TestCheckResourceAttr(rName, "maintain_begin", "22:00:00"),
+					resource.TestCheckResourceAttr(rName, "maintain_end", "23:00:00"),
+					resource.TestCheckResourceAttrPair(rName, "availability_zones.0",
 						"data.huaweicloud_availability_zones.test", "names.0"),
-					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
-					resource.TestCheckResourceAttrSet(resourceName, "domain_name"),
+					resource.TestCheckResourceAttrSet(rName, "private_ip"),
+					resource.TestCheckResourceAttrSet(rName, "domain_name"),
 				),
 			},
 			{
 				Config: testAccDcsV1Instance_cluster_expand_capacity(instanceName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "port", "6388"),
-					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+					resource.TestCheckResourceAttr(rName, "port", "6388"),
+					resource.TestCheckResourceAttrPair(rName, "flavor",
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
-					resource.TestCheckResourceAttr(resourceName, "capacity", "8"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "07:00:00"),
+					resource.TestCheckResourceAttr(rName, "capacity", "8"),
+					resource.TestCheckResourceAttr(rName, "maintain_begin", "06:00:00"),
+					resource.TestCheckResourceAttr(rName, "maintain_end", "07:00:00"),
 				),
 			},
 			{
 				Config: testAccDcsV1Instance_cluster_reduce_capacity(instanceName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "port", "6388"),
-					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+					resource.TestCheckResourceAttr(rName, "port", "6388"),
+					resource.TestCheckResourceAttrPair(rName, "flavor",
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
-					resource.TestCheckResourceAttr(resourceName, "capacity", "4"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "07:00:00"),
+					resource.TestCheckResourceAttr(rName, "capacity", "4"),
+					resource.TestCheckResourceAttr(rName, "maintain_begin", "06:00:00"),
+					resource.TestCheckResourceAttr(rName, "maintain_end", "07:00:00"),
 				),
 			},
 			{
-				ResourceName:      resourceName,
+				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"password", "auto_renew", "period", "period_unit", "rename_commands",
@@ -756,12 +787,13 @@ func TestAccDcsInstances_cluster_change_capacity(t *testing.T) {
 }
 
 func TestAccDcsInstances_cluster_expand_replica(t *testing.T) {
-	var instance instances.DcsInstance
+	var instance interface{}
+
 	var instanceName = acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_dcs_instance.instance_1"
+	rName := "huaweicloud_dcs_instance.test"
 
 	rc := acceptance.InitResourceCheck(
-		resourceName,
+		rName,
 		&instance,
 		getDcsResourceFunc,
 	)
@@ -775,34 +807,34 @@ func TestAccDcsInstances_cluster_expand_replica(t *testing.T) {
 				Config: testAccDcsV1Instance_cluster(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", instanceName),
-					resource.TestCheckResourceAttr(resourceName, "engine", "Redis"),
-					resource.TestCheckResourceAttr(resourceName, "engine_version", "5.0"),
-					resource.TestCheckResourceAttr(resourceName, "port", "6388"),
-					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+					resource.TestCheckResourceAttr(rName, "name", instanceName),
+					resource.TestCheckResourceAttr(rName, "engine", "Redis"),
+					resource.TestCheckResourceAttr(rName, "engine_version", "5.0"),
+					resource.TestCheckResourceAttr(rName, "port", "6388"),
+					resource.TestCheckResourceAttrPair(rName, "flavor",
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
-					resource.TestCheckResourceAttr(resourceName, "capacity", "4"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "22:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "23:00:00"),
-					resource.TestCheckResourceAttrPair(resourceName, "availability_zones.0",
+					resource.TestCheckResourceAttr(rName, "capacity", "4"),
+					resource.TestCheckResourceAttr(rName, "maintain_begin", "22:00:00"),
+					resource.TestCheckResourceAttr(rName, "maintain_end", "23:00:00"),
+					resource.TestCheckResourceAttrPair(rName, "availability_zones.0",
 						"data.huaweicloud_availability_zones.test", "names.0"),
-					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
-					resource.TestCheckResourceAttrSet(resourceName, "domain_name"),
+					resource.TestCheckResourceAttrSet(rName, "private_ip"),
+					resource.TestCheckResourceAttrSet(rName, "domain_name"),
 				),
 			},
 			{
 				Config: testAccDcsV1Instance_cluster_expand_replica(instanceName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "port", "6388"),
-					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+					resource.TestCheckResourceAttr(rName, "port", "6388"),
+					resource.TestCheckResourceAttrPair(rName, "flavor",
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
-					resource.TestCheckResourceAttr(resourceName, "capacity", "4"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
-					resource.TestCheckResourceAttr(resourceName, "maintain_end", "07:00:00"),
+					resource.TestCheckResourceAttr(rName, "capacity", "4"),
+					resource.TestCheckResourceAttr(rName, "maintain_begin", "06:00:00"),
+					resource.TestCheckResourceAttr(rName, "maintain_end", "07:00:00"),
 				),
 			},
 			{
-				ResourceName:      resourceName,
+				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"password", "auto_renew", "period", "period_unit", "rename_commands",
@@ -814,12 +846,13 @@ func TestAccDcsInstances_cluster_expand_replica(t *testing.T) {
 }
 
 func TestAccDcsInstances_whitelists(t *testing.T) {
-	var instance instances.DcsInstance
-	var instanceName = fmt.Sprintf("dcs_instance_%s", acctest.RandString(5))
-	resourceName := "huaweicloud_dcs_instance.instance_1"
+	var instance interface{}
+
+	var instanceName = acceptance.RandomAccResourceName()
+	rName := "huaweicloud_dcs_instance.test"
 
 	rc := acceptance.InitResourceCheck(
-		resourceName,
+		rName,
 		&instance,
 		getDcsResourceFunc,
 	)
@@ -833,58 +866,28 @@ func TestAccDcsInstances_whitelists(t *testing.T) {
 				Config: testAccDcsV1Instance_whitelists(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", instanceName),
-					resource.TestCheckResourceAttr(resourceName, "engine", "Redis"),
-					resource.TestCheckResourceAttr(resourceName, "engine_version", "5.0"),
-					resource.TestCheckResourceAttr(resourceName, "whitelist_enable", "true"),
-					resource.TestCheckResourceAttr(resourceName, "whitelists.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "whitelists.0.group_name", "test-group1"),
-					resource.TestCheckResourceAttr(resourceName, "whitelists.0.ip_address.0", "192.168.10.100"),
-					resource.TestCheckResourceAttr(resourceName, "whitelists.0.ip_address.1", "192.168.0.0/24"),
+					resource.TestCheckResourceAttr(rName, "name", instanceName),
+					resource.TestCheckResourceAttr(rName, "engine", "Redis"),
+					resource.TestCheckResourceAttr(rName, "engine_version", "5.0"),
+					resource.TestCheckResourceAttr(rName, "whitelist_enable", "true"),
+					resource.TestCheckResourceAttr(rName, "whitelists.#", "1"),
+					resource.TestCheckResourceAttr(rName, "whitelists.0.group_name", "test-group1"),
+					resource.TestCheckResourceAttr(rName, "whitelists.0.ip_address.0", "192.168.10.100"),
+					resource.TestCheckResourceAttr(rName, "whitelists.0.ip_address.1", "192.168.0.0/24"),
 				),
 			},
 			{
 				Config: testAccDcsV1Instance_whitelists_update(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", instanceName),
-					resource.TestCheckResourceAttr(resourceName, "engine", "Redis"),
-					resource.TestCheckResourceAttr(resourceName, "engine_version", "5.0"),
-					resource.TestCheckResourceAttr(resourceName, "whitelist_enable", "true"),
-					resource.TestCheckResourceAttr(resourceName, "whitelists.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "whitelists.0.group_name", "test-group2"),
-					resource.TestCheckResourceAttr(resourceName, "whitelists.0.ip_address.0", "172.16.10.100"),
-					resource.TestCheckResourceAttr(resourceName, "whitelists.0.ip_address.1", "172.16.0.0/24"),
-				),
-			},
-		},
-	})
-}
-
-func TestAccDcsInstances_tiny(t *testing.T) {
-	var instance instances.DcsInstance
-	var instanceName = fmt.Sprintf("dcs_instance_%s", acctest.RandString(5))
-	resourceName := "huaweicloud_dcs_instance.instance_1"
-
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&instance,
-		getDcsResourceFunc,
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccDcsV1Instance_tiny(instanceName),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", instanceName),
-					resource.TestCheckResourceAttr(resourceName, "engine", "Redis"),
-					resource.TestCheckResourceAttr(resourceName, "engine_version", "5.0"),
-					resource.TestCheckResourceAttr(resourceName, "capacity", "0.125"),
+					resource.TestCheckResourceAttr(rName, "name", instanceName),
+					resource.TestCheckResourceAttr(rName, "engine", "Redis"),
+					resource.TestCheckResourceAttr(rName, "engine_version", "5.0"),
+					resource.TestCheckResourceAttr(rName, "whitelist_enable", "true"),
+					resource.TestCheckResourceAttr(rName, "whitelists.#", "1"),
+					resource.TestCheckResourceAttr(rName, "whitelists.0.group_name", "test-group2"),
+					resource.TestCheckResourceAttr(rName, "whitelists.0.ip_address.0", "172.16.10.100"),
+					resource.TestCheckResourceAttr(rName, "whitelists.0.ip_address.1", "172.16.0.0/24"),
 				),
 			},
 		},
@@ -892,16 +895,16 @@ func TestAccDcsInstances_tiny(t *testing.T) {
 }
 
 func TestAccDcsInstances_single(t *testing.T) {
-	var instance instances.DcsInstance
-	var instanceName = fmt.Sprintf("dcs_instance_%s", acctest.RandString(5))
-	resourceName := "huaweicloud_dcs_instance.instance_1"
+	var instance interface{}
+
+	var instanceName = acceptance.RandomAccResourceName()
+	rName := "huaweicloud_dcs_instance.test"
 
 	rc := acceptance.InitResourceCheck(
-		resourceName,
+		rName,
 		&instance,
 		getDcsResourceFunc,
 	)
-
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
@@ -911,10 +914,10 @@ func TestAccDcsInstances_single(t *testing.T) {
 				Config: testAccDcsV1Instance_single(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", instanceName),
-					resource.TestCheckResourceAttr(resourceName, "engine", "Redis"),
-					resource.TestCheckResourceAttr(resourceName, "engine_version", "5.0"),
-					resource.TestCheckResourceAttr(resourceName, "capacity", "2"),
+					resource.TestCheckResourceAttr(rName, "name", instanceName),
+					resource.TestCheckResourceAttr(rName, "engine", "Redis"),
+					resource.TestCheckResourceAttr(rName, "engine_version", "5.0"),
+					resource.TestCheckResourceAttr(rName, "capacity", "2"),
 				),
 			},
 		},
@@ -922,12 +925,13 @@ func TestAccDcsInstances_single(t *testing.T) {
 }
 
 func TestAccDcsInstances_prePaid(t *testing.T) {
-	var instance instances.DcsInstance
-	var rName = acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_dcs_instance.test"
+	var instance interface{}
+
+	var instanceName = acceptance.RandomAccResourceName()
+	rName := "huaweicloud_dcs_instance.test"
 
 	rc := acceptance.InitResourceCheck(
-		resourceName,
+		rName,
 		&instance,
 		getDcsResourceFunc,
 	)
@@ -941,21 +945,21 @@ func TestAccDcsInstances_prePaid(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDcsInstance_prePaid(rName),
+				Config: testAccDcsInstance_prePaid(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "auto_renew", "false"),
+					resource.TestCheckResourceAttr(rName, "name", instanceName),
+					resource.TestCheckResourceAttr(rName, "auto_renew", "false"),
 				),
 			},
 			{
-				Config: testAccDcsInstance_prePaid_update(rName),
+				Config: testAccDcsInstance_prePaid_update(instanceName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "auto_renew", "true"),
+					resource.TestCheckResourceAttr(rName, "auto_renew", "true"),
 				),
 			},
 			{
-				ResourceName:      resourceName,
+				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"password", "auto_renew", "period", "period_unit", "bandwidth_info",
@@ -966,12 +970,13 @@ func TestAccDcsInstances_prePaid(t *testing.T) {
 }
 
 func TestAccDcsInstances_ssl(t *testing.T) {
-	var instance instances.DcsInstance
+	var instance interface{}
+
 	var instanceName = acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_dcs_instance.test"
+	rName := "huaweicloud_dcs_instance.test"
 
 	rc := acceptance.InitResourceCheck(
-		resourceName,
+		rName,
 		&instance,
 		getDcsResourceFunc,
 	)
@@ -985,39 +990,39 @@ func TestAccDcsInstances_ssl(t *testing.T) {
 				Config: testAccDcsV1Instance_ssl(instanceName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", instanceName),
-					resource.TestCheckResourceAttr(resourceName, "engine", "Redis"),
-					resource.TestCheckResourceAttr(resourceName, "engine_version", "6.0"),
-					resource.TestCheckResourceAttr(resourceName, "capacity", "0.125"),
-					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+					resource.TestCheckResourceAttr(rName, "name", instanceName),
+					resource.TestCheckResourceAttr(rName, "engine", "Redis"),
+					resource.TestCheckResourceAttr(rName, "engine_version", "6.0"),
+					resource.TestCheckResourceAttr(rName, "capacity", "2"),
+					resource.TestCheckResourceAttrPair(rName, "flavor",
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
-					resource.TestCheckResourceAttrPair(resourceName, "availability_zones.0",
+					resource.TestCheckResourceAttrPair(rName, "availability_zones.0",
 						"data.huaweicloud_availability_zones.test", "names.0"),
-					resource.TestCheckResourceAttr(resourceName, "ssl_enable", "true"),
-					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
-					resource.TestCheckResourceAttrSet(resourceName, "port"),
-					resource.TestCheckResourceAttrSet(resourceName, "domain_name"),
+					resource.TestCheckResourceAttr(rName, "ssl_enable", "true"),
+					resource.TestCheckResourceAttrSet(rName, "private_ip"),
+					resource.TestCheckResourceAttrSet(rName, "port"),
+					resource.TestCheckResourceAttrSet(rName, "domain_name"),
 				),
 			},
 			{
 				Config: testAccDcsV1Instance_update_ssl(instanceName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "name", instanceName),
-					resource.TestCheckResourceAttr(resourceName, "engine", "Redis"),
-					resource.TestCheckResourceAttr(resourceName, "engine_version", "6.0"),
-					resource.TestCheckResourceAttr(resourceName, "capacity", "0.125"),
-					resource.TestCheckResourceAttrPair(resourceName, "flavor",
+					resource.TestCheckResourceAttr(rName, "name", instanceName),
+					resource.TestCheckResourceAttr(rName, "engine", "Redis"),
+					resource.TestCheckResourceAttr(rName, "engine_version", "6.0"),
+					resource.TestCheckResourceAttr(rName, "capacity", "2"),
+					resource.TestCheckResourceAttrPair(rName, "flavor",
 						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
-					resource.TestCheckResourceAttrPair(resourceName, "availability_zones.0",
+					resource.TestCheckResourceAttrPair(rName, "availability_zones.0",
 						"data.huaweicloud_availability_zones.test", "names.0"),
-					resource.TestCheckResourceAttr(resourceName, "ssl_enable", "false"),
-					resource.TestCheckResourceAttrSet(resourceName, "private_ip"),
-					resource.TestCheckResourceAttrSet(resourceName, "port"),
-					resource.TestCheckResourceAttrSet(resourceName, "domain_name"),
+					resource.TestCheckResourceAttr(rName, "ssl_enable", "false"),
+					resource.TestCheckResourceAttrSet(rName, "private_ip"),
+					resource.TestCheckResourceAttrSet(rName, "port"),
+					resource.TestCheckResourceAttrSet(rName, "domain_name"),
 				),
 			},
 			{
-				ResourceName:      resourceName,
+				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{"password", "auto_renew", "period", "period_unit", "rename_commands",
@@ -1046,7 +1051,7 @@ data "huaweicloud_dcs_flavors" "test" {
   cpu_architecture = "x86_64"
 }
 
-resource "huaweicloud_dcs_instance" "instance_1" {
+resource "huaweicloud_dcs_instance" "test" {
   name               = "%[1]s"
   engine_version     = "5.0"
   password           = "Huawei_test"
@@ -1107,7 +1112,7 @@ data "huaweicloud_dcs_flavors" "test" {
   cpu_architecture = "x86_64"
 }
 
-resource "huaweicloud_dcs_instance" "instance_1" {
+resource "huaweicloud_dcs_instance" "test" {
   name               = "%[1]s"
   engine_version     = "5.0"
   password           = "Huawei_test"
@@ -1169,7 +1174,7 @@ data "huaweicloud_dcs_flavors" "test" {
   name           = "redis.ha.xu1.large.r2.1"
 }
 
-resource "huaweicloud_dcs_instance" "instance_1" {
+resource "huaweicloud_dcs_instance" "test" {
   name               = "%s"
   engine_version     = "5.0"
   password           = "Huawei_test"
@@ -1204,7 +1209,7 @@ data "huaweicloud_dcs_flavors" "test" {
   name           = "redis.ha.xu1.large.r2.4"
 }
 
-resource "huaweicloud_dcs_instance" "instance_1" {
+resource "huaweicloud_dcs_instance" "test" {
   name               = "%s"
   engine_version     = "5.0"
   password           = "Huawei_test"
@@ -1239,7 +1244,7 @@ data "huaweicloud_dcs_flavors" "test" {
   name           = "redis.ha.xu1.large.r2.1"
 }
 
-resource "huaweicloud_dcs_instance" "instance_1" {
+resource "huaweicloud_dcs_instance" "test" {
   name               = "%s"
   engine_version     = "5.0"
   password           = "Huawei_test"
@@ -1274,7 +1279,7 @@ data "huaweicloud_dcs_flavors" "test" {
   name           = "redis.ha.xu1.large.r4.1"
 }
 
-resource "huaweicloud_dcs_instance" "instance_1" {
+resource "huaweicloud_dcs_instance" "test" {
   name               = "%s"
   engine_version     = "5.0"
   password           = "Huawei_test"
@@ -1309,7 +1314,7 @@ data "huaweicloud_dcs_flavors" "test" {
   name           = "redis.proxy.xu1.large.4"
 }
 
-resource "huaweicloud_dcs_instance" "instance_1" {
+resource "huaweicloud_dcs_instance" "test" {
   name               = "%s"
   engine_version     = "5.0"
   password           = "Huawei_test"
@@ -1344,7 +1349,7 @@ data "huaweicloud_dcs_flavors" "test" {
   name           = "redis.ha.xu1.large.p2.8"
 }
 
-resource "huaweicloud_dcs_instance" "instance_1" {
+resource "huaweicloud_dcs_instance" "test" {
   name               = "%s"
   engine_version     = "5.0"
   password           = "Huawei_test"
@@ -1379,7 +1384,7 @@ data "huaweicloud_dcs_flavors" "test" {
   name           = "redis.ha.xu1.large.p2.16"
 }
 
-resource "huaweicloud_dcs_instance" "instance_1" {
+resource "huaweicloud_dcs_instance" "test" {
   name               = "%s"
   engine_version     = "5.0"
   password           = "Huawei_test"
@@ -1414,7 +1419,7 @@ data "huaweicloud_dcs_flavors" "test" {
   name           = "redis.ha.xu1.large.p2.8"
 }
 
-resource "huaweicloud_dcs_instance" "instance_1" {
+resource "huaweicloud_dcs_instance" "test" {
   name               = "%s"
   engine_version     = "5.0"
   password           = "Huawei_test"
@@ -1449,7 +1454,7 @@ data "huaweicloud_dcs_flavors" "test" {
   name           = "redis.ha.xu1.large.p4.8"
 }
 
-resource "huaweicloud_dcs_instance" "instance_1" {
+resource "huaweicloud_dcs_instance" "test" {
   name               = "%s"
   engine_version     = "5.0"
   password           = "Huawei_test"
@@ -1484,7 +1489,7 @@ data "huaweicloud_dcs_flavors" "test" {
   name           = "redis.proxy.xu1.large.8"
 }
 
-resource "huaweicloud_dcs_instance" "instance_1" {
+resource "huaweicloud_dcs_instance" "test" {
   name               = "%s"
   engine_version     = "5.0"
   password           = "Huawei_test"
@@ -1519,7 +1524,7 @@ data "huaweicloud_dcs_flavors" "test" {
   name           = "redis.proxy.xu1.large.4"
 }
 
-resource "huaweicloud_dcs_instance" "instance_1" {
+resource "huaweicloud_dcs_instance" "test" {
   name               = "%s"
   engine_version     = "5.0"
   password           = "Huawei_test"
@@ -1554,7 +1559,7 @@ data "huaweicloud_dcs_flavors" "test" {
   name           = "redis.proxy.xu1.large.s1.16"
 }
 
-resource "huaweicloud_dcs_instance" "instance_1" {
+resource "huaweicloud_dcs_instance" "test" {
   name               = "%s"
   engine_version     = "5.0"
   password           = "Huawei_test"
@@ -1589,7 +1594,7 @@ data "huaweicloud_dcs_flavors" "test" {
   name           = "redis.proxy.xu1.large.s1.8"
 }
 
-resource "huaweicloud_dcs_instance" "instance_1" {
+resource "huaweicloud_dcs_instance" "test" {
   name               = "%s"
   engine_version     = "5.0"
   password           = "Huawei_test_update"
@@ -1624,7 +1629,7 @@ data "huaweicloud_dcs_flavors" "test" {
   name           = "redis.ha.xu1.large.r2.4"
 }
 
-resource "huaweicloud_dcs_instance" "instance_1" {
+resource "huaweicloud_dcs_instance" "test" {
   name               = "%s"
   engine_version     = "5.0"
   password           = "Huawei_test"
@@ -1659,7 +1664,7 @@ data "huaweicloud_dcs_flavors" "test" {
   name           = "redis.ha.xu1.large.p2.8"
 }
 
-resource "huaweicloud_dcs_instance" "instance_1" {
+resource "huaweicloud_dcs_instance" "test" {
   name               = "%s"
   engine_version     = "5.0"
   password           = "Huawei_test"
@@ -1694,7 +1699,7 @@ data "huaweicloud_dcs_flavors" "test" {
   name           = "redis.cluster.xu1.large.r2.4"
 }
 
-resource "huaweicloud_dcs_instance" "instance_1" {
+resource "huaweicloud_dcs_instance" "test" {
   name               = "%s"
   engine_version     = "5.0"
   password           = "Huawei_test"
@@ -1729,7 +1734,7 @@ data "huaweicloud_dcs_flavors" "test" {
   name           = "redis.cluster.xu1.large.r2.s1.8"
 }
 
-resource "huaweicloud_dcs_instance" "instance_1" {
+resource "huaweicloud_dcs_instance" "test" {
   name               = "%s"
   engine_version     = "5.0"
   password           = "Huawei_test"
@@ -1764,7 +1769,7 @@ data "huaweicloud_dcs_flavors" "test" {
   name           = "redis.cluster.xu1.large.r2.s1.4"
 }
 
-resource "huaweicloud_dcs_instance" "instance_1" {
+resource "huaweicloud_dcs_instance" "test" {
   name               = "%s"
   engine_version     = "5.0"
   password           = "Huawei_test"
@@ -1799,7 +1804,7 @@ data "huaweicloud_dcs_flavors" "test" {
   name           = "redis.cluster.xu1.large.r3.4"
 }
 
-resource "huaweicloud_dcs_instance" "instance_1" {
+resource "huaweicloud_dcs_instance" "test" {
   name               = "%s"
   engine_version     = "5.0"
   password           = "Huawei_test"
@@ -1812,44 +1817,6 @@ resource "huaweicloud_dcs_instance" "instance_1" {
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
   maintain_begin     = "06:00:00"
   maintain_end       = "07:00:00"
-}`, instanceName)
-}
-
-func testAccDcsV1Instance_tiny(instanceName string) string {
-	return fmt.Sprintf(`
-data "huaweicloud_availability_zones" "test" {}
-
-data "huaweicloud_vpc" "test" {
-  name = "vpc-default"
-}
-
-data "huaweicloud_vpc_subnet" "test" {
-  name = "subnet-default"
-}
-
-data "huaweicloud_dcs_flavors" "test" {
-  cache_mode = "ha"
-  capacity   = 0.125
-}
-
-resource "huaweicloud_dcs_instance" "instance_1" {
-  name               = "%s"
-  engine_version     = "5.0"
-  password           = "Huawei_test"
-  engine             = "Redis"
-  capacity           = 0.125
-  vpc_id             = data.huaweicloud_vpc.test.id
-  subnet_id          = data.huaweicloud_vpc_subnet.test.id
-  availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
-  flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
-  
-  backup_policy {
-    backup_type = "auto"
-    begin_at    = "00:00-01:00"
-    period_type = "weekly"
-    backup_at   = [1]
-    save_days   = 1
-  }
 }`, instanceName)
 }
 
@@ -1870,7 +1837,7 @@ data "huaweicloud_dcs_flavors" "test" {
   capacity   = 2
 }
 
-resource "huaweicloud_dcs_instance" "instance_1" {
+resource "huaweicloud_dcs_instance" "test" {
   name               = "%s"
   engine_version     = "5.0"
   password           = "Huawei_test"
@@ -1900,7 +1867,7 @@ data "huaweicloud_dcs_flavors" "test" {
   capacity   = 2
 }
 
-resource "huaweicloud_dcs_instance" "instance_1" {
+resource "huaweicloud_dcs_instance" "test" {
   name               = "%s"
   engine_version     = "5.0"
   password           = "Huawei_test"
@@ -1943,7 +1910,7 @@ data "huaweicloud_dcs_flavors" "test" {
   capacity   = 2
 }
 
-resource "huaweicloud_dcs_instance" "instance_1" {
+resource "huaweicloud_dcs_instance" "test" {
   name               = "%s"
   engine_version     = "5.0"
   password           = "Huawei_test"
@@ -1983,7 +1950,7 @@ data "huaweicloud_vpc_subnet" "test" {
 
 data "huaweicloud_dcs_flavors" "test" {
   cache_mode = "ha"
-  capacity   = 0.125
+  capacity   = 2
 }
 
 resource "huaweicloud_dcs_instance" "test" {
@@ -1994,7 +1961,7 @@ resource "huaweicloud_dcs_instance" "test" {
   engine             = "Redis"
   engine_version     = "5.0"
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
-  capacity           = 0.125
+  capacity           = 2
   password           = "Huawei_test"
 
   charging_mode = "prePaid"
@@ -2018,7 +1985,7 @@ data "huaweicloud_vpc_subnet" "test" {
 
 data "huaweicloud_dcs_flavors" "test" {
   cache_mode = "ha"
-  capacity   = 0.5
+  capacity   = 4
 }
 
 resource "huaweicloud_dcs_instance" "test" {
@@ -2029,7 +1996,7 @@ resource "huaweicloud_dcs_instance" "test" {
   engine             = "Redis"
   engine_version     = "5.0"
   flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
-  capacity           = 0.5
+  capacity           = 4
   password           = "Huawei_test"
 
   charging_mode = "prePaid"
@@ -2053,7 +2020,7 @@ data "huaweicloud_vpc_subnet" "test" {
 
 data "huaweicloud_dcs_flavors" "test" {
   cache_mode     = "ha"
-  capacity       = 0.125
+  capacity       = 2
   engine_version = "6.0"
 }
 
@@ -2061,7 +2028,7 @@ resource "huaweicloud_dcs_instance" "test" {
   name               = "%s"
   engine_version     = "6.0"
   engine             = "Redis"
-  capacity           = 0.125
+  capacity           = 2
   vpc_id             = data.huaweicloud_vpc.test.id
   subnet_id          = data.huaweicloud_vpc_subnet.test.id
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
@@ -2084,7 +2051,7 @@ data "huaweicloud_vpc_subnet" "test" {
 
 data "huaweicloud_dcs_flavors" "test" {
   cache_mode     = "ha"
-  capacity       = 0.125
+  capacity       = 2
   engine_version = "6.0"
 }
 
@@ -2092,7 +2059,7 @@ resource "huaweicloud_dcs_instance" "test" {
   name               = "%s"
   engine_version     = "6.0"
   engine             = "Redis"
-  capacity           = 0.125
+  capacity           = 2
   vpc_id             = data.huaweicloud_vpc.test.id
   subnet_id          = data.huaweicloud_vpc_subnet.test.id
   availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
