@@ -188,6 +188,30 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID, also server group ID.
 
+* `project_name` - The name of the project.
+
+* `image_min_disk` - The minimum memory required to run the image, in MB. The default value is 0.
+
+* `flavors` - The list of server flavors.
+
+  The [flavors](#app_server_group_flavors) structure is documented below.
+
+<a name="app_server_group_flavors"></a>
+The `flavors` block supports:
+
+* `id` - The ID of the flavor.
+
+* `links` - The quick link information for relevant tags corresponding to server specifications.
+
+  The [links](#app_server_group_flavor_links) structure is documented below.
+
+<a name="app_server_group_flavor_links"></a>
+The `links` block supports:
+
+* `rel` - The shortcut link tag name.
+
+* `href` - The corresponding shortcut link.
+
 ## Import
 
 The server group resource can be imported using `id`, e.g.
