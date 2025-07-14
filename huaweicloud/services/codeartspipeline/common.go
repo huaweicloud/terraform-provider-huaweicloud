@@ -19,6 +19,7 @@ const (
 	templateNotFoundError = "DEVPIPE.00011203"
 	projectNotFoundError  = "DEV_21_100169"
 	projectNotFoundError2 = "DEVPIPE.00011412"
+	groupNotFoundError    = "DEVPIPE.00014007"
 	tagNotFoundError      = "DEVPIPE.00014024"
 )
 
