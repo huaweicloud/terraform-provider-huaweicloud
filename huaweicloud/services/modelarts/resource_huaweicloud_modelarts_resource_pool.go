@@ -35,6 +35,8 @@ const (
 )
 
 // @API ModelArts POST /v2/{project_id}/pools
+// @API ModelArts GET /v1/{project_id}/orders
+// @API ModelArts GET /v1/{project_id}/orders/{order_name}
 // @API ModelArts GET /v2/{project_id}/pools/{id}
 // @API ModelArts PATCH /v2/{project_id}/pools/{id}
 // @API ModelArts DELETE /v2/{project_id}/pools/{id}
@@ -600,77 +602,143 @@ func modelartsResourcePoolUserLoginSchema() *schema.Resource {
 	return &sc
 }
 
-func scopeStatusRefreshFunc(cfg *config.Config, region string, d *schema.ResourceData, scopes []interface{}) resource.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		getResourcePoolRespBody, err := queryResourcePool(cfg, region, d)
-		if err != nil {
-			return getResourcePoolRespBody, "ERROR", err
-		}
-
-		for _, scope := range scopes {
-			scopeStatus := fmt.Sprintf("status.scope[?scopeType=='%s']|[0].state", scope)
-			if utils.PathSearch(scopeStatus, getResourcePoolRespBody, "").(string) != "Enabled" {
-				return "No matches found", "PENDING", nil
-			}
-		}
-		return "Matched", "COMPLETED", nil
-	}
-}
-
-func createResourcePoolWaitingForScopesCompleted(ctx context.Context, d *schema.ResourceData, meta interface{}, timeout time.Duration) error {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	stateConf := &resource.StateChangeConf{
-		Pending: []string{"PENDING"},
-		Target:  []string{"COMPLETED"},
-		Refresh: scopeStatusRefreshFunc(cfg, region, d, d.Get("scope").(*schema.Set).List()),
-		Timeout: timeout,
-		// In most cases, the bind operation will be completed immediately, but in a few cases, it needs to wait
-		// for a short period of time, and the polling is performed by incrementing the time here.
-		PollInterval: 10 * time.Second,
-	}
-	_, err := stateConf.WaitForStateContext(ctx)
-	if err != nil {
-		return fmt.Errorf("error waiting for the scope statuses are both completed: %s", err)
-	}
-	return nil
-}
-
-func waitForDriverStatusCompleted(ctx context.Context, cfg *config.Config, region string, d *schema.ResourceData) error {
+func waitingForResourcePoolOrderStatusCompleted(ctx context.Context, client *golangsdk.ServiceClient, resourcePoolId, orderName string,
+	timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
-		Refresh:      driverStatusRefreshFunc(cfg, region, d),
-		Timeout:      d.Timeout(schema.TimeoutCreate),
-		PollInterval: 10 * time.Second,
-		// In some cases, the following status changes may occur: Upgrading -> Running -> Creating -> Running
-		ContinuousTargetOccurence: 2,
+		Refresh:      refreshResourcePoolOrderStatus(client, resourcePoolId, orderName, []string{"successed", "partialSuccessed"}),
+		Timeout:      timeout,
+		Delay:        20 * time.Second,
+		PollInterval: 30 * time.Second,
 	}
 	_, err := stateConf.WaitForStateContext(ctx)
 	return err
 }
 
-func driverStatusRefreshFunc(cfg *config.Config, region string, d *schema.ResourceData) resource.StateRefreshFunc {
+// This interface only supports querying resource pool orders, and it does not return the node name of the current operation.
+func getResourcePoolOrdersByResourcePoolId(client *golangsdk.ServiceClient, resourcePoolId string) ([]interface{}, error) {
+	// Currently, the maximum total number of orders is 500.
+	// The query results are sorted in descending order according to the order creation time.
+	var (
+		httpUrl = "v1/{project_id}/orders?limit=10"
+		getOpt  = golangsdk.RequestOpts{
+			KeepResponseBody: true,
+		}
+	)
+
+	httpUrl = client.Endpoint + httpUrl
+	httpUrl = strings.ReplaceAll(httpUrl, "{project_id}", client.ProjectID)
+	httpUrl = fmt.Sprintf("%s&involvedName=%s", httpUrl, resourcePoolId)
+	resp, err := client.Request("GET", httpUrl, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.PathSearch("items", respBody, make([]interface{}, 0)).([]interface{}), nil
+}
+
+func refreshResourcePoolOrderStatus(client *golangsdk.ServiceClient, resourcePoolId, orderName string, targets []string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		resourcePool, err := queryResourcePool(cfg, region, d)
+		orders, err := getResourcePoolOrdersByResourcePoolId(client, resourcePoolId)
 		if err != nil {
-			return resourcePool, "ERROR", err
+			return nil, "ERROR", err
 		}
 
-		// Cueerntly, only for GPU driver or NPU driver.
-		driverStatuses := utils.PathSearch("status.driver.*.state", resourcePool, make([]interface{}, 0)).([]interface{})
-		if len(driverStatuses) == 0 {
-			return "No matches found", "COMPLETED", nil
+		resourceOrder := utils.PathSearch(fmt.Sprintf("[?orderName == '%s']|[0]", orderName), orders, nil)
+		if resourceOrder == nil {
+			return nil, "ERROR", fmt.Errorf("unable to find any orders under the resource pool (%s) from API response", resourcePoolId)
 		}
 
-		// Statuses: Creating, Upgrading, Running and Abnormal.
-		for _, status := range driverStatuses {
-			if utils.StrSliceContains([]string{"Running", "Abnormal"}, status.(string)) {
-				return resourcePool, "COMPLETED", nil
+		status := utils.PathSearch("phase", resourceOrder, "").(string)
+		if status == "failed" {
+			return nil, "ERROR",
+				fmt.Errorf("the order (%s) failed: %s", orderName, utils.PathSearch("failReason", resourceOrder, "").(string))
+		}
+
+		if !utils.StrSliceContains(targets, status) {
+			return resourceOrder, "PENDING", nil
+		}
+
+		return resourceOrder, "COMPLETED", nil
+	}
+}
+
+func getResourcePoolNodeNamesByOrderName(client *golangsdk.ServiceClient, orderName string) ([]interface{}, error) {
+	var (
+		httpUrl = "v1/{project_id}/orders/{order_name}"
+		getOpt  = golangsdk.RequestOpts{
+			KeepResponseBody: true,
+		}
+	)
+	httpUrl = client.Endpoint + httpUrl
+	httpUrl = strings.ReplaceAll(httpUrl, "{project_id}", client.ProjectID)
+	httpUrl = strings.ReplaceAll(httpUrl, "{order_name}", orderName)
+
+	resp, err := client.Request("GET", httpUrl, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return nil, err
+	}
+
+	failedMessages := make([]string, 0)
+	failedNodes := utils.PathSearch("items[?status == 'failed']", respBody, make([]interface{}, 0)).([]interface{})
+	for _, v := range failedNodes {
+		failedMessages = append(failedMessages,
+			fmt.Sprintf("resource name: %s, fail message: %s",
+				utils.PathSearch("resourceName", v, "").(string),
+				utils.PathSearch("message", v, "").(string),
+			))
+	}
+
+	if len(failedMessages) > 0 {
+		log.Printf("[WARN] Action failed nodes: %s", strings.Join(failedMessages, "|"))
+	}
+
+	// For partial success nodes, only return the resource name of the successful node.
+	// statuses: processing, succeed, failed
+	return utils.PathSearch("items[?status == 'succeed'].resourceName", respBody, make([]interface{}, 0)).([]interface{}), nil
+}
+
+func waitForNodesDriverStatusCompleted(ctx context.Context, client *golangsdk.ServiceClient, resourcePoolId string, nodeNames []interface{},
+	timeout time.Duration) error {
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      refreshNodesDriverStatus(client, resourcePoolId, nodeNames),
+		Timeout:      timeout,
+		PollInterval: 30 * time.Second,
+	}
+	_, err := stateConf.WaitForStateContext(ctx)
+	return err
+}
+
+func refreshNodesDriverStatus(client *golangsdk.ServiceClient, resourcePoolId string, nodeNames []interface{}) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		nodes, err := listV2ResourcePoolNodes(client, resourcePoolId)
+		if err != nil {
+			return nil, "ERROR", err
+		}
+
+		// Driver statuses: Running, Abnormal, Pending, Updating
+		// In the resource pool creation phase, `nodeNames` contains the name of the resource pool in addition to the node being operated.
+		for _, nodeName := range nodeNames {
+			nodeDriverStatus := utils.PathSearch(fmt.Sprintf("[?metadata.name == '%s'].status.driver.phase|[0]", nodeName), nodes, "").(string)
+			if nodeDriverStatus != "" && !utils.StrSliceContains([]string{"Running", "Abnormal"}, nodeDriverStatus) {
+				return nodes, "PENDING", nil
 			}
 		}
 
-		return resourcePool, "PENDING", nil
+		return nodes, "COMPLETED", nil
 	}
 }
 
@@ -708,55 +776,34 @@ func resourceModelartsResourcePoolCreate(ctx context.Context, d *schema.Resource
 		return diag.FromErr(err)
 	}
 
-	id := utils.PathSearch("metadata.name", createResourcePoolRespBody, nil)
-	if id == nil {
-		return diag.Errorf("error creating Modelarts resource pool: ID is not found in API response")
+	resourcePoolId := utils.PathSearch("metadata.name", createResourcePoolRespBody, "").(string)
+	if resourcePoolId == "" {
+		return diag.Errorf("unable to find resource pool ID in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(resourcePoolId)
 
 	if err = d.Set("resources_order_origin", refreshResourcesOrderOrigin(d.GetRawConfig())); err != nil {
 		log.Printf("[ERROR] error saving resources_order_origin field for creating resource pool: %s", err)
 	}
 
-	if d.Get("charging_mode") == "prePaid" {
-		// wait 30 seconds so that the resource pool can be queried
-		// lintignore:R018
-		time.Sleep(30 * time.Second)
-		resourcePool, err := queryResourcePool(cfg, region, d)
-		if err != nil {
-			return diag.Errorf("error retrieving Modelarts resource pool: %s", err)
-		}
-		orderId := utils.PathSearch(`metadata.annotations."os.modelarts/order.id"`, resourcePool, nil)
-		if orderId == nil {
-			return diag.Errorf("error creating Modelarts resource pool: order ID is not found in API response")
-		}
-		bssClient, err := cfg.BssV2Client(region)
-		if err != nil {
-			return diag.Errorf("error creating BSS v2 client: %s", err)
-		}
-		err = common.WaitOrderComplete(ctx, bssClient, orderId.(string), d.Timeout(schema.TimeoutCreate))
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		_, err = common.WaitOrderResourceComplete(ctx, bssClient, orderId.(string), d.Timeout(schema.TimeoutCreate))
-		if err != nil {
-			return diag.FromErr(err)
-		}
+	orderName := utils.PathSearch(`metadata.labels."os.modelarts/order.name"`, createResourcePoolRespBody, "").(string)
+	if orderName == "" {
+		return diag.Errorf("unable to find order name of resource pool (%s) in API response", resourcePoolId)
 	}
 
-	err = createResourcePoolWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutCreate))
+	err = waitingForResourcePoolOrderStatusCompleted(ctx, createResourcePoolClient, resourcePoolId, orderName, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
-		return diag.Errorf("error waiting for the Modelarts resource pool (%s) creation to complete: %s", d.Id(), err)
+		return diag.Errorf("error waiting for the order status of resource pool (%s) creation to complete: %s", resourcePoolId, err)
 	}
 
-	err = createResourcePoolWaitingForScopesCompleted(ctx, d, meta, d.Timeout(schema.TimeoutCreate))
+	actionNodeNames, err := getResourcePoolNodeNamesByOrderName(createResourcePoolClient, orderName)
 	if err != nil {
-		return diag.Errorf("error waiting for the Modelarts resource pool (%s) creation to complete: %s", d.Id(), err)
+		return diag.Errorf("error getting the node names by order name (%s) for creating resource pool (%s): %s", orderName, resourcePoolId, err)
 	}
 
-	err = waitForDriverStatusCompleted(ctx, cfg, region, d)
+	err = waitForNodesDriverStatusCompleted(ctx, createResourcePoolClient, resourcePoolId, actionNodeNames, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
-		return diag.Errorf("error waiting for the Modelarts resource pool (%s) driver status to become running: %s", d.Id(), err)
+		return diag.Errorf("error waiting for the nodes driver status under the resource pool (%s) to complete: %s", resourcePoolId, err)
 	}
 
 	return resourceModelartsResourcePoolRead(ctx, d, meta)
@@ -1070,49 +1117,6 @@ func buildResourcePoolResourcesCreatingStep(creatingSteps []interface{}) map[str
 		"type": utils.ValueIgnoreEmpty(utils.PathSearch("type", creatingSteps[0], nil)),
 		"step": utils.ValueIgnoreEmpty(utils.PathSearch("step", creatingSteps[0], nil)),
 	}
-}
-
-func createResourcePoolWaitingForStateCompleted(ctx context.Context, d *schema.ResourceData, meta interface{}, t time.Duration) error {
-	stateConf := &resource.StateChangeConf{
-		Pending: []string{"PENDING"},
-		Target:  []string{"COMPLETED"},
-		Refresh: func() (interface{}, string, error) {
-			cfg := meta.(*config.Config)
-			region := cfg.GetRegion(d)
-
-			createResourcePoolWaitingRespBody, err := queryResourcePool(cfg, region, d)
-			if err != nil {
-				return nil, "ERROR", err
-			}
-			statusRaw := utils.PathSearch(`status.phase`, createResourcePoolWaitingRespBody, nil)
-			if statusRaw == nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `status.phase`)
-			}
-
-			status := fmt.Sprintf("%v", statusRaw)
-			targetStatus := []string{
-				"Running",
-			}
-			if utils.StrSliceContains(targetStatus, status) {
-				return createResourcePoolWaitingRespBody, "COMPLETED", nil
-			}
-
-			pendingStatus := []string{
-				"Creating",
-				"Waiting",
-			}
-			if utils.StrSliceContains(pendingStatus, status) {
-				return createResourcePoolWaitingRespBody, "PENDING", nil
-			}
-
-			return createResourcePoolWaitingRespBody, status, nil
-		},
-		Timeout:      t,
-		Delay:        20 * time.Second,
-		PollInterval: 20 * time.Second,
-	}
-	_, err := stateConf.WaitForStateContext(ctx)
-	return err
 }
 
 func resourceModelartsResourcePoolRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -1464,6 +1468,7 @@ func resourceModelartsResourcePoolUpdate(ctx context.Context, d *schema.Resource
 		cfg            = meta.(*config.Config)
 		region         = cfg.GetRegion(d)
 		oldRaw, newRaw = d.GetChange("resources")
+		resourcePoolId = d.Id()
 	)
 
 	updateResourcePoolChanges := []string{
@@ -1478,14 +1483,14 @@ func resourceModelartsResourcePoolUpdate(ctx context.Context, d *schema.Resource
 			updateResourcePoolHttpUrl = "v2/{project_id}/pools/{id}"
 			updateResourcePoolProduct = "modelarts"
 		)
-		updateResourcePoolClient, err := cfg.NewServiceClient(updateResourcePoolProduct, region)
+		client, err := cfg.NewServiceClient(updateResourcePoolProduct, region)
 		if err != nil {
 			return diag.Errorf("error creating ModelArts client: %s", err)
 		}
 
-		updateResourcePoolPath := updateResourcePoolClient.Endpoint + updateResourcePoolHttpUrl
-		updateResourcePoolPath = strings.ReplaceAll(updateResourcePoolPath, "{project_id}", updateResourcePoolClient.ProjectID)
-		updateResourcePoolPath = strings.ReplaceAll(updateResourcePoolPath, "{id}", d.Id())
+		updateResourcePoolPath := client.Endpoint + updateResourcePoolHttpUrl
+		updateResourcePoolPath = strings.ReplaceAll(updateResourcePoolPath, "{project_id}", client.ProjectID)
+		updateResourcePoolPath = strings.ReplaceAll(updateResourcePoolPath, "{id}", resourcePoolId)
 
 		updateResourcePoolOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
@@ -1496,7 +1501,7 @@ func resourceModelartsResourcePoolUpdate(ctx context.Context, d *schema.Resource
 		}
 
 		updateResourcePoolOpt.JSONBody = utils.RemoveNil(buildUpdateResourcePoolBodyParams(d))
-		updateModelartsResourcePoolResp, err := updateResourcePoolClient.Request("PATCH", updateResourcePoolPath, &updateResourcePoolOpt)
+		updateModelartsResourcePoolResp, err := client.Request("PATCH", updateResourcePoolPath, &updateResourcePoolOpt)
 		if err != nil {
 			return diag.Errorf("error updating Modelarts resource pool: %s", err)
 		}
@@ -1505,50 +1510,52 @@ func resourceModelartsResourcePoolUpdate(ctx context.Context, d *schema.Resource
 			log.Printf("[ERROR] error saving resources_order_origin field for updating resource pool: %s", err)
 		}
 
-		// The `nodeBillingMode` indicates the billing mode of the node when scaling the node capacity.
-		nodeBillingMode := ""
-		if annotations, ok := d.GetOk("metadata.0.annotations"); ok {
-			nodeBillingMode = utils.PathSearch(`"os.modelarts/billing.mode"`, utils.StringToJson(annotations.(string)), billingModePostPaid).(string)
-		}
-		// Only when scaling prepaid type nodes, we need to determine the order status.
-		if nodeBillingMode == "1" && d.HasChange("resources") {
-			// Whenever any count in resouces changes, the order status needs to be determined.
-			if isAnyNodeScallingUp(oldRaw.([]interface{}), newRaw.([]interface{})) {
-				updateRespBody, err := utils.FlattenResponse(updateModelartsResourcePoolResp)
-				if err != nil {
-					return diag.FromErr(err)
-				}
-
-				orderId := utils.PathSearch(`metadata.annotations."os.modelarts/order.id"`, updateRespBody, nil)
-				if orderId == nil {
-					return diag.Errorf("error updating Modelarts resource pool: order ID is not found in API response")
-				}
-
-				bssClient, err := cfg.BssV2Client(region)
-				if err != nil {
-					return diag.Errorf("error creating BSS v2 client: %s", err)
-				}
-				err = common.WaitOrderComplete(ctx, bssClient, orderId.(string), d.Timeout(schema.TimeoutUpdate))
-				if err != nil {
-					return diag.FromErr(err)
-				}
-				_, err = common.WaitOrderAllResourceComplete(ctx, bssClient, orderId.(string), d.Timeout(schema.TimeoutUpdate))
-				if err != nil {
-					return diag.FromErr(err)
-				}
-			}
-		}
-
-		err = updateResourcePoolWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutUpdate))
+		updateRespBody, err := utils.FlattenResponse(updateModelartsResourcePoolResp)
 		if err != nil {
-			return diag.Errorf("error waiting for the Modelarts resource pool (%s) update to complete: %s", d.Id(), err)
+			return diag.FromErr(err)
+		}
+
+		// Except count and workspace_id, all other fields are updated synchronously.
+		if !isAnyNodeScalling(oldRaw.([]interface{}), newRaw.([]interface{})) && !d.HasChange("workspace_id") {
+			return resourceModelartsResourcePoolRead(ctx, d, meta)
+		}
+
+		// Only `count` and `workspace_id` are updated, we need to wait for the order to complete.
+		orderName := utils.PathSearch(`metadata.labels."os.modelarts/order.name"`, updateRespBody, "").(string)
+		if orderName == "" {
+			return diag.Errorf("unable to find order name of resource pool (%s) in API response", resourcePoolId)
+		}
+
+		if err = waitingForResourcePoolOrderStatusCompleted(ctx, client, resourcePoolId, orderName, d.Timeout(schema.TimeoutUpdate)); err != nil {
+			return diag.Errorf("error waiting for the order status of resource pool (%s) update to complete: %s", resourcePoolId, err)
+		}
+
+		// After node number has been increased for any node pool, make sure all node drivers were upgrade completed.
+		if isAnyNodeScalingUp(oldRaw, newRaw) {
+			actionNodeNames, err := getResourcePoolNodeNamesByOrderName(client, orderName)
+			if err != nil {
+				return diag.Errorf("error getting the node names by order name (%s) for updating resource pool (%s): %s",
+					orderName,
+					resourcePoolId,
+					err,
+				)
+			}
+
+			err = waitForNodesDriverStatusCompleted(ctx, client, resourcePoolId, actionNodeNames, d.Timeout(schema.TimeoutUpdate))
+			if err != nil {
+				return diag.Errorf("error waiting for the nodes driver status under the resource pool (%s) to complete: %s", resourcePoolId, err)
+			}
 		}
 	}
 
 	return resourceModelartsResourcePoolRead(ctx, d, meta)
 }
 
-func isAnyNodeScallingUp(oldResource, newResource []interface{}) bool {
+func isAnyNodeScalling(oldResource, newResource []interface{}) bool {
+	if len(oldResource) != len(newResource) {
+		return true
+	}
+
 	for _, v := range newResource {
 		matchedOldResource, _ := findResourceByFlavorAndNodePoolAndCreatingStep(oldResource,
 			utils.PathSearch("flavor_id", v, "").(string),
@@ -1558,7 +1565,7 @@ func isAnyNodeScallingUp(oldResource, newResource []interface{}) bool {
 
 		oldCount := utils.PathSearch("count", matchedOldResource, 0).(int)
 		newCount := utils.PathSearch("count", v, 0).(int)
-		if oldCount < newCount {
+		if oldCount != newCount {
 			return true
 		}
 	}
@@ -1599,7 +1606,7 @@ func buildUpdateResourcePoolMetaDataAnnotationsBodyParams(d *schema.ResourceData
 	}
 
 	// If the node pools are not increased, delete the billing mode related parameters.
-	if !isAnyNodePoolIncrease(d) {
+	if !isAnyNodeScalingUp(d.GetChange("resources")) {
 		delete(params, "os.modelarts/billing.mode")
 		delete(params, "os.modelarts/period.num")
 		delete(params, "os.modelarts/period.type")
@@ -1614,8 +1621,7 @@ func buildUpdateResourcePoolMetaDataAnnotationsBodyParams(d *schema.ResourceData
 	return params
 }
 
-func isAnyNodePoolIncrease(d *schema.ResourceData) bool {
-	oldRaw, newRaw := d.GetChange("resources")
+func isAnyNodeScalingUp(oldRaw, newRaw interface{}) bool {
 	for i, v := range newRaw.([]interface{}) {
 		oldCount := utils.PathSearch(fmt.Sprintf("[%d].count", i), oldRaw, 0).(int)
 		newCount := utils.PathSearch("count", v, 0).(int)
@@ -2074,63 +2080,6 @@ func buildResourcePoolResourcesTaints(taintSet *schema.Set) []map[string]interfa
 	}
 
 	return result
-}
-
-func updateResourcePoolWaitingForStateCompleted(ctx context.Context, d *schema.ResourceData, meta interface{}, t time.Duration) error {
-	stateConf := &resource.StateChangeConf{
-		Pending: []string{"PENDING"},
-		Target:  []string{"COMPLETED"},
-		Refresh: func() (interface{}, string, error) {
-			cfg := meta.(*config.Config)
-			region := cfg.GetRegion(d)
-
-			getResourcePoolRespBody, err := queryResourcePool(cfg, region, d)
-			if err != nil {
-				return nil, "ERROR", err
-			}
-			statusRaw := utils.PathSearch(`status.phase`, getResourcePoolRespBody, nil)
-			if statusRaw == nil {
-				return nil, "ERROR", fmt.Errorf("error parse 'status.phase' from response body")
-			}
-
-			status := fmt.Sprintf("%v", statusRaw)
-
-			unexpectedStatus := []string{
-				"Abnormal", "Error", "ScalingFailed", "CreationFailed",
-			}
-			if utils.StrSliceContains(unexpectedStatus, status) {
-				return getResourcePoolRespBody, status, nil
-			}
-
-			// check if the resource pool is in the process of changing scope
-			if rawArray, ok := d.GetOk("scope"); ok {
-				for _, v := range rawArray.(*schema.Set).List() {
-					scopeStatus := fmt.Sprintf("status.scope[?scopeType=='%s']|[0].state", v)
-					log.Println("scopeStatus: ", scopeStatus)
-					if utils.PathSearch(scopeStatus, getResourcePoolRespBody, "").(string) != "Enabled" {
-						return getResourcePoolRespBody, "PENDING", nil
-					}
-				}
-			}
-
-			creating := utils.PathSearch("status.resources.creating", getResourcePoolRespBody, make([]interface{}, 0)).([]interface{})
-			deleting := utils.PathSearch("status.resources.deleting", getResourcePoolRespBody, make([]interface{}, 0)).([]interface{})
-			creationFailed := utils.PathSearch("status.resources.creationFailed", getResourcePoolRespBody, make([]interface{}, 0)).([]interface{})
-
-			// check if the resource pool is in the process of expanding capacity
-			if len(creating) == 0 && len(deleting) == 0 && len(creationFailed) == 0 {
-				return getResourcePoolRespBody, "COMPLETED", nil
-			}
-
-			return getResourcePoolRespBody, "PENDING", nil
-		},
-		Timeout:                   t,
-		Delay:                     20 * time.Second,
-		PollInterval:              20 * time.Second,
-		ContinuousTargetOccurence: 2,
-	}
-	_, err := stateConf.WaitForStateContext(ctx)
-	return err
 }
 
 func resourceModelartsResourcePoolDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
