@@ -1334,10 +1334,11 @@ func Provider() *schema.Provider {
 			"huaweicloud_rms_resource_tags":                            rms.DataSourceResourceTags(),
 			"huaweicloud_rms_resource_instances":                       rms.DataSourceResourceInstances(),
 
-			"huaweicloud_sdrs_domain":            sdrs.DataSourceSDRSDomain(),
-			"huaweicloud_sdrs_quotas":            sdrs.DataSourceSdrsQuotas(),
-			"huaweicloud_sdrs_protection_groups": sdrs.DataSourceSdrsProtectionGroups(),
-			"huaweicloud_sdrs_replication_pairs": sdrs.DataSourceReplicationPairs(),
+			"huaweicloud_sdrs_domain":                  sdrs.DataSourceSDRSDomain(),
+			"huaweicloud_sdrs_quotas":                  sdrs.DataSourceSdrsQuotas(),
+			"huaweicloud_sdrs_protection_groups":       sdrs.DataSourceSdrsProtectionGroups(),
+			"huaweicloud_sdrs_replication_pairs":       sdrs.DataSourceReplicationPairs(),
+			"huaweicloud_sdrs_resource_rpo_statistics": sdrs.DataSourceSdrsRpoStatistics(),
 
 			"huaweicloud_secmaster_workflows":                 secmaster.DataSourceSecmasterWorkflows(),
 			"huaweicloud_secmaster_workspaces":                secmaster.DataSourceSecmasterWorkspaces(),
