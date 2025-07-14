@@ -291,7 +291,7 @@ resource "huaweicloud_rds_read_replica_instance" "test" {
   flavor              = data.huaweicloud_rds_flavors.replica.flavors[0].name
   primary_instance_id = huaweicloud_rds_instance.test.id
   availability_zone   = data.huaweicloud_availability_zones.test.names[0]
-  security_group_id   = huaweicloud_networking_secgroup.test.id
+  security_group_id   = data.huaweicloud_networking_secgroup.test.id
   ssl_enable          = true
   maintain_begin      = "06:00"
   maintain_end        = "09:00"
@@ -333,7 +333,7 @@ resource "huaweicloud_rds_read_replica_instance" "test" {
   flavor              = data.huaweicloud_rds_flavors.replica.flavors[0].name
   primary_instance_id = huaweicloud_rds_instance.test.id
   availability_zone   = data.huaweicloud_availability_zones.test.names[0]
-  security_group_id   = huaweicloud_networking_secgroup.test.id
+  security_group_id   = data.huaweicloud_networking_secgroup.test.id
 
   db {
     port = 8889

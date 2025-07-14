@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"strings"
 	"time"
 
@@ -11,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/rds/v3/instances"
 
@@ -240,85 +242,70 @@ func ResourceRdsReadReplicaInstance() *schema.Resource {
 }
 
 func resourceRdsReadReplicaInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.RdsV3Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	var (
+		httpUrl = "v3/{project_id}/instances"
+		product = "rds"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating rds client: %s ", err)
+		return diag.Errorf("error creating RDS client: %s", err)
 	}
 
-	primaryInstanceID := d.Get("primary_instance_id").(string)
-	createOpts := instances.CreateReplicaOpts{
-		Name:                d.Get("name").(string),
-		ReplicaOfId:         primaryInstanceID,
-		FlavorRef:           d.Get("flavor").(string),
-		Region:              region,
-		AvailabilityZone:    d.Get("availability_zone").(string),
-		Volume:              buildRdsReplicaInstanceVolume(d),
-		DiskEncryptionId:    d.Get("volume.0.disk_encryption_id").(string),
-		EnterpriseProjectId: config.GetEnterpriseProjectID(d),
+	createPath := client.Endpoint + httpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
-
-	// PrePaid
-	if d.Get("charging_mode") == "prePaid" {
-		if err = common.ValidatePrePaidChargeInfo(d); err != nil {
-			return diag.FromErr(err)
-		}
-
-		chargeInfo := &instances.ChargeInfo{
-			ChargeMode: d.Get("charging_mode").(string),
-			PeriodType: d.Get("period_unit").(string),
-			PeriodNum:  d.Get("period").(int),
-			IsAutoPay:  true,
-		}
-		if d.Get("auto_renew").(string) == "true" {
-			chargeInfo.IsAutoRenew = true
-		}
-		createOpts.ChargeInfo = chargeInfo
-	}
-
-	log.Printf("[DEBUG] Create replica instance Options: %#v", createOpts)
+	createOpt.JSONBody = utils.RemoveNil(buildCreateReplicaInstanceBodyParams(d, cfg, region))
 	retryFunc := func() (interface{}, bool, error) {
-		resp, err := instances.CreateReplica(client, createOpts).Extract()
+		res, err := client.Request("POST", createPath, &createOpt)
 		retry, err := handleMultiOperationsError(err)
-		return resp, retry, err
+		return res, retry, err
 	}
-	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+	createResp, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
-		WaitFunc:     rdsInstanceStateRefreshFunc(client, primaryInstanceID),
+		WaitFunc:     rdsInstanceStateRefreshFunc(client, d.Get("primary_instance_id").(string)),
 		WaitTarget:   []string{"ACTIVE"},
 		Timeout:      d.Timeout(schema.TimeoutCreate),
-		DelayTimeout: 1 * time.Second,
+		DelayTimeout: 30 * time.Second,
 		PollInterval: 10 * time.Second,
 	})
 	if err != nil {
-		return diag.Errorf("error creating replica instance: %s ", err)
+		return diag.Errorf("error creating RDS replica instance: %s", err)
 	}
 
-	resp := r.(*instances.CreateResponse)
+	createRespBody, err := utils.FlattenResponse(createResp.(*http.Response))
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
-	instance := resp.Instance
-	d.SetId(instance.Id)
-	instanceID := d.Id()
-	// wait for order success
-	if resp.OrderId != "" {
-		bssClient, err := config.BssV2Client(config.GetRegion(d))
+	instanceID := utils.PathSearch("instance.id", createRespBody, "").(string)
+	if instanceID == "" {
+		return diag.Errorf("error creating RDS replica instance: ID is not found in API response")
+	}
+	d.SetId(instanceID)
+
+	orderId := utils.PathSearch("order_id", createRespBody, "").(string)
+	if orderId != "" {
+		bssClient, err := cfg.BssV2Client(region)
 		if err != nil {
-			return diag.Errorf("error creating BSS V2 client: %s", err)
+			return diag.Errorf("error creating BSS v2 client: %s", err)
 		}
-		err = common.WaitOrderComplete(ctx, bssClient, resp.OrderId, d.Timeout(schema.TimeoutCreate))
+		err = common.WaitOrderComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
 			return diag.FromErr(err)
 		}
-		resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, resp.OrderId, d.Timeout(schema.TimeoutCreate))
-		if err != nil {
-			return diag.Errorf("error waiting for replica order resource %s complete: %s", resp.OrderId, err)
-		}
-		d.SetId(resourceId)
-	} else {
-		if err := checkRDSInstanceJobFinish(client, resp.JobId, d.Timeout(schema.TimeoutCreate)); err != nil {
-			return diag.Errorf("error creating replica instance (%s): %s", instanceID, err)
+	}
+
+	jobId := utils.PathSearch("job_id", createRespBody, "").(string)
+	if jobId != "" {
+		if err = checkRDSInstanceJobFinish(client, jobId, d.Timeout(schema.TimeoutCreate)); err != nil {
+			return diag.Errorf("error creating instance (%s): %s", instanceID, err)
 		}
 	}
 
@@ -351,7 +338,7 @@ func resourceRdsReadReplicaInstanceCreate(ctx context.Context, d *schema.Resourc
 
 	volumeSize := utils.PathSearch("volume.size", res, float64(0)).(float64)
 	if v, ok := d.GetOk("volume.0.size"); ok && v.(int) != int(volumeSize) {
-		if err = updateRdsInstanceVolumeSize(ctx, d, config, client); err != nil {
+		if err = updateRdsInstanceVolumeSize(ctx, d, cfg, client); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -406,11 +393,57 @@ func resourceRdsReadReplicaInstanceCreate(ctx context.Context, d *schema.Resourc
 	return resourceRdsReadReplicaInstanceRead(ctx, d, meta)
 }
 
+func buildCreateReplicaInstanceBodyParams(d *schema.ResourceData, cfg *config.Config, region string) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"name":                  d.Get("name"),
+		"replica_of_id":         d.Get("primary_instance_id").(string),
+		"flavor_ref":            d.Get("flavor"),
+		"region":                region,
+		"availability_zone":     d.Get("availability_zone"),
+		"volume":                buildCreateReplicaInstanceVolumeBodyParams(d),
+		"disk_encryption_id":    utils.ValueIgnoreEmpty(d.Get("volume.0.disk_encryption_id")),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
+		"charge_info":           buildCreateReplicaInstanceChargeInfoBodyParams(d),
+	}
+	return bodyParams
+}
+
+func buildCreateReplicaInstanceVolumeBodyParams(d *schema.ResourceData) map[string]interface{} {
+	volumeRaw := d.Get("volume").([]interface{})
+	if len(volumeRaw) == 0 {
+		return nil
+	}
+
+	bodyParams := map[string]interface{}{
+		"type": volumeRaw[0].(map[string]interface{})["type"],
+	}
+	return bodyParams
+}
+
+func buildCreateReplicaInstanceChargeInfoBodyParams(d *schema.ResourceData) map[string]interface{} {
+	if d.Get("charging_mode") != "prePaid" {
+		return nil
+	}
+
+	bodyParams := map[string]interface{}{
+		"charge_mode": d.Get("charging_mode"),
+		"period_type": d.Get("period_unit"),
+		"period_num":  d.Get("period"),
+		"is_auto_pay": true,
+	}
+	if d.Get("auto_renew").(string) == "true" {
+		bodyParams["is_auto_renew"] = true
+	}
+	return bodyParams
+}
+
 func resourceRdsReadReplicaInstanceRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.RdsV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	client, err := cfg.NewServiceClient("rds", region)
 	if err != nil {
-		return diag.Errorf("error creating rds client: %s", err)
+		return diag.Errorf("error creating RDS client: %s", err)
 	}
 
 	instanceID := d.Id()
@@ -471,8 +504,6 @@ func resourceRdsReadReplicaInstanceUpdate(ctx context.Context, d *schema.Resourc
 		return diag.Errorf("error creating rds v3 client: %s ", err)
 	}
 
-	instanceID := d.Id()
-
 	if err = updateRdsInstanceName(ctx, d, client); err != nil {
 		return diag.FromErr(err)
 	}
@@ -522,15 +553,15 @@ func resourceRdsReadReplicaInstanceUpdate(ctx context.Context, d *schema.Resourc
 	}
 
 	if d.HasChange("tags") {
-		tagErr := utils.UpdateResourceTags(client, d, "instances", instanceID)
+		tagErr := utils.UpdateResourceTags(client, d, "instances", d.Id())
 		if tagErr != nil {
-			return diag.Errorf("error updating tags of RDS read replica instance: %s, err: %s", instanceID, tagErr)
+			return diag.Errorf("error updating tags of RDS read replica instance: %s, err: %s", d.Id(), tagErr)
 		}
 	}
 
 	if d.HasChange("enterprise_project_id") {
 		migrateOpts := config.MigrateResourceOpts{
-			ResourceId:   instanceID,
+			ResourceId:   d.Id(),
 			ResourceType: "rds",
 			RegionId:     region,
 			ProjectId:    client.ProjectID,

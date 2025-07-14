@@ -276,7 +276,7 @@ func updateRdsInstanceField(ctx context.Context, d *schema.ResourceData, client 
 	}
 
 	updateRespBody, err := utils.FlattenResponse(res.(*http.Response))
-	if err != nil {
+	if err != nil && err.Error() != "EOF" {
 		return nil, err
 	}
 	if params.checkJobExpression == "" && params.checkOrderExpression == "" && !params.isWaitInstanceReady {
