@@ -78,6 +78,9 @@ The [Policy](#CesAlarmTemplate_Policy) structure is documented below.
   + **0**: metric alarm template.
   + **2**: event alarm template.
 
+* `is_overwrite` - (Optional, Bool, NonUpdatable) Specifies whether to overwrite an existing alarm template with the same
+  template name when creating a template. Default to **false**.
+
 * `delete_associate_alarm` - (Optional, Bool) Specifies whether delete the alarm rule which the alarm
   template associated with. Default to **false**.
 
@@ -98,16 +101,26 @@ The `Policy` block supports:
   Value options: **average**, **variance**, **min**, **max**, **sum**.
 
 * `comparison_operator` - (Required, String) Specifies the comparison conditions for alarm threshold.
-  Value options: **>**, **<**, **=**, **>=**, **<=**.
+  + When `type` is **0**, metric alarm template value options: **>**, **<**, **=**, **>=**, **<=**, **!=**,
+    **cycle_decrease**, **cycle_increase**, **cycle_wave**.
+  + When `type` is **2**, event alarm template value options: **>**, **<**, **=**, **>=**, **<=**, **!=**.
 
-* `value` - (Required, Int) Specifies the alarm threshold.
-
-* `count` - (Required, Int) Specifies the number of consecutive triggering of alarms. The value ranges from `1` to `5`.
+* `count` - (Required, Int) Specifies the number of consecutive alarm triggering times.
+  + For event alarms, the value ranges from **1** to **180**.
+  + For metric and website alarms, the value can be **1**, **2**, **3**, **4**, **5**, **10**, **15**, **30**, **60**,
+    **90**, **120**, **180**.
 
 * `suppress_duration` - (Required, Int) Specifies the alarm suppression cycle. Unit: second.
   Only one alarm is sent when the alarm suppression period is **0**.
   Value options: **0**, **300**, **600**, **900**, **1800**, **3600**, **10800**, **21600**,
   **43200**, **86400**.
+
+* `value` - (Optional, Int) Specifies the alarm threshold.
+
+* `hierarchical_value` - (Optional, List) Specifies the multiple levels of alarm thresholds.
+  The [hierarchical_value](#CesAlarmTemplate_Policy_hierarchical_value) structure is documented below.
+
+-> When `hierarchical_value` and `value` are used at the same time, `hierarchical_value` takes precedence.
 
 * `alarm_level` - (Optional, Int) Specifies the alarm level. It means no level if not set.
   The valid values are as follows:
@@ -124,6 +137,17 @@ The `Policy` block supports:
   can contain only letters, digits, hyphens (-) and hyphens (-),
   and contain a maximum of `32` characters for each dimension.
 
+<a name="CesAlarmTemplate_Policy_hierarchical_value"></a>
+The `hierarchical_value` block supports:
+
+* `critical` - (Optional, Float) Specifies the threshold for the critical level.
+
+* `major` - (Optional, Float) Specifies the threshold for the major level.
+
+* `minor` - (Optional, Float) Specifies the threshold for the minor level.
+
+* `info` - (Optional, Float) Specifies the threshold for the info level.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -138,4 +162,22 @@ The ces alarm template can be imported using the `id`, e.g.
 
 ```bash
 $ terraform import huaweicloud_ces_alarm_template.test <template_id>
+```
+
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
+API response, security or some other reason. The missing attributes include: `is_overwrite`.
+It is generally recommended running `terraform plan` after importing a alarm template.
+You can then decide if changes should be applied to the alarm template, or the resource definition should be updated to
+align with the alarm template. Also you can ignore changes as below.
+
+```hcl
+resource "huaweicloud_ces_alarm_template" "test" {
+  ...
+
+  lifecycle {
+    ignore_changes = [
+      is_overwrite,
+    ]
+  }
+}
 ```

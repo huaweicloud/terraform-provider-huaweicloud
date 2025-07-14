@@ -171,9 +171,80 @@ func TestAccCesAlarmTemplate_event(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      rName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            rName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"is_overwrite"},
+			},
+		},
+	})
+}
+
+func TestAccCesAlarmTemplate_hierarchicalValue_basic(t *testing.T) {
+	var obj interface{}
+
+	name := acceptance.RandomAccResourceName()
+	updateName := acceptance.RandomAccResourceName()
+	rName := "huaweicloud_ces_alarm_template.test"
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&obj,
+		getCesAlarmTemplateResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testCesAlarmTemplate_hierarchicalValue_basic(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "description", "It is a test template"),
+					resource.TestCheckResourceAttr(rName, "policies.#", "1"),
+					resource.TestCheckResourceAttr(rName, "policies.0.namespace", "SYS.APIG"),
+					resource.TestCheckResourceAttr(rName, "policies.0.dimension_name", "api_id"),
+					resource.TestCheckResourceAttr(rName, "policies.0.metric_name", "req_count_2xx"),
+					resource.TestCheckResourceAttr(rName, "policies.0.period", "1"),
+					resource.TestCheckResourceAttr(rName, "policies.0.filter", "average"),
+					resource.TestCheckResourceAttr(rName, "policies.0.comparison_operator", "="),
+					resource.TestCheckResourceAttr(rName, "policies.0.hierarchical_value.0.critical", "12"),
+					resource.TestCheckResourceAttr(rName, "policies.0.unit", "times/minute"),
+					resource.TestCheckResourceAttr(rName, "policies.0.count", "10"),
+					resource.TestCheckResourceAttr(rName, "policies.0.alarm_level", "1"),
+					resource.TestCheckResourceAttr(rName, "policies.0.suppress_duration", "300"),
+					resource.TestCheckResourceAttrSet(rName, "type"),
+					resource.TestCheckResourceAttrSet(rName, "association_alarm_total"),
+				),
+			},
+			{
+				Config: testCesAlarmTemplate_hierarchicalValue_update(updateName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", updateName),
+					resource.TestCheckResourceAttr(rName, "description", "It is an update template"),
+					resource.TestCheckResourceAttr(rName, "policies.#", "1"),
+					resource.TestCheckResourceAttr(rName, "policies.0.namespace", "SYS.DDS"),
+					resource.TestCheckResourceAttr(rName, "policies.0.dimension_name", "mongodb_instance_id"),
+					resource.TestCheckResourceAttr(rName, "policies.0.metric_name", "mongo003_insert_ps"),
+					resource.TestCheckResourceAttr(rName, "policies.0.period", "300"),
+					resource.TestCheckResourceAttr(rName, "policies.0.filter", "max"),
+					resource.TestCheckResourceAttr(rName, "policies.0.comparison_operator", "cycle_decrease"),
+					resource.TestCheckResourceAttr(rName, "policies.0.hierarchical_value.0.major", "300"),
+					resource.TestCheckResourceAttr(rName, "policies.0.unit", "times/second"),
+					resource.TestCheckResourceAttr(rName, "policies.0.count", "180"),
+					resource.TestCheckResourceAttr(rName, "policies.0.alarm_level", "2"),
+					resource.TestCheckResourceAttr(rName, "policies.0.suppress_duration", "3600"),
+				),
+			},
+			{
+				ResourceName:            rName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"is_overwrite", "policies.0.hierarchical_value"},
 			},
 		},
 	})
@@ -266,6 +337,62 @@ resource "huaweicloud_ces_alarm_template" "test" {
     count               = 2
     alarm_level         = 3
     suppress_duration   = 300
+  }
+}
+`, name)
+}
+
+func testCesAlarmTemplate_hierarchicalValue_basic(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_ces_alarm_template" "test" {
+  name         = "%s" 
+  description  = "It is a test template"
+  is_overwrite = false
+
+  policies {
+    namespace           = "SYS.APIG"
+    dimension_name      = "api_id"
+    metric_name         = "req_count_2xx"
+    period              = 1
+    filter              = "average"
+    comparison_operator = "="
+    unit                = "times/minute"
+    count               = 10
+    suppress_duration   = 300
+
+    hierarchical_value {
+      critical = 12
+      major    = 10
+      minor    = 8
+      info     = 4
+    }
+  }
+}
+`, name)
+}
+
+func testCesAlarmTemplate_hierarchicalValue_update(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_ces_alarm_template" "test" {
+  name        = "%s"
+  description = "It is an update template"
+
+  policies {
+    namespace           = "SYS.DDS"
+    dimension_name      = "mongodb_instance_id"
+    metric_name         = "mongo003_insert_ps"
+    period              = 300
+    filter              = "max"
+    comparison_operator = "cycle_decrease"
+    unit                = "times/second"
+    count               = 180
+    suppress_duration   = 3600
+
+    hierarchical_value {
+      major = 300
+      minor = 8
+      info  = 4
+    }
   }
 }
 `, name)
