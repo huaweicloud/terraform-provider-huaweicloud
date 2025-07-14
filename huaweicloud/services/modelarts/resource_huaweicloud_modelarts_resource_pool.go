@@ -46,7 +46,7 @@ func ResourceModelartsResourcePool() *schema.Resource {
 		UpdateContext: resourceModelartsResourcePoolUpdate,
 		DeleteContext: resourceModelartsResourcePoolDelete,
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			StateContext: resourceResourcePoolImport,
 		},
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(90 * time.Minute),
@@ -1892,7 +1892,8 @@ func buildUpdateResourcePoolResourceRootVolume(resourceElem cty.Value, oldResour
 }
 
 func buildUpdateResourcePoolResourceDataVolumes(resourceElem cty.Value, oldResource interface{}) interface{} {
-	if !isRawConfigListExist(resourceElem, "data_volumes") {
+	raw := getRawConfigSetValueByKey(resourceElem, "data_volumes")
+	if raw == nil {
 		return buildCreateResourcePoolResourcesDataVolumes(utils.PathSearch("data_volumes", oldResource,
 			schema.NewSet(schema.HashString, nil)).(*schema.Set))
 	}
@@ -2260,4 +2261,8 @@ func deleteResourcePoolWaitingForStateCompleted(ctx context.Context, d *schema.R
 	}
 	_, err := stateConf.WaitForStateContext(ctx)
 	return err
+}
+
+func resourceResourcePoolImport(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
+	return []*schema.ResourceData{d}, d.Set("resources_order_origin", nil)
 }
