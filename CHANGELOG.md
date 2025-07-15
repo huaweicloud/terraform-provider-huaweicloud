@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.76.5 (July 15, 2025)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_cce_cluster: add encryption_config support [GH-7257]
+
 ## 1.76.4 (July 11, 2025)
 
 ENHANCEMENTS:
