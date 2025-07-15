@@ -2,7 +2,7 @@ package dcs
 
 import (
 	"context"
-	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"strconv"
@@ -13,15 +13,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/common/tags"
-	"github.com/chnsz/golangsdk/openstack/dcs/v2/availablezones"
-	"github.com/chnsz/golangsdk/openstack/dcs/v2/flavors"
-	"github.com/chnsz/golangsdk/openstack/dcs/v2/instances"
-	dcsTags "github.com/chnsz/golangsdk/openstack/dcs/v2/tags"
-	"github.com/chnsz/golangsdk/openstack/dcs/v2/whitelists"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -40,35 +33,6 @@ var (
 		0: chargeModePostPaid,
 		1: chargeModePrePaid,
 	}
-
-	operateErrorCode = map[string]bool{
-		// current state not support
-		"DCS.4026": true,
-		// instance status is not running
-		"DCS.4049": true,
-		// backup
-		"DCS.4096": true,
-		// restore
-		"DCS.4097": true,
-		// restart
-		"DCS.4111": true,
-		// resize
-		"DCS.4113": true,
-		// change config
-		"DCS.4114": true,
-		// change password
-		"DCS.4115": true,
-		// upgrade
-		"DCS.4116": true,
-		// rollback
-		"DCS.4117": true,
-		// create
-		"DCS.4118": true,
-		// freeze
-		"DCS.4120": true,
-		// creating/restarting
-		"DCS.4975": true,
-	}
 )
 
 // @API DCS GET /v2/available-zones
@@ -76,14 +40,14 @@ var (
 // @API DCS GET /v2/{project_id}/instances/{instance_id}
 // @API DCS PUT /v2/{project_id}/instance/{instance_id}/whitelist
 // @API DCS GET /v2/{project_id}/instance/{instance_id}/whitelist
-// @API DCS PUT /v2/{project_id}/instances/{instance_id}/configs
+// @API DCS PUT /v2/{project_id}/instances/{instance_id}/async-configs
 // @API DCS GET /v2/{project_id}/instances/{instance_id}/configs
 // @API DCS PUT /v2/{project_id}/instances/status
 // @API DCS PUT /v2/{project_id}/instances/{instance_id}/ssl
 // @API DCS GET /v2/{project_id}/instances/{instance_id}/ssl
 // @API DCS GET /v2/{project_id}/instances/{instance_id}/tags
 // @API DCS PUT /v2/{project_id}/instances/{instance_id}
-// @API DCS PUT /v2/{project_id}/instances/{instance_id}/password
+// @API DCS POST /v2/{project_id}/instances/{instance_id}/password/reset
 // @API DCS POST /v2/{project_id}/instances/{instance_id}/resize
 // @API DCS POST /v3/{project_id}/instances/{instance_id}/tags/action
 // @API EPS POST /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrat
@@ -523,111 +487,6 @@ func bandwidthSchema() *schema.Resource {
 	return &sc
 }
 
-func buildBackupPolicyParams(d *schema.ResourceData) *instances.InstanceBackupPolicyOpts {
-	if _, ok := d.GetOk("backup_policy"); !ok { // deprecated branch
-		if v, ok := d.GetOk("backup_at"); ok {
-			backupAts := v.([]interface{})
-			return &instances.InstanceBackupPolicyOpts{
-				SaveDays:   d.Get("save_days").(int),
-				BackupType: d.Get("backup_type").(string),
-				PeriodicalBackupPlan: instances.BackupPlan{
-					BeginAt:    d.Get("begin_at").(string),
-					PeriodType: d.Get("period_type").(string),
-					BackupAt:   utils.ExpandToIntList(backupAts),
-				},
-			}
-		}
-		// neither backup_policy nor backup_at is specified
-		return nil
-	}
-
-	backupPolicyList := d.Get("backup_policy").([]interface{})
-	if len(backupPolicyList) == 0 {
-		return nil
-	}
-	backupPolicy := backupPolicyList[0].(map[string]interface{})
-	backupType := backupPolicy["backup_type"].(string)
-	if len(backupType) == 0 || backupType == "manual" {
-		return nil
-	}
-	// build backup policy options
-	backupAt := utils.ExpandToIntList(backupPolicy["backup_at"].([]interface{}))
-	backupPlan := instances.BackupPlan{
-		BackupAt:   backupAt,
-		PeriodType: backupPolicy["period_type"].(string),
-		BeginAt:    backupPolicy["begin_at"].(string),
-	}
-	backupPolicyOpts := &instances.InstanceBackupPolicyOpts{
-		BackupType:           backupPolicy["backup_type"].(string),
-		SaveDays:             backupPolicy["save_days"].(int),
-		PeriodicalBackupPlan: backupPlan,
-	}
-	return backupPolicyOpts
-}
-
-func buildDcsTagsParams(tagsMap map[string]interface{}) []dcsTags.ResourceTag {
-	tagArr := make([]dcsTags.ResourceTag, 0, len(tagsMap))
-	for k, v := range tagsMap {
-		tag := dcsTags.ResourceTag{
-			Key:   k,
-			Value: v.(string),
-		}
-		tagArr = append(tagArr, tag)
-	}
-	return tagArr
-}
-
-func buildWhiteListParams(d *schema.ResourceData) whitelists.WhitelistOpts {
-	enable := d.Get("whitelist_enable").(bool)
-	groupList := d.Get("whitelists").(*schema.Set).List()
-
-	groups := make([]whitelists.WhitelistGroupOpts, len(groupList))
-	for i, v := range groupList {
-		item := v.(map[string]interface{})
-		groups[i] = whitelists.WhitelistGroupOpts{
-			GroupName: item["group_name"].(string),
-			IPList:    utils.ExpandToStringList(item["ip_address"].([]interface{})),
-		}
-	}
-
-	whitelistOpts := whitelists.WhitelistOpts{
-		Enable: &enable,
-		Groups: groups,
-	}
-	return whitelistOpts
-}
-
-func buildSslParam(enable bool) instances.SslOpts {
-	sslOpts := instances.SslOpts{
-		Enable: &enable,
-	}
-	return sslOpts
-}
-
-func waitForWhiteListCompleted(ctx context.Context, c *golangsdk.ServiceClient, d *schema.ResourceData) error {
-	enable := d.Get("whitelist_enable").(bool)
-	stateConf := &resource.StateChangeConf{
-		Pending:      []string{strconv.FormatBool(!enable)},
-		Target:       []string{strconv.FormatBool(enable)},
-		Refresh:      refreshForWhiteListEnableStatus(c, d.Id()),
-		Timeout:      d.Timeout(schema.TimeoutUpdate),
-		Delay:        10 * time.Second,
-		PollInterval: 10 * time.Second,
-	}
-	_, err := stateConf.WaitForStateContext(ctx)
-	return err
-}
-
-func refreshForWhiteListEnableStatus(c *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		r, err := whitelists.Get(c, id).Extract()
-		if err != nil {
-			return nil, "Error", err
-		}
-		return r, strconv.FormatBool(r.Enable), nil
-	}
-}
-
 func resourceDcsInstancesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -695,24 +554,16 @@ func resourceDcsInstancesCreate(ctx context.Context, d *schema.ResourceData, met
 	// create whitelist when the function is enabled and configured
 	enabled := d.Get("whitelist_enable").(bool)
 	if enabled && d.Get("whitelists").(*schema.Set).Len() > 0 {
-		whitelistOpts := buildWhiteListParams(d)
-		log.Printf("[DEBUG] Create whitelist options: %#v", whitelistOpts)
-
-		err = whitelists.Put(client, id, whitelistOpts).ExtractErr()
+		err = updateInstanceWhitelist(ctx, d, client)
 		if err != nil {
-			return diag.Errorf("error creating whitelist for DCS instance (%s): %s", id, err)
-		}
-		// wait for whitelist created
-		err = waitForWhiteListCompleted(ctx, client, d)
-		if err != nil {
-			return diag.Errorf("Error while waiting to create DCS whitelist: %s", err)
+			return diag.FromErr(err)
 		}
 	}
 
 	// set parameters
 	if v, ok := d.GetOk("parameters"); ok {
 		parameters := v.(*schema.Set).List()
-		err = updateParameters(ctx, d.Timeout(schema.TimeoutCreate), client, id, parameters)
+		err = updateParameters(ctx, d, client, schema.TimeoutUpdate, parameters)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -721,22 +572,16 @@ func resourceDcsInstancesCreate(ctx context.Context, d *schema.ResourceData, met
 			return diag.FromErr(err)
 		}
 		if restart {
-			if err = restartDcsInstance(ctx, d.Timeout(schema.TimeoutCreate), client, id); err != nil {
+			if err = restartDcsInstance(ctx, d, client, schema.TimeoutCreate); err != nil {
 				return diag.FromErr(err)
 			}
 		}
 	}
 
 	if sslEnabled := d.Get("ssl_enable").(bool); sslEnabled {
-		sslOpts := buildSslParam(sslEnabled)
-		_, err := instances.UpdateSsl(client, id, sslOpts)
+		err = updateInstanceSsl(ctx, d, client)
 		if err != nil {
-			return diag.Errorf("error updating SSL for the instance (%s): %s", id, err)
-		}
-
-		err = waitForSslCompleted(ctx, client, d)
-		if err != nil {
-			return diag.Errorf("error waiting for updating SSL to complete: %s", err)
+			return diag.FromErr(err)
 		}
 	}
 
@@ -763,8 +608,8 @@ func buildCreateInstanceBodyParams(d *schema.ResourceData, azCodes []string, cfg
 		"access_user":            utils.ValueIgnoreEmpty(d.Get("access_user")),
 		"template_id":            utils.ValueIgnoreEmpty(d.Get("template_id")),
 		"bss_param":              buildCreateInstanceBssParamBodyParams(d),
-		"rename_commands":        buildCreateInstanceRenameCommandsBodyParams(d),
-		"instance_backup_policy": buildCreateInstanceBackupPolicyBodyParams(d),
+		"rename_commands":        buildInstanceRenameCommandsBodyParams(d),
+		"instance_backup_policy": buildInstanceBackupPolicyBodyParams(d),
 		"tags":                   utils.ValueIgnoreEmpty(utils.ExpandResourceTags(d.Get("tags").(map[string]interface{}))),
 	}
 	// resourceSpecCode
@@ -800,7 +645,7 @@ func buildCreateInstanceBssParamBodyParams(d *schema.ResourceData) map[string]in
 	return bodyParams
 }
 
-func buildCreateInstanceRenameCommandsBodyParams(d *schema.ResourceData) map[string]interface{} {
+func buildInstanceRenameCommandsBodyParams(d *schema.ResourceData) map[string]interface{} {
 	renameCmds := d.Get("rename_commands").(map[string]interface{})
 	if d.Get("engine") != "Redis" || len(renameCmds) == 0 {
 		return nil
@@ -808,7 +653,7 @@ func buildCreateInstanceRenameCommandsBodyParams(d *schema.ResourceData) map[str
 	return renameCmds
 }
 
-func buildCreateInstanceBackupPolicyBodyParams(d *schema.ResourceData) map[string]interface{} {
+func buildInstanceBackupPolicyBodyParams(d *schema.ResourceData) map[string]interface{} {
 	backupPolicyList, backupPolicyListOk := d.GetOk("backup_policy")
 	_, backupAtOk := d.GetOk("backup_at")
 	if !backupPolicyListOk && !backupAtOk {
@@ -855,42 +700,38 @@ func buildCreateInstanceBackupPolicyPlanBodyParams(backupPolicy map[string]inter
 	return bodyParams
 }
 
-func updateParameters(ctx context.Context, timeout time.Duration, client *golangsdk.ServiceClient, instanceID string,
+func updateParameters(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, timeout string,
 	parameters []interface{}) error {
-	parameterOpts := buildUpdateParametersOpt(parameters)
-	retryFunc := func() (interface{}, bool, error) {
-		log.Printf("[DEBUG] Update DCS instance parameters params: %#v", parameterOpts)
-		_, err := instances.ModifyConfiguration(client, instanceID, parameterOpts)
-		retry, err := handleOperationError(err)
-		return nil, retry, err
-	}
-	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
-		Ctx:          ctx,
-		RetryFunc:    retryFunc,
-		WaitFunc:     refreshDcsInstanceState(client, instanceID),
-		WaitTarget:   []string{"RUNNING"},
-		Timeout:      timeout,
-		DelayTimeout: 1 * time.Second,
-		PollInterval: 10 * time.Second,
+	_, err := updateDcsInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:            "v2/{project_id}/instances/{instance_id}/async-configs",
+		httpMethod:         "PUT",
+		pathParams:         map[string]string{"instance_id": d.Id()},
+		updateBodyParams:   utils.RemoveNil(buildUpdateInstanceParametersBodyParams(parameters)),
+		isRetry:            true,
+		timeout:            timeout,
+		checkJobExpression: "job_id",
 	})
 	if err != nil {
-		return fmt.Errorf("error modifying parameters for DCS instance (%s): %s", instanceID, err)
+		return fmt.Errorf("error updating instance(%s) parameters: %s", d.Id(), err)
 	}
 	return nil
 }
 
-func buildUpdateParametersOpt(parameters []interface{}) instances.ModifyRedisConfigOpts {
-	parameterOpts := make([]instances.RedisConfigOpt, 0, len(parameters))
+func buildUpdateInstanceParametersBodyParams(parameters []interface{}) map[string]interface{} {
+	params := make([]map[string]interface{}, 0, len(parameters))
 	for _, parameter := range parameters {
 		if v, ok := parameter.(map[string]interface{}); ok {
-			parameterOpts = append(parameterOpts, instances.RedisConfigOpt{
-				ParamId:    v["id"].(string),
-				ParamName:  v["name"].(string),
-				ParamValue: v["value"].(string),
+			params = append(params, map[string]interface{}{
+				"param_id":    v["id"].(string),
+				"param_name":  v["name"].(string),
+				"param_value": v["value"].(string),
 			})
 		}
 	}
-	return instances.ModifyRedisConfigOpts{RedisConfig: parameterOpts}
+	bodyParams := map[string]interface{}{
+		"redis_config": params,
+	}
+	return bodyParams
 }
 
 func checkDcsInstanceRestart(client *golangsdk.ServiceClient, instanceID string, parameters []interface{}) (bool, error) {
@@ -906,73 +747,60 @@ func checkDcsInstanceRestart(client *golangsdk.ServiceClient, instanceID string,
 
 func getParameters(client *golangsdk.ServiceClient, instanceID string, parameters []interface{}) ([]map[string]interface{},
 	[]string, error) {
-	configParameters, err := instances.GetConfigurations(client, instanceID)
+	getRespBody, err := getInstanceField(client, getInstanceFieldParams{
+		httpUrl:    "v2/{project_id}/instances/{instance_id}/configs",
+		httpMethod: "GET",
+		pathParams: map[string]string{"instance_id": instanceID},
+	})
 	if err != nil {
-		return nil, nil, fmt.Errorf("error fetching the DCS instance parameters (%s): %s", instanceID, err)
+		log.Printf("[WARN] error fetching DCS instance(%s) parameters: %s", instanceID, err)
+		return nil, nil, err
 	}
-	parametersMap := generateParametersMap(configParameters)
+
+	redisConfig := utils.PathSearch("redis_config", getRespBody, make([]interface{}, 0)).([]interface{})
+	parametersMap := generateParametersMap(redisConfig)
 	var params []map[string]interface{}
 	restartParams := make([]string, 0)
 	for _, parameter := range parameters {
 		paramId := parameter.(map[string]interface{})["id"]
 		if v, ok := parametersMap[paramId.(string)]; ok {
+			name := utils.PathSearch("param_name", v, "").(string)
 			params = append(params, map[string]interface{}{
-				"id":    v.ParamId,
-				"name":  v.ParamName,
-				"value": v.ParamValue,
+				"id":    utils.PathSearch("param_id", v, nil),
+				"name":  name,
+				"value": utils.PathSearch("param_value", v, nil),
 			})
-			if v.NeedRestart {
-				restartParams = append(restartParams, v.ParamName)
+			needRestart := utils.PathSearch("need_restart", v, false).(bool)
+			if needRestart {
+				restartParams = append(restartParams, name)
 			}
 		}
 	}
 	return params, restartParams, nil
 }
 
-func restartDcsInstance(ctx context.Context, timeout time.Duration, client *golangsdk.ServiceClient, instanceID string) error {
-	restartOpts := instances.RestartOrFlushInstanceOpts{
-		Instances: []string{instanceID},
-		Action:    "restart",
-	}
-	retryFunc := func() (interface{}, bool, error) {
-		log.Printf("[DEBUG] Restart DCS instance params: %#v", restartOpts)
-		_, err := instances.RestartOrFlushInstance(client, restartOpts)
-		retry, err := handleOperationError(err)
-		return nil, retry, err
-	}
-	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
-		Ctx:          ctx,
-		RetryFunc:    retryFunc,
-		WaitFunc:     refreshDcsInstanceState(client, instanceID),
-		WaitTarget:   []string{"RUNNING"},
-		Timeout:      timeout,
-		DelayTimeout: 1 * time.Second,
-		PollInterval: 10 * time.Second,
+func restartDcsInstance(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, timeout string) error {
+	_, err := updateDcsInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:             "v2/{project_id}/instances/status",
+		httpMethod:          "PUT",
+		pathParams:          map[string]string{"instance_id": d.Id()},
+		updateBodyParams:    utils.RemoveNil(buildRestartInstanceBodyParams(d)),
+		isRetry:             true,
+		timeout:             timeout,
+		isWaitInstanceReady: true,
 	})
 	if err != nil {
-		return fmt.Errorf("error waiting for DCS instance (%s) become running status: %s", instanceID, err)
+		return fmt.Errorf("error restarting instance(%s): %s", d.Id(), err)
 	}
 	return nil
 }
 
-func createRenameCommandsOpt(renameCmds map[string]interface{}) instances.RedisCommand {
-	renameCommands := instances.RedisCommand{}
-	if v, ok := renameCmds["command"]; ok {
-		renameCommands.Command = v.(string)
+func buildRestartInstanceBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"instances": []string{d.Id()},
+		"action":    "restart",
 	}
-	if v, ok := renameCmds["keys"]; ok {
-		renameCommands.Keys = v.(string)
-	}
-	if v, ok := renameCmds["flushdb"]; ok {
-		renameCommands.Flushdb = v.(string)
-	}
-	if v, ok := renameCmds["flushall"]; ok {
-		renameCommands.Flushdb = v.(string)
-	}
-	if v, ok := renameCmds["hgetall"]; ok {
-		renameCommands.Hgetall = v.(string)
-	}
-	return renameCommands
+	return bodyParams
 }
 
 func waitForOrderComplete(ctx context.Context, d *schema.ResourceData, cfg *config.Config, region, orderId string) error {
@@ -987,45 +815,6 @@ func waitForOrderComplete(ctx context.Context, d *schema.ResourceData, cfg *conf
 	}
 	_, err = common.WaitOrderResourceComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutCreate))
 	return err
-}
-
-func waitForDcsInstanceRunning(ctx context.Context, c *golangsdk.ServiceClient, id string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
-		Pending:                   []string{"PENDING"},
-		Target:                    []string{"RUNNING"},
-		Refresh:                   refreshDcsInstanceState(c, id),
-		Timeout:                   timeout,
-		Delay:                     10 * time.Second,
-		PollInterval:              10 * time.Second,
-		ContinuousTargetOccurence: 2,
-	}
-	_, err := stateConf.WaitForStateContext(ctx)
-	if err != nil {
-		return fmt.Errorf("error waiting instance(%s) to ready: %s", id, err)
-	}
-	return nil
-}
-
-func refreshDcsInstanceState(client *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		instance, err := getDcsInstanceByID(client, id)
-		if err != nil {
-			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				return "", "DELETED", nil
-			}
-			return nil, "ERROR", err
-		}
-		status := utils.PathSearch("status", instance, "").(string)
-
-		failStatus := []string{"CREATEFAILED", "ERROR", "FROZEN"}
-		if utils.StrSliceContains(failStatus, status) {
-			return instance, "ERROR", fmt.Errorf("unexpect status: %s", status)
-		}
-		if status == "RUNNING" {
-			return instance, status, nil
-		}
-		return instance, "PENDING", nil
-	}
 }
 
 func resourceDcsInstancesRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -1087,45 +876,10 @@ func resourceDcsInstancesRead(ctx context.Context, d *schema.ResourceData, meta 
 		d.Set("product_type", utils.PathSearch("product_type", instance, nil)),
 		d.Set("sharding_count", utils.PathSearch("sharding_count", instance, nil)),
 		d.Set("backup_policy", flattenInstanceBackupPolicy(instance)),
+		d.Set("tags", utils.FlattenTagsToMap(utils.PathSearch("tags", instance, make([]interface{}, 0)))),
 	)
 
-	// set tags
-	if resourceTags, err := tags.Get(client, "instances", d.Id()).Extract(); err == nil {
-		tagMap := utils.TagsToMap(resourceTags.Tags)
-		if err := d.Set("tags", tagMap); err != nil {
-			return diag.Errorf("[DEBUG] error saving tag to state for DCS instance (%s): %s", d.Id(), err)
-		}
-	} else {
-		log.Printf("[WARN] fetching tags of DCS instance failed: %s", err)
-	}
-
-	// set white list
-	// some regions (cn-south-1) will fail to call the API due to the cloud reason
-	// ignore the error temporarily.
-	wList, err := whitelists.Get(client, d.Id()).Extract()
-	if err != nil || wList == nil || len(wList.Groups) == 0 {
-		log.Printf("error fetching whitelists for DCS instance, error: %s", err)
-		// Set to the default value, otherwise it will prompt change after importing resources.
-		mErr = multierror.Append(
-			mErr,
-			d.Set("whitelist_enable", true),
-		)
-		return diag.FromErr(mErr.ErrorOrNil())
-	}
-
-	log.Printf("[DEBUG] Find DCS instance white list : %#v", wList.Groups)
-	whiteList := make([]map[string]interface{}, len(wList.Groups))
-	for i, group := range wList.Groups {
-		whiteList[i] = map[string]interface{}{
-			"group_name": group.GroupName,
-			"ip_address": group.IPList,
-		}
-	}
-	mErr = multierror.Append(
-		mErr,
-		d.Set("whitelists", whiteList),
-		d.Set("whitelist_enable", wList.Enable),
-	)
+	mErr = multierror.Append(mErr, setDcsInstanceWhitelist(d, client)...)
 
 	diagErr := setDcsInstanceParameters(ctx, d, client, d.Id())
 	return append(diagErr, diag.FromErr(mErr.ErrorOrNil())...)
@@ -1196,6 +950,43 @@ func flattenInstanceBackupPolicy(instance interface{}) []interface{} {
 	return rst
 }
 
+func setDcsInstanceWhitelist(d *schema.ResourceData, client *golangsdk.ServiceClient) []error {
+	getRespBody, err := getInstanceField(client, getInstanceFieldParams{
+		httpUrl:    "v2/{project_id}/instance/{instance_id}/whitelist",
+		httpMethod: "GET",
+		pathParams: map[string]string{"instance_id": d.Id()},
+	})
+	if err != nil {
+		log.Printf("[WARN] error fetching DCS instance(%s) whitelist: %s", d.Id(), err)
+		return nil
+	}
+
+	var errs []error
+	whitelists := flattenInstanceWhitelist(getRespBody)
+	if len(whitelists) == 0 {
+		// Set to the default value, otherwise it will prompt change after importing resources.
+		errs = append(errs, d.Set("whitelist_enable", true))
+	} else {
+		errs = append(errs, d.Set("whitelist_enable", utils.PathSearch("enable_whitelist", getRespBody, nil)))
+		errs = append(errs, d.Set("whitelists", flattenInstanceWhitelist(getRespBody)))
+	}
+
+	return errs
+}
+
+func flattenInstanceWhitelist(resp interface{}) []interface{} {
+	curJson := utils.PathSearch("whitelist", resp, make([]interface{}, 0))
+	curArray := curJson.([]interface{})
+	rst := make([]interface{}, 0, len(curArray))
+	for _, v := range curArray {
+		rst = append(rst, map[string]interface{}{
+			"group_name": utils.PathSearch("group_name", v, nil),
+			"ip_address": utils.PathSearch("ip_list", v, nil),
+		})
+	}
+	return rst
+}
+
 func setDcsInstanceParameters(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
 	instanceID string) diag.Diagnostics {
 	params, needStartParams, err := getParameters(client, instanceID, d.Get("parameters").(*schema.Set).List())
@@ -1220,10 +1011,10 @@ func setDcsInstanceParameters(ctx context.Context, d *schema.ResourceData, clien
 	return nil
 }
 
-func generateParametersMap(configurations *instances.Configuration) map[string]instances.RedisConfig {
-	parametersMap := make(map[string]instances.RedisConfig)
-	for _, redisConfig := range configurations.RedisConfig {
-		parametersMap[redisConfig.ParamId] = redisConfig
+func generateParametersMap(redisConfig []interface{}) map[string]interface{} {
+	parametersMap := make(map[string]interface{})
+	for _, v := range redisConfig {
+		parametersMap[utils.PathSearch("param_id", v, "").(string)] = v
 	}
 	return parametersMap
 }
@@ -1231,31 +1022,19 @@ func generateParametersMap(configurations *instances.Configuration) map[string]i
 func resourceDcsInstancesUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-	instanceId := d.Id()
-	client, err := cfg.DcsV2Client(region)
+
+	var (
+		product = "dcs"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating DCS Client(v2): %s", err)
+		return diag.Errorf("error creating DCS client: %s", err)
 	}
 
 	// update basic params
 	if d.HasChanges("port", "name", "description", "security_group_id", "backup_policy",
 		"maintain_begin", "maintain_end", "rename_commands") {
-		desc := d.Get("description").(string)
-		securityGroupID := d.Get("security_group_id").(string)
-		renameCommandsOpt := createRenameCommandsOpt(d.Get("rename_commands").(map[string]interface{}))
-		opts := instances.ModifyInstanceOpt{
-			Name:            d.Get("name").(string),
-			Port:            d.Get("port").(int),
-			Description:     &desc,
-			MaintainBegin:   d.Get("maintain_begin").(string),
-			MaintainEnd:     d.Get("maintain_end").(string),
-			SecurityGroupId: &securityGroupID,
-			BackupPolicy:    buildBackupPolicyParams(d),
-			RenameCommands:  &renameCommandsOpt,
-		}
-		log.Printf("[DEBUG] Update DCS instance options : %#v", opts)
-
-		_, err = instances.Update(client, instanceId, opts)
+		err = updateInstance(ctx, d, client)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -1269,73 +1048,38 @@ func resourceDcsInstancesUpdate(ctx context.Context, d *schema.ResourceData, met
 	}
 
 	if d.HasChange("password") {
-		oldVal, newVal := d.GetChange("password")
-		opts := instances.UpdatePasswordOpts{
-			OldPassword: oldVal.(string),
-			NewPassword: newVal.(string),
-		}
-		err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
-			_, err = instances.UpdatePassword(client, instanceId, opts)
-			isRetry, err := handleOperationError(err)
-			if isRetry {
-				return resource.RetryableError(err)
-			}
-			if err != nil {
-				return resource.NonRetryableError(err)
-			}
-			return nil
-		})
+		err = updateInstancePassword(ctx, d, client)
 		if err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
 	// resize instance
-	err = resizeDcsInstance(ctx, d, meta)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	// update tags
-	if d.HasChange("tags") {
-		oldVal, newVal := d.GetChange("tags")
-		err = updateDcsTags(client, instanceId, oldVal.(map[string]interface{}), newVal.(map[string]interface{}))
+	if d.HasChanges("flavor", "capacity") {
+		err = resizeDcsInstance(ctx, d, client, cfg)
 		if err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
-	// update whitelist
-	if d.HasChanges("whitelists", "whitelist_enable") {
-		whitelistOpts := buildWhiteListParams(d)
-		log.Printf("[DEBUG] Update DCS instance whitelist options: %#v", whitelistOpts)
-
-		err = whitelists.Put(client, instanceId, whitelistOpts).ExtractErr()
+	if d.HasChange("tags") {
+		err = updateDcsTags(ctx, client, d)
 		if err != nil {
-			return diag.Errorf("error updating whitelist for instance (%s): %s", instanceId, err)
-		}
-
-		// wait for whitelist updated
-		err = waitForWhiteListCompleted(ctx, client, d)
-		if err != nil {
-			return diag.Errorf("error while waiting to create DCS whitelist: %s", err)
+			return diag.FromErr(err)
 		}
 	}
 
-	if d.HasChange("auto_renew") {
-		bssClient, err := cfg.BssV2Client(region)
+	if d.HasChanges("whitelists", "whitelist_enable") {
+		err = updateInstanceWhitelist(ctx, d, client)
 		if err != nil {
-			return diag.Errorf("error creating BSS V2 client: %s", err)
-		}
-		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), instanceId); err != nil {
-			return diag.Errorf("error updating the auto-renew of the instance (%s): %s", instanceId, err)
+			return diag.FromErr(err)
 		}
 	}
 
 	if d.HasChange("parameters") {
 		oRaw, nRaw := d.GetChange("parameters")
 		changedParameters := nRaw.(*schema.Set).Difference(oRaw.(*schema.Set)).List()
-		err = updateParameters(ctx, d.Timeout(schema.TimeoutUpdate), client, instanceId, changedParameters)
+		err = updateParameters(ctx, d, client, schema.TimeoutUpdate, changedParameters)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -1343,9 +1087,16 @@ func resourceDcsInstancesUpdate(ctx context.Context, d *schema.ResourceData, met
 		ctx = context.WithValue(ctx, ctxType("parametersChanged"), "true")
 	}
 
+	if d.HasChange("ssl_enable") {
+		err = updateInstanceSsl(ctx, d, client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	if d.HasChange("enterprise_project_id") {
 		migrateOpts := config.MigrateResourceOpts{
-			ResourceId:   instanceId,
+			ResourceId:   d.Id(),
 			ResourceType: "dcs",
 			RegionId:     region,
 			ProjectId:    client.ProjectID,
@@ -1355,22 +1106,44 @@ func resourceDcsInstancesUpdate(ctx context.Context, d *schema.ResourceData, met
 		}
 	}
 
-	// update SSL
-	if d.HasChange("ssl_enable") {
-		sslOpts := buildSslParam(d.Get("ssl_enable").(bool))
-		_, err = instances.UpdateSsl(client, instanceId, sslOpts)
+	if d.HasChange("auto_renew") {
+		bssClient, err := cfg.BssV2Client(region)
 		if err != nil {
-			return diag.Errorf("error updating SSL for the instance (%s): %s", instanceId, err)
+			return diag.Errorf("error creating BSS V2 client: %s", err)
 		}
-
-		// wait for SSL updated
-		err = waitForSslCompleted(ctx, client, d)
-		if err != nil {
-			return diag.Errorf("error waiting for updating SSL to complete: %s", err)
+		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
+			return diag.Errorf("error updating the auto-renew of the instance (%s): %s", d.Id(), err)
 		}
 	}
 
 	return resourceDcsInstancesRead(ctx, d, meta)
+}
+
+func updateInstance(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	_, err := updateDcsInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:          "v2/{project_id}/instances/{instance_id}",
+		httpMethod:       "PUT",
+		pathParams:       map[string]string{"instance_id": d.Id()},
+		updateBodyParams: utils.RemoveNil(buildUpdateInstanceBodyParams(d)),
+	})
+	if err != nil {
+		return fmt.Errorf("error updating instance: %s", err)
+	}
+	return nil
+}
+
+func buildUpdateInstanceBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"name":                   d.Get("name"),
+		"description":            d.Get("description"),
+		"port":                   d.Get("port"),
+		"rename_commands":        buildInstanceRenameCommandsBodyParams(d),
+		"maintain_begin":         d.Get("maintain_begin"),
+		"maintain_end":           d.Get("maintain_end"),
+		"security_group_id":      utils.ValueIgnoreEmpty(d.Get("security_group_id")),
+		"instance_backup_policy": buildInstanceBackupPolicyBodyParams(d),
+	}
+	return bodyParams
 }
 
 func waitForPortUpdated(ctx context.Context, c *golangsdk.ServiceClient, d *schema.ResourceData) error {
@@ -1385,122 +1158,111 @@ func waitForPortUpdated(ctx context.Context, c *golangsdk.ServiceClient, d *sche
 	}
 	_, err := stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmt.Errorf("[DEBUG] error while waiting to create/resize/delete DCS instance. %s : %#v",
-			d.Id(), err)
+		return fmt.Errorf("error while waiting for DCS instance(%s) port update completed: %#v", d.Id(), err)
 	}
 	return nil
 }
 
 func refreshDcsInstancePort(c *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		r, err := instances.Get(c, id)
+		instance, err := getDcsInstanceByID(c, id)
 		if err != nil {
-			return nil, "Error", err
+			return nil, "ERROR", err
 		}
-		return r, strconv.Itoa(r.Port), nil
+		port := utils.PathSearch("port", instance, float64(0)).(float64)
+		return instance, strconv.Itoa(int(port)), nil
 	}
 }
 
-func updateDcsTags(c *golangsdk.ServiceClient, id string, oldVal, newVal map[string]interface{}) error {
-	// remove old tags
-	if len(oldVal) > 0 {
-		tagList := buildDcsTagsParams(oldVal)
-		err := dcsTags.Delete(c, id, tagList)
-		if err != nil {
-			return err
-		}
-	}
-
-	// add new tags
-	if len(newVal) > 0 {
-		tagList := buildDcsTagsParams(newVal)
-		err := dcsTags.Create(c, id, tagList)
-		if err != nil {
-			return err
-		}
+func updateInstancePassword(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	_, err := updateDcsInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:          "v2/{project_id}/instances/{instance_id}/password/reset",
+		httpMethod:       "POST",
+		pathParams:       map[string]string{"instance_id": d.Id()},
+		updateBodyParams: buildUpdateInstancePasswordBodyParams(d),
+		isRetry:          true,
+		timeout:          schema.TimeoutUpdate,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating instance password: %s", err)
 	}
 	return nil
 }
 
-func resizeDcsInstance(ctx context.Context, d *schema.ResourceData, meta interface{}) error {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	client, err := cfg.DcsV2Client(region)
+func buildUpdateInstancePasswordBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := make(map[string]interface{})
+	password := d.Get("password")
+	if password == "" {
+		bodyParams["no_password_access"] = true
+	} else {
+		bodyParams["new_password"] = password
+		bodyParams["no_password_access"] = false
+	}
+	return bodyParams
+}
+
+func resizeDcsInstance(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, cfg *config.Config) error {
+	oVal, nVal := d.GetChange("flavor")
+	oldSpecCode := oVal.(string)
+	newSpecCode := nVal.(string)
+	bodyParams, err := buildResizeInstanceOpt(client, d, oldSpecCode, newSpecCode)
 	if err != nil {
-		return fmt.Errorf("error creating DCS Client(v2): %s", err)
+		return err
 	}
 
-	if d.HasChanges("flavor", "capacity") {
-		oVal, nVal := d.GetChange("flavor")
-		oldSpecCode := oVal.(string)
-		newSpecCode := nVal.(string)
-		opts, err := buildResizeInstanceOpt(client, d, oldSpecCode, newSpecCode)
+	checkOrderExpression := ""
+	var bssClient *golangsdk.ServiceClient
+	if d.Get("charging_mode").(string) == chargeModePrePaid {
+		checkOrderExpression = "order_id"
+		c, err := cfg.BssV2Client(cfg.GetRegion(d))
 		if err != nil {
-			return err
+			return fmt.Errorf("error creating BSS v2 client: %s", err)
 		}
-		log.Printf("[DEBUG] Resize DCS instance options : %#v", *opts)
+		bssClient = c
+	}
+	_, err = updateDcsInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:              "v2/{project_id}/instances/{instance_id}/resize",
+		httpMethod:           "POST",
+		pathParams:           map[string]string{"instance_id": d.Id()},
+		updateBodyParams:     bodyParams,
+		isRetry:              true,
+		timeout:              schema.TimeoutUpdate,
+		checkOrderExpression: checkOrderExpression,
+		bssClient:            bssClient,
+		isWaitInstanceReady:  true,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating instance(%s) flavor: %s", d.Id(), err)
+	}
 
-		var res *instances.ResizeResponse
-		err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
-			res, err = instances.ResizeInstance(client, d.Id(), *opts)
-			isRetry, err := handleOperationError(err)
-			if isRetry {
-				return resource.RetryableError(err)
-			}
-			if err != nil {
-				return resource.NonRetryableError(err)
-			}
-			return nil
-		})
-		if err != nil {
-			return fmt.Errorf("error resize DCS instance: %s", err)
-		}
-
-		if d.Get("charging_mode").(string) == chargeModePrePaid {
-			// wait for order pay
-			bssClient, err := cfg.BssV2Client(region)
-			if err != nil {
-				return fmt.Errorf("error creating BSS v2 client: %s", err)
-			}
-			err = common.WaitOrderComplete(ctx, bssClient, res.OrderId, d.Timeout(schema.TimeoutUpdate))
-			if err != nil {
-				return err
-			}
-		}
-
-		// wait for dcs instance change
-		err = waitForDcsInstanceRunning(ctx, client, d.Id(), d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return err
-		}
-
-		// check the result of the change
-		instance, err := instances.Get(client, d.Id())
-		if err != nil {
-			return common.CheckDeleted(d, err, "DCS instance")
-		}
-		if instance.SpecCode != d.Get("flavor").(string) {
-			return fmt.Errorf("change flavor failed, after changed the DCS flavor still is: %s, expected: %s",
-				instance.SpecCode, newSpecCode)
-		}
+	// check the result of the change
+	instance, err := getDcsInstanceByID(client, d.Id())
+	if err != nil {
+		return fmt.Errorf("error getting DCS instance: %s", err)
+	}
+	specCode := utils.PathSearch("spec_code", instance, "").(string)
+	if specCode != newSpecCode {
+		return fmt.Errorf("change flavor failed, after changed the DCS flavor still is: %s, expected: %s",
+			specCode, newSpecCode)
 	}
 	return nil
 }
 
 func buildResizeInstanceOpt(client *golangsdk.ServiceClient, d *schema.ResourceData, oldSpecCode,
-	newSpecCode string) (*instances.ResizeInstanceOpts, error) {
-	opts := instances.ResizeInstanceOpts{
-		SpecCode:    newSpecCode,
-		NewCapacity: d.Get("capacity").(float64),
+	newSpecCode string) (map[string]interface{}, error) {
+	if oldSpecCode == newSpecCode {
+		return nil, errors.New("the param flavor is invalid")
+	}
+	bodyParams := map[string]interface{}{
+		"spec_code":    newSpecCode,
+		"new_capacity": d.Get("capacity"),
 	}
 	if d.Get("charging_mode").(string) == chargeModePrePaid {
-		opts.BssParam = instances.DcsBssParamOpts{
-			IsAutoPay: "true",
+		bodyParams["bss_param"] = map[string]interface{}{
+			"is_auto_pay": true,
 		}
 	}
-	if oldSpecCode == newSpecCode {
-		return nil, fmt.Errorf("the param flavor is invalid")
-	}
+
 	oldFlavor, err := getFlavorBySpecCode(client, oldSpecCode)
 	if err != nil {
 		return nil, err
@@ -1510,76 +1272,178 @@ func buildResizeInstanceOpt(client *golangsdk.ServiceClient, d *schema.ResourceD
 		return nil, err
 	}
 	changeType := getFlavorChangeType(oldFlavor, newFlavor)
-	opts.ChangeType = changeType
+	bodyParams["change_type"] = changeType
 	if changeType == "createReplication" {
 		azCodes, err := getAzCode(d, client)
 		if err != nil {
 			return nil, err
 		}
-		opts.AvailableZones = azCodes
+		bodyParams["available_zones"] = azCodes
 	}
 	if changeType == "deleteReplication" {
-		if newFlavor.CacheMode == "ha" {
-			opts.NodeList = utils.ExpandToStringList(d.Get("deleted_nodes").([]interface{}))
-		} else if newFlavor.CacheMode == "cluster" {
+		newCacheMode := utils.PathSearch("cache_mode", oldFlavor, "").(string)
+		if newCacheMode == "ha" {
+			bodyParams["node_list"] = utils.ExpandToStringList(d.Get("deleted_nodes").([]interface{}))
+		} else if newCacheMode == "cluster" {
 			azCodes, err := getAzCode(d, client)
 			if err != nil {
 				return nil, err
 			}
-			opts.ReservedIp = utils.ExpandToStringList(d.Get("reserved_ips").([]interface{}))
-			opts.AvailableZones = azCodes
+			bodyParams["reserved_ip"] = utils.ExpandToStringList(d.Get("reserved_ips").([]interface{}))
+			bodyParams["available_zones"] = azCodes
 		}
 	}
-	return &opts, nil
+	return bodyParams, nil
 }
 
-func getFlavorChangeType(oldFlavor, newFlavor *flavors.Flavor) string {
+func getFlavorChangeType(oldFlavor, newFlavor interface{}) string {
+	oldCacheMode := utils.PathSearch("cache_mode", oldFlavor, "").(string)
+	newCacheMode := utils.PathSearch("cache_mode", newFlavor, "").(string)
 	// if the cache mode is different, it indicates the type has been changed
-	if oldFlavor.CacheMode != newFlavor.CacheMode {
+	if oldCacheMode != newCacheMode {
 		return "instanceType"
 	}
+
+	oldReplicaCount := utils.PathSearch("replica_count", oldFlavor, float64(0)).(float64)
+	newReplicaCount := utils.PathSearch("replica_count", newFlavor, float64(0)).(float64)
 	// indicates the replica count increase, should add replica
-	if oldFlavor.ReplicaCount < newFlavor.ReplicaCount {
+	if oldReplicaCount < newReplicaCount {
 		return "createReplication"
 	}
 	// indicates the replica count decrease, should delete replica
-	if oldFlavor.ReplicaCount > newFlavor.ReplicaCount {
+	if oldReplicaCount > newReplicaCount {
 		return "deleteReplication"
 	}
 	// indicates only the capacity been changed
 	return ""
 }
 
-func getFlavorBySpecCode(client *golangsdk.ServiceClient, specCode string) (*flavors.Flavor, error) {
-	list, err := flavors.List(client, &flavors.ListOpts{SpecCode: specCode}).Extract()
-	if err != nil {
-		return nil, fmt.Errorf("error getting dcs flavors list by specCode %s: %s", specCode, err)
+func getFlavorBySpecCode(client *golangsdk.ServiceClient, specCode string) (interface{}, error) {
+	var (
+		httpUrl = "v2/{project_id}/flavors?spec_code={spec_code}"
+	)
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{spec_code}", specCode)
+
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
-	if len(list) < 1 {
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, fmt.Errorf("error getting DCS flavor by specCode %s: %s", specCode, err)
+	}
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return nil, err
+	}
+
+	flavor := utils.PathSearch("flavors[0]", getRespBody, nil)
+	if flavor == nil {
 		return nil, fmt.Errorf("the result queried by specCode(%s) is empty", specCode)
 	}
-	return &list[0], nil
+	return flavor, nil
 }
 
-func handleOperationError(err error) (bool, error) {
-	if err == nil {
-		return false, nil
-	}
-	if errCode, ok := err.(golangsdk.ErrDefault400); ok {
-		var apiError interface{}
-		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
-			return false, jsonErr
-		}
-		errorCode, errorCodeErr := jmespath.Search("error_code", apiError)
-		if errorCodeErr != nil {
-			return false, fmt.Errorf("error parse errorCode from response body: %s", errorCodeErr)
-		}
-		// CBC.99003651: Another operation is being performed.
-		if operateErrorCode[errorCode.(string)] || errorCode == "CBC.99003651" {
-			return true, err
+func updateDcsTags(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	oldRaw, newRaw := d.GetChange("tags")
+	oldTags := oldRaw.(map[string]interface{})
+	newTags := newRaw.(map[string]interface{})
+	// remove old tags
+	if len(oldTags) > 0 {
+		_, err := updateDcsInstanceField(ctx, d, client, updateInstanceFieldParams{
+			httpUrl:          "v2/{project_id}/dcs/{instance_id}/tags/action",
+			httpMethod:       "POST",
+			pathParams:       map[string]string{"instance_id": d.Id()},
+			updateBodyParams: buildDcsTagsParams("delete", oldTags),
+		})
+		if err != nil {
+			return fmt.Errorf("error updating instance(%s) tags: %s", d.Id(), err)
 		}
 	}
-	return false, err
+
+	if len(newTags) > 0 {
+		_, err := updateDcsInstanceField(ctx, d, client, updateInstanceFieldParams{
+			httpUrl:          "v2/{project_id}/dcs/{instance_id}/tags/action",
+			httpMethod:       "POST",
+			pathParams:       map[string]string{"instance_id": d.Id()},
+			updateBodyParams: buildDcsTagsParams("create", newTags),
+		})
+		if err != nil {
+			return fmt.Errorf("error updating instance(%s) tags: %s", d.Id(), err)
+		}
+	}
+	return nil
+}
+
+func buildDcsTagsParams(action string, rawTags map[string]interface{}) map[string]interface{} {
+	if len(rawTags) == 0 {
+		return nil
+	}
+	tags := make([]map[string]interface{}, 0)
+	for key, value := range rawTags {
+		tags = append(tags, map[string]interface{}{
+			"key":   key,
+			"value": value,
+		})
+	}
+	bodyPrams := map[string]interface{}{
+		"action": action,
+		"tags":   tags,
+	}
+	return bodyPrams
+}
+
+func updateInstanceWhitelist(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	_, err := updateDcsInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:          "v2/{project_id}/instance/{instance_id}/whitelist",
+		httpMethod:       "PUT",
+		pathParams:       map[string]string{"instance_id": d.Id()},
+		updateBodyParams: utils.RemoveNil(buildUpdateInstanceWhitelistBodyParams(d)),
+	})
+	if err != nil {
+		return fmt.Errorf("error updating instance whitelist: %s", err)
+	}
+	return nil
+}
+
+func buildUpdateInstanceWhitelistBodyParams(d *schema.ResourceData) map[string]interface{} {
+	groupList := d.Get("whitelists").(*schema.Set)
+	params := make([]map[string]interface{}, 0, groupList.Len())
+	for _, v := range groupList.List() {
+		group := v.(map[string]interface{})
+		params = append(params, map[string]interface{}{
+			"group_name": group["group_name"],
+			"ip_list":    utils.ExpandToStringList(group["ip_address"].([]interface{})),
+		})
+	}
+	bodyParams := map[string]interface{}{
+		"enable_whitelist": d.Get("whitelist_enable"),
+		"whitelist":        params,
+	}
+	return bodyParams
+}
+
+func updateInstanceSsl(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	_, err := updateDcsInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:            "v2/{project_id}/instances/{instance_id}/ssl",
+		httpMethod:         "PUT",
+		pathParams:         map[string]string{"instance_id": d.Id()},
+		updateBodyParams:   utils.RemoveNil(buildUpdateInstanceSslBodyParams(d)),
+		checkJobExpression: "job_id",
+	})
+	if err != nil {
+		return fmt.Errorf("error updating instance SSL: %s", err)
+	}
+	return nil
+}
+
+func buildUpdateInstanceSslBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"enabled": d.Get("ssl_enable"),
+	}
+	return bodyParams
 }
 
 func resourceDcsInstancesDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -1686,14 +1550,30 @@ func getAvailableZoneCodeByID(client *golangsdk.ServiceClient, azIds []interface
 		return azCodes, fmt.Errorf("availability_zones are required")
 	}
 
-	list, err := availablezones.List(client)
+	var (
+		httpUrl = "v2/available-zones"
+	)
+	getPath := client.Endpoint + httpUrl
+
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return azCodes, err
+		return nil, err
+	}
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return nil, err
 	}
 
+	availableZones := utils.PathSearch("available_zones", getRespBody, make([]interface{}, 0)).([]interface{})
 	mapping := make(map[string]string)
-	for _, v := range list.AvailableZones {
-		mapping[v.ID] = v.Code
+	for _, v := range availableZones {
+		id := utils.PathSearch("id", v, "").(string)
+		code := utils.PathSearch("code", v, "").(string)
+		mapping[id] = code
 	}
 
 	for _, id := range azIds {
@@ -1705,28 +1585,4 @@ func getAvailableZoneCodeByID(client *golangsdk.ServiceClient, azIds []interface
 	}
 
 	return azCodes, nil
-}
-
-func waitForSslCompleted(ctx context.Context, c *golangsdk.ServiceClient, d *schema.ResourceData) error {
-	enable := d.Get("ssl_enable").(bool)
-	stateConf := &resource.StateChangeConf{
-		Pending:      []string{strconv.FormatBool(!enable)},
-		Target:       []string{strconv.FormatBool(enable)},
-		Refresh:      updateSslStatusRefreshFunc(c, d.Id()),
-		Timeout:      d.Timeout(schema.TimeoutUpdate),
-		Delay:        2 * time.Second,
-		PollInterval: 2 * time.Second,
-	}
-	_, err := stateConf.WaitForStateContext(ctx)
-	return err
-}
-
-func updateSslStatusRefreshFunc(c *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		r, err := instances.GetSsl(c, id)
-		if err != nil {
-			return nil, "Error", err
-		}
-		return r, strconv.FormatBool(r.Enable), nil
-	}
 }
