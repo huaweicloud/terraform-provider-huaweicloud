@@ -1341,6 +1341,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_sdrs_replication_pairs":       sdrs.DataSourceReplicationPairs(),
 			"huaweicloud_sdrs_resource_rpo_statistics": sdrs.DataSourceSdrsRpoStatistics(),
 			"huaweicloud_sdrs_drills":                  sdrs.DataSourceSdrsDrills(),
+			"huaweicloud_sdrs_protected_instances":     sdrs.DataSourceSdrsProtectedInstances(),
 
 			"huaweicloud_secmaster_workflows":                 secmaster.DataSourceSecmasterWorkflows(),
 			"huaweicloud_secmaster_workspaces":                secmaster.DataSourceSecmasterWorkspaces(),
