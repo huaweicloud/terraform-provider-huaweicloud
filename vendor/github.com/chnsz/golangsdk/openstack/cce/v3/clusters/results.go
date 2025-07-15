@@ -91,6 +91,8 @@ type Spec struct {
 	SupportIstio bool `json:"supportIstio,omitempty"`
 	// The category, the value can be CCE and CCE
 	Category string `json:"category,omitempty"`
+	// The Encrytion Config
+	EncryptionConfig *EncryptionConfig `json:"encryptionConfig,omitempty"`
 }
 
 type ServiceNetwork struct {
@@ -100,6 +102,11 @@ type ServiceNetwork struct {
 type PackageConfiguration struct {
 	Name           string        `json:"name,omitempty"`
 	Configurations []interface{} `json:"configurations,omitempty"`
+}
+
+type EncryptionConfig struct {
+	Mode     string `json:"mode,omitempty"`
+	KmsKeyID string `json:"kmsKeyID,omitempty"`
 }
 
 // Node network parameters
