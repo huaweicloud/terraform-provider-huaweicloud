@@ -15,13 +15,15 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers"
-	"github.com/chnsz/golangsdk/openstack/sms/v3/sources"
 	"github.com/chnsz/golangsdk/openstack/sms/v3/tasks"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
+
+var taskNonUpdatableParams = []string{"auto_start", "use_ipv6", "start_network_check", "migrate_speed_limit",
+	"over_speed_threshold", "is_need_consistency_check", "need_migration_test"}
 
 // ResourceMigrateTask is the impl of huaweicloud_sms_task
 // @API SMS GET /v3/sources/{id}
@@ -44,6 +46,8 @@ func ResourceMigrateTask() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+
+		CustomizeDiff: config.FlexibleForceNew(taskNonUpdatableParams),
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(5 * time.Minute),
@@ -219,6 +223,34 @@ func ResourceMigrateTask() *schema.Resource {
 					"start", "stop", "restart",
 				}, false),
 			},
+			"auto_start": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"use_ipv6": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"start_network_check": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"migrate_speed_limit": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"over_speed_threshold": {
+				Type:     schema.TypeFloat,
+				Optional: true,
+			},
+			"is_need_consistency_check": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"need_migration_test": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
 			"speed_limit": {
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -263,6 +295,12 @@ func ResourceMigrateTask() *schema.Resource {
 					},
 				},
 			},
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
+			},
 			"target_server_name": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -289,129 +327,6 @@ func ResourceMigrateTask() *schema.Resource {
 			},
 		},
 	}
-}
-
-func buildDefaultTargetServerPVRequest(rawPVs []sources.PhysicalVolumes) []tasks.PVRequest {
-	if len(rawPVs) == 0 {
-		return nil
-	}
-
-	pvs := make([]tasks.PVRequest, len(rawPVs))
-	for i, pv := range rawPVs {
-		pvs[i] = tasks.PVRequest{
-			Name:       pv.Name,
-			Size:       pv.Size,
-			DeviceType: pv.DeviceType,
-			FileSystem: pv.FileSystem,
-			MountPoint: pv.MountPoint,
-			Index:      &pv.Index,
-			UUID:       pv.UUID,
-			UsedSize:   pv.UsedSize,
-		}
-	}
-
-	return pvs
-}
-
-func buildDefaultTargetServerDiskRequest(d *schema.ResourceData, cfg *config.Config, sid string) ([]tasks.DiskRequest, error) {
-	smsClient, err := cfg.SmsV3Client(cfg.GetRegion(d))
-	if err != nil {
-		return nil, fmt.Errorf("error creating SMS client: %s", err)
-	}
-
-	log.Printf("[DEBUG] filtering SMS source servers by id %s", sid)
-	server, err := sources.Get(smsClient, sid)
-	if err != nil {
-		return nil, fmt.Errorf("unable to find the source server %s: %s", sid, err)
-	}
-
-	sourceDisks := server.InitTargetServer.Disks
-	disks := make([]tasks.DiskRequest, len(sourceDisks))
-	for i, d := range sourceDisks {
-		disks[i] = tasks.DiskRequest{
-			Name:            d.Name,
-			Size:            d.Size,
-			DeviceType:      d.DeviceUse,
-			PhysicalVolumes: buildDefaultTargetServerPVRequest(d.PhysicalVolumes),
-		}
-	}
-
-	return disks, nil
-}
-
-func buildTargetServerPVRequest(raw []interface{}) []tasks.PVRequest {
-	if len(raw) == 0 {
-		return nil
-	}
-
-	pvs := make([]tasks.PVRequest, len(raw))
-	for i, pv := range raw {
-		item := pv.(map[string]interface{})
-		idx := item["index"].(int)
-		pvs[i] = tasks.PVRequest{
-			Name:       item["name"].(string),
-			Size:       convertMBtoBytes(int64(item["size"].(int))),
-			UsedSize:   convertMBtoBytes(int64(item["used_size"].(int))),
-			DeviceType: item["device_type"].(string),
-			FileSystem: item["file_system"].(string),
-			MountPoint: item["mount_point"].(string),
-			Index:      &idx,
-			UUID:       item["uuid"].(string),
-		}
-	}
-
-	return pvs
-}
-
-func buildTargetServerDiskRequest(d *schema.ResourceData, cfg *config.Config, sid string) ([]tasks.DiskRequest, error) {
-	v, ok := d.GetOk("target_server_disks")
-	if !ok {
-		return buildDefaultTargetServerDiskRequest(d, cfg, sid)
-	}
-
-	disksRaw := v.([]interface{})
-	disks := make([]tasks.DiskRequest, len(disksRaw))
-	for i, d := range disksRaw {
-		item := d.(map[string]interface{})
-		disks[i] = tasks.DiskRequest{
-			Name:            item["name"].(string),
-			DeviceType:      item["device_type"].(string),
-			Size:            convertMBtoBytes(int64(item["size"].(int))),
-			UsedSize:        convertMBtoBytes(int64(item["used_size"].(int))),
-			DiskId:          item["disk_id"].(string),
-			PhysicalVolumes: buildTargetServerPVRequest(item["physical_volumes"].([]interface{})),
-		}
-	}
-
-	return disks, nil
-}
-
-func buildTargetServerRequest(d *schema.ResourceData, cfg *config.Config, sid string) (tasks.TargetServerRequest, error) {
-	var targetServer tasks.TargetServerRequest
-
-	if v, ok := d.GetOk("target_server_id"); ok {
-		serverID := v.(string)
-		ecsClient, err := cfg.ComputeV1Client(cfg.GetRegion(d))
-		if err != nil {
-			return targetServer, fmt.Errorf("error creating compute client: %s", err)
-		}
-
-		server, err := cloudservers.Get(ecsClient, serverID).Extract()
-		if err != nil {
-			return targetServer, fmt.Errorf("error retrieving ECS instance %s: %s", serverID, err)
-		}
-
-		targetServer.Name = server.Name
-		targetServer.VMID = serverID
-	}
-
-	targetDisks, err := buildTargetServerDiskRequest(d, cfg, sid)
-	if err != nil {
-		return tasks.TargetServerRequest{}, err
-	}
-
-	targetServer.Disks = targetDisks
-	return targetServer, nil
 }
 
 func getProjectID(d *schema.ResourceData, cfg *config.Config, region string) string {
@@ -441,40 +356,211 @@ func getProjectName(d *schema.ResourceData, cfg *config.Config) string {
 	return projectName
 }
 
-func buildMigrateTaskRequest(d *schema.ResourceData, cfg *config.Config) (*tasks.CreateOpts, error) {
+func buildCreateTaskBodyParams(d *schema.ResourceData, cfg *config.Config) (map[string]interface{}, error) {
 	region := cfg.GetRegion(d)
 
-	sourceID := d.Get("source_server_id").(string)
-	source := tasks.SourceServerRequest{
-		Id: sourceID,
-	}
-
-	target, err := buildTargetServerRequest(d, cfg, sourceID)
+	target, err := buildCreateTaskTargetServerBodyParams(d, cfg)
 	if err != nil {
 		return nil, err
 	}
 
 	_, existing := d.GetOk("target_server_id")
-	createOpts := tasks.CreateOpts{
-		Name:         "MigrationTask",
-		Priority:     1,
-		Type:         d.Get("type").(string),
-		OsType:       d.Get("os_type").(string),
-		Region:       region,
-		RegionID:     region,
-		Project:      getProjectName(d, cfg),
-		ProjectID:    getProjectID(d, cfg, region),
-		SourceServer: source,
-		TargetServer: target,
-		VmTemplateId: d.Get("vm_template_id").(string),
-		MigrationIp:  d.Get("migration_ip").(string),
-		UsePublicIp:  utils.Bool(d.Get("use_public_ip").(bool)),
-		StartServer:  utils.Bool(d.Get("start_target_server").(bool)),
-		Syncing:      utils.Bool(d.Get("syncing").(bool)),
-		ExistServer:  &existing,
+	bodyParams := map[string]interface{}{
+		"name":                      "MigrationTask",
+		"priority":                  1,
+		"type":                      d.Get("type"),
+		"os_type":                   d.Get("os_type"),
+		"region_name":               region,
+		"region_id":                 region,
+		"project_name":              getProjectName(d, cfg),
+		"project_id":                getProjectID(d, cfg, region),
+		"source_server":             buildCreateTaskSourceServerBodyParams(d),
+		"target_server":             target,
+		"vm_template_id":            utils.ValueIgnoreEmpty(d.Get("vm_template_id")),
+		"migration_ip":              utils.ValueIgnoreEmpty(d.Get("migration_ip")),
+		"use_public_ip":             utils.ValueIgnoreEmpty(d.Get("use_public_ip")),
+		"start_target_server":       utils.ValueIgnoreEmpty(d.Get("start_target_server")),
+		"syncing":                   utils.ValueIgnoreEmpty(d.Get("syncing")),
+		"exist_server":              existing,
+		"auto_start":                utils.ValueIgnoreEmpty(d.Get("auto_start")),
+		"use_ipv6":                  utils.ValueIgnoreEmpty(d.Get("use_ipv6")),
+		"start_network_check":       utils.ValueIgnoreEmpty(d.Get("start_network_check")),
+		"speed_limit":               utils.ValueIgnoreEmpty(d.Get("migrate_speed_limit")),
+		"over_speed_threshold":      utils.ValueIgnoreEmpty(d.Get("over_speed_threshold")),
+		"is_need_consistency_check": utils.ValueIgnoreEmpty(d.Get("is_need_consistency_check")),
+		"need_migration_test":       utils.ValueIgnoreEmpty(d.Get("need_migration_test")),
 	}
 
-	return &createOpts, nil
+	return bodyParams, nil
+}
+
+func buildCreateTaskSourceServerBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"id": d.Get("source_server_id"),
+	}
+
+	return bodyParams
+}
+
+func buildCreateTaskTargetServerBodyParams(d *schema.ResourceData, cfg *config.Config) (map[string]interface{}, error) {
+	bodyParams := make(map[string]interface{})
+
+	if v, ok := d.GetOk("target_server_id"); ok {
+		serverID := v.(string)
+		ecsClient, err := cfg.ComputeV1Client(cfg.GetRegion(d))
+		if err != nil {
+			return nil, fmt.Errorf("error creating compute client: %s", err)
+		}
+
+		server, err := cloudservers.Get(ecsClient, serverID).Extract()
+		if err != nil {
+			return nil, fmt.Errorf("error retrieving ECS instance %s: %s", serverID, err)
+		}
+
+		bodyParams["name"] = server.Name
+		bodyParams["vm_id"] = serverID
+	}
+
+	v, ok := d.GetOk("target_server_disks")
+	if !ok {
+		defaultDisks, err := buildCreateTaskTargetServerDisksDefaultBodyParams(d, cfg, d.Get("source_server_id").(string))
+		if err != nil {
+			return nil, err
+		}
+		bodyParams["disks"] = defaultDisks
+	} else {
+		bodyParams["disks"] = buildCreateTaskTargetServerDisksBodyParams(v)
+	}
+
+	return bodyParams, nil
+}
+
+func buildCreateTaskTargetServerDisksDefaultBodyParams(d *schema.ResourceData, cfg *config.Config,
+	sid string) ([]map[string]interface{}, error) {
+	smsClient, err := cfg.SmsV3Client(cfg.GetRegion(d))
+	if err != nil {
+		return nil, fmt.Errorf("error creating SMS client: %s", err)
+	}
+
+	log.Printf("[DEBUG] filtering SMS source servers by id %s", sid)
+	sourceServer, err := getSourceServer(smsClient, sid)
+	if err != nil {
+		return nil, fmt.Errorf("unable to find the source server %s: %s", sid, err)
+	}
+
+	sourceServerDiskParams := utils.PathSearch("init_target_server.disks", sourceServer,
+		make([]interface{}, 0)).([]interface{})
+	params := make([]map[string]interface{}, len(sourceServerDiskParams))
+	for i, v := range sourceServerDiskParams {
+		raw := v.(map[string]interface{})
+		params[i] = map[string]interface{}{
+			"name":             raw["name"],
+			"size":             raw["size"],
+			"device_use":       raw["device_use"],
+			"physical_volumes": buildCreateTaskTargetServerDisksDefaultPhysicalVolumesBodyParams(raw["physical_volumes"]),
+		}
+	}
+
+	return params, nil
+}
+
+func getSourceServer(client *golangsdk.ServiceClient, sourceServerId string) (interface{}, error) {
+	getHttpUrl := "v3/sources/{source_id}"
+	getPath := client.Endpoint + getHttpUrl
+	getPath = strings.ReplaceAll(getPath, "{source_id}", sourceServerId)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return nil, fmt.Errorf("error flattening source server: %s", err)
+	}
+
+	return getRespBody, nil
+}
+
+func buildCreateTaskTargetServerDisksDefaultPhysicalVolumesBodyParams(rawParams interface{}) []map[string]interface{} {
+	if rawArray, ok := rawParams.([]interface{}); ok {
+		if len(rawArray) == 0 {
+			return nil
+		}
+
+		params := make([]map[string]interface{}, len(rawArray))
+		for i, v := range rawArray {
+			raw := v.(map[string]interface{})
+			params[i] = map[string]interface{}{
+				"name":        raw["name"],
+				"size":        raw["size"],
+				"device_use":  raw["device_use"],
+				"file_system": raw["file_system"],
+				"mount_point": raw["mount_point"],
+				"index":       raw["index"],
+				"uuid":        raw["uuid"],
+				"used_size":   raw["used_size"],
+			}
+		}
+		return params
+	}
+
+	return nil
+}
+
+func buildCreateTaskTargetServerDisksBodyParams(rawParams interface{}) []map[string]interface{} {
+	if rawArray, ok := rawParams.([]interface{}); ok {
+		if len(rawArray) == 0 {
+			return nil
+		}
+
+		params := make([]map[string]interface{}, len(rawArray))
+		for i, v := range rawArray {
+			raw := v.(map[string]interface{})
+			params[i] = map[string]interface{}{
+				"name":             raw["name"],
+				"device_use":       raw["device_type"],
+				"size":             convertMBtoBytes(int64(raw["size"].(int))),
+				"used_size":        convertMBtoBytes(int64(raw["used_size"].(int))),
+				"disk_id":          raw["disk_id"],
+				"physical_volumes": buildCreateTaskTargetServerDisksPhysicalVolumesBodyParams(raw["physical_volumes"]),
+			}
+		}
+		return params
+	}
+
+	return nil
+}
+
+func buildCreateTaskTargetServerDisksPhysicalVolumesBodyParams(rawParams interface{}) []map[string]interface{} {
+	if rawArray, ok := rawParams.([]interface{}); ok {
+		if len(rawArray) == 0 {
+			return nil
+		}
+
+		params := make([]map[string]interface{}, len(rawArray))
+		for i, v := range rawArray {
+			raw := v.(map[string]interface{})
+			params[i] = map[string]interface{}{
+				"name":        raw["name"],
+				"size":        convertMBtoBytes(int64(raw["size"].(int))),
+				"used_size":   convertMBtoBytes(int64(raw["used_size"].(int))),
+				"device_use":  raw["device_type"],
+				"file_system": raw["file_system"],
+				"mount_point": raw["mount_point"],
+				"index":       raw["index"],
+				"uuid":        raw["uuid"],
+			}
+		}
+		return params
+	}
+
+	return nil
 }
 
 func operationMigrateTask(client *golangsdk.ServiceClient, id, operation string) error {
@@ -491,15 +577,35 @@ func resourceMigrateTaskCreate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error creating SMS client: %s", err)
 	}
 
-	createOpts, err := buildMigrateTaskRequest(d, config)
+	createBodyParams, err := buildCreateTaskBodyParams(d, config)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
+	createHttpUrl := "v3/tasks"
+	createPath := smsClient.Endpoint + createHttpUrl
+	createOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+		JSONBody: utils.RemoveNil(createBodyParams),
+	}
+
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
-	id, err := tasks.Create(smsClient, createOpts)
+	createResp, err := smsClient.Request("POST", createPath, &createOpts)
 	if err != nil {
 		return diag.Errorf("error creating SMS migrate task: %s", err)
+	}
+
+	createRespBody, err := utils.FlattenResponse(createResp)
+	if err != nil {
+		return diag.Errorf("error flattening creating migrate task response: %s", err)
+	}
+
+	id := utils.PathSearch("id", createRespBody, "").(string)
+	if id == "" {
+		return diag.Errorf("error creating SMS migrate task: can not found migrate task id in return")
 	}
 
 	d.SetId(id)
@@ -538,27 +644,33 @@ func resourceMigrateTaskRead(_ context.Context, d *schema.ResourceData, meta int
 		return diag.Errorf("error creating SMS client: %s", err)
 	}
 
-	migTask, err := tasks.Get(smsClient, d.Id())
+	smsTask, err := GetSmsTask(smsClient, d.Id())
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error fetching SMS migrate task")
 	}
 
-	log.Printf("[DEBUG] Retrieved SMS migrate task %s: %+v", d.Id(), migTask)
-	mErr := multierror.Append(
-		d.Set("region", migTask.Region),
-		d.Set("project_id", migTask.ProjectID),
-		d.Set("type", migTask.Type),
-		d.Set("os_type", migTask.OsType),
-		d.Set("vm_template_id", migTask.VmTemplateId),
-		d.Set("source_server_id", migTask.SourceServer.Id),
-		d.Set("target_server_id", migTask.TargetServer.VMID),
-		d.Set("target_server_name", migTask.TargetServer.Name),
-		d.Set("target_server_disks", flattenTargetServerDisks(migTask.TargetServer.Disks)),
-		d.Set("start_target_server", migTask.StartTargetServer),
-		d.Set("migration_ip", migTask.MigrationIp),
-		d.Set("state", migTask.State),
-		d.Set("enterprise_project_id", migTask.EnterpriseProjectId),
-		d.Set("migrate_speed", migTask.MigrateSpeed),
+	log.Printf("[DEBUG] Retrieved SMS migrate task %s: %+v", d.Id(), smsTask)
+	mErr := multierror.Append(nil,
+		d.Set("region", utils.PathSearch("region_name", smsTask, nil)),
+		d.Set("project_id", utils.PathSearch("project_id", smsTask, nil)),
+		d.Set("type", utils.PathSearch("type", smsTask, nil)),
+		d.Set("os_type", utils.PathSearch("os_type", smsTask, nil)),
+		d.Set("vm_template_id", utils.PathSearch("vm_template_id", smsTask, nil)),
+		d.Set("source_server_id", utils.PathSearch("source_server.id", smsTask, nil)),
+		d.Set("target_server_id", utils.PathSearch("target_server.vm_id", smsTask, nil)),
+		d.Set("target_server_name", utils.PathSearch("target_server.name", smsTask, nil)),
+		d.Set("target_server_disks", flattenSmsTaskTargetServerDisks(
+			utils.PathSearch("target_server.disks", smsTask, make([]interface{}, 0)).([]interface{}))),
+		d.Set("start_target_server", utils.PathSearch("start_target_server", smsTask, nil)),
+		d.Set("migration_ip", utils.PathSearch("migration_ip", smsTask, nil)),
+		d.Set("state", utils.PathSearch("state", smsTask, nil)),
+		d.Set("enterprise_project_id", utils.PathSearch("enterprise_project_id", smsTask, nil)),
+		d.Set("migrate_speed", utils.PathSearch("migrate_speed", smsTask, nil)),
+		d.Set("migrate_speed_limit", utils.PathSearch("speed_limit", smsTask, nil)),
+		d.Set("use_public_ip", utils.PathSearch("use_public_ip", smsTask, nil)),
+		d.Set("syncing", utils.PathSearch("syncing", smsTask, nil)),
+		d.Set("use_ipv6", utils.PathSearch("use_ipv6", smsTask, nil)),
+		d.Set("need_migration_test", utils.PathSearch("need_migration_test", smsTask, nil)),
 	)
 
 	getHttpUrl := "v3/tasks/{task_id}/speed-limit"
@@ -596,6 +708,78 @@ func resourceMigrateTaskRead(_ context.Context, d *schema.ResourceData, meta int
 	}
 
 	return nil
+}
+
+func flattenSmsTaskTargetServerDisks(paramsList []interface{}) []interface{} {
+	if len(paramsList) == 0 {
+		return nil
+	}
+	rst := make([]interface{}, 0, len(paramsList))
+	for _, params := range paramsList {
+		raw := params.(map[string]interface{})
+		m := map[string]interface{}{
+			"device_type": utils.PathSearch("device_use", raw, nil),
+			"name":        utils.PathSearch("name", raw, nil),
+			"size":        convertBytestoMB(int64(utils.PathSearch("size", raw, float64(0)).(float64))),
+			"used_size":   convertBytestoMB(int64(utils.PathSearch("used_size", raw, float64(0)).(float64))),
+			"disk_id":     utils.PathSearch("disk_id", raw, nil),
+			"physical_volumes": flattenSmsTaskTargetServerDisksPhysicalVolumes(
+				utils.PathSearch("physical_volumes", raw, nil)),
+		}
+		rst = append(rst, m)
+	}
+
+	return rst
+}
+
+func flattenSmsTaskTargetServerDisksPhysicalVolumes(rawParams interface{}) []interface{} {
+	if paramsList, ok := rawParams.([]interface{}); ok {
+		if len(paramsList) == 0 {
+			return nil
+		}
+		rst := make([]interface{}, 0, len(paramsList))
+		for _, params := range paramsList {
+			raw := params.(map[string]interface{})
+			m := map[string]interface{}{
+				"device_type": utils.PathSearch("device_use", raw, nil),
+				"name":        utils.PathSearch("name", raw, nil),
+				"size":        convertBytestoMB(int64(utils.PathSearch("size", raw, float64(0)).(float64))),
+				"used_size":   convertBytestoMB(int64(utils.PathSearch("used_size", raw, float64(0)).(float64))),
+				"file_system": utils.PathSearch("file_system", raw, nil),
+				"mount_point": utils.PathSearch("mount_point", raw, nil),
+				"index":       utils.PathSearch("index", raw, nil),
+				"uuid":        utils.PathSearch("uuid", raw, nil),
+			}
+			rst = append(rst, m)
+		}
+
+		return rst
+	}
+
+	return nil
+}
+
+func GetSmsTask(client *golangsdk.ServiceClient, taskID string) (interface{}, error) {
+	getHttpUrl := "v3/tasks/{task_id}"
+	getPath := client.Endpoint + getHttpUrl
+	getPath = strings.ReplaceAll(getPath, "{task_id}", taskID)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return nil, fmt.Errorf("error flattening task: %s", err)
+	}
+
+	return getRespBody, nil
 }
 
 func flattenSmsTaskConfigurations(paramsList []interface{}) []interface{} {
@@ -771,9 +955,19 @@ func resourceMigrateTaskDelete(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error creating SMS client: %s", err)
 	}
 
-	err = tasks.Delete(smsClient, d.Id()).ExtractErr()
+	deleteHttpUrl := "v3/tasks/{task_id}"
+	deletePath := smsClient.Endpoint + deleteHttpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{task_id}", d.Id())
+	deleteOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+	}
+
+	_, err = smsClient.Request("DELETE", deletePath, &deleteOpt)
 	if err != nil {
-		return diag.Errorf("error deleting SMS migrate task: %s", err)
+		return common.CheckDeletedDiag(d, err, "error deleting SMS migrate task")
 	}
 
 	return nil
@@ -801,38 +995,6 @@ func taskStateRefreshFunc(client *golangsdk.ServiceClient, id string) resource.S
 
 		return migTask, migTask.State, nil
 	}
-}
-
-func flattenTargetServerDisks(disks []tasks.TargetDisk) []map[string]interface{} {
-	results := make([]map[string]interface{}, len(disks))
-	for i, item := range disks {
-		results[i] = map[string]interface{}{
-			"device_type":      item.DeviceType,
-			"name":             item.Name,
-			"size":             convertBytestoMB(item.Size),
-			"used_size":        convertBytestoMB(item.UsedSize),
-			"disk_id":          item.DiskId,
-			"physical_volumes": flattenTargetServerPVs(item.PhysicalVolumes),
-		}
-	}
-	return results
-}
-
-func flattenTargetServerPVs(pvs []tasks.TargetPhysicalVolumes) []map[string]interface{} {
-	results := make([]map[string]interface{}, len(pvs))
-	for i, item := range pvs {
-		results[i] = map[string]interface{}{
-			"device_type": item.DeviceType,
-			"name":        item.Name,
-			"size":        convertBytestoMB(item.Size),
-			"used_size":   convertBytestoMB(item.UsedSize),
-			"file_system": item.FileSystem,
-			"mount_point": item.MountPoint,
-			"index":       item.Index,
-			"uuid":        item.UUID,
-		}
-	}
-	return results
 }
 
 func convertBytestoMB(bytes int64) int64 {
