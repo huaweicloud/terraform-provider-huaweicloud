@@ -1,0 +1,48 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cbr_vault_set_resource": {
+          "block": {
+            "attributes": {
+              "action": {
+                "type": "string",
+                "description": "Specifies the action to configure backup settings.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to create the resource. If omitted, the provider-level\nregion will be used.",
+                "computed": true
+              },
+              "resource_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the list of resource IDs for which to configure backup settings.",
+                "required": true
+              },
+              "vault_id": {
+                "type": "string",
+                "description": "Specifies ID of the CBR vault to configure resource backup settings.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "CBR",
+            "name": "Cloud Backup and Recovery",
+            "catalog": "Storage",
+            "name_cn": "云备份",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}

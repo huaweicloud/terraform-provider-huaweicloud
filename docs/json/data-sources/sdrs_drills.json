@@ -1,0 +1,79 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_sdrs_drills": {
+          "block": {
+            "attributes": {
+              "disaster_recovery_drills": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "drill_servers": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "drill_server_id": "string",
+                            "protected_instance": "string"
+                          }
+                        ]
+                      ],
+                      "drill_vpc_id": "string",
+                      "id": "string",
+                      "name": "string",
+                      "server_group_id": "string",
+                      "status": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "The DR drills.",
+                "computed": true
+              },
+              "drill_vpc_id": {
+                "type": "string",
+                "description": "Specifies the ID of the VPC used for a DR drill.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the DR drill name. Fuzzy search is supported.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "server_group_id": {
+                "type": "string",
+                "description": "Specifies the ID of a protection group.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the DR drill status.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "SDRS",
+            "name": "Storage Disaster Recovery Service",
+            "catalog": "Storage",
+            "name_cn": "存储容灾服务",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}

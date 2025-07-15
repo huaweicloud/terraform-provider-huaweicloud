@@ -267,6 +267,27 @@
                 },
                 "nesting_mode": "list"
               },
+              "encryption_config": {
+                "block": {
+                  "attributes": {
+                    "kms_key_id": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "mode": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              },
               "extend_params": {
                 "block": {
                   "attributes": {
