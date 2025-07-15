@@ -33,3 +33,6 @@ dist
 *.tfplan
 # terraform.tfvars is allowed to be committed
 *.auto.tfvars
+
+# Ignore all files in the current directory that start with `.c` (they are local tools)
+.c*
