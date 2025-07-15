@@ -19,6 +19,7 @@ const (
 	templateNotFoundError = "DEVPIPE.00011203"
 	projectNotFoundError  = "DEV_21_100169"
 	projectNotFoundError2 = "DEVPIPE.00011412"
+	tagNotFoundError      = "DEVPIPE.00014024"
 )
 
 // checkResponseError use to check whether the CodeArts Pipeline API response body contains error code.
