@@ -17,6 +17,7 @@ import (
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/mrs/v2/jobs"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -41,6 +42,11 @@ const (
 	// JobSparkScript is a type of the MRS job, which specifies the use of Spark componment by a sql file.
 	JobSparkScript = "SparkScript"
 )
+
+var v2ClusterJobNotFoundCodes = []string{
+	"12000003", // The MRS cluster does not exist.
+	"0176",     // The job does not exist.
+}
 
 // ResourceMRSJobV2 is a schema resource to provider the MRS job.
 // @API MRS POST /v2/{project_id}/clusters/{cluster_id}/job-executions/batch-delete
@@ -504,7 +510,18 @@ func resourceMRSJobV2Read(_ context.Context, d *schema.ResourceData, meta interf
 	clusterId := d.Get("cluster_id").(string)
 	resp, err := jobs.Get(client, clusterId, d.Id()).Extract()
 	if err != nil {
-		return diag.Errorf("error getting MRS job form server: %s", err)
+		// `12000003`: The corresponding error code key is `errorCode`.
+		// `0176`: The job does not exist. The corresponding error code key is `error_code`.
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(
+				// In the future, the key corresponding to the error code may be changed from `errorCode` to `error_code`,
+				// or from `error_code` to `errorCode`. So we use `v2ClusterJobNotFoundCodes` to cover both cases.
+				common.ConvertExpected400ErrInto404Err(err, "error_code", v2ClusterJobNotFoundCodes...),
+				"errorCode",
+				v2ClusterJobNotFoundCodes...,
+			),
+			"error getting MRS job form server",
+		)
 	}
 
 	log.Printf("[DEBUG] Retrieved MRS job (%s): %+v", d.Id(), resp)
