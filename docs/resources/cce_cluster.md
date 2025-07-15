@@ -300,6 +300,10 @@ The following arguments are supported:
   For details, see [documentation](https://support.huaweicloud.com/intl/en-us/usermanual-cce/cce_10_0213.html).
   The [object](#cce_cluster_component_configurations) structure is documented below.
 
+* `encryption_config` - (Optional, List, ForceNew) Specifies the encryption configuration.
+  The [object](#cce_cluster_encryption_config) structure is documented below.
+  Changing this parameter will create a new cluster resource.
+
 * `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the CCE cluster.
   Valid values are **prePaid** and **postPaid**, defaults to **postPaid**.
   Changing this parameter will create a new cluster resource.
@@ -402,6 +406,13 @@ The `component_configurations` block supports:
 * `name` - (Required, String) Specifies the component name.
 
 * `configurations` - (Optional, String) Specifies JSON string of the component configurations.
+
+<a name="cce_cluster_encryption_config"></a>
+The `encryption_config` block supports:
+
+* `mode` - (Optional, String, ForceNew) Specifies the encryption mode. The value can be: **Default** and **KMS**.
+
+* `kms_key_id` - (Optional, String, ForceNew) Specifies KMS key ID, required if `mode` is set to **KMS**.
 
 ## Attribute Reference
 

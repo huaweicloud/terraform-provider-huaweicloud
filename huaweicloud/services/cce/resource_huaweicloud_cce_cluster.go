@@ -335,6 +335,29 @@ func ResourceCluster() *schema.Resource {
 					},
 				},
 			},
+			"encryption_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				ForceNew: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"mode": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Computed: true,
+						},
+						"kms_key_id": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Computed: true,
+						},
+					},
+				},
+			},
 			"custom_san": {
 				Type:     schema.TypeList,
 				Elem:     &schema.Schema{Type: schema.TypeString},
@@ -642,6 +665,22 @@ func buildResourceClusterConfigurationsOverride(componentConfigurationsRaw []int
 	return res, nil
 }
 
+func buildResourceClusterEncryptionConfig(d *schema.ResourceData) *clusters.EncryptionConfig {
+	encryptionConfigRaw, ok := d.GetOk("encryption_config")
+	if !ok {
+		return nil
+	}
+
+	encryptionConfig := encryptionConfigRaw.([]interface{})[0]
+
+	res := clusters.EncryptionConfig{
+		Mode:     utils.PathSearch("mode", encryptionConfig, "").(string),
+		KmsKeyID: utils.PathSearch("kms_key_id", encryptionConfig, "").(string),
+	}
+
+	return &res
+}
+
 func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	cceClient, err := config.CceV3Client(config.GetRegion(d))
@@ -700,12 +739,13 @@ func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta int
 				Mode:                d.Get("authentication_mode").(string),
 				AuthenticatingProxy: authenticating_proxy,
 			},
-			BillingMode:   billingMode,
-			ExtendParam:   buildResourceClusterExtendParams(d, config),
-			ClusterTags:   resourceClusterTags(d),
-			CustomSan:     utils.ExpandToStringList(d.Get("custom_san").([]interface{})),
-			IPv6Enable:    d.Get("ipv6_enable").(bool),
-			KubeProxyMode: d.Get("kube_proxy_mode").(string),
+			BillingMode:      billingMode,
+			ExtendParam:      buildResourceClusterExtendParams(d, config),
+			ClusterTags:      resourceClusterTags(d),
+			CustomSan:        utils.ExpandToStringList(d.Get("custom_san").([]interface{})),
+			IPv6Enable:       d.Get("ipv6_enable").(bool),
+			KubeProxyMode:    d.Get("kube_proxy_mode").(string),
+			EncryptionConfig: buildResourceClusterEncryptionConfig(d),
 		},
 	}
 
@@ -853,6 +893,7 @@ func resourceClusterRead(_ context.Context, d *schema.ResourceData, meta interfa
 		d.Set("support_istio", n.Spec.SupportIstio),
 		d.Set("custom_san", n.Spec.CustomSan),
 		d.Set("category", n.Spec.Category),
+		d.Set("encryption_config", flattenEncrytionConfig(n.Spec.EncryptionConfig)),
 	)
 
 	if n.Spec.BillingMode != 0 {
@@ -941,6 +982,19 @@ func flattenEniSubnetID(eniNetwork *clusters.EniNetworkSpec) string {
 	}
 
 	return strings.Join(subnetIDs, ",")
+}
+
+func flattenEncrytionConfig(encrytionConfig *clusters.EncryptionConfig) []map[string]interface{} {
+	if encrytionConfig == nil {
+		return nil
+	}
+
+	return []map[string]interface{}{
+		{
+			"mode":       encrytionConfig.Mode,
+			"kms_key_id": encrytionConfig.KmsKeyID,
+		},
+	}
 }
 
 func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
