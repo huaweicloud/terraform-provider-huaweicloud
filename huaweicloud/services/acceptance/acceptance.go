@@ -278,6 +278,7 @@ var (
 	// The internet access port to which the Workspace service.
 	HW_WORKSPACE_INTERNET_ACCESS_PORT              = os.Getenv("HW_WORKSPACE_INTERNET_ACCESS_PORT")
 	HW_WORKSPACE_APP_SERVER_GROUP_FLAVOR_ID        = os.Getenv("HW_WORKSPACE_APP_SERVER_GROUP_FLAVOR_ID")
+	HW_WORKSPACE_APP_SERVER_GROUP_ID               = os.Getenv("HW_WORKSPACE_APP_SERVER_GROUP_ID")
 	HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_ID         = os.Getenv("HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_ID")
 	HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_PRODUCT_ID = os.Getenv("HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_PRODUCT_ID")
 	HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_SPEC_CODE  = os.Getenv("HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_SPEC_CODE")
@@ -1932,6 +1933,13 @@ func TestAccPreCheckWorkspaceAppServerGroup(t *testing.T) {
 func TestAccPreCheckWorkspaceAppImageSpecCode(t *testing.T) {
 	if HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_SPEC_CODE == "" {
 		t.Skip("HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_SPEC_CODE must be set for Workspace APP acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckWorkspaceAppServerGroupId(t *testing.T) {
+	if HW_WORKSPACE_APP_SERVER_GROUP_ID == "" {
+		t.Skip("HW_WORKSPACE_APP_SERVER_GROUP_ID must be set for Workspace APP acceptance tests.")
 	}
 }
 
