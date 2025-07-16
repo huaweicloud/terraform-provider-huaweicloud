@@ -2149,6 +2149,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_er_vpc_attachment":      er.ResourceVpcAttachment(),
 			"huaweicloud_er_flow_log":            er.ResourceFlowLog(),
 
+			"huaweicloud_evsv5_snapshot_rollback":        evs.ResourceV5SnapshotRollBack(),
 			"huaweicloud_evs_snapshot":                   evs.ResourceEvsSnapshot(),
 			"huaweicloud_evsv3_snapshot":                 evs.ResourceV3Snapshot(),
 			"huaweicloud_evs_snapshot_metadata":          evs.ResourceSnapshotMetadata(),
