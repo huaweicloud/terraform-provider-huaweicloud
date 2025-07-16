@@ -1556,6 +1556,22 @@ func Provider() *schema.Provider {
 			"huaweicloud_dws_workload_queue_associated_users": dws.DataSourceDwsWorkloadQueueAssociatedUsers(),
 			"huaweicloud_dws_workload_queues":                 dws.DataSourceWorkloadQueues(),
 
+			// Workspace
+			"huaweicloud_workspace_available_ip_number":    workspace.DataSourceAvailableIpNumber(),
+			"huaweicloud_workspace_desktops":               workspace.DataSourceDesktops(),
+			"huaweicloud_workspace_desktop_connections":    workspace.DataSourceDesktopConnections(),
+			"huaweicloud_workspace_desktop_remote_console": workspace.DataSourceDesktopRemoteConsole(),
+			"huaweicloud_workspace_desktop_tags":           workspace.DataSourceDesktopTags(),
+			"huaweicloud_workspace_desktop_tags_filter":    workspace.DataSourceDesktopTagsFilter(),
+			"huaweicloud_workspace_desktop_pools":          workspace.DataSourceDesktopPools(),
+			"huaweicloud_workspace_hour_packages":          workspace.DataSourceHourPackages(),
+			"huaweicloud_workspace_flavors":                workspace.DataSourceWorkspaceFlavors(),
+			"huaweicloud_workspace_policy_groups":          workspace.DataSourcePolicyGroups(),
+			"huaweicloud_workspace_service":                workspace.DataSourceService(),
+			"huaweicloud_workspace_tags":                   workspace.DataSourceTags(),
+			"huaweicloud_workspace_volume_products":        workspace.DataSourceVolumeProducts(),
+
+			// Workspace APP
 			"huaweicloud_workspace_app_available_volumes":         workspace.DataSourceAppAvailableVolumes(),
 			"huaweicloud_workspace_app_center_availability_zones": workspace.DataSourceAvailabilityZones(),
 			"huaweicloud_workspace_app_flavors":                   workspace.DataSourceAppFlavors(),
@@ -1571,19 +1587,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_workspace_app_server_group_status":       workspace.DataSourceAppServerGroupStatus(),
 			"huaweicloud_workspace_app_session_types":             workspace.DataSourceSessionTypes(),
 			"huaweicloud_workspace_app_storage_policies":          workspace.DataSourceAppStoragePolicies(),
-			"huaweicloud_workspace_available_ip_number":           workspace.DataSourceAvailableIpNumber(),
-			"huaweicloud_workspace_desktops":                      workspace.DataSourceDesktops(),
-			"huaweicloud_workspace_desktop_connections":           workspace.DataSourceDesktopConnections(),
-			"huaweicloud_workspace_desktop_remote_console":        workspace.DataSourceDesktopRemoteConsole(),
-			"huaweicloud_workspace_desktop_tags":                  workspace.DataSourceDesktopTags(),
-			"huaweicloud_workspace_desktop_tags_filter":           workspace.DataSourceDesktopTagsFilter(),
-			"huaweicloud_workspace_desktop_pools":                 workspace.DataSourceDesktopPools(),
-			"huaweicloud_workspace_hour_packages":                 workspace.DataSourceHourPackages(),
-			"huaweicloud_workspace_flavors":                       workspace.DataSourceWorkspaceFlavors(),
-			"huaweicloud_workspace_policy_groups":                 workspace.DataSourcePolicyGroups(),
-			"huaweicloud_workspace_service":                       workspace.DataSourceService(),
-			"huaweicloud_workspace_tags":                          workspace.DataSourceTags(),
-			"huaweicloud_workspace_volume_products":               workspace.DataSourceVolumeProducts(),
+			"huaweicloud_workspace_app_vnc_remote":                workspace.DataSourceAppVncRemote(),
 
 			"huaweicloud_cpts_projects": cpts.DataSourceCptsProjects(),
 
