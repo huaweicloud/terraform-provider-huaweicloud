@@ -550,6 +550,7 @@ var (
 	HW_EVS_TRANSFER_ID              = os.Getenv("HW_EVS_TRANSFER_ID")
 	HW_EVS_TRANSFER_AUTH_KEY        = os.Getenv("HW_EVS_TRANSFER_AUTH_KEY")
 	HW_EVS_ENABLE_FLAG              = os.Getenv("HW_EVS_ENABLE_FLAG")
+	HW_EVS_VOLUME_ID                = os.Getenv("HW_EVS_VOLUME_ID")
 
 	HW_ECS_LAUNCH_TEMPLATE_ID = os.Getenv("HW_ECS_LAUNCH_TEMPLATE_ID")
 	HW_ECS_ID                 = os.Getenv("HW_ECS_ID")
@@ -1272,6 +1273,13 @@ func TestAccPreCheckChargingMode(t *testing.T) {
 func TestAccPreCheckErSharedAttachmentAccepter(t *testing.T) {
 	if HW_ER_SHARED_INSTANCE_ID == "" || HW_ER_SHARED_ATTACHMENT_ID == "" {
 		t.Skip("HW_ER_SHARED_INSTANCE_ID and HW_ER_SHARED_ATTACHMENT_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckEVSVolumeID(t *testing.T) {
+	if HW_EVS_VOLUME_ID == "" {
+		t.Skip("HW_EVS_VOLUME_ID must be set for acceptance tests")
 	}
 }
 
