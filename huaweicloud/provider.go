@@ -2320,6 +2320,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_iotda_device_certificate":       iotda.ResourceDeviceCertificate(),
 			"huaweicloud_iotda_device_group":             iotda.ResourceDeviceGroup(),
 			"huaweicloud_iotda_device_linkage_rule":      iotda.ResourceDeviceLinkageRule(),
+			"huaweicloud_iotda_device_proxy":             iotda.ResourceDeviceProxy(),
 			"huaweicloud_iotda_product":                  iotda.ResourceProduct(),
 			"huaweicloud_iotda_space":                    iotda.ResourceSpace(),
 			"huaweicloud_iotda_upgrade_package":          iotda.ResourceUpgradePackage(),
