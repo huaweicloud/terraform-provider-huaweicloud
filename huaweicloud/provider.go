@@ -1558,6 +1558,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_workspace_app_nas_storages":              workspace.DataSourceAppNasStorages(),
 			"huaweicloud_workspace_app_publishable_apps":          workspace.DataSourceWorkspaceAppPublishableApps(),
 			"huaweicloud_workspace_app_servers":                   workspace.DataSourceAppServers(),
+			"huaweicloud_workspace_app_server_groups":             workspace.DataSourceAppServerGroups(),
 			"huaweicloud_workspace_app_server_group_restrict":     workspace.DataSourceAppServerGroupRestrict(),
 			"huaweicloud_workspace_app_server_group_status":       workspace.DataSourceAppServerGroupStatus(),
 			"huaweicloud_workspace_app_session_types":             workspace.DataSourceSessionTypes(),
