@@ -1547,6 +1547,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dws_workload_queue_associated_users": dws.DataSourceDwsWorkloadQueueAssociatedUsers(),
 			"huaweicloud_dws_workload_queues":                 dws.DataSourceWorkloadQueues(),
 
+			"huaweicloud_workspace_app_available_volumes":         workspace.DataSourceAppAvailableVolumes(),
 			"huaweicloud_workspace_app_center_availability_zones": workspace.DataSourceAvailabilityZones(),
 			"huaweicloud_workspace_app_flavors":                   workspace.DataSourceAppFlavors(),
 			"huaweicloud_workspace_app_group_authorizations":      workspace.DataSourceWorkspaceAppGroupAuthorizations(),
