@@ -41,6 +41,7 @@ var (
 // @API DCS PUT /v2/{project_id}/instance/{instance_id}/whitelist
 // @API DCS GET /v2/{project_id}/instance/{instance_id}/whitelist
 // @API DCS PUT /v2/{project_id}/instances/{instance_id}/async-configs
+// @API DCS GET /v2/{project_id}/jobs/{job_id}
 // @API DCS GET /v2/{project_id}/instances/{instance_id}/configs
 // @API DCS PUT /v2/{project_id}/instances/status
 // @API DCS PUT /v2/{project_id}/instances/{instance_id}/ssl
