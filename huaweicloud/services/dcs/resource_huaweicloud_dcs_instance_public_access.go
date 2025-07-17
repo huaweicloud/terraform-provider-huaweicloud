@@ -22,6 +22,7 @@ var instancePublicAccessNonUpdatableParams = []string{"instance_id", "publicip_i
 
 // @API DCS POST /v2/{project_id}/instances/{instance_id}/public-ip
 // @API DCS GET /v2/{project_id}/instances/{instance_id}
+// @API DCS GET /v2/{project_id}/jobs/{job_id}
 // @API DCS DELETE /v2/{project_id}/instances/{instance_id}/public-ip
 func ResourceDcsInstancePublicAccess() *schema.Resource {
 	return &schema.Resource{
