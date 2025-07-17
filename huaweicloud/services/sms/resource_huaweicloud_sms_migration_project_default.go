@@ -48,7 +48,7 @@ func resourceMigrateProjectDefaultCreate(ctx context.Context, d *schema.Resource
 	migrateProjectID := d.Get("mig_project_id").(string)
 	err = defaultMigrateProject(client, migrateProjectID)
 	if err != nil {
-		return nil
+		return diag.Errorf("error setting SMS default migration project: %s", err)
 	}
 
 	d.SetId(migrateProjectID)
