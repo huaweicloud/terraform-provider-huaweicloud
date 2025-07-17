@@ -124,13 +124,16 @@ func testPipeline_basic(name string) string {
 
 %[2]s
 
+%[3]s
+
 resource "huaweicloud_codearts_pipeline" "test" {
-  project_id  = huaweicloud_codearts_project.test.id
-  name        = "%[3]s"
-  description = "test"
-  is_publish  = false
-  banned      = true
-  definition  = jsonencode({
+  project_id       = huaweicloud_codearts_project.test.id
+  name             = "%[4]s"
+  description      = "test"
+  is_publish       = false
+  banned           = true
+  parameter_groups = [huaweicloud_codearts_pipeline_parameter_group.test.id]
+  definition       = jsonencode({
     "stages": [
       {
         "name": "Stage_1",
@@ -188,7 +191,7 @@ resource "huaweicloud_codearts_pipeline" "test" {
                   },
                   {
                     "key": "approvers",
-                    "value": "%[4]s"
+                    "value": "%[5]s"
                   },
                   {
                     "key": "audit_role",
@@ -292,7 +295,7 @@ resource "huaweicloud_codearts_pipeline" "test" {
     ]
   }
 }
-`, testProject_basic(name), testRepository_basic(name), name, acceptance.HW_USER_ID)
+`, testProject_basic(name), testRepository_basic(name), testPipeline_parameterGroup(name), name, acceptance.HW_USER_ID)
 }
 
 //nolint:revive
