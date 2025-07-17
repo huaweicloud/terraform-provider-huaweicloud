@@ -57,7 +57,7 @@ The `flavors` block supports:
 
 * `product_id` - The product ID of app flavors that matched filter parameters.
 
-* `flavor_id` - The flavor ID of app flavors that matched filter parameters.
+* `id` - The flavor ID of app flavors that matched filter parameters.
 
 * `architecture` - The flavor architecture of app flavors that matched filter parameters.
 
