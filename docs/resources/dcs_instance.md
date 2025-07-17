@@ -190,7 +190,7 @@ The following arguments are supported:
 
   -> **NOTE:** This parameter is not supported when the instance type is single.
 
-* `parameters` - (Optional, List) Specify an array of one or more parameters to be set to the DCS instance after
+* `parameters` - (Optional, List) Specifies an array of one or more parameters to be set to the DCS instance after
   launched. You can check on console to see which parameters supported.
   The [parameters](#DcsInstance_Parameters) structure is documented below.
 
@@ -220,6 +220,8 @@ The following arguments are supported:
 
 * `expire_key_scan_keys_count` - (Optional, Int) Specifies the number of keys scanned in iteration for expire key. It is
   mandatory when `expire_key_enable_auto_scan` is set to **true**.
+
+* `transparent_client_ip_enable` - (Optional, Bool) Specifies whether client IP pass-through is enabled.
 
 * `enterprise_project_id` - (Optional, String) The enterprise project id of the dcs instance.
 
@@ -342,8 +344,6 @@ In addition to all arguments above, the following attributes are exported:
   only for master/standby instances.
 
 * `replica_count` - Indicates the number of replicas in the instance.
-
-* `transparent_client_ip_enable` - Indicates whether client IP pass-through is enabled.
 
 * `product_type` - Indicates the product type of the instance. The value can be: **generic** or **enterprise**.
 
