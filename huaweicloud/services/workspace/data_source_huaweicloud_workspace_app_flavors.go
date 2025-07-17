@@ -73,7 +73,7 @@ func DataSourceAppFlavors() *schema.Resource {
 							Computed:    true,
 							Description: `The product ID of app flavors that matched filter parameters.`,
 						},
-						"flavor_id": {
+						"id": {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: `The flavor ID of app flavors that matched filter parameters.`,
@@ -266,7 +266,7 @@ func flattenAppFlavors(flavors []interface{}) []map[string]interface{} {
 	for _, flavor := range flavors {
 		result = append(result, map[string]interface{}{
 			"product_id":          utils.PathSearch("product_id", flavor, nil),
-			"flavor_id":           utils.PathSearch("flavor_id", flavor, nil),
+			"id":                  utils.PathSearch("flavor_id", flavor, nil),
 			"type":                utils.PathSearch("type", flavor, nil),
 			"architecture":        utils.PathSearch("architecture", flavor, nil),
 			"cpu":                 utils.PathSearch("cpu", flavor, nil),

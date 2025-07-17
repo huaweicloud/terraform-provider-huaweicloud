@@ -88,7 +88,7 @@ output "is_product_id_filter_useful" {
 
 # By flavor ID filter
 locals {
-  flavor_id = data.huaweicloud_workspace_app_flavors.test.flavors[0].flavor_id
+  flavor_id = data.huaweicloud_workspace_app_flavors.test.flavors[0].id
 }
 
 data "huaweicloud_workspace_app_flavors" "filter_by_flavor_id" {
@@ -97,7 +97,7 @@ data "huaweicloud_workspace_app_flavors" "filter_by_flavor_id" {
 
 output "is_flavor_id_filter_useful" {
   value = length(data.huaweicloud_workspace_app_flavors.filter_by_flavor_id.flavors) > 0 && alltrue(
-    [for v in data.huaweicloud_workspace_app_flavors.filter_by_flavor_id.flavors[*].flavor_id : v == local.flavor_id]
+    [for v in data.huaweicloud_workspace_app_flavors.filter_by_flavor_id.flavors[*].id : v == local.flavor_id]
   )
 }
 
