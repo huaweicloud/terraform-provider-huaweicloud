@@ -2805,6 +2805,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_codearts_pipeline_by_template":      codeartspipeline.ResourceCodeArtsPipelineByTemplate(),
 			"huaweicloud_codearts_pipeline_template":         codeartspipeline.ResourceCodeArtsPipelineTemplate(),
 			"huaweicloud_codearts_pipeline_service_endpoint": codeartspipeline.ResourceCodeArtsPipelineServiceEndpoint(),
+			"huaweicloud_codearts_pipeline_micro_service":    codeartspipeline.ResourceCodeArtsPipelineMicroService(),
 
 			"huaweicloud_codearts_build_task":         codeartsbuild.ResourceCodeArtsBuildTask(),
 			"huaweicloud_codearts_build_template":     codeartsbuild.ResourceCodeArtsBuildTemplate(),
