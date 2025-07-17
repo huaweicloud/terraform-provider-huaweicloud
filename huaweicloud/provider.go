@@ -808,6 +808,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dcs_maintainwindow":  dcs.DataSourceDcsMaintainWindow(),
 			"huaweicloud_dcs_instances":       dcs.DataSourceDcsInstance(),
 			"huaweicloud_dcs_instance_shards": dcs.DataSourceDcsInstanceShards(),
+			"huaweicloud_dcs_instance_nodes":  dcs.DataSourceDcsInstanceNodes(),
 			"huaweicloud_dcs_templates":       dcs.DataSourceTemplates(),
 			"huaweicloud_dcs_template_detail": dcs.DataSourceTemplateDetail(),
 			"huaweicloud_dcs_backups":         dcs.DataSourceBackups(),
