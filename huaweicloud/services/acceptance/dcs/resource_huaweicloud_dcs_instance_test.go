@@ -76,9 +76,13 @@ func TestAccDcsInstances_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "maintain_end", "23:00:00"),
 					resource.TestCheckResourceAttrPair(rName, "availability_zones.0",
 						"data.huaweicloud_availability_zones.test", "names.0"),
-					resource.TestCheckResourceAttr(rName, "parameters.0.id", "1"),
-					resource.TestCheckResourceAttr(rName, "parameters.0.name", "timeout"),
-					resource.TestCheckResourceAttr(rName, "parameters.0.value", "100"),
+					resource.TestCheckResourceAttr(rName, "parameters.0.id", "2"),
+					resource.TestCheckResourceAttr(rName, "parameters.0.name", "maxmemory-policy"),
+					resource.TestCheckResourceAttr(rName, "parameters.0.value", "volatile-lfu"),
+					resource.TestCheckResourceAttr(rName, "big_key_enable_auto_scan", "true"),
+					resource.TestCheckResourceAttr(rName, "big_key_schedule_at.0", "10:00"),
+					resource.TestCheckResourceAttr(rName, "hot_key_enable_auto_scan", "false"),
+					resource.TestCheckResourceAttr(rName, "hot_key_schedule_at.0", "13:00"),
 					resource.TestCheckResourceAttrSet(rName, "private_ip"),
 					resource.TestCheckResourceAttrSet(rName, "domain_name"),
 					resource.TestCheckResourceAttrSet(rName, "created_at"),
@@ -101,6 +105,8 @@ func TestAccDcsInstances_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "bandwidth_info.0.max_expand_count"),
 					resource.TestCheckResourceAttr(rName, "bandwidth_info.0.next_expand_time", ""),
 					resource.TestCheckResourceAttrSet(rName, "bandwidth_info.0.task_running"),
+					resource.TestCheckResourceAttrSet(rName, "big_key_updated_at"),
+					resource.TestCheckResourceAttrSet(rName, "hot_key_updated_at"),
 				),
 			},
 			{
@@ -115,9 +121,13 @@ func TestAccDcsInstances_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "backup_policy.0.begin_at", "01:00-02:00"),
 					resource.TestCheckResourceAttr(rName, "backup_policy.0.save_days", "2"),
 					resource.TestCheckResourceAttr(rName, "backup_policy.0.backup_at.#", "3"),
-					resource.TestCheckResourceAttr(rName, "parameters.0.id", "10"),
-					resource.TestCheckResourceAttr(rName, "parameters.0.name", "latency-monitor-threshold"),
-					resource.TestCheckResourceAttr(rName, "parameters.0.value", "120"),
+					resource.TestCheckResourceAttr(rName, "parameters.0.id", "2"),
+					resource.TestCheckResourceAttr(rName, "parameters.0.name", "maxmemory-policy"),
+					resource.TestCheckResourceAttr(rName, "parameters.0.value", "allkeys-lfu"),
+					resource.TestCheckResourceAttr(rName, "big_key_enable_auto_scan", "false"),
+					resource.TestCheckResourceAttr(rName, "big_key_schedule_at.0", "17:00"),
+					resource.TestCheckResourceAttr(rName, "hot_key_enable_auto_scan", "true"),
+					resource.TestCheckResourceAttr(rName, "hot_key_schedule_at.0", "20:00"),
 					resource.TestCheckResourceAttrSet(rName, "created_at"),
 					resource.TestCheckResourceAttrSet(rName, "launched_at"),
 					resource.TestCheckResourceAttrSet(rName, "subnet_cidr"),
@@ -1065,6 +1075,11 @@ resource "huaweicloud_dcs_instance" "test" {
   maintain_begin     = "22:00:00"
   maintain_end       = "23:00:00"
 
+  big_key_enable_auto_scan = true
+  big_key_schedule_at      = ["10:00"]
+  hot_key_enable_auto_scan = false
+  hot_key_schedule_at      = ["13:00"]
+
   backup_policy {
     backup_type = "auto"
     begin_at    = "00:00-01:00"
@@ -1082,9 +1097,9 @@ resource "huaweicloud_dcs_instance" "test" {
   }
 
   parameters {
-    id    = "1"
-    name  = "timeout"
-    value = "100"
+    id    = "2"
+    name  = "maxmemory-policy"
+    value = "volatile-lfu"
   }
 
   tags = {
@@ -1126,6 +1141,11 @@ resource "huaweicloud_dcs_instance" "test" {
   maintain_begin     = "06:00:00"
   maintain_end       = "07:00:00"
 
+  big_key_enable_auto_scan = false
+  big_key_schedule_at      = ["17:00"]
+  hot_key_enable_auto_scan = true
+  hot_key_schedule_at      = ["20:00"]
+
   backup_policy {
     backup_type = "auto"
     begin_at    = "01:00-02:00"
@@ -1143,9 +1163,9 @@ resource "huaweicloud_dcs_instance" "test" {
   }
 
   parameters {
-    id    = "10"
-    name  = "latency-monitor-threshold"
-    value = "120"
+    id    = "2"
+    name  = "maxmemory-policy"
+    value = "allkeys-lfu"
   }
 
   tags = {

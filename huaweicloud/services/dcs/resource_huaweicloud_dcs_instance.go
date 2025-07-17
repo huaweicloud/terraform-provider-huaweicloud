@@ -42,6 +42,10 @@ var (
 // @API DCS GET /v2/{project_id}/instance/{instance_id}/whitelist
 // @API DCS PUT /v2/{project_id}/instances/{instance_id}/async-configs
 // @API DCS GET /v2/{project_id}/jobs/{job_id}
+// @API DCS PUT /v2/{project_id}/instances/{instance_id}/bigkey/autoscan
+// @API DCS PUT /v2/{project_id}/instances/{instance_id}/hotkey/autoscan
+// @API DCS GET /v2/{project_id}/instances/{instance_id}/bigkey/autoscan
+// @API DCS GET /v2/{project_id}/instances/{instance_id}/hotkey/autoscan
 // @API DCS GET /v2/{project_id}/instances/{instance_id}/configs
 // @API DCS PUT /v2/{project_id}/instances/status
 // @API DCS PUT /v2/{project_id}/instances/{instance_id}/ssl
@@ -263,6 +267,30 @@ func ResourceDcsInstance() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"big_key_enable_auto_scan": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+			"big_key_schedule_at": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				MaxItems: 1,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			"hot_key_enable_auto_scan": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+			"hot_key_schedule_at": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				MaxItems: 1,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 			"charging_mode": common.SchemaChargingMode(nil),
 			"period_unit":   common.SchemaPeriodUnit(nil),
 			"period":        common.SchemaPeriod(nil),
@@ -355,6 +383,14 @@ func ResourceDcsInstance() *schema.Resource {
 			},
 			"sharding_count": {
 				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"big_key_updated_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"hot_key_updated_at": {
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 
@@ -581,6 +617,20 @@ func resourceDcsInstancesCreate(ctx context.Context, d *schema.ResourceData, met
 
 	if sslEnabled := d.Get("ssl_enable").(bool); sslEnabled {
 		err = updateInstanceSsl(ctx, d, client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.Get("big_key_enable_auto_scan").(bool) || len(d.Get("big_key_schedule_at").([]interface{})) > 0 {
+		err = updateBigKeyAutoScan(ctx, d, client, schema.TimeoutCreate)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.Get("hot_key_enable_auto_scan").(bool) || len(d.Get("hot_key_schedule_at").([]interface{})) > 0 {
+		err = updateHotKeyAutoScan(ctx, d, client, schema.TimeoutCreate)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -881,6 +931,8 @@ func resourceDcsInstancesRead(ctx context.Context, d *schema.ResourceData, meta 
 	)
 
 	mErr = multierror.Append(mErr, setDcsInstanceWhitelist(d, client)...)
+	mErr = multierror.Append(mErr, setDcsInstanceBigKeyAutoScan(d, client)...)
+	mErr = multierror.Append(mErr, setDcsInstanceHotKeyAutoScan(d, client)...)
 
 	diagErr := setDcsInstanceParameters(ctx, d, client, d.Id())
 	return append(diagErr, diag.FromErr(mErr.ErrorOrNil())...)
@@ -971,6 +1023,44 @@ func setDcsInstanceWhitelist(d *schema.ResourceData, client *golangsdk.ServiceCl
 		errs = append(errs, d.Set("whitelist_enable", utils.PathSearch("enable_whitelist", getRespBody, nil)))
 		errs = append(errs, d.Set("whitelists", flattenInstanceWhitelist(getRespBody)))
 	}
+
+	return errs
+}
+
+func setDcsInstanceBigKeyAutoScan(d *schema.ResourceData, client *golangsdk.ServiceClient) []error {
+	getRespBody, err := getInstanceField(client, getInstanceFieldParams{
+		httpUrl:    "v2/{project_id}/instances/{instance_id}/bigkey/autoscan",
+		httpMethod: "GET",
+		pathParams: map[string]string{"instance_id": d.Id()},
+	})
+	if err != nil {
+		log.Printf("[WARN] error fetching DCS instance(%s) big key auto scan: %s", d.Id(), err)
+		return nil
+	}
+
+	var errs []error
+	errs = append(errs, d.Set("big_key_enable_auto_scan", utils.PathSearch("enable_auto_scan", getRespBody, nil)))
+	errs = append(errs, d.Set("big_key_schedule_at", utils.PathSearch("schedule_at", getRespBody, nil)))
+	errs = append(errs, d.Set("big_key_updated_at", utils.PathSearch("updated_at", getRespBody, nil)))
+
+	return errs
+}
+
+func setDcsInstanceHotKeyAutoScan(d *schema.ResourceData, client *golangsdk.ServiceClient) []error {
+	getRespBody, err := getInstanceField(client, getInstanceFieldParams{
+		httpUrl:    "v2/{project_id}/instances/{instance_id}/hotkey/autoscan",
+		httpMethod: "GET",
+		pathParams: map[string]string{"instance_id": d.Id()},
+	})
+	if err != nil {
+		log.Printf("[WARN] error fetching DCS instance(%s) hot key auto scan: %s", d.Id(), err)
+		return nil
+	}
+
+	var errs []error
+	errs = append(errs, d.Set("hot_key_enable_auto_scan", utils.PathSearch("enable_auto_scan", getRespBody, nil)))
+	errs = append(errs, d.Set("hot_key_schedule_at", utils.PathSearch("schedule_at", getRespBody, nil)))
+	errs = append(errs, d.Set("hot_key_updated_at", utils.PathSearch("updated_at", getRespBody, nil)))
 
 	return errs
 }
@@ -1090,6 +1180,20 @@ func resourceDcsInstancesUpdate(ctx context.Context, d *schema.ResourceData, met
 
 	if d.HasChange("ssl_enable") {
 		err = updateInstanceSsl(ctx, d, client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChanges("big_key_enable_auto_scan", "big_key_schedule_at") {
+		err = updateBigKeyAutoScan(ctx, d, client, schema.TimeoutUpdate)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChanges("hot_key_enable_auto_scan", "hot_key_schedule_at") {
+		err = updateHotKeyAutoScan(ctx, d, client, schema.TimeoutUpdate)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -1443,6 +1547,52 @@ func updateInstanceSsl(ctx context.Context, d *schema.ResourceData, client *gola
 func buildUpdateInstanceSslBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"enabled": d.Get("ssl_enable"),
+	}
+	return bodyParams
+}
+
+func updateBigKeyAutoScan(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, timeout string) error {
+	_, err := updateDcsInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:          "v2/{project_id}/instances/{instance_id}/bigkey/autoscan",
+		httpMethod:       "PUT",
+		pathParams:       map[string]string{"instance_id": d.Id()},
+		updateBodyParams: buildUpdateBigKeyAutoScanBodyParams(d),
+		isRetry:          true,
+		timeout:          timeout,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating instance big key auto scan: %s", err)
+	}
+	return nil
+}
+
+func buildUpdateBigKeyAutoScanBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"enable_auto_scan": d.Get("big_key_enable_auto_scan"),
+		"schedule_at":      utils.ExpandToStringList(d.Get("big_key_schedule_at").([]interface{})),
+	}
+	return bodyParams
+}
+
+func updateHotKeyAutoScan(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, timeout string) error {
+	_, err := updateDcsInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:          "v2/{project_id}/instances/{instance_id}/hotkey/autoscan",
+		httpMethod:       "PUT",
+		pathParams:       map[string]string{"instance_id": d.Id()},
+		updateBodyParams: utils.RemoveNil(buildUpdateHotKeyAutoScanBodyParams(d)),
+		isRetry:          true,
+		timeout:          timeout,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating instance hot key auto scan: %s", err)
+	}
+	return nil
+}
+
+func buildUpdateHotKeyAutoScanBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"enable_auto_scan": d.Get("hot_key_enable_auto_scan"),
+		"schedule_at":      utils.ExpandToStringList(d.Get("hot_key_schedule_at").([]interface{})),
 	}
 	return bodyParams
 }
