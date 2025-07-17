@@ -715,6 +715,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_codearts_pipeline_modules":    codeartspipeline.DataSourceCodeArtsPipelineModules(),
 			"huaweicloud_codearts_pipeline_run_detail": codeartspipeline.DataSourceCodeartsPipelineRunDetail(),
+			"huaweicloud_codearts_pipeline_tags":       codeartspipeline.DataSourceCodeArtsPipelineTags(),
 
 			"huaweicloud_codearts_build_tasks":        codeartsbuild.DataSourceCodeArtsBuildTasks(),
 			"huaweicloud_codearts_build_task_records": codeartsbuild.DataSourceCodeArtsBuildTaskRecords(),
@@ -2785,6 +2786,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_codearts_inspector_host":         codeartsinspector.ResourceInspectorHost(),
 
 			"huaweicloud_codearts_pipeline":                  codeartspipeline.ResourceCodeArtsPipeline(),
+			"huaweicloud_codearts_pipeline_tag":              codeartspipeline.ResourceCodeArtsPipelineTag(),
 			"huaweicloud_codearts_pipeline_action":           codeartspipeline.ResourceCodeArtsPipelineAction(),
 			"huaweicloud_codearts_pipeline_by_template":      codeartspipeline.ResourceCodeArtsPipelineByTemplate(),
 			"huaweicloud_codearts_pipeline_template":         codeartspipeline.ResourceCodeArtsPipelineTemplate(),
