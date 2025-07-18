@@ -126,6 +126,17 @@ func testPipeline_basic(name string) string {
 
 %[3]s
 
+resource "huaweicloud_codearts_pipeline_tag" "test" {
+  project_id = huaweicloud_codearts_project.test.id
+  name       = "%[4]s"
+  color      = "#0b81f6"
+}
+
+resource "huaweicloud_codearts_pipeline_group" "test" {
+  project_id = huaweicloud_codearts_project.test.id
+  name       = "%[4]s"
+}
+
 resource "huaweicloud_codearts_pipeline" "test" {
   project_id       = huaweicloud_codearts_project.test.id
   name             = "%[4]s"
@@ -133,6 +144,9 @@ resource "huaweicloud_codearts_pipeline" "test" {
   is_publish       = false
   banned           = true
   parameter_groups = [huaweicloud_codearts_pipeline_parameter_group.test.id]
+  group_id         = huaweicloud_codearts_pipeline_group.test.id
+  tags             = [huaweicloud_codearts_pipeline_tag.test.id]
+
   definition       = jsonencode({
     "stages": [
       {
