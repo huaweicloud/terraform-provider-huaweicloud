@@ -1625,6 +1625,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_ddm_engines":                     ddm.DataSourceDdmEngines(),
 			"huaweicloud_ddm_flavors":                     ddm.DataSourceDdmFlavors(),
+			"huaweicloud_ddm_configurations":              ddm.DataSourceDdmConfigurations(),
 			"huaweicloud_ddm_instances":                   ddm.DataSourceDdmInstances(),
 			"huaweicloud_ddm_instance_nodes":              ddm.DataSourceDdmInstanceNodes(),
 			"huaweicloud_ddm_instance_groups":             ddm.DataSourceDdmInstanceGroups(),
