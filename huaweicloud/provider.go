@@ -2752,6 +2752,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_workspace_desktop_name_rule":         workspace.ResourceDesktopNameRule(),
 			"huaweicloud_workspace_desktop":                   workspace.ResourceDesktop(),
 			"huaweicloud_workspace_desktop_pool":              workspace.ResourceDesktopPool(),
+			"huaweicloud_workspace_desktop_pool_action":       workspace.ResourceDesktopPoolAction(),
 			"huaweicloud_workspace_desktop_pool_notification": workspace.ResourceDesktopPoolNotification(),
 			"huaweicloud_workspace_policy_group":              workspace.ResourcePolicyGroup(),
 			"huaweicloud_workspace_service":                   workspace.ResourceService(),
