@@ -282,6 +282,7 @@ var (
 	HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_ID         = os.Getenv("HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_ID")
 	HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_PRODUCT_ID = os.Getenv("HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_PRODUCT_ID")
 	HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_SPEC_CODE  = os.Getenv("HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_SPEC_CODE")
+	HW_WORKSPACE_APP_SERVER_ID                     = os.Getenv("HW_WORKSPACE_APP_SERVER_ID")
 	HW_WORKSPACE_OU_NAME                           = os.Getenv("HW_WORKSPACE_OU_NAME")
 	HW_WORKSPACE_APP_FILE_NAME                     = os.Getenv("HW_WORKSPACE_APP_FILE_NAME")
 	HW_WORKSPACE_USER_NAMES                        = os.Getenv("HW_WORKSPACE_USER_NAMES")
@@ -1940,6 +1941,13 @@ func TestAccPreCheckWorkspaceAppImageSpecCode(t *testing.T) {
 func TestAccPreCheckWorkspaceAppServerGroupId(t *testing.T) {
 	if HW_WORKSPACE_APP_SERVER_GROUP_ID == "" {
 		t.Skip("HW_WORKSPACE_APP_SERVER_GROUP_ID must be set for Workspace APP acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckWorkspaceAppServerID(t *testing.T) {
+	if HW_WORKSPACE_APP_SERVER_ID == "" {
+		t.Skip("HW_WORKSPACE_APP_SERVER_ID must be set for Workspace APP acceptance tests.")
 	}
 }
 
