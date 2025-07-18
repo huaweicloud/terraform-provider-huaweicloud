@@ -46,6 +46,8 @@ var (
 // @API DCS PUT /v2/{project_id}/instances/{instance_id}/hotkey/autoscan
 // @API DCS GET /v2/{project_id}/instances/{instance_id}/bigkey/autoscan
 // @API DCS GET /v2/{project_id}/instances/{instance_id}/hotkey/autoscan
+// @API DCS PUT /v2/{project_id}/instances/{instance_id}/scan-expire-keys/autoscan-config
+// @API DCS GET /v2/{project_id}/instances/{instance_id}/scan-expire-keys/autoscan-config
 // @API DCS GET /v2/{project_id}/instances/{instance_id}/configs
 // @API DCS PUT /v2/{project_id}/instances/status
 // @API DCS PUT /v2/{project_id}/instances/{instance_id}/ssl
@@ -291,6 +293,31 @@ func ResourceDcsInstance() *schema.Resource {
 				MaxItems: 1,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			"expire_key_enable_auto_scan": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+			"expire_key_first_scan_at": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"expire_key_interval": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+			"expire_key_timeout": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+			"expire_key_scan_keys_count": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
 			"charging_mode": common.SchemaChargingMode(nil),
 			"period_unit":   common.SchemaPeriodUnit(nil),
 			"period":        common.SchemaPeriod(nil),
@@ -390,6 +417,10 @@ func ResourceDcsInstance() *schema.Resource {
 				Computed: true,
 			},
 			"hot_key_updated_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"expire_key_updated_at": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -631,6 +662,13 @@ func resourceDcsInstancesCreate(ctx context.Context, d *schema.ResourceData, met
 
 	if d.Get("hot_key_enable_auto_scan").(bool) || len(d.Get("hot_key_schedule_at").([]interface{})) > 0 {
 		err = updateHotKeyAutoScan(ctx, d, client, schema.TimeoutCreate)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.Get("expire_key_enable_auto_scan").(bool) {
+		err = updateInstanceExpireKeyAutoScan(ctx, d, client, schema.TimeoutCreate)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -933,6 +971,7 @@ func resourceDcsInstancesRead(ctx context.Context, d *schema.ResourceData, meta 
 	mErr = multierror.Append(mErr, setDcsInstanceWhitelist(d, client)...)
 	mErr = multierror.Append(mErr, setDcsInstanceBigKeyAutoScan(d, client)...)
 	mErr = multierror.Append(mErr, setDcsInstanceHotKeyAutoScan(d, client)...)
+	mErr = multierror.Append(mErr, setDcsInstanceExpireKeyAutoScan(d, client)...)
 
 	diagErr := setDcsInstanceParameters(ctx, d, client, d.Id())
 	return append(diagErr, diag.FromErr(mErr.ErrorOrNil())...)
@@ -1027,6 +1066,19 @@ func setDcsInstanceWhitelist(d *schema.ResourceData, client *golangsdk.ServiceCl
 	return errs
 }
 
+func flattenInstanceWhitelist(resp interface{}) []interface{} {
+	curJson := utils.PathSearch("whitelist", resp, make([]interface{}, 0))
+	curArray := curJson.([]interface{})
+	rst := make([]interface{}, 0, len(curArray))
+	for _, v := range curArray {
+		rst = append(rst, map[string]interface{}{
+			"group_name": utils.PathSearch("group_name", v, nil),
+			"ip_address": utils.PathSearch("ip_list", v, nil),
+		})
+	}
+	return rst
+}
+
 func setDcsInstanceBigKeyAutoScan(d *schema.ResourceData, client *golangsdk.ServiceClient) []error {
 	getRespBody, err := getInstanceField(client, getInstanceFieldParams{
 		httpUrl:    "v2/{project_id}/instances/{instance_id}/bigkey/autoscan",
@@ -1065,17 +1117,26 @@ func setDcsInstanceHotKeyAutoScan(d *schema.ResourceData, client *golangsdk.Serv
 	return errs
 }
 
-func flattenInstanceWhitelist(resp interface{}) []interface{} {
-	curJson := utils.PathSearch("whitelist", resp, make([]interface{}, 0))
-	curArray := curJson.([]interface{})
-	rst := make([]interface{}, 0, len(curArray))
-	for _, v := range curArray {
-		rst = append(rst, map[string]interface{}{
-			"group_name": utils.PathSearch("group_name", v, nil),
-			"ip_address": utils.PathSearch("ip_list", v, nil),
-		})
+func setDcsInstanceExpireKeyAutoScan(d *schema.ResourceData, client *golangsdk.ServiceClient) []error {
+	getRespBody, err := getInstanceField(client, getInstanceFieldParams{
+		httpUrl:    "v2/{project_id}/instances/{instance_id}/scan-expire-keys/autoscan-config",
+		httpMethod: "GET",
+		pathParams: map[string]string{"instance_id": d.Id()},
+	})
+	if err != nil {
+		log.Printf("[WARN] error fetching DCS instance(%s) expire key auto scan: %s", d.Id(), err)
+		return nil
 	}
-	return rst
+
+	var errs []error
+	errs = append(errs, d.Set("expire_key_enable_auto_scan", utils.PathSearch("enable_auto_scan", getRespBody, nil)))
+	errs = append(errs, d.Set("expire_key_first_scan_at", utils.PathSearch("first_scan_at", getRespBody, nil)))
+	errs = append(errs, d.Set("expire_key_interval", utils.PathSearch("interval", getRespBody, nil)))
+	errs = append(errs, d.Set("expire_key_timeout", utils.PathSearch("timeout", getRespBody, nil)))
+	errs = append(errs, d.Set("expire_key_scan_keys_count", utils.PathSearch("scan_keys_count", getRespBody, nil)))
+	errs = append(errs, d.Set("expire_key_updated_at", utils.PathSearch("updated_at", getRespBody, nil)))
+
+	return errs
 }
 
 func setDcsInstanceParameters(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
@@ -1194,6 +1255,14 @@ func resourceDcsInstancesUpdate(ctx context.Context, d *schema.ResourceData, met
 
 	if d.HasChanges("hot_key_enable_auto_scan", "hot_key_schedule_at") {
 		err = updateHotKeyAutoScan(ctx, d, client, schema.TimeoutUpdate)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChanges("expire_key_enable_auto_scan", "expire_key_first_scan_at", "expire_key_interval",
+		"expire_key_timeout", "expire_key_scan_keys_count") {
+		err = updateInstanceExpireKeyAutoScan(ctx, d, client, schema.TimeoutUpdate)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -1593,6 +1662,33 @@ func buildUpdateHotKeyAutoScanBodyParams(d *schema.ResourceData) map[string]inte
 	bodyParams := map[string]interface{}{
 		"enable_auto_scan": d.Get("hot_key_enable_auto_scan"),
 		"schedule_at":      utils.ExpandToStringList(d.Get("hot_key_schedule_at").([]interface{})),
+	}
+	return bodyParams
+}
+
+func updateInstanceExpireKeyAutoScan(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
+	timeout string) error {
+	_, err := updateDcsInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:          "v2/{project_id}/instances/{instance_id}/scan-expire-keys/autoscan-config",
+		httpMethod:       "PUT",
+		pathParams:       map[string]string{"instance_id": d.Id()},
+		updateBodyParams: utils.RemoveNil(buildUpdateInstanceExpireKeyAutoScanBodyParams(d)),
+		isRetry:          true,
+		timeout:          timeout,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating instance expire key auto scan: %s", err)
+	}
+	return nil
+}
+
+func buildUpdateInstanceExpireKeyAutoScanBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"enable_auto_scan": d.Get("expire_key_enable_auto_scan"),
+		"first_scan_at":    utils.ValueIgnoreEmpty(d.Get("expire_key_first_scan_at")),
+		"interval":         utils.ValueIgnoreEmpty(d.Get("expire_key_interval")),
+		"timeout":          utils.ValueIgnoreEmpty(d.Get("expire_key_timeout")),
+		"scan_keys_count":  utils.ValueIgnoreEmpty(d.Get("expire_key_scan_keys_count")),
 	}
 	return bodyParams
 }

@@ -206,6 +206,21 @@ The following arguments are supported:
 
 * `hot_key_schedule_at` - (Optional, List) Specifies the UTC time of the day that cache analysis is scheduled for hot key.
 
+* `expire_key_enable_auto_scan` - (Optional, Bool) Specifies whether to enable scheduled cache analysis for expire key.
+
+* `expire_key_first_scan_at` - (Optional, String) Specifies the first scan time for expire key, for example,
+  **2023-07-07T15:00:05.000z**. It is mandatory when `expire_key_enable_auto_scan` is set to **true**.
+
+* `expire_key_interval` - (Optional, Int) Specifies the scan interval for expire key, in seconds. It is mandatory when
+  `expire_key_enable_auto_scan` is set to **true**.
+
+* `expire_key_timeout` - (Optional, Int) Specifies the Scan timeout for expire key, in seconds. If one scan times out, a
+  failure message is returned, and the next scan can continue. The value at least twice the interval. It is mandatory when
+  `expire_key_enable_auto_scan` is set to **true**.
+
+* `expire_key_scan_keys_count` - (Optional, Int) Specifies the number of keys scanned in iteration for expire key. It is
+  mandatory when `expire_key_enable_auto_scan` is set to **true**.
+
 * `enterprise_project_id` - (Optional, String) The enterprise project id of the dcs instance.
 
 * `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the redis instance.
@@ -337,6 +352,8 @@ In addition to all arguments above, the following attributes are exported:
 * `big_key_updated_at` - Indicates the time when the configuration is updated for big key.
 
 * `hot_key_updated_at` - Indicates the time when the configuration is updated for hot key.
+
+* `expire_key_updated_at` - Indicates the time when the configuration is updated for expire key.
 
 <a name="dcs_bandwidth_info"></a>
 The `bandwidth_info` block supports:

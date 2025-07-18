@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -83,6 +84,10 @@ func TestAccDcsInstances_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "big_key_schedule_at.0", "10:00"),
 					resource.TestCheckResourceAttr(rName, "hot_key_enable_auto_scan", "false"),
 					resource.TestCheckResourceAttr(rName, "hot_key_schedule_at.0", "13:00"),
+					resource.TestCheckResourceAttr(rName, "expire_key_enable_auto_scan", "true"),
+					resource.TestCheckResourceAttr(rName, "expire_key_interval", "20"),
+					resource.TestCheckResourceAttr(rName, "expire_key_timeout", "100"),
+					resource.TestCheckResourceAttr(rName, "expire_key_scan_keys_count", "20000"),
 					resource.TestCheckResourceAttrSet(rName, "private_ip"),
 					resource.TestCheckResourceAttrSet(rName, "domain_name"),
 					resource.TestCheckResourceAttrSet(rName, "created_at"),
@@ -107,6 +112,8 @@ func TestAccDcsInstances_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "bandwidth_info.0.task_running"),
 					resource.TestCheckResourceAttrSet(rName, "big_key_updated_at"),
 					resource.TestCheckResourceAttrSet(rName, "hot_key_updated_at"),
+					resource.TestCheckResourceAttrSet(rName, "expire_key_first_scan_at"),
+					resource.TestCheckResourceAttrSet(rName, "expire_key_updated_at"),
 				),
 			},
 			{
@@ -128,6 +135,7 @@ func TestAccDcsInstances_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "big_key_schedule_at.0", "17:00"),
 					resource.TestCheckResourceAttr(rName, "hot_key_enable_auto_scan", "true"),
 					resource.TestCheckResourceAttr(rName, "hot_key_schedule_at.0", "20:00"),
+					resource.TestCheckResourceAttr(rName, "expire_key_enable_auto_scan", "false"),
 					resource.TestCheckResourceAttrSet(rName, "created_at"),
 					resource.TestCheckResourceAttrSet(rName, "launched_at"),
 					resource.TestCheckResourceAttrSet(rName, "subnet_cidr"),
@@ -1044,6 +1052,8 @@ func TestAccDcsInstances_ssl(t *testing.T) {
 }
 
 func testAccDcsV1Instance_basic(instanceName string) string {
+	firstScanTime := time.Now().UTC().Add(1 * time.Hour)
+	firstScanTimeString := firstScanTime.Format("2006-01-02T15:04:05.000z")
 	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
@@ -1075,10 +1085,15 @@ resource "huaweicloud_dcs_instance" "test" {
   maintain_begin     = "22:00:00"
   maintain_end       = "23:00:00"
 
-  big_key_enable_auto_scan = true
-  big_key_schedule_at      = ["10:00"]
-  hot_key_enable_auto_scan = false
-  hot_key_schedule_at      = ["13:00"]
+  big_key_enable_auto_scan    = true
+  big_key_schedule_at         = ["10:00"]
+  hot_key_enable_auto_scan    = false
+  hot_key_schedule_at         = ["13:00"]
+  expire_key_enable_auto_scan = true
+  expire_key_first_scan_at    = "%[2]s"
+  expire_key_interval         = 20
+  expire_key_timeout          = 100
+  expire_key_scan_keys_count  = 20000
 
   backup_policy {
     backup_type = "auto"
@@ -1106,7 +1121,7 @@ resource "huaweicloud_dcs_instance" "test" {
     key   = "value"
     owner = "terraform"
   }
-}`, instanceName)
+}`, instanceName, firstScanTimeString)
 }
 
 func testAccDcsV1Instance_updated(instanceName string) string {
@@ -1141,10 +1156,11 @@ resource "huaweicloud_dcs_instance" "test" {
   maintain_begin     = "06:00:00"
   maintain_end       = "07:00:00"
 
-  big_key_enable_auto_scan = false
-  big_key_schedule_at      = ["17:00"]
-  hot_key_enable_auto_scan = true
-  hot_key_schedule_at      = ["20:00"]
+  big_key_enable_auto_scan    = false
+  big_key_schedule_at         = ["17:00"]
+  hot_key_enable_auto_scan    = true
+  hot_key_schedule_at         = ["20:00"]
+  expire_key_enable_auto_scan = false
 
   backup_policy {
     backup_type = "auto"
