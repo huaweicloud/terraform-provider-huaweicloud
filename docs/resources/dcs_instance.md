@@ -198,6 +198,14 @@ The following arguments are supported:
   Redis 5.0 instances but not by Redis 3.0 instance.
   The valid commands that can be renamed are: **command**, **keys**, **flushdb**, **flushall** and **hgetall**.
 
+* `big_key_enable_auto_scan` - (Optional, Bool) Specifies whether to enable scheduled cache analysis for big key.
+
+* `big_key_schedule_at` - (Optional, List) Specifies the UTC time of the day that cache analysis is scheduled for big key.
+
+* `hot_key_enable_auto_scan` - (Optional, Bool) Specifies whether to enable scheduled cache analysis for hot key.
+
+* `hot_key_schedule_at` - (Optional, List) Specifies the UTC time of the day that cache analysis is scheduled for hot key.
+
 * `enterprise_project_id` - (Optional, String) The enterprise project id of the dcs instance.
 
 * `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the redis instance.
@@ -325,6 +333,10 @@ In addition to all arguments above, the following attributes are exported:
 * `product_type` - Indicates the product type of the instance. The value can be: **generic** or **enterprise**.
 
 * `sharding_count` - Indicates the number of shards in a cluster instance.
+
+* `big_key_updated_at` - Indicates the time when the configuration is updated for big key.
+
+* `hot_key_updated_at` - Indicates the time when the configuration is updated for hot key.
 
 <a name="dcs_bandwidth_info"></a>
 The `bandwidth_info` block supports:
