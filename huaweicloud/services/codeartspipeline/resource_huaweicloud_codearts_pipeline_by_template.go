@@ -28,6 +28,8 @@ var pipelineByTemplateNonUpdatableParams = []string{
 // @API CodeArtsPipeline PUT /v5/{project_id}/api/pipelines/{pipeline_id}/ban
 // @API CodeArtsPipeline POST /v5/{project_id}/api/pipeline/variable/group/relation
 // @API CodeArtsPipeline GET /v5/{project_id}/api/pipeline/variable/group/pipeline
+// @API CodeArtsPipeline POST /v5/{project_id}/api/pipeline-group/pipeline/move
+// @API CodeArtsPipeline POST /v5/{project_id}/api/pipeline-tag/set-tags
 func ResourceCodeArtsPipelineByTemplate() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourcePipelineByTemplateCreate,
@@ -145,6 +147,12 @@ func ResourceCodeArtsPipelineByTemplate() *schema.Resource {
 				Optional:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: `Specifies the list of parameter groups.`,
+			},
+			"tags": {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `Specifies the list of tag IDs.`,
 			},
 			"enable_force_new": {
 				Type:         schema.TypeString,
@@ -322,6 +330,17 @@ func resourcePipelineByTemplateCreate(ctx context.Context, d *schema.ResourceDat
 			nil,
 		}); err != nil {
 			return diag.Errorf("error updating pipeline parameter groups: %s", err)
+		}
+	}
+
+	if _, ok := d.GetOk("tags"); ok {
+		if err := updatePipelineField(client, d, updatePipelineFieldParams{
+			updateTagsHttpURl,
+			"POST",
+			buildUpdatePipelineTagsBodyParams(d),
+			nil,
+		}); err != nil {
+			return diag.Errorf("error updating pipeline tags: %s", err)
 		}
 	}
 

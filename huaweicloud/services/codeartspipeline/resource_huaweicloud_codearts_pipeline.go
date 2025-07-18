@@ -23,6 +23,8 @@ const (
 	banHttpUrl                = "v5/{project_id}/api/pipelines/{pipeline_id}/ban"
 	unbanHttpUrl              = "v5/{project_id}/api/pipelines/{pipeline_id}/unban"
 	bindParameterGroupHttpUrl = "v5/{project_id}/api/pipeline/variable/group/relation"
+	moveGroupHttpUrl          = "v5/{project_id}/api/pipeline-group/pipeline/move"
+	updateTagsHttpURl         = "v5/{project_id}/api/pipeline-tag/set-tags"
 )
 
 var pipelineNonUpdatableParams = []string{
@@ -37,6 +39,8 @@ var pipelineNonUpdatableParams = []string{
 // @API CodeArtsPipeline PUT /v5/{project_id}/api/pipelines/{pipeline_id}/ban
 // @API CodeArtsPipeline POST /v5/{project_id}/api/pipeline/variable/group/relation
 // @API CodeArtsPipeline GET /v5/{project_id}/api/pipeline/variable/group/pipeline
+// @API CodeArtsPipeline POST /v5/{project_id}/api/pipeline-group/pipeline/move
+// @API CodeArtsPipeline POST /v5/{project_id}/api/pipeline-tag/set-tags
 func ResourceCodeArtsPipeline() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourcePipelineCreate,
@@ -147,6 +151,12 @@ func ResourceCodeArtsPipeline() *schema.Resource {
 				Optional:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: `Specifies the list of parameter groups.`,
+			},
+			"tags": {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `Specifies the list of tag IDs.`,
 			},
 			"enable_force_new": {
 				Type:         schema.TypeString,
@@ -528,6 +538,17 @@ func resourcePipelineCreate(ctx context.Context, d *schema.ResourceData, meta in
 		}
 	}
 
+	if _, ok := d.GetOk("tags"); ok {
+		if err := updatePipelineField(client, d, updatePipelineFieldParams{
+			updateTagsHttpURl,
+			"POST",
+			buildUpdatePipelineTagsBodyParams(d),
+			nil,
+		}); err != nil {
+			return diag.Errorf("error updating pipeline tags: %s", err)
+		}
+	}
+
 	if d.Get("banned").(bool) {
 		if err := updatePipelineField(client, d, updatePipelineFieldParams{banHttpUrl, "PUT", nil, nil}); err != nil {
 			return diag.Errorf("error banning pipeline: %s", err)
@@ -544,7 +565,7 @@ func buildCreateOrUpdatePipelineBodyParams(d *schema.ResourceData) map[string]in
 		"definition":          d.Get("definition"),
 		"is_publish":          d.Get("is_publish"),
 		"project_name":        utils.ValueIgnoreEmpty(d.Get("project_name")),
-		"group_id":            utils.ValueIgnoreEmpty(d.Get("group_id")),
+		"group_id":            d.Get("group_id"),
 		"manifest_version":    utils.ValueIgnoreEmpty(d.Get("manifest_version")),
 		"sources":             buildPipelineSources(d),
 		"variables":           buildPipelineTemplateVariables(d),
@@ -747,6 +768,7 @@ func resourcePipelineRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("concurrency_control", flattenPipelineConcurrencyControl(getRespBody)),
 		d.Set("banned", utils.PathSearch("banned", getRespBody, nil)),
 		d.Set("definition", utils.PathSearch("definition", getRespBody, nil)),
+		d.Set("tags", utils.PathSearch("tags[*].tagId", getRespBody, nil)),
 	)
 
 	ids, err := getPipelineRelatedParameterGroups(client, projectId, d.Id())
@@ -939,6 +961,29 @@ func resourcePipelineUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		}
 	}
 
+	// if update to un-grouped, the above api doesn't work
+	if d.HasChange("group_id") && d.Get("group_id").(string) == "" {
+		if err := updatePipelineField(client, d, updatePipelineFieldParams{
+			moveGroupHttpUrl,
+			"POST",
+			buildUpdatePipelineToUnGroupBodyParams(d),
+			nil,
+		}); err != nil {
+			return diag.Errorf("error updating pipeline group ID: %s", err)
+		}
+	}
+
+	if d.HasChange("tags") {
+		if err := updatePipelineField(client, d, updatePipelineFieldParams{
+			updateTagsHttpURl,
+			"POST",
+			buildUpdatePipelineTagsBodyParams(d),
+			nil,
+		}); err != nil {
+			return diag.Errorf("error updating pipeline tags: %s", err)
+		}
+	}
+
 	if d.HasChange("parameter_groups") {
 		if err := updatePipelineField(client, d, updatePipelineFieldParams{
 			bindParameterGroupHttpUrl,
@@ -1000,6 +1045,29 @@ func buildUpdatePipelineParameterGroups(d *schema.ResourceData) interface{} {
 		"pipeline_id":        d.Id(),
 		"pipeline_group_ids": d.Get("parameter_groups").(*schema.Set).List(),
 	}
+}
+
+func buildUpdatePipelineToUnGroupBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"group_id": d.Get("group_id"),
+		"pipelines": []map[string]interface{}{
+			{
+				"pipeline_id":   d.Id(),
+				"pipeline_name": d.Get("name"),
+			},
+		},
+	}
+
+	return bodyParams
+}
+
+func buildUpdatePipelineTagsBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"pipelineList": []interface{}{d.Id()},
+		"tagList":      d.Get("tags").(*schema.Set).List(),
+	}
+
+	return bodyParams
 }
 
 type updatePipelineFieldParams struct {
