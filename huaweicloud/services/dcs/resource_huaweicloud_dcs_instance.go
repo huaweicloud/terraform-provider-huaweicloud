@@ -41,6 +41,7 @@ var (
 // @API DCS PUT /v2/{project_id}/instance/{instance_id}/whitelist
 // @API DCS GET /v2/{project_id}/instance/{instance_id}/whitelist
 // @API DCS PUT /v2/{project_id}/instances/{instance_id}/async-configs
+// @API DCS PUT /v2/{project_id}/{instance_id}/client-ip-transparent-transmission
 // @API DCS GET /v2/{project_id}/jobs/{job_id}
 // @API DCS PUT /v2/{project_id}/instances/{instance_id}/bigkey/autoscan
 // @API DCS PUT /v2/{project_id}/instances/{instance_id}/hotkey/autoscan
@@ -318,6 +319,11 @@ func ResourceDcsInstance() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"transparent_client_ip_enable": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
 			"charging_mode": common.SchemaChargingMode(nil),
 			"period_unit":   common.SchemaPeriodUnit(nil),
 			"period":        common.SchemaPeriod(nil),
@@ -398,10 +404,6 @@ func ResourceDcsInstance() *schema.Resource {
 			},
 			"readonly_domain_name": {
 				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"transparent_client_ip_enable": {
-				Type:     schema.TypeBool,
 				Computed: true,
 			},
 			"product_type": {
@@ -646,7 +648,7 @@ func resourceDcsInstancesCreate(ctx context.Context, d *schema.ResourceData, met
 		}
 	}
 
-	if sslEnabled := d.Get("ssl_enable").(bool); sslEnabled {
+	if d.Get("ssl_enable").(bool) {
 		err = updateInstanceSsl(ctx, d, client)
 		if err != nil {
 			return diag.FromErr(err)
@@ -669,6 +671,13 @@ func resourceDcsInstancesCreate(ctx context.Context, d *schema.ResourceData, met
 
 	if d.Get("expire_key_enable_auto_scan").(bool) {
 		err = updateInstanceExpireKeyAutoScan(ctx, d, client, schema.TimeoutCreate)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.Get("transparent_client_ip_enable").(bool) {
+		err = updateTransparentClientIpEnable(ctx, d, client)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -1268,6 +1277,13 @@ func resourceDcsInstancesUpdate(ctx context.Context, d *schema.ResourceData, met
 		}
 	}
 
+	if d.HasChange("transparent_client_ip_enable") {
+		err = updateTransparentClientIpEnable(ctx, d, client)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	if d.HasChange("enterprise_project_id") {
 		migrateOpts := config.MigrateResourceOpts{
 			ResourceId:   d.Id(),
@@ -1689,6 +1705,27 @@ func buildUpdateInstanceExpireKeyAutoScanBodyParams(d *schema.ResourceData) map[
 		"interval":         utils.ValueIgnoreEmpty(d.Get("expire_key_interval")),
 		"timeout":          utils.ValueIgnoreEmpty(d.Get("expire_key_timeout")),
 		"scan_keys_count":  utils.ValueIgnoreEmpty(d.Get("expire_key_scan_keys_count")),
+	}
+	return bodyParams
+}
+
+func updateTransparentClientIpEnable(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	_, err := updateDcsInstanceField(ctx, d, client, updateInstanceFieldParams{
+		httpUrl:            "v2/{project_id}/{instance_id}/client-ip-transparent-transmission",
+		httpMethod:         "PUT",
+		pathParams:         map[string]string{"instance_id": d.Id()},
+		updateBodyParams:   utils.RemoveNil(buildUpdateTransparentClientIpEnableBodyParams(d)),
+		checkJobExpression: "job_id",
+	})
+	if err != nil {
+		return fmt.Errorf("error updating instance transparent client IP enable: %s", err)
+	}
+	return nil
+}
+
+func buildUpdateTransparentClientIpEnableBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"transparent_client_ip_enable": d.Get("transparent_client_ip_enable"),
 	}
 	return bodyParams
 }

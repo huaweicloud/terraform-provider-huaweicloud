@@ -88,6 +88,7 @@ func TestAccDcsInstances_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "expire_key_interval", "20"),
 					resource.TestCheckResourceAttr(rName, "expire_key_timeout", "100"),
 					resource.TestCheckResourceAttr(rName, "expire_key_scan_keys_count", "20000"),
+					resource.TestCheckResourceAttr(rName, "transparent_client_ip_enable", "true"),
 					resource.TestCheckResourceAttrSet(rName, "private_ip"),
 					resource.TestCheckResourceAttrSet(rName, "domain_name"),
 					resource.TestCheckResourceAttrSet(rName, "created_at"),
@@ -97,7 +98,6 @@ func TestAccDcsInstances_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "cpu_type"),
 					resource.TestCheckResourceAttrSet(rName, "replica_count"),
 					resource.TestCheckResourceAttrSet(rName, "readonly_domain_name"),
-					resource.TestCheckResourceAttrSet(rName, "transparent_client_ip_enable"),
 					resource.TestCheckResourceAttrSet(rName, "sharding_count"),
 					resource.TestCheckResourceAttrSet(rName, "product_type"),
 					resource.TestCheckResourceAttrSet(rName, "bandwidth_info.0.bandwidth"),
@@ -136,6 +136,7 @@ func TestAccDcsInstances_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "hot_key_enable_auto_scan", "true"),
 					resource.TestCheckResourceAttr(rName, "hot_key_schedule_at.0", "20:00"),
 					resource.TestCheckResourceAttr(rName, "expire_key_enable_auto_scan", "false"),
+					resource.TestCheckResourceAttr(rName, "transparent_client_ip_enable", "false"),
 					resource.TestCheckResourceAttrSet(rName, "created_at"),
 					resource.TestCheckResourceAttrSet(rName, "launched_at"),
 					resource.TestCheckResourceAttrSet(rName, "subnet_cidr"),
@@ -143,7 +144,6 @@ func TestAccDcsInstances_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "cpu_type"),
 					resource.TestCheckResourceAttrSet(rName, "replica_count"),
 					resource.TestCheckResourceAttrSet(rName, "readonly_domain_name"),
-					resource.TestCheckResourceAttrSet(rName, "transparent_client_ip_enable"),
 					resource.TestCheckResourceAttrSet(rName, "sharding_count"),
 					resource.TestCheckResourceAttrSet(rName, "product_type"),
 					resource.TestCheckResourceAttrSet(rName, "bandwidth_info.0.bandwidth"),
@@ -1072,18 +1072,19 @@ data "huaweicloud_dcs_flavors" "test" {
 }
 
 resource "huaweicloud_dcs_instance" "test" {
-  name               = "%[1]s"
-  engine_version     = "5.0"
-  password           = "Huawei_test"
-  engine             = "Redis"
-  port               = 6388
-  capacity           = 1
-  vpc_id             = data.huaweicloud_vpc.test.id
-  subnet_id          = data.huaweicloud_vpc_subnet.test.id
-  availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
-  flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
-  maintain_begin     = "22:00:00"
-  maintain_end       = "23:00:00"
+  name                         = "%[1]s"
+  engine_version               = "5.0"
+  password                     = "Huawei_test"
+  engine                       = "Redis"
+  port                         = 6388
+  capacity                     = 1
+  vpc_id                       = data.huaweicloud_vpc.test.id
+  subnet_id                    = data.huaweicloud_vpc_subnet.test.id
+  availability_zones           = [data.huaweicloud_availability_zones.test.names[0]]
+  flavor                       = data.huaweicloud_dcs_flavors.test.flavors[0].name
+  maintain_begin               = "22:00:00"
+  maintain_end                 = "23:00:00"
+  transparent_client_ip_enable = true
 
   big_key_enable_auto_scan    = true
   big_key_schedule_at         = ["10:00"]
@@ -1143,18 +1144,19 @@ data "huaweicloud_dcs_flavors" "test" {
 }
 
 resource "huaweicloud_dcs_instance" "test" {
-  name               = "%[1]s"
-  engine_version     = "5.0"
-  password           = "Huawei_test"
-  engine             = "Redis"
-  port               = 6389
-  capacity           = 2
-  vpc_id             = data.huaweicloud_vpc.test.id
-  subnet_id          = data.huaweicloud_vpc_subnet.test.id
-  availability_zones = [data.huaweicloud_availability_zones.test.names[0]]
-  flavor             = data.huaweicloud_dcs_flavors.test.flavors[0].name
-  maintain_begin     = "06:00:00"
-  maintain_end       = "07:00:00"
+  name                         = "%[1]s"
+  engine_version               = "5.0"
+  password                     = "Huawei_test"
+  engine                       = "Redis"
+  port                         = 6389
+  capacity                     = 2
+  vpc_id                       = data.huaweicloud_vpc.test.id
+  subnet_id                    = data.huaweicloud_vpc_subnet.test.id
+  availability_zones           = [data.huaweicloud_availability_zones.test.names[0]]
+  flavor                       = data.huaweicloud_dcs_flavors.test.flavors[0].name
+  maintain_begin               = "06:00:00"
+  maintain_end                 = "07:00:00"
+  transparent_client_ip_enable = false
 
   big_key_enable_auto_scan    = false
   big_key_schedule_at         = ["17:00"]
