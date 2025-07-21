@@ -33,24 +33,26 @@ func TestAccAppServers_basic(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckWorkspaceAppServerGroupId(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testDataSourceAppServers_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestMatchResourceAttr(all, "items.#", regexp.MustCompile(`[1-9]\d*`)),
-					resource.TestCheckResourceAttrSet(all, "server_count"),
-					resource.TestCheckResourceAttrSet(all, "items.0.id"),
-					resource.TestCheckResourceAttrSet(all, "items.0.name"),
-					resource.TestCheckResourceAttrSet(all, "items.0.machine_name"),
-					resource.TestCheckResourceAttrSet(all, "items.0.server_group_id"),
-					resource.TestCheckResourceAttrSet(all, "items.0.status"),
-					resource.TestCheckResourceAttrSet(all, "items.0.flavor.#"),
-					resource.TestCheckResourceAttrSet(all, "items.0.product_info.#"),
-					resource.TestCheckResourceAttrSet(all, "items.0.host_address.#"),
-					resource.TestCheckResourceAttrSet(all, "items.0.tags.#"),
+					resource.TestMatchResourceAttr(all, "servers.#", regexp.MustCompile(`[1-9]\d*`)),
+					resource.TestCheckResourceAttrSet(all, "servers.0.id"),
+					resource.TestCheckResourceAttrSet(all, "servers.0.name"),
+					resource.TestCheckResourceAttrSet(all, "servers.0.machine_name"),
+					resource.TestCheckResourceAttrSet(all, "servers.0.server_group_id"),
+					resource.TestCheckResourceAttrSet(all, "servers.0.status"),
+					resource.TestCheckResourceAttrSet(all, "servers.0.flavor.#"),
+					resource.TestCheckResourceAttrSet(all, "servers.0.product_info.#"),
+					resource.TestCheckResourceAttrSet(all, "servers.0.host_address.#"),
+					resource.TestCheckResourceAttrSet(all, "servers.0.tags.#"),
 					dcByServerName.CheckResourceExists(),
 					resource.TestCheckOutput("is_server_name_filter_useful", "true"),
 					dcByMachineName.CheckResourceExists(),
@@ -69,44 +71,29 @@ func TestAccAppServers_basic(t *testing.T) {
 
 func testDataSourceAppServers_base(name string) string {
 	return fmt.Sprintf(`
-data "huaweicloud_workspace_service" "test" {}
+data "huaweicloud_workspace_app_server_groups" "test" {
+  server_group_id = "%[1]s"
+}
 
-resource "huaweicloud_workspace_app_server_group" "test" {
-  name             = "%[1]s"
-  os_type          = "Windows"
-  flavor_id        = "%[2]s"
-  vpc_id           = data.huaweicloud_workspace_service.test.vpc_id
-  subnet_id        = data.huaweicloud_workspace_service.test.network_ids[0]
-  system_disk_type = "SAS"
-  system_disk_size = 80
-  is_vdi           = true
-  image_id         = "%[3]s"
-  image_type       = "gold"
-  image_product_id = "%[4]s"
-  
-  tags = {
-    key   = "bar"
-    value = "value"
-  }
+data "huaweicloud_vpc_subnets" "test" {
+  id = try(data.huaweicloud_workspace_app_server_groups.test.server_groups[0].subnet_id, null)
 }
 
 resource "huaweicloud_workspace_app_server" "test" {
-  name            = "%[1]s"
-  server_group_id = huaweicloud_workspace_app_server_group.test.id
+  name            = "%[2]s"
+  server_group_id = try(data.huaweicloud_workspace_app_server_groups.test.server_groups[0].id, null)
   type            = "createApps"
-  flavor_id       = huaweicloud_workspace_app_server_group.test.flavor_id
-  vpc_id          = huaweicloud_workspace_app_server_group.test.vpc_id
-  subnet_id       = huaweicloud_workspace_app_server_group.test.subnet_id
+  flavor_id       = try(data.huaweicloud_workspace_app_server_groups.test.server_groups[0].product_id, null)
+  vpc_id          = try(data.huaweicloud_vpc_subnets.test.subnets[0].vpc_id, null)
+  subnet_id       = try(data.huaweicloud_workspace_app_server_groups.test.server_groups[0].subnet_id, null)
   maintain_status = false
 
   root_volume {
-    type = huaweicloud_workspace_app_server_group.test.system_disk_type
-    size = huaweicloud_workspace_app_server_group.test.system_disk_size
+    type = try(data.huaweicloud_workspace_app_server_groups.test.server_groups[0].system_disk_type, null)
+    size = try(data.huaweicloud_workspace_app_server_groups.test.server_groups[0].system_disk_size, null)
   }
 }
-`, name, acceptance.HW_WORKSPACE_APP_SERVER_GROUP_FLAVOR_ID,
-		acceptance.HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_ID,
-		acceptance.HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_PRODUCT_ID)
+`, acceptance.HW_WORKSPACE_APP_SERVER_GROUP_ID, name)
 }
 
 func testDataSourceAppServers_basic(name string) string {
@@ -119,7 +106,7 @@ data "huaweicloud_workspace_app_servers" "test" {
 
 # Filter by server name
 locals {
-  server_name = data.huaweicloud_workspace_app_servers.test.items[0].name
+  server_name = data.huaweicloud_workspace_app_servers.test.servers[0].name
 }
 
 data "huaweicloud_workspace_app_servers" "filter_by_server_name" {
@@ -132,7 +119,7 @@ data "huaweicloud_workspace_app_servers" "filter_by_server_name" {
 
 locals {
   server_name_filter_result = [
-    for v in data.huaweicloud_workspace_app_servers.filter_by_server_name.items[*].name : v == local.server_name
+    for v in data.huaweicloud_workspace_app_servers.filter_by_server_name.servers[*].name : v == local.server_name
   ]
 }
 
@@ -142,7 +129,7 @@ output "is_server_name_filter_useful" {
 
 # Filter by machine name
 locals {
-  machine_name = data.huaweicloud_workspace_app_servers.test.items[0].machine_name
+  machine_name = data.huaweicloud_workspace_app_servers.test.servers[0].machine_name
 }
 
 data "huaweicloud_workspace_app_servers" "filter_by_machine_name" {
@@ -155,7 +142,7 @@ data "huaweicloud_workspace_app_servers" "filter_by_machine_name" {
 
 locals {
   machine_name_filter_result = [
-    for v in data.huaweicloud_workspace_app_servers.filter_by_machine_name.items[*].machine_name : v == local.machine_name
+    for v in data.huaweicloud_workspace_app_servers.filter_by_machine_name.servers[*].machine_name : v == local.machine_name
   ]
 }
 
@@ -163,9 +150,9 @@ output "is_machine_name_filter_useful" {
   value = length(local.machine_name_filter_result) > 0 && alltrue(local.machine_name_filter_result)
 }
 
-# Filter by server group id
+# Filter by server group ID
 locals {
-  server_group_id = data.huaweicloud_workspace_app_servers.test.items[0].server_group_id
+  server_group_id = data.huaweicloud_workspace_app_servers.test.servers[0].server_group_id
 }
 
 data "huaweicloud_workspace_app_servers" "filter_by_server_group_id" {
@@ -178,7 +165,7 @@ data "huaweicloud_workspace_app_servers" "filter_by_server_group_id" {
 
 locals {
   server_group_id_filter_result = [
-    for v in data.huaweicloud_workspace_app_servers.filter_by_server_group_id.items[*].server_group_id : v == local.server_group_id
+    for v in data.huaweicloud_workspace_app_servers.filter_by_server_group_id.servers[*].server_group_id : v == local.server_group_id
   ]
 }
 
@@ -196,10 +183,10 @@ data "huaweicloud_workspace_app_servers" "filter_by_maintain_status" {
 }
 
 locals {
-  maintain_status = data.huaweicloud_workspace_app_servers.test.items[0].maintain_status
+  maintain_status = data.huaweicloud_workspace_app_servers.test.servers[0].maintain_status
 
   maintain_status_filter_result = [
-    for v in data.huaweicloud_workspace_app_servers.filter_by_maintain_status.items[*].maintain_status : v == false
+    for v in data.huaweicloud_workspace_app_servers.filter_by_maintain_status.servers[*].maintain_status : v == false
   ]
 }
 
@@ -217,10 +204,10 @@ data "huaweicloud_workspace_app_servers" "filter_by_scaling_auto_create" {
 }
 
 locals {
-  scaling_auto_create = data.huaweicloud_workspace_app_servers.test.items[0].scaling_auto_create
+  scaling_auto_create = data.huaweicloud_workspace_app_servers.test.servers[0].scaling_auto_create
 
   scaling_auto_create_filter_result = [
-    for v in data.huaweicloud_workspace_app_servers.filter_by_scaling_auto_create.items[*].scaling_auto_create : v == false
+    for v in data.huaweicloud_workspace_app_servers.filter_by_scaling_auto_create.servers[*].scaling_auto_create : v == false
   ]
 }
 

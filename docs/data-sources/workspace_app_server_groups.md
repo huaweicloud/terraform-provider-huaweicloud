@@ -48,13 +48,11 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The data source ID.
 
-* `server_group_count` - The total number of server groups.
+* `server_groups` - The list of server groups that matched filter parameters.  
+  The [server_groups](#workspace_app_server_groups) structure is documented below.
 
-* `items` - The list of server groups.  
-  The [items](#workspace_app_server_groups_items) structure is documented below.
-
-<a name="workspace_app_server_groups_items"></a>
-The `items` block supports:
+<a name="workspace_app_server_groups"></a>
+The `server_groups` block supports:
 
 * `id` - The unique ID of the server group.
 
