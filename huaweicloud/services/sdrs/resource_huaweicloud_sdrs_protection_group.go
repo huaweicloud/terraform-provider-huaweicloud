@@ -152,14 +152,9 @@ func resourceProtectionGroupRead(_ context.Context, d *schema.ResourceData, meta
 
 	n, err := protectiongroups.Get(client, d.Id()).Extract()
 	if err != nil {
-		if errCode, ok := err.(golangsdk.ErrDefault400); ok {
-			if resp, pErr := common.ParseErrorMsg(errCode.Body); pErr == nil && resp.ErrorCode == "SDRS.1013" {
-				// `SDRS.1013` means protection group not found
-				return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{},
-					"error retrieving SDRS protection group")
-			}
-		}
-		return diag.FromErr(err)
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error.code", "SDRS.1013"),
+			"error retrieving SDRS protection group")
 	}
 
 	mErr := multierror.Append(
@@ -221,14 +216,9 @@ func resourceProtectionGroupDelete(_ context.Context, d *schema.ResourceData, me
 
 	n, err := protectiongroups.Delete(client, d.Id()).ExtractJobResponse()
 	if err != nil {
-		if errCode, ok := err.(golangsdk.ErrDefault400); ok {
-			if resp, pErr := common.ParseErrorMsg(errCode.Body); pErr == nil && resp.ErrorCode == "SDRS.0207" {
-				// `SDRS.0207` means invalid protection group ID
-				return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{},
-					"error deleting SDRS protection group")
-			}
-		}
-		return diag.FromErr(err)
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error.code", "SDRS.1013"),
+			"error deleting SDRS protection group")
 	}
 
 	deleteTimeoutSec := int(d.Timeout(schema.TimeoutDelete).Seconds())
