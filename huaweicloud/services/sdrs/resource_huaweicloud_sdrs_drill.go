@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/sdrs/v1/drill"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -108,13 +107,10 @@ func resourceDrillRead(_ context.Context, d *schema.ResourceData, meta interface
 
 	n, err := drill.Get(client, d.Id()).Extract()
 	if err != nil {
-		if errCode, ok := err.(golangsdk.ErrDefault400); ok {
-			if resp, pErr := common.ParseErrorMsg(errCode.Body); pErr == nil && resp.ErrorCode == "SDRS.1902" {
-				// `SDRS.1902` means DR drill not found
-				return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "error retrieving SDRS DR drill")
-			}
-		}
-		return diag.FromErr(err)
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error.code", "SDRS.1902"),
+			"error retrieving SDRS DR drill",
+		)
 	}
 
 	mErr := multierror.Append(
@@ -159,13 +155,10 @@ func resourceDrillDelete(_ context.Context, d *schema.ResourceData, meta interfa
 
 	n, err := drill.Delete(client, d.Id()).ExtractJobResponse()
 	if err != nil {
-		if errCode, ok := err.(golangsdk.ErrDefault400); ok {
-			if resp, pErr := common.ParseErrorMsg(errCode.Body); pErr == nil && resp.ErrorCode == "SDRS.1902" {
-				// `SDRS.1902` means DR drill not found
-				return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "error deleting SDRS DR drill")
-			}
-		}
-		return diag.FromErr(err)
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error.code", "SDRS.1913"),
+			"error deleting SDRS DR drill",
+		)
 	}
 
 	deleteTimeoutSec := int(d.Timeout(schema.TimeoutDelete).Seconds())
