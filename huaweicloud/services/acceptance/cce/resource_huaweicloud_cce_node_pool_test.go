@@ -981,7 +981,7 @@ func TestAccNodePool_extensionScaleGroups(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
-					// extension_scale_groups not saved, nothing to check, just ensure there is no error
+					// the order of extension_scale_groups returned by API could be different, so don't need to check
 				),
 			},
 			{
@@ -989,7 +989,7 @@ func TestAccNodePool_extensionScaleGroups(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", updateName),
-					// extension_scale_groups not saved, nothing to check, just ensure there is no error
+					// the order of extension_scale_groups returned by API could be different, so don't need to check
 				),
 			},
 			{
@@ -998,7 +998,7 @@ func TestAccNodePool_extensionScaleGroups(t *testing.T) {
 				ImportStateVerify: true,
 				ImportStateIdFunc: testAccNodePoolImportStateIdFunc(resourceName),
 				ImportStateVerifyIgnore: []string{
-					"initial_node_count", "extension_scale_groups",
+					"initial_node_count",
 				},
 			},
 		},
