@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/sdrs/v1/protectedinstances"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -149,14 +148,10 @@ func resourceProtectedInstanceRead(_ context.Context, d *schema.ResourceData, me
 
 	n, err := protectedinstances.Get(client, d.Id()).Extract()
 	if err != nil {
-		if errCode, ok := err.(golangsdk.ErrDefault400); ok {
-			if resp, pErr := common.ParseErrorMsg(errCode.Body); pErr == nil && resp.ErrorCode == "SDRS.0208" {
-				// `SDRS.0208` means invalid protected instance ID
-				return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{},
-					"error retrieving SDRS protected instance")
-			}
-		}
-		return diag.FromErr(err)
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error.code", "SDRS.1320"),
+			"error retrieving SDRS protected instance",
+		)
 	}
 
 	mErr := multierror.Append(
@@ -221,14 +216,11 @@ func resourceProtectedInstanceDelete(_ context.Context, d *schema.ResourceData, 
 	}
 	n, err := protectedinstances.Delete(client, d.Id(), deleteOpts).ExtractJobResponse()
 	if err != nil {
-		if errCode, ok := err.(golangsdk.ErrDefault400); ok {
-			if resp, pErr := common.ParseErrorMsg(errCode.Body); pErr == nil && resp.ErrorCode == "SDRS.0208" {
-				// `SDRS.0208` means invalid protected instance ID
-				return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{},
-					"error deleting SDRS protected instance")
-			}
-		}
-		return diag.FromErr(err)
+		return common.CheckDeletedDiag(
+			d,
+			common.ConvertExpected400ErrInto404Err(err, "error.code", "SDRS.1301"),
+			"error deleting SDRS protected instance",
+		)
 	}
 
 	deleteTimeoutSec := int(d.Timeout(schema.TimeoutDelete).Seconds())
