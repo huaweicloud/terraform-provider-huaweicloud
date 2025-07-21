@@ -3,6 +3,7 @@ package workspace
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -60,12 +61,7 @@ func DataSourceAppServerGroups() *schema.Resource {
 			},
 
 			// Attribute
-			"server_group_count": {
-				Type:        schema.TypeInt,
-				Computed:    true,
-				Description: `The total number of server groups.`,
-			},
-			"items": {
+			"server_groups": {
 				Type:        schema.TypeList,
 				Computed:    true,
 				Description: `The list of server groups.`,
@@ -458,15 +454,17 @@ func buildAppServerGroupsQueryParams(d *schema.ResourceData) string {
 	return "&" + strings.Join(params, "&")
 }
 
-func queryAppServerGroups(client *golangsdk.ServiceClient, d *schema.ResourceData) ([]interface{}, error) {
+func listAppServerGroups(client *golangsdk.ServiceClient, d *schema.ResourceData) ([]interface{}, error) {
 	var (
-		httpUrl = "v1/{project_id}/app-server-groups?limit=100"
+		httpUrl = "v1/{project_id}/app-server-groups?limit={limit}"
+		limit   = 100
 		offset  = 0
 		result  = make([]interface{}, 0)
 	)
 
 	listPath := client.Endpoint + httpUrl
 	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
+	listPath = strings.ReplaceAll(listPath, "{limit}", strconv.Itoa(limit))
 	listPath += buildAppServerGroupsQueryParams(d)
 
 	opt := golangsdk.RequestOpts{
@@ -489,11 +487,11 @@ func queryAppServerGroups(client *golangsdk.ServiceClient, d *schema.ResourceDat
 		}
 
 		items := utils.PathSearch("items", respBody, make([]interface{}, 0)).([]interface{})
-		if len(items) < 1 {
+		result = append(result, items...)
+		if len(items) < limit {
 			break
 		}
 
-		result = append(result, items...)
 		offset += len(items)
 	}
 
@@ -641,7 +639,7 @@ func dataSourceAppServerGroupsRead(_ context.Context, d *schema.ResourceData, me
 		return diag.Errorf("error creating Workspace APP client: %s", err)
 	}
 
-	items, err := queryAppServerGroups(client, d)
+	items, err := listAppServerGroups(client, d)
 	if err != nil {
 		return diag.Errorf("error querying server groups: %s", err)
 	}
@@ -654,8 +652,7 @@ func dataSourceAppServerGroupsRead(_ context.Context, d *schema.ResourceData, me
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("server_group_count", len(items)),
-		d.Set("items", flattenAppServerGroups(items)),
+		d.Set("server_groups", flattenAppServerGroups(items)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())

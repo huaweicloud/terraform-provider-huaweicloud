@@ -3,6 +3,7 @@ package workspace
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -66,12 +67,7 @@ func DataSourceAppServers() *schema.Resource {
 			},
 
 			// Attributes
-			"server_count": {
-				Type:        schema.TypeInt,
-				Computed:    true,
-				Description: `The total number of servers.`,
-			},
-			"items": {
+			"servers": {
 				Type:        schema.TypeList,
 				Computed:    true,
 				Description: `The list of servers.`,
@@ -236,7 +232,7 @@ func DataSourceAppServers() *schema.Resource {
 						"flavor": {
 							Type:        schema.TypeList,
 							Computed:    true,
-							Elem:        v1WorkspaceAppServersFlavorSchema(),
+							Elem:        workspaceAppServersFlavorSchema(),
 							Description: `The flavor information of the server.`,
 						},
 						"product_info": {
@@ -475,7 +471,7 @@ func DataSourceAppServers() *schema.Resource {
 	}
 }
 
-func v1WorkspaceAppServersFlavorSchema() *schema.Resource {
+func workspaceAppServersFlavorSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"id": {
@@ -506,7 +502,7 @@ func v1WorkspaceAppServersFlavorSchema() *schema.Resource {
 	}
 }
 
-func buildV1AppServersQueryParams(d *schema.ResourceData) string {
+func buildAppServersQueryParams(d *schema.ResourceData) string {
 	res := ""
 
 	if serverGroupId, ok := d.GetOk("server_group_id"); ok {
@@ -534,9 +530,10 @@ func buildV1AppServersQueryParams(d *schema.ResourceData) string {
 	return res
 }
 
-func queryV1AppServers(client *golangsdk.ServiceClient, d *schema.ResourceData) ([]interface{}, interface{}, error) {
+func listAppServers(client *golangsdk.ServiceClient, d *schema.ResourceData) ([]interface{}, error) {
 	var (
-		httpUrl  = "v1/{project_id}/app-servers?limit=100"
+		httpUrl  = "v1/{project_id}/app-servers?limit={limit}"
+		limit    = 100
 		offset   = 0
 		result   = make([]interface{}, 0)
 		respBody interface{}
@@ -544,7 +541,8 @@ func queryV1AppServers(client *golangsdk.ServiceClient, d *schema.ResourceData) 
 
 	listPath := client.Endpoint + httpUrl
 	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
-	listPath += buildV1AppServersQueryParams(d)
+	listPath = strings.ReplaceAll(listPath, "{limit}", strconv.Itoa(limit))
+	listPath += buildAppServersQueryParams(d)
 
 	opt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -557,30 +555,26 @@ func queryV1AppServers(client *golangsdk.ServiceClient, d *schema.ResourceData) 
 		listPathWithOffset := listPath + fmt.Sprintf("&offset=%d", offset)
 		requestResp, err := client.Request("GET", listPathWithOffset, &opt)
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 
 		respBody, err = utils.FlattenResponse(requestResp)
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
-		if respBody == nil {
-			break
-		}
-
 		servers := utils.PathSearch("items", respBody, make([]interface{}, 0)).([]interface{})
-		if len(servers) < 1 {
+		result = append(result, servers...)
+		if len(servers) < limit {
 			break
 		}
 
-		result = append(result, servers...)
 		offset += len(servers)
 	}
 
-	return result, respBody, nil
+	return result, nil
 }
 
-func flattenV1AppServersFlavorLinks(links []interface{}) []map[string]interface{} {
+func flattenAppServersFlavorLinks(links []interface{}) []map[string]interface{} {
 	if len(links) < 1 {
 		return nil
 	}
@@ -596,7 +590,7 @@ func flattenV1AppServersFlavorLinks(links []interface{}) []map[string]interface{
 	return result
 }
 
-func flattenV1AppServersFlavor(flavor map[string]interface{}) []map[string]interface{} {
+func flattenAppServersFlavor(flavor map[string]interface{}) []map[string]interface{} {
 	if len(flavor) < 1 {
 		return nil
 	}
@@ -604,13 +598,13 @@ func flattenV1AppServersFlavor(flavor map[string]interface{}) []map[string]inter
 	return []map[string]interface{}{
 		{
 			"id": utils.PathSearch("id", flavor, nil),
-			"links": flattenV1AppServersFlavorLinks(utils.PathSearch("links", flavor,
+			"links": flattenAppServersFlavorLinks(utils.PathSearch("links", flavor,
 				make([]interface{}, 0)).([]interface{})),
 		},
 	}
 }
 
-func flattenV1AppServersProductInfo(productInfo map[string]interface{}) []map[string]interface{} {
+func flattenAppServersProductInfo(productInfo map[string]interface{}) []map[string]interface{} {
 	if len(productInfo) < 1 {
 		return nil
 	}
@@ -697,7 +691,7 @@ func flattenV1AppServersTags(tagsList []interface{}) []map[string]interface{} {
 	return result
 }
 
-func flattenV1AppServers(servers []interface{}) []map[string]interface{} {
+func flattenAppServers(servers []interface{}) []map[string]interface{} {
 	if len(servers) < 1 {
 		return nil
 	}
@@ -737,9 +731,9 @@ func flattenV1AppServers(servers []interface{}) []map[string]interface{} {
 			"task_status":           utils.PathSearch("task_status", server, nil),
 			"enterprise_project_id": utils.PathSearch("enterprise_project_id", server, nil),
 			"metadata":              utils.PathSearch("metadata", server, nil),
-			"flavor": flattenV1AppServersFlavor(utils.PathSearch("flavor", server,
+			"flavor": flattenAppServersFlavor(utils.PathSearch("flavor", server,
 				make(map[string]interface{})).(map[string]interface{})),
-			"product_info": flattenV1AppServersProductInfo(utils.PathSearch("product_info", server,
+			"product_info": flattenAppServersProductInfo(utils.PathSearch("product_info", server,
 				make(map[string]interface{})).(map[string]interface{})),
 			"freeze": flattenV1AppServersFreeze(utils.PathSearch("freeze", server,
 				make([]interface{}, 0)).([]interface{})),
@@ -761,7 +755,7 @@ func dataSourceAppServersRead(_ context.Context, d *schema.ResourceData, meta in
 		return diag.Errorf("error creating Workspace APP client: %s", err)
 	}
 
-	servers, respBody, err := queryV1AppServers(client, d)
+	servers, err := listAppServers(client, d)
 	if err != nil {
 		return diag.Errorf("error getting app servers: %s", err)
 	}
@@ -774,8 +768,7 @@ func dataSourceAppServersRead(_ context.Context, d *schema.ResourceData, meta in
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("server_count", utils.PathSearch("count", respBody, 0)),
-		d.Set("items", flattenV1AppServers(servers)),
+		d.Set("servers", flattenAppServers(servers)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())

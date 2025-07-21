@@ -9,7 +9,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataWorkspaceAppServerGroups_basic(t *testing.T) {
+func TestAccDataAppServerGroups_basic(t *testing.T) {
 	var (
 		name = acceptance.RandomAccResourceName()
 
@@ -40,55 +40,55 @@ func TestAccDataWorkspaceAppServerGroups_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataWorkspaceAppServerGroups_basic_step2(name),
+				Config: testAccDataAppServerGroups_basic_step2(name),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					dcById.CheckResourceExists(),
 					resource.TestCheckOutput("is_id_filter_useful", "true"),
-					resource.TestCheckResourceAttrSet(byId, "items.0.id"),
-					resource.TestCheckResourceAttr(byId, "items.0.name", name),
-					resource.TestCheckResourceAttr(byId, "items.0.description", "terraform script"),
-					resource.TestCheckResourceAttr(byId, "items.0.app_type", "COMMON_APP"),
-					resource.TestCheckResourceAttr(byId, "items.0.image_id", acceptance.HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_ID),
-					resource.TestCheckResourceAttr(byId, "items.0.os_type", "Windows"),
-					resource.TestCheckResourceAttr(byId, "items.0.system_disk_type", "SAS"),
-					resource.TestCheckResourceAttr(byId, "items.0.system_disk_size", "80"),
-					resource.TestCheckResourceAttr(byId, "items.0.is_vdi", "true"),
-					resource.TestCheckResourceAttr(byId, "items.0.storage_mount_policy", "ANY"),
-					resource.TestCheckResourceAttr(byId, "items.0.enterprise_project_id", "0"),
-					resource.TestCheckResourceAttr(byId, "items.0.server_group_status", "true"),
-					resource.TestCheckResourceAttr(byId, "items.0.site_type", "CENTER"),
-					resource.TestCheckResourceAttr(byId, "items.0.app_server_flavor_count", "0"),
-					resource.TestCheckResourceAttr(byId, "items.0.app_server_count", "0"),
-					resource.TestCheckResourceAttr(byId, "items.0.app_group_count", "0"),
-					resource.TestCheckResourceAttrSet(byId, "items.0.site_id"),
-					resource.TestCheckResourceAttrSet(byId, "items.0.image_name"),
-					resource.TestCheckResourceAttrSet(byId, "items.0.create_time"),
-					resource.TestCheckResourceAttrSet(byId, "items.0.update_time"),
-					resource.TestCheckResourceAttrSet(byId, "items.0.subnet_name"),
+					resource.TestCheckResourceAttrSet(byId, "server_groups.0.id"),
+					resource.TestCheckResourceAttr(byId, "server_groups.0.name", name),
+					resource.TestCheckResourceAttr(byId, "server_groups.0.description", "terraform script"),
+					resource.TestCheckResourceAttr(byId, "server_groups.0.app_type", "COMMON_APP"),
+					resource.TestCheckResourceAttr(byId, "server_groups.0.image_id", acceptance.HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_ID),
+					resource.TestCheckResourceAttr(byId, "server_groups.0.os_type", "Windows"),
+					resource.TestCheckResourceAttr(byId, "server_groups.0.system_disk_type", "SAS"),
+					resource.TestCheckResourceAttr(byId, "server_groups.0.system_disk_size", "80"),
+					resource.TestCheckResourceAttr(byId, "server_groups.0.is_vdi", "true"),
+					resource.TestCheckResourceAttr(byId, "server_groups.0.storage_mount_policy", "ANY"),
+					resource.TestCheckResourceAttr(byId, "server_groups.0.enterprise_project_id", "0"),
+					resource.TestCheckResourceAttr(byId, "server_groups.0.server_group_status", "true"),
+					resource.TestCheckResourceAttr(byId, "server_groups.0.site_type", "CENTER"),
+					resource.TestCheckResourceAttr(byId, "server_groups.0.app_server_flavor_count", "0"),
+					resource.TestCheckResourceAttr(byId, "server_groups.0.app_server_count", "0"),
+					resource.TestCheckResourceAttr(byId, "server_groups.0.app_group_count", "0"),
+					resource.TestCheckResourceAttrSet(byId, "server_groups.0.site_id"),
+					resource.TestCheckResourceAttrSet(byId, "server_groups.0.image_name"),
+					resource.TestCheckResourceAttrSet(byId, "server_groups.0.create_time"),
+					resource.TestCheckResourceAttrSet(byId, "server_groups.0.update_time"),
+					resource.TestCheckResourceAttrSet(byId, "server_groups.0.subnet_name"),
 					// Check product_info fields
-					resource.TestCheckResourceAttr(byId, "items.0.product_info.#", "1"),
-					resource.TestCheckResourceAttr(byId, "items.0.product_info.0.flavor_id", "s6.xlarge.2"),
-					resource.TestCheckResourceAttr(byId, "items.0.product_info.0.type", "BASE"),
-					resource.TestCheckResourceAttr(byId, "items.0.product_info.0.architecture", "x86"),
-					resource.TestCheckResourceAttr(byId, "items.0.product_info.0.cpu", "4"),
-					resource.TestCheckResourceAttr(byId, "items.0.product_info.0.memory", "8192"),
-					resource.TestCheckResourceAttr(byId, "items.0.product_info.0.system_disk_type", "SAS"),
-					resource.TestCheckResourceAttr(byId, "items.0.product_info.0.system_disk_size", "80"),
-					resource.TestCheckResourceAttr(byId, "items.0.product_info.0.charge_mode", "1"),
-					resource.TestCheckResourceAttr(byId, "items.0.product_info.0.contain_data_disk", "false"),
-					resource.TestCheckResourceAttr(byId, "items.0.product_info.0.resource_type", "hws.resource.type.workspace.appstream"),
-					resource.TestCheckResourceAttr(byId, "items.0.product_info.0.cloud_service_type", "hws.service.type.vdi"),
-					resource.TestCheckResourceAttr(byId, "items.0.product_info.0.volume_product_type", "workspace"),
-					resource.TestCheckResourceAttr(byId, "items.0.product_info.0.sessions", "2"),
-					resource.TestCheckResourceAttr(byId, "items.0.product_info.0.status", "abandon"),
-					resource.TestCheckResourceAttrSet(byId, "items.0.product_info.0.product_id"),
-					resource.TestCheckResourceAttrSet(byId, "items.0.product_info.0.descriptions"),
-					resource.TestCheckResourceAttrSet(byId, "items.0.product_info.0.cond_operation_az"),
+					resource.TestCheckResourceAttr(byId, "server_groups.0.product_info.#", "1"),
+					resource.TestCheckResourceAttr(byId, "server_groups.0.product_info.0.flavor_id", "s6.xlarge.2"),
+					resource.TestCheckResourceAttr(byId, "server_groups.0.product_info.0.type", "BASE"),
+					resource.TestCheckResourceAttr(byId, "server_groups.0.product_info.0.architecture", "x86"),
+					resource.TestCheckResourceAttr(byId, "server_groups.0.product_info.0.cpu", "4"),
+					resource.TestCheckResourceAttr(byId, "server_groups.0.product_info.0.memory", "8192"),
+					resource.TestCheckResourceAttr(byId, "server_groups.0.product_info.0.system_disk_type", "SAS"),
+					resource.TestCheckResourceAttr(byId, "server_groups.0.product_info.0.system_disk_size", "80"),
+					resource.TestCheckResourceAttr(byId, "server_groups.0.product_info.0.charge_mode", "1"),
+					resource.TestCheckResourceAttr(byId, "server_groups.0.product_info.0.contain_data_disk", "false"),
+					resource.TestCheckResourceAttr(byId, "server_groups.0.product_info.0.resource_type", "hws.resource.type.workspace.appstream"),
+					resource.TestCheckResourceAttr(byId, "server_groups.0.product_info.0.cloud_service_type", "hws.service.type.vdi"),
+					resource.TestCheckResourceAttr(byId, "server_groups.0.product_info.0.volume_product_type", "workspace"),
+					resource.TestCheckResourceAttr(byId, "server_groups.0.product_info.0.sessions", "2"),
+					resource.TestCheckResourceAttr(byId, "server_groups.0.product_info.0.status", "abandon"),
+					resource.TestCheckResourceAttrSet(byId, "server_groups.0.product_info.0.product_id"),
+					resource.TestCheckResourceAttrSet(byId, "server_groups.0.product_info.0.descriptions"),
+					resource.TestCheckResourceAttrSet(byId, "server_groups.0.product_info.0.cond_operation_az"),
 					// Check tags fields
-					resource.TestCheckResourceAttr(byId, "items.0.tags.#", "1"),
-					resource.TestCheckResourceAttr(byId, "items.0.tags.0.key", "key1"),
-					resource.TestCheckResourceAttr(byId, "items.0.tags.0.value", "value1"),
+					resource.TestCheckResourceAttr(byId, "server_groups.0.tags.#", "1"),
+					resource.TestCheckResourceAttr(byId, "server_groups.0.tags.0.key", "key1"),
+					resource.TestCheckResourceAttr(byId, "server_groups.0.tags.0.value", "value1"),
 					// Check query parameters
 					dcByName.CheckResourceExists(),
 					resource.TestCheckOutput("is_name_filter_useful", "true"),
@@ -104,7 +104,7 @@ func TestAccDataWorkspaceAppServerGroups_basic(t *testing.T) {
 	})
 }
 
-func testAccDataWorkspaceAppServerGroups_base(name string) string {
+func testAccDataAppServerGroups_base(name string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_workspace_service" "test" {}
 
@@ -131,7 +131,7 @@ resource "huaweicloud_workspace_app_server_group" "test" {
 		acceptance.HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_PRODUCT_ID)
 }
 
-func testAccDataWorkspaceAppServerGroups_basic_step2(name string) string {
+func testAccDataAppServerGroups_basic_step2(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -156,7 +156,7 @@ data "huaweicloud_workspace_app_server_groups" "filter_by_id" {
 
 locals {
   id_filter_result = [
-    for v in data.huaweicloud_workspace_app_server_groups.filter_by_id.items[*].id : v == local.group_id
+    for v in data.huaweicloud_workspace_app_server_groups.filter_by_id.server_groups[*].id : v == local.group_id
   ]
 }
 
@@ -179,7 +179,7 @@ data "huaweicloud_workspace_app_server_groups" "filter_by_name" {
 
 locals {
   name_filter_result = [
-    for v in data.huaweicloud_workspace_app_server_groups.filter_by_name.items[*].name : v == local.group_name
+    for v in data.huaweicloud_workspace_app_server_groups.filter_by_name.server_groups[*].name : v == local.group_name
   ]
 }
 
@@ -202,7 +202,7 @@ data "huaweicloud_workspace_app_server_groups" "filter_by_app_type" {
 
 locals {
   app_type_filter_result = [
-    for v in data.huaweicloud_workspace_app_server_groups.filter_by_app_type.items[*].app_type : v == local.app_type
+    for v in data.huaweicloud_workspace_app_server_groups.filter_by_app_type.server_groups[*].app_type : v == local.app_type
   ]
 }
 
@@ -225,7 +225,7 @@ data "huaweicloud_workspace_app_server_groups" "filter_by_tags" {
 
 locals {
   tags_filter_result = [
-    for v in data.huaweicloud_workspace_app_server_groups.filter_by_tags.items[*].tags : 
+    for v in data.huaweicloud_workspace_app_server_groups.filter_by_tags.server_groups[*].tags : 
       v[0].key == "key1" && v[0].value == "value1"
   ]
 }
@@ -249,7 +249,7 @@ data "huaweicloud_workspace_app_server_groups" "filter_by_eps_id" {
 
 locals {
   eps_id_filter_result = [
-    for v in data.huaweicloud_workspace_app_server_groups.filter_by_eps_id.items[*].enterprise_project_id : 
+    for v in data.huaweicloud_workspace_app_server_groups.filter_by_eps_id.server_groups[*].enterprise_project_id : 
       v == local.eps_id
   ]
 }
@@ -257,5 +257,5 @@ locals {
 output "is_eps_id_filter_useful" {
   value = length(local.eps_id_filter_result) > 0 && alltrue(local.eps_id_filter_result)
 }
-`, testAccDataWorkspaceAppServerGroups_base(name))
+`, testAccDataAppServerGroups_base(name))
 }

@@ -51,13 +51,11 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The data source ID.
 
-* `server_count` - The total number of servers.
+* `servers` - The list of servers that matched filter parameters.  
+  The [servers](#workspace_app_servers_servers) structure is documented below.
 
-* `items` - The list of servers.  
-  The [items](#app_servers_items) structure is documented below.
-
-<a name="app_servers_items"></a>
-The `items` block supports:
+<a name="workspace_app_servers_servers"></a>
+The `servers` block supports:
 
 * `id` - The ID of the server.
 
