@@ -63,9 +63,8 @@ func ResourceIdentityACL() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"range": {
-							Type:         schema.TypeString,
-							Required:     true,
-							ValidateFunc: utils.ValidateIPRange,
+							Type:     schema.TypeString,
+							Required: true,
 						},
 						"description": {
 							Type:     schema.TypeString,

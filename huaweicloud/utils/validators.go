@@ -84,43 +84,6 @@ func ValidateCIDR(v interface{}, k string) (ws []string, errors []error) {
 	return
 }
 
-func ValidateIPRange(v interface{}, k string) (ws []string, errors []error) {
-	value := v.(string)
-	ipAddresses := strings.Split(value, "-")
-	if len(ipAddresses) != 2 {
-		errors = append(errors, fmt.Errorf(
-			"%q must be a valid network IP address range, such as 0.0.0.0-255.255.255.0, but got %q", k, value))
-		return
-	}
-	for _, address := range ipAddresses {
-		ipnet := net.ParseIP(address)
-		if ipnet == nil || address != ipnet.String() {
-			errors = append(errors, fmt.Errorf("%q must contains valid network IP address, got %q", k, address))
-		}
-	}
-	if len(errors) == 0 {
-		if ipAddresses[0] == ipAddresses[1] {
-			errors = append(errors, fmt.Errorf("Two network IP address of %q cannot equal, got %q", k, value))
-		}
-		// Split the IP address into a string array for comparison.
-		startAddress := strings.Split(ipAddresses[0], ".")
-		endAddress := strings.Split(ipAddresses[1], ".")
-		// Verify the correctness of the IP address range: The starting IP address must be less than the ending IP address.
-		// The For loop compares the four parts of the IPv4 address in turn.
-		for i := 0; i < len(startAddress); i++ {
-			if startAddress[i] > endAddress[i] {
-				errors = append(errors, fmt.Errorf(
-					"%q starting IP address cannot be greater than the ending IP address, got %q", k, value))
-				return
-			} else if startAddress[i] < endAddress[i] {
-				return
-			}
-		}
-	}
-
-	return
-}
-
 func ValidateIP(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 	ipnet := net.ParseIP(value)
