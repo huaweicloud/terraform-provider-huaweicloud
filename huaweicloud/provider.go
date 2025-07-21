@@ -1999,6 +1999,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dcs_instance_public_access":    dcs.ResourceDcsInstancePublicAccess(),
 			"huaweicloud_dcs_instance_shard_bandwidth":  dcs.ResourceDcsInstanceShardBandwidth(),
 			"huaweicloud_dcs_instance_bandwidth_modify": dcs.ResourceDcsInstanceBandwidthModify(),
+			"huaweicloud_dcs_master_standby_switch":     dcs.ResourceDcsMasterStandbySwitch(),
 			"huaweicloud_dcs_backup":                    dcs.ResourceDcsBackup(),
 			"huaweicloud_dcs_custom_template":           dcs.ResourceCustomTemplate(),
 			"huaweicloud_dcs_hotkey_analysis":           dcs.ResourceHotKeyAnalysis(),
