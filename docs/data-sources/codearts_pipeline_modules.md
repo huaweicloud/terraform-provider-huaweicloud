@@ -3,12 +3,12 @@ subcategory: "CodeArts Pipeline"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_codearts_pipeline_modules"
 description: |-
-  Use this data source to a list of CodeArts pipeline modules.
+  Use this data source to get a list of CodeArts pipeline modules.
 ---
 
 # huaweicloud_codearts_pipeline_modules
 
-Use this data source to a list of CodeArts pipeline modules.
+Use this data source to get a list of CodeArts pipeline modules.
 
 ## Example Usage
 

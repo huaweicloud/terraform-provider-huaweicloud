@@ -36,7 +36,7 @@ The following arguments are supported:
 
 * `description` - (Optional, String) Specifies the parameter group description.
 
-* `variables` - (Optional, List) Specifies the permission information.
+* `variables` - (Optional, List) Specifies the parameter list.
   The [variables](#block--variables) structure is documented below.
 
 <a name="block--variables"></a>

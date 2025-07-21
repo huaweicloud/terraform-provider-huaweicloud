@@ -62,7 +62,7 @@ func ResourceCodeArtsPipelineParameterGroup() *schema.Resource {
 			"variables": {
 				Type:        schema.TypeSet,
 				Optional:    true,
-				Description: `Specifies the permission information.`,
+				Description: `Specifies the parameter list.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
