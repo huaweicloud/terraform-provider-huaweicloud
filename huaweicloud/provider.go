@@ -2176,6 +2176,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_evsv5_snapshot_rollback":        evs.ResourceV5SnapshotRollBack(),
 			"huaweicloud_evs_snapshot":                   evs.ResourceEvsSnapshot(),
 			"huaweicloud_evsv3_snapshot":                 evs.ResourceV3Snapshot(),
+			"huaweicloud_evs_snapshot_group":             evs.ResourceEvsSnapshotGroup(),
 			"huaweicloud_evs_snapshot_metadata":          evs.ResourceSnapshotMetadata(),
 			"huaweicloud_evs_volume":                     evs.ResourceEvsVolume(),
 			"huaweicloud_evs_snapshot_rollback":          evs.ResourceSnapshotRollBack(),
