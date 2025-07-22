@@ -320,6 +320,7 @@ var (
 
 	HW_SDRS_PROTECTION_INSTANCE_ID = os.Getenv("HW_SDRS_PROTECTION_INSTANCE_ID")
 	HW_SDRS_NIC_ID                 = os.Getenv("HW_SDRS_NIC_ID")
+	HW_SDRS_RESIZE_FLAVOR_ID       = os.Getenv("HW_SDRS_RESIZE_FLAVOR_ID")
 
 	HW_IDENTITY_CENTER_ACCOUNT_ID                = os.Getenv("HW_IDENTITY_CENTER_ACCOUNT_ID")
 	HW_IDENTITY_CENTER_IDENTITY_POLICY_ID        = os.Getenv("HW_IDENTITY_CENTER_IDENTITY_POLICY_ID")
@@ -804,6 +805,20 @@ func TestAccPreCheckRGCBlueprint(t *testing.T) {
 func TestAccPreCheckSDRSDeleteNic(t *testing.T) {
 	if HW_SDRS_PROTECTION_INSTANCE_ID == "" || HW_SDRS_NIC_ID == "" {
 		t.Skip("HW_SDRS_PROTECTION_INSTANCE_ID and HW_SDRS_NIC_ID must be set for acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckSDRSInstanceResize(t *testing.T) {
+	if HW_SDRS_PROTECTION_INSTANCE_ID == "" {
+		t.Skip("HW_SDRS_PROTECTION_INSTANCE_ID must be set for this acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckSDRSInstanceResizeFlavor(t *testing.T) {
+	if HW_SDRS_RESIZE_FLAVOR_ID == "" {
+		t.Skip("HW_SDRS_RESIZE_FLAVOR_ID must be set for this acceptance test")
 	}
 }
 
