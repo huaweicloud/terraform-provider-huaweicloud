@@ -2608,6 +2608,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_sdrs_protected_instance":                   sdrs.ResourceProtectedInstance(),
 			"huaweicloud_sdrs_protected_instance_add_nic":           sdrs.ResourceProtectedInstanceAddNIC(),
 			"huaweicloud_sdrs_protected_instance_delete_nic":        sdrs.ResourceProtectedInstanceDeleteNIC(),
+			"huaweicloud_sdrs_protected_instance_resize":            sdrs.ResourceProtectedInstanceResize(),
 			"huaweicloud_sdrs_replication_attach":                   sdrs.ResourceReplicationAttach(),
 
 			"huaweicloud_secmaster_incident":                    secmaster.ResourceIncident(),
