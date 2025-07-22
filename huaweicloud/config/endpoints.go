@@ -119,6 +119,12 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		WithOutProjectID: true,
 		Product:          "IdentityCenter",
 	},
+	"identityoidc": {
+		Name:             "oidc",
+		Version:          "v1",
+		WithOutProjectID: true,
+		Product:          "IdentityCenter",
+	},
 	"cdn": {
 		Name:             "cdn",
 		Version:          "v1.0",
