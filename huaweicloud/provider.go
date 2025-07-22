@@ -807,6 +807,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dc_global_gateways":           dc.DataSourceDcGlobalGateways(),
 			"huaweicloud_dc_global_gateway_peer_links": dc.DataSourceDcGlobalGatewayPeerLinks(),
 
+			"huaweicloud_dcs_quotas":          dcs.DataSourceDcsQuotas(),
 			"huaweicloud_dcs_flavors":         dcs.DataSourceDcsFlavorsV2(),
 			"huaweicloud_dcs_maintainwindow":  dcs.DataSourceDcsMaintainWindow(),
 			"huaweicloud_dcs_instances":       dcs.DataSourceDcsInstance(),
