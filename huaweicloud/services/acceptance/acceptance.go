@@ -620,7 +620,8 @@ var (
 	HW_HSS_TARGET_POLICY_GROUP_ID         = os.Getenv("HW_HSS_TARGET_POLICY_GROUP_ID")
 	HW_HSS_DEFAULT_TARGET_POLICY_GROUP_ID = os.Getenv("HW_HSS_DEFAULT_TARGET_POLICY_GROUP_ID")
 	// The vulnerability ID
-	HW_HSS_VUL_ID = os.Getenv("HW_HSS_VUL_ID")
+	HW_HSS_VUL_ID    = os.Getenv("HW_HSS_VUL_ID")
+	HW_HSS_POLICY_ID = os.Getenv("HW_HSS_POLICY_ID")
 
 	HW_DDM_INSTANCE_ID = os.Getenv("HW_DDM_INSTANCE_ID")
 	HW_DDM_PROCESS_ID  = os.Getenv("HW_DDM_PROCESS_ID")
@@ -3114,6 +3115,13 @@ func TestAccPreCheckHSSCCEProtection(t *testing.T) {
 func TestAccPreCheckHSSVulnerabilityId(t *testing.T) {
 	if HW_HSS_VUL_ID == "" {
 		t.Skip("HW_HSS_VUL_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckHSSPolicyId(t *testing.T) {
+	if HW_HSS_POLICY_ID == "" {
+		t.Skip("HW_HSS_POLICY_ID must be set for the acceptance test")
 	}
 }
 
