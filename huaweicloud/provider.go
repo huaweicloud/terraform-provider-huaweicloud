@@ -945,6 +945,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_evs_snapshots":                 evs.DataSourceEvsSnapshots(),
 			"huaweicloud_evs_snapshot_groups_tags":      evs.DataSourceEvsSnapshotGroupsTags(),
 			"huaweicloud_evsv3_snapshots":               evs.DataSourceV3Snapshots(),
+			"huaweicloud_evsv5_snapshots":               evs.DataSourceEvsv5Snapshots(),
 			"huaweicloud_evs_snapshot_metadata":         evs.DataSourceSnapshotMetadata(),
 			"huaweicloud_evs_snapshots_tags":            evs.DataSourceEvsSnapshotsTags(),
 			"huaweicloud_evs_availability_zones":        evs.DataSourceEvsAvailabilityZones(),
