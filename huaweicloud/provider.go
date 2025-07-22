@@ -1573,6 +1573,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_workspace_service":                workspace.DataSourceService(),
 			"huaweicloud_workspace_tags":                   workspace.DataSourceTags(),
 			"huaweicloud_workspace_volume_products":        workspace.DataSourceVolumeProducts(),
+			"huaweicloud_workspace_app_rules":              workspace.DataSourceAppRules(),
 
 			// Workspace APP
 			"huaweicloud_workspace_app_available_volumes":         workspace.DataSourceAppAvailableVolumes(),
