@@ -1087,6 +1087,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_rasp_servers":                   hss.DataSourceRaspServers(),
 			"huaweicloud_hss_rasp_status":                    hss.DataSourceRaspStatus(),
 			"huaweicloud_hss_resource_quotas":                hss.DataSourceResourceQuotas(),
+			"huaweicloud_hss_tags":                           hss.DataSourceHssTags(),
 			"huaweicloud_hss_vulnerabilities":                hss.DataSourceVulnerabilities(),
 			"huaweicloud_hss_vulnerability_hosts":            hss.DataSourceVulnerabilityHosts(),
 			"huaweicloud_hss_vulnerability_statistics":       hss.DataSourceVulnerabilityStatistics(),
