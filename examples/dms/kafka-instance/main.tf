@@ -46,4 +46,12 @@ resource "huaweicloud_dms_kafka_instance" "test" {
   period_unit        = var.period_unit
   period             = var.period
   auto_renew         = var.auto_renew
+
+  # If you want to change some of the following parameters, you need to remove the corresponding fields from "lifecycle.ignore_changes".
+  lifecycle {
+    ignore_changes = [
+      availability_zones,
+      flavor_id,
+    ]
+  }
 }
