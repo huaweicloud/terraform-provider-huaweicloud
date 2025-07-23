@@ -16,12 +16,12 @@ import (
 )
 
 // @API SDRS DELETE /v1/{project_id}/task-center/failure-jobs/batch
-func ResourceDeleteProtectedGroupsFailedTasks() *schema.Resource {
+func ResourceDeleteAllGroupFailureJobs() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceDeleteProtectedGroupsFailedTasksCreate,
-		ReadContext:   resourceDeleteProtectedGroupsFailedTasksRead,
-		UpdateContext: resourceDeleteProtectedGroupsFailedTasksUpdate,
-		DeleteContext: resourceDeleteProtectedGroupsFailedTasksDelete,
+		CreateContext: resourceDeleteAllGroupFailureJobsCreate,
+		ReadContext:   resourceDeleteAllGroupFailureJobsRead,
+		UpdateContext: resourceDeleteAllGroupFailureJobsUpdate,
+		DeleteContext: resourceDeleteAllGroupFailureJobsDelete,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -39,7 +39,7 @@ func ResourceDeleteProtectedGroupsFailedTasks() *schema.Resource {
 	}
 }
 
-func resourceDeleteProtectedGroupsFailedTasksCreate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDeleteAllGroupFailureJobsCreate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg     = meta.(*config.Config)
 		region  = cfg.GetRegion(d)
@@ -71,19 +71,19 @@ func resourceDeleteProtectedGroupsFailedTasksCreate(_ context.Context, d *schema
 	return nil
 }
 
-func resourceDeleteProtectedGroupsFailedTasksRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceDeleteAllGroupFailureJobsRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	// No processing is performed in the 'Read()' method because the resource is a one-time action resource.
 	return nil
 }
 
-func resourceDeleteProtectedGroupsFailedTasksUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceDeleteAllGroupFailureJobsUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	// No processing is performed in the 'Update()' method because the resource is a one-time action resource.
 	return nil
 }
 
-func resourceDeleteProtectedGroupsFailedTasksDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
-	errorMsg := `This resource is a one-time action resource using to delete failed tasks of all protected groups.
-Deleting this resource will not recover the deleted tasks, but will only remove the resource information from the tfstate file.`
+func resourceDeleteAllGroupFailureJobsDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+	errorMsg := `This resource is a one-time action resource using to delete failure jobs of all protected groups.
+Deleting this resource will not recover the deleted jobs, but will only remove the resource information from the tfstate file.`
 	return diag.Diagnostics{
 		diag.Diagnostic{
 			Severity: diag.Warning,

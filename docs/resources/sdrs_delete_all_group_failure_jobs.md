@@ -1,22 +1,22 @@
 ---
 subcategory: "Storage Disaster Recovery Service (SDRS)"
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_sdrs_delete_protected_groups_failed_tasks"
+page_title: "HuaweiCloud: huaweicloud_sdrs_delete_all_group_failure_jobs"
 description: |-
-  Manages a resource to delete SDRS failed tasks of all protected groups within HuaweiCloud.
+  Using this resource to delete all failure jobs of all protection groups in SDRS within HuaweiCloud.
 ---
 
-# huaweicloud_sdrs_delete_protected_groups_failed_tasks
+# huaweicloud_sdrs_delete_all_group_failure_jobs
 
-Manages a resource to delete SDRS failed tasks of all protected groups within HuaweiCloud.
+Using this resource to delete all failure jobs of all protection groups in SDRS within HuaweiCloud.
 
--> The current resource is a one-time resource, and destroying this resource will not recover the deleted tasks,
+-> The current resource is a one-time resource, and destroying this resource will not recover the deleted failure jobs,
 but will only remove the resource information from the tfstate file.
 
 ## Example Usage
 
 ```hcl
-resource "huaweicloud_sdrs_delete_protected_groups_failed_tasks" "test" {
+resource "huaweicloud_sdrs_delete_all_group_failure_jobs" "test" {
 }
 ```
 
