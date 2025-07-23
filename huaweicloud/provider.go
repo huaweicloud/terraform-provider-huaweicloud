@@ -2608,6 +2608,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_sdrs_delete_failure_job":                   sdrs.ResourceDeleteFailureJob(),
 			"huaweicloud_sdrs_delete_protected_groups_failed_tasks": sdrs.ResourceDeleteProtectedGroupsFailedTasks(),
+			"huaweicloud_sdrs_delete_specified_group_failure_jobs":  sdrs.ResourceDeleteSpecifiedGroupFailureJobs(),
 			"huaweicloud_sdrs_drill":                                sdrs.ResourceDrill(),
 			"huaweicloud_sdrs_protection_group":                     sdrs.ResourceProtectionGroup(),
 			"huaweicloud_sdrs_protected_instance":                   sdrs.ResourceProtectedInstance(),
