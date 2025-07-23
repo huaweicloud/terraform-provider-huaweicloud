@@ -576,10 +576,10 @@ var (
 	HW_DWS_OBS_AGENCY_NAMES = os.Getenv("HW_DWS_OBS_AGENCY_NAMES")
 
 	HW_DCS_ACCOUNT_WHITELIST = os.Getenv("HW_DCS_ACCOUNT_WHITELIST")
-
-	HW_DCS_INSTANCE_ID = os.Getenv("HW_DCS_INSTANCE_ID")
-	HW_DCS_BEGIN_TIME  = os.Getenv("HW_DCS_BEGIN_TIME")
-	HW_DCS_END_TIME    = os.Getenv("HW_DCS_END_TIME")
+	HW_DCS_INSTANCE_ID       = os.Getenv("HW_DCS_INSTANCE_ID")
+	HW_DCS_BEGIN_TIME        = os.Getenv("HW_DCS_BEGIN_TIME")
+	HW_DCS_END_TIME          = os.Getenv("HW_DCS_END_TIME")
+	HW_DCS_OBS_BUCKET_NAME   = os.Getenv("HW_DCS_OBS_BUCKET_NAME")
 
 	HW_ELB_GATEWAY_TYPE = os.Getenv("HW_ELB_GATEWAY_TYPE")
 
@@ -3060,6 +3060,13 @@ func TestAccPreCheckDCSInstanceID(t *testing.T) {
 func TestAccPreCheckDcsTimeRange(t *testing.T) {
 	if HW_DCS_BEGIN_TIME == "" || HW_DCS_END_TIME == "" {
 		t.Skip("HW_DCS_BEGIN_TIME and HW_DCS_END_TIME must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDcsObsBucketName(t *testing.T) {
+	if HW_DCS_OBS_BUCKET_NAME == "" {
+		t.Skip("HW_DCS_OBS_BUCKET_NAME must be set for the acceptance test")
 	}
 }
 
