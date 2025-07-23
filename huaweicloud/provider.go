@@ -2606,15 +2606,16 @@ func Provider() *schema.Provider {
 			"huaweicloud_rms_remediation_exception":              rms.ResourceRemediationException(),
 			"huaweicloud_rms_remediation_execution":              rms.ResourceRemediationExecution(),
 
-			"huaweicloud_sdrs_drill":                                sdrs.ResourceDrill(),
+			"huaweicloud_sdrs_delete_failure_job":                   sdrs.ResourceDeleteFailureJob(),
 			"huaweicloud_sdrs_delete_protected_groups_failed_tasks": sdrs.ResourceDeleteProtectedGroupsFailedTasks(),
-			"huaweicloud_sdrs_replication_pair":                     sdrs.ResourceReplicationPair(),
+			"huaweicloud_sdrs_drill":                                sdrs.ResourceDrill(),
 			"huaweicloud_sdrs_protection_group":                     sdrs.ResourceProtectionGroup(),
 			"huaweicloud_sdrs_protected_instance":                   sdrs.ResourceProtectedInstance(),
 			"huaweicloud_sdrs_protected_instance_add_nic":           sdrs.ResourceProtectedInstanceAddNIC(),
 			"huaweicloud_sdrs_protected_instance_delete_nic":        sdrs.ResourceProtectedInstanceDeleteNIC(),
 			"huaweicloud_sdrs_protected_instance_resize":            sdrs.ResourceProtectedInstanceResize(),
 			"huaweicloud_sdrs_replication_attach":                   sdrs.ResourceReplicationAttach(),
+			"huaweicloud_sdrs_replication_pair":                     sdrs.ResourceReplicationPair(),
 
 			"huaweicloud_secmaster_incident":                    secmaster.ResourceIncident(),
 			"huaweicloud_secmaster_indicator":                   secmaster.ResourceIndicator(),
