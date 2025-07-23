@@ -8,7 +8,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccResourceDeleteProtectedGroupsFailedTasks_basic(t *testing.T) {
+func TestAccResourceDeleteAllGroupFailureJobs_basic(t *testing.T) {
 	// lintignore:AT001
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -17,10 +17,10 @@ func TestAccResourceDeleteProtectedGroupsFailedTasks_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testResourceDeleteProtectedGroupsFailedTasks_basic,
+				Config: testResourceDeleteAllGroupFailureJobs_basic,
 			},
 		},
 	})
 }
 
-const testResourceDeleteProtectedGroupsFailedTasks_basic = `resource "huaweicloud_sdrs_delete_protected_groups_failed_tasks" "test" {}`
+const testResourceDeleteAllGroupFailureJobs_basic = `resource "huaweicloud_sdrs_delete_all_group_failure_jobs" "test" {}`
