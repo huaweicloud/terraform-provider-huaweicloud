@@ -21,6 +21,7 @@ import (
 // @API SDRS GET /v1/{project_id}/server-groups/{id}
 // @API SDRS PUT /v1/{project_id}/server-groups/{id}
 // @API SDRS POST /v1/{project_id}/server-groups
+// @API SDRS GET /v1/{project_id}/jobs/{job_id}
 func ResourceProtectionGroup() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceProtectionGroupCreate,

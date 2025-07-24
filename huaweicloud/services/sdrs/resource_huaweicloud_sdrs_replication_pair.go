@@ -20,6 +20,7 @@ import (
 // @API SDRS DELETE /v1/{project_id}/replications/{id}
 // @API SDRS GET /v1/{project_id}/replications/{id}
 // @API SDRS PUT /v1/{project_id}/replications/{id}
+// @API SDRS GET /v1/{project_id}/jobs/{job_id}
 func ResourceReplicationPair() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceReplicationPairCreate,
