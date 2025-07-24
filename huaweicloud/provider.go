@@ -2777,6 +2777,7 @@ func Provider() *schema.Provider {
 			// Workspace
 			"huaweicloud_workspace_user_group":                workspace.ResourceUserGroup(),
 			"huaweicloud_workspace_access_policy":             workspace.ResourceAccessPolicy(),
+			"huaweicloud_workspace_app_rule":                  workspace.ResourceAppRule(),
 			"huaweicloud_workspace_desktop_name_rule":         workspace.ResourceDesktopNameRule(),
 			"huaweicloud_workspace_desktop":                   workspace.ResourceDesktop(),
 			"huaweicloud_workspace_desktop_pool":              workspace.ResourceDesktopPool(),
