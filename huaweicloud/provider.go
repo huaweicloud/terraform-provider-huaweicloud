@@ -2023,6 +2023,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dcs_account":                   dcs.ResourceDcsAccount(),
 			"huaweicloud_dcs_instance_restore":          dcs.ResourceDcsRestore(),
 			"huaweicloud_dcs_diagnosis_task":            dcs.ResourceDiagnosisTask(),
+			"huaweicloud_dcs_backup_import_task":        dcs.ResourceDcsBackupImportTask(),
 
 			"huaweicloud_dds_database_role":                 dds.ResourceDatabaseRole(),
 			"huaweicloud_dds_database_user":                 dds.ResourceDatabaseUser(),
