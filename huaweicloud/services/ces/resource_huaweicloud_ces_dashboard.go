@@ -68,6 +68,70 @@ func ResourceDashboard() *schema.Resource {
 				Optional:    true,
 				Description: `Specifies whether the dashboard is favorite.`,
 			},
+			"extend_info": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"filter": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Specifies the metric aggregation method.`,
+						},
+						"period": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Specifies the metric aggregation period.`,
+						},
+						"display_time": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Description: `Specifies the display time.`,
+						},
+						"refresh_time": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Description: `Specifies the refresh time.`,
+						},
+						"from": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Description: `Specifies the start time.`,
+						},
+						"to": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Description: `Specifies the end time.`,
+						},
+						"screen_color": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Specifies the monitoring screen background color.`,
+						},
+						"enable_screen_auto_play": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `Specifies whether the monitoring screen switches automatically.`,
+						},
+						"time_interval": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Description: `Specifies the automatic switching time interval of the monitoring screen.`,
+						},
+						"enable_legend": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `Specifies whether to enable the legend.`,
+						},
+						"full_screen_widget_num": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Description: `Specifies the number of large screen display views.`,
+						},
+					},
+				},
+			},
 			"enable_force_new": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -77,12 +141,32 @@ func ResourceDashboard() *schema.Resource {
 			"creator_name": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `The creator name of the dashboard.`,
+				Description: `Indicates the creator name of the dashboard.`,
 			},
 			"created_at": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `The creation time of the dashboard.`,
+				Description: `Indicates the creation time of the dashboard.`,
+			},
+			"namespace": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the namespace.`,
+			},
+			"sub_product": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the sub-product ID.`,
+			},
+			"dashboard_template_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the monitoring disk template ID.`,
+			},
+			"widgets_num": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `Indicates the total number of views under the board.`,
 			},
 		},
 	}
@@ -134,7 +218,8 @@ func resourceDashboardCreate(ctx context.Context, d *schema.ResourceData, meta i
 	rowWidgetNumNeedUpdate = specifiedRowWidgetNum != int(rowWidgetNum)
 
 	_, isFavoriteOk := d.GetOk("is_favorite")
-	if rowWidgetNumNeedUpdate || isFavoriteOk {
+	_, extendInfoOk := d.GetOk("extend_info")
+	if rowWidgetNumNeedUpdate || isFavoriteOk || extendInfoOk {
 		err = updateDashboard(client, d)
 		if err != nil {
 			return diag.Errorf("error updating CES dashboard: %s", err)
@@ -179,9 +264,38 @@ func resourceDashboardRead(_ context.Context, d *schema.ResourceData, meta inter
 		d.Set("is_favorite", utils.PathSearch("is_favorite", dashboard, nil)),
 		d.Set("created_at", utils.FormatTimeStampRFC3339(int64(createdAt), false)),
 		d.Set("creator_name", utils.PathSearch("creator_name", dashboard, nil)),
+		d.Set("namespace", utils.PathSearch("namespace", dashboard, nil)),
+		d.Set("sub_product", utils.PathSearch("sub_product", dashboard, nil)),
+		d.Set("dashboard_template_id", utils.PathSearch("dashboard_template_id", dashboard, nil)),
+		d.Set("widgets_num", utils.PathSearch("widgets_num", dashboard, nil)),
+		d.Set("extend_info", flattenCesDashboardDetail(
+			utils.PathSearch("extend_info", dashboard, nil))),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func flattenCesDashboardDetail(param interface{}) interface{} {
+	if param == nil {
+		return nil
+	}
+	rst := []map[string]interface{}{
+		{
+			"filter":                  utils.PathSearch("filter", param, nil),
+			"period":                  utils.PathSearch("period", param, nil),
+			"display_time":            utils.PathSearch("display_time", param, nil),
+			"refresh_time":            utils.PathSearch("refresh_time", param, nil),
+			"from":                    utils.PathSearch("from", param, nil),
+			"to":                      utils.PathSearch("to", param, nil),
+			"screen_color":            utils.PathSearch("screen_color", param, nil),
+			"enable_screen_auto_play": utils.PathSearch("enable_screen_auto_play", param, nil),
+			"time_interval":           utils.PathSearch("time_interval", param, nil),
+			"enable_legend":           utils.PathSearch("enable_legend", param, nil),
+			"full_screen_widget_num":  utils.PathSearch("full_screen_widget_num", param, nil),
+		},
+	}
+
+	return rst
 }
 
 func getDashboard(client *golangsdk.ServiceClient, d *schema.ResourceData) (interface{}, error) {
@@ -237,7 +351,7 @@ func updateDashboard(client *golangsdk.ServiceClient, d *schema.ResourceData) er
 			204,
 		},
 	}
-	opt.JSONBody = buildUpdateDashboardBodyParams(d)
+	opt.JSONBody = utils.RemoveNil(buildUpdateDashboardBodyParams(d))
 	_, err := client.Request("PUT", path, &opt)
 	if err != nil {
 		return fmt.Errorf("error updating CES dashboard: %s", err)
@@ -251,7 +365,35 @@ func buildUpdateDashboardBodyParams(d *schema.ResourceData) map[string]interface
 		"dashboard_name": d.Get("name"),
 		"row_widget_num": d.Get("row_widget_num"),
 		"is_favorite":    d.Get("is_favorite"),
+		"extend_info":    buildUpdateDashboardExtendInfoBodyParams(d.Get("extend_info")),
 	}
+}
+
+func buildUpdateDashboardExtendInfoBodyParams(rawParam interface{}) map[string]interface{} {
+	if rawArray, ok := rawParam.([]interface{}); ok {
+		if len(rawArray) != 1 {
+			return nil
+		}
+
+		raw := rawArray[0].(map[string]interface{})
+		param := map[string]interface{}{
+			"filter":                  utils.ValueIgnoreEmpty(raw["filter"]),
+			"period":                  utils.ValueIgnoreEmpty(raw["period"]),
+			"display_time":            utils.ValueIgnoreEmpty(raw["display_time"]),
+			"refresh_time":            utils.ValueIgnoreEmpty(raw["refresh_time"]),
+			"from":                    utils.ValueIgnoreEmpty(raw["from"]),
+			"to":                      utils.ValueIgnoreEmpty(raw["to"]),
+			"screen_color":            utils.ValueIgnoreEmpty(raw["screen_color"]),
+			"enable_screen_auto_play": utils.ValueIgnoreEmpty(raw["enable_screen_auto_play"]),
+			"time_interval":           utils.ValueIgnoreEmpty(raw["time_interval"]),
+			"enable_legend":           utils.ValueIgnoreEmpty(raw["enable_legend"]),
+			"full_screen_widget_num":  utils.ValueIgnoreEmpty(raw["full_screen_widget_num"]),
+		}
+
+		return param
+	}
+
+	return nil
 }
 
 func resourceDashboardDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
