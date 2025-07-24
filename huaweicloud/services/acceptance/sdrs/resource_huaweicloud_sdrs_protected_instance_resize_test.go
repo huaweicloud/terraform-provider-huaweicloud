@@ -14,7 +14,7 @@ func TestAccProtectedInstanceResize_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckSDRSInstanceResize(t)
+			acceptance.TestAccPreCheckSDRSInstanceID(t)
 			acceptance.TestAccPreCheckSDRSInstanceResizeFlavor(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,

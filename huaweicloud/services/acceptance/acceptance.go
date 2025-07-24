@@ -814,7 +814,7 @@ func TestAccPreCheckSDRSDeleteNic(t *testing.T) {
 }
 
 // lintignore:AT003
-func TestAccPreCheckSDRSInstanceResize(t *testing.T) {
+func TestAccPreCheckSDRSInstanceID(t *testing.T) {
 	if HW_SDRS_PROTECTION_INSTANCE_ID == "" {
 		t.Skip("HW_SDRS_PROTECTION_INSTANCE_ID must be set for this acceptance test")
 	}
