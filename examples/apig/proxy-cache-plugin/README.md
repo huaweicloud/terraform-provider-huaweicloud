@@ -15,17 +15,31 @@ The following variables need to be configured:
 
 ### Authentication Variables
 
-* `access_key` - HuaweiCloud access key
-* `secret_key` - HuaweiCloud secret key
 * `region_name` - The region where resources will be created
+* `access_key`  - The access key of the IAM user
+* `secret_key`  - The secret key of the IAM user
 
 ### Resource Variables
 
-* `vpc_name` - Name of the Virtual Private Cloud (VPC)
-* `subnet_name` - Name of the subnet within the VPC
-* `security_group_name` - Name of the security group
-* `instance_name` - Name of the APIG instance
-* `plugin_name` - Name of the proxy cache plugin
+#### Required Variables
+
+* `vpc_name` - The name of the VPC
+* `subnet_name` - The name of the subnet
+* `security_group_name` - The name of the security group
+* `instance_name` - The name of the APIG instance
+* `plugin_name` - The name of the proxy cache plugin
+
+#### Optional Variables
+
+* `vpc_cidr` - The CIDR block of the VPC (default: "192.168.0.0/16")
+* `subnet_cidr` - The CIDR block of the subnet (default: "")
+* `subnet_gateway_ip` - The gateway IP address of the subnet (default: "")
+* `availability_zones` - The availability zones to which the instance belongs (default: [])  
+  If not specified, will be automatically allocated based on the number of availability_zones_count
+* `availability_zones_count` - The number of availability zones to which the instance belongs (default: 1)
+* `instance_edition` - The edition of the APIG instance (default: "BASIC")
+* `enterprise_project_id` - The ID of the enterprise project, required for enterprise users (default: null)
+* `plugin_description` - The description of the proxy cache plugin (default: null)
 
 ## Usage
 
@@ -34,14 +48,11 @@ The following variables need to be configured:
 * Create a `terraform.tfvars` file and fill in the required variables:
 
   ```hcl
-  access_key           = "your_access_key"
-  secret_key           = "your_secret_key"
-  region_name          = "your_region"
-  vpc_name             = "example-vpc"
-  subnet_name          = "example-subnet"
-  security_group_name  = "example-sg"
-  instance_name        = "example-apig"
-  plugin_name          = "example-proxy-cache"
+  vpc_name            = "your_vpc_name"
+  subnet_name         = "your_subnet_name"
+  security_group_name = "your_security_group_name"
+  instance_name       = "your_apig_instance_name"
+  plugin_name         = "your_plugin_name"
   ```
 
 * Initialize Terraform:
@@ -91,3 +102,10 @@ The proxy cache plugin is configured with the following settings:
 * All resources will be created in the specified region
 * The APIG instance is created with BASIC edition
 * The APIG instance will be deployed in the first available zone
+
+## Requirements
+
+| Name        | Version   |
+|-------------|-----------|
+| terraform   | >= 1.1.0 |
+| huaweicloud | >= 1.49.0 |
