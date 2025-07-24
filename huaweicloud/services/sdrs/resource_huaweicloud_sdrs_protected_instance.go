@@ -20,6 +20,9 @@ import (
 // @API SDRS PUT /v1/{project_id}/protected-instances/{id}
 // @API SDRS DELETE /v1/{project_id}/protected-instances/{id}
 // @API SDRS POST /v1/{project_id}/protected-instances
+// @API SDRS GET /v1/{project_id}/protected-instances/{protected_instance_id}/tags
+// @API SDRS POST /v1/{project_id}/protected-instances/{protected_instance_id}/tags/action
+// @API SDRS GET /v1/{project_id}/jobs/{job_id}
 func ResourceProtectedInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceProtectedInstanceCreate,

@@ -18,6 +18,7 @@ import (
 // @API SDRS GET /v1/{project_id}/disaster-recovery-drills/{id}
 // @API SDRS PUT /v1/{project_id}/disaster-recovery-drills/{id}
 // @API SDRS POST /v1/{project_id}/disaster-recovery-drills
+// @API SDRS GET /v1/{project_id}/jobs/{job_id}
 func ResourceDrill() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDrillCreate,
