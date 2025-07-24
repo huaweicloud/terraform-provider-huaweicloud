@@ -1611,6 +1611,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_workspace_app_schedule_tasks":                  workspace.DataSourceAppScheduleTasks(),
 			"huaweicloud_workspace_app_schedule_task_future_executions": workspace.DataSourceAppScheduleTaskFutureExecutions(),
 			"huaweicloud_workspace_app_servers":                         workspace.DataSourceAppServers(),
+			"huaweicloud_workspace_app_service":                         workspace.DataSourceAppService(),
 			"huaweicloud_workspace_app_server_groups":                   workspace.DataSourceAppServerGroups(),
 			"huaweicloud_workspace_app_server_group_restrict":           workspace.DataSourceAppServerGroupRestrict(),
 			"huaweicloud_workspace_app_server_group_status":             workspace.DataSourceAppServerGroupStatus(),
