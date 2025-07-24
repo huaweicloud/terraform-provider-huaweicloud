@@ -239,9 +239,9 @@ The following arguments are supported:
 
 * `skip_check_upgrade` - (Optional) Whether to skip upgrade check. The default value is `false`.
 
-* `endpoints` - (Optional) Configuration block in key/value pairs for customizing service endpoints. The following
-  endpoints support to be customized: autoscaling, ecs, ims, vpc, nat, evs, obs, sfs, cce, rds, dds, iam. An example
-  provider configuration:
+* `endpoints` - (Optional) Configuration block in key/value pairs for customizing service endpoints.
+  The [endpoints](#block--endpoints) block to support custom endpoints is documented below.
+  An example provider configuration:
 
 ```hcl
 provider "huaweicloud" {
@@ -259,6 +259,233 @@ The `assume_role` block supports:
 
 * `domain_name` - (Required) The name of the agency domain for assume role.
   If omitted, the `HW_ASSUME_ROLE_DOMAIN_NAME` environment variable is used.
+
+<a name="block--endpoints"></a>
+The `endpoints` block supports:
+
+* `aad` - (Optional) Use this to override the default endpoint URL. It's used to customize **AAD** endpoints.
+
+* `accessanalyzer` - (Optional) Use this to override the default endpoint URL. It's used to customize **AccessAnalyzer**
+  endpoints.
+
+* `anti-ddos` - (Optional) Use this to override the default endpoint URL. It's used to customize **Anti-DDoS** endpoints.
+
+* `aom` - (Optional) Use this to override the default endpoint URL. It's used to customize **AOM** endpoints.
+
+* `apig` - (Optional) Use this to override the default endpoint URL. It's used to customize **APIG** endpoints.
+
+* `apm` - (Optional) Use this to override the default endpoint URL. It's used to customize **APM** endpoints.
+
+* `appstream` - (Optional) Use this to override the default endpoint URL. It's used to customize **WorkspaceApp** endpoints.
+
+* `asm` - (Optional) Use this to override the default endpoint URL. It's used to customize **ASM** endpoints.
+
+* `autoscaling` - (Optional) Use this to override the default endpoint URL. It's used to customize **AS** endpoints.
+
+* `bcs` - (Optional) Use this to override the default endpoint URL. It's used to customize **BCS** endpoints.
+
+* `bms` - (Optional) Use this to override the default endpoint URL. It's used to customize **BMS** endpoints.
+
+* `bss` - (Optional) Use this to override the default endpoint URL. It's used to customize **CBC** endpoints.
+
+* `cae` - (Optional) Use this to override the default endpoint URL. It's used to customize **CAE** endpoints.
+
+* `cbh` - (Optional) Use this to override the default endpoint URL. It's used to customize **CBH** endpoints.
+
+* `cbr` - (Optional) Use this to override the default endpoint URL. It's used to customize **CBR** endpoints.
+
+* `cc` - (Optional) Use this to override the default endpoint URL. It's used to customize **CC** endpoints.
+
+* `cce` - (Optional) Use this to override the default endpoint URL. It's used to customize **CCE** endpoints.
+
+* `cci` - (Optional) Use this to override the default endpoint URL. It's used to customize **CCI** endpoints.
+
+* `ccm` - (Optional) Use this to override the default endpoint URL. It's used to customize **CCM** endpoints.
+
+* `cdm` - (Optional) Use this to override the default endpoint URL. It's used to customize **CDM** endpoints.
+
+* `cdn` - (Optional) Use this to override the default endpoint URL. It's used to customize **CDN** endpoints.
+
+* `ces` - (Optional) Use this to override the default endpoint URL. It's used to customize **CES** endpoints.
+
+* `cfw` - (Optional) Use this to override the default endpoint URL. It's used to customize **CFW** endpoints.
+
+* `cloudtable` - (Optional) Use this to override the default endpoint URL. It's used to customize **CloudTable**
+  endpoints.
+
+* `cms` - (Optional) Use this to override the default endpoint URL. It's used to customize **CMS** endpoints.
+
+* `coc` - (Optional) Use this to override the default endpoint URL. It's used to customize **COC** endpoints.
+
+* `codearts_build` - (Optional) Use this to override the default endpoint URL. It's used to customize **CodeArtsBuild**
+  endpoints.
+
+* `codearts_deploy` - (Optional) Use this to override the default endpoint URL. It's used to customize **CodeArtsDeploy**
+  endpoints.
+
+* `codearts_pipeline` - (Optional) Use this to override the default endpoint URL. It's used to customize
+  **CodeArtsPipeline** endpoints.
+
+* `codehub` - (Optional) Use this to override the default endpoint URL. It's used to customize **CodeHub** endpoints.
+
+* `cph` - (Optional) Use this to override the default endpoint URL. It's used to customize **CPH** endpoints.
+
+* `cpts` - (Optional) Use this to override the default endpoint URL. It's used to customize **CPTS** endpoints.
+
+* `cse` - (Optional) Use this to override the default endpoint URL. It's used to customize **CSE** endpoints.
+
+* `css` - (Optional) Use this to override the default endpoint URL. It's used to customize **CSS** endpoints.
+
+* `cts` - (Optional) Use this to override the default endpoint URL. It's used to customize **CTS** endpoints.
+
+* `dataarts` - (Optional) Use this to override the default endpoint URL. It's used to customize **DataArtsStudio**
+  endpoints.
+
+* `dbss` - (Optional) Use this to override the default endpoint URL. It's used to customize **DBSS** endpoints.
+
+* `dc` - (Optional) Use this to override the default endpoint URL. It's used to customize **DC** endpoints.
+
+* `dcs` - (Optional) Use this to override the default endpoint URL. It's used to customize **DCS** endpoints.
+
+* `ddm` - (Optional) Use this to override the default endpoint URL. It's used to customize **DDM** endpoints.
+
+* `dds` - (Optional) Use this to override the default endpoint URL. It's used to customize **DDS** endpoints.
+
+* `deh` - (Optional) Use this to override the default endpoint URL. It's used to customize **DEH** endpoints.
+
+* `dis` - (Optional) Use this to override the default endpoint URL. It's used to customize **DIS** endpoints.
+
+* `dli` - (Optional) Use this to override the default endpoint URL. It's used to customize **DLI** endpoints.
+
+* `dms` - (Optional) Use this to override the default endpoint URL. It's used to customize **DMS** endpoints.
+
+* `dns` - (Optional) Use this to override the default endpoint URL. It's used to customize **DNS** endpoints.
+
+* `drs` - (Optional) Use this to override the default endpoint URL. It's used to customize **DRS** endpoints.
+
+* `dsc` - (Optional) Use this to override the default endpoint URL. It's used to customize **DSC** endpoints.
+
+* `dws` - (Optional) Use this to override the default endpoint URL. It's used to customize **DWS** endpoints.
+
+* `ecs` - (Optional) Use this to override the default endpoint URL. It's used to customize **ECS** endpoints.
+
+* `eg` - (Optional) Use this to override the default endpoint URL. It's used to customize **EG** endpoints.
+
+* `elb` - (Optional) Use this to override the default endpoint URL. It's used to customize **ELB** endpoints.
+
+* `eps` - (Optional) Use this to override the default endpoint URL. It's used to customize **EPS** endpoints.
+
+* `er` - (Optional) Use this to override the default endpoint URL. It's used to customize **ER** endpoints.
+
+* `evs` - (Optional) Use this to override the default endpoint URL. It's used to customize **EVS** endpoints.
+
+* `fgs` - (Optional) Use this to override the default endpoint URL. It's used to customize **FunctionGraph**
+  endpoints.
+
+* `ga` - (Optional) Use this to override the default endpoint URL. It's used to customize **GA** endpoints.
+
+* `gaussdb` - (Optional) Use this to override the default endpoint URL. It's used to customize **GaussDBforMySQL**
+  endpoints.
+
+* `geip` - (Optional) Use this to override the default endpoint URL. It's used to customize **GEIP** endpoints.
+
+* `geminidb` - (Optional) Use this to override the default endpoint URL. It's used to customize **GaussDBforNoSQL**
+  endpoints.
+
+* `ges` - (Optional) Use this to override the default endpoint URL. It's used to customize **GES** endpoints.
+
+* `hss` - (Optional) Use this to override the default endpoint URL. It's used to customize **HSS** endpoints.
+
+* `iam` - (Optional) Use this to override the default endpoint URL. It's used to customize **IAM** endpoints.
+
+* `identitycenter` - (Optional) Use this to override the default endpoint URL. It's used to customize **IdentityCenter**
+  endpoints.
+
+* `identitystore` - (Optional) Use this to override the default endpoint URL. It's used to customize **IdentityCenter**
+  endpoints.
+
+* `iec` - (Optional) Use this to override the default endpoint URL. It's used to customize **IEC** endpoints.
+
+* `ims` - (Optional) Use this to override the default endpoint URL. It's used to customize **IMS** endpoints.
+
+* `iotda` - (Optional) Use this to override the default endpoint URL. It's used to customize **IoTDA** endpoints.
+
+* `kms` - (Optional) Use this to override the default endpoint URL. It's used to customize **DEW** endpoints.
+
+* `live` - (Optional) Use this to override the default endpoint URL. It's used to customize **Live** endpoints.
+
+* `lts` - (Optional) Use this to override the default endpoint URL. It's used to customize **LTS** endpoints.
+
+* `meeting` - (Optional) Use this to override the default endpoint URL. It's used to customize **Meeting** endpoints.
+
+* `mkt` - (Optional) Use this to override the default endpoint URL. It's used to customize **KooGallery** endpoints.
+
+* `modelarts` - (Optional) Use this to override the default endpoint URL. It's used to customize **ModelArts** endpoints.
+
+* `mpc` - (Optional) Use this to override the default endpoint URL. It's used to customize **MPC** endpoints.
+
+* `mrs` - (Optional) Use this to override the default endpoint URL. It's used to customize **MRS** endpoints.
+
+* `nat` - (Optional) Use this to override the default endpoint URL. It's used to customize **NAT** endpoints.
+
+* `oms` - (Optional) Use this to override the default endpoint URL. It's used to customize **OMS** endpoints.
+
+* `opengauss` - (Optional) Use this to override the default endpoint URL. It's used to customize **GaussDB** endpoints.
+
+* `organizations` - (Optional) Use this to override the default endpoint URL. It's used to customize **Organizations**
+  endpoints.
+
+* `projectman` - (Optional) Use this to override the default endpoint URL. It's used to customize **ProjectMan** endpoints.
+
+* `ram` - (Optional) Use this to override the default endpoint URL. It's used to customize **RAM** endpoints.
+
+* `rds` - (Optional) Use this to override the default endpoint URL. It's used to customize **RDS** endpoints.
+
+* `rfs` - (Optional) Use this to override the default endpoint URL. It's used to customize **RFS** endpoints.
+
+* `rgc` - (Optional) Use this to override the default endpoint URL. It's used to customize **RGC** endpoints.
+
+* `rts` - (Optional) Use this to override the default endpoint URL. It's used to customize **RTS** endpoints.
+
+* `scm` - (Optional) Use this to override the default endpoint URL. It's used to customize **CCM** endpoints.
+
+* `sdrs` - (Optional) Use this to override the default endpoint URL. It's used to customize **SDRS** endpoints.
+
+* `secmaster` - (Optional) Use this to override the default endpoint URL. It's used to customize **SecMaster** endpoints.
+
+* `servicestage` - (Optional) Use this to override the default endpoint URL. It's used to customize **ServiceStage**
+  endpoints.
+
+* `sfs` - (Optional) Use this to override the default endpoint URL. It's used to customize **SFS** endpoints.
+
+* `sfs-turbo` - (Optional) Use this to override the default endpoint URL. It's used to customize **SFSTurbo** endpoints.
+
+* `smn` - (Optional) Use this to override the default endpoint URL. It's used to customize **SMN** endpoints.
+
+* `sts` - (Optional) Use this to override the default endpoint URL. It's used to customize **IAM** endpoints.
+
+* `swr` - (Optional) Use this to override the default endpoint URL. It's used to customize **SWR** endpoints.
+
+* `tms` - (Optional) Use this to override the default endpoint URL. It's used to customize **TMS** endpoints.
+
+* `ucs` - (Optional) Use this to override the default endpoint URL. It's used to customize **UCS** endpoints.
+
+* `vbs` - (Optional) Use this to override the default endpoint URL. It's used to customize **VBS** endpoints.
+
+* `vod` - (Optional) Use this to override the default endpoint URL. It's used to customize **VOD** endpoints.
+
+* `vpc` - (Optional) Use this to override the default endpoint URL. It's used to customize **VPC** endpoints.
+
+* `vpcep` - (Optional) Use this to override the default endpoint URL. It's used to customize **VPCEP** endpoints.
+
+* `vpn` - (Optional) Use this to override the default endpoint URL. It's used to customize **VPN** endpoints.
+
+* `vss` - (Optional) Use this to override the default endpoint URL. It's used to customize **CodeArtsInspector**
+  endpoints.
+
+* `waf` - (Optional) Use this to override the default endpoint URL. It's used to customize **WAF** endpoints.
+
+* `workspace` - (Optional) Use this to override the default endpoint URL. It's used to customize **WorkspaceDesktop** endpoints.
 
 ## Testing and Development
 

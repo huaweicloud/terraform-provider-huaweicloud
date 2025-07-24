@@ -52,6 +52,7 @@ var multiCatalogKeys = map[string][]string{
 	"config":       {"rms"}, // config is named as Resource Management Service(RMS) before
 	"tms":          {"tmsv2"},
 	"anti-ddos":    {"anti-ddosv2"},
+	"css":          {"cssv2"},
 }
 
 // GetServiceDerivedCatalogKeys returns the derived catalog keys of a service.
