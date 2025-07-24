@@ -176,6 +176,12 @@ func ResourceModelartsResourcePool() *schema.Resource {
 				Computed:    true,
 				Description: `The resource ID of the resource pool.`,
 			},
+			"server_ids": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `The list of service IDs corresponding to the currently expanded nodes.`,
+			},
 			// Internal attributes(s).
 			"resources_order_origin": {
 				Type:     schema.TypeList,
@@ -710,7 +716,7 @@ func getResourcePoolNodeNamesByOrderName(client *golangsdk.ServiceClient, orderN
 }
 
 func waitForNodesDriverStatusCompleted(ctx context.Context, client *golangsdk.ServiceClient, resourcePoolId string, nodeNames []interface{},
-	timeout time.Duration) error {
+	timeout time.Duration) (interface{}, error) {
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
@@ -718,8 +724,7 @@ func waitForNodesDriverStatusCompleted(ctx context.Context, client *golangsdk.Se
 		Timeout:      timeout,
 		PollInterval: 30 * time.Second,
 	}
-	_, err := stateConf.WaitForStateContext(ctx)
-	return err
+	return stateConf.WaitForStateContext(ctx)
 }
 
 func refreshNodesDriverStatus(client *golangsdk.ServiceClient, resourcePoolId string, nodeNames []interface{}) resource.StateRefreshFunc {
@@ -742,6 +747,26 @@ func refreshNodesDriverStatus(client *golangsdk.ServiceClient, resourcePoolId st
 	}
 }
 
+func getServerIdsByNodeNames(actionNodeNames []interface{}, actionNodes []interface{}) []interface{} {
+	serverIds := make([]interface{}, 0)
+	for _, nodeName := range actionNodeNames {
+		serverId := utils.PathSearch(
+			fmt.Sprintf(`[?metadata.name == '%s']|[0].metadata.labels."os.modelarts.node/underlying.instance.id"`, nodeName),
+			actionNodes,
+			nil,
+		)
+		// During the creation phase, `actionNodes` contains not only nodes information but also resource pool information.
+		// So, we need to filter out the resource pool information.
+		if serverId == nil {
+			log.Printf("[WARN] Unable to find server ID for node (%s)", nodeName)
+			continue
+		}
+		serverIds = append(serverIds, serverId)
+	}
+
+	return serverIds
+}
+
 func resourceModelartsResourcePoolCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -749,13 +774,13 @@ func resourceModelartsResourcePoolCreate(ctx context.Context, d *schema.Resource
 		createResourcePoolHttpUrl = "v2/{project_id}/pools"
 		createResourcePoolProduct = "modelarts"
 	)
-	createResourcePoolClient, err := cfg.NewServiceClient(createResourcePoolProduct, region)
+	client, err := cfg.NewServiceClient(createResourcePoolProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating ModelArts client: %s", err)
 	}
 
-	createResourcePoolPath := createResourcePoolClient.Endpoint + createResourcePoolHttpUrl
-	createResourcePoolPath = strings.ReplaceAll(createResourcePoolPath, "{project_id}", createResourcePoolClient.ProjectID)
+	createResourcePoolPath := client.Endpoint + createResourcePoolHttpUrl
+	createResourcePoolPath = strings.ReplaceAll(createResourcePoolPath, "{project_id}", client.ProjectID)
 
 	createResourcePoolOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -766,7 +791,7 @@ func resourceModelartsResourcePoolCreate(ctx context.Context, d *schema.Resource
 	}
 
 	createResourcePoolOpt.JSONBody = utils.RemoveNil(buildCreateResourcePoolBodyParams(d))
-	createResourcePoolResp, err := createResourcePoolClient.Request("POST", createResourcePoolPath, &createResourcePoolOpt)
+	createResourcePoolResp, err := client.Request("POST", createResourcePoolPath, &createResourcePoolOpt)
 	if err != nil {
 		return diag.Errorf("error creating Modelarts resource pool: %s", err)
 	}
@@ -791,19 +816,23 @@ func resourceModelartsResourcePoolCreate(ctx context.Context, d *schema.Resource
 		return diag.Errorf("unable to find order name of resource pool (%s) in API response", resourcePoolId)
 	}
 
-	err = waitingForResourcePoolOrderStatusCompleted(ctx, createResourcePoolClient, resourcePoolId, orderName, d.Timeout(schema.TimeoutCreate))
+	err = waitingForResourcePoolOrderStatusCompleted(ctx, client, resourcePoolId, orderName, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.Errorf("error waiting for the order status of resource pool (%s) creation to complete: %s", resourcePoolId, err)
 	}
 
-	actionNodeNames, err := getResourcePoolNodeNamesByOrderName(createResourcePoolClient, orderName)
+	actionNodeNames, err := getResourcePoolNodeNamesByOrderName(client, orderName)
 	if err != nil {
 		return diag.Errorf("error getting the node names by order name (%s) for creating resource pool (%s): %s", orderName, resourcePoolId, err)
 	}
 
-	err = waitForNodesDriverStatusCompleted(ctx, createResourcePoolClient, resourcePoolId, actionNodeNames, d.Timeout(schema.TimeoutCreate))
+	actionNodes, err := waitForNodesDriverStatusCompleted(ctx, client, resourcePoolId, actionNodeNames, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.Errorf("error waiting for the nodes driver status under the resource pool (%s) to complete: %s", resourcePoolId, err)
+	}
+
+	if err := d.Set("server_ids", getServerIdsByNodeNames(actionNodeNames, actionNodes.([]interface{}))); err != nil {
+		log.Printf("[ERROR] error setting the server IDs for creating resource pool (%s): %s", resourcePoolId, err)
 	}
 
 	return resourceModelartsResourcePoolRead(ctx, d, meta)
@@ -1541,9 +1570,13 @@ func resourceModelartsResourcePoolUpdate(ctx context.Context, d *schema.Resource
 				)
 			}
 
-			err = waitForNodesDriverStatusCompleted(ctx, client, resourcePoolId, actionNodeNames, d.Timeout(schema.TimeoutUpdate))
+			actionNodes, err := waitForNodesDriverStatusCompleted(ctx, client, resourcePoolId, actionNodeNames, d.Timeout(schema.TimeoutUpdate))
 			if err != nil {
 				return diag.Errorf("error waiting for the nodes driver status under the resource pool (%s) to complete: %s", resourcePoolId, err)
+			}
+
+			if err := d.Set("server_ids", getServerIdsByNodeNames(actionNodeNames, actionNodes.([]interface{}))); err != nil {
+				log.Printf("[ERROR] error setting the server IDs for updating resource pool (%s): %s", resourcePoolId, err)
 			}
 		}
 	}
@@ -2213,5 +2246,9 @@ func deleteResourcePoolWaitingForStateCompleted(ctx context.Context, d *schema.R
 }
 
 func resourceResourcePoolImport(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
-	return []*schema.ResourceData{d}, d.Set("resources_order_origin", nil)
+	mErr := multierror.Append(
+		d.Set("resources_order_origin", nil),
+		d.Set("server_ids", nil),
+	)
+	return []*schema.ResourceData{d}, mErr.ErrorOrNil()
 }

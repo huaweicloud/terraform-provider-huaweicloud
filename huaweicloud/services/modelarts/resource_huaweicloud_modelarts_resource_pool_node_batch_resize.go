@@ -238,7 +238,7 @@ func resourceResourcePoolNodeBatchResizeCreate(ctx context.Context, d *schema.Re
 		return diag.Errorf("error getting the scaling node names by order name (%s): %s", orderName, err)
 	}
 
-	err = waitForNodesDriverStatusCompleted(ctx, client, resourcePoolName, actionNodeNames, d.Timeout(schema.TimeoutCreate))
+	_, err = waitForNodesDriverStatusCompleted(ctx, client, resourcePoolName, actionNodeNames, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.Errorf("error waiting for the scaling nodes driver status under the resource pool (%s) to complete: %s", resourcePoolName, err)
 	}
