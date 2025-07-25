@@ -297,6 +297,18 @@ func resourceDcsBackupImportTaskRead(_ context.Context, d *schema.ResourceData, 
 	status := utils.PathSearch("status", getRespBody, "").(string)
 	if status == "DELETED" {
 		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "error getting DCS backup import task")
+	} else if status == "SUCCESS" {
+		// when the migration task is deleted, the value of the task status queried by the task detail API may be SUCCESS,
+		// but it can not be queried by the list API
+		getListRespBody, err := getMigrationTaskList(client)
+		if err != nil {
+			return common.CheckDeletedDiag(d, err, "error getting DCS backup import task")
+		}
+
+		task := utils.PathSearch(fmt.Sprintf("migration_tasks[?task_id=='%s']|[0]", d.Id()), getListRespBody, nil)
+		if task == nil {
+			return common.CheckDeletedDiag(d, err, "error getting DCS backup import task")
+		}
 	}
 
 	mErr = multierror.Append(nil,
@@ -420,7 +432,7 @@ func deleteMigrationTask(d *schema.ResourceData, client *golangsdk.ServiceClient
 
 	id := utils.PathSearch("task_id_list[0]", deleteRespBody, "").(string)
 	if id == "" {
-		return errors.New("error deleting backup import task, id is not found in the response")
+		return errors.New("error deleting migration task, id is not found in the response")
 	}
 
 	return nil
@@ -524,8 +536,6 @@ func migrationTaskDeleteRefreshFunc(client *golangsdk.ServiceClient, taskId stri
 	}
 }
 
-// when the migration task is deleted, the value of the task status queried by the task detail API may be SUCCESS,
-// but it can not be queried by the list API
 func getMigrationTaskList(client *golangsdk.ServiceClient) (interface{}, error) {
 	httpUrl := "v2/{project_id}/migration-tasks"
 	getPath := client.Endpoint + httpUrl
