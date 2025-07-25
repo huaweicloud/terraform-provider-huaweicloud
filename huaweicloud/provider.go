@@ -2294,6 +2294,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_image_batch_scan":                 hss.ResourceImageBatchScan(),
 			"huaweicloud_hss_vulnerability_information_export": hss.ResourceVulnerabilityInformationExport(),
 			"huaweicloud_hss_file_download":                    hss.ResourceFileDownload(),
+			"huaweicloud_hss_ignore_failed_pcc":                hss.ResourceIgnoreFailedPCC(),
 
 			"huaweicloud_identity_access_key":            iam.ResourceIdentityKey(),
 			"huaweicloud_identity_acl":                   iam.ResourceIdentityACL(),
