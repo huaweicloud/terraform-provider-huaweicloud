@@ -3,12 +3,12 @@ subcategory: "CodeArts Pipeline"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_codearts_pipeline_parameter_groups"
 description: |-
-  Use this data source to get a list of CodeArts pipeline groups.
+  Use this data source to get a list of CodeArts pipeline parameter groups.
 ---
 
 # huaweicloud_codearts_pipeline_parameter_groups
 
-Use this data source to get a list of CodeArts pipeline groups.
+Use this data source to get a list of CodeArts pipeline parameter groups.
 
 ## Example Usage
 
