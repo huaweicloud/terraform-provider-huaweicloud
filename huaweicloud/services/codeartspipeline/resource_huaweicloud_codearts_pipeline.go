@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strconv"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -19,12 +20,16 @@ import (
 )
 
 const (
-	updatePipelinehttpUrl     = "v5/{project_id}/api/pipelines/{pipeline_id}"
-	banHttpUrl                = "v5/{project_id}/api/pipelines/{pipeline_id}/ban"
-	unbanHttpUrl              = "v5/{project_id}/api/pipelines/{pipeline_id}/unban"
-	bindParameterGroupHttpUrl = "v5/{project_id}/api/pipeline/variable/group/relation"
-	moveGroupHttpUrl          = "v5/{project_id}/api/pipeline-group/pipeline/move"
-	updateTagsHttpURl         = "v5/{project_id}/api/pipeline-tag/set-tags"
+	updatePipelinehttpUrl           = "v5/{project_id}/api/pipelines/{pipeline_id}"
+	banHttpUrl                      = "v5/{project_id}/api/pipelines/{pipeline_id}/ban"
+	unbanHttpUrl                    = "v5/{project_id}/api/pipelines/{pipeline_id}/unban"
+	bindParameterGroupHttpUrl       = "v5/{project_id}/api/pipeline/variable/group/relation"
+	moveGroupHttpUrl                = "v5/{project_id}/api/pipeline-group/pipeline/move"
+	updateTagsHttpURl               = "v5/{project_id}/api/pipeline-tag/set-tags"
+	updatePermissionLevelHttpUrl    = "v5/{project_id}/api/pipeline-permissions/{pipeline_id}/update-permission-switch"
+	getPermissionSwitchHttpUrl      = "v5/{project_id}/api/pipeline-permissions/{pipeline_id}/permission-switch"
+	getAssociatedParamGroupsHttpUrl = "v5/{project_id}/api/pipeline/variable/group/pipeline?pipelineId={pipeline_id}"
+	getRolePermissionsHttpUrl       = "v5/{project_id}/api/pipeline-permissions/{pipeline_id}/role-permission"
 )
 
 var pipelineNonUpdatableParams = []string{
@@ -41,6 +46,9 @@ var pipelineNonUpdatableParams = []string{
 // @API CodeArtsPipeline GET /v5/{project_id}/api/pipeline/variable/group/pipeline
 // @API CodeArtsPipeline POST /v5/{project_id}/api/pipeline-group/pipeline/move
 // @API CodeArtsPipeline POST /v5/{project_id}/api/pipeline-tag/set-tags
+// @API CodeArtsPipeline PUT /v5/{project_id}/api/pipeline-permissions/{pipeline_id}/update-permission-switch
+// @API CodeArtsPipeline GET /v5/{project_id}/api/pipeline-permissions/{pipeline_id}/permission-switch
+// @API CodeArtsPipeline GET /v5/{project_id}/api/pipeline-permissions/{pipeline_id}/role-permission
 func ResourceCodeArtsPipeline() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourcePipelineCreate,
@@ -158,11 +166,28 @@ func ResourceCodeArtsPipeline() *schema.Resource {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: `Specifies the list of tag IDs.`,
 			},
+			"resource_level_permission_switch": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Computed:    true,
+				Description: `Specifies whether to use resource level permission. Default to **false**.`,
+			},
 			"enable_force_new": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
 				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
+			},
+			"is_allow_edit": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Indicates whether the user is allowed to edit the permission.`,
+			},
+			"role_permissions": {
+				Type:        schema.TypeList,
+				Elem:        pipelineRolePermissionsSchema(),
+				Computed:    true,
+				Description: `Indicates the role permissions.`,
 			},
 			"creator_id": {
 				Type:        schema.TypeString,
@@ -485,6 +510,49 @@ func resourceSchemePipelineVariables() *schema.Resource {
 	}
 }
 
+func pipelineRolePermissionsSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"role_id": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `Indicates the role ID.`,
+			},
+			"role_name": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the role name.`,
+			},
+			"operation_query": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Indicates whether the role has the permission to query.`,
+			},
+			"operation_execute": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Indicates whether the role has the permission to execute.`,
+			},
+			"operation_update": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Indicates whether the role has the permission to update.`,
+			},
+			"operation_delete": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Indicates whether the role has the permission to delete.`,
+			},
+			"operation_authorize": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Indicates whether the role has the permission to authorize.`,
+			},
+		},
+	}
+	return &sc
+}
+
 func resourcePipelineCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -546,6 +614,13 @@ func resourcePipelineCreate(ctx context.Context, d *schema.ResourceData, meta in
 			nil,
 		}); err != nil {
 			return diag.Errorf("error updating pipeline tags: %s", err)
+		}
+	}
+
+	if v := d.Get("resource_level_permission_switch").(bool); v {
+		httpUrl := updatePermissionLevelHttpUrl + "?flag=" + strconv.FormatBool(v)
+		if err := updatePipelineField(client, d, updatePipelineFieldParams{httpUrl, "PUT", nil, nil}); err != nil {
+			return diag.Errorf("error updating resource level permission switch: %s", err)
 		}
 	}
 
@@ -771,12 +846,28 @@ func resourcePipelineRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("tags", utils.PathSearch("tags[*].tagId", getRespBody, nil)),
 	)
 
-	ids, err := getPipelineRelatedParameterGroups(client, projectId, d.Id())
-	if err != nil {
+	if associatedGroups, err := getPipelineField(client, d, getAssociatedParamGroupsHttpUrl); err != nil {
 		log.Printf("error retrieving pipeline related parameter groups: %s", err)
 	} else {
 		mErr = multierror.Append(mErr,
-			d.Set("parameter_groups", ids),
+			d.Set("parameter_groups", utils.PathSearch("[*].id", associatedGroups, nil)),
+		)
+	}
+
+	if permissionSwitch, err := getPipelineField(client, d, getPermissionSwitchHttpUrl); err != nil {
+		log.Printf("error retrieving pipeline permission switch: %s", err)
+	} else {
+		mErr = multierror.Append(mErr,
+			d.Set("resource_level_permission_switch", utils.PathSearch("is_use_devuc", permissionSwitch, nil)),
+			d.Set("is_allow_edit", utils.PathSearch("is_allow_edit", permissionSwitch, nil)),
+		)
+	}
+
+	if rolePermissions, err := getPipelineField(client, d, getRolePermissionsHttpUrl); err != nil {
+		log.Printf("error retrieving pipeline role permissions: %s", err)
+	} else {
+		mErr = multierror.Append(mErr,
+			d.Set("role_permissions", flattenPipelineRolePermissions(rolePermissions)),
 		)
 	}
 
@@ -914,6 +1005,28 @@ func flattenPipelineTriggersEvents(resp interface{}) []interface{} {
 	return result
 }
 
+func flattenPipelineRolePermissions(resp interface{}) []interface{} {
+	if roleList, ok := utils.PathSearch("roles", resp, make([]interface{}, 0)).([]interface{}); ok && len(roleList) > 0 {
+		result := make([]interface{}, 0, len(roleList))
+		for _, role := range roleList {
+			role := role.(map[string]interface{})
+			m := map[string]interface{}{
+				"role_id":             utils.PathSearch("role_id", role, nil),
+				"role_name":           utils.PathSearch("role_name", role, nil),
+				"operation_query":     utils.PathSearch("operation_query", role, nil),
+				"operation_execute":   utils.PathSearch("operation_execute", role, nil),
+				"operation_update":    utils.PathSearch("operation_update", role, nil),
+				"operation_delete":    utils.PathSearch("operation_delete", role, nil),
+				"operation_authorize": utils.PathSearch("operation_authorize", role, nil),
+			}
+			result = append(result, m)
+		}
+
+		return result
+	}
+	return nil
+}
+
 func flattenPipelineConcurrencyControl(resp interface{}) []interface{} {
 	concurrencyControl := utils.PathSearch("concurrency_control", resp, nil)
 	if concurrencyControl == nil {
@@ -981,6 +1094,13 @@ func resourcePipelineUpdate(ctx context.Context, d *schema.ResourceData, meta in
 			nil,
 		}); err != nil {
 			return diag.Errorf("error updating pipeline tags: %s", err)
+		}
+	}
+
+	if d.HasChange("resource_level_permission_switch") {
+		httpUrl := updatePermissionLevelHttpUrl + "?flag=" + strconv.FormatBool(d.Get("resource_level_permission_switch").(bool))
+		if err := updatePipelineField(client, d, updatePipelineFieldParams{httpUrl, "PUT", nil, nil}); err != nil {
+			return diag.Errorf("error updating resource level permission switch: %s", err)
 		}
 	}
 
@@ -1112,11 +1232,10 @@ func updatePipelineField(client *golangsdk.ServiceClient, d *schema.ResourceData
 	return checkResponseError(updateRespBody, "")
 }
 
-func getPipelineRelatedParameterGroups(client *golangsdk.ServiceClient, projectId, id string) (interface{}, error) {
-	httpUrl := "v5/{project_id}/api/pipeline/variable/group/pipeline?pipelineId={pipeline_id}"
+func getPipelineField(client *golangsdk.ServiceClient, d *schema.ResourceData, httpUrl string) (interface{}, error) {
 	getPath := client.Endpoint + httpUrl
-	getPath = strings.ReplaceAll(getPath, "{project_id}", projectId)
-	getPath = strings.ReplaceAll(getPath, "{pipeline_id}", id)
+	getPath = strings.ReplaceAll(getPath, "{project_id}", d.Get("project_id").(string))
+	getPath = strings.ReplaceAll(getPath, "{pipeline_id}", d.Id())
 	getOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 	}
@@ -1130,10 +1249,9 @@ func getPipelineRelatedParameterGroups(client *golangsdk.ServiceClient, projectI
 		return nil, err
 	}
 
-	if err := checkResponseError(getRespBody, ""); err != nil {
+	if err := checkResponseError(getRespBody, projectNotFoundError2); err != nil {
 		return nil, err
 	}
 
-	ids := utils.PathSearch("[*].id", getRespBody, nil)
-	return ids, nil
+	return getRespBody, nil
 }

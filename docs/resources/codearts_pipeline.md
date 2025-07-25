@@ -171,6 +171,9 @@ The following arguments are supported:
 
 * `tags` - (Optional, List) Specifies the tag IDs.
 
+* `resource_level_permission_switch` - (Optional, Bool) Specifies whether to use resource level permission.
+  Default to **false**, which means project level permission will be used.
+
 <a name="block--sources"></a>
 The `sources` block supports:
 
@@ -325,6 +328,11 @@ In addition to all arguments above, the following attributes are exported:
 * `triggers` - Indicates the pipeline trigger settings.
   The [triggers](#attrblock--triggers) structure is documented below.
 
+* `role_permissions` - Indicates the role permissions.
+  The [role_permissions](#attrblock--role_permissions) structure is documented below.
+
+* `is_allow_edit` - Indicates whether the user is allowed to edit the permission.
+
 <a name="attrblock--schedules"></a>
 The `schedules` block supports:
 
@@ -334,6 +342,23 @@ The `schedules` block supports:
 The `triggers` block supports:
 
 * `hook_id` - Indicates the callback ID.
+
+<a name="attrblock--role_permissions"></a>
+The `role_permissions` block supports:
+
+* `operation_authorize` - Indicates whether the role has the permission to authorize.
+
+* `operation_delete` - Indicates whether the role has the permission to delete.
+
+* `operation_execute` - Indicates whether the role has the permission to execute.
+
+* `operation_query` - Indicates whether the role has the permission to query.
+
+* `operation_update` - Indicates whether the role has the permission to update.
+
+* `role_id` - Indicates the role ID.
+
+* `role_name` - Indicates the role name.
 
 ## Import
 
