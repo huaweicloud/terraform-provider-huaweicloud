@@ -1,24 +1,40 @@
+# Variable definitions for authentication
 variable "region_name" {
-  description = "The region name"
+  description = "The region where the MySQL RDS instance is located"
   type        = string
 }
 
 variable "access_key" {
   description = "The access key of the IAM user"
-  sensitive   = true
   type        = string
 }
 
 variable "secret_key" {
   description = "The secret key of the IAM user"
-  sensitive   = true
   type        = string
 }
 
+# Variable definitions for resources/data sources
+variable "vpc_name" {
+  description = "The VPC name"
+  type        = string
+}
+
+variable "vpc_cidr" {
+  description = "The CIDR block of the VPC"
+  type        = string
+  default     = "192.168.0.0/16"
+}
+
 variable "availability_zone" {
-  description = "The availability zone"
+  description = "The availability zone to which the RDS instance belongs"
   type        = string
   default     = ""
+}
+
+variable "subnet_name" {
+  description = "The subnet name"
+  type        = string
 }
 
 variable "subnet_cidr" {
@@ -27,25 +43,25 @@ variable "subnet_cidr" {
   default     = ""
 }
 
-variable "gateway" {
-  description = "The gateway IP of the subnet"
+variable "gateway_ip" {
+  description = "The gateway IP address of the subnet"
   type        = string
   default     = ""
 }
 
-variable "flavor_id" {
-  description = "The flavor ID for the instance"
+variable "instance_flavor_id" {
+  description = "The flavor ID of the RDS instance"
   type        = string
   default     = ""
 }
 
-variable "db_type" {
+variable "instance_db_type" {
   description = "The database engine type"
   type        = string
   default     = "MySQL"
 }
 
-variable "db_version" {
+variable "instance_db_version" {
   description = "The database engine version"
   type        = string
   default     = "8.0"
@@ -57,92 +73,58 @@ variable "instance_mode" {
   default     = "single"
 }
 
-variable "group_type" {
-  description = "The group type"
+variable "instance_flavor_group_type" {
+  description = "The group type for the RDS instance flavor"
   type        = string
   default     = "general"
 }
 
-variable "vcpus" {
-  description = "The CPU of flavor for the instance"
+variable "instance_flavor_vcpus" {
+  description = "The number of the RDS instance CPU cores for the RDS instance flavor"
   type        = number
   default     = 2
 }
 
-variable "vpc_id" {
-  description = "The ID of the existing VPC"
-  type        = string
-  default     = ""
-}
-
-variable "vpc_name" {
-  description = "The name of the VPC"
+variable "security_group_name" {
+  description = "The security group name"
   type        = string
 }
 
-variable "vpc_cidr" {
-  description = "The CIDR block of the VPC"
-  type        = string
-  default     = "192.168.0.0/16"
-}
-
-variable "subnet_id" {
-  description = "The ID of the existing subnet"
-  type        = string
-  default     = ""
-}
-
-variable "subnet_name" {
-  description = "The name of the subnet"
-  type        = string
-}
-
-variable "secgroup_id" {
-  description = "The ID of the existing security group"
-  type        = string
-  default     = ""
-}
-
-variable "secgroup_name" {
-  description = "The name of security group"
-  type        = string
-}
-
-variable "db_port" {
+variable "instance_db_port" {
   description = "The database port"
   type        = number
   default     = 3306
 }
 
+variable "instance_password" {
+  description = "The password for the RDS instance"
+  type        = string
+  default     = ""
+}
+
 variable "instance_name" {
-  description = "The name of the RDS instance"
+  description = "The MySQL RDS instance name"
   type        = string
 }
 
-variable "charging_mode" {
-  description = "The billing method"
-  type        = string
-  default     = "postPaid"
-}
-
-variable "volume_type" {
+variable "instance_volume_type" {
   description = "The storage volume type"
   type        = string
   default     = "CLOUDSSD"
 }
 
-variable "volume_size" {
+variable "instance_volume_size" {
   description = "The storage volume size in GB"
   type        = number
   default     = 40
 }
 
-variable "backup_time_window" {
+variable "instance_backup_time_window" {
   description = "The backup time window in HH:MM-HH:MM format"
   type        = string
 }
 
-variable "backup_keep_days" {
+variable "instance_backup_keep_days" {
   description = "The number of days to retain backups"
   type        = number
 }
@@ -152,13 +134,19 @@ variable "account_name" {
   type        = string
 }
 
-variable "db_name" {
+variable "account_password" {
+  description = "The password for the database account"
+  type        = string
+  default     = ""
+}
+
+variable "database_name" {
   description = "The name of the initial database"
   type        = string
 }
 
 variable "character_set" {
-  description = "The name for instance backups"
+  description = "The character set of the database"
   type        = string
   default     = "utf8"
 }
