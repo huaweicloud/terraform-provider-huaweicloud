@@ -252,6 +252,10 @@ provider "huaweicloud" {
 }
 ```
 
+* `default_tags` - (Optional) The default tags of resources managed by this provider.
+  The `default_tags` only works in resources that support the `tags` argument.
+  The `default_tags` can be overridden if `tags` in the resource has new values for matching keys.
+
 The `assume_role` block supports:
 
 * `agency_name` - (Required) The name of the agency for assume role.

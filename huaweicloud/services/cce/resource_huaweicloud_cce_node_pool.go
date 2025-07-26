@@ -9,6 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -59,7 +60,10 @@ func ResourceNodePool() *schema.Resource {
 		UpdateContext: resourceNodePoolUpdate,
 		DeleteContext: resourceNodePoolDelete,
 
-		CustomizeDiff: config.FlexibleForceNew(nodePoolNonUpdatableParams),
+		CustomizeDiff: customdiff.All(
+			config.FlexibleForceNew(nodePoolNonUpdatableParams),
+			config.MergeDefaultTags(),
+		),
 
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceNodePoolImport,

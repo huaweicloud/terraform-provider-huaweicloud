@@ -49,6 +49,8 @@ func ResourceLogstashCluster() *schema.Resource {
 			Delete: schema.DefaultTimeout(60 * time.Minute),
 		},
 
+		CustomizeDiff: config.MergeDefaultTags(),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,

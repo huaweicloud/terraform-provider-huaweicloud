@@ -49,6 +49,8 @@ func ResourceVirtualPrivateCloudV1() *schema.Resource {
 			Delete: schema.DefaultTimeout(3 * time.Minute),
 		},
 
+		CustomizeDiff: config.MergeDefaultTags(),
+
 		Schema: map[string]*schema.Schema{ // request and response parameters
 			"region": {
 				Type:     schema.TypeString,

@@ -36,6 +36,8 @@ func ResourceLTSStream() *schema.Resource {
 			StateContext: resourceStreamImportState,
 		},
 
+		CustomizeDiff: config.MergeDefaultTags(),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,

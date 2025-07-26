@@ -83,6 +83,7 @@ func ResourceLoadBalancerCopy() *schema.Resource {
 				}
 				return nil
 			}),
+			config.MergeDefaultTags(),
 		),
 
 		Schema: map[string]*schema.Schema{

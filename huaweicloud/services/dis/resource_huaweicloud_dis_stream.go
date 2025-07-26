@@ -39,6 +39,9 @@ func ResourceDisStream() *schema.Resource {
 		Timeouts: &schema.ResourceTimeout{
 			Update: schema.DefaultTimeout(2 * time.Minute),
 		},
+
+		CustomizeDiff: config.MergeDefaultTags(),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,

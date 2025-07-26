@@ -9,6 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -79,7 +80,10 @@ func ResourceNode() *schema.Resource {
 			StateContext: resourceNodeImport,
 		},
 
-		CustomizeDiff: config.FlexibleForceNew(nodeNonUpdatableParams),
+		CustomizeDiff: customdiff.All(
+			config.FlexibleForceNew(nodeNonUpdatableParams),
+			config.MergeDefaultTags(),
+		),
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
