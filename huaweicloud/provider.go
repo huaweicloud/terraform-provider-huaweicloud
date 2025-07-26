@@ -2304,6 +2304,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_file_download":                    hss.ResourceFileDownload(),
 			"huaweicloud_hss_ignore_failed_pcc":                hss.ResourceIgnoreFailedPCC(),
 
+			"huaweicloud_identity_security_tokens":       iam.ResourceIdentitySecurityTokens(),
 			"huaweicloud_identity_access_key":            iam.ResourceIdentityKey(),
 			"huaweicloud_identity_acl":                   iam.ResourceIdentityACL(),
 			"huaweicloud_identity_agency":                iam.ResourceIAMAgencyV3(),
