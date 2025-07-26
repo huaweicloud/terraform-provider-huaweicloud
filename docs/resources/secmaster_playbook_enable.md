@@ -30,7 +30,7 @@ resource "huaweicloud_secmaster_playbook_enable" "test" {
 
 ### More Examples
 
-For more detailed associated usage see [playbook instructions](https://github.com/huaweicloud/terraform-provider-huaweicloud/blob/master/examples/secmaster/playbook/secmaster_playbook_usage_instruction.md)
+For more detailed associated usage see [playbook instructions](/examples/secmaster/playbook/README.md)
 
 ## Argument Reference
 
