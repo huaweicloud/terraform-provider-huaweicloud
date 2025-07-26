@@ -1,0 +1,7 @@
+vpc_name                    = "tf_test_vpc"
+subnet_name                 = "tf_test_subnet"
+security_group_name         = "tf_test_security_group"
+instance_name               = "tf_test_mysql_instance"
+instance_backup_time_window = "08:00-09:00"
+instance_backup_keep_days   = 1
+bandwidth_name              = "tf_test_bandwidth"
