@@ -61,15 +61,87 @@ The following arguments are supported:
 
 * `is_favorite` - (Optional, Bool) Specifies whether the dashboard is favorite.
 
+* `extend_info` - (Optional, List) Specifies the information about the extension.
+  The [extend_info](#extend_info_struct) structure is documented below.
+
+<a name="extend_info_struct"></a>
+The `extend_info` block supports:
+
+* `filter` - (Optional, String) Specifies the metric aggregation method.
+  Values can be as follows:
+  + **average**: Average value.
+  + **min**: Minimum value.
+  + **max**: Maximum value.
+  + **sum**: Sum.
+
+* `period` - (Optional, String) Specifies the metric aggregation period.
+  Values can be as follows:
+  + **1**: Original value.
+  + **60**: One minute.
+  + **300**: Five minutes.
+  + **1200**: Twenty minutes.
+  + **3600**: One hour.
+  + **14400**: Four hours.
+  + **86400**: One day.
+
+* `display_time` - (Optional, Int) Specifies the display time.
+  Values can be as follows:
+  + **0**: Using custom time display.
+  + **5**: Five minutes.
+  + **15**: Fifteen minutes.
+  + **30**: Thirty minutes.
+  + **60**: One hour.
+  + **120**: Two hours.
+  + **180**: Three hours.
+  + **720**: Twelve hours.
+  + **1440**: One day.
+  + **10080**: Seven days.
+  + **43200**: Thirty days.
+
+* `refresh_time` - (Optional, Int) Specifies the refresh time.
+  Values can be as follows:
+  + **0**: No refresh.
+  + **10**: Ten seconds.
+  + **60**: One minute.
+  + **300**: Five minutes.
+  + **1200**: Twenty minutes.
+
+* `from` - (Optional, Int) Specifies the start time.
+
+* `to` - (Optional, Int) Specifies the end time.
+
+* `screen_color` - (Optional, String) Specifies the monitoring screen background color.
+
+* `enable_screen_auto_play` - (Optional, Bool) Specifies whether the monitoring screen switches automatically.
+
+* `time_interval` - (Optional, Int) Specifies the automatic switching time interval of the monitoring screen.
+  Values can be as follows:
+  + **10000**: Ten seconds.
+  + **30000**: Thirty seconds.
+  + **60000**: One minute.
+
+* `enable_legend` - (Optional, Bool) Specifies whether to enable the legend.
+
+* `full_screen_widget_num` - (Optional, Int) Specifies the number of large screen display views.
+  Values can be **1**, **4**, **9**, **16** and **25**.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID.
 
-* `created_at` - The creation time of the dashboard.
+* `created_at` - Indicates the creation time of the dashboard.
 
-* `creator_name` - The creator name of the dashboard.
+* `creator_name` - Indicates the creator name of the dashboard.
+
+* `namespace` - Indicates the namespace.
+
+* `sub_product` - Indicates the sub-product ID.
+
+* `dashboard_template_id` - Indicates the monitoring disk template ID.
+
+* `widgets_num` - Indicates the total number of views under the board.
 
 ## Import
 
