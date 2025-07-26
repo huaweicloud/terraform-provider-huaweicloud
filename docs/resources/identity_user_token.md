@@ -48,4 +48,5 @@ In addition to all arguments above, the following attributes are exported:
 
 * `token` - The token. Validity period is 24 hours.
 
-* `expires_at` - The Time when the token will expire. The value is a UTC time in the YYYY-MM-DDTHH:mm:ss.ssssssZ format.
+
+
