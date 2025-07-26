@@ -721,6 +721,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_codearts_pipeline_run_detail":        codeartspipeline.DataSourceCodeartsPipelineRunDetail(),
 			"huaweicloud_codearts_pipeline_run_records":       codeartspipeline.DataSourceCodeArtsPipelineRunRecords(),
 			"huaweicloud_codearts_pipeline_run_variables":     codeartspipeline.DataSourceCodeArtsPipelineRunVariables(),
+			"huaweicloud_codearts_pipeline_runtime_variables": codeartspipeline.DataSourceCodeArtsPipelineRuntimeVariables(),
 			"huaweicloud_codearts_pipeline_service_endpoints": codeartspipeline.DataSourceCodeArtsPipelineServiceEndpoints(),
 			"huaweicloud_codearts_pipeline_tags":              codeartspipeline.DataSourceCodeArtsPipelineTags(),
 
