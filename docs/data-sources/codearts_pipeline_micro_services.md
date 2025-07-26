@@ -3,12 +3,12 @@ subcategory: "CodeArts Pipeline"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_codearts_pipeline_micro_services"
 description: |-
-  Use this data source to get a list of CodeArts pipeline groups.
+  Use this data source to get a list of CodeArts pipeline micro services.
 ---
 
 # huaweicloud_codearts_pipeline_micro_services
 
-Use this data source to get a list of CodeArts pipeline groups.
+Use this data source to get a list of CodeArts pipeline micro services.
 
 ## Example Usage
 
