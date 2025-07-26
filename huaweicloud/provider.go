@@ -723,6 +723,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_codearts_pipeline_modify_histories":  codeartspipeline.DataSourceCodeArtsPipelineModifyHistories(),
 			"huaweicloud_codearts_pipeline_queueing_records":  codeartspipeline.DataSourceCodeArtsPipelineQueueingRecords(),
 			"huaweicloud_codearts_pipeline_run_variables":     codeartspipeline.DataSourceCodeArtsPipelineRunVariables(),
+			"huaweicloud_codearts_pipeline_system_variables":  codeartspipeline.DataSourceCodeArtsPipelineSystemVariables(),
 			"huaweicloud_codearts_pipeline_runtime_variables": codeartspipeline.DataSourceCodeArtsPipelineRuntimeVariables(),
 			"huaweicloud_codearts_pipeline_service_endpoints": codeartspipeline.DataSourceCodeArtsPipelineServiceEndpoints(),
 			"huaweicloud_codearts_pipeline_tags":              codeartspipeline.DataSourceCodeArtsPipelineTags(),
