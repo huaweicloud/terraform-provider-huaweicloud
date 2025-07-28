@@ -50,6 +50,7 @@ func TestAccPipeline_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "description", "test"),
 					resource.TestCheckResourceAttr(rName, "is_publish", "false"),
 					resource.TestCheckResourceAttr(rName, "banned", "true"),
+					resource.TestCheckResourceAttr(rName, "resource_level_permission_switch", "true"),
 					resource.TestCheckResourceAttrSet(rName, "definition"),
 					resource.TestCheckResourceAttrSet(rName, "create_time"),
 					resource.TestCheckResourceAttrSet(rName, "update_time"),
@@ -69,6 +70,7 @@ func TestAccPipeline_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "description", "test-update"),
 					resource.TestCheckResourceAttr(rName, "is_publish", "false"),
 					resource.TestCheckResourceAttr(rName, "banned", "false"),
+					resource.TestCheckResourceAttr(rName, "resource_level_permission_switch", "false"),
 					resource.TestCheckResourceAttrSet(rName, "definition"),
 					resource.TestCheckResourceAttrSet(rName, "create_time"),
 					resource.TestCheckResourceAttrSet(rName, "update_time"),
@@ -138,14 +140,15 @@ resource "huaweicloud_codearts_pipeline_group" "test" {
 }
 
 resource "huaweicloud_codearts_pipeline" "test" {
-  project_id       = huaweicloud_codearts_project.test.id
-  name             = "%[4]s"
-  description      = "test"
-  is_publish       = false
-  banned           = true
-  parameter_groups = [huaweicloud_codearts_pipeline_parameter_group.test.id]
-  group_id         = huaweicloud_codearts_pipeline_group.test.id
-  tags             = [huaweicloud_codearts_pipeline_tag.test.id]
+  project_id                       = huaweicloud_codearts_project.test.id
+  name                             = "%[4]s"
+  description                      = "test"
+  is_publish                       = false
+  banned                           = true
+  parameter_groups                 = [huaweicloud_codearts_pipeline_parameter_group.test.id]
+  group_id                         = huaweicloud_codearts_pipeline_group.test.id
+  tags                             = [huaweicloud_codearts_pipeline_tag.test.id]
+  resource_level_permission_switch = true
 
   definition       = jsonencode({
     "stages": [
@@ -320,12 +323,14 @@ func testPipeline_update(name string) string {
 %[2]s
 
 resource "huaweicloud_codearts_pipeline" "test" {
-  project_id  = huaweicloud_codearts_project.test.id
-  name        = "%[3]s-update"
-  description = "test-update"
-  is_publish  = false
-  banned      = false
-  definition  = jsonencode({
+  project_id                       = huaweicloud_codearts_project.test.id
+  name                             = "%[3]s-update"
+  description                      = "test-update"
+  is_publish                       = false
+  banned                           = false
+  resource_level_permission_switch = false
+
+  definition = jsonencode({
     "stages": [
       {
         "name": "Stage_1",
