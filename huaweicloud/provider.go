@@ -2804,6 +2804,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_workspace_desktop_pool_notification": workspace.ResourceDesktopPoolNotification(),
 			"huaweicloud_workspace_policy_group":              workspace.ResourcePolicyGroup(),
 			"huaweicloud_workspace_service":                   workspace.ResourceService(),
+			"huaweicloud_workspace_app_service_action":        workspace.ResourceAppServiceAction(),
 			"huaweicloud_workspace_terminal_binding":          workspace.ResourceTerminalBinding(),
 			"huaweicloud_workspace_user":                      workspace.ResourceUser(),
 			"huaweicloud_workspace_eip_associate":             workspace.ResourceEipAssociate(),
