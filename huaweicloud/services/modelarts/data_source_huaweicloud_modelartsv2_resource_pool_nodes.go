@@ -105,7 +105,7 @@ func dataSourceV2ResourcePoolNodeSpecSchema() *schema.Resource {
 			"extend_params": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `The extend parameters of the node.`,
+				Description: `The extend parameters of the node, in JSON format.`,
 			},
 			"host_network": {
 				Type:        schema.TypeList,

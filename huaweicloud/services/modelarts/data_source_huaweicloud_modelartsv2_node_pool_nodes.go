@@ -88,12 +88,12 @@ func dataSourceV2NodePoolNodeMetadataSchema() *schema.Resource {
 			"labels": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `The labels of the node.`,
+				Description: `The labels of the node, in JSON format.`,
 			},
 			"annotations": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `The annotation configuration of the node.`,
+				Description: `The annotation configuration of the node, in JSON format.`,
 			},
 		},
 	}
@@ -110,7 +110,7 @@ func dataSourceV2NodePoolNodeSpecSchema() *schema.Resource {
 			"extend_params": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `The extend parameters of the node.`,
+				Description: `The extend parameters of the node, in JSON format.`,
 			},
 			"host_network": {
 				Type:        schema.TypeList,
