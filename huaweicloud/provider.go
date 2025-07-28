@@ -2039,6 +2039,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_dcs_online_data_migration_task":         dcs.ResourceDcsOnlineDataMigrationTask(),
 			"huaweicloud_dcs_migration_task_stop":                dcs.ResourceDcsMigrationTaskStop(),
 			"huaweicloud_dcs_online_data_migration_task_restart": dcs.ResourceDcsOnlineDataMigrationTaskRestart(),
+			"huaweicloud_dcs_migration_task_exchange_ip":         dcs.ResourceDcsMigrationTaskExchangeIp(),
+			"huaweicloud_dcs_migration_task_rollback_ip":         dcs.ResourceDcsMigrationTaskRollbackIp(),
 
 			"huaweicloud_dds_database_role":                 dds.ResourceDatabaseRole(),
 			"huaweicloud_dds_database_user":                 dds.ResourceDatabaseUser(),
