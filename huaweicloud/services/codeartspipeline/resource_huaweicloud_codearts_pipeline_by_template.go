@@ -211,6 +211,21 @@ func ResourceCodeArtsPipelineByTemplate() *schema.Resource {
 				Computed:    true,
 				Description: `Indicates whether the current user has collected it.`,
 			},
+			"webhook_enable": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Indicates whether the webhook is enabled.`,
+			},
+			"webhook_url": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the webhook source URL.`,
+			},
+			"webhook_iam_authentication": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Indicates whether to enable IAM authentication when webhook triggered.`,
+			},
 		},
 	}
 }
