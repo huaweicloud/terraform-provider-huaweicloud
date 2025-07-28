@@ -333,6 +333,12 @@ In addition to all arguments above, the following attributes are exported:
 
 * `is_allow_edit` - Indicates whether the user is allowed to edit the permission.
 
+* `webhook_enable` - Indicates whether the webhook is enabled.
+
+* `webhook_url` - Indicates the webhook source URL.
+
+* `webhook_iam_authentication` - Indicates whether to enable IAM authentication when webhook triggered.
+
 <a name="attrblock--schedules"></a>
 The `schedules` block supports:
 

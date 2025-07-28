@@ -236,6 +236,12 @@ In addition to all arguments above, the following attributes are exported:
 
 * `updater_id` - Indicates the last updater ID.
 
+* `webhook_enable` - Indicates whether the webhook is enabled.
+
+* `webhook_url` - Indicates the webhook source URL.
+
+* `webhook_iam_authentication` - Indicates whether to enable IAM authentication when webhook triggered.
+
 <a name="attrblock--schedules"></a>
 The `schedules` block supports:
 

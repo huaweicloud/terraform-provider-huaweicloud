@@ -30,6 +30,7 @@ const (
 	getPermissionSwitchHttpUrl      = "v5/{project_id}/api/pipeline-permissions/{pipeline_id}/permission-switch"
 	getAssociatedParamGroupsHttpUrl = "v5/{project_id}/api/pipeline/variable/group/pipeline?pipelineId={pipeline_id}"
 	getRolePermissionsHttpUrl       = "v5/{project_id}/api/pipeline-permissions/{pipeline_id}/role-permission"
+	getWebhookHttpUrl               = "v5/{project_id}/api/pipelines/{pipeline_id}/webhook"
 )
 
 var pipelineNonUpdatableParams = []string{
@@ -218,6 +219,21 @@ func ResourceCodeArtsPipeline() *schema.Resource {
 				Type:        schema.TypeBool,
 				Computed:    true,
 				Description: `Indicates whether the current user has collected it.`,
+			},
+			"webhook_enable": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Indicates whether the webhook is enabled.`,
+			},
+			"webhook_url": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the webhook source URL.`,
+			},
+			"webhook_iam_authentication": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Indicates whether to enable IAM authentication when webhook triggered.`,
 			},
 		},
 	}
@@ -868,6 +884,16 @@ func resourcePipelineRead(_ context.Context, d *schema.ResourceData, meta interf
 	} else {
 		mErr = multierror.Append(mErr,
 			d.Set("role_permissions", flattenPipelineRolePermissions(rolePermissions)),
+		)
+	}
+
+	if webhook, err := getPipelineField(client, d, getWebhookHttpUrl); err != nil {
+		log.Printf("error retrieving pipeline webhook: %s", err)
+	} else {
+		mErr = multierror.Append(mErr,
+			d.Set("webhook_enable", utils.PathSearch("status", webhook, nil)),
+			d.Set("webhook_url", utils.PathSearch("webhookUrl", webhook, nil)),
+			d.Set("webhook_iam_authentication", utils.PathSearch("useIam", webhook, nil)),
 		)
 	}
 
