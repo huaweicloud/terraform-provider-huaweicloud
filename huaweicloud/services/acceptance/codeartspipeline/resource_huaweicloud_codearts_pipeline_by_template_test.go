@@ -248,12 +248,13 @@ func testPipelineByTemplate_createWithUpdate(name string) string {
 %[3]s
 
 resource "huaweicloud_codearts_pipeline_by_template" "test" {
-  project_id  = huaweicloud_codearts_project.test.id
-  template_id = huaweicloud_codearts_pipeline_template.test.id
-  name        = "%[4]s"
-  is_publish  = false
-  banned      = true
-  description = "test"
+  project_id                       = huaweicloud_codearts_project.test.id
+  template_id                      = huaweicloud_codearts_pipeline_template.test.id
+  name                             = "%[4]s"
+  is_publish                       = false
+  banned                           = true
+  description                      = "test"
+  resource_level_permission_switch = true
 
   sources {
     type = "code"
