@@ -66,82 +66,87 @@ func DataSourceCodeArtsPipelineRunRecords() *schema.Resource {
 				Type:        schema.TypeList,
 				Computed:    true,
 				Description: `Indicates the pipeline record list.`,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"pipeline_run_id": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: `Indicates the pipeline run ID.`,
-						},
-						"executor_id": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: `Indicates the executor ID.`,
-						},
-						"executor_name": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: `Indicates the executor name.`,
-						},
-						"stage_status_list": {
-							Type:        schema.TypeList,
-							Computed:    true,
-							Description: `Indicates the stage information list.`,
-							Elem:        schemaPipelineRunRecordsStageStatusList(),
-						},
-						"status": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: `Indicates the status of pipeline run.`,
-						},
-						"trigger_type": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: `Indicates the trigger type.`,
-						},
-						"run_number": {
-							Type:        schema.TypeInt,
-							Computed:    true,
-							Description: `Indicates the pipeline running sequence number.`,
-						},
-						"build_params": {
-							Type:        schema.TypeList,
-							Computed:    true,
-							Description: `Indicates the build parameters.`,
-							Elem:        schemaPipelineRunDetailSourcesParamBuildParams(),
-						},
-						"artifact_params": {
-							Type:        schema.TypeList,
-							Computed:    true,
-							Description: `Indicates the artifacts after running a pipeline.`,
-							Elem:        schemaPipelineRunRecordsArtifactParams(),
-						},
-						"start_time": {
-							Type:        schema.TypeInt,
-							Computed:    true,
-							Description: `Indicates the start time.`,
-						},
-						"end_time": {
-							Type:        schema.TypeInt,
-							Computed:    true,
-							Description: `Indicates the end time.`,
-						},
-						"detail_url": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: `Indicates the address of the details page.`,
-						},
-						"modify_url": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: `Indicates the address of the editing page.`,
-						},
-					},
-				},
+				Elem:        schemaPipelineRunRecords(),
 			},
 		},
 	}
 }
+
+func schemaPipelineRunRecords() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"pipeline_run_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the pipeline run ID.`,
+			},
+			"executor_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the executor ID.`,
+			},
+			"executor_name": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the executor name.`,
+			},
+			"stage_status_list": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `Indicates the stage information list.`,
+				Elem:        schemaPipelineRunRecordsStageStatusList(),
+			},
+			"status": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the status of pipeline run.`,
+			},
+			"trigger_type": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the trigger type.`,
+			},
+			"run_number": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `Indicates the pipeline running sequence number.`,
+			},
+			"build_params": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `Indicates the build parameters.`,
+				Elem:        schemaPipelineRunDetailSourcesParamBuildParams(),
+			},
+			"artifact_params": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `Indicates the artifacts after running a pipeline.`,
+				Elem:        schemaPipelineRunRecordsArtifactParams(),
+			},
+			"start_time": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `Indicates the start time.`,
+			},
+			"end_time": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `Indicates the end time.`,
+			},
+			"detail_url": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the address of the details page.`,
+			},
+			"modify_url": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the address of the editing page.`,
+			},
+		},
+	}
+}
+
 func schemaPipelineRunRecordsStageStatusList() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
@@ -244,21 +249,7 @@ func dataSourceCodeArtsPipelineRunRecordsRead(_ context.Context, d *schema.Resou
 			break
 		}
 		for _, record := range records {
-			rst = append(rst, map[string]interface{}{
-				"pipeline_run_id":   utils.PathSearch("pipeline_run_id", record, nil),
-				"executor_id":       utils.PathSearch("executor_id", record, nil),
-				"executor_name":     utils.PathSearch("executor_name", record, nil),
-				"stage_status_list": flattenPipelineRunRecordsStageStatusList(record),
-				"status":            utils.PathSearch("status", record, nil),
-				"trigger_type":      utils.PathSearch("trigger_type", record, nil),
-				"run_number":        utils.PathSearch("run_number", record, nil),
-				"build_params":      flattenPipelineRunBuildParams(record),
-				"artifact_params":   flattenPipelineRunRecordsArtifactParams(record),
-				"start_time":        utils.PathSearch("start_time", record, nil),
-				"end_time":          utils.PathSearch("end_time", record, nil),
-				"detail_url":        utils.PathSearch("detail_url", record, nil),
-				"modify_url":        utils.PathSearch("modify_url", record, nil),
-			})
+			rst = append(rst, flattenPipelineRunRecords(record))
 		}
 
 		offset += len(records)
@@ -290,6 +281,24 @@ func buildCodeArtsPipelineRunRecordsQueryParams(d *schema.ResourceData, offset i
 	}
 
 	return bodyParams
+}
+
+func flattenPipelineRunRecords(resp interface{}) map[string]interface{} {
+	return map[string]interface{}{
+		"pipeline_run_id":   utils.PathSearch("pipeline_run_id", resp, nil),
+		"executor_id":       utils.PathSearch("executor_id", resp, nil),
+		"executor_name":     utils.PathSearch("executor_name", resp, nil),
+		"stage_status_list": flattenPipelineRunRecordsStageStatusList(resp),
+		"status":            utils.PathSearch("status", resp, nil),
+		"trigger_type":      utils.PathSearch("trigger_type", resp, nil),
+		"run_number":        utils.PathSearch("run_number", resp, nil),
+		"build_params":      flattenPipelineRunBuildParams(resp),
+		"artifact_params":   flattenPipelineRunRecordsArtifactParams(resp),
+		"start_time":        utils.PathSearch("start_time", resp, nil),
+		"end_time":          utils.PathSearch("end_time", resp, nil),
+		"detail_url":        utils.PathSearch("detail_url", resp, nil),
+		"modify_url":        utils.PathSearch("modify_url", resp, nil),
+	}
 }
 
 func flattenPipelineRunRecordsStageStatusList(resp interface{}) []interface{} {
