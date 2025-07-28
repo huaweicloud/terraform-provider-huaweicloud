@@ -4,15 +4,14 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"log"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/chnsz/golangsdk/openstack/cloudeyeservice/v1/alarmrule"
-	alarmrulev2 "github.com/chnsz/golangsdk/openstack/cloudeyeservice/v2/alarmrule"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -54,6 +53,7 @@ var cesAlarmActions = schema.Schema{
 // @API CES GET /V1.0/{project_id}/alarms/{id}
 // @API CES PUT /V1.0/{project_id}/alarms/{id}
 // @API EPS POST /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrate
+// @API CES PUT /v2/{project_id}/alarms/{alarm_id}/notifications
 
 func ResourceAlarmRule() *schema.Resource {
 	return &schema.Resource{
@@ -243,17 +243,18 @@ func ResourceAlarmRule() *schema.Resource {
 			"notification_begin_time": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Computed: true,
 			},
 
 			"notification_end_time": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Computed: true,
 			},
-
+			"effective_timezone": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"alarm_enabled": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -377,62 +378,58 @@ func resourceConditionHash(v interface{}) int {
 	return hashcode.String(buf.String())
 }
 
-func buildAlarmAction(d *schema.ResourceData, name string) []alarmrule.ActionOpts {
-	if v, ok := d.GetOk(name); ok {
-		actionOptsRaw := v.([]interface{})
-		actionOpts := make([]alarmrule.ActionOpts, len(actionOptsRaw))
-		for i, actionOptRaw := range actionOptsRaw {
-			actionOpt := actionOptRaw.(map[string]interface{})
+func buildCreateAndUpdateAlarmActionBodyParams(rawParams interface{}, notificationListKey string) []map[string]interface{} {
+	if rawArray, ok := rawParams.([]interface{}); ok {
+		if len(rawArray) == 0 {
+			return nil
+		}
 
-			notificationListRaw := actionOpt["notification_list"].([]interface{})
-			notificationList := make([]string, len(notificationListRaw))
-			for j, notification := range notificationListRaw {
-				notificationList[j] = notification.(string)
-			}
-
-			actionOpts[i] = alarmrule.ActionOpts{
-				Type:             actionOpt["type"].(string),
-				NotificationList: notificationList,
+		params := make([]map[string]interface{}, len(rawArray))
+		for i, v := range rawArray {
+			raw := v.(map[string]interface{})
+			params[i] = map[string]interface{}{
+				"type":              raw["type"],
+				notificationListKey: raw["notification_list"],
 			}
 		}
-		return actionOpts
+		return params
 	}
+
 	return nil
 }
 
-func buildDimensionsOpts(dimensionsRaw []interface{}) [][]alarmrulev2.DimensionOpts {
+func buildDimensionsOpts(dimensionsRaw []interface{}) [][]map[string]interface{} {
 	if len(dimensionsRaw) < 1 {
-		return [][]alarmrulev2.DimensionOpts{}
+		return make([][]map[string]interface{}, 0)
 	}
-	resources := make([][]alarmrulev2.DimensionOpts, len(dimensionsRaw))
+	resources := make([][]map[string]interface{}, len(dimensionsRaw))
 	for i, dimensionRaw := range dimensionsRaw {
 		dimension := dimensionRaw.(map[string]interface{})
-		resources[i] = []alarmrulev2.DimensionOpts{
-			{
-				Name:  dimension["name"].(string),
-				Value: dimension["value"].(string),
-			},
-		}
+		content := utils.RemoveNil(map[string]interface{}{
+			"name":  dimension["name"],
+			"value": utils.ValueIgnoreEmpty(dimension["value"]),
+		})
+		resources[i] = []map[string]interface{}{content}
 	}
 
 	return resources
 }
 
-func buildDimensionsOptsV2(resourcesRaw []interface{}) [][]alarmrulev2.DimensionOpts {
+func buildDimensionsOptsV2(resourcesRaw []interface{}) [][]map[string]interface{} {
 	if len(resourcesRaw) < 1 {
-		return [][]alarmrulev2.DimensionOpts{}
+		return make([][]map[string]interface{}, 0)
 	}
-	resources := make([][]alarmrulev2.DimensionOpts, len(resourcesRaw))
+	resources := make([][]map[string]interface{}, len(resourcesRaw))
 	for i, resourceRaw := range resourcesRaw {
 		resource := resourceRaw.(map[string]interface{})
 		dimensionRaw := resource["dimensions"].([]interface{})
-		res := make([]alarmrulev2.DimensionOpts, len(dimensionRaw))
+		res := make([]map[string]interface{}, len(dimensionRaw))
 		for j, dimension := range dimensionRaw {
 			dim := dimension.(map[string]interface{})
-			res[j] = alarmrulev2.DimensionOpts{
-				Name:  dim["name"].(string),
-				Value: dim["value"].(string),
-			}
+			res[j] = utils.RemoveNil(map[string]interface{}{
+				"name":  dim["name"],
+				"value": utils.ValueIgnoreEmpty(dim["value"]),
+			})
 		}
 		resources[i] = res
 	}
@@ -440,49 +437,26 @@ func buildDimensionsOptsV2(resourcesRaw []interface{}) [][]alarmrulev2.Dimension
 	return resources
 }
 
-func buildResourcesOpts(d *schema.ResourceData) ([][]alarmrulev2.DimensionOpts, string, string) {
+func buildResourcesOpts(d *schema.ResourceData) [][]map[string]interface{} {
 	metricRaw := d.Get("metric").([]interface{})
 	if len(metricRaw) != 1 {
-		return nil, "", ""
+		return nil
 	}
 
 	metric := metricRaw[0].(map[string]interface{})
 	dimensionsRaw := metric["dimensions"].(*schema.Set).List()
 
-	var resources [][]alarmrulev2.DimensionOpts
+	var resources [][]map[string]interface{}
 	if v, ok := d.GetOk("resources"); ok {
 		resources = buildDimensionsOptsV2(v.(*schema.Set).List())
 	} else {
 		resources = buildDimensionsOpts(dimensionsRaw)
 	}
 
-	return resources, metric["namespace"].(string), metric["metric_name"].(string)
+	return resources
 }
 
-func buildNotificationsOpts(d *schema.ResourceData, name string) []alarmrulev2.NotificationOpts {
-	if v, ok := d.GetOk(name); ok {
-		notificationOptsRaw := v.([]interface{})
-		notificationOpts := make([]alarmrulev2.NotificationOpts, len(notificationOptsRaw))
-		for i, notificationOptRaw := range notificationOptsRaw {
-			notificationOpt := notificationOptRaw.(map[string]interface{})
-
-			notificationListRaw := notificationOpt["notification_list"].([]interface{})
-			notificationList := make([]string, len(notificationListRaw))
-			for j, notification := range notificationListRaw {
-				notificationList[j] = notification.(string)
-			}
-
-			notificationOpts[i] = alarmrulev2.NotificationOpts{
-				Type:             notificationOpt["type"].(string),
-				NotificationList: notificationList,
-			}
-		}
-		return notificationOpts
-	}
-	return nil
-}
-
-func buildPoliciesOpts(d *schema.ResourceData, globalMetricName string) []alarmrulev2.PolicyOpts {
+func buildPoliciesOpts(d *schema.ResourceData, globalMetricName string) []map[string]interface{} {
 	rawCondition := d.Get("condition").(*schema.Set).List()
 
 	if len(rawCondition) < 1 {
@@ -493,35 +467,65 @@ func buildPoliciesOpts(d *schema.ResourceData, globalMetricName string) []alarmr
 	if v, ok := d.GetOk("alarm_level"); ok {
 		globalLevel = v.(int)
 	}
-	policyOpts := make([]alarmrulev2.PolicyOpts, len(rawCondition))
+	policyOpts := make([]map[string]interface{}, len(rawCondition))
 
 	for i, v := range rawCondition {
 		condition := v.(map[string]interface{})
 
-		policyOpts[i] = alarmrulev2.PolicyOpts{
-			Period:             condition["period"].(int),
-			Filter:             condition["filter"].(string),
-			ComparisonOperator: condition["comparison_operator"].(string),
-			Value:              condition["value"].(float64),
-			Unit:               condition["unit"].(string),
-			Count:              condition["count"].(int),
-			SuppressDuration:   condition["suppress_duration"].(int),
+		policyOpts[i] = map[string]interface{}{
+			"period":              condition["period"],
+			"filter":              condition["filter"],
+			"comparison_operator": condition["comparison_operator"],
+			"value":               utils.ValueIgnoreEmpty(condition["value"]),
+			"unit":                utils.ValueIgnoreEmpty(condition["unit"]),
+			"count":               condition["count"],
+			"suppress_duration":   utils.ValueIgnoreEmpty(condition["suppress_duration"]),
 		}
 
 		if condition["metric_name"].(string) != "" {
-			policyOpts[i].MetricName = condition["metric_name"].(string)
+			policyOpts[i]["metric_name"] = condition["metric_name"].(string)
 		} else {
-			policyOpts[i].MetricName = globalMetricName
+			policyOpts[i]["metric_name"] = globalMetricName
 		}
 
 		if condition["alarm_level"].(int) != 0 {
-			policyOpts[i].Level = condition["alarm_level"].(int)
+			policyOpts[i]["level"] = condition["alarm_level"].(int)
 		} else {
-			policyOpts[i].Level = globalLevel
+			policyOpts[i]["level"] = globalLevel
 		}
 	}
 
 	return policyOpts
+}
+
+func buildCreateAlarmRuleV2BodyParams(d *schema.ResourceData, enterpriseProjectID string) map[string]interface{} {
+	resources := buildResourcesOpts(d)
+	namespace := d.Get("metric.0.namespace")
+	var metricName string
+	if v, ok := d.GetOk("metric.0.metric_name"); ok {
+		metricName = v.(string)
+	}
+
+	bodyParams := map[string]interface{}{
+		"name":                    d.Get("alarm_name"),
+		"description":             utils.ValueIgnoreEmpty(d.Get("alarm_description")),
+		"namespace":               namespace,
+		"resource_group_id":       utils.ValueIgnoreEmpty(d.Get("resource_group_id")),
+		"resources":               resources,
+		"alarm_template_id":       utils.ValueIgnoreEmpty(d.Get("alarm_template_id")),
+		"policies":                buildPoliciesOpts(d, metricName),
+		"type":                    d.Get("alarm_type"),
+		"alarm_notifications":     buildCreateAndUpdateAlarmActionBodyParams(d.Get("alarm_actions"), "notification_list"),
+		"ok_notifications":        buildCreateAndUpdateAlarmActionBodyParams(d.Get("ok_actions"), "notification_list"),
+		"notification_begin_time": utils.ValueIgnoreEmpty(d.Get("notification_begin_time")),
+		"notification_end_time":   utils.ValueIgnoreEmpty(d.Get("notification_end_time")),
+		"effective_timezone":      utils.ValueIgnoreEmpty(d.Get("effective_timezone")),
+		"notification_enabled":    d.Get("alarm_action_enabled"),
+		"enabled":                 d.Get("alarm_enabled"),
+		"enterprise_project_id":   utils.ValueIgnoreEmpty(enterpriseProjectID),
+	}
+
+	return bodyParams
 }
 
 func resourceAlarmRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -531,37 +535,53 @@ func resourceAlarmRuleCreate(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error creating Cloud Eye Service v2 client: %s", err)
 	}
 
-	resources, namespace, metricName := buildResourcesOpts(d)
-
-	createOpts := alarmrulev2.CreateOpts{
-		Name:                  d.Get("alarm_name").(string),
-		Description:           d.Get("alarm_description").(string),
-		Namespace:             namespace,
-		ResourceGroupID:       d.Get("resource_group_id").(string),
-		Resources:             resources,
-		AlarmTemplateID:       d.Get("alarm_template_id").(string),
-		Policies:              buildPoliciesOpts(d, metricName),
-		Type:                  d.Get("alarm_type").(string),
-		AlarmNotifications:    buildNotificationsOpts(d, "alarm_actions"),
-		OkNotifications:       buildNotificationsOpts(d, "ok_actions"),
-		NotificationBeginTime: d.Get("notification_begin_time").(string),
-		NotificationEndTime:   d.Get("notification_end_time").(string),
-		NotificationEnabled:   d.Get("alarm_action_enabled").(bool),
-		Enabled:               d.Get("alarm_enabled").(bool),
-		EnterpriseProjectID:   conf.GetEnterpriseProjectID(d),
+	createHttpUrl := "v2/{project_id}/alarms"
+	createPath := clientV2.Endpoint + createHttpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", clientV2.ProjectID)
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildCreateAlarmRuleV2BodyParams(d, conf.GetEnterpriseProjectID(d))),
 	}
 
-	log.Printf("[DEBUG] Create %s Options: %#v", nameCESAR, createOpts)
-
-	r, err := alarmrulev2.Create(clientV2, createOpts).Extract()
+	createResp, err := clientV2.Request("POST", createPath, &createOpt)
 	if err != nil {
 		return diag.Errorf("error creating %s: %s", nameCESAR, err)
 	}
-	log.Printf("[DEBUG] Create %s: %#v", nameCESAR, *r)
 
-	d.SetId(r.AlarmID)
+	createRespBody, err := utils.FlattenResponse(createResp)
+	if err != nil {
+		return diag.Errorf("error flattening creating %s response: %s", nameCESAR, err)
+	}
+
+	id := utils.PathSearch("alarm_id", createRespBody, "").(string)
+	if id == "" {
+		return diag.Errorf("error creating CES %s: can not found %s id in return", nameCESAR, nameCESAR)
+	}
+
+	d.SetId(id)
 
 	return resourceAlarmRuleRead(ctx, d, meta)
+}
+
+func flattenAlarmRuleAlarmAction(rawParams interface{}, notificationListKey string) []interface{} {
+	if paramsList, ok := rawParams.([]interface{}); ok {
+		if len(paramsList) == 0 {
+			return nil
+		}
+		rst := make([]interface{}, 0, len(paramsList))
+		for _, params := range paramsList {
+			raw := params.(map[string]interface{})
+			m := map[string]interface{}{
+				"type":              utils.PathSearch("type", raw, nil),
+				"notification_list": utils.PathSearch(notificationListKey, raw, nil),
+			}
+			rst = append(rst, m)
+		}
+
+		return rst
+	}
+
+	return nil
 }
 
 func resourceAlarmRuleRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -575,82 +595,49 @@ func resourceAlarmRuleRead(_ context.Context, d *schema.ResourceData, meta inter
 		return diag.Errorf("error creating Cloud Eye Service v2 client: %s", err)
 	}
 
-	rV1, err := alarmrule.Get(clientV1, d.Id()).Extract()
+	rV1, err := getAlarmV1(clientV1, d.Id())
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving CES alarm rule")
-	}
-	log.Printf("[DEBUG] Retrieved with v1 API %s %s: %#v", nameCESAR, d.Id(), rV1)
-
-	m, err := utils.ConvertStructToMap(rV1, map[string]string{"notificationList": "notification_list"})
-	if err != nil {
-		return diag.FromErr(err)
 	}
 
 	mErr := multierror.Append(nil,
-		d.Set("alarm_name", m["alarm_name"]),
-		d.Set("alarm_description", m["alarm_description"]),
-		d.Set("alarm_type", m["alarm_type"]),
-		d.Set("alarm_actions", m["alarm_actions"]),
-		d.Set("ok_actions", m["ok_actions"]),
-		d.Set("alarm_enabled", m["alarm_enabled"]),
-		d.Set("alarm_action_enabled", m["alarm_action_enabled"]),
-		d.Set("alarm_state", m["alarm_state"]),
-		d.Set("update_time", m["update_time"]),
-		d.Set("enterprise_project_id", m["enterprise_project_id"]),
+		d.Set("alarm_name", utils.PathSearch("alarm_name", rV1, nil)),
+		d.Set("alarm_description", utils.PathSearch("alarm_description", rV1, nil)),
+		d.Set("alarm_type", utils.PathSearch("alarm_type", rV1, nil)),
+		d.Set("alarm_actions", flattenAlarmRuleAlarmAction(
+			utils.PathSearch("alarm_actions", rV1, nil), "notificationList")),
+		d.Set("ok_actions", flattenAlarmRuleAlarmAction(
+			utils.PathSearch("ok_actions", rV1, nil), "notificationList")),
+		d.Set("alarm_enabled", utils.PathSearch("alarm_enabled", rV1, nil)),
+		d.Set("alarm_action_enabled", utils.PathSearch("alarm_action_enabled", rV1, nil)),
+		d.Set("alarm_state", utils.PathSearch("alarm_state", rV1, nil)),
+		d.Set("update_time", utils.PathSearch("update_time", rV1, nil)),
+		d.Set("enterprise_project_id", utils.PathSearch("enterprise_project_id", rV1, nil)),
 	)
 
-	rV2, err := alarmrulev2.Get(clientV2, d.Id()).Extract()
+	rV2, err := getAlarmV2(clientV2, d.Id())
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving CES alarm rule")
 	}
-	log.Printf("[DEBUG] Retrieved with v2 API %s %s: %#v", nameCESAR, d.Id(), rV2)
 
-	conditions, metricName, alarmLevel := flattenCondition(rV2.Policies)
+	conditions, metricName, alarmLevel := flattenCondition(utils.PathSearch("policies", rV2, nil))
+	resourceGroupID := utils.PathSearch("resources.0.resource_group_id", rV2, "")
 
 	// get resources
-	resources, err := alarmrulev2.GetResources(clientV2, d.Id()).Extract()
+	resourcesResp, err := getAlarmResourcesV2(clientV2, d.Id())
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving CES alarm resources")
 	}
-
-	// set resources and dimensions
-	dimensions := make([]map[string]interface{}, 0, len(*resources))
-	resourcesToSet := make([]map[string]interface{}, len(*resources))
-	if len(*resources) > 0 {
-		for _, v := range *resources {
-			if len(v) > 0 {
-				dimensions = append(dimensions, map[string]interface{}{
-					"name":  v[0].Name,
-					"value": v[0].Value,
-				})
-			}
-		}
-
-		for i, r := range *resources {
-			resource := make([]map[string]interface{}, len(r))
-			for j, v := range r {
-				resource[j] = map[string]interface{}{
-					"name":  v.Name,
-					"value": v.Value,
-				}
-			}
-			resourcesToSet[i] = map[string]interface{}{
-				"dimensions": resource,
-			}
-		}
-	}
-
-	var resourceGroupID string
-	if len(rV2.Resources) > 0 {
-		resourceGroupID = rV2.Resources[0].ResourceGroupID
-	}
+	dimensions, resourcesToSet := flattenResources(utils.PathSearch("resources", resourcesResp, nil))
 
 	mErr = multierror.Append(mErr,
-		d.Set("notification_begin_time", rV2.NotificationBeginTime),
-		d.Set("notification_end_time", rV2.NotificationEndTime),
-		d.Set("alarm_template_id", rV2.AlarmTemplateID),
+		d.Set("notification_begin_time", utils.PathSearch("notification_begin_time", rV2, nil)),
+		d.Set("notification_end_time", utils.PathSearch("notification_end_time", rV2, nil)),
+		d.Set("effective_timezone", utils.PathSearch("effective_timezone", rV2, nil)),
+		d.Set("alarm_template_id", utils.PathSearch("alarm_template_id", rV2, nil)),
 		d.Set("condition", conditions),
-		d.Set("metric", flattenMetric(dimensions, metricName, rV2.Namespace)),
+		d.Set("metric",
+			flattenMetric(dimensions, metricName, utils.PathSearch("namespace", rV2, "").(string))),
 		d.Set("alarm_level", alarmLevel),
 		d.Set("resource_group_id", resourceGroupID),
 		d.Set("resources", resourcesToSet),
@@ -661,6 +648,85 @@ func resourceAlarmRuleRead(_ context.Context, d *schema.ResourceData, meta inter
 	}
 
 	return nil
+}
+
+func getAlarmV1(client *golangsdk.ServiceClient, alarmId string) (interface{}, error) {
+	getHttpUrl := "V1.0/{project_id}/alarms/{id}"
+	getPath := client.Endpoint + getHttpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{id}", alarmId)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return nil, fmt.Errorf("error flattening %s: %s", nameCESAR, err)
+	}
+
+	alarm := utils.PathSearch("metric_alarms|[0]", getRespBody, nil)
+
+	return alarm, nil
+}
+
+func getAlarmV2(client *golangsdk.ServiceClient, alarmId string) (interface{}, error) {
+	getHttpUrl := "v2/{project_id}/alarms?alarm_id={id}"
+	getPath := client.Endpoint + getHttpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{id}", alarmId)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return nil, fmt.Errorf("error flattening %s: %s", nameCESAR, err)
+	}
+
+	alarm := utils.PathSearch("alarms|[0]", getRespBody, nil)
+	if alarm == nil {
+		return nil, golangsdk.ErrDefault404{}
+	}
+
+	return alarm, nil
+}
+
+func getAlarmResourcesV2(client *golangsdk.ServiceClient, alarmId string) (interface{}, error) {
+	getHttpUrl := "v2/{project_id}/alarms/{id}/resources"
+	getPath := client.Endpoint + getHttpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{id}", alarmId)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return nil, fmt.Errorf("error flattening %s: %s", nameCESAR, err)
+	}
+
+	return getRespBody, nil
 }
 
 func flattenMetric(dimensions []map[string]interface{}, metricName, namespace string) []map[string]interface{} {
@@ -676,89 +742,126 @@ func flattenMetric(dimensions []map[string]interface{}, metricName, namespace st
 	return []map[string]interface{}{metric}
 }
 
-func flattenCondition(policies []alarmrulev2.PolicyOpts) ([]map[string]interface{}, string, int) {
-	if len(policies) > 0 {
-		conditions := make([]map[string]interface{}, len(policies))
-		for i, v := range policies {
+func flattenCondition(rawParams interface{}) ([]map[string]interface{}, string, int) {
+	if paramsList, ok := rawParams.([]interface{}); ok {
+		if len(paramsList) < 1 {
+			return nil, "", 0
+		}
+		conditions := make([]map[string]interface{}, len(paramsList))
+		for i, params := range paramsList {
+			raw := params.(map[string]interface{})
 			conditions[i] = map[string]interface{}{
-				"metric_name":         v.MetricName,
-				"period":              v.Period,
-				"filter":              v.Filter,
-				"comparison_operator": v.ComparisonOperator,
-				"value":               v.Value,
-				"count":               v.Count,
-				"unit":                v.Unit,
-				"suppress_duration":   v.SuppressDuration,
-				"alarm_level":         v.Level,
+				"metric_name":         utils.PathSearch("metric_name", raw, ""),
+				"period":              utils.PathSearch("period", raw, nil),
+				"filter":              utils.PathSearch("filter", raw, nil),
+				"comparison_operator": utils.PathSearch("comparison_operator", raw, nil),
+				"value":               utils.PathSearch("value", raw, nil),
+				"count":               utils.PathSearch("count", raw, nil),
+				"unit":                utils.PathSearch("unit", raw, nil),
+				"suppress_duration":   utils.PathSearch("suppress_duration", raw, nil),
+				"alarm_level":         int(utils.PathSearch("level", raw, float64(0)).(float64)),
 			}
 		}
-
 		return conditions, conditions[0]["metric_name"].(string), conditions[0]["alarm_level"].(int)
 	}
 
 	return nil, "", 0
 }
 
-func buildUpdatePoliciesOptsWithAlarmLevel(d *schema.ResourceData, level int, metricName string) []alarmrulev2.PolicyOpts {
+func flattenResources(rawParams interface{}) (dimensions []map[string]interface{}, resourcesToSet []map[string]interface{}) {
+	if paramsList, ok := rawParams.([]interface{}); ok && len(paramsList) > 0 {
+		dimensions = make([]map[string]interface{}, 0, len(paramsList))
+		resourcesToSet = make([]map[string]interface{}, len(paramsList))
+		for i, params := range paramsList {
+			if raws, ok := params.([]interface{}); ok {
+				resource := make([]map[string]interface{}, len(raws))
+				for j, v := range raws {
+					raw := v.(map[string]interface{})
+					if j == 0 {
+						dimensions = append(dimensions, map[string]interface{}{
+							"name":  raw["name"],
+							"value": raw["value"],
+						})
+					}
+					resource[j] = map[string]interface{}{
+						"name":  raw["name"],
+						"value": raw["value"],
+					}
+				}
+				resourcesToSet[i] = map[string]interface{}{
+					"dimensions": resource,
+				}
+			}
+		}
+
+		return dimensions, resourcesToSet
+	}
+
+	dimensions = make([]map[string]interface{}, 0)
+	resourcesToSet = make([]map[string]interface{}, 0)
+	return dimensions, resourcesToSet
+}
+
+func buildUpdatePoliciesOptsWithAlarmLevel(d *schema.ResourceData, level int, metricName string) []map[string]interface{} {
 	rawCondition := d.Get("condition").(*schema.Set).List()
 
 	if len(rawCondition) < 1 {
 		return nil
 	}
 
-	policyOpts := make([]alarmrulev2.PolicyOpts, len(rawCondition))
+	policyOpts := make([]map[string]interface{}, len(rawCondition))
 
 	for i, v := range rawCondition {
 		condition := v.(map[string]interface{})
 
-		policyOpts[i] = alarmrulev2.PolicyOpts{
-			Period:             condition["period"].(int),
-			Filter:             condition["filter"].(string),
-			ComparisonOperator: condition["comparison_operator"].(string),
-			Value:              condition["value"].(float64),
-			Unit:               condition["unit"].(string),
-			Count:              condition["count"].(int),
-			SuppressDuration:   condition["suppress_duration"].(int),
-			Level:              level,
+		policyOpts[i] = map[string]interface{}{
+			"period":              condition["period"],
+			"filter":              condition["filter"],
+			"comparison_operator": condition["comparison_operator"],
+			"value":               utils.ValueIgnoreEmpty(condition["value"]),
+			"unit":                utils.ValueIgnoreEmpty(condition["unit"]),
+			"count":               condition["count"],
+			"suppress_duration":   utils.ValueIgnoreEmpty(condition["suppress_duration"]),
+			"level":               level,
 		}
 
 		if condition["metric_name"].(string) == "" {
-			policyOpts[i].MetricName = metricName
+			policyOpts[i]["metric_name"] = metricName
 		} else {
-			policyOpts[i].MetricName = condition["metric_name"].(string)
+			policyOpts[i]["metric_name"] = condition["metric_name"]
 		}
 	}
 
 	return policyOpts
 }
 
-func buildUpdatePoliciesOptsWithMetricName(d *schema.ResourceData, level int, metricName string) []alarmrulev2.PolicyOpts {
+func buildUpdatePoliciesOptsWithMetricName(d *schema.ResourceData, level int, metricName string) []map[string]interface{} {
 	rawCondition := d.Get("condition").(*schema.Set).List()
 
 	if len(rawCondition) < 1 {
 		return nil
 	}
 
-	policyOpts := make([]alarmrulev2.PolicyOpts, len(rawCondition))
+	policyOpts := make([]map[string]interface{}, len(rawCondition))
 
 	for i, v := range rawCondition {
 		condition := v.(map[string]interface{})
 
-		policyOpts[i] = alarmrulev2.PolicyOpts{
-			Period:             condition["period"].(int),
-			Filter:             condition["filter"].(string),
-			ComparisonOperator: condition["comparison_operator"].(string),
-			Value:              condition["value"].(float64),
-			Unit:               condition["unit"].(string),
-			Count:              condition["count"].(int),
-			SuppressDuration:   condition["suppress_duration"].(int),
-			MetricName:         metricName,
+		policyOpts[i] = map[string]interface{}{
+			"period":              condition["period"],
+			"filter":              condition["filter"],
+			"comparison_operator": condition["comparison_operator"],
+			"value":               utils.ValueIgnoreEmpty(condition["value"]),
+			"unit":                utils.ValueIgnoreEmpty(condition["unit"]),
+			"count":               condition["count"],
+			"suppress_duration":   utils.ValueIgnoreEmpty(condition["suppress_duration"]),
+			"metric_name":         metricName,
 		}
 
 		if condition["alarm_level"].(int) == 0 {
-			policyOpts[i].Level = level
+			policyOpts[i]["level"] = level
 		} else {
-			policyOpts[i].Level = condition["alarm_level"].(int)
+			policyOpts[i]["level"] = condition["alarm_level"]
 		}
 	}
 
@@ -780,24 +883,17 @@ func resourceAlarmRuleUpdate(ctx context.Context, d *schema.ResourceData, meta i
 	arId := d.Id()
 
 	if d.HasChanges("alarm_name", "alarm_description", "alarm_action_enabled", "alarm_actions", "ok_actions") {
-		updateOpts := alarmrule.UpdateOpts{
-			Name:         d.Get("alarm_name").(string),
-			AlarmActions: buildAlarmAction(d, "alarm_actions"),
-			OkActions:    buildAlarmAction(d, "ok_actions"),
+		updateHttpUrl := "V1.0/{project_id}/alarms/{id}"
+		updatePath := clientV1.Endpoint + updateHttpUrl
+		updatePath = strings.ReplaceAll(updatePath, "{project_id}", clientV1.ProjectID)
+		updatePath = strings.ReplaceAll(updatePath, "{id}", d.Id())
+		updateOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			JSONBody:         utils.RemoveNil(buildUpdateAlarmV1BodyParams(d)),
+			OkCodes:          []int{204},
 		}
 
-		description := d.Get("alarm_description").(string)
-		updateOpts.Description = &description
-
-		// add alarm_action_enabled to the updateOpts only when it's changed
-		// this can avoid API error
-		if d.HasChange("alarm_action_enabled") {
-			actionEnabled := d.Get("alarm_action_enabled").(bool)
-			updateOpts.ActionEnabled = &actionEnabled
-		}
-
-		log.Printf("[DEBUG] Updating %s %s opts: %#v", nameCESAR, arId, updateOpts)
-		err := alarmrule.Update(clientV1, arId, updateOpts).ExtractErr()
+		_, err = clientV1.Request("PUT", updatePath, &updateOpt)
 		if err != nil {
 			return diag.Errorf("error updating %s %s: %s", nameCESAR, arId, err)
 		}
@@ -807,21 +903,16 @@ func resourceAlarmRuleUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		oldDimensions, newDimensions := d.GetChange("metric.0.dimensions")
 
 		if len(oldDimensions.(*schema.Set).List()) > 0 {
-			updateDimensionsOpts := alarmrulev2.UpdateResourcesOpts{
-				Resources: buildDimensionsOpts(oldDimensions.(*schema.Set).List()),
-			}
-
-			err := alarmrulev2.BatchResources(clientV2, arId, "batch-delete", updateDimensionsOpts).ExtractErr()
+			err := batchCreateAndUpdateAlarmRuleResources(clientV2, arId, "batch-delete",
+				buildDimensionsOpts(oldDimensions.(*schema.Set).List()))
 			if err != nil {
 				return diag.Errorf("error deleting old dimensions of %s %s: %s", nameCESAR, arId, err)
 			}
 		}
 
 		if len(newDimensions.(*schema.Set).List()) > 0 {
-			updateDimensionsOpts := alarmrulev2.UpdateResourcesOpts{
-				Resources: buildDimensionsOpts(newDimensions.(*schema.Set).List()),
-			}
-			err := alarmrulev2.BatchResources(clientV2, arId, "batch-create", updateDimensionsOpts).ExtractErr()
+			err := batchCreateAndUpdateAlarmRuleResources(clientV2, arId, "batch-create",
+				buildDimensionsOpts(newDimensions.(*schema.Set).List()))
 			if err != nil {
 				return diag.Errorf("error creating new dimensions of %s %s: %s", nameCESAR, arId, err)
 			}
@@ -832,21 +923,16 @@ func resourceAlarmRuleUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		oldDimensions, newDimensions := d.GetChange("resources")
 
 		if len(oldDimensions.(*schema.Set).List()) > 0 {
-			updateDimensionsOpts := alarmrulev2.UpdateResourcesOpts{
-				Resources: buildDimensionsOptsV2(oldDimensions.(*schema.Set).List()),
-			}
-
-			err := alarmrulev2.BatchResources(clientV2, arId, "batch-delete", updateDimensionsOpts).ExtractErr()
+			err := batchCreateAndUpdateAlarmRuleResources(clientV2, arId, "batch-delete",
+				buildDimensionsOptsV2(oldDimensions.(*schema.Set).List()))
 			if err != nil {
 				return diag.Errorf("error deleting old resources of %s %s: %s", nameCESAR, arId, err)
 			}
 		}
 
 		if len(newDimensions.(*schema.Set).List()) > 0 {
-			updateDimensionsOpts := alarmrulev2.UpdateResourcesOpts{
-				Resources: buildDimensionsOptsV2(newDimensions.(*schema.Set).List()),
-			}
-			err := alarmrulev2.BatchResources(clientV2, arId, "batch-create", updateDimensionsOpts).ExtractErr()
+			err := batchCreateAndUpdateAlarmRuleResources(clientV2, arId, "batch-create",
+				buildDimensionsOptsV2(newDimensions.(*schema.Set).List()))
 			if err != nil {
 				return diag.Errorf("error creating new resources of %s %s: %s", nameCESAR, arId, err)
 			}
@@ -858,15 +944,14 @@ func resourceAlarmRuleUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		level = v.(int)
 	}
 
-	_, _, metricName := buildResourcesOpts(d)
+	var metricName string
+	if v, ok := d.GetOk("metric.0.metric_name"); ok {
+		metricName = v.(string)
+	}
 
 	// update condition if alarm_level changed
 	if d.HasChange("alarm_level") {
-		updatePoliciesOpts := alarmrulev2.UpdatePoliciesOpts{
-			Policies: buildUpdatePoliciesOptsWithAlarmLevel(d, level, metricName),
-		}
-
-		err := alarmrulev2.PoliciesModify(clientV2, arId, updatePoliciesOpts).ExtractErr()
+		err := updateAlarmRulePolicies(clientV2, arId, buildUpdatePoliciesOptsWithAlarmLevel(d, level, metricName))
 		if err != nil {
 			return diag.Errorf("error updating condition of %s %s: %s", nameCESAR, arId, err)
 		}
@@ -874,11 +959,7 @@ func resourceAlarmRuleUpdate(ctx context.Context, d *schema.ResourceData, meta i
 
 	// update condition if metric.0.metric_name changed
 	if d.HasChange("metric.0.metric_name") {
-		updatePoliciesOpts := alarmrulev2.UpdatePoliciesOpts{
-			Policies: buildUpdatePoliciesOptsWithMetricName(d, level, metricName),
-		}
-
-		err := alarmrulev2.PoliciesModify(clientV2, arId, updatePoliciesOpts).ExtractErr()
+		err := updateAlarmRulePolicies(clientV2, arId, buildUpdatePoliciesOptsWithMetricName(d, level, metricName))
 		if err != nil {
 			return diag.Errorf("error updating condition of %s %s: %s", nameCESAR, arId, err)
 		}
@@ -886,11 +967,7 @@ func resourceAlarmRuleUpdate(ctx context.Context, d *schema.ResourceData, meta i
 
 	// update condition
 	if d.HasChange("condition") {
-		updatePoliciesOpts := alarmrulev2.UpdatePoliciesOpts{
-			Policies: buildPoliciesOpts(d, metricName),
-		}
-
-		err := alarmrulev2.PoliciesModify(clientV2, arId, updatePoliciesOpts).ExtractErr()
+		err := updateAlarmRulePolicies(clientV2, arId, buildPoliciesOpts(d, metricName))
 		if err != nil {
 			return diag.Errorf("error updating condition of %s %s: %s", nameCESAR, arId, err)
 		}
@@ -898,13 +975,18 @@ func resourceAlarmRuleUpdate(ctx context.Context, d *schema.ResourceData, meta i
 
 	if d.HasChange("alarm_enabled") {
 		enabled := d.Get("alarm_enabled").(bool)
-		actionOpts := alarmrulev2.ActionOpts{
-			AlarmIDs:     []string{arId},
-			AlarmEnabled: enabled,
+		updateHttpUrl := "v2/{project_id}/alarms/action"
+		updatePath := clientV2.Endpoint + updateHttpUrl
+		updatePath = strings.ReplaceAll(updatePath, "{project_id}", clientV2.ProjectID)
+		updateOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			JSONBody: map[string]interface{}{
+				"alarm_ids":     []string{arId},
+				"alarm_enabled": enabled,
+			},
 		}
-		log.Printf("[DEBUG] Updating %s %s to %#v", nameCESAR, arId, enabled)
 
-		err := alarmrulev2.Action(clientV2, arId, actionOpts).ExtractErr()
+		_, err := clientV2.Request("POST", updatePath, &updateOpt)
 		if err != nil {
 			return diag.Errorf("error updating %s %s: %s", nameCESAR, arId, err)
 		}
@@ -922,7 +1004,87 @@ func resourceAlarmRuleUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		}
 	}
 
+	if d.HasChanges("notification_begin_time", "notification_end_time", "effective_timezone") {
+		updateHttpUrl := "v2/{project_id}/alarms/{id}/notifications"
+		updatePath := clientV2.Endpoint + updateHttpUrl
+		updatePath = strings.ReplaceAll(updatePath, "{project_id}", clientV2.ProjectID)
+		updatePath = strings.ReplaceAll(updatePath, "{id}", arId)
+		updateOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			JSONBody:         utils.RemoveNil(buildUpdateAlarmNotificationsV2BodyParams(d)),
+		}
+
+		_, err := clientV2.Request("PUT", updatePath, &updateOpt)
+		if err != nil {
+			return diag.Errorf("error updating %s %s: %s", nameCESAR, arId, err)
+		}
+	}
+
 	return resourceAlarmRuleRead(ctx, d, meta)
+}
+
+func updateAlarmRulePolicies(clientV2 *golangsdk.ServiceClient, alarmID string, policiesBody []map[string]interface{}) error {
+	policyUpdateHttpUrl := "v2/{project_id}/alarms/{id}/policies"
+	policyUpdatePath := clientV2.Endpoint + policyUpdateHttpUrl
+	policyUpdatePath = strings.ReplaceAll(policyUpdatePath, "{project_id}", clientV2.ProjectID)
+	policyUpdatePath = strings.ReplaceAll(policyUpdatePath, "{id}", alarmID)
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: utils.RemoveNil(map[string]interface{}{
+			"policies": policiesBody,
+		}),
+	}
+
+	_, err := clientV2.Request("PUT", policyUpdatePath, &updateOpt)
+	return err
+}
+
+func batchCreateAndUpdateAlarmRuleResources(clientV2 *golangsdk.ServiceClient, alarmID string, method string,
+	resourcesBody [][]map[string]interface{}) error {
+	batchDeleteHttpUrl := "v2/{project_id}/alarms/{id}/resources/{batch-create-delete}"
+	batchDeletePath := clientV2.Endpoint + batchDeleteHttpUrl
+	batchDeletePath = strings.ReplaceAll(batchDeletePath, "{project_id}", clientV2.ProjectID)
+	batchDeletePath = strings.ReplaceAll(batchDeletePath, "{id}", alarmID)
+	batchDeletePath = strings.ReplaceAll(batchDeletePath, "{batch-create-delete}", method)
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"resources": resourcesBody,
+		},
+	}
+
+	_, err := clientV2.Request("POST", batchDeletePath, &createOpt)
+	return err
+}
+
+func buildUpdateAlarmV1BodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"alarm_name":        utils.ValueIgnoreEmpty(d.Get("alarm_name")),
+		"alarm_actions":     buildCreateAndUpdateAlarmActionBodyParams(d.Get("alarm_actions"), "notificationList"),
+		"ok_actions":        buildCreateAndUpdateAlarmActionBodyParams(d.Get("ok_actions"), "notificationList"),
+		"alarm_description": utils.ValueIgnoreEmpty(d.Get("alarm_description")),
+	}
+
+	// add alarm_action_enabled to the updateOpts only when it's changed
+	// this can avoid API error
+	if d.HasChange("alarm_action_enabled") {
+		bodyParams["alarm_action_enabled"] = d.Get("alarm_action_enabled").(bool)
+	}
+
+	return bodyParams
+}
+
+func buildUpdateAlarmNotificationsV2BodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"notification_enabled":    d.Get("alarm_action_enabled"),
+		"alarm_notifications":     buildCreateAndUpdateAlarmActionBodyParams(d.Get("alarm_actions"), "notification_list"),
+		"ok_notifications":        buildCreateAndUpdateAlarmActionBodyParams(d.Get("ok_actions"), "notification_list"),
+		"notification_begin_time": utils.ValueIgnoreEmpty(d.Get("notification_begin_time")),
+		"notification_end_time":   utils.ValueIgnoreEmpty(d.Get("notification_end_time")),
+		"effective_timezone":      utils.ValueIgnoreEmpty(d.Get("effective_timezone")),
+	}
+
+	return bodyParams
 }
 
 func resourceAlarmRuleDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -933,12 +1095,18 @@ func resourceAlarmRuleDelete(_ context.Context, d *schema.ResourceData, meta int
 	}
 
 	arId := d.Id()
-	log.Printf("[DEBUG] Deleting %s %s", nameCESAR, arId)
 
-	deleteOpts := alarmrulev2.DeleteOpts{
-		AlarmIDs: []string{arId},
+	deleteHttpUrl := "v2/{project_id}/alarms/batch-delete"
+	deletePath := clientV2.Endpoint + deleteHttpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", clientV2.ProjectID)
+	deleteOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"alarm_ids": []string{arId},
+		},
 	}
-	err = alarmrulev2.Delete(clientV2, deleteOpts).ExtractErr()
+
+	_, err = clientV2.Request("POST", deletePath, &deleteOpt)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error deleting %s %s: %s", nameCESAR, arId, err))
 	}

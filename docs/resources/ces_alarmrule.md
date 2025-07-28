@@ -229,11 +229,12 @@ The following arguments are supported:
 * `alarm_action_enabled` - (Optional, Bool) Specifies whether to enable the action to be triggered by an alarm. The
   default value is true.
 
-* `notification_begin_time` - (Optional, String, ForceNew) Specifies the alarm notification start time, for
-  example: **05:30**. Changing this creates a new resource.
+* `notification_begin_time` - (Optional, String) Specifies the alarm notification start time, for example: **05:30**.
 
-* `notification_end_time` - (Optional, String, ForceNew) Specifies the alarm notification stop time, for
-  example: **22:10**. Changing this creates a new resource.
+* `notification_end_time` - (Optional, String) Specifies the alarm notification stop time, for example: **22:10**.
+
+* `effective_timezone` - (Optional, String) Specifies the time zone, for example: **GMT-08:00**, **GMT+08:00** or
+  **GMT+0:00**.
 
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID of the alarm rule.
 
