@@ -2300,6 +2300,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_asset_manual_collect":             hss.ResourceAssetManualCollect(),
 			"huaweicloud_hss_host_group":                       hss.ResourceHostGroup(),
 			"huaweicloud_hss_cce_protection":                   hss.ResourceCCEProtection(),
+			"huaweicloud_hss_container_export_task":            hss.ResourceContainerExportTask(),
 			"huaweicloud_hss_host_protection":                  hss.ResourceHostProtection(),
 			"huaweicloud_hss_webtamper_protection":             hss.ResourceWebTamperProtection(),
 			"huaweicloud_hss_quota":                            hss.ResourceQuota(),
