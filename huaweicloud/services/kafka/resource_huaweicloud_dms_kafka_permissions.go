@@ -137,7 +137,7 @@ func updateKafkaPermissions(client *golangsdk.ServiceClient, instanceId string, 
 	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		OkCodes: []int{
-			204,
+			200, 204,
 		},
 		JSONBody: utils.RemoveNil(opt),
 	}
