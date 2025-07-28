@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -30,6 +31,9 @@ var pipelineByTemplateNonUpdatableParams = []string{
 // @API CodeArtsPipeline GET /v5/{project_id}/api/pipeline/variable/group/pipeline
 // @API CodeArtsPipeline POST /v5/{project_id}/api/pipeline-group/pipeline/move
 // @API CodeArtsPipeline POST /v5/{project_id}/api/pipeline-tag/set-tags
+// @API CodeArtsPipeline PUT /v5/{project_id}/api/pipeline-permissions/{pipeline_id}/update-permission-switch
+// @API CodeArtsPipeline GET /v5/{project_id}/api/pipeline-permissions/{pipeline_id}/permission-switch
+// @API CodeArtsPipeline GET /v5/{project_id}/api/pipeline-permissions/{pipeline_id}/role-permission
 func ResourceCodeArtsPipelineByTemplate() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourcePipelineByTemplateCreate,
@@ -154,11 +158,28 @@ func ResourceCodeArtsPipelineByTemplate() *schema.Resource {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: `Specifies the list of tag IDs.`,
 			},
+			"resource_level_permission_switch": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Computed:    true,
+				Description: `Specifies whether to use resource level permission. Default to **false**.`,
+			},
 			"enable_force_new": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
 				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
+			},
+			"is_allow_edit": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Indicates whether the user is allowed to edit the permission.`,
+			},
+			"role_permissions": {
+				Type:        schema.TypeList,
+				Elem:        pipelineRolePermissionsSchema(),
+				Computed:    true,
+				Description: `Indicates the role permissions.`,
 			},
 			"creator_id": {
 				Type:        schema.TypeString,
@@ -341,6 +362,13 @@ func resourcePipelineByTemplateCreate(ctx context.Context, d *schema.ResourceDat
 			nil,
 		}); err != nil {
 			return diag.Errorf("error updating pipeline tags: %s", err)
+		}
+	}
+
+	if v := d.Get("resource_level_permission_switch").(bool); v {
+		httpUrl := updatePermissionLevelHttpUrl + "?flag=" + strconv.FormatBool(v)
+		if err := updatePipelineField(client, d, updatePipelineFieldParams{httpUrl, "PUT", nil, nil}); err != nil {
+			return diag.Errorf("error updating resource level permission switch: %s", err)
 		}
 	}
 

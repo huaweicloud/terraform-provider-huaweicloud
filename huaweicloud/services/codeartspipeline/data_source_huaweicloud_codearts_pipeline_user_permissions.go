@@ -125,7 +125,7 @@ func dataSourceCodeArtsPipelineUserPermissionsRead(_ context.Context, d *schema.
 		currentPath := getPath + fmt.Sprintf("&offset=%d", offset)
 		getResp, err := client.Request("GET", currentPath, &getOpt)
 		if err != nil {
-			return diag.Errorf("error retrieving pipeline users: %s", err)
+			return diag.Errorf("error retrieving pipeline user permissions: %s", err)
 		}
 		getRespBody, err := utils.FlattenResponse(getResp)
 		if err != nil {
@@ -133,7 +133,7 @@ func dataSourceCodeArtsPipelineUserPermissionsRead(_ context.Context, d *schema.
 		}
 
 		if err := checkResponseError(getRespBody, ""); err != nil {
-			return diag.Errorf("error retrieving pipeline users: %s", err)
+			return diag.Errorf("error retrieving pipeline permissions: %s", err)
 		}
 
 		users := utils.PathSearch("users", getRespBody, make([]interface{}, 0)).([]interface{})
