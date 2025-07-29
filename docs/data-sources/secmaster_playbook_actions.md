@@ -16,7 +16,7 @@ Use this data source to get the list of playbook actions.
 variable "workspace_id" {}
 variable "version_id" {}
 
-resource "huaweicloud_secmaster_playbook_actions" "test" {
+data "huaweicloud_secmaster_playbook_actions" "test" {
   workspace_id = var.workspace_id
   version_id   = var.version_id
 }
