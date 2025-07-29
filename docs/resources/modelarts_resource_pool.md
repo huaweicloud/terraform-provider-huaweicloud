@@ -475,7 +475,7 @@ In addition to all arguments above, the following attributes are exported:
 * `clusters` - The list of the CCE clusters.  
   The [clusters](#ModelartsResourcePool_Clusters_attr) structure is documented below.
 
-* `server_ids` - The list of service IDs corresponding to the currently expanded nodes.
+* `server_ids` - The list of service IDs corresponding to the latest expanded nodes.
 
 <a name="ModelartsResourcePool_Resources_attr"></a>
 The `resources` block supports:

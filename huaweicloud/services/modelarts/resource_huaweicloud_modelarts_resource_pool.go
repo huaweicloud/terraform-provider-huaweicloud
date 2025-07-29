@@ -180,7 +180,7 @@ func ResourceModelartsResourcePool() *schema.Resource {
 				Type:        schema.TypeList,
 				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: `The list of service IDs corresponding to the currently expanded nodes.`,
+				Description: `The list of service IDs corresponding to the latest expanded nodes.`,
 			},
 			// Internal attributes(s).
 			"resources_order_origin": {
