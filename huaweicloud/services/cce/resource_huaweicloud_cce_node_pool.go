@@ -2,6 +2,7 @@ package cce
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"strings"
@@ -9,9 +10,12 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/cce/v3/nodepools"
@@ -59,7 +63,10 @@ func ResourceNodePool() *schema.Resource {
 		UpdateContext: resourceNodePoolUpdate,
 		DeleteContext: resourceNodePoolDelete,
 
-		CustomizeDiff: config.FlexibleForceNew(nodePoolNonUpdatableParams),
+		CustomizeDiff: customdiff.All(
+			config.FlexibleForceNew(nodePoolNonUpdatableParams),
+			ignoreDiffIfScaleGroupsEqual(),
+		),
 
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceNodePoolImport,
@@ -307,17 +314,23 @@ func resourceExtensionScaleGroupsSchema() *schema.Schema {
 	return &schema.Schema{
 		Type:     schema.TypeList,
 		Optional: true,
+		Computed: true,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"metadata": {
 					Type:     schema.TypeList,
 					Optional: true,
+					Computed: true,
 					MaxItems: 1,
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
 							"name": {
 								Type:     schema.TypeString,
-								Optional: true,
+								Required: true,
+							},
+							"uid": {
+								Type:     schema.TypeString,
+								Computed: true,
 							},
 						},
 					},
@@ -325,30 +338,36 @@ func resourceExtensionScaleGroupsSchema() *schema.Schema {
 				"spec": {
 					Type:     schema.TypeList,
 					Optional: true,
+					Computed: true,
 					MaxItems: 1,
 					Elem: &schema.Resource{
 						Schema: map[string]*schema.Schema{
 							"flavor": {
 								Type:     schema.TypeString,
 								Optional: true,
+								Computed: true,
 							},
 							"az": {
 								Type:     schema.TypeString,
 								Optional: true,
+								Computed: true,
 							},
 							"capacity_reservation_specification": {
 								Type:     schema.TypeList,
 								Optional: true,
+								Computed: true,
 								MaxItems: 1,
 								Elem: &schema.Resource{
 									Schema: map[string]*schema.Schema{
 										"id": {
 											Type:     schema.TypeString,
 											Optional: true,
+											Computed: true,
 										},
 										"preference": {
 											Type:     schema.TypeString,
 											Optional: true,
+											Computed: true,
 										},
 									},
 								},
@@ -356,24 +375,29 @@ func resourceExtensionScaleGroupsSchema() *schema.Schema {
 							"autoscaling": {
 								Type:     schema.TypeList,
 								Optional: true,
+								Computed: true,
 								MaxItems: 1,
 								Elem: &schema.Resource{
 									Schema: map[string]*schema.Schema{
 										"enable": {
 											Type:     schema.TypeBool,
 											Optional: true,
+											Computed: true,
 										},
 										"extension_priority": {
 											Type:     schema.TypeInt,
 											Optional: true,
+											Computed: true,
 										},
 										"min_node_count": {
 											Type:     schema.TypeInt,
 											Optional: true,
+											Computed: true,
 										},
 										"max_node_count": {
 											Type:     schema.TypeInt,
 											Optional: true,
+											Computed: true,
 										},
 									},
 								},
@@ -383,6 +407,48 @@ func resourceExtensionScaleGroupsSchema() *schema.Schema {
 				},
 			},
 		},
+	}
+}
+
+func ignoreDiffIfScaleGroupsEqual() schema.CustomizeDiffFunc {
+	return func(_ context.Context, d *schema.ResourceDiff, _ interface{}) error {
+		const key = "extension_scale_groups"
+
+		if !d.HasChange(key) {
+			return nil
+		}
+
+		oldRaw, newRaw := d.GetChange(key)
+
+		oldList, ok1 := oldRaw.([]interface{})
+		newList, ok2 := newRaw.([]interface{})
+		if !ok1 || !ok2 {
+			return nil
+		}
+
+		if len(oldList) != len(newList) {
+			return nil
+		}
+
+		oldSorted, err := jmespath.Search("sort_by(@, &metadata[0].uid)", oldList)
+		if err != nil {
+			return err
+		}
+		newSorted, err := jmespath.Search("sort_by(@, &metadata[0].uid)", newList)
+		if err != nil {
+			return err
+		}
+
+		oldJson, _ := json.Marshal(oldSorted)
+		newJson, _ := json.Marshal(newSorted)
+
+		if string(oldJson) == string(newJson) {
+			if err := d.Clear(key); err != nil {
+				return fmt.Errorf("failed to clear diff on %s: %s", key, err)
+			}
+		}
+
+		return nil
 	}
 }
 
@@ -664,6 +730,7 @@ func resourceNodePoolRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("subnet_list", s.Spec.NodeTemplate.NodeNicSpec.PrimaryNic.SubnetList),
 		d.Set("extend_params", flattenExtendParams(s.Spec.NodeTemplate.ExtendParam)),
 		d.Set("taints", flattenResourceNodeTaints(s.Spec.NodeTemplate.Taints)),
+		d.Set("extension_scale_groups", flattenExtensionScaleGroups(s.Spec.ExtensionScaleGroups)),
 	)
 
 	if s.Spec.NodeTemplate.BillingMode != 0 {
@@ -691,6 +758,91 @@ func resourceNodePoolRead(_ context.Context, d *schema.ResourceData, meta interf
 		return diag.Errorf("error setting CCE node pool fields: %s", err)
 	}
 	return nil
+}
+
+func flattenExtensionScaleGroups(extensionScaleGroups []nodepools.ExtensionScaleGroups) []map[string]interface{} {
+	if len(extensionScaleGroups) == 0 {
+		return nil
+	}
+
+	res := make([]map[string]interface{}, len(extensionScaleGroups))
+
+	for i, v := range extensionScaleGroups {
+		res[i] = map[string]interface{}{
+			"metadata": flattenExtensionScaleGroupsMetadata(v),
+			"spec":     flattenExtensionScaleGroupsSpec(v),
+		}
+	}
+
+	return res
+}
+
+func flattenExtensionScaleGroupsMetadata(extensionScaleGroup interface{}) []map[string]interface{} {
+	metadata := utils.PathSearch("metadata", extensionScaleGroup, nil)
+	if metadata == nil {
+		return nil
+	}
+
+	res := []map[string]interface{}{
+		{
+			"name": utils.PathSearch("name", metadata, nil),
+			"uid":  utils.PathSearch("uid", metadata, nil),
+		},
+	}
+
+	return res
+}
+
+func flattenExtensionScaleGroupsSpec(extensionScaleGroup interface{}) []map[string]interface{} {
+	spec := utils.PathSearch("spec", extensionScaleGroup, nil)
+	if spec == nil {
+		return nil
+	}
+
+	res := []map[string]interface{}{
+		{
+			"flavor":                             utils.PathSearch("flavor", spec, nil),
+			"az":                                 utils.PathSearch("az", spec, nil),
+			"capacity_reservation_specification": flattenExtensionScaleGroupsSpecCapacity(spec),
+			"autoscaling":                        flattenExtensionScaleGroupsSpecAutoscaling(spec),
+		},
+	}
+
+	return res
+}
+
+func flattenExtensionScaleGroupsSpecCapacity(spec interface{}) []map[string]interface{} {
+	capacity := utils.PathSearch("capacityReservationSpecification", spec, nil)
+	if capacity == nil {
+		return nil
+	}
+
+	res := []map[string]interface{}{
+		{
+			"preference": utils.PathSearch("preference", capacity, nil),
+			"id":         utils.PathSearch("id", capacity, nil),
+		},
+	}
+
+	return res
+}
+
+func flattenExtensionScaleGroupsSpecAutoscaling(spec interface{}) []map[string]interface{} {
+	autoscaling := utils.PathSearch("autoscaling", spec, nil)
+	if autoscaling == nil {
+		return nil
+	}
+
+	res := []map[string]interface{}{
+		{
+			"extension_priority": utils.PathSearch("extensionPriority", autoscaling, nil),
+			"max_node_count":     utils.PathSearch("minNodeCount", autoscaling, nil),
+			"min_node_count":     utils.PathSearch("maxNodeCount", autoscaling, nil),
+			"enable":             utils.PathSearch("enable", autoscaling, nil),
+		},
+	}
+
+	return res
 }
 
 func buildNodePoolUpdateOpts(d *schema.ResourceData, cfg *config.Config) (*nodepools.UpdateOpts, error) {
