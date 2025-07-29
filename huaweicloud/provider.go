@@ -2878,6 +2878,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_workspace_app_policy_group":                workspace.ResourceAppPolicyGroup(),
 			"huaweicloud_workspace_app_policy_template":             workspace.ResourceAppPolicyTemplate(),
 			"huaweicloud_workspace_app_publishment":                 workspace.ResourceAppPublishment(),
+			"huaweicloud_workspace_app_rule_restriction":            workspace.ResourceAppRuleRestriction(),
 			"huaweicloud_workspace_app_schedule_task":               workspace.ResourceAppScheduleTask(),
 			"huaweicloud_workspace_app_server_group_scaling_policy": workspace.ResourceAppServerGroupScalingPolicy(),
 			"huaweicloud_workspace_app_server_group":                workspace.ResourceAppServerGroup(),
