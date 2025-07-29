@@ -97,11 +97,7 @@ func ResourceKmsKey() *schema.Resource {
 				Computed:     true,
 				RequiredWith: []string{"rotation_enabled"},
 			},
-			"tags": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
+			"tags": common.TagsSchema(),
 			"origin": {
 				Type:     schema.TypeString,
 				Optional: true,

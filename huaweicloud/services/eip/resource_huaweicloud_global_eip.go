@@ -66,12 +66,7 @@ func ResourceGlobalEIP() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-			"tags": {
-				Type:     schema.TypeMap,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Optional: true,
-				Computed: true,
-			},
+			"tags": common.TagsSchema(),
 			"isp": {
 				Type:     schema.TypeString,
 				Computed: true,

@@ -160,18 +160,7 @@ func ResourceProtectionRule() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{"0"}, true),
 				Description:  `The number of times the protection rule is hit.`,
 			},
-			"tags": {
-				Type:     schema.TypeMap,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Optional: true,
-				ValidateFunc: func(v interface{}, _ string) ([]string, []error) {
-					if keys, ok := v.(map[string]interface{}); ok && len(keys) > 1 {
-						return nil, []error{fmt.Errorf("tags can take at most one key-value pair")}
-					}
-					return nil, nil
-				},
-				Description: `The key/value pairs to associate with the protection rule.`,
-			},
+			"tags": common.TagsSchema(),
 		},
 	}
 }

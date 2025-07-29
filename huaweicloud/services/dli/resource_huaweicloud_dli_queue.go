@@ -155,14 +155,7 @@ func ResourceDliQueue() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{queueFeatureBasic, queueFeatureAI}, false),
 			},
 
-			"tags": {
-				Type: schema.TypeMap,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-				Optional: true,
-				ForceNew: true,
-			},
+			"tags": common.TagsForceNewSchema(),
 
 			"scaling_policies": {
 				Type:         schema.TypeSet,
