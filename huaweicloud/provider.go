@@ -635,6 +635,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cdn_billing_option":      cdn.DataSourceBillingOption(),
 			"huaweicloud_cdn_logs":                cdn.DataSourceCdnLogs(),
 			"huaweicloud_cdn_analytics":           cdn.DataSourceCdnAnalytics(),
+			"huaweicloud_cdn_rules_engine":        cdn.DataSourceRulesEngine(),
 
 			"huaweicloud_ces_agent_dimensions":                  ces.DataSourceCesAgentDimensions(),
 			"huaweicloud_ces_agent_maintenance_tasks":           ces.DataSourceCesAgentMaintenanceTasks(),
@@ -1149,7 +1150,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_iotda_device_certificates":        iotda.DataSourceDeviceCertificates(),
 			"huaweicloud_iotda_device_groups":              iotda.DataSourceDeviceGroups(),
 			"huaweicloud_iotda_device_linkage_rules":       iotda.DataSourceDeviceLinkageRules(),
-			"huaweicloud_iotda_products":                   iotda.DataSourceProducts(),
+			"huaweicloud_iotda_product":                    iotda.DataSourceProducts(),
 			"huaweicloud_iotda_spaces":                     iotda.DataSourceSpaces(),
 			"huaweicloud_iotda_upgrade_packages":           iotda.DataSourceUpgradePackages(),
 
@@ -1887,6 +1888,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_cdn_domain":         cdn.ResourceCdnDomain(),
 			"huaweicloud_cdn_domain_rule":    cdn.ResourceCdnDomainRule(),
+			"huaweicloud_cdn_rules_engine":   cdn.ResourceRulesEngine(),
 			"huaweicloud_cdn_billing_option": cdn.ResourceBillingOption(),
 			"huaweicloud_cdn_cache_preheat":  cdn.ResourceCachePreheat(),
 			"huaweicloud_cdn_cache_refresh":  cdn.ResourceCacheRefresh(),
@@ -2350,7 +2352,6 @@ func Provider() *schema.Provider {
 			"huaweicloud_iotda_device_certificate":       iotda.ResourceDeviceCertificate(),
 			"huaweicloud_iotda_device_group":             iotda.ResourceDeviceGroup(),
 			"huaweicloud_iotda_device_linkage_rule":      iotda.ResourceDeviceLinkageRule(),
-			"huaweicloud_iotda_device_proxy":             iotda.ResourceDeviceProxy(),
 			"huaweicloud_iotda_product":                  iotda.ResourceProduct(),
 			"huaweicloud_iotda_space":                    iotda.ResourceSpace(),
 			"huaweicloud_iotda_upgrade_package":          iotda.ResourceUpgradePackage(),
