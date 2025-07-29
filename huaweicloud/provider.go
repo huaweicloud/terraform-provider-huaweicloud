@@ -1150,7 +1150,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_iotda_device_certificates":        iotda.DataSourceDeviceCertificates(),
 			"huaweicloud_iotda_device_groups":              iotda.DataSourceDeviceGroups(),
 			"huaweicloud_iotda_device_linkage_rules":       iotda.DataSourceDeviceLinkageRules(),
-			"huaweicloud_iotda_product":                    iotda.DataSourceProducts(),
+			"huaweicloud_iotda_products":                   iotda.DataSourceProducts(),
 			"huaweicloud_iotda_spaces":                     iotda.DataSourceSpaces(),
 			"huaweicloud_iotda_upgrade_packages":           iotda.DataSourceUpgradePackages(),
 
@@ -2352,6 +2352,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_iotda_device_certificate":       iotda.ResourceDeviceCertificate(),
 			"huaweicloud_iotda_device_group":             iotda.ResourceDeviceGroup(),
 			"huaweicloud_iotda_device_linkage_rule":      iotda.ResourceDeviceLinkageRule(),
+			"huaweicloud_iotda_device_proxy":             iotda.ResourceDeviceProxy(),
 			"huaweicloud_iotda_product":                  iotda.ResourceProduct(),
 			"huaweicloud_iotda_space":                    iotda.ResourceSpace(),
 			"huaweicloud_iotda_upgrade_package":          iotda.ResourceUpgradePackage(),
