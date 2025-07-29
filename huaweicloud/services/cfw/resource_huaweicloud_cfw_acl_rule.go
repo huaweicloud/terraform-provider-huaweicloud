@@ -263,18 +263,7 @@ func ResourceAclRule() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{"0"}, true),
 				Description:  `The number of times the ACL rule is hit.`,
 			},
-			"tags": {
-				Type:     schema.TypeMap,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Optional: true,
-				ValidateFunc: func(v interface{}, _ string) ([]string, []error) {
-					if keys, ok := v.(map[string]interface{}); ok && len(keys) > 1 {
-						return nil, []error{fmt.Errorf("tags can take at most one key-value pair")}
-					}
-					return nil, nil
-				},
-				Description: `The key/value pairs to associate with the ACL rule.`,
-			},
+			"tags": common.TagsSchema(),
 			"enable_force_new": {
 				Type:         schema.TypeString,
 				Optional:     true,

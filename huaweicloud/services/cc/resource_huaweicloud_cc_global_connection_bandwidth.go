@@ -87,11 +87,7 @@ func ResourceGlobalConnectionBandwidth() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"tags": {
-				Type:     schema.TypeMap,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Optional: true,
-			},
+			"tags": common.TagsSchema(),
 			"binding_service": {
 				Type:     schema.TypeString,
 				Optional: true,

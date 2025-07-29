@@ -185,12 +185,7 @@ func ResourceDwsCluster() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-			"tags": {
-				Type:        schema.TypeMap,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Optional:    true,
-				Description: `The key/value pairs to associate with the cluster.`,
-			},
+			"tags": common.TagsSchema(),
 			"keep_last_manual_snapshot": {
 				Type:        schema.TypeInt,
 				Optional:    true,

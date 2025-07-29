@@ -123,13 +123,7 @@ func ResourceBandwidthPackage() *schema.Resource {
 				Computed:    true,
 				Description: `Type of the resource that the bandwidth package is bound to.`,
 			},
-			"tags": {
-				Type:        schema.TypeMap,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Optional:    true,
-				Computed:    true,
-				Description: `The key/value pairs to associate with the bandwidth package.`,
-			},
+			"tags": common.TagsSchema(),
 			"status": {
 				Type:        schema.TypeString,
 				Computed:    true,

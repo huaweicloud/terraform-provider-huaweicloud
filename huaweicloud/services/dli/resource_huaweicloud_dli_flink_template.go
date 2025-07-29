@@ -66,14 +66,7 @@ func ResourceFlinkTemplate() *schema.Resource {
 				ForceNew:    true,
 				Description: `The type of the flink template.`,
 			},
-			"tags": {
-				Type:        schema.TypeMap,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Optional:    true,
-				Computed:    true,
-				ForceNew:    true,
-				Description: `The key/value pairs to associate with the flink template.`,
-			},
+			"tags": common.TagsForceNewSchema(),
 		},
 	}
 }

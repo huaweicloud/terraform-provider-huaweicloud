@@ -138,14 +138,7 @@ func ResourceGesGraph() *schema.Resource {
 				ForceNew:    true,
 				Description: `The enterprise project ID.`,
 			},
-			"tags": {
-				Type:        schema.TypeMap,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Optional:    true,
-				Computed:    true,
-				ForceNew:    true,
-				Description: `The key/value pairs to associate with the graph.`,
-			},
+			"tags": common.TagsForceNewSchema(),
 			"enable_rbac": {
 				Type:        schema.TypeBool,
 				Optional:    true,

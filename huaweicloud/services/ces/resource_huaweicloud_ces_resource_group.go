@@ -62,14 +62,7 @@ func ResourceResourceGroup() *schema.Resource {
 				Computed:    true,
 				Description: `Specifies the enterprise project ID of the resource group.`,
 			},
-			"tags": {
-				Type:         schema.TypeMap,
-				Optional:     true,
-				Computed:     true,
-				Elem:         &schema.Schema{Type: schema.TypeString},
-				Description:  `Specifies the key/value to match resources.`,
-				ExactlyOneOf: []string{"associated_eps_ids", "resources"},
-			},
+			"tags": common.TagsSchema(),
 			"associated_eps_ids": {
 				Type:        schema.TypeList,
 				Elem:        &schema.Schema{Type: schema.TypeString},
@@ -79,10 +72,11 @@ func ResourceResourceGroup() *schema.Resource {
 				Description: `Specifies the enterprise project IDs where the resources from.`,
 			},
 			"resources": {
-				Type:        schema.TypeList,
-				Elem:        ResourceGroupResourcesOptsSchema(),
-				Optional:    true,
-				Description: `Specifies the list of resources to add into the group.`,
+				Type:         schema.TypeList,
+				Elem:         ResourceGroupResourcesOptsSchema(),
+				Optional:     true,
+				ExactlyOneOf: []string{"associated_eps_ids", "tags"},
+				Description:  `Specifies the list of resources to add into the group.`,
 			},
 			"created_at": {
 				Type:        schema.TypeString,

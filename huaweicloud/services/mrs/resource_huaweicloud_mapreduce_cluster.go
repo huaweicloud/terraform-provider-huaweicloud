@@ -230,11 +230,7 @@ func ResourceMRSClusterV2() *schema.Resource {
 				ForceNew: true,
 				Elem:     componentConfigsSchemaResource(),
 			},
-			"tags": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
+			"tags": common.TagsSchema(),
 			"external_datasources": {
 				Type:     schema.TypeList,
 				Optional: true,
