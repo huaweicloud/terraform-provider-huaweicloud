@@ -64,16 +64,16 @@ The `metadata` block supports:
 
 * `creation_timestamp` - The creation timestamp of the node.
 
-* `labels` - The labels of the node.
+* `labels` - The labels of the node, in JSON format.
 
-* `annotations` - The annotation configuration of the node.
+* `annotations` - The annotation configuration of the node, in JSON format.
 
 <a name="v2modelarts_node_pool_nodes_spec"></a>
 The `spec` block supports:
 
 * `flavor` - The flavor of the node.
 
-* `extend_params` - The extend parameters of the node.
+* `extend_params` - The extend parameters of the node, in JSON format.
 
 * `host_network` - The network configuration of the node.  
   The [host_network](#v2modelarts_node_pool_nodes_spec_host_network) structure is documented below.
