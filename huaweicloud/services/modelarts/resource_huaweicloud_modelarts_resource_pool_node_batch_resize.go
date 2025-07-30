@@ -2,6 +2,7 @@ package modelarts
 
 import (
 	"context"
+	"log"
 	"strings"
 	"time"
 
@@ -111,6 +112,12 @@ func ResourceResourcePoolNodeBatchResize() *schema.Resource {
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
 				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
+			},
+			"server_ids": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `The list of service IDs corresponding to the currently upgraded specification nodes.`,
 			},
 		},
 	}
@@ -238,9 +245,13 @@ func resourceResourcePoolNodeBatchResizeCreate(ctx context.Context, d *schema.Re
 		return diag.Errorf("error getting the scaling node names by order name (%s): %s", orderName, err)
 	}
 
-	err = waitForNodesDriverStatusCompleted(ctx, client, resourcePoolName, actionNodeNames, d.Timeout(schema.TimeoutCreate))
+	actionNodes, err := waitForNodesDriverStatusCompleted(ctx, client, resourcePoolName, actionNodeNames, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.Errorf("error waiting for the scaling nodes driver status under the resource pool (%s) to complete: %s", resourcePoolName, err)
+	}
+
+	if err := d.Set("server_ids", getServerIdsByNodeNames(actionNodeNames, actionNodes.([]interface{}))); err != nil {
+		log.Printf("[ERROR] error setting the server IDs for updating resource pool (%s): %s", resourcePoolName, err)
 	}
 
 	return nil

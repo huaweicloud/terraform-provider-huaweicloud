@@ -132,3 +132,5 @@ This resource provides the following timeouts configuration options:
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID.
+
+* `server_ids` - The list of service IDs corresponding to the currently upgraded specification nodes.
