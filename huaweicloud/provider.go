@@ -446,7 +446,7 @@ func Provider() *schema.Provider {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Description: descriptions["skip_check_upgrade"],
-				DefaultFunc: schema.EnvDefaultFunc("SKIP_CHECK_UPGRADE", false),
+				DefaultFunc: schema.EnvDefaultFunc("SKIP_CHECK_UPGRADE", true),
 			},
 		},
 
