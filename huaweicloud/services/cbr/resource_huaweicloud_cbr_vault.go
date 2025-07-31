@@ -273,6 +273,12 @@ func buildAssociateResourcesForServer(rType string, resources []interface{}) ([]
 	results := make([]map[string]interface{}, 0, len(resources))
 
 	for _, val := range resources {
+		serverId := utils.PathSearch("server_id", val, "").(string)
+		if serverId == "" {
+			// It means that the current resource object is an empty object: {}
+			continue
+		}
+
 		if utils.PathSearch("includes", val, schema.NewSet(schema.HashString, nil)).(*schema.Set).Len() > 0 {
 			return results, errors.New("server type vaults does not support 'includes'")
 		}
@@ -295,7 +301,7 @@ func buildAssociateResourcesForServer(rType string, resources []interface{}) ([]
 func buildAssociateResourcesForDisk(rType string, resources []interface{}) ([]map[string]interface{}, error) {
 	if len(resources) > 1 {
 		return nil, errors.New("the size of resources cannot grant than one for disk and turbo vault")
-	} else if len(resources) == 0 {
+	} else if len(resources) == 0 || (len(resources) == 1 && resources[0] == nil) {
 		// If no resource is set, send an empty slice to the CBR service.
 		return make([]map[string]interface{}, 0), nil
 	}
@@ -305,7 +311,7 @@ func buildAssociateResourcesForDisk(rType string, resources []interface{}) ([]ma
 	}
 	includes := utils.PathSearch("includes", resources[0], schema.NewSet(schema.HashString, nil)).(*schema.Set)
 	if includes.Len() < 1 {
-		return nil, errors.New("includes must be set for disk type and turbo type vault")
+		return make([]map[string]interface{}, 0), nil
 	}
 	results := make([]map[string]interface{}, 0, includes.Len())
 	for _, v := range includes.List() {
@@ -765,7 +771,7 @@ func updateAssociatedResources(ctx context.Context, d *schema.ResourceData, clie
 	)
 
 	// Remove all resources bound to the vault.
-	if delRaws.Len() > 0 {
+	if delRaws.Len() > 0 && delRaws.List()[0] != nil {
 		httpUrl := "v3/{project_id}/vaults/{vault_id}/removeresources"
 		updatePath := client.Endpoint + httpUrl
 		updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
@@ -791,7 +797,7 @@ func updateAssociatedResources(ctx context.Context, d *schema.ResourceData, clie
 	}
 
 	// Add resources to the specified vault.
-	if addRaws.Len() > 0 {
+	if addRaws.Len() > 0 && addRaws.List()[0] != nil {
 		httpUrl := "v3/{project_id}/vaults/{vault_id}/addresources"
 		updatePath := client.Endpoint + httpUrl
 		updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
@@ -800,19 +806,21 @@ func updateAssociatedResources(ctx context.Context, d *schema.ResourceData, clie
 		if err != nil {
 			return fmt.Errorf("error building associate list of vault resources: %s", err)
 		}
-		updateOpts := golangsdk.RequestOpts{
-			KeepResponseBody: true,
-			JSONBody: map[string]interface{}{
-				"resources": resources,
-			},
-		}
+		if len(resources) > 0 {
+			updateOpts := golangsdk.RequestOpts{
+				KeepResponseBody: true,
+				JSONBody: map[string]interface{}{
+					"resources": resources,
+				},
+			}
 
-		_, err = client.Request("POST", updatePath, &updateOpts)
-		if err != nil {
-			return fmt.Errorf("error updating CBR vault (%s): %s", vaultId, err)
-		}
-		if waitForAllResourcesAssociated(ctx, client, vaultId, addRaws.List(), d.Timeout(schema.TimeoutUpdate)) != nil {
-			return err
+			_, err = client.Request("POST", updatePath, &updateOpts)
+			if err != nil {
+				return fmt.Errorf("error updating CBR vault (%s): %s", vaultId, err)
+			}
+			if waitForAllResourcesAssociated(ctx, client, vaultId, addRaws.List(), d.Timeout(schema.TimeoutUpdate)) != nil {
+				return err
+			}
 		}
 	}
 
