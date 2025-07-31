@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## 1.77.0 (July 31, 2025)
+## 1.77.1 (July 31, 2025)
 
 * **New Resource:**
   + `huaweicloud_cce_nodes_remove` [GH-7388]
