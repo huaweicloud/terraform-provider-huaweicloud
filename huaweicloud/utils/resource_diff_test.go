@@ -7,7 +7,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func TestDiffSuppressFunc_ContainsAllKeyValues(t *testing.T) {
+func TestResourceDiffunc_ContainsAllKeyValues(t *testing.T) {
 	var (
 		compareObject = map[string]interface{}{
 			"A": map[string]interface{}{
@@ -81,7 +81,7 @@ func TestDiffSuppressFunc_ContainsAllKeyValues(t *testing.T) {
 	t.Logf("All processing results of the ContainsAllKeyValues method meets expectation")
 }
 
-func TestDiffSuppressFunc_FindDecreaseKeys(t *testing.T) {
+func TestResourceDiffunc_FindDecreaseKeys(t *testing.T) {
 	var (
 		decreaseCacls = []map[string]interface{}{
 			{
@@ -124,7 +124,7 @@ func TestDiffSuppressFunc_FindDecreaseKeys(t *testing.T) {
 	t.Logf("All processing results of the FindDecreaseKeys method meets expectation")
 }
 
-func TestDiffSuppressFunc_TakeObjectsDifferent(t *testing.T) {
+func TestResourceDiffunc_TakeObjectsDifferent(t *testing.T) {
 	var (
 		diffCacls = []map[string]interface{}{
 			{
