@@ -1615,6 +1615,7 @@ func Provider() *schema.Provider {
 			// Workspace APP
 			"huaweicloud_workspace_app_available_volumes":               workspace.DataSourceAppAvailableVolumes(),
 			"huaweicloud_workspace_app_center_availability_zones":       workspace.DataSourceAvailabilityZones(),
+			"huaweicloud_workspace_app_configurations":                  workspace.DataSourceAppConfigurations(),
 			"huaweicloud_workspace_app_flavors":                         workspace.DataSourceAppFlavors(),
 			"huaweicloud_workspace_app_group_authorizations":            workspace.DataSourceWorkspaceAppGroupAuthorizations(),
 			"huaweicloud_workspace_app_groups":                          workspace.DataSourceWorkspaceAppGroups(),
