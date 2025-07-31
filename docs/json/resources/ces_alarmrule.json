@@ -37,6 +37,10 @@
                 "optional": true,
                 "default": "MULTI_INSTANCE"
               },
+              "effective_timezone": {
+                "type": "string",
+                "optional": true
+              },
               "enterprise_project_id": {
                 "type": "string",
                 "optional": true,
@@ -49,14 +53,12 @@
               "notification_begin_time": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "notification_end_time": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "region": {
                 "type": "string",

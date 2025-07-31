@@ -75,6 +75,7 @@
                   "string"
                 ],
                 "optional": true,
+                "computed": true,
                 "forcenew": true
               }
             },

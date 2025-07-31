@@ -1,0 +1,78 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_codearts_pipeline_parameter_groups": {
+          "block": {
+            "attributes": {
+              "groups": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "create_time": "number",
+                      "creator_id": "string",
+                      "creator_name": "string",
+                      "description": "string",
+                      "id": "string",
+                      "name": "string",
+                      "related_pipelines": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "name": "string"
+                          }
+                        ]
+                      ],
+                      "update_time": "number",
+                      "updater_id": "string",
+                      "updater_name": "string",
+                      "variables": [
+                        "set",
+                        [
+                          "object",
+                          {
+                            "description": "string",
+                            "is_secret": "bool",
+                            "name": "string",
+                            "sequence": "number",
+                            "type": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "Indicates the parameter group list.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the parameter group name.",
+                "optional": true
+              },
+              "project_id": {
+                "type": "string",
+                "description": "Specifies the CodeArts project ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

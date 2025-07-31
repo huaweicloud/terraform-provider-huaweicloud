@@ -1,0 +1,65 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_sms_task_network_check_info_report": {
+          "block": {
+            "attributes": {
+              "cpu_usage": {
+                "type": "number",
+                "required": true
+              },
+              "destination_connectivity": {
+                "type": "bool",
+                "optional": true
+              },
+              "domain_connectivity": {
+                "type": "bool",
+                "optional": true
+              },
+              "evaluation_result": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "loss_percentage": {
+                "type": "number",
+                "required": true
+              },
+              "mem_usage": {
+                "type": "number",
+                "required": true
+              },
+              "migration_speed": {
+                "type": "number",
+                "required": true
+              },
+              "network_delay": {
+                "type": "number",
+                "required": true
+              },
+              "network_jitter": {
+                "type": "number",
+                "required": true
+              },
+              "task_id": {
+                "type": "string",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "SMS",
+            "name": "Server Migration Service",
+            "catalog": "Migration",
+            "name_cn": "主机迁移服务",
+            "catalog_cn": "迁移"
+          }
+        }
+      }
+    }
+  }
+}

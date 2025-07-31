@@ -60,7 +60,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "used_scene": {
                 "type": "string",

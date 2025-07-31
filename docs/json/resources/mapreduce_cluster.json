@@ -135,7 +135,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "template_id": {
                 "type": "string",

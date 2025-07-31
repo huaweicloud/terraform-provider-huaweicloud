@@ -109,7 +109,8 @@
                   "string"
                 ],
                 "description": "The key/value pairs to associate with the component.",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "timezone": {
                 "type": "string",

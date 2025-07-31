@@ -1,0 +1,216 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_sdrs_protected_instances_by_tags": {
+          "block": {
+            "attributes": {
+              "action": {
+                "type": "string",
+                "description": "Specifies the operation to be performed. ",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "resources": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "resource_detail": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "attachment": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "device": "string",
+                                  "replication": "string"
+                                }
+                              ]
+                            ],
+                            "created_at": "number",
+                            "description": "string",
+                            "id": "string",
+                            "metadata": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "__system__frozen": "string"
+                                }
+                              ]
+                            ],
+                            "name": "string",
+                            "priority_station": "string",
+                            "progress": "number",
+                            "server_group_id": "string",
+                            "source_server": "string",
+                            "status": "string",
+                            "tags": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "key": "string",
+                                  "value": "string"
+                                }
+                              ]
+                            ],
+                            "target_server": "string",
+                            "updated_at": "number"
+                          }
+                        ]
+                      ],
+                      "resource_id": "string",
+                      "resource_name": "string",
+                      "tags": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "key": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The list of protected instances that match the search criteria.",
+                "computed": true
+              },
+              "total_count": {
+                "type": "number",
+                "description": "The total number of protected instances that match the search criteria.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "matches": {
+                "block": {
+                  "attributes": {
+                    "key": {
+                      "type": "string",
+                      "description": "Specifies the search field key.",
+                      "required": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "description": "Specifies the search value.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the search field."
+                },
+                "nesting_mode": "list"
+              },
+              "not_tags": {
+                "block": {
+                  "attributes": {
+                    "key": {
+                      "type": "string",
+                      "description": "Specifies the tag key.",
+                      "required": true
+                    },
+                    "values": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "Specifies the tag values.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the tags to query resource list which do not contain all the specified tags."
+                },
+                "nesting_mode": "list"
+              },
+              "not_tags_any": {
+                "block": {
+                  "attributes": {
+                    "key": {
+                      "type": "string",
+                      "description": "Specifies the tag key.",
+                      "required": true
+                    },
+                    "values": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "Specifies the tag values.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the tags to query resource list which do not contain any of the specified tags."
+                },
+                "nesting_mode": "list"
+              },
+              "tags": {
+                "block": {
+                  "attributes": {
+                    "key": {
+                      "type": "string",
+                      "description": "Specifies the tag key.",
+                      "required": true
+                    },
+                    "values": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "Specifies the tag values.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the tags to query resource list which contain all the specified tags."
+                },
+                "nesting_mode": "list"
+              },
+              "tags_any": {
+                "block": {
+                  "attributes": {
+                    "key": {
+                      "type": "string",
+                      "description": "Specifies the tag key.",
+                      "required": true
+                    },
+                    "values": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "Specifies the tag values.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the tags to query resource list which contain any of the specified tags."
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "SDRS",
+            "name": "Storage Disaster Recovery Service",
+            "catalog": "Storage",
+            "name_cn": "存储容灾服务",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}

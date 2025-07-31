@@ -182,7 +182,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "time_zone": {
                 "type": "string",

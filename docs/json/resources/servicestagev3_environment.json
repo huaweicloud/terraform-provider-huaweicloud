@@ -53,7 +53,8 @@
                   "string"
                 ],
                 "description": "The key/value pairs to associate with the environment that used to filter resource.",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "updated_at": {
                 "type": "string",

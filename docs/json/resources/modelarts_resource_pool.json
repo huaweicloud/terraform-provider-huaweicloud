@@ -71,6 +71,14 @@
                 "description": "List of job types supported by the resource pool.",
                 "required": true
               },
+              "server_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The list of service IDs corresponding to the latest expanded nodes.",
+                "computed": true
+              },
               "status": {
                 "type": "string",
                 "description": "The status of the resource pool.",
@@ -193,7 +201,8 @@
                         "map",
                         "string"
                       ],
-                      "optional": true
+                      "optional": true,
+                      "computed": true
                     },
                     "vpc_id": {
                       "type": "string",

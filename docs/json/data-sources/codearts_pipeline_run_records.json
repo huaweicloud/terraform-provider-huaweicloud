@@ -1,0 +1,129 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_codearts_pipeline_run_records": {
+          "block": {
+            "attributes": {
+              "end_time": {
+                "type": "string",
+                "description": "Specifies the end time.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "pipeline_id": {
+                "type": "string",
+                "description": "Specifies the pipeline ID.",
+                "required": true
+              },
+              "project_id": {
+                "type": "string",
+                "description": "Specifies the CodeArts project ID.",
+                "required": true
+              },
+              "records": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "artifact_params": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "branch_filter": "string",
+                            "organization": "string",
+                            "package_name": "string",
+                            "version": "string"
+                          }
+                        ]
+                      ],
+                      "build_params": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "action": "string",
+                            "build_type": "string",
+                            "codehub_id": "string",
+                            "commit_id": "string",
+                            "event_type": "string",
+                            "merge_id": "string",
+                            "message": "string",
+                            "source_branch": "string",
+                            "source_codehub_http_url": "string",
+                            "source_codehub_id": "string",
+                            "source_codehub_url": "string",
+                            "tag": "string",
+                            "target_branch": "string"
+                          }
+                        ]
+                      ],
+                      "detail_url": "string",
+                      "end_time": "number",
+                      "executor_id": "string",
+                      "executor_name": "string",
+                      "modify_url": "string",
+                      "pipeline_run_id": "string",
+                      "run_number": "number",
+                      "stage_status_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "end_time": "string",
+                            "id": "string",
+                            "name": "string",
+                            "sequence": "number",
+                            "start_time": "string",
+                            "status": "string"
+                          }
+                        ]
+                      ],
+                      "start_time": "number",
+                      "status": "string",
+                      "trigger_type": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the pipeline record list.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "sort_dir": {
+                "type": "string",
+                "description": "Specifies the sorting sequence.",
+                "optional": true
+              },
+              "sort_key": {
+                "type": "string",
+                "description": "Specifies the sorting attribute.",
+                "optional": true
+              },
+              "start_time": {
+                "type": "string",
+                "description": "Specifies the start time.",
+                "optional": true
+              },
+              "status": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the list of status.",
+                "optional": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

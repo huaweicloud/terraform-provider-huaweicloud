@@ -51,6 +51,11 @@
                 "type": "string",
                 "computed": true
               },
+              "is_allow_edit": {
+                "type": "bool",
+                "description": "Indicates whether the user is allowed to edit the permission.",
+                "computed": true
+              },
               "is_collect": {
                 "type": "bool",
                 "description": "Indicates whether the current user has collected it.",
@@ -72,6 +77,14 @@
                 "description": "Specifies the pipeline name.",
                 "required": true
               },
+              "parameter_groups": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "description": "Specifies the list of parameter groups.",
+                "optional": true
+              },
               "project_id": {
                 "type": "string",
                 "description": "Specifies the CodeArts project ID.",
@@ -87,6 +100,39 @@
                 "type": "string",
                 "computed": true
               },
+              "resource_level_permission_switch": {
+                "type": "bool",
+                "description": "Specifies whether to use resource level permission. Default to **false**.",
+                "optional": true,
+                "computed": true
+              },
+              "role_permissions": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "operation_authorize": "bool",
+                      "operation_delete": "bool",
+                      "operation_execute": "bool",
+                      "operation_query": "bool",
+                      "operation_update": "bool",
+                      "role_id": "number",
+                      "role_name": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the role permissions.",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "description": "Specifies the list of tag IDs.",
+                "optional": true
+              },
               "template_id": {
                 "type": "string",
                 "description": "Specifies the CodeArts template ID.",
@@ -100,6 +146,21 @@
               "updater_id": {
                 "type": "string",
                 "description": "Indicates the last updater ID.",
+                "computed": true
+              },
+              "webhook_enable": {
+                "type": "bool",
+                "description": "Indicates whether the webhook is enabled.",
+                "computed": true
+              },
+              "webhook_iam_authentication": {
+                "type": "bool",
+                "description": "Indicates whether to enable IAM authentication when webhook triggered.",
+                "computed": true
+              },
+              "webhook_url": {
+                "type": "string",
+                "description": "Indicates the webhook source URL.",
                 "computed": true
               }
             },

@@ -1,0 +1,37 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_codearts_pipeline_group_swap": {
+          "block": {
+            "attributes": {
+              "group_id1": {
+                "type": "string",
+                "description": "Specifies the pipeline group ID1.",
+                "required": true
+              },
+              "group_id2": {
+                "type": "string",
+                "description": "Specifies the pipeline group ID2.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "project_id": {
+                "type": "string",
+                "description": "Specifies the project ID for CodeArts service.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -74,7 +74,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "update_time": {
                 "type": "string",

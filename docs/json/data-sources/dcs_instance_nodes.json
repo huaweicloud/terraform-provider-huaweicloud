@@ -1,0 +1,72 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dcs_instance_nodes": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the instance ID.",
+                "required": true
+              },
+              "nodes": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "az_code": "string",
+                      "dimensions": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "name": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ],
+                      "group_id": "string",
+                      "group_name": "string",
+                      "is_access": "bool",
+                      "is_remove_ip": "bool",
+                      "logical_node_id": "string",
+                      "name": "string",
+                      "node_id": "string",
+                      "node_ip": "string",
+                      "node_port": "string",
+                      "node_role": "string",
+                      "node_type": "string",
+                      "priority_weight": "number",
+                      "replication_id": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the node information.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DCS",
+            "name": "Distributed Cache Service",
+            "catalog": "Middleware",
+            "name_cn": "分布式缓存服务",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

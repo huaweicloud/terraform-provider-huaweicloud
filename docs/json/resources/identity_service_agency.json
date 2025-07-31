@@ -49,7 +49,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "trust_policy": {
                 "type": "string",

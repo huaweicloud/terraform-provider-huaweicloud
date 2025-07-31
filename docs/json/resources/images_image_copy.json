@@ -260,7 +260,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "target_region": {
                 "type": "string",

@@ -173,7 +173,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "taint_policy_on_existing_nodes": {
                 "type": "string",
@@ -302,7 +303,11 @@
                         "attributes": {
                           "name": {
                             "type": "string",
-                            "optional": true
+                            "required": true
+                          },
+                          "uid": {
+                            "type": "string",
+                            "computed": true
                           }
                         }
                       },
@@ -314,11 +319,13 @@
                         "attributes": {
                           "az": {
                             "type": "string",
-                            "optional": true
+                            "optional": true,
+                            "computed": true
                           },
                           "flavor": {
                             "type": "string",
-                            "optional": true
+                            "optional": true,
+                            "computed": true
                           }
                         },
                         "block_types": {
@@ -327,19 +334,23 @@
                               "attributes": {
                                 "enable": {
                                   "type": "bool",
-                                  "optional": true
+                                  "optional": true,
+                                  "computed": true
                                 },
                                 "extension_priority": {
                                   "type": "number",
-                                  "optional": true
+                                  "optional": true,
+                                  "computed": true
                                 },
                                 "max_node_count": {
                                   "type": "number",
-                                  "optional": true
+                                  "optional": true,
+                                  "computed": true
                                 },
                                 "min_node_count": {
                                   "type": "number",
-                                  "optional": true
+                                  "optional": true,
+                                  "computed": true
                                 }
                               }
                             },
@@ -351,11 +362,13 @@
                               "attributes": {
                                 "id": {
                                   "type": "string",
-                                  "optional": true
+                                  "optional": true,
+                                  "computed": true
                                 },
                                 "preference": {
                                   "type": "string",
-                                  "optional": true
+                                  "optional": true,
+                                  "computed": true
                                 }
                               }
                             },

@@ -1,0 +1,126 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_evsv5_snapshots": {
+          "block": {
+            "attributes": {
+              "availability_zone": {
+                "type": "string",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "optional": true
+              },
+              "ids": {
+                "type": "string",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "snapshot_chain_id": {
+                "type": "string",
+                "optional": true
+              },
+              "snapshot_group_id": {
+                "type": "string",
+                "optional": true
+              },
+              "snapshot_type": {
+                "type": "string",
+                "optional": true
+              },
+              "snapshots": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "availability_zone": "string",
+                      "category": "string",
+                      "cmk_id": "string",
+                      "created_at": "string",
+                      "description": "string",
+                      "encrypt_algorithm": "string",
+                      "encrypted": "bool",
+                      "enterprise_project_id": "string",
+                      "id": "string",
+                      "incremental": "bool",
+                      "instant_access": "bool",
+                      "instant_access_retention_at": "string",
+                      "name": "string",
+                      "progress": "string",
+                      "retention_at": "string",
+                      "size": "number",
+                      "snapshot_chains": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "availability_zone": "string",
+                            "capacity": "number",
+                            "category": "string",
+                            "created_at": "string",
+                            "id": "string",
+                            "snapshot_count": "number",
+                            "updated_at": "string",
+                            "volume_id": "string"
+                          }
+                        ]
+                      ],
+                      "snapshot_group_id": "string",
+                      "snapshot_type": "string",
+                      "status": "string",
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "updated_at": "string",
+                      "volume_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "sort_dir": {
+                "type": "string",
+                "optional": true
+              },
+              "sort_key": {
+                "type": "string",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "optional": true
+              },
+              "tag_key": {
+                "type": "string",
+                "optional": true
+              },
+              "tags": {
+                "type": "string",
+                "optional": true
+              },
+              "volume_id": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -108,7 +108,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "transfer_enabled": {
                 "type": "bool",

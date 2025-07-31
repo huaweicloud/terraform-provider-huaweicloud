@@ -258,7 +258,8 @@
                   "string"
                 ],
                 "description": "The key/value pairs to associate with the function.",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "timeout": {
                 "type": "number",

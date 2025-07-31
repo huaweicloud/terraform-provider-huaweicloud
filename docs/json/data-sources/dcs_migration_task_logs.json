@@ -1,0 +1,60 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dcs_migration_task_logs": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "log_level": {
+                "type": "string",
+                "description": "Indicates the log level.",
+                "optional": true
+              },
+              "migration_logs": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "keyword": [
+                        "list",
+                        "string"
+                      ],
+                      "log_code": "string",
+                      "log_level": "string",
+                      "message": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the log list.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "task_id": {
+                "type": "string",
+                "description": "Indicates the ID of the data migration task.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "DCS",
+            "name": "Distributed Cache Service",
+            "catalog": "Middleware",
+            "name_cn": "分布式缓存服务",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

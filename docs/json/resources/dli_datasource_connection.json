@@ -51,8 +51,8 @@
                   "map",
                   "string"
                 ],
-                "description": "The key/value pairs to associate with the datasource connection.",
                 "optional": true,
+                "computed": true,
                 "forcenew": true
               },
               "vpc_id": {

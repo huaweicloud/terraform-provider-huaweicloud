@@ -46,7 +46,8 @@
                   "string"
                 ],
                 "description": "he key/value pairs to associate with the application that used to filter resource.",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "updated_at": {
                 "type": "string",

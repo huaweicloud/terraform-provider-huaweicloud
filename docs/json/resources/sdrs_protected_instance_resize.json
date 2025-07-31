@@ -1,0 +1,60 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_sdrs_protected_instance_resize": {
+          "block": {
+            "attributes": {
+              "dr_dedicated_host_id": {
+                "type": "string",
+                "description": "Specifies the new DeH ID for the DR site.",
+                "optional": true
+              },
+              "dr_flavor_ref": {
+                "type": "string",
+                "description": "Specifies the flavor ID of the DR site server after the modification.",
+                "optional": true
+              },
+              "flavor_ref": {
+                "type": "string",
+                "description": "Specifies the flavor ID of the production and DR site servers after the modification.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "production_dedicated_host_id": {
+                "type": "string",
+                "description": "Specifies the new DeH ID for the production site.",
+                "optional": true
+              },
+              "production_flavor_ref": {
+                "type": "string",
+                "description": "Specifies the flavor ID of the production site server after the modification.",
+                "optional": true
+              },
+              "protected_instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the protected instance to resize.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to create the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "SDRS",
+            "name": "Storage Disaster Recovery Service",
+            "catalog": "Storage",
+            "name_cn": "存储容灾服务",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}

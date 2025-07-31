@@ -1,0 +1,102 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_backup_policy": {
+          "block": {
+            "attributes": {
+              "enabled": {
+                "type": "bool",
+                "description": "Indicates whether the backup policy is enabled.",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the backup policy.",
+                "computed": true
+              },
+              "operation_definition": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "day_backups": "number",
+                      "max_backups": "number",
+                      "month_backups": "number",
+                      "retention_duration_days": "number",
+                      "timezone": "string",
+                      "week_backups": "number",
+                      "year_backups": "number"
+                    }
+                  ]
+                ],
+                "description": "The policy attribute.",
+                "computed": true
+              },
+              "operation_type": {
+                "type": "string",
+                "description": "The backup type.",
+                "computed": true
+              },
+              "policy_id": {
+                "type": "string",
+                "description": "Specifies the backup policy ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "trigger": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "string",
+                      "name": "string",
+                      "properties": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "pattern": [
+                              "list",
+                              "string"
+                            ],
+                            "start_time": "string"
+                          }
+                        ]
+                      ],
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "The backup policy scheduling rule.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

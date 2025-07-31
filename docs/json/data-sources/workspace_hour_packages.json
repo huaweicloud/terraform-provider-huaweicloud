@@ -1,0 +1,72 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_workspace_hour_packages": {
+          "block": {
+            "attributes": {
+              "desktop_resource_spec_code": {
+                "type": "string",
+                "description": "The specification code of desktop resource to be queried.",
+                "optional": true
+              },
+              "hour_packages": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cloud_service_type": "string",
+                      "descriptions": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "en_us": "string",
+                            "zh_cn": "string"
+                          }
+                        ]
+                      ],
+                      "desktop_resource_spec_code": "string",
+                      "domain_ids": [
+                        "list",
+                        "string"
+                      ],
+                      "package_duration": "number",
+                      "resource_spec_code": "string",
+                      "resource_type": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of hour package information that matched filter parameters.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region in which to obtain the hour packages.",
+                "computed": true
+              },
+              "resource_spec_code": {
+                "type": "string",
+                "description": "The specification code of hour package to be queried.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

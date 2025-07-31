@@ -1,0 +1,55 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_hss_container_kubernetes_sync_mccs": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region where the resource is located. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "total_num": {
+                "type": "number",
+                "description": "The total number of clusters to synchronize.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "data_list": {
+                "block": {
+                  "attributes": {
+                    "cluster_id": {
+                      "type": "string",
+                      "description": "The ID of the cluster to synchronize.",
+                      "required": true
+                    }
+                  },
+                  "description": "schema:{\"Required\":true};The list of cluster IDs to synchronize."
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

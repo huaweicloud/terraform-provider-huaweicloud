@@ -103,7 +103,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "updated_time": {
                 "type": "string",

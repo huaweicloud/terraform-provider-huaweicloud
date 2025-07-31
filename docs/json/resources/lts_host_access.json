@@ -90,7 +90,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               }
             },
             "block_types": {

@@ -162,8 +162,8 @@
                   "map",
                   "string"
                 ],
-                "description": "The key/value pairs to associate with the ACL rule.",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "type": {
                 "type": "number",

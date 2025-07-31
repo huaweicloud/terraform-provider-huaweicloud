@@ -1,0 +1,133 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_codearts_pipeline_micro_service": {
+          "block": {
+            "attributes": {
+              "create_time": {
+                "type": "string",
+                "description": "Indicates the create time.",
+                "computed": true
+              },
+              "creator_id": {
+                "type": "string",
+                "description": "Indicates the creator ID.",
+                "computed": true
+              },
+              "creator_name": {
+                "type": "string",
+                "description": "Indicates the creator name.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the micro service description.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_followed": {
+                "type": "bool",
+                "description": "Specifies whether the micro service is followed.",
+                "optional": true,
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the micro service type.",
+                "required": true
+              },
+              "parent_id": {
+                "type": "string",
+                "description": "Specifies the micro service parent ID.",
+                "optional": true
+              },
+              "project_id": {
+                "type": "string",
+                "description": "Specifies the CodeArts project ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Indicates the micro service status.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the micro service name.",
+                "required": true
+              },
+              "update_time": {
+                "type": "string",
+                "description": "Indicates the update time.",
+                "computed": true
+              },
+              "updater_id": {
+                "type": "string",
+                "description": "Indicates the updater ID.",
+                "computed": true
+              },
+              "updater_name": {
+                "type": "string",
+                "description": "Indicates the updater name.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "repos": {
+                "block": {
+                  "attributes": {
+                    "branch": {
+                      "type": "string",
+                      "description": "Specifies the branch.",
+                      "required": true
+                    },
+                    "endpoint_id": {
+                      "type": "string",
+                      "description": "Specifies the endpoint ID.",
+                      "optional": true
+                    },
+                    "git_url": {
+                      "type": "string",
+                      "description": "Specifies the Git address of the Git repository.",
+                      "required": true
+                    },
+                    "http_url": {
+                      "type": "string",
+                      "description": "Specifies the HTTP address of the Git repository.",
+                      "required": true
+                    },
+                    "language": {
+                      "type": "string",
+                      "description": "Specifies the language.",
+                      "required": true
+                    },
+                    "repo_id": {
+                      "type": "string",
+                      "description": "Specifies the repository ID.",
+                      "required": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Specifies the repository type.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the repository information."
+                },
+                "nesting_mode": "set"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

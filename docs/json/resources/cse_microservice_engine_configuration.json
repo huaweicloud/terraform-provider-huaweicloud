@@ -63,6 +63,7 @@
                 ],
                 "description": "The key/value pairs to associate with the configuration that used to filter resource.",
                 "optional": true,
+                "computed": true,
                 "forcenew": true
               },
               "update_revision": {

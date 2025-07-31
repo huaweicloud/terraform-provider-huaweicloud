@@ -234,7 +234,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "tde_enabled": {
                 "type": "bool",

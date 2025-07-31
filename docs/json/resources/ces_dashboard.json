@@ -7,18 +7,23 @@
             "attributes": {
               "created_at": {
                 "type": "string",
-                "description": "The creation time of the dashboard.",
+                "description": "Indicates the creation time of the dashboard.",
                 "computed": true
               },
               "creator_name": {
                 "type": "string",
-                "description": "The creator name of the dashboard.",
+                "description": "Indicates the creator name of the dashboard.",
                 "computed": true
               },
               "dashboard_id": {
                 "type": "string",
                 "description": "Specifies the copied dashboard ID.",
                 "optional": true
+              },
+              "dashboard_template_id": {
+                "type": "string",
+                "description": "Indicates the monitoring disk template ID.",
+                "computed": true
               },
               "enterprise_project_id": {
                 "type": "string",
@@ -40,6 +45,11 @@
                 "description": "Specifies the dashboard name.",
                 "required": true
               },
+              "namespace": {
+                "type": "string",
+                "description": "Indicates the namespace.",
+                "computed": true
+              },
               "region": {
                 "type": "string",
                 "computed": true
@@ -48,6 +58,81 @@
                 "type": "number",
                 "description": "Specifies the monitoring view display mode.",
                 "required": true
+              },
+              "sub_product": {
+                "type": "string",
+                "description": "Indicates the sub-product ID.",
+                "computed": true
+              },
+              "widgets_num": {
+                "type": "number",
+                "description": "Indicates the total number of views under the board.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "extend_info": {
+                "block": {
+                  "attributes": {
+                    "display_time": {
+                      "type": "number",
+                      "description": "Specifies the display time.",
+                      "optional": true
+                    },
+                    "enable_legend": {
+                      "type": "bool",
+                      "description": "Specifies whether to enable the legend.",
+                      "optional": true
+                    },
+                    "enable_screen_auto_play": {
+                      "type": "bool",
+                      "description": "Specifies whether the monitoring screen switches automatically.",
+                      "optional": true
+                    },
+                    "filter": {
+                      "type": "string",
+                      "description": "Specifies the metric aggregation method.",
+                      "optional": true
+                    },
+                    "from": {
+                      "type": "number",
+                      "description": "Specifies the start time.",
+                      "optional": true
+                    },
+                    "full_screen_widget_num": {
+                      "type": "number",
+                      "description": "Specifies the number of large screen display views.",
+                      "optional": true
+                    },
+                    "period": {
+                      "type": "string",
+                      "description": "Specifies the metric aggregation period.",
+                      "optional": true
+                    },
+                    "refresh_time": {
+                      "type": "number",
+                      "description": "Specifies the refresh time.",
+                      "optional": true
+                    },
+                    "screen_color": {
+                      "type": "string",
+                      "description": "Specifies the monitoring screen background color.",
+                      "optional": true
+                    },
+                    "time_interval": {
+                      "type": "number",
+                      "description": "Specifies the automatic switching time interval of the monitoring screen.",
+                      "optional": true
+                    },
+                    "to": {
+                      "type": "number",
+                      "description": "Specifies the end time.",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
               }
             }
           },

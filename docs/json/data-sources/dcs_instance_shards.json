@@ -1,0 +1,74 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dcs_instance_shards": {
+          "block": {
+            "attributes": {
+              "group_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "group_id": "string",
+                      "group_name": "string",
+                      "replication_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "az_code": "string",
+                            "dimensions": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "name": "string",
+                                  "value": "string"
+                                }
+                              ]
+                            ],
+                            "is_replication": "bool",
+                            "node_id": "string",
+                            "replication_id": "string",
+                            "replication_ip": "string",
+                            "replication_role": "string",
+                            "status": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "Indicates the shard list.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the instance ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DCS",
+            "name": "Distributed Cache Service",
+            "catalog": "Middleware",
+            "name_cn": "分布式缓存服务",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

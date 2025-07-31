@@ -1,0 +1,58 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_codearts_pipeline_user_permissions": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "pipeline_id": {
+                "type": "string",
+                "description": "Specifies the pipeline ID.",
+                "required": true
+              },
+              "project_id": {
+                "type": "string",
+                "description": "Specifies the CodeArts project ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "user_name": {
+                "type": "string",
+                "description": "Specifies the user name.",
+                "optional": true
+              },
+              "users": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "operation_authorize": "bool",
+                      "operation_delete": "bool",
+                      "operation_execute": "bool",
+                      "operation_query": "bool",
+                      "operation_update": "bool",
+                      "role_id": "number",
+                      "role_name": "string",
+                      "user_id": "string",
+                      "user_name": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the template list.",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_codearts_build_log_download": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "log_file": {
+                "type": "string",
+                "description": "Specifies the log file path.",
+                "optional": true
+              },
+              "log_level": {
+                "type": "string",
+                "description": "Specifies the log level.",
+                "optional": true
+              },
+              "record_id": {
+                "type": "string",
+                "description": "Specifies the record ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

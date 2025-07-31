@@ -1,0 +1,187 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_codearts_pipelines": {
+          "block": {
+            "attributes": {
+              "by_group": {
+                "type": "string",
+                "description": "Specifies whether to query by group or not.",
+                "optional": true
+              },
+              "component_id": {
+                "type": "string",
+                "description": "Specifies the component ID.",
+                "optional": true
+              },
+              "creator_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the creator ID list.",
+                "optional": true
+              },
+              "end_time": {
+                "type": "string",
+                "description": "Specifies the end time.",
+                "optional": true
+              },
+              "executor_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the executor ID list.",
+                "optional": true
+              },
+              "group_path_id": {
+                "type": "string",
+                "description": "Specifies the group ID path.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_banned": {
+                "type": "string",
+                "description": "Specifies whether the pipeline is banned.",
+                "optional": true
+              },
+              "is_publish": {
+                "type": "string",
+                "description": "Specifies whether the pipeline is a change pipeline.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the pipeline name.",
+                "optional": true
+              },
+              "pipelines": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "component_id": "string",
+                      "convert_sign": "number",
+                      "create_time": "number",
+                      "id": "string",
+                      "is_collect": "bool",
+                      "is_publish": "bool",
+                      "latest_run": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "artifact_params": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "branch_filter": "string",
+                                  "organization": "string",
+                                  "package_name": "string",
+                                  "version": "string"
+                                }
+                              ]
+                            ],
+                            "build_params": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "action": "string",
+                                  "build_type": "string",
+                                  "codehub_id": "string",
+                                  "commit_id": "string",
+                                  "event_type": "string",
+                                  "merge_id": "string",
+                                  "message": "string",
+                                  "source_branch": "string",
+                                  "source_codehub_http_url": "string",
+                                  "source_codehub_id": "string",
+                                  "source_codehub_url": "string",
+                                  "tag": "string",
+                                  "target_branch": "string"
+                                }
+                              ]
+                            ],
+                            "detail_url": "string",
+                            "end_time": "number",
+                            "executor_id": "string",
+                            "executor_name": "string",
+                            "modify_url": "string",
+                            "pipeline_run_id": "string",
+                            "run_number": "number",
+                            "stage_status_list": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "end_time": "string",
+                                  "id": "string",
+                                  "name": "string",
+                                  "sequence": "number",
+                                  "start_time": "string",
+                                  "status": "string"
+                                }
+                              ]
+                            ],
+                            "start_time": "number",
+                            "status": "string",
+                            "trigger_type": "string"
+                          }
+                        ]
+                      ],
+                      "manifest_version": "string",
+                      "name": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the pipeline list.",
+                "computed": true
+              },
+              "project_id": {
+                "type": "string",
+                "description": "Specifies the CodeArts project ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "sort_dir": {
+                "type": "string",
+                "description": "Specifies the sorting rule.",
+                "optional": true
+              },
+              "sort_key": {
+                "type": "string",
+                "description": "Specifies the sorting field name.",
+                "optional": true
+              },
+              "start_time": {
+                "type": "string",
+                "description": "Specifies the start time.",
+                "optional": true
+              },
+              "status": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the status.",
+                "optional": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

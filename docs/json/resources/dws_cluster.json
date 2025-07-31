@@ -204,8 +204,8 @@
                   "map",
                   "string"
                 ],
-                "description": "The key/value pairs to associate with the cluster.",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "task_status": {
                 "type": "string",

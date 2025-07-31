@@ -1,0 +1,45 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_workspace_app_vnc_remote": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the APP server is located.",
+                "computed": true
+              },
+              "server_id": {
+                "type": "string",
+                "description": "The ID of the APP server to get VNC remote information.",
+                "required": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The login type.",
+                "computed": true
+              },
+              "url": {
+                "type": "string",
+                "description": "The remote login console address.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

@@ -38,8 +38,8 @@
                   "map",
                   "string"
                 ],
-                "description": "Specifies a dictionary consisting of tag and parameters to replace the tag.",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "time_to_live": {
                 "type": "string",

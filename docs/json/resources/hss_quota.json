@@ -69,7 +69,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "used_status": {
                 "type": "string",

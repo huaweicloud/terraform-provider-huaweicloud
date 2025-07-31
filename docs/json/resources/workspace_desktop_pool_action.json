@@ -1,0 +1,50 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_workspace_desktop_pool_action": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "op_type": {
+                "type": "string",
+                "description": "The type of desktop pool operation.",
+                "required": true
+              },
+              "pool_id": {
+                "type": "string",
+                "description": "The ID of the desktop pool.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the desktop pool is located.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of operation dispatch task.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Whether the operation is mandatory.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

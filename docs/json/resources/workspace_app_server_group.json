@@ -53,6 +53,29 @@
                 "required": true,
                 "forcenew": true
               },
+              "flavors": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "string",
+                      "links": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "href": "string",
+                            "rel": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The list of server flavors.",
+                "computed": true
+              },
               "id": {
                 "type": "string",
                 "computed": true
@@ -61,6 +84,11 @@
                 "type": "string",
                 "description": "The image ID of the server group.",
                 "required": true
+              },
+              "image_min_disk": {
+                "type": "number",
+                "description": "The minimum memory required to run the image, in MB.",
+                "computed": true
               },
               "image_product_id": {
                 "type": "string",
@@ -101,6 +129,11 @@
                 "optional": true,
                 "forcenew": true
               },
+              "project_name": {
+                "type": "string",
+                "description": "The name of the project.",
+                "computed": true
+              },
               "region": {
                 "type": "string",
                 "computed": true
@@ -134,6 +167,7 @@
                 ],
                 "description": "The key/value pairs to associate with the server group.",
                 "optional": true,
+                "computed": true,
                 "forcenew": true
               },
               "vpc_id": {

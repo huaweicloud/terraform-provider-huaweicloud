@@ -1,0 +1,72 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_workspace_volume_products": {
+          "block": {
+            "attributes": {
+              "availability_zone": {
+                "type": "string",
+                "description": "The availability zone where the volume products are located.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the volume products are located.",
+                "computed": true
+              },
+              "volume_products": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cloud_service_type": "string",
+                      "domain_ids": [
+                        "list",
+                        "string"
+                      ],
+                      "names": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "language": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ],
+                      "resource_spec_code": "string",
+                      "resource_type": "string",
+                      "status": "string",
+                      "volume_product_type": "string",
+                      "volume_type": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of volume products that matched filter parameters.",
+                "computed": true
+              },
+              "volume_type": {
+                "type": "string",
+                "description": "The type of volume products.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

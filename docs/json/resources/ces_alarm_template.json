@@ -25,6 +25,12 @@
                 "type": "string",
                 "computed": true
               },
+              "is_overwrite": {
+                "type": "bool",
+                "description": "Specifies whether to overwrite an existing alarm template with the same template name.",
+                "optional": true,
+                "computed": true
+              },
               "name": {
                 "type": "string",
                 "description": "Specifies the name of the CES alarm template.",
@@ -99,7 +105,39 @@
                     "value": {
                       "type": "number",
                       "description": "Specifies the alarm threshold.",
-                      "required": true
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "block_types": {
+                    "hierarchical_value": {
+                      "block": {
+                        "attributes": {
+                          "critical": {
+                            "type": "number",
+                            "description": "Specifies the threshold for the critical level.",
+                            "optional": true
+                          },
+                          "info": {
+                            "type": "number",
+                            "description": "Specifies the threshold for the info level.",
+                            "optional": true
+                          },
+                          "major": {
+                            "type": "number",
+                            "description": "Specifies the threshold for the major level.",
+                            "optional": true
+                          },
+                          "minor": {
+                            "type": "number",
+                            "description": "Specifies the threshold for the minor level.",
+                            "optional": true
+                          }
+                        },
+                        "description": "Specifies the multiple levels of alarm thresholds."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
                     }
                   },
                   "description": "Specifies the policy list of the CES alarm template."

@@ -114,6 +114,7 @@
                 ],
                 "description": "The key/value pairs to associate with the image server.",
                 "optional": true,
+                "computed": true,
                 "forcenew": true
               },
               "vpc_id": {

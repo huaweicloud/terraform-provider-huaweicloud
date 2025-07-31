@@ -1,0 +1,78 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_codearts_pipeline_micro_services": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "micro_services": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "create_time": "string",
+                      "creator_id": "string",
+                      "creator_name": "string",
+                      "description": "string",
+                      "id": "string",
+                      "is_followed": "bool",
+                      "name": "string",
+                      "parent_id": "string",
+                      "repos": [
+                        "set",
+                        [
+                          "object",
+                          {
+                            "branch": "string",
+                            "endpoint_id": "string",
+                            "git_url": "string",
+                            "http_url": "string",
+                            "language": "string",
+                            "repo_id": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "status": "string",
+                      "type": "string",
+                      "update_time": "string",
+                      "updater_id": "string",
+                      "updater_name": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the micro service list.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the micro service name.",
+                "optional": true
+              },
+              "project_id": {
+                "type": "string",
+                "description": "Specifies the CodeArts project ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "sort_dir": {
+                "type": "string",
+                "description": "Specifies the sorting sequence.",
+                "optional": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

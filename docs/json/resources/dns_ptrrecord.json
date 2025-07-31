@@ -47,7 +47,8 @@
                   "string"
                 ],
                 "description": "The key/value pairs to associate with the PTR record.",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "ttl": {
                 "type": "number",

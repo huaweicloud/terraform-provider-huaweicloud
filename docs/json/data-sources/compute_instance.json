@@ -123,7 +123,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "user_data": {
                 "type": "string",

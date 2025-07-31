@@ -82,7 +82,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "tm_cu_num": {
                 "type": "number",

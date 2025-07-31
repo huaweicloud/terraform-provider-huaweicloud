@@ -218,7 +218,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "tls_ciphers_policy": {
                 "type": "string",

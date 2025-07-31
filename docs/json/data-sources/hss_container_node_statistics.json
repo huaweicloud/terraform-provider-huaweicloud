@@ -1,0 +1,57 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_container_node_statistics": {
+          "block": {
+            "attributes": {
+              "cluster_node_not_installed_num": {
+                "type": "number",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "not_cluster_node_not_installed_num": {
+                "type": "number",
+                "computed": true
+              },
+              "protected_num": {
+                "type": "number",
+                "computed": true
+              },
+              "protected_num_on_demand": {
+                "type": "number",
+                "computed": true
+              },
+              "protected_num_packet_cycle": {
+                "type": "number",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "unprotected_num": {
+                "type": "number",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

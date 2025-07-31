@@ -146,7 +146,8 @@
                   "string"
                 ],
                 "description": "The key/value pairs to associate with the desktop pool.",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "type": {
                 "type": "string",

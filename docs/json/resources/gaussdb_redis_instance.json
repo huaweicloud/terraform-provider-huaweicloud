@@ -130,7 +130,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "volume_size": {
                 "type": "number",

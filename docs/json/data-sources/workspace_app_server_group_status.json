@@ -1,0 +1,43 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_workspace_app_server_group_status": {
+          "block": {
+            "attributes": {
+              "aps_status": {
+                "type": [
+                  "map",
+                  "number"
+                ],
+                "description": "The number of servers in each status.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region in which to query the resource",
+                "computed": true
+              },
+              "server_group_id": {
+                "type": "string",
+                "description": "The unique identifier of the server group.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}
