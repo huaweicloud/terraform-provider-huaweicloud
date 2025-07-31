@@ -319,40 +319,131 @@ func diffObjectParam(paramKey, _, _ string, d *schema.ResourceData) bool {
 
 func SuppressMapDiffs() schema.SchemaDiffSuppressFunc {
 	return func(paramKey, o, n string, d *schema.ResourceData) bool {
+		log.Printf("[DEBUG][SuppressMapDiffs] Called with paramKey='%s', old='%s', new='%s'", paramKey, o, n)
+
+		// Ignore length change judgment, because this method will judge each changed key one by one
 		if strings.HasSuffix(paramKey, ".%") {
-			// Ignore the length judgment, because this method will judge each changed key one by one.
-			return true
-		}
-		if n != "" {
-			log.Printf("[DEBUG] The new value is found and report this change directly, the value is: %s", n)
-			// When the new value is not empty and the key is in the *terraform.InstanceDiff.Attributes list, it means
-			// that the value has been modified compared to the value returned by the console, report this change
-			// directly.
-			return false
-		}
-
-		var (
-			// The absolute path of the current key.
-			categories        = strings.Split(paramKey, ".")
-			mapCategory       = strings.Join(categories[:len(categories)-1], ".")
-			originMapCategory = fmt.Sprintf("%s_origin", mapCategory)
-			keyName           = categories[len(categories)-1]
-		)
-
-		originMap, ok := d.Get(originMapCategory).(map[string]interface{})
-		if !ok {
-			log.Printf("[WARN] Unable to find corresponding origin parameter (%s) in current category, please check your schema definition",
-				originMapCategory)
+			log.Printf("[DEBUG][SuppressMapDiffs] Ignoring length change for '%s'", paramKey)
 			return true
 		}
 
-		if _, ok := originMap[keyName]; ok {
-			// The key is found in the origin parameter value and report this change directly.
-			return false
+		// Handle the case where the entire map is being changed
+		if !strings.Contains(paramKey, ".") {
+			return suppressEntireMapDiff(paramKey, d)
 		}
-		// The relevant value is not configured locally, and the change is ignored.
+
+		// Handle single key changes
+		return suppressSingleKeyDiff(paramKey, d)
+	}
+}
+
+// suppressEntireMapDiff handles changes to the entire map
+func suppressEntireMapDiff(paramKey string, d *schema.ResourceData) bool {
+	originMapCategory := fmt.Sprintf("%s_origin", paramKey)
+	log.Printf("[DEBUG][EntireMapDiff] Handling entire map change for '%s', origin map category: '%s'",
+		paramKey, originMapCategory)
+
+	originMapVal := d.Get(originMapCategory)
+	if originMapVal == nil {
+		log.Printf("[DEBUG][EntireMapDiff] Origin map '%s' is nil, suppressing diff for entire map '%s'",
+			originMapCategory, paramKey)
 		return true
 	}
+
+	originMap := TryMapValueAnalysis(originMapVal)
+	if len(originMap) == 0 {
+		log.Printf("[DEBUG][EntireMapDiff] Origin map '%s' is empty, suppressing diff for entire map '%s'",
+			originMapCategory, paramKey)
+		return true
+	}
+
+	// For entire map changes, we need to check if all keys in the new value exist in origin
+	// This is a simplified approach - in practice, you might want more sophisticated comparison
+	log.Printf("[DEBUG][EntireMapDiff] Entire map '%s' change detected, checking against origin", paramKey)
+	return false // For now, report the change and let individual key suppression handle it
+}
+
+// suppressSingleKeyDiff handles changes to a single key
+func suppressSingleKeyDiff(paramKey string, d *schema.ResourceData) bool {
+	categories := strings.Split(paramKey, ".")
+	mapCategory := strings.Join(categories[:len(categories)-1], ".")
+	originMapCategory := fmt.Sprintf("%s_origin", mapCategory)
+	keyName := categories[len(categories)-1]
+
+	log.Printf("[DEBUG][SingleKeyDiff] Processing key '%s', mapCategory='%s', originMapCategory='%s', keyName='%s'",
+		paramKey, mapCategory, originMapCategory, keyName)
+
+	// Get origin map (last local configuration)
+	originMapVal := d.Get(originMapCategory)
+	originMap := TryMapValueAnalysis(originMapVal)
+	log.Printf("[DEBUG][SingleKeyDiff] Origin map '%s' content: %+v", originMapCategory, originMap)
+
+	// Get current configuration map
+	currentMapVal := GetNestedObjectFromRawConfig(d.GetRawConfig(), mapCategory)
+	if currentMapVal == nil {
+		log.Printf("[DEBUG][SingleKeyDiff] Current map '%s' is nil, suppressing diff for key '%s'",
+			mapCategory, keyName)
+		return true
+	}
+
+	currentMap := TryMapValueAnalysis(currentMapVal)
+	log.Printf("[DEBUG][SingleKeyDiff] Current map '%s' content: %+v", mapCategory, currentMap)
+
+	// Check if the key exists in current configuration
+	existsInCurrent := keyExists(currentMap, keyName)
+	existsInOrigin := keyExists(originMap, keyName)
+	isOriginEmpty := originMapVal == nil || len(originMap) == 0
+
+	// Determine suppression based on key existence
+	return determineSuppression(existsInCurrent, existsInOrigin, isOriginEmpty, keyName)
+}
+
+// keyExists checks if a key exists in the map
+func keyExists(m map[string]interface{}, key string) bool {
+	_, exists := m[key]
+	return exists
+}
+
+// determineSuppression determines whether to suppress the diff based on key existence
+func determineSuppression(existsInCurrent, existsInOrigin, isOriginEmpty bool, keyName string) bool {
+	if existsInCurrent {
+		// The key exists in current configuration
+		if isOriginEmpty {
+			// Origin is empty or nil, report the change (locally added)
+			log.Printf("[DEBUG] The key '%s' found in current config but origin is empty", keyName)
+			return false
+		}
+
+		if existsInOrigin {
+			// The key exists in both current config and origin, report this change
+			log.Printf("[DEBUG] The key '%s' found in both current config and origin", keyName)
+			return false
+		}
+
+		// The key exists in current config but not in origin (locally added)
+		log.Printf("[DEBUG] The key '%s' found in current config but not in origin", keyName)
+		return false
+	}
+
+	// The key does not exist in current configuration
+	if isOriginEmpty {
+		// Origin is empty or nil, suppress the diff (remotely added)
+		log.Printf("[DEBUG] The key '%s' not found in current config and origin is empty, suppressing diff",
+			keyName)
+		return true
+	}
+
+	if existsInOrigin {
+		// The key exists in origin but not in current config (locally removed)
+		log.Printf("[DEBUG] The key '%s' found in origin but not in current config (locally removed)",
+			keyName)
+		return false
+	}
+
+	// The key does not exist in either current config or origin (remotely added)
+	log.Printf("[DEBUG] The key '%s' not found in either current config or origin (remotely added), suppressing diff",
+		keyName)
+	return true
 }
 
 // TakeObjectsDifferent is a method that used to recursively get the complement of object A (objA) compared to

@@ -87,9 +87,11 @@ func ResourceEvsSnapshot() *schema.Resource {
 				Computed: true,
 			},
 			"metadata_origin": {
-				Type:     schema.TypeMap,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:             schema.TypeMap,
+				Optional:         true,
+				Computed:         true,
+				Elem:             &schema.Schema{Type: schema.TypeString},
+				DiffSuppressFunc: utils.SuppressDiffAll,
 				Description: utils.SchemaDesc(
 					`The script configuration value of this change is also the original value used for comparison with
  the new value next time the change is made. The corresponding parameter name is 'metadata'.`,

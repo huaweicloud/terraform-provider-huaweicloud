@@ -597,6 +597,7 @@ CIDR blocks used by the service.`,
 			"lts_custom_tag": {
 				Type:             schema.TypeMap,
 				Optional:         true,
+				Computed:         true,
 				Elem:             &schema.Schema{Type: schema.TypeString},
 				DiffSuppressFunc: utils.SuppressMapDiffs(),
 				// The custom tags can be set to empty, so computed behavior cannot be supported.
@@ -646,9 +647,11 @@ CIDR blocks used by the service.`,
 				Description: `The version of the function.`,
 			},
 			"lts_custom_tag_origin": {
-				Type:     schema.TypeMap,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:             schema.TypeMap,
+				Optional:         true,
+				Computed:         true,
+				Elem:             &schema.Schema{Type: schema.TypeString},
+				DiffSuppressFunc: utils.SuppressDiffAll,
 				Description: utils.SchemaDesc(
 					`The script configuration value of this change is also the original value used for comparison with
  the new value next time the change is made. The corresponding parameter name is 'lts_custom_tag'.`,
