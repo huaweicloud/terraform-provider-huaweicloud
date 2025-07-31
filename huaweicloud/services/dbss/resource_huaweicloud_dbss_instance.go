@@ -577,6 +577,7 @@ func resourceInstanceRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("subnet_id", utils.PathSearch("subnetId", instance, nil)),
 		d.Set("availability_zone", utils.PathSearch("zone", instance, nil)),
 		d.Set("instance_id", utils.PathSearch("id", instance, nil)),
+		d.Set("tags", d.Get("tags")),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())

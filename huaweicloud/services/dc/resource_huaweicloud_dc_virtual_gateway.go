@@ -144,6 +144,7 @@ func resourceVirtualGatewayRead(_ context.Context, d *schema.ResourceData, meta 
 		d.Set("enterprise_project_id", resp.EnterpriseProjectId),
 		d.Set("status", resp.Status),
 		utils.SetResourceTagsToState(d, client, "dc-vgw", d.Id()),
+		d.Set("tags", d.Get("tags")),
 	)
 
 	if err = mErr.ErrorOrNil(); err != nil {

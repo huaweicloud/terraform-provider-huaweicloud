@@ -457,6 +457,7 @@ func resourceCTSDataTrackerRead(_ context.Context, d *schema.ResourceData, meta 
 		d.Set("log_group_name", utils.PathSearch("lts.log_group_name", tracker, nil)),
 		d.Set("log_topic_name", utils.PathSearch("lts.log_topic_name", tracker, nil)),
 		d.Set("is_authorized_bucket", utils.PathSearch("obs_info.is_authorized_bucket", tracker, false)),
+		d.Set("tags", d.Get("tags")),
 	)
 
 	if bucketName != "" {

@@ -193,6 +193,7 @@ func ResourceDliDependentPackageV2Read(_ context.Context, d *schema.ResourceData
 		d.Set("created_at", time.Unix(int64(resp.CreateTime)/1000, 0).Format("2006-01-02 15:04:05")),
 		d.Set("updated_at", time.Unix(int64(resp.CreateTime)/1000, 0).Format("2006-01-02 15:04:05")),
 		d.Set("owner", resp.Owner),
+		d.Set("tags", d.Get("tags")),
 	)
 
 	v3Client, err := cfg.DliV3Client(region)

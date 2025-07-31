@@ -293,6 +293,7 @@ func resourceDNSRecordsetRead(_ context.Context, d *schema.ResourceData, meta in
 		d.Set("line_id", utils.PathSearch("line", getDNSRecordsetRespBody, nil)),
 		d.Set("weight", utils.PathSearch("weight", getDNSRecordsetRespBody, nil)),
 		d.Set("zone_type", zoneType),
+		d.Set("tags", d.Get("tags")),
 	)
 
 	if err := mErr.ErrorOrNil(); err != nil {

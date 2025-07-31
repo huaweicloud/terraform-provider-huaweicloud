@@ -521,6 +521,7 @@ func resourceGeminiDBInstanceV3Read(_ context.Context, d *schema.ResourceData, m
 		d.Set("db_user_name", instance.DbUserName),
 		d.Set("lb_ip_address", instance.LbIpAddress),
 		d.Set("lb_port", instance.LbPort),
+		d.Set("tags", d.Get("tags")),
 	)
 
 	if instance.DedicatedResourceId != "" {
