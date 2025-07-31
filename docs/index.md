@@ -237,7 +237,7 @@ The following arguments are supported:
 
 * `skip_check_website_type` - (Optional) Whether to skip website type check. The default value is `false`.
 
-* `skip_check_upgrade` - (Optional) Whether to skip upgrade check. The default value is `false`.
+* `skip_check_upgrade` - (Optional) Whether to skip upgrade check. The default value is `true`.
 
 * `endpoints` - (Optional) Configuration block in key/value pairs for customizing service endpoints.
   The [endpoints](#block--endpoints) block to support custom endpoints is documented below.
