@@ -1,0 +1,20 @@
+info:
+    version: ""
+    title: resource_huaweicloud_workspace_app_schedule_task
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: WORKSPACEAPP
+paths:
+    /v1/{project_id}/schedule-task:
+        POST:
+            tag: WORKSPACEAPP
+    /v1/{project_id}/schedule-task/{task_id}:
+        DELETE:
+            tag: WORKSPACEAPP
+        GET:
+            tag: WORKSPACEAPP
+        PATCH:
+            tag: WORKSPACEAPP

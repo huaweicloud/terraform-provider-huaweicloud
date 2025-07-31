@@ -8,9 +8,10 @@ host: huaweicloud.com
 tags:
     - name: WORKSPACEAPP
 paths:
-    /v1/{project_id}/app-server-groups:
+    /v1/{project_id}/app-server-group:
         GET:
             tag: WORKSPACEAPP
+    /v1/{project_id}/app-server-groups:
         POST:
             tag: WORKSPACEAPP
     /v1/{project_id}/app-server-groups/{server_group_id}:

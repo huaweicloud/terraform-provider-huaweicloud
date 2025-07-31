@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_codearts_pipeline_group_swap
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CodeArtsPipeline
+paths:
+    /v5/{project_id}/api/pipeline-group/swap:
+        POST:
+            tag: CodeArtsPipeline

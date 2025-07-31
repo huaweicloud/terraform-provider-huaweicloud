@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_dcs_migration_task_logs
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DCS
+paths:
+    /v2/{project_id}/migration-task/{task_id}/logs:
+        GET:
+            tag: DCS

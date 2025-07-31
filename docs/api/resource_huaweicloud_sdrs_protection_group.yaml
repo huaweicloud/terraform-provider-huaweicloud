@@ -8,6 +8,9 @@ host: huaweicloud.com
 tags:
     - name: SDRS
 paths:
+    /v1/{project_id}/jobs/{job_id}:
+        GET:
+            tag: SDRS
     /v1/{project_id}/server-groups:
         POST:
             tag: SDRS

@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_hss_container_export_task
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: HSS
+paths:
+    /v5/{project_id}/container/export-task:
+        POST:
+            tag: HSS
+    /v5/{project_id}/export-task/{task_id}:
+        GET:
+            tag: HSS

@@ -1,0 +1,19 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dcs_cluster_replica_switch
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DCS
+paths:
+    /v2/{project_id}/instance/{instance_id}/groups/{group_id}/replications/{node_id}/async-switchover:
+        POST:
+            tag: DCS
+    /v2/{project_id}/instances/{instance_id}:
+        GET:
+            tag: DCS
+    /v2/{project_id}/jobs/{job_id}:
+        GET:
+            tag: DCS

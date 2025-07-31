@@ -11,6 +11,9 @@ paths:
     /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrat:
         POST:
             tag: EPS
+    /v2/{project_id}/{instance_id}/client-ip-transparent-transmission:
+        PUT:
+            tag: DCS
     /v2/{project_id}/instance/{instance_id}/whitelist:
         GET:
             tag: DCS
@@ -26,16 +29,32 @@ paths:
             tag: DCS
         PUT:
             tag: DCS
-    /v2/{project_id}/instances/{instance_id}/configs:
+    /v2/{project_id}/instances/{instance_id}/async-configs:
+        PUT:
+            tag: DCS
+    /v2/{project_id}/instances/{instance_id}/bigkey/autoscan:
         GET:
             tag: DCS
         PUT:
             tag: DCS
-    /v2/{project_id}/instances/{instance_id}/password:
+    /v2/{project_id}/instances/{instance_id}/configs:
+        GET:
+            tag: DCS
+    /v2/{project_id}/instances/{instance_id}/hotkey/autoscan:
+        GET:
+            tag: DCS
         PUT:
+            tag: DCS
+    /v2/{project_id}/instances/{instance_id}/password/reset:
+        POST:
             tag: DCS
     /v2/{project_id}/instances/{instance_id}/resize:
         POST:
+            tag: DCS
+    /v2/{project_id}/instances/{instance_id}/scan-expire-keys/autoscan-config:
+        GET:
+            tag: DCS
+        PUT:
             tag: DCS
     /v2/{project_id}/instances/{instance_id}/ssl:
         GET:
@@ -47,6 +66,9 @@ paths:
             tag: DCS
     /v2/{project_id}/instances/status:
         PUT:
+            tag: DCS
+    /v2/{project_id}/jobs/{job_id}:
+        GET:
             tag: DCS
     /v2/available-zones:
         GET:

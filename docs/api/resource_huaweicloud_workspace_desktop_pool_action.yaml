@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_workspace_desktop_pool_action
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: Workspace
+paths:
+    /v2/{project_id}/desktop-pools/{pool_id}/action:
+        POST:
+            tag: Workspace
+    /v2/{project_id}/workspace-jobs/{job_id}:
+        GET:
+            tag: Workspace

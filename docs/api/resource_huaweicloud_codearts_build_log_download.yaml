@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_codearts_build_log_download
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CodeArtsBuild
+paths:
+    /v4/{record_id}/download-log:
+        GET:
+            tag: CodeArtsBuild
