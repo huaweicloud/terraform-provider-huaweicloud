@@ -235,10 +235,9 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Product:          "UCS",
 	},
 	"asm": {
-		Name:             "asm",
-		Version:          "v1",
-		WithOutProjectID: true,
-		Product:          "ASM",
+		Name:    "asm",
+		Version: "v1",
+		Product: "ASM",
 	},
 
 	"aom": {
