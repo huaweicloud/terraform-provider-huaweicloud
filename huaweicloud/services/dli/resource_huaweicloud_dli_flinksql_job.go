@@ -422,6 +422,7 @@ func resourceFlinkSqlJobRead(ctx context.Context, d *schema.ResourceData, meta i
 		d.Set("operator_config", detail.JobConfig.OperatorConfig),
 		d.Set("static_estimator_config", detail.JobConfig.StaticEstimatorConfig),
 		d.Set("status", detail.Status),
+		d.Set("tags", d.Get("tags")),
 	)
 
 	if err = setTagsToResource(config, region, d); err != nil {

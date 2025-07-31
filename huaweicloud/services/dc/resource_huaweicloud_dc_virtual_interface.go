@@ -585,6 +585,7 @@ func resourceVirtualInterfaceRead(_ context.Context, d *schema.ResourceData, met
 		d.Set("vif_peers", flattenVifPeersAttribute(utils.PathSearch("vif_peers", interfaceResp, make([]interface{}, 0)).([]interface{}))),
 		d.Set("extend_attribute", flattenExtendAttribute(utils.PathSearch("extend_attribute", interfaceResp, nil))),
 		utils.SetResourceTagsToState(d, client, "dc-vif", d.Id()),
+		d.Set("tags", d.Get("tags")),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())

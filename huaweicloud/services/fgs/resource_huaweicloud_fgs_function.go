@@ -1752,6 +1752,7 @@ func resourceFunctionRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("enable_lts_log", utils.PathSearch("enable_lts_log", function, nil)),
 		d.Set("user_data_encrypt_kms_key_id", utils.PathSearch("user_data_encrypt_kms_key_id", function, nil)),
 		d.Set("code_encrypt_kms_key_id", utils.PathSearch("code_encrypt_kms_key_id", function, nil)),
+		d.Set("tags", d.Get("tags")),
 		// Attributes.
 		d.Set("urn", utils.PathSearch("func_urn", function, nil)),
 		d.Set("version", utils.PathSearch("version", function, nil)),
