@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 1.77.0 (July 31, 2025)
+
+* **New Resource:**
+  + `huaweicloud_cce_nodes_remove` [GH-7388]
+
+ENHANCEMENTS:
+
+* add endpoints key and description on documentation [GH-7342]
+* add default_tags support on provider [GH-7334]
+
 ## 1.76.5 (July 15, 2025)
 
 ENHANCEMENTS:
