@@ -29,7 +29,11 @@ func MergeDefaultTags() schema.CustomizeDiffFunc {
 		rawConfig := d.GetRawConfig()
 		resourceTags := GetRawConfigTags(rawConfig)
 
-		mergedTags := defaultTags
+		mergedTags := make(map[string]interface{})
+		for k, v := range defaultTags {
+			mergedTags[k] = v
+		}
+
 		for k, v := range resourceTags {
 			mergedTags[k] = v
 		}
