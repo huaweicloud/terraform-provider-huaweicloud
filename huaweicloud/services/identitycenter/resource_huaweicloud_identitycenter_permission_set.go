@@ -40,6 +40,8 @@ func ResourcePermissionSet() *schema.Resource {
 			StateContext: resourcePermissionSetImport,
 		},
 
+		CustomizeDiff: config.MergeDefaultTags(),
+
 		Description: "schema: Internal",
 		Schema: map[string]*schema.Schema{
 			"instance_id": {

@@ -14,6 +14,7 @@ import (
 	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
@@ -32,6 +33,8 @@ func ResourceMicroserviceEngineConfiguration() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceMicroserviceEngineConfigurationImportState,
 		},
+
+		CustomizeDiff: config.MergeDefaultTags(),
 
 		Schema: map[string]*schema.Schema{
 			// Authentication and request parameters.

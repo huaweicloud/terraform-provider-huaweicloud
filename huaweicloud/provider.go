@@ -448,6 +448,12 @@ func Provider() *schema.Provider {
 				Description: descriptions["skip_check_upgrade"],
 				DefaultFunc: schema.EnvDefaultFunc("SKIP_CHECK_UPGRADE", true),
 			},
+			"default_tags": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: descriptions["default_tags"],
+			},
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
@@ -3179,6 +3185,8 @@ func init() {
 		"skip_check_website_type": "Whether to skip website type check",
 
 		"skip_check_upgrade": "Whether to skip upgrade check",
+
+		"default_tags": "The default tags of resources managed by this provider",
 	}
 }
 
@@ -3212,6 +3220,7 @@ func configureProvider(_ context.Context, d *schema.ResourceData, terraformVersi
 		SecurityKeyLock:     new(sync.Mutex),
 		EnableForceNew:      d.Get("enable_force_new").(bool),
 		SigningAlgorithm:    d.Get("signing_algorithm").(string),
+		DefaultTags:         d.Get("default_tags").(map[string]interface{}),
 	}
 
 	// get assume role

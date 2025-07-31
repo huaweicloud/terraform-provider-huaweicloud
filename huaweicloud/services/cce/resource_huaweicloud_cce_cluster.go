@@ -87,6 +87,8 @@ func ResourceCluster() *schema.Resource {
 			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
 
+		CustomizeDiff: config.MergeDefaultTags(),
+
 		//request and response parameters
 		Schema: map[string]*schema.Schema{
 			"region": {

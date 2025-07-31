@@ -69,6 +69,8 @@ func ResourceObsBucket() *schema.Resource {
 			StateContext: resourceObsBucketImport,
 		},
 
+		CustomizeDiff: config.MergeDefaultTags(),
+
 		Schema: map[string]*schema.Schema{
 			"bucket": {
 				Type:     schema.TypeString,
