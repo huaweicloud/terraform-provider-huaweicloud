@@ -17,7 +17,7 @@ Use this data source to get SSL certificate list associated with the specified i
 ```hcl
 variable "instance_id" {}
 
-data "huaweicloud_apig_instance_ssl_certificates" "test" {
+data "huaweicloud_apig_instance_associated_ssl_certificates" "test" {
   instance_id = var.instance_id
 }
 ```
@@ -28,7 +28,7 @@ data "huaweicloud_apig_instance_ssl_certificates" "test" {
 variable "instance_id" {}
 variable "common_domain_name" {}
 
-data "huaweicloud_apig_instance_ssl_certificates" "test" {
+data "huaweicloud_apig_instance_associated_ssl_certificates" "test" {
   instance_id = var.instance_id
   common_name = var.common_domain_name
 }
@@ -66,6 +66,8 @@ In addition to all arguments above, the following attributes are exported:
 The `certificates` block supports:
 
 * `instance_id` - The ID of the dedicated instance to which the SSL certificates belong.
+
+* `project_id` - The ID of the region project to which the SSL certificates belong.
 
 * `name` - The name of the SSL certificate.
 
