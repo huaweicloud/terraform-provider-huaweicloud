@@ -9,26 +9,26 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccRdsInstantTaskDelete_basic(t *testing.T) {
+func TestAccTaskDelete_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckRdsInstantJobId(t)
+			acceptance.TestAccPreCheckRdsJobId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      nil,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccRdsInstantTaskDelete_basic(),
-				Check:  resource.ComposeTestCheckFunc(),
+				Config: testTaskbDelete_basic(),
 			},
 		},
 	})
 }
 
-func testAccRdsInstantTaskDelete_basic() string {
+func testTaskbDelete_basic() string {
 	return fmt.Sprintf(`
-resource "huaweicloud_rds_instant_task_delete" "test" {
-  job_id = "%[1]s"
-}`, acceptance.HW_RDS_INSTANT_JOB_ID)
+resource "huaweicloud_rds_task_delete" "test" {
+  job_id = "%s"
+}
+`, acceptance.HW_RDS_JOB_ID)
 }

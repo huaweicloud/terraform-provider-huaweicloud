@@ -2639,6 +2639,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_unlock_node_readonly_status":    rds.ResourceUnlockNodeReadonlyStatus(),
 			"huaweicloud_rds_wal_log_replay_switch":          rds.ResourceRdsWalLogReplaySwitch(),
 			"huaweicloud_rds_restore_read_replica_database":  rds.ResourceRdsRestoreReadReplicaDatabase(),
+			"huaweicloud_rds_task_delete":                    rds.ResourceRdsTaskDelete(),
 
 			"huaweicloud_rgc_account": rgc.ResourceAccount(),
 
