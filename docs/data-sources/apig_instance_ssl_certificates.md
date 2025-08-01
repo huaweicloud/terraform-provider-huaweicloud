@@ -65,6 +65,10 @@ In addition to all arguments above, the following attributes are exported:
 <a name="instance_associated_ssl_certificates"></a>
 The `certificates` block supports:
 
+* `id` - The ID of the SSL certificate.
+
+* `project_id` - The ID of the tenant project.
+
 * `instance_id` - The ID of the dedicated instance to which the SSL certificates belong.
 
 * `name` - The name of the SSL certificate.
