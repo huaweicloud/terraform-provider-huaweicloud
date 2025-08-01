@@ -837,8 +837,8 @@ func flattenExtensionScaleGroupsSpecAutoscaling(spec interface{}) []map[string]i
 	res := []map[string]interface{}{
 		{
 			"extension_priority": utils.PathSearch("extensionPriority", autoscaling, nil),
-			"max_node_count":     utils.PathSearch("minNodeCount", autoscaling, nil),
-			"min_node_count":     utils.PathSearch("maxNodeCount", autoscaling, nil),
+			"max_node_count":     utils.PathSearch("maxNodeCount", autoscaling, nil),
+			"min_node_count":     utils.PathSearch("minNodeCount", autoscaling, nil),
 			"enable":             utils.PathSearch("enable", autoscaling, nil),
 		},
 	}
