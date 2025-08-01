@@ -1,0 +1,83 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_codearts_pipeline_plugins": {
+          "block": {
+            "attributes": {
+              "business_type": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the service type.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "maintainer": {
+                "type": "string",
+                "description": "Specifies the maintenance engineer.",
+                "optional": true
+              },
+              "plugin_attribution": {
+                "type": "string",
+                "description": "Specifies the extension attribute, official or custom.",
+                "optional": true
+              },
+              "plugin_name": {
+                "type": "string",
+                "description": "Specifies the plugin name.",
+                "optional": true
+              },
+              "plugins": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "active": "number",
+                      "business_type": "string",
+                      "business_type_display_name": "string",
+                      "description": "string",
+                      "display_name": "string",
+                      "icon_url": "string",
+                      "maintainers": "string",
+                      "op_time": "string",
+                      "op_user": "string",
+                      "plugin_attribution": "string",
+                      "plugin_composition_type": "string",
+                      "plugin_name": "string",
+                      "refer_count": "number",
+                      "runtime_attribution": "string",
+                      "unique_id": "string",
+                      "usage_count": "number",
+                      "version": "string",
+                      "version_attribution": "string",
+                      "version_description": "string",
+                      "workspace_id": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the plugin list.",
+                "computed": true
+              },
+              "regex_name": {
+                "type": "string",
+                "description": "Specifies the match name.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
