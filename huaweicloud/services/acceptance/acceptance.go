@@ -1982,7 +1982,7 @@ func TestAccPreCheckWorkspaceAppServerGroupId(t *testing.T) {
 }
 
 // lintignore:AT003
-func TestAccPreCheckWorkspaceAppServerID(t *testing.T) {
+func TestAccPreCheckWorkspaceAppServerId(t *testing.T) {
 	if HW_WORKSPACE_APP_SERVER_ID == "" {
 		t.Skip("HW_WORKSPACE_APP_SERVER_ID must be set for Workspace APP acceptance tests.")
 	}

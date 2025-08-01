@@ -1622,6 +1622,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_workspace_app_flavors":                         workspace.DataSourceAppFlavors(),
 			"huaweicloud_workspace_app_group_authorizations":            workspace.DataSourceWorkspaceAppGroupAuthorizations(),
 			"huaweicloud_workspace_app_groups":                          workspace.DataSourceWorkspaceAppGroups(),
+			"huaweicloud_workspace_app_hda_configurations":              workspace.DataSourceAppHdaConfigurations(),
 			"huaweicloud_workspace_app_ies_availability_zones":          workspace.DataSourceIesAvailabilityZones(),
 			"huaweicloud_workspace_app_image_servers":                   workspace.DataSourceWorkspaceAppImageServers(),
 			"huaweicloud_workspace_app_nas_storages":                    workspace.DataSourceAppNasStorages(),
