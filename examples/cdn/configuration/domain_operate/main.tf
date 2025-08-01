@@ -1,17 +1,18 @@
-# 华为云CDN加速域名创建示例
 resource "huaweicloud_cdn_domain" "example" {
   name = "terraform-test.nanguapi.com"
   type = "web"
   sources {
     origin = "third-bucket-addr"
     origin_type = "third_bucket"
+    active = "1"
     http_port = 80
     https_port = 443
     bucket_access_key = "test-ak-12345"
     bucket_secret_key = "test-sk-12345"
     bucket_region = "北京四"
     bucket_name = "third-bucket"
-    retrieval_host = "terraform-test-2.nanguapi.com"
+    obs_bucket_type = "private"
+    retrieval_host = "third-bucket-host"
   }
   service_area = "mainland_china"
 }
