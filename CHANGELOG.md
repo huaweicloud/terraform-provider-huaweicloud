@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.77.2 (Aug 1, 2025)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_cce_node_pool: update min/max node count [GH-7409]
+
 ## 1.77.1 (July 31, 2025)
 
 * **New Resource:**
