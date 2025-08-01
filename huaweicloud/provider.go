@@ -2854,6 +2854,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_workspace_app_nas_storage":                 workspace.ResourceAppNasStorage(),
 			"huaweicloud_workspace_app_personal_folders":            workspace.ResourceAppPersonalFolders(),
 			"huaweicloud_workspace_app_policy_group":                workspace.ResourceAppPolicyGroup(),
+			"huaweicloud_workspace_app_policy_template":             workspace.ResourceAppPolicyTemplate(),
 			"huaweicloud_workspace_app_publishment":                 workspace.ResourceAppPublishment(),
 			"huaweicloud_workspace_app_schedule_task":               workspace.ResourceAppScheduleTask(),
 			"huaweicloud_workspace_app_server_group_scaling_policy": workspace.ResourceAppServerGroupScalingPolicy(),
