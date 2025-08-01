@@ -1952,6 +1952,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_ces_resource_group":                     ces.ResourceResourceGroup(),
 			"huaweicloud_ces_one_click_alarm_rule_action":        ces.ResourceOneClickAlarmRuleAction(),
 			"huaweicloud_ces_one_click_alarm_rule_policy_action": ces.ResourceOneClickAlarmRulePolicyAction(),
+			"huaweicloud_ces_one_click_alarm_reset":              ces.ResourceOneClickAlarmReset(),
 
 			"huaweicloud_cfw_acl_rule":             cfw.ResourceAclRule(),
 			"huaweicloud_cfw_address_group":        cfw.ResourceAddressGroup(),
