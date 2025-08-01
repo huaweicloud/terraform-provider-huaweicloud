@@ -17,9 +17,9 @@ import (
 )
 
 // @API APIG GET /v2/{project_id}/apigw/certificates
-func DataSourceInstanceAssociatedSSLCertificates() *schema.Resource {
+func DataSourceInstanceSSLCertificates() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceInstanceAssociatedSSLCertificatesRead,
+		ReadContext: dataSourceInstanceSSLCertificatesRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -137,7 +137,7 @@ func DataSourceInstanceAssociatedSSLCertificates() *schema.Resource {
 	}
 }
 
-func buildListInstanceAssociatedSSLCertificatesParams(d *schema.ResourceData) string {
+func buildListInstanceSSLCertificatesParams(d *schema.ResourceData) string {
 	res := ""
 	if v, ok := d.GetOk("name"); ok {
 		res = fmt.Sprintf("%s&name=%v", res, v)
@@ -157,7 +157,7 @@ func buildListInstanceAssociatedSSLCertificatesParams(d *schema.ResourceData) st
 	return res
 }
 
-func listInstanceAssociatedSSLCertificates(client *golangsdk.ServiceClient, d *schema.ResourceData) ([]interface{}, error) {
+func listInstanceSSLCertificates(client *golangsdk.ServiceClient, d *schema.ResourceData) ([]interface{}, error) {
 	var (
 		httpUrl    = "v2/{project_id}/apigw/certificates?instance_id={instance_id}"
 		instanceId = d.Get("instance_id").(string)
@@ -170,7 +170,7 @@ func listInstanceAssociatedSSLCertificates(client *golangsdk.ServiceClient, d *s
 	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
 	listPath = strings.ReplaceAll(listPath, "{instance_id}", instanceId)
 
-	listPath += buildListInstanceAssociatedSSLCertificatesParams(d)
+	listPath += buildListInstanceSSLCertificatesParams(d)
 
 	opt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -196,7 +196,7 @@ func listInstanceAssociatedSSLCertificates(client *golangsdk.ServiceClient, d *s
 	return result, nil
 }
 
-func dataSourceInstanceAssociatedSSLCertificatesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceInstanceSSLCertificatesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg    = meta.(*config.Config)
 		region = cfg.GetRegion(d)
@@ -206,7 +206,7 @@ func dataSourceInstanceAssociatedSSLCertificatesRead(_ context.Context, d *schem
 	if err != nil {
 		return diag.Errorf("error creating APIG client: %s", err)
 	}
-	certificates, err := listInstanceAssociatedSSLCertificates(client, d)
+	certificates, err := listInstanceSSLCertificates(client, d)
 	if err != nil {
 		return diag.FromErr(err)
 	}

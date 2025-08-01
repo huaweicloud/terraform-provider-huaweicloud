@@ -11,7 +11,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceInstanceAssociatedSSLCertificates_basic(t *testing.T) {
+func TestAccDataSourceInstanceSSLCertificates_basic(t *testing.T) {
 	var (
 		dataSource = "data.huaweicloud_apig_instance_ssl_certificates.test"
 		dc         = acceptance.InitDataSourceCheck(dataSource)
@@ -43,7 +43,7 @@ func TestAccDataSourceInstanceAssociatedSSLCertificates_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceInstanceAssociatedSSLCertificates_step1(),
+				Config: testAccDataSourceInstanceSSLCertificates_step1(),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestMatchResourceAttr(dataSource, "certificates.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
@@ -66,14 +66,14 @@ func TestAccDataSourceInstanceAssociatedSSLCertificates_basic(t *testing.T) {
 				),
 			},
 			{
-				Config:      testAccDataSourceInstanceAssociatedSSLCertificates_step2(),
+				Config:      testAccDataSourceInstanceSSLCertificates_step2(),
 				ExpectError: regexp.MustCompile("The instance does not exist"),
 			},
 		},
 	})
 }
 
-func testAccDataSourceInstanceAssociatedSSLCertificates_step1() string {
+func testAccDataSourceInstanceSSLCertificates_step1() string {
 	return fmt.Sprintf(`
 data "huaweicloud_apig_instance_ssl_certificates" "test" {
   instance_id = "%[1]s"
@@ -200,7 +200,7 @@ output "certificate_algorithm_type_filter_is_useful" {
 `, acceptance.HW_APIG_DEDICATED_INSTANCE_ID)
 }
 
-func testAccDataSourceInstanceAssociatedSSLCertificates_step2() string {
+func testAccDataSourceInstanceSSLCertificates_step2() string {
 	randomUUID, _ := uuid.GenerateUUID()
 	return fmt.Sprintf(`
 # Filter by Invalid Instance ID
