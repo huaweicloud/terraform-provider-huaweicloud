@@ -657,6 +657,7 @@ var (
 	HW_RDS_START_TIME                      = os.Getenv("HW_RDS_START_TIME")
 	HW_RDS_END_TIME                        = os.Getenv("HW_RDS_END_TIME")
 	HW_RDS_FIXED_IP                        = os.Getenv("HW_RDS_FIXED_IP")
+	HW_RDS_JOB_ID                          = os.Getenv("HW_RDS_JOB_ID")
 	HW_RDS_INSTANT_JOB_ID                  = os.Getenv("HW_RDS_INSTANT_JOB_ID")
 
 	HW_DMS_KAFKA_INSTANCE_ID         = os.Getenv("HW_DMS_KAFKA_INSTANCE_ID")
@@ -3335,6 +3336,13 @@ func TestAccPreCheckRdsTimeRange(t *testing.T) {
 func TestAccPreCheckRdsFixedIp(t *testing.T) {
 	if HW_RDS_FIXED_IP == "" {
 		t.Skip("HW_RDS_FIXED_IP must be set for RDS acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckRdsJobId(t *testing.T) {
+	if HW_RDS_JOB_ID == "" {
+		t.Skip("HW_RDS_JOB_ID must be set for RDS acceptance tests")
 	}
 }
 
