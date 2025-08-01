@@ -1,7 +1,7 @@
 terraform {
   required_providers {
     huaweicloud = {
-      source  = "local-registry/huaweicloud/huaweicloud"
+      source  = "huaweicloud/huaweicloud"
       version = ">=1.70.1"
     }
   }
