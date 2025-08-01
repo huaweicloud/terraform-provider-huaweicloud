@@ -12,7 +12,7 @@ resource "huaweicloud_cdn_domain" "example" {
     bucket_region = "北京四"
     bucket_name = "third-bucket"
     obs_bucket_type = "private"
-    retrieval_host = "third-bucket-host"
+    retrieval_host = "third-bucket-host.com"
   }
   service_area = "mainland_china"
 }
