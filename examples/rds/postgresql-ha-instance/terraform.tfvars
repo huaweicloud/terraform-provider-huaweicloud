@@ -1,0 +1,10 @@
+vpc_name                    = "tf_test_vpc"
+subnet_name                 = "tf_test_subnet"
+security_group_name         = "tf_test_security_group"
+instance_name               = "tf_test_postgresql_instance"
+instance_backup_time_window = "08:00-09:00"
+instance_backup_keep_days   = 1
+account_name                = "tf_test_account"
+database_name               = "tf_test_database"
+schema_name                 = "tf_test_schema"
+backup_name                 = "tf_test_backup"
