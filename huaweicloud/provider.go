@@ -2329,6 +2329,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_host_group":                             hss.ResourceHostGroup(),
 			"huaweicloud_hss_cce_protection":                         hss.ResourceCCEProtection(),
 			"huaweicloud_hss_container_export_task":                  hss.ResourceContainerExportTask(),
+			"huaweicloud_hss_container_sync_cluster_information":     hss.ResourceContainerSyncClusterInformation(),
 			"huaweicloud_hss_container_kubernetes_sync_mccs":         hss.ResourceContainerKubernetesSyncMccs(),
 			"huaweicloud_hss_container_kubernetes_cluster_daemonset": hss.ResourceContainerKubernetesClusterDaemonset(),
 			"huaweicloud_hss_host_protection":                        hss.ResourceHostProtection(),
