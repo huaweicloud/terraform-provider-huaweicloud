@@ -7,9 +7,169 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
+
+// GetNestedObjectFromRawConfig extracts a nested object using a dot-separated path
+// and returns it as a Go interface{} type. It supports deep nesting with both
+// object properties and list indices.
+func GetNestedObjectFromRawConfig(rawConfig cty.Value, path string) interface{} {
+	if rawConfig.IsNull() || !rawConfig.IsKnown() {
+		return nil
+	}
+
+	// If path is empty, return the entire object
+	if path == "" {
+		return getObjectFromRawConfig(rawConfig)
+	}
+
+	paths := strings.Split(path, ".")
+	return getNestedObject(rawConfig, paths)
+}
+
+// getObjectFromRawConfig recursively extracts the entire object from rawConfig
+// and converts it to a Go interface{} type that can be used in Terraform operations.
+// It supports all cty types including nested structures, lists, maps, and primitive types.
+func getObjectFromRawConfig(rawConfig cty.Value) interface{} {
+	if rawConfig.IsNull() || !rawConfig.IsKnown() {
+		return nil
+	}
+
+	ty := rawConfig.Type()
+	switch {
+	case ty == cty.String:
+		return rawConfig.AsString()
+	case ty == cty.Number:
+		// For numbers, convert to float64 for consistency
+		bigFloat := rawConfig.AsBigFloat()
+		f64, _ := bigFloat.Float64()
+		return f64
+	case ty == cty.Bool:
+		return rawConfig.True()
+	case ty.IsListType() || ty.IsSetType() || ty.IsTupleType():
+		return getListFromRawConfig(rawConfig)
+	case ty.IsMapType() || ty.IsObjectType():
+		return getMapFromRawConfig(rawConfig)
+	default:
+		// For unknown types, return the raw value
+		return rawConfig
+	}
+}
+
+// getListFromRawConfig handles list, set, and tuple types
+func getListFromRawConfig(listValue cty.Value) []interface{} {
+	if listValue.IsNull() || !listValue.IsKnown() {
+		return nil
+	}
+
+	if !listValue.CanIterateElements() {
+		return nil
+	}
+
+	var result []interface{}
+	it := listValue.ElementIterator()
+	for it.Next() {
+		_, val := it.Element()
+		converted := getObjectFromRawConfig(val)
+		result = append(result, converted)
+	}
+
+	return result
+}
+
+// getMapFromRawConfig handles map and object types
+func getMapFromRawConfig(mapValue cty.Value) map[string]interface{} {
+	if mapValue.IsNull() || !mapValue.IsKnown() {
+		return nil
+	}
+
+	if !mapValue.CanIterateElements() {
+		return nil
+	}
+
+	result := make(map[string]interface{})
+	it := mapValue.ElementIterator()
+	for it.Next() {
+		key, val := it.Element()
+		keyStr := key.AsString()
+		converted := getObjectFromRawConfig(val)
+		result[keyStr] = converted
+	}
+
+	return result
+}
+
+// getNestedObject recursively navigates through the object structure
+// using the provided path segments
+func getNestedObject(obj cty.Value, paths []string) interface{} {
+	if len(paths) == 0 {
+		return getObjectFromRawConfig(obj)
+	}
+
+	if obj.IsNull() || !obj.IsKnown() {
+		return nil
+	}
+
+	currentPath := paths[0]
+	remainingPaths := paths[1:]
+
+	ty := obj.Type()
+	switch {
+	case ty.IsObjectType():
+		if !obj.Type().HasAttribute(currentPath) {
+			return nil
+		}
+		nextObj := obj.GetAttr(currentPath)
+		return getNestedObject(nextObj, remainingPaths)
+
+	case ty.IsListType() || ty.IsSetType() || ty.IsTupleType():
+		// Handle list indexing
+		if index, err := strconv.Atoi(currentPath); err == nil {
+			if !obj.CanIterateElements() {
+				return nil
+			}
+			it := obj.ElementIterator()
+			var targetValue cty.Value
+			currentIndex := 0
+			for it.Next() {
+				if currentIndex == index {
+					_, targetValue = it.Element()
+					break
+				}
+				currentIndex++
+			}
+			if targetValue.IsNull() {
+				return nil
+			}
+			return getNestedObject(targetValue, remainingPaths)
+		}
+		// If not a valid index, treat as a property (might be for tuple types)
+		return nil
+
+	case ty.IsMapType():
+		if !obj.CanIterateElements() {
+			return nil
+		}
+		it := obj.ElementIterator()
+		for it.Next() {
+			key, val := it.Element()
+			if key.AsString() == currentPath {
+				return getNestedObject(val, remainingPaths)
+			}
+		}
+		return nil
+
+	default:
+		// For primitive types, if there are remaining paths, return nil
+		// as we can't navigate further
+		if len(remainingPaths) > 0 {
+			return nil
+		}
+		return getObjectFromRawConfig(obj)
+	}
+}
 
 func RefreshObjectParamOriginValues(d *schema.ResourceData, objectParamKeys []string) error {
 	var mErr *multierror.Error
