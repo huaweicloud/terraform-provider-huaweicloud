@@ -1,7 +1,6 @@
 package codeartspipeline
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -11,7 +10,6 @@ import (
 
 func TestAccDataSourcePipelinePlugins_basic(t *testing.T) {
 	dataSource := "data.huaweicloud_codearts_pipeline_plugins.test"
-	name := acceptance.RandomAccResourceName()
 	dc := acceptance.InitDataSourceCheck(dataSource)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -20,7 +18,7 @@ func TestAccDataSourcePipelinePlugins_basic(t *testing.T) {
 		CheckDestroy:      nil,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourcePipelinePlugins_basic(name),
+				Config: testDataSourcePipelinePlugins_basic,
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(dataSource, "plugins.#"),
@@ -49,13 +47,9 @@ func TestAccDataSourcePipelinePlugins_basic(t *testing.T) {
 	})
 }
 
-func testDataSourcePipelinePlugins_basic(name string) string {
-	return fmt.Sprintf(`
-%[1]s
-
+const testDataSourcePipelinePlugins_basic = `
 data "huaweicloud_codearts_pipeline_plugins" "test" {
   business_type      = ["Build", "Gate", "Deploy", "Test", "Normal"]
   plugin_attribution = "official"
 }
-`, testPipelineServiceEndpoint_basic(name))
-}
+`

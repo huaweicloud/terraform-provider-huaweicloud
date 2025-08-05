@@ -93,6 +93,7 @@ func dataSourceCodeArtsPipelinePluginMetricsRead(_ context.Context, d *schema.Re
 	getPath = strings.ReplaceAll(getPath, "{domain_id}", cfg.DomainID)
 	getOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"X-Language": "en-us"},
 		JSONBody:         buildPipelineCodeArtsPipelinePluginMetricsQueryParams(d),
 	}
 
