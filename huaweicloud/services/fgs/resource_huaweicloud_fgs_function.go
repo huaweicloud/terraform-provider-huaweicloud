@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -604,6 +605,7 @@ CIDR blocks used by the service.`,
 			"enable_lts_log": {
 				Type:        schema.TypeBool,
 				Optional:    true,
+				Computed:    true,
 				Description: `Whether to enable the LTS log.`,
 			},
 			"user_data_encrypt_kms_key_id": {
@@ -756,17 +758,12 @@ func buildFunctionCodeConfig(funcCode string) map[string]interface{} {
 	}
 }
 
-func buildFunctionLogConfig(d *schema.ResourceData) map[string]interface{} {
-	// If the value of `enable_lts_log` parameter is `false`, the corresponding LTS log parameters cannot be configured.
-	if !d.Get("enable_lts_log").(bool) {
-		return nil
-	}
-
+func buildFunctionLogConfig(rawConfig cty.Value) interface{} {
 	params := utils.RemoveNil(map[string]interface{}{
-		"group_id":    utils.ValueIgnoreEmpty(d.Get("log_group_id")),
-		"group_name":  utils.ValueIgnoreEmpty(d.Get("log_group_name")),
-		"stream_id":   utils.ValueIgnoreEmpty(d.Get("log_stream_id")),
-		"stream_name": utils.ValueIgnoreEmpty(d.Get("log_stream_name")),
+		"group_id":    utils.ValueIgnoreEmpty(utils.GetNestedObjectFromRawConfig(rawConfig, "log_group_id")),
+		"group_name":  utils.ValueIgnoreEmpty(utils.GetNestedObjectFromRawConfig(rawConfig, "log_group_name")),
+		"stream_id":   utils.ValueIgnoreEmpty(utils.GetNestedObjectFromRawConfig(rawConfig, "log_stream_id")),
+		"stream_name": utils.ValueIgnoreEmpty(utils.GetNestedObjectFromRawConfig(rawConfig, "log_stream_name")),
 	})
 
 	// If the value of `enable_lts_log` parameter is `true`, the corresponding LTS log parameters be configured.
@@ -818,6 +815,7 @@ func buildCreateFunctionBodyParams(cfg *config.Config, d *schema.ResourceData) m
 		agency = d.Get("xrole")
 	}
 
+	rawConfig := d.GetRawConfig()
 	return map[string]interface{}{
 		// Required parameters.
 		"func_name":   d.Get("name"),
@@ -843,12 +841,12 @@ func buildCreateFunctionBodyParams(cfg *config.Config, d *schema.ResourceData) m
 		"pre_stop_handler":             utils.ValueIgnoreEmpty(d.Get("pre_stop_handler")),
 		"pre_stop_timeout":             utils.ValueIgnoreEmpty(d.Get("pre_stop_timeout")),
 		"func_code":                    buildFunctionCodeConfig(d.Get("func_code").(string)),
-		"log_config":                   buildFunctionLogConfig(d),
+		"log_config":                   buildFunctionLogConfig(rawConfig),
 		"enable_dynamic_memory":        d.Get("enable_dynamic_memory"),
 		"is_stateful_function":         d.Get("is_stateful_function"),
 		"network_controller":           buildFunctionNetworkController(d.Get("network_controller").([]interface{})),
 		"lts_custom_tag":               utils.ValueIgnoreEmpty(d.Get("lts_custom_tag")),
-		"enable_lts_log":               d.Get("enable_lts_log"),
+		"enable_lts_log":               utils.GetNestedObjectFromRawConfig(rawConfig, "enable_lts_log"),
 		"user_data_encrypt_kms_key_id": utils.ValueIgnoreEmpty(d.Get("user_data_encrypt_kms_key_id")),
 		"code_encrypt_kms_key_id":      utils.ValueIgnoreEmpty(d.Get("code_encrypt_kms_key_id")),
 	}
@@ -1819,6 +1817,7 @@ func resourceFunctionUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		functionMetadataObjectParamKeys = []string{
 			"lts_custom_tag",
 		}
+		rawConfig = d.GetRawConfig()
 	)
 
 	client, err := cfg.NewServiceClient("fgs", region)
@@ -1843,8 +1842,8 @@ func resourceFunctionUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		"restore_hook_timeout", "lts_custom_tag", "enable_lts_log", "user_data_encrypt_kms_key_id") {
 		params := buildUpdateFunctionMetadataBodyParams(cfg, d)
 		if d.HasChanges("log_group_id", "log_stream_id", "log_group_name", "log_stream_name", "enable_lts_log") {
-			params["enable_lts_log"] = d.Get("enable_lts_log")
-			params["log_config"] = buildFunctionLogConfig(d)
+			params["enable_lts_log"] = utils.GetNestedObjectFromRawConfig(rawConfig, "enable_lts_log")
+			params["log_config"] = buildFunctionLogConfig(rawConfig)
 		}
 		err := updateFunctionMetadata(client, funcUrnWithoutVersion, params)
 		if err != nil {
