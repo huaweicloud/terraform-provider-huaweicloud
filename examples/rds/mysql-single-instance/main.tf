@@ -33,7 +33,7 @@ resource "huaweicloud_networking_secgroup" "test" {
 
 resource "huaweicloud_networking_secgroup_rule" "test" {
   security_group_id = huaweicloud_networking_secgroup.test.id
-  direction         = "egress"
+  direction         = "ingress"
   ethertype         = "IPv4"
   remote_ip_prefix  = var.vpc_cidr
   ports             = var.instance_db_port
