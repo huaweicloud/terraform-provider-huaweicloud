@@ -151,9 +151,6 @@ func ResourceGeminiDBInstanceV3() *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
-							ValidateFunc: validation.StringInSlice([]string{
-								"cassandra", "GeminiDB-Cassandra",
-							}, true),
 							DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
 								return new == "GeminiDB-Cassandra"
 							},
@@ -162,9 +159,6 @@ func ResourceGeminiDBInstanceV3() *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
-							ValidateFunc: validation.StringInSlice([]string{
-								"rocksDB",
-							}, true),
 						},
 						"version": {
 							Type:     schema.TypeString,
