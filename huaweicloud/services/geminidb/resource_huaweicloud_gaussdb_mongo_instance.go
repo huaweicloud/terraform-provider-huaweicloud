@@ -135,17 +135,11 @@ func ResourceGaussDBMongoInstanceV3() *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
-							ValidateFunc: validation.StringInSlice([]string{
-								"mongodb",
-							}, true),
 						},
 						"storage_engine": {
 							Type:     schema.TypeString,
 							Required: true,
 							ForceNew: true,
-							ValidateFunc: validation.StringInSlice([]string{
-								"rocksDB",
-							}, true),
 						},
 						"version": {
 							Type:     schema.TypeString,
