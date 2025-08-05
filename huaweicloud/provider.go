@@ -2328,6 +2328,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_asset_manual_collect":                   hss.ResourceAssetManualCollect(),
 			"huaweicloud_hss_host_group":                             hss.ResourceHostGroup(),
 			"huaweicloud_hss_cce_protection":                         hss.ResourceCCEProtection(),
+			"huaweicloud_hss_close_honeypot_port_policy":             hss.ResourceCloseHoneypotPortPolicy(),
 			"huaweicloud_hss_container_export_task":                  hss.ResourceContainerExportTask(),
 			"huaweicloud_hss_container_kubernetes_sync_mccs":         hss.ResourceContainerKubernetesSyncMccs(),
 			"huaweicloud_hss_container_kubernetes_cluster_daemonset": hss.ResourceContainerKubernetesClusterDaemonset(),
