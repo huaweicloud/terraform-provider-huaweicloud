@@ -1630,6 +1630,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_workspace_policy_groups":          workspace.DataSourcePolicyGroups(),
 			"huaweicloud_workspace_service":                workspace.DataSourceService(),
 			"huaweicloud_workspace_tags":                   workspace.DataSourceTags(),
+			"huaweicloud_workspace_users":                  workspace.DataSourceUsers(),
 			"huaweicloud_workspace_volume_products":        workspace.DataSourceVolumeProducts(),
 
 			// Workspace APP
