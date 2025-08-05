@@ -172,10 +172,11 @@ resource "huaweicloud_lts_transfer" "test" {
       obs_prefix_name     = "obs_"
       obs_time_zone       = "UTC"
       obs_time_zone_id    = "Etc/GMT"
+      cloud_project_id    = "%[3]s"
     }
   }
 }
-`, testAccTransfer_base(name), name)
+`, testAccTransfer_base(name), name, acceptance.HW_PROJECT_ID)
 }
 
 func testTransfer_basic_step2(name string) string {
@@ -209,10 +210,11 @@ resource "huaweicloud_lts_transfer" "test" {
       obs_prefix_name     = "obs_2_"
       obs_time_zone       = "UTC-02:00"
       obs_time_zone_id    = "Etc/GMT+2"
+      cloud_project_id    = "%[3]s"
     }
   }
 }
-`, testAccTransfer_base(name), name)
+`, testAccTransfer_base(name), name, acceptance.HW_PROJECT_ID)
 }
 
 func TestAccTransfer_dis(t *testing.T) {

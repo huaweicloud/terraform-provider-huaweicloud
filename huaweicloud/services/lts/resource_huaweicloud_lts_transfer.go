@@ -295,6 +295,12 @@ func ltsTransferLogDetailSchema() *schema.Resource {
 				Computed:    true,
 				Description: `The list of tag fields will be delivered when transferring.`,
 			},
+			"cloud_project_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `The cloud project ID.`,
+			},
 		},
 	}
 	return &sc
@@ -438,6 +444,7 @@ func buildLogTransferInfoLogTransferDetail(rawParams interface{}) map[string]int
 			"struct_fields":        raw["struct_fields"].(*schema.Set).List(),
 			"invalid_field_value":  utils.ValueIgnoreEmpty(raw["invalid_field_value"]),
 			"tags":                 utils.ValueIgnoreEmpty(raw["delivery_tags"]),
+			"cloud_project_id":     utils.ValueIgnoreEmpty(raw["cloud_project_id"]),
 		}
 		return params
 	}
@@ -583,6 +590,7 @@ func flattenLogTransferInfoLogTransferDetail(resp interface{}, d *schema.Resourc
 		"stream_tags":          utils.PathSearch("stream_tags", curJson, nil),
 		"struct_fields":        utils.PathSearch("struct_fields", curJson, nil),
 		"delivery_tags":        utils.PathSearch("tags", curJson, nil),
+		"cloud_project_id":     utils.PathSearch("cloud_project_id", curJson, nil),
 	}
 
 	invalidFieldValue, ok := d.GetOk("log_transfer_info.0.log_transfer_detail.0.invalid_field_value")
