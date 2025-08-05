@@ -212,6 +212,19 @@ The `ess_node_config` and `cold_node_config` block supports:
   + When it is `ess_node_config`, The value range is `1` to `200`.
   + When it is `cold_node_config`, The value range is `1` to `32`.
 
+* `type` - (Optional, String) Specifies the instance type.
+  The valid values are as follows:
+  + **ess**
+  + **chinese**
+  + **english**
+  + **arabic**
+  + **tools**
+  + **thai**
+  + **turkish**
+  + **portuguese**
+  + **chinese-english**
+  + **spanish**
+
 * `volume` - (Optional, List, ForceNew) Specifies the information about the volume. This field should not be specified
   when `flavor` is set to a local dist flavor. But It is required when `flavor` is not a local disk flavor.
   Currently, the following local disk flavors are supported:
@@ -384,4 +397,23 @@ The CSS cluster can be imported by `id`, e.g.
 
 ```bash
 terraform import huaweicloud_css_cluster.test <id>
+```
+
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
+API response, security or some other reason.
+The missing attributes include: `ess_node_config.0.type`, `cold_node_config.0.type`.
+It is generally recommended running `terraform plan` after importing a cluster.
+You can then decide if changes should be applied to the cluster, or the resource definition should be updated to
+align with the cluster. Also you can ignore changes as below.
+
+```hcl
+resource "huaweicloud_css_cluster" "test" {
+  ...
+
+  lifecycle {
+    ignore_changes = [
+      ess_node_config.0.type, cold_node_config.0.type,
+    ]
+  }
+}
 ```
