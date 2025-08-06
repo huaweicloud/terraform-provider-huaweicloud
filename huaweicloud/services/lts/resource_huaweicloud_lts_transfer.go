@@ -296,10 +296,14 @@ func ltsTransferLogDetailSchema() *schema.Resource {
 				Description: `The list of tag fields will be delivered when transferring.`,
 			},
 			"cloud_project_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: `The cloud project ID.`,
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The cloud project ID.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					}),
 			},
 		},
 	}
