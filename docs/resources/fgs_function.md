@@ -456,7 +456,12 @@ The following arguments are supported:
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the function.
 
-* `enable_lts_log` - (Optional, Bool) Specifies whether to enable the LTS log, defaults to **false**.
+* `enable_lts_log` - (Optional, Bool) Specifies whether to enable the LTS logging feature.  
+  The valid values are as follows:
+  + **null** or omit this parameter definition: Using the default value configured on the FunctionGraph service to
+    configure the LTS logging feature.
+  + **true**: Explicitly enable the LTS logging feature.
+  + **false**: Explicitly disable the LTS logging feature.
 
 * `log_group_id` - (Optional, String) Specifies the LTS group ID for collecting logs.
 
@@ -467,7 +472,7 @@ The following arguments are supported:
 * `log_stream_name` - (Optional, String) Specifies the LTS stream name for collecting logs.
 
 -> 1. The `log_group_id`, `log_group_name`, `log_stream_id`, and `log_stream_name` are available and used together
-   only when `enable_lts_log` is set to **true**.
+   only when `enable_lts_log` is set to **true** or the service default value is **true** (omit `enable_lts_log`).
    <br>2. When creating a function, if the `enable_lts_log` parameter is set to **true**, and the corresponding
    LTS log parameters are not specified, the FunctionGraph will automatically create a log group and log stream.
 
