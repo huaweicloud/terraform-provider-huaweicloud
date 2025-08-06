@@ -418,6 +418,9 @@ func resourceAppImageServerRead(_ context.Context, d *schema.ResourceData, meta 
 		d.Set("image_type", utils.PathSearch("image_ref.image_type", imageServer, nil)),
 		d.Set("spec_code", utils.PathSearch("image_ref.spce_code", imageServer, nil)),
 		d.Set("description", utils.PathSearch("description", imageServer, nil)),
+		// The `tags` is a Computed behavior, but the API doesn't return this field, using `ignore_changes` in a script won't work,
+		// so we need to set this value to ensure `ignore_changes` takes effect during import.
+		d.Set("tags", d.Get("tags")),
 		d.Set("enterprise_project_id", utils.PathSearch("enterprise_project_id", imageServer, nil)),
 		d.Set("created_at", utils.FormatTimeStampRFC3339(utils.ConvertTimeStrToNanoTimestamp(utils.PathSearch("create_time",
 			imageServer, "").(string))/1000, false)),
