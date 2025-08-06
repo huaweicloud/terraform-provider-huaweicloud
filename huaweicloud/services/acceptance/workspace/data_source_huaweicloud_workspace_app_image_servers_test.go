@@ -126,5 +126,5 @@ locals {
 output "is_eps_id_filter_useful" {
   value = length(local.eps_id_filter_result) > 0 && alltrue(local.eps_id_filter_result)
 }
-`, testResourceAppImageServer_basic(name, "Data source test"))
+`, testResourceAppImageServer_withAD(name, "Data source test"))
 }
