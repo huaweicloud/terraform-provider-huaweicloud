@@ -196,7 +196,8 @@ The following arguments are supported:
 
 * `rename_commands` - (Optional, Map) Critical command renaming, which is supported only by Redis 4.0 and
   Redis 5.0 instances but not by Redis 3.0 instance.
-  The valid commands that can be renamed are: **command**, **keys**, **flushdb**, **flushall** and **hgetall**.
+  The valid commands that can be renamed are: **command**, **keys**, **flushdb**, **flushall**, **hgetall**, **scan**,
+  **hscan**, **sscan** and **zscan**.
 
 * `big_key_enable_auto_scan` - (Optional, Bool) Specifies whether to enable scheduled cache analysis for big key.
 
