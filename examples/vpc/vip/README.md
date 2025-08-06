@@ -9,7 +9,7 @@ single ECS instance.
 * Terraform installed
 * HuaweiCloud access key and secret key (AK/SK)
 
-## Required Variables
+## Variable Introduction
 
 ### Authentication Variables
 

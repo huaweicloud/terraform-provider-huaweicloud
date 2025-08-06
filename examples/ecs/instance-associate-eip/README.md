@@ -9,7 +9,7 @@ and associate it with an Elastic IP (EIP) for external access.
 * Terraform installed
 * HuaweiCloud access key and secret key (AK/SK)
 
-## Required Variables
+## Variable Introduction
 
 The following variables need to be configured:
 

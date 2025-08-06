@@ -9,7 +9,7 @@ This example provides best practice code for using Terraform to create a migrati
 * HuaweiCloud access key and secret key (AK/SK)
 * SMS source server already exists and is registered
 
-## Required Variables
+## Variable Introduction
 
 The following variables need to be configured:
 

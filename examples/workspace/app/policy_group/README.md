@@ -10,7 +10,7 @@ Workspace service.
 * HuaweiCloud access key and secret key (AK/SK)
 * Workspace service enabled in the target region
 
-## Required Variables
+## Variable Introduction
 
 The following variables need to be configured:
 
