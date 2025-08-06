@@ -1617,6 +1617,7 @@ func Provider() *schema.Provider {
 
 			// Workspace
 			"huaweicloud_workspace_application_rules":      workspace.DataSourceApplicationRules(),
+			"huaweicloud_workspace_application_catalogs":   workspace.DataSourceApplicationCatalogs(),
 			"huaweicloud_workspace_available_ip_number":    workspace.DataSourceAvailableIpNumber(),
 			"huaweicloud_workspace_desktops":               workspace.DataSourceDesktops(),
 			"huaweicloud_workspace_desktop_connections":    workspace.DataSourceDesktopConnections(),
