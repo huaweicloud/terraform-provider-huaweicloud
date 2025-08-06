@@ -29,11 +29,14 @@ const (
 	InstanceTypeEssCold   = "ess-cold"
 	InstanceTypeEssMaster = "ess-master"
 	InstanceTypeEssClient = "ess-client"
+	InstanceTypeEmbedding = "embedding"
 
 	ClusterStatusInProcess   = "100" // The operation, such as instance creation, is in progress.
 	ClusterStatusAvailable   = "200"
 	ClusterStatusUnavailable = "303"
 )
+
+var embeddingTypes = []string{"chinese", "english", "arabic", "tools", "thai", "turkish", "portuguese", "chinese-english", "spanish"}
 
 var cssClusterSchema = map[string]*schema.Schema{
 	"region": {
@@ -511,6 +514,11 @@ func essOrColdNodeSchema() *schema.Resource {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
+			
+			"type": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 
 			"volume": {
 				Type:     schema.TypeList,
@@ -668,7 +676,11 @@ func buildClusterCreateParameters(d *schema.ResourceData, conf *config.Config) (
 	roles := make([]interface{}, 0)
 	if ess, ok := d.GetOk("ess_node_config"); ok {
 		essNode := ess.([]interface{})[0].(map[string]interface{})
-		roles = append(roles, buildCreateClusterRole(essNode, InstanceTypeEss))
+		instanceType := InstanceTypeEss
+		if essNode["type"].(string) != "" {
+		    instanceType = essNode["type"].(string)
+		}
+		roles = append(roles, buildCreateClusterRole(essNode, instanceType))
 
 		if v, ok := d.GetOk("master_node_config"); ok {
 			node := v.([]interface{})[0].(map[string]interface{})
@@ -1115,6 +1127,21 @@ func setNodeConfigsAndAzToState(clusterDetail interface{}, d *schema.ResourceDat
 			mErr = multierror.Append(mErr,
 				d.Set("cold_node_config", []interface{}{v}),
 			)
+		case InstanceTypeEmbedding:
+			volumeSize := utils.PathSearch("volume|[0]|size", v, 0).(int)
+			volumeType := utils.PathSearch("volume|[0]|volume_type", v, "").(string)
+			if volumeSize == 0 && volumeType == "" {
+				v["volume"] = []interface{}{map[string]interface{}{
+					"size":        d.Get("ess_node_config.0.volume.0.size").(int),
+					"volume_type": d.Get("ess_node_config.0.volume.0.volume_type").(string),
+				}}
+			}
+			if ids, ok := d.GetOk("ess_node_config.0.shrink_node_ids"); ok {
+				v["shrink_node_ids"] = ids.([]interface{})
+			}
+			mErr = multierror.Append(mErr,
+				d.Set("ess_node_config", []interface{}{v}),
+			)
 		default:
 			log.Printf("[ERROR] Does not support to set the %s node config to state", k)
 		}
@@ -1129,6 +1156,9 @@ func getNodeConfigMapAndAzArray(instances []interface{}) (map[string]map[string]
 		azArray = append(azArray, utils.PathSearch("azCode", v, "").(string))
 
 		nodeType := utils.PathSearch("type", v, "").(string)
+		if utils.IsStrContainsSliceElement(nodeType, embeddingTypes, true, false) {
+		    nodeType = InstanceTypeEmbedding
+		}
 		if node, ok := nodeConfigMap[nodeType]; ok {
 			node["instance_number"] = node["instance_number"].(int) + 1
 		} else {
