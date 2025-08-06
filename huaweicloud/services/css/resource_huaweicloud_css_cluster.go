@@ -514,7 +514,7 @@ func essOrColdNodeSchema() *schema.Resource {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
-			
+
 			"type": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -678,7 +678,7 @@ func buildClusterCreateParameters(d *schema.ResourceData, conf *config.Config) (
 		essNode := ess.([]interface{})[0].(map[string]interface{})
 		instanceType := InstanceTypeEss
 		if essNode["type"].(string) != "" {
-		    instanceType = essNode["type"].(string)
+			instanceType = essNode["type"].(string)
 		}
 		roles = append(roles, buildCreateClusterRole(essNode, instanceType))
 
@@ -1157,7 +1157,7 @@ func getNodeConfigMapAndAzArray(instances []interface{}) (map[string]map[string]
 
 		nodeType := utils.PathSearch("type", v, "").(string)
 		if utils.IsStrContainsSliceElement(nodeType, embeddingTypes, true, false) {
-		    nodeType = InstanceTypeEmbedding
+			nodeType = InstanceTypeEmbedding
 		}
 		if node, ok := nodeConfigMap[nodeType]; ok {
 			node["instance_number"] = node["instance_number"].(int) + 1
