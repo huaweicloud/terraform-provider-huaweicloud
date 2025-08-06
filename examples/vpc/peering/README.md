@@ -9,7 +9,7 @@ service. The peering connection is used to connect two VPCs using a flexible con
 * Terraform installed
 * HuaweiCloud access key and secret key (AK/SK)
 
-## Required Variables
+## Variable Introduction
 
 The following variables need to be configured:
 

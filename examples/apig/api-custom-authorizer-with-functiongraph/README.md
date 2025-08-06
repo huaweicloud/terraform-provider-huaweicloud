@@ -9,7 +9,7 @@ and FunctionGraph backend on HuaweiCloud.
 * Terraform installed
 * HuaweiCloud access key and secret key (AK/SK)
 
-## Required Variables
+## Variable Introduction
 
 The following variables need to be configured:
 

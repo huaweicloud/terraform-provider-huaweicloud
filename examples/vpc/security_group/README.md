@@ -9,7 +9,7 @@ HuaweiCloud VPC service. The security group is used to control network traffic u
 * Terraform installed
 * HuaweiCloud access key and secret key (AK/SK)
 
-## Required Variables
+## Variable Introduction
 
 The following variables need to be configured:
 

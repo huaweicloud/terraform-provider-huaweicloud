@@ -8,7 +8,7 @@ This example provides best practice code for using Terraform to create an Auto S
 * Terraform installed
 * HuaweiCloud access key and secret key (AK/SK)
 
-## Required Variables
+## Variable Introduction
 
 The following variables need to be configured:
 
