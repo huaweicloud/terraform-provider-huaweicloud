@@ -51,6 +51,17 @@ func TestAccPipelineServiceEndpoint_basic(t *testing.T) {
 				),
 			},
 			{
+				Config: testPipelineServiceEndpoint_update(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name+"-update"),
+					resource.TestCheckResourceAttrPair(rName, "project_id", "huaweicloud_codearts_project.test", "id"),
+					resource.TestCheckResourceAttrSet(rName, "created_by.#"),
+					resource.TestCheckResourceAttrSet(rName, "created_by.0.user_id"),
+					resource.TestCheckResourceAttrSet(rName, "created_by.0.user_name"),
+				),
+			},
+			{
 				ResourceName:            rName,
 				ImportState:             true,
 				ImportStateVerify:       true,
@@ -85,6 +96,27 @@ resource "huaweicloud_codearts_pipeline_service_endpoint" "test" {
     parameters = jsonencode({
       "username":"test",
       "password":"test"
+    })
+  }
+}
+`, testProject_basic(name), name)
+}
+
+func testPipelineServiceEndpoint_update(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_codearts_pipeline_service_endpoint" "test" {
+  project_id = huaweicloud_codearts_project.test.id
+  module_id  = "devcloud2018.codesource-codehub-https-24.oauth07"
+  url        = "https://github.update.com/update"
+  name       = "%[2]s-update"
+
+  authorization {
+    scheme     = "endpoint-auth-scheme-basic"
+    parameters = jsonencode({
+      "username":"test-update",
+      "password":"test-update"
     })
   }
 }

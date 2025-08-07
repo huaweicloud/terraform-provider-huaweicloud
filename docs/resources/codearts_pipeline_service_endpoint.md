@@ -10,8 +10,6 @@ description: |-
 
 Manages a CodeArts pipeline service endpoint resource within HuaweiCloud.
 
--> Destroying resource does not delete the service endpoint.
-
 ## Example Usage
 
 ```hcl
@@ -47,21 +45,21 @@ The following arguments are supported:
 
 * `project_id` - (Required, String, NonUpdatable) Specifies the CodeArts project ID.
 
-* `authorization` - (Optional, List, NonUpdatable) Specifies the permission information.
+* `authorization` - (Optional, List) Specifies the permission information.
   The [authorization](#block--authorization) structure is documented below.
 
 * `module_id` - (Optional, String, NonUpdatable) Specifies the module ID.
 
-* `name` - (Optional, String, NonUpdatable) Specifies the endpoint name.
+* `name` - (Optional, String) Specifies the endpoint name.
 
-* `url` - (Optional, String, NonUpdatable) Specifies the URL.
+* `url` - (Optional, String) Specifies the URL.
 
 <a name="block--authorization"></a>
 The `authorization` block supports:
 
-* `parameters` - (Optional, String, NonUpdatable) Specifies the authentication parameter.
+* `parameters` - (Optional, String) Specifies the authentication parameter.
 
-* `scheme` - (Optional, String, NonUpdatable) Specifies the authentication mode.
+* `scheme` - (Optional, String) Specifies the authentication mode.
 
 ## Attribute Reference
 

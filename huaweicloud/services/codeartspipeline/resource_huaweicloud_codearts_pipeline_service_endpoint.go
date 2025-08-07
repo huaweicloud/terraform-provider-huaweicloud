@@ -3,6 +3,7 @@ package codeartspipeline
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -17,11 +18,13 @@ import (
 )
 
 var serviceEnopointNonUpdatableParams = []string{
-	"project_id", "module_id", "url", "name", "authorization", "authorization.0.parameters", "authorization.0.scheme",
+	"project_id", "module_id",
 }
 
 // @API CodeArtsPipeline POST /v1/serviceconnection/endpoints
 // @API CodeArtsPipeline GET /v1/serviceconnection/endpoints
+// @API CodeArtsPipeline PUT /v1/serviceconnection/endpoints/{uuid}
+// @API CodeArtsPipeline DELETE /v1/serviceconnection/endpoints/{uuid}
 func ResourceCodeArtsPipelineServiceEndpoint() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourcePipelineServiceEndpointCreate,
@@ -258,17 +261,71 @@ func flattenPipelineServiceEndpointCreatedBy(resp interface{}) []interface{} {
 	return []interface{}{rst}
 }
 
-func resourcePipelineServiceEndpointUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
-	return nil
+func resourcePipelineServiceEndpointUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.NewServiceClient("codearts_pipeline", region)
+	if err != nil {
+		return diag.Errorf("error creating CodeArts Pipeline client: %s", err)
+	}
+
+	httpUrl := "v1/serviceconnection/endpoints/{uuid}"
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{uuid}", d.Id())
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildCreatePipelineServiceEndpointBodyParams(d, region)),
+	}
+
+	updateResp, err := client.Request("PUT", updatePath, &updateOpt)
+	if err != nil {
+		return diag.Errorf("error updating CodeArts Pipeline service endpoint: %s", err)
+	}
+
+	updateRespBody, err := utils.FlattenResponse(updateResp)
+	if err != nil {
+		return diag.Errorf("error flattening response: %s", err)
+	}
+
+	if err := checkResponseError(updateRespBody, ""); err != nil {
+		return diag.Errorf("error updating CodeArts Pipeline service endpoint: %s", err)
+	}
+
+	return resourcePipelineServiceEndpointRead(ctx, d, meta)
 }
 
-func resourcePipelineServiceEndpointDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
-	errorMsg := "Deleting pipeline service endpoint resource is not supported. The resource is only removed from the" +
-		"state, the service endpoint remains in the cloud."
-	return diag.Diagnostics{
-		diag.Diagnostic{
-			Severity: diag.Warning,
-			Summary:  errorMsg,
-		},
+func resourcePipelineServiceEndpointDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.NewServiceClient("codearts_pipeline", region)
+	if err != nil {
+		return diag.Errorf("error creating CodeArts Pipeline client: %s", err)
 	}
+
+	httpUrl := "v1/serviceconnection/endpoints/{uuid}"
+	deletePath := client.Endpoint + httpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{project_uuid}", d.Get("project_id").(string))
+	deletePath = strings.ReplaceAll(deletePath, "{uuid}", d.Id())
+	deleteOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         map[string]interface{}{},
+	}
+
+	deleteResp, err := client.Request("DELETE", deletePath, &deleteOpt)
+	if err != nil {
+		// "DEVPIPE.30011011": The current user has no operation permissions
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", "DEVPIPE.30011011"),
+			"error deleting CodeArts Pipeline service endpoint")
+	}
+
+	deleteRespBody, err := utils.FlattenResponse(deleteResp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	if err := checkResponseError(deleteRespBody, ""); err != nil {
+		return diag.Errorf("error deleting CodeArts Pipeline service endpoint: %s", err)
+	}
+
+	return nil
 }

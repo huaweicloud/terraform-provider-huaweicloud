@@ -281,7 +281,7 @@ func updatePipelineMicroServiceField(client *golangsdk.ServiceClient, d *schema.
 		log.Printf("[WARN] error flattening response: %s", err)
 	} else {
 		// when input params are not correct, will return 200 but error code in response body
-		if err := checkResponseError(updateRespBody, templateNotFoundError); err != nil {
+		if err := checkResponseError(updateRespBody, ""); err != nil {
 			return err
 		}
 	}
