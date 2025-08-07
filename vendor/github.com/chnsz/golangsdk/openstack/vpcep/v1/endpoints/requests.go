@@ -40,6 +40,8 @@ type CreateOpts struct {
 	Description string `json:"description,omitempty"`
 	// Specifies the endpoint policy information for the gateway type
 	PolicyStatement []PolicyStatement `json:"policy_statement,omitempty"`
+	// Specifies the endpoint policy information for the gateway type
+	PolicyDocument interface{} `json:"policy_document,omitempty"`
 	// Specifies the IP version
 	IPVersion string `json:"ip_version,omitempty"`
 	// Specifies the IPv6 address
@@ -114,6 +116,8 @@ type UpdatePolicyOptsBuilder interface {
 type UpdatePolicyOpts struct {
 	// Specifies the endpoint policy information for the gateway type
 	PolicyStatement []PolicyStatement `json:"policy_statement,omitempty"`
+	// Specifies the endpoint policy information for the gateway type
+	PolicyDocument interface{} `json:"policy_document,omitempty"`
 }
 
 // UpdatePolicyOptsMap assembles a request body based on the contents of a UpdatePolicyOpts.
