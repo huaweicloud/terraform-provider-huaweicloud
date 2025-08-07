@@ -1096,6 +1096,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_cluster_asset_statistics":             hss.DataSourceClusterAssetStatistics(),
 			"huaweicloud_hss_container_kubernetes":                 hss.DataSourceContainerKubernetes(),
 			"huaweicloud_hss_container_kubernetes_clusters":        hss.DataSourceContainerKubernetesClusters(),
+			"huaweicloud_hss_container_kubernetes_endpoints":       hss.DataSourceContainerKubernetesEndpoints(),
+			"huaweicloud_hss_container_kubernetes_endpoint_detail": hss.DataSourceContainerKubernetesEndpointDetail(),
 			"huaweicloud_hss_container_nodes":                      hss.DataSourceContainerNodes(),
 			"huaweicloud_hss_container_node_statistics":            hss.DataSourceContainerNodeStatistics(),
 			"huaweicloud_hss_event_handle_history":                 hss.DataSourceEventHandleHistory(),
