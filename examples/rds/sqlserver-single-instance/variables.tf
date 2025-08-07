@@ -96,12 +96,6 @@ variable "security_group_name" {
   type        = string
 }
 
-variable "instance_db_port" {
-  description = "The database port"
-  type        = number
-  default     = 1433
-}
-
 variable "instance_password" {
   description = "The password for the RDS instance"
   type        = string
@@ -111,6 +105,12 @@ variable "instance_password" {
 variable "instance_name" {
   description = "The SQLServer RDS instance name"
   type        = string
+}
+
+variable "instance_db_port" {
+  description = "The database port"
+  type        = number
+  default     = 1433
 }
 
 variable "instance_volume_type" {
