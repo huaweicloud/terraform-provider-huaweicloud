@@ -19,7 +19,7 @@ import (
 )
 
 // @API Workspace POST /v1/{project_id}/image-servers
-// @API Workspace GET /v1/{project_id}/image-servers
+// @API Workspace GET /v1/{project_id}/image-servers/{server_id}
 // @API Workspace PATCH /v1/{project_id}/image-servers/{server_id}
 // @API Workspace PATCH /v1/{project_id}/image-servers/actions/batch-delete
 func ResourceAppImageServer() *schema.Resource {
@@ -418,6 +418,9 @@ func resourceAppImageServerRead(_ context.Context, d *schema.ResourceData, meta 
 		d.Set("image_type", utils.PathSearch("image_ref.image_type", imageServer, nil)),
 		d.Set("spec_code", utils.PathSearch("image_ref.spce_code", imageServer, nil)),
 		d.Set("description", utils.PathSearch("description", imageServer, nil)),
+		// The `tags` is a Computed behavior, but the API doesn't return this field, using `ignore_changes` in a script won't work,
+		// so we need to set this value to ensure `ignore_changes` takes effect during import.
+		d.Set("tags", d.Get("tags")),
 		d.Set("enterprise_project_id", utils.PathSearch("enterprise_project_id", imageServer, nil)),
 		d.Set("created_at", utils.FormatTimeStampRFC3339(utils.ConvertTimeStrToNanoTimestamp(utils.PathSearch("create_time",
 			imageServer, "").(string))/1000, false)),
@@ -446,29 +449,19 @@ func flattenAuthorizAccounts(accounts []interface{}) []map[string]interface{} {
 }
 
 func GetAppImageServerById(client *golangsdk.ServiceClient, imageServerId string) (interface{}, error) {
-	httpUrl := "v1/{project_id}/image-servers"
+	httpUrl := "v1/{project_id}/image-servers/{server_id}"
 	getPath := client.Endpoint + httpUrl
 	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
-	getPath = fmt.Sprintf("%s?server_id=%s", getPath, imageServerId)
+	getPath = strings.ReplaceAll(getPath, "{server_id}", imageServerId)
 	getOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 	}
-	// In any case, the response status code is 200.
 	requestResp, err := client.Request("GET", getPath, &getOpt)
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving image server (%s): %s", imageServerId, err)
-	}
-
-	respBody, err := utils.FlattenResponse(requestResp)
 	if err != nil {
 		return nil, err
 	}
 
-	imageServer := utils.PathSearch("items|[0]", respBody, nil)
-	if imageServer == nil {
-		return nil, golangsdk.ErrDefault404{}
-	}
-	return imageServer, nil
+	return utils.FlattenResponse(requestResp)
 }
 
 func resourceAppImageServerUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
