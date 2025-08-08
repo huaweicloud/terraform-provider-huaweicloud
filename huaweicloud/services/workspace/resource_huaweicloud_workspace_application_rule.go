@@ -21,12 +21,12 @@ import (
 // @API WORKSPACE GET /v1/{project_id}/app-center/app-rules
 // @API WORKSPACE PATCH /v1/{project_id}/app-center/app-rules/{rule_id}
 // @API WORKSPACE DELETE /v1/{project_id}/app-center/app-rules/{rule_id}
-func ResourceAppRule() *schema.Resource {
+func ResourceApplicationRule() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceAppRuleCreate,
-		ReadContext:   resourceAppRuleRead,
-		UpdateContext: resourceAppRuleUpdate,
-		DeleteContext: resourceAppRuleDelete,
+		CreateContext: resourceApplicationRuleCreate,
+		ReadContext:   resourceApplicationRuleRead,
+		UpdateContext: resourceApplicationRuleUpdate,
+		DeleteContext: resourceApplicationRuleDelete,
 
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -45,12 +45,12 @@ func ResourceAppRule() *schema.Resource {
 				Required:    true,
 				Description: `The name of the application rule.`,
 			},
-			"rule": {
+			"detail": {
 				Type:        schema.TypeList,
 				Required:    true,
 				MaxItems:    1,
-				Elem:        workspaceAppRuleSchema(),
-				Description: `The config object list of the application rule.`,
+				Elem:        workspaceApplicationDetailSchema(),
+				Description: `The detail of the application rule.`,
 			},
 			"description": {
 				Type:        schema.TypeString,
@@ -61,7 +61,7 @@ func ResourceAppRule() *schema.Resource {
 	}
 }
 
-func workspaceAppRuleSchema() *schema.Resource {
+func workspaceApplicationDetailSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"scope": {
@@ -73,21 +73,21 @@ func workspaceAppRuleSchema() *schema.Resource {
 				Type:        schema.TypeList,
 				Optional:    true,
 				MaxItems:    1,
-				Elem:        workspaceAppProductRule(),
+				Elem:        workspaceApplicationProductRule(),
 				Description: `The detail of the product rule.`,
 			},
 			"path_rule": {
 				Type:        schema.TypeList,
 				Optional:    true,
 				MaxItems:    1,
-				Elem:        workspaceAppPathRule(),
+				Elem:        workspaceApplicationPathRule(),
 				Description: `The detail of the path rule.`,
 			},
 		},
 	}
 }
 
-func workspaceAppProductRule() *schema.Resource {
+func workspaceApplicationProductRule() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"identify_condition": {
@@ -139,7 +139,7 @@ func workspaceAppProductRule() *schema.Resource {
 	}
 }
 
-func workspaceAppPathRule() *schema.Resource {
+func workspaceApplicationPathRule() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"path": {
@@ -151,7 +151,7 @@ func workspaceAppPathRule() *schema.Resource {
 	}
 }
 
-func buildAppPathRule(pathRules []interface{}) map[string]interface{} {
+func buildApplicationPathRule(pathRules []interface{}) map[string]interface{} {
 	if len(pathRules) < 1 {
 		return nil
 	}
@@ -161,7 +161,7 @@ func buildAppPathRule(pathRules []interface{}) map[string]interface{} {
 	}
 }
 
-func buildAppProductRule(productRules []interface{}) map[string]interface{} {
+func buildApplicationProductRule(productRules []interface{}) map[string]interface{} {
 	if len(productRules) < 1 {
 		return nil
 	}
@@ -177,27 +177,27 @@ func buildAppProductRule(productRules []interface{}) map[string]interface{} {
 	}
 }
 
-func buildAppRuleConfig(rules []interface{}) map[string]interface{} {
+func buildApplicationRuleDetail(rules []interface{}) map[string]interface{} {
 	if len(rules) < 1 {
 		return nil
 	}
 
 	return map[string]interface{}{
 		"scope":        utils.PathSearch("scope", rules[0], nil),
-		"product_rule": buildAppProductRule(utils.PathSearch("product_rule", rules[0], make([]interface{}, 0)).([]interface{})),
-		"path_rule":    buildAppPathRule(utils.PathSearch("path_rule", rules[0], make([]interface{}, 0)).([]interface{})),
+		"product_rule": buildApplicationProductRule(utils.PathSearch("product_rule", rules[0], make([]interface{}, 0)).([]interface{})),
+		"path_rule":    buildApplicationPathRule(utils.PathSearch("path_rule", rules[0], make([]interface{}, 0)).([]interface{})),
 	}
 }
 
-func buildCreateAppRuleBodyParams(d *schema.ResourceData) map[string]interface{} {
+func buildCreateApplicationRuleBodyParams(d *schema.ResourceData) map[string]interface{} {
 	return map[string]interface{}{
 		"name":        d.Get("name"),
-		"rule":        buildAppRuleConfig(d.Get("rule").([]interface{})),
+		"rule":        buildApplicationRuleDetail(d.Get("detail").([]interface{})),
 		"description": d.Get("description"),
 	}
 }
 
-func resourceAppRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceApplicationRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.NewServiceClient("workspace", cfg.GetRegion(d))
 	if err != nil {
@@ -209,7 +209,7 @@ func resourceAppRuleCreate(ctx context.Context, d *schema.ResourceData, meta int
 	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
 	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		JSONBody:         utils.RemoveNil(buildCreateAppRuleBodyParams(d)),
+		JSONBody:         utils.RemoveNil(buildCreateApplicationRuleBodyParams(d)),
 	}
 
 	createResp, err := client.Request("POST", createPath, &createOpt)
@@ -221,30 +221,30 @@ func resourceAppRuleCreate(ctx context.Context, d *schema.ResourceData, meta int
 		return diag.FromErr(err)
 	}
 
-	ruleAppId := utils.PathSearch("id", respBody, "").(string)
-	if ruleAppId == "" {
-		return diag.Errorf("unable to find application rule ID in the response")
+	ruleApplicationId := utils.PathSearch("id", respBody, "").(string)
+	if ruleApplicationId == "" {
+		return diag.Errorf("unable to find application rule ID from the API response")
 	}
-	d.SetId(ruleAppId)
+	d.SetId(ruleApplicationId)
 
-	return resourceAppRuleRead(ctx, d, meta)
+	return resourceApplicationRuleRead(ctx, d, meta)
 }
 
-// GetAppRuleById is a method is used to get the application rule.
-func GetAppRuleById(client *golangsdk.ServiceClient, ruleId string) (interface{}, error) {
-	appRules, err := listAppRules(client)
+// GetApplicationRuleById is a method is used to get the application rule.
+func GetApplicationRuleById(client *golangsdk.ServiceClient, ruleId string) (interface{}, error) {
+	applicationRules, err := listApplicationRules(client)
 	if err != nil {
 		return nil, err
 	}
 
-	appRule := utils.PathSearch(fmt.Sprintf("[?id=='%s']|[0]", ruleId), appRules, nil)
-	if appRule == nil {
+	applicationRule := utils.PathSearch(fmt.Sprintf("[?id=='%s']|[0]", ruleId), applicationRules, nil)
+	if applicationRule == nil {
 		return nil, golangsdk.ErrDefault404{}
 	}
-	return appRule, nil
+	return applicationRule, nil
 }
 
-func buildAppRulesQueryParams(d *schema.ResourceData) string {
+func buildApplicationRulesQueryParams(d *schema.ResourceData) string {
 	res := ""
 	if v, ok := d.GetOk("name"); ok {
 		res = fmt.Sprintf("%s&name=%v", res, v)
@@ -252,7 +252,7 @@ func buildAppRulesQueryParams(d *schema.ResourceData) string {
 	return res
 }
 
-func listAppRules(client *golangsdk.ServiceClient, d ...*schema.ResourceData) ([]interface{}, error) {
+func listApplicationRules(client *golangsdk.ServiceClient, d ...*schema.ResourceData) ([]interface{}, error) {
 	var (
 		httpUrl = "v1/{project_id}/app-center/app-rules?limit={limit}"
 		offset  = 0
@@ -264,7 +264,7 @@ func listAppRules(client *golangsdk.ServiceClient, d ...*schema.ResourceData) ([
 	listPathWithLimit = strings.ReplaceAll(listPathWithLimit, "{project_id}", client.ProjectID)
 	listPathWithLimit = strings.ReplaceAll(listPathWithLimit, "{limit}", strconv.Itoa(limit))
 	if len(d) != 0 {
-		listPathWithLimit += buildAppRulesQueryParams(d[0])
+		listPathWithLimit += buildApplicationRulesQueryParams(d[0])
 	}
 
 	opt := &golangsdk.RequestOpts{
@@ -286,18 +286,18 @@ func listAppRules(client *golangsdk.ServiceClient, d ...*schema.ResourceData) ([
 			return nil, err
 		}
 
-		appRules := utils.PathSearch("items", respBody, make([]interface{}, 0)).([]interface{})
-		result = append(result, appRules...)
-		if len(appRules) < limit {
+		applicationRules := utils.PathSearch("items", respBody, make([]interface{}, 0)).([]interface{})
+		result = append(result, applicationRules...)
+		if len(applicationRules) < limit {
 			break
 		}
-		offset += len(appRules)
+		offset += len(applicationRules)
 	}
 
 	return result, nil
 }
 
-func flattenAppPathRule(pathRule interface{}) []interface{} {
+func flattenApplicationPathRule(pathRule interface{}) []interface{} {
 	if pathRule == nil {
 		return nil
 	}
@@ -309,7 +309,7 @@ func flattenAppPathRule(pathRule interface{}) []interface{} {
 	}
 }
 
-func flattenAppProductRule(productRule interface{}) []interface{} {
+func flattenApplicationProductRule(productRule interface{}) []interface{} {
 	if productRule == nil {
 		return nil
 	}
@@ -327,21 +327,21 @@ func flattenAppProductRule(productRule interface{}) []interface{} {
 	}
 }
 
-func flattenAppRuleConfig(ruleConfig interface{}) []interface{} {
-	if ruleConfig == nil {
+func flattenApplicationRuleDetail(ruleDetail interface{}) []interface{} {
+	if ruleDetail == nil {
 		return nil
 	}
 
 	return []interface{}{
 		map[string]interface{}{
-			"scope":        utils.PathSearch("scope", ruleConfig, nil),
-			"product_rule": flattenAppProductRule(utils.PathSearch("product_rule", ruleConfig, nil)),
-			"path_rule":    flattenAppPathRule(utils.PathSearch("path_rule", ruleConfig, nil)),
+			"scope":        utils.PathSearch("scope", ruleDetail, nil),
+			"product_rule": flattenApplicationProductRule(utils.PathSearch("product_rule", ruleDetail, nil)),
+			"path_rule":    flattenApplicationPathRule(utils.PathSearch("path_rule", ruleDetail, nil)),
 		},
 	}
 }
 
-func resourceAppRuleRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceApplicationRuleRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg    = meta.(*config.Config)
 		region = cfg.GetRegion(d)
@@ -352,34 +352,34 @@ func resourceAppRuleRead(_ context.Context, d *schema.ResourceData, meta interfa
 		return diag.Errorf("error creating Workspace client: %s", err)
 	}
 
-	appRule, err := GetAppRuleById(client, d.Id())
+	applicationRule, err := GetApplicationRuleById(client, d.Id())
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error querying Workspace application rule")
 	}
 
 	mErr := multierror.Append(
 		d.Set("region", region),
-		d.Set("name", utils.PathSearch("name", appRule, nil)),
-		d.Set("rule", flattenAppRuleConfig(utils.PathSearch("rule", appRule, nil))),
-		d.Set("description", utils.PathSearch("description", appRule, nil)),
+		d.Set("name", utils.PathSearch("name", applicationRule, nil)),
+		d.Set("detail", flattenApplicationRuleDetail(utils.PathSearch("rule", applicationRule, nil))),
+		d.Set("description", utils.PathSearch("description", applicationRule, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func buildUpdateAppRuleBodyParams(d *schema.ResourceData) map[string]interface{} {
+func buildUpdateApplicationRuleBodyParams(d *schema.ResourceData) map[string]interface{} {
 	return map[string]interface{}{
 		"name":        d.Get("name"),
-		"rule":        buildAppRuleConfig(d.Get("rule").([]interface{})),
+		"rule":        buildApplicationRuleDetail(d.Get("detail").([]interface{})),
 		"description": d.Get("description"),
 	}
 }
 
-func updateAppRule(client *golangsdk.ServiceClient, appRuleId string, params map[string]interface{}) error {
+func updateApplicationRule(client *golangsdk.ServiceClient, applicationRuleId string, params map[string]interface{}) error {
 	updatePath := "v1/{project_id}/app-center/app-rules/{rule_id}"
 	updatePath = client.Endpoint + updatePath
 	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
-	updatePath = strings.ReplaceAll(updatePath, "{rule_id}", appRuleId)
+	updatePath = strings.ReplaceAll(updatePath, "{rule_id}", applicationRuleId)
 	updateOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		JSONBody:         utils.RemoveNil(params),
@@ -388,26 +388,26 @@ func updateAppRule(client *golangsdk.ServiceClient, appRuleId string, params map
 	return err
 }
 
-func resourceAppRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceApplicationRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.NewServiceClient("workspace", cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating Workspace client: %s", err)
 	}
 
-	err = updateAppRule(client, d.Id(), buildUpdateAppRuleBodyParams(d))
+	err = updateApplicationRule(client, d.Id(), buildUpdateApplicationRuleBodyParams(d))
 	if err != nil {
 		return diag.Errorf("error updating Workspace application rule (%s): %s", d.Id(), err)
 	}
 
-	return resourceAppRuleRead(ctx, d, meta)
+	return resourceApplicationRuleRead(ctx, d, meta)
 }
 
-func resourceAppRuleDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceApplicationRuleDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg        = meta.(*config.Config)
-		deletePath = "v1/{project_id}/app-center/app-rules/{rule_id}"
-		appRuleId  = d.Id()
+		cfg               = meta.(*config.Config)
+		deletePath        = "v1/{project_id}/app-center/app-rules/{rule_id}"
+		applicationRuleId = d.Id()
 	)
 
 	client, err := cfg.NewServiceClient("workspace", cfg.GetRegion(d))
@@ -417,13 +417,13 @@ func resourceAppRuleDelete(_ context.Context, d *schema.ResourceData, meta inter
 
 	deletePath = client.Endpoint + deletePath
 	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
-	deletePath = strings.ReplaceAll(deletePath, "{rule_id}", appRuleId)
+	deletePath = strings.ReplaceAll(deletePath, "{rule_id}", applicationRuleId)
 	deleteOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 	}
 	_, err = client.Request("DELETE", deletePath, &deleteOpt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error deleting Workspace application rule (%s)", appRuleId))
+		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error deleting Workspace application rule (%s)", applicationRuleId))
 	}
 
 	return nil
