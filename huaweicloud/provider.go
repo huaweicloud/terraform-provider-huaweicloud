@@ -1431,6 +1431,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_secmaster_catalogues":                secmaster.DataSourceSecmasterCatalogues(),
 			"huaweicloud_secmaster_component_templates":       secmaster.DataSourceComponentTemplates(),
 			"huaweicloud_secmaster_vpc_endpoint_services":     secmaster.DataSourceSecmasterVpcEndpointServices(),
+			"huaweicloud_secmaster_catalogues_search":         secmaster.DataSourceSecmasterCataloguesSearch(),
 
 			// Querying by Ver.2 APIs
 			"huaweicloud_servicestage_component_runtimes": servicestage.DataSourceComponentRuntimes(),
