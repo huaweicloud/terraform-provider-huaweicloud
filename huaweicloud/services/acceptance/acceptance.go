@@ -633,6 +633,7 @@ var (
 	HW_HSS_POLICY_ID = os.Getenv("HW_HSS_POLICY_ID")
 
 	HW_DDM_INSTANCE_ID = os.Getenv("HW_DDM_INSTANCE_ID")
+	HW_DDM_NODE_ID     = os.Getenv("HW_DDM_NODE_ID")
 	HW_DDM_PROCESS_ID  = os.Getenv("HW_DDM_PROCESS_ID")
 	HW_DDM_START_TIME  = os.Getenv("HW_DDM_START_TIME")
 	HW_DDM_END_TIME    = os.Getenv("HW_DDM_END_TIME")
