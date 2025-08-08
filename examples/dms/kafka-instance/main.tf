@@ -1,62 +1,57 @@
-# Create a VPC.
-resource "huaweicloud_vpc" "vpc_1" {
+data "huaweicloud_availability_zones" "test" {
+  count = length(var.availability_zones) == 0 ? 1 : 0
+}
+
+resource "huaweicloud_vpc" "test" {
   name = var.vpc_name
-  cidr = "192.168.0.0/24"
+  cidr = var.vpc_cidr
 }
 
-# Create a subnet under the VPC that created above.
-resource "huaweicloud_vpc_subnet" "vpc_subnet_1" {
+resource "huaweicloud_vpc_subnet" "test" {
+  vpc_id     = huaweicloud_vpc.test.id
   name       = var.subnet_name
-  cidr       = "192.168.0.0/24"
-  gateway_ip = "192.168.0.1"
-  vpc_id     = huaweicloud_vpc.vpc_1.id
+  cidr       = var.subnet_cidr == "" ? cidrsubnet(huaweicloud_vpc.test.cidr, 8, 0) : var.subnet_cidr
+  gateway_ip = var.subnet_gateway_ip == "" ? cidrhost(cidrsubnet(huaweicloud_vpc.test.cidr, 8, 0), 1) : var.subnet_gateway_ip
 }
 
-# Create a security group.
-resource "huaweicloud_networking_secgroup" "secgroup" {
-  name        = var.security_group_name
-  description = "terraform security group"
+resource "huaweicloud_networking_secgroup" "test" {
+  name                 = var.security_group_name
+  delete_default_rules = true
 }
 
-# List the availability zones in the current region.
-data "huaweicloud_availability_zones" "zones" {}
-
-# Query flavor information based on flavorID and storage I/O specification.
-# Make sure the flavors are available in the availability zone.
 data "huaweicloud_dms_kafka_flavors" "test" {
-  type               = "cluster"
-  flavor_id          = "c6.2u4g.cluster"
-  availability_zones = [
-    data.huaweicloud_availability_zones.zones.names[0],
-    data.huaweicloud_availability_zones.zones.names[1],
-    data.huaweicloud_availability_zones.zones.names[2],
-  ]
-  storage_spec_code = "dms.physical.storage.ultra.v2"
+  count = var.instance_flavor_id == "" ? 1 : 0
+
+  type               = var.instance_flavor_type
+  availability_zones = length(var.availability_zones) == 0 ? try(slice(data.huaweicloud_availability_zones.test[0].names, 0, 3)) : var.availability_zones
+  storage_spec_code  = var.instance_storage_spec_code
 }
 
-# Create the DMS Kafka instance.
-resource "huaweicloud_dms_kafka_instance" "kafka_instance_1" {
-  name        = "instance_1"
-  description = "kafka instance demo"
+resource "huaweicloud_dms_kafka_instance" "test" {
+  name               = var.instance_name
+  availability_zones = length(var.availability_zones) == 0 ? try(slice(data.huaweicloud_availability_zones.test[0].names, 0, 3)) : var.availability_zones
+  engine_version     = var.instance_engine_version
+  flavor_id          = var.instance_flavor_id == "" ? try(data.huaweicloud_dms_kafka_flavors.test[0].flavors[0].id, null) : var.instance_flavor_id
+  storage_spec_code  = var.instance_storage_spec_code
+  storage_space      = var.instance_storage_space
+  broker_num         = var.instance_broker_num
+  vpc_id             = huaweicloud_vpc.test.id
+  network_id         = huaweicloud_vpc_subnet.test.id
+  security_group_id  = huaweicloud_networking_secgroup.test.id
+  ssl_enable         = var.instance_ssl_enable
+  access_user        = var.instance_access_user_name
+  password           = var.instance_access_user_password
+  description        = var.instance_description
+  charging_mode      = var.charging_mode
+  period_unit        = var.period_unit
+  period             = var.period
+  auto_renew         = var.auto_renew
 
-  availability_zones = [
-    data.huaweicloud_availability_zones.zones.names[0],
-    data.huaweicloud_availability_zones.zones.names[1],
-    data.huaweicloud_availability_zones.zones.names[2],
-  ]
-
-  engine_version    = "2.7"
-  flavor_id         = data.huaweicloud_dms_kafka_flavors.test.flavor_id
-  storage_spec_code = data.huaweicloud_dms_kafka_flavors.test.flavors[0].ios[0].storage_spec_code
-  storage_space     = 600
-  broker_num        = 3
-
-  vpc_id            = huaweicloud_vpc.vpc_1.id
-  network_id        = huaweicloud_vpc_subnet.vpc_subnet_1.id
-  security_group_id = huaweicloud_networking_secgroup.secgroup.id
-
-  access_user      = var.access_user_name
-  password         = var.access_user_password
-  manager_user     = var.manager_user
-  manager_password = var.manager_password
+  # If you want to change some of the following parameters, you need to remove the corresponding fields from "lifecycle.ignore_changes".
+  lifecycle {
+    ignore_changes = [
+      availability_zones,
+      flavor_id,
+    ]
+  }
 }
