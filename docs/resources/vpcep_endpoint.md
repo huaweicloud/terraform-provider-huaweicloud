@@ -109,6 +109,39 @@ EOF
 }
 ```
 
+### Access to the interface service with policy statement
+
+```hcl
+variable "gateway_service_id" {}
+variable "vpc_id" {}
+variable "network_id" {}
+
+resource "huaweicloud_vpcep_endpoint" "test" {
+  service_id  = var.gateway_service_id
+  vpc_id      = var.vpc_id
+  network_id  = var.network_id
+  description = "test description"
+
+  policy_document = <<EOF
+  {
+    "Version": "5.0",
+    "Statement": [
+      {
+        "Action": [
+          "*"
+        ],
+        "Resource": [
+          "*"
+        ],
+        "Effect": "Allow",
+        "Principal": "*"
+      }
+    ]
+  }
+  EOF
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -168,6 +201,13 @@ The following arguments are supported:
 * `policy_statement` - (Optional, String) Specifies the policy of the gateway VPC endpoint. The value is a string in
   JSON array format. This parameter is only available when `enable_policy` of the VPC endpoint services for
   Object Storage Service (OBS) and Scalable File Service (SFS) is set to **true**.
+
+  -> Please refer to [official document](https://support.huaweicloud.com/intl/en-us/usermanual-iam/iam_01_0017.html) for
+  the data structure rules of the policy. Just pay attention to the fields `Effect`, `Action` and `Resource`.
+
+* `policy_document` - (Optional, String) Specifies the policy of the interface VPC endpoint. The value is a string in
+  JSON array format. This parameter is only available when `enable_policy` set to **true**. This parameter is not
+  available for Object Storage Service (OBS) and Scalable File Service (SFS).
 
   -> Please refer to [official document](https://support.huaweicloud.com/intl/en-us/usermanual-iam/iam_01_0017.html) for
   the data structure rules of the policy. Just pay attention to the fields `Effect`, `Action` and `Resource`.

@@ -104,25 +104,18 @@ func ResourceVPCEndpoint() *schema.Resource {
 				Set:      schema.HashString,
 			},
 			"policy_statement": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Computed:     true,
-				ValidateFunc: validation.StringIsJSON,
-				DiffSuppressFunc: func(_, old, new string, _ *schema.ResourceData) bool {
-					equal, _ := utils.CompareJsonTemplateAreEquivalent(old, new)
-					return equal
-				},
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				ValidateFunc:     validation.StringIsJSON,
+				DiffSuppressFunc: policyDiffSuppressFunc,
 			},
-			// Deprecated
-			// The field type provided in the API document is different from the actual returned type.
-			// As a result, an error is reported when the resource is imported.
 			"policy_document": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				Description: utils.SchemaDesc(
-					`Specifies the endpoint policy information`, utils.SchemaDescInput{Deprecated: true},
-				),
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				ValidateFunc:     validation.StringIsJSON,
+				DiffSuppressFunc: policyDiffSuppressFunc,
 			},
 			"ip_version": {
 				Type:     schema.TypeString,
@@ -161,6 +154,11 @@ func ResourceVPCEndpoint() *schema.Resource {
 	}
 }
 
+func policyDiffSuppressFunc(_, o, n string, _ *schema.ResourceData) bool {
+	equal, _ := utils.CompareJsonTemplateAreEquivalent(o, n)
+	return equal
+}
+
 func buildPolicyStatement(d *schema.ResourceData) ([]endpoints.PolicyStatement, error) {
 	if d.Get("policy_statement").(string) == "" {
 		return nil, nil
@@ -174,6 +172,19 @@ func buildPolicyStatement(d *schema.ResourceData) ([]endpoints.PolicyStatement, 
 	return statements, nil
 }
 
+func buildPolicyDocumentOpts(d *schema.ResourceData) (interface{}, error) {
+	if d.Get("policy_document").(string) == "" {
+		return nil, nil
+	}
+
+	var document interface{}
+	err := json.Unmarshal([]byte(d.Get("policy_document").(string)), &document)
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshalling policy, please check the format of the policy document: %s", err)
+	}
+	return document, nil
+}
+
 func resourceVPCEndpointCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -183,6 +194,11 @@ func resourceVPCEndpointCreate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	policyStatementOpts, err := buildPolicyStatement(d)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	policyDocumentOpts, err := buildPolicyDocumentOpts(d)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -200,6 +216,7 @@ func resourceVPCEndpointCreate(ctx context.Context, d *schema.ResourceData, meta
 		EnableWhitelist: utils.Bool(enableACL),
 		Tags:            utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 		PolicyStatement: policyStatementOpts,
+		PolicyDocument:  policyDocumentOpts,
 	}
 
 	routeTables := d.Get("routetables").(*schema.Set)
@@ -257,6 +274,11 @@ func resourceVPCEndpointRead(_ context.Context, d *schema.ResourceData, meta int
 		return diag.Errorf("error marshaling policy statement: %s", err)
 	}
 
+	policyDocument, err := json.Marshal(ep.PolicyDocument)
+	if err != nil {
+		return diag.Errorf("error marshaling policy document: %s", err)
+	}
+
 	serviceType := ep.ServiceType
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
@@ -272,6 +294,7 @@ func resourceVPCEndpointRead(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("packet_id", ep.MarkerID),
 		d.Set("tags", utils.TagsToMap(ep.Tags)),
 		d.Set("policy_statement", string(policyStatements)),
+		d.Set("policy_document", string(policyDocument)),
 		d.Set("ip_version", ep.IpVersion),
 		d.Set("ipv6_address", ep.Ipv6Address),
 	)
@@ -327,14 +350,20 @@ func resourceVPCEndpointUpdate(ctx context.Context, d *schema.ResourceData, meta
 			return diag.Errorf("error updating tags of VPC endpoint %s: %s", d.Id(), tagErr)
 		}
 	}
-	if d.HasChanges("policy_statement") {
+	if d.HasChanges("policy_statement", "policy_document") {
 		policyStatementOpts, err := buildPolicyStatement(d)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+
+		policyDocumentOpts, err := buildPolicyDocumentOpts(d)
 		if err != nil {
 			return diag.FromErr(err)
 		}
 
 		updatePolicyOpts := endpoints.UpdatePolicyOpts{
 			PolicyStatement: policyStatementOpts,
+			PolicyDocument:  policyDocumentOpts,
 		}
 		_, err = endpoints.UpdatePolicy(vpcepClient, updatePolicyOpts, d.Id()).Extract()
 		if err != nil {

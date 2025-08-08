@@ -53,6 +53,8 @@ type Endpoint struct {
 	Description string `json:"description"`
 	// The gateway type endpoint policy information
 	PolicyStatement []PolicyStatementResult `json:"policy_statement"`
+	// Specifies the endpoint policy information for the gateway type
+	PolicyDocument interface{} `json:"policy_document"`
 	// The cluster ID associated with the instance
 	EndpointPoolID string `json:"endpoint_pool_id"`
 	// The public border group information of the terminal node corresponding to the pool
