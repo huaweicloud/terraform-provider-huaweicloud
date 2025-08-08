@@ -1,45 +1,50 @@
-# This example demonstrates how to create a CBH HA instance in Huawei Cloud using Terraform.
-# It includes the creation of a VPC, subnet, security group, and the CBH instance itself.
-# The example also includes the necessary variables and outputs for the created resources.
-
-#List the availability zones
-data "huaweicloud_availability_zones" "default" {}
-
-#create a VPC
-resource "huaweicloud_vpc" "default" {
-  name = "cbh_vpc"
-  cidr = "192.168.0.0/16"
+data "huaweicloud_cbh_availability_zones" "test" {
+  count = var.master_availability_zone == "" || var.slave_availability_zone == "" ? 1 : 0
 }
 
-#Create a subnet
-resource "huaweicloud_vpc_subnet" "default" {
-  name       = "cbh_subnet"
-  cidr       = "192.168.0.0/20"
-  gateway_ip = "192.168.0.1"
-  vpc_id     = huaweicloud_vpc.default.id
+data "huaweicloud_cbh_flavors" "test" {
+  count = var.instance_flavor_id == "" ? 1 : 0
+
+  type = var.instance_flavor_type
 }
 
-#create a security group
-resource "huaweicloud_networking_secgroup" "default" {
-  name = "cbh_security_group"
+resource "huaweicloud_vpc" "test" {
+  name = var.vpc_name
+  cidr = var.vpc_cidr
 }
 
-resource "huaweicloud_cbh_instance" "cbh_HA_demo" {
-    name                     = var.name
-    flavor_id                = var.flavor_id
-    vpc_id                   = huaweicloud_vpc.default.id
-    subnet_id                = huaweicloud_vpc_subnet.default.id
-    security_group_id        = huaweicloud_networking_secgroup.default.id
-    master_availability_zone = data.huaweicloud_availability_zones.default.names[0]
-    slave_availability_zone  = data.huaweicloud_availability_zones.default.names[0]
-    password                 = var.password
-    charging_mode            = var.charging_mode
-    period_unit              = var.period_unit
-    period                   = var.period          
+resource "huaweicloud_vpc_subnet" "test" {
+  vpc_id     = huaweicloud_vpc.test.id
+  name       = var.subnet_name
+  cidr       = var.subnet_cidr == "" ? cidrsubnet(huaweicloud_vpc.test.cidr, 8, 0) : var.subnet_cidr
+  gateway_ip = var.subnet_gateway_ip == "" ? cidrhost(cidrsubnet(huaweicloud_vpc.test.cidr, 8, 0), 1) : var.subnet_gateway_ip
 }
 
-#output the CBH instance ID
-output "cbh_instance_id" {
-    value       = huaweicloud_cbh_instance.cbh_HA_demo.id
-    description = "The ID of the CBH HA instance."
+resource "huaweicloud_networking_secgroup" "test" {
+  name                 = var.security_group_name
+  delete_default_rules = true
+}
+
+resource "huaweicloud_cbh_ha_instance" "test" {
+  name                     = var.instance_name
+  flavor_id                = var.instance_flavor_id == "" ? try(data.huaweicloud_cbh_flavors.test[0].flavors[0].id, null) : var.instance_flavor_id
+  vpc_id                   = huaweicloud_vpc.test.id
+  subnet_id                = huaweicloud_vpc_subnet.test.id
+  security_group_id        = huaweicloud_networking_secgroup.test.id
+  master_availability_zone = var.master_availability_zone == "" ? try(data.huaweicloud_cbh_availability_zones.test[0].availability_zones[0].name, null) : var.master_availability_zone
+  slave_availability_zone  = var.slave_availability_zone == "" ? try(data.huaweicloud_cbh_availability_zones.test[0].availability_zones[1].name, null) : var.slave_availability_zone
+  password                 = var.instance_password
+  charging_mode            = var.charging_mode
+  period_unit              = var.period_unit
+  period                   = var.period
+  auto_renew               = var.auto_renew
+
+  # If you want to change some of the following parameters, you need to remove the corresponding fields from "lifecycle.ignore_changes".
+  lifecycle {
+    ignore_changes = [
+      flavor_id,
+      master_availability_zone,
+      slave_availability_zone,
+    ]
+  }
 }
