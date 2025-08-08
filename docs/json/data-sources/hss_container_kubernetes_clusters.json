@@ -1,0 +1,85 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_container_kubernetes_clusters": {
+          "block": {
+            "attributes": {
+              "cluster_info_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "active_nodes_number": "number",
+                      "agent_ds_failed_reason": "string",
+                      "agent_ds_install_status": "string",
+                      "agent_install_failed_num": "number",
+                      "agent_installed_num": "number",
+                      "agent_not_install_num": "number",
+                      "app_vul_num": "number",
+                      "cluster_id": "string",
+                      "cluster_name": "string",
+                      "cluster_type": "string",
+                      "creation_timestamp": "number",
+                      "emg_vul_num": "number",
+                      "id": "string",
+                      "last_operate_timestamp": "number",
+                      "last_scan_time": "number",
+                      "risk_assess_num": "number",
+                      "sec_comp_num": "number",
+                      "status": "string",
+                      "sys_vul_num": "number",
+                      "total_nodes_number": "number",
+                      "version": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "cluster_name": {
+                "type": "string",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "last_update_time": {
+                "type": "number",
+                "computed": true
+              },
+              "load_agent_info": {
+                "type": "bool",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "scene": {
+                "type": "string",
+                "optional": true
+              },
+              "total_num": {
+                "type": "number",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

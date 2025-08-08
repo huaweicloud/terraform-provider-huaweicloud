@@ -1,0 +1,138 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_hss_container_kubernetes_cluster_daemonset": {
+          "block": {
+            "attributes": {
+              "agent_version": {
+                "type": "string",
+                "optional": true
+              },
+              "auto_upgrade": {
+                "type": "bool",
+                "required": true
+              },
+              "cce_protection_type": {
+                "type": "string",
+                "optional": true
+              },
+              "charging_mode": {
+                "type": "string",
+                "optional": true
+              },
+              "cluster_id": {
+                "type": "string",
+                "required": true
+              },
+              "cluster_name": {
+                "type": "string",
+                "required": true
+              },
+              "cluster_status": {
+                "type": "string",
+                "computed": true
+              },
+              "ds_info": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "current_num": "number",
+                      "desired_num": "number",
+                      "ready_num": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "installed_status": {
+                "type": "string",
+                "computed": true
+              },
+              "invoked_service": {
+                "type": "string",
+                "optional": true
+              },
+              "node_num": {
+                "type": "number",
+                "computed": true
+              },
+              "prefer_packet_cycle": {
+                "type": "bool",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "yaml_content": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "runtime_info": {
+                "block": {
+                  "attributes": {
+                    "runtime_name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "runtime_path": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              },
+              "schedule_info": {
+                "block": {
+                  "attributes": {
+                    "node_selector": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "optional": true,
+                      "computed": true
+                    },
+                    "pod_tolerances": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "optional": true,
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

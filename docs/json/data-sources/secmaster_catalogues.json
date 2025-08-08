@@ -1,0 +1,68 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_secmaster_catalogues": {
+          "block": {
+            "attributes": {
+              "catalogue_code": {
+                "type": "string",
+                "optional": true
+              },
+              "catalogue_type": {
+                "type": "string",
+                "optional": true
+              },
+              "data": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "catalogue_address": "string",
+                      "catalogue_status": "bool",
+                      "id": "string",
+                      "is_card_area": "bool",
+                      "is_display": "bool",
+                      "is_landing_page": "bool",
+                      "is_navigation": "bool",
+                      "layout_id": "string",
+                      "layout_name": "string",
+                      "parent_alisa_en": "string",
+                      "parent_alisa_zh": "string",
+                      "parent_catalogue": "string",
+                      "publisher_name": "string",
+                      "second_alias_en": "string",
+                      "second_alias_zh": "string",
+                      "second_catalogue": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

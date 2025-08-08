@@ -248,6 +248,10 @@
                         "string"
                       ],
                       "optional": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "optional": true
                     }
                   },
                   "block_types": {
@@ -290,6 +294,10 @@
                         "list",
                         "string"
                       ],
+                      "optional": true
+                    },
+                    "type": {
+                      "type": "string",
                       "optional": true
                     }
                   },

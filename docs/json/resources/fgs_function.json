@@ -87,7 +87,8 @@
               "enable_lts_log": {
                 "type": "bool",
                 "description": "Whether to enable the LTS log.",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "encrypted_user_data": {
                 "type": "string",

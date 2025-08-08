@@ -1,0 +1,55 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_codearts_pipeline_rules": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the rule name.",
+                "optional": true
+              },
+              "project_id": {
+                "type": "string",
+                "description": "Specifies the CodeArts project ID.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "rules": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "string",
+                      "name": "string",
+                      "operate_time": "number",
+                      "operator": "string",
+                      "type": "string",
+                      "version": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the rule list.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the rule type.",
+                "optional": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

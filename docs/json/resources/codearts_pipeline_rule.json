@@ -1,0 +1,159 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_codearts_pipeline_rule": {
+          "block": {
+            "attributes": {
+              "create_time": {
+                "type": "string",
+                "description": "Indicates the create time.",
+                "computed": true
+              },
+              "creator": {
+                "type": "string",
+                "description": "Indicates the creator.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "layout_content": {
+                "type": "string",
+                "description": "Specifies the layout content.",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the rule name.",
+                "required": true
+              },
+              "pipeline_count": {
+                "type": "number",
+                "description": "Indicates the number of pipelines.",
+                "computed": true
+              },
+              "plugin_id": {
+                "type": "string",
+                "description": "Specifies the plugin ID.",
+                "optional": true
+              },
+              "plugin_name": {
+                "type": "string",
+                "description": "Specifies the plugin name.",
+                "optional": true
+              },
+              "plugin_version": {
+                "type": "string",
+                "description": "Specifies the plugin version.",
+                "optional": true
+              },
+              "project_count": {
+                "type": "number",
+                "description": "Indicates the number of projects.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "rule_set_count": {
+                "type": "number",
+                "description": "Indicates the number of policies.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the rule type.",
+                "required": true
+              },
+              "update_time": {
+                "type": "string",
+                "description": "Indicates the update time.",
+                "computed": true
+              },
+              "updater": {
+                "type": "string",
+                "description": "Indicates the updater.",
+                "computed": true
+              },
+              "version": {
+                "type": "string",
+                "description": "Indicates the rule version.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "content": {
+                "block": {
+                  "attributes": {
+                    "can_modify_when_inherit": {
+                      "type": "bool",
+                      "description": "Specifies whether thresholds of an inherited policy can be modified.",
+                      "optional": true
+                    },
+                    "group_name": {
+                      "type": "string",
+                      "description": "Specifies the group name.",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "properties": {
+                      "block": {
+                        "attributes": {
+                          "is_valid": {
+                            "type": "bool",
+                            "description": "Specifies wether the property is valid.",
+                            "optional": true
+                          },
+                          "key": {
+                            "type": "string",
+                            "description": "Specifies the attribute key.",
+                            "required": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "Specifies the display name.",
+                            "required": true
+                          },
+                          "operator": {
+                            "type": "string",
+                            "description": "Specifies the comparison operators.",
+                            "optional": true
+                          },
+                          "type": {
+                            "type": "string",
+                            "description": "Specifies the type.",
+                            "required": true
+                          },
+                          "value": {
+                            "type": "string",
+                            "description": "Specifies the attribute value.",
+                            "required": true
+                          },
+                          "value_type": {
+                            "type": "string",
+                            "description": "Specifies the value type.",
+                            "required": true
+                          }
+                        },
+                        "description": "Specifies the rule attribute list."
+                      },
+                      "nesting_mode": "set",
+                      "min_items": 1
+                    }
+                  },
+                  "description": "Specifies the rule attribute group list."
+                },
+                "nesting_mode": "set",
+                "min_items": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

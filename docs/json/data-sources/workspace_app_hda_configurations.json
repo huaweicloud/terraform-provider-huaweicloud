@@ -1,0 +1,62 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_workspace_app_hda_configurations": {
+          "block": {
+            "attributes": {
+              "configurations": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "current_version": "string",
+                      "machine_name": "string",
+                      "maintain_status": "bool",
+                      "server_group_id": "string",
+                      "server_group_name": "string",
+                      "server_id": "string",
+                      "server_name": "string",
+                      "session_count": "number",
+                      "sid": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of HDA configurations that match the query parameters.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the HDA configurations are located.",
+                "computed": true
+              },
+              "server_group_id": {
+                "type": "string",
+                "description": "The ID of the server group to be queried.",
+                "optional": true
+              },
+              "server_name": {
+                "type": "string",
+                "description": "The name of the server to be queried.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dc_connect_gateways": {
+          "block": {
+            "attributes": {
+              "connect_gateway_id": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the IDs of the DC connect gateway.",
+                "optional": true
+              },
+              "connect_gateways": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "access_site": "string",
+                      "address_family": "string",
+                      "bgp_asn": "number",
+                      "created_time": "string",
+                      "current_geip_count": "number",
+                      "description": "string",
+                      "gateway_site": "string",
+                      "gcb_id": "string",
+                      "id": "string",
+                      "name": "string",
+                      "status": "string",
+                      "updated_time": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of connect gateway.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the names of the DC connect gateway.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "sort_dir": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the sorting order of returned results.",
+                "optional": true
+              },
+              "sort_key": {
+                "type": "string",
+                "description": "Specifies the sorting field.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DC",
+            "name": "Direct Connect",
+            "catalog": "Networking",
+            "name_cn": "云专线",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

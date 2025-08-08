@@ -1,0 +1,104 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_sfs_turbo_share_types": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "share_types": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "attribution": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "bandwidth": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "base": "number",
+                                  "density": "number",
+                                  "max": "number",
+                                  "min": "number",
+                                  "step": "number"
+                                }
+                              ]
+                            ],
+                            "capacity": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "max": "number",
+                                  "min": "number",
+                                  "step": "number"
+                                }
+                              ]
+                            ],
+                            "iops": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "max": "number",
+                                  "min": "number"
+                                }
+                              ]
+                            ],
+                            "single_channel_4k_latency": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "max": "number",
+                                  "min": "number"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "available_zones": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "available_zone": "string",
+                            "status": "string"
+                          }
+                        ]
+                      ],
+                      "features": [
+                        "list",
+                        "string"
+                      ],
+                      "scenario": "string",
+                      "share_type": "string",
+                      "spec_code": "string",
+                      "storage_media": "string",
+                      "support_period": "bool"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

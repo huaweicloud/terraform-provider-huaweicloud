@@ -1,0 +1,63 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_codearts_pipeline_plugin_metrics": {
+          "block": {
+            "attributes": {
+              "display_name": {
+                "type": "string",
+                "description": "Specifies the display name.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "metrics": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "output_key": "string",
+                      "output_value": "string",
+                      "version": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the plugin list.",
+                "computed": true
+              },
+              "plugin_attribution": {
+                "type": "string",
+                "description": "Specifies the extension attribute, official or custom.",
+                "optional": true
+              },
+              "plugin_name": {
+                "type": "string",
+                "description": "Specifies the plugin name.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "version": {
+                "type": "string",
+                "description": "Specifies the version.",
+                "optional": true
+              },
+              "version_attribution": {
+                "type": "string",
+                "description": "Specifies the version attribute. The value can be draft or formal.",
+                "optional": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

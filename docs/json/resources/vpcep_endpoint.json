@@ -53,6 +53,11 @@
                 "type": "number",
                 "computed": true
               },
+              "policy_document": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "policy_statement": {
                 "type": "string",
                 "optional": true,
