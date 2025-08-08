@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_enterprise_project_action
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: ER
+paths:
+    /v1.0/enterprise-projects/{enterprise_project_id}/action:
+        POST:
+            tag: ER

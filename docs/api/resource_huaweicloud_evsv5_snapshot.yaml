@@ -1,0 +1,26 @@
+info:
+    version: ""
+    title: resource_huaweicloud_evsv5_snapshot
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: EVS
+paths:
+    /v5/{project_id}/snapshots:
+        POST:
+            tag: EVS
+    /v5/{project_id}/snapshots/{snapshot_id}:
+        DELETE:
+            tag: EVS
+        GET:
+            tag: EVS
+        PUT:
+            tag: EVS
+    /v5/{project_id}/snapshots/{snapshot_id}/tags/create:
+        POST:
+            tag: EVS
+    /v5/{project_id}/snapshots/{snapshot_id}/tags/delete:
+        POST:
+            tag: EVS

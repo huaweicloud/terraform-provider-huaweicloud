@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_sfs_turbo_share_types
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: SFSTurbo
+paths:
+    /v1/{project_id}/sfs-turbo/share-types:
+        GET:
+            tag: SFSTurbo

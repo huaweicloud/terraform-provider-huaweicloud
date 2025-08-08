@@ -1,0 +1,23 @@
+info:
+    version: ""
+    title: resource_huaweicloud_hss_honeypot_port_policy
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: HSS
+paths:
+    /v5/{project_id}/honeypot-port/policy:
+        POST:
+            tag: HSS
+    /v5/{project_id}/honeypot-port/policy-list:
+        GET:
+            tag: HSS
+    /v5/{project_id}/honeypot-port/policy/{policy_id}:
+        DELETE:
+            tag: HSS
+        GET:
+            tag: HSS
+        PUT:
+            tag: HSS

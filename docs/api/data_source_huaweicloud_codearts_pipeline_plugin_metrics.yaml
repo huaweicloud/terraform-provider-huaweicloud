@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_codearts_pipeline_plugin_metrics
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CodeArtsPipeline
+paths:
+    /v1/{domain_id}/agent-plugin/plugin-metrics:
+        POST:
+            tag: CodeArtsPipeline

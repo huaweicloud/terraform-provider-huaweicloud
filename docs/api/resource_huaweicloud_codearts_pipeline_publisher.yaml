@@ -1,0 +1,22 @@
+info:
+    version: ""
+    title: resource_huaweicloud_codearts_pipeline_publisher
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CodeArtsPipeline
+paths:
+    /v1/{domain_id}/publisher/create:
+        POST:
+            tag: CodeArtsPipeline
+    /v1/{domain_id}/publisher/delete:
+        DELETE:
+            tag: CodeArtsPipeline
+    /v1/{domain_id}/publisher/detail:
+        POST:
+            tag: CodeArtsPipeline
+    /v1/{domain_id}/publisher/query-all:
+        GET:
+            tag: CodeArtsPipeline

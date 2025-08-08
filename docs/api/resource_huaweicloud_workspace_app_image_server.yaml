@@ -9,11 +9,11 @@ tags:
     - name: Workspace
 paths:
     /v1/{project_id}/image-servers:
-        GET:
-            tag: Workspace
         POST:
             tag: Workspace
     /v1/{project_id}/image-servers/{server_id}:
+        GET:
+            tag: Workspace
         PATCH:
             tag: Workspace
     /v1/{project_id}/image-servers/actions/batch-delete:
