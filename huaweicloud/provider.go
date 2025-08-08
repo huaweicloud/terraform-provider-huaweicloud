@@ -1699,6 +1699,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_ddm_physical_sessions":           ddm.DataSourceDdmPhysicalSessions(),
 			"huaweicloud_ddm_logical_sessions":            ddm.DataSourceDdmLogicalSessions(),
 			"huaweicloud_ddm_killing_sessions_audit_logs": ddm.DataSourceDdmKillingSessionsAuditLogs(),
+			"huaweicloud_ddm_configuration_parameters":    ddm.DataSourceDdmConfigurationParameters(),
 
 			"huaweicloud_organizations_organization":             organizations.DataSourceOrganization(),
 			"huaweicloud_organizations_organizational_units":     organizations.DataSourceOrganizationalUnits(),
