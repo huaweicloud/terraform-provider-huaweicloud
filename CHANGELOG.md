@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.77.3 (Aug 8, 2025)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_vpcep_endpoint: add policy_document support [GH-7466]
+
 ## 1.77.2 (Aug 1, 2025)
 
 ENHANCEMENTS:
