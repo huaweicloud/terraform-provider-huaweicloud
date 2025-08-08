@@ -70,6 +70,8 @@ linters-settings:
       - analyses
       - versoin
       - cancelling
+      - catalogue
+      - catalogues
   gci:
     # Section configuration to compare against.
     # Section names are case-insensitive and may contain parameters in ().
