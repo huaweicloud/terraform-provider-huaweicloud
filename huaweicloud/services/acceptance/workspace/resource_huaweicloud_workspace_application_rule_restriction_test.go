@@ -15,7 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/workspace"
 )
 
-func getResourceAppRuleRestrictionFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getApplicationRuleRestrictionFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := cfg.NewServiceClient("workspace", acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating Workspace client: %s", err)
@@ -38,13 +38,13 @@ func getResourceAppRuleRestrictionFunc(cfg *config.Config, state *terraform.Reso
 	return workspace.FilterRestrictedApplicationRuleIds(client, ruleIds)
 }
 
-func TestAccAppRuleRestriction_basic(t *testing.T) {
+func TestAccApplicationRuleRestriction_basic(t *testing.T) {
 	var (
 		name = acceptance.RandomAccResourceName()
 
-		resourceName       = "huaweicloud_workspace_app_rule_restriction.test"
-		appRuleRestriction interface{}
-		rc                 = acceptance.InitResourceCheck(resourceName, &appRuleRestriction, getResourceAppRuleRestrictionFunc)
+		resourceName               = "huaweicloud_workspace_application_rule_restriction.test"
+		applicationRuleRestriction interface{}
+		rc                         = acceptance.InitResourceCheck(resourceName, &applicationRuleRestriction, getApplicationRuleRestrictionFunc)
 	)
 
 	resource.Test(t, resource.TestCase{
@@ -53,14 +53,14 @@ func TestAccAppRuleRestriction_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccAppRuleRestriction_basic_step1(name),
+				Config: testAccApplicationRuleRestriction_basic_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestMatchResourceAttr(resourceName, "rule_ids.#", regexp.MustCompile(`^[0-9]+$`)),
 				),
 			},
 			{
-				Config: testAccAppRuleRestriction_basic_step2(name),
+				Config: testAccApplicationRuleRestriction_basic_step2(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "rule_ids.#", "1"),
@@ -70,13 +70,13 @@ func TestAccAppRuleRestriction_basic(t *testing.T) {
 	})
 }
 
-func testAccAppRuleRestriction_base(name string) string {
+func testAccApplicationRuleRestriction_base(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_workspace_app_rule" "with_product_rule" {
+resource "huaweicloud_workspace_application_rule" "with_product_rule" {
   name        = "%[1]s"
   description = "Created by terraform script"
 
-  rule {
+  detail {
     scope = "PRODUCT"
 
     product_rule {
@@ -91,11 +91,11 @@ resource "huaweicloud_workspace_app_rule" "with_product_rule" {
   }
 }
 
-resource "huaweicloud_workspace_app_rule" "with_path_rule" {
+resource "huaweicloud_workspace_application_rule" "with_path_rule" {
   name        = "%[1]s_path"
   description = "Created by terraform script for path rule"
 
-  rule {
+  detail {
     scope = "PATH"
 
     path_rule {
@@ -106,27 +106,27 @@ resource "huaweicloud_workspace_app_rule" "with_path_rule" {
 `, name)
 }
 
-func testAccAppRuleRestriction_basic_step1(name string) string {
+func testAccApplicationRuleRestriction_basic_step1(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-resource "huaweicloud_workspace_app_rule_restriction" "test" {
+resource "huaweicloud_workspace_application_rule_restriction" "test" {
   rule_ids = [
-    huaweicloud_workspace_app_rule.with_product_rule.id,
-    huaweicloud_workspace_app_rule.with_path_rule.id,
+    huaweicloud_workspace_application_rule.with_product_rule.id,
+    huaweicloud_workspace_application_rule.with_path_rule.id,
   ]
 }
-`, testAccAppRuleRestriction_base(name))
+`, testAccApplicationRuleRestriction_base(name))
 }
 
-func testAccAppRuleRestriction_basic_step2(name string) string {
+func testAccApplicationRuleRestriction_basic_step2(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-resource "huaweicloud_workspace_app_rule_restriction" "test" {
+resource "huaweicloud_workspace_application_rule_restriction" "test" {
   rule_ids = [
-    huaweicloud_workspace_app_rule.with_path_rule.id,
+    huaweicloud_workspace_application_rule.with_path_rule.id,
   ]
 }
-`, testAccAppRuleRestriction_base(name))
+`, testAccApplicationRuleRestriction_base(name))
 }

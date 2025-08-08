@@ -1,12 +1,12 @@
 ---
 subcategory: "Workspace"
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_workspace_app_rule_restriction"
+page_title: "HuaweiCloud: huaweicloud_workspace_application_rule_restriction"
 description: |-
   Manages a Workspace restriction resource to restrict application rules within HuaweiCloud.
 ---
 
-# huaweicloud_workspace_app_rule_restriction
+# huaweicloud_workspace_application_rule_restriction
 
 Manages a Workspace restriction resource to restrict application rules within HuaweiCloud.
 
@@ -17,7 +17,7 @@ variable "rule_ids" {
   type = list(string)
 }
 
-resource "huaweicloud_workspace_app_rule_restriction" "test" {
+resource "huaweicloud_workspace_application_rule_restriction" "test" {
   rule_ids = var.rule_ids
 }
 ```

@@ -13,9 +13,9 @@ import (
 )
 
 // @API Workspace GET /v1/{project_id}/app-center/app-rules
-func DataSourceAppRules() *schema.Resource {
+func DataSourceApplicationRules() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceAppRulesRead,
+		ReadContext: dataSourceApplicationRulesRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -29,17 +29,17 @@ func DataSourceAppRules() *schema.Resource {
 				Optional:    true,
 				Description: `The name of the application rule to be queried.`,
 			},
-			"app_rules": {
+			"rules": {
 				Type:        schema.TypeList,
 				Computed:    true,
-				Elem:        appRuleItemSchema(),
+				Elem:        applicationRuleItemSchema(),
 				Description: `The list of application rules that match the filter parameters.`,
 			},
 		},
 	}
 }
 
-func appRuleItemSchema() *schema.Resource {
+func applicationRuleItemSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"id": {
@@ -72,17 +72,17 @@ func appRuleItemSchema() *schema.Resource {
 				Computed:    true,
 				Description: `The update time of the application rule, in RFC3339 format.`,
 			},
-			"rule": {
+			"detail": {
 				Type:        schema.TypeList,
 				Computed:    true,
-				Elem:        appRuleSchema(),
-				Description: `The application rule configuration.`,
+				Elem:        applicationDetailSchema(),
+				Description: `The detail of the application rule.`,
 			},
 		},
 	}
 }
 
-func appRuleSchema() *schema.Resource {
+func applicationDetailSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"scope": {
@@ -93,20 +93,20 @@ func appRuleSchema() *schema.Resource {
 			"product_rule": {
 				Type:        schema.TypeList,
 				Computed:    true,
-				Elem:        appProductRule(),
+				Elem:        applicationProductRule(),
 				Description: `The detail of the product rule.`,
 			},
 			"path_rule": {
 				Type:        schema.TypeList,
 				Computed:    true,
-				Elem:        appPathRule(),
+				Elem:        applicationPathRule(),
 				Description: `The detail of the path rule.`,
 			},
 		},
 	}
 }
 
-func appProductRule() *schema.Resource {
+func applicationProductRule() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"identify_condition": {
@@ -148,7 +148,7 @@ func appProductRule() *schema.Resource {
 	}
 }
 
-func appPathRule() *schema.Resource {
+func applicationPathRule() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"path": {
@@ -160,13 +160,13 @@ func appPathRule() *schema.Resource {
 	}
 }
 
-func flattenAppRules(appRules []interface{}) []interface{} {
-	if len(appRules) < 1 {
+func flattenApplicationRules(applicationRules []interface{}) []interface{} {
+	if len(applicationRules) < 1 {
 		return nil
 	}
 
-	result := make([]interface{}, 0, len(appRules))
-	for _, item := range appRules {
+	result := make([]interface{}, 0, len(applicationRules))
+	for _, item := range applicationRules {
 		result = append(result, map[string]interface{}{
 			"id":          utils.PathSearch("id", item, nil),
 			"name":        utils.PathSearch("name", item, nil),
@@ -176,13 +176,13 @@ func flattenAppRules(appRules []interface{}) []interface{} {
 				utils.PathSearch("create_time", item, "").(string))/1000, false),
 			"update_time": utils.FormatTimeStampRFC3339(utils.ConvertTimeStrToNanoTimestamp(
 				utils.PathSearch("update_time", item, "").(string))/1000, false),
-			"rule": flattenAppRuleConfig(utils.PathSearch("rule", item, nil)),
+			"detail": flattenApplicationRuleDetail(utils.PathSearch("rule", item, nil)),
 		})
 	}
 	return result
 }
 
-func dataSourceAppRulesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceApplicationRulesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	client, err := cfg.NewServiceClient("workspace", region)
@@ -190,7 +190,7 @@ func dataSourceAppRulesRead(_ context.Context, d *schema.ResourceData, meta inte
 		return diag.Errorf("error creating Workspace client: %s", err)
 	}
 
-	appRules, err := listAppRules(client, d)
+	applicationRules, err := listApplicationRules(client, d)
 	if err != nil {
 		return diag.Errorf("error querying Workspace application rules: %s", err)
 	}
@@ -203,7 +203,7 @@ func dataSourceAppRulesRead(_ context.Context, d *schema.ResourceData, meta inte
 
 	mErr := multierror.Append(
 		d.Set("region", region),
-		d.Set("app_rules", flattenAppRules(appRules)),
+		d.Set("rules", flattenApplicationRules(applicationRules)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())

@@ -21,12 +21,12 @@ import (
 // @API WORKSPACE POST /v1/{project_id}/app-center/app-restricted-rules
 // @API WORKSPACE POST /v1/{project_id}/app-center/app-restricted-rules/actions/batch-delete
 // @API WORKSPACE GET /v1/{project_id}/app-center/app-restricted-rules
-func ResourceAppRuleRestriction() *schema.Resource {
+func ResourceApplicationRuleRestriction() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceAppRuleRestrictionCreate,
-		ReadContext:   resourceAppRuleRestrictionRead,
-		UpdateContext: resourceAppRuleRestrictionUpdate,
-		DeleteContext: resourceAppRuleRestrictionDelete,
+		CreateContext: resourceApplicationRuleRestrictionCreate,
+		ReadContext:   resourceApplicationRuleRestrictionRead,
+		UpdateContext: resourceApplicationRuleRestrictionUpdate,
+		DeleteContext: resourceApplicationRuleRestrictionDelete,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -65,7 +65,7 @@ func createRestrictedApplicationRule(client *golangsdk.ServiceClient, ruleIds []
 	return err
 }
 
-func resourceAppRuleRestrictionCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceApplicationRuleRestrictionCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg     = meta.(*config.Config)
 		region  = cfg.GetRegion(d)
@@ -88,7 +88,7 @@ func resourceAppRuleRestrictionCreate(ctx context.Context, d *schema.ResourceDat
 	}
 	d.SetId(randomUUID)
 
-	return resourceAppRuleRestrictionRead(ctx, d, meta)
+	return resourceApplicationRuleRestrictionRead(ctx, d, meta)
 }
 
 func listRestrictedApplicationRuleIds(client *golangsdk.ServiceClient) ([]string, error) {
@@ -161,7 +161,7 @@ func FilterRestrictedApplicationRuleIds(client *golangsdk.ServiceClient, managed
 	return filterRuleIds, nil
 }
 
-func resourceAppRuleRestrictionRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceApplicationRuleRestrictionRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg            = meta.(*config.Config)
 		region         = cfg.GetRegion(d)
@@ -186,7 +186,7 @@ func resourceAppRuleRestrictionRead(_ context.Context, d *schema.ResourceData, m
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func resourceAppRuleRestrictionUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceApplicationRuleRestrictionUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg    = meta.(*config.Config)
 		region = cfg.GetRegion(d)
@@ -217,7 +217,7 @@ func resourceAppRuleRestrictionUpdate(ctx context.Context, d *schema.ResourceDat
 		}
 	}
 
-	return resourceAppRuleRestrictionRead(ctx, d, meta)
+	return resourceApplicationRuleRestrictionRead(ctx, d, meta)
 }
 
 func deleteRestrictedApplicationRule(client *golangsdk.ServiceClient, ruleIds []string) error {
@@ -235,7 +235,7 @@ func deleteRestrictedApplicationRule(client *golangsdk.ServiceClient, ruleIds []
 	return err
 }
 
-func resourceAppRuleRestrictionDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceApplicationRuleRestrictionDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg     = meta.(*config.Config)
 		region  = cfg.GetRegion(d)
