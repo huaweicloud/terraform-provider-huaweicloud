@@ -10,8 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/tidwall/gjson"
 
-	"github.com/chnsz/golangsdk"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/httphelper"
@@ -94,16 +92,12 @@ func resourceWorkspaceAppGroupCreate(ctx context.Context, d *schema.ResourceData
 
 func resourceWorkspaceAppGroupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	wrapper := newAppGroupRSWrapper(d, meta)
-	listAppGroupRst, err := wrapper.ListAppGroup()
+	listAppGroupRst, err := wrapper.GetAppGroup()
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving Workspace APP group")
 	}
 
-	if len(listAppGroupRst.Get("items").Array()) == 0 {
-		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "error retrieving Workspace APP group")
-	}
-
-	err = wrapper.listAppGroupToSchema(listAppGroupRst)
+	err = wrapper.getAppGroupToSchema(listAppGroupRst)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -127,39 +121,26 @@ func resourceWorkspaceAppGroupUpdate(ctx context.Context, d *schema.ResourceData
 func resourceWorkspaceAppGroupDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	wrapper := newAppGroupRSWrapper(d, meta)
 	// The status code for each execution is `200`.
-	_, err := wrapper.BatchDeleteAppGroup()
+	_, err := wrapper.DeleteAppGroup()
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error deleting Workspace APP group")
 	}
 
-	resp, err := wrapper.ListAppGroup()
-	if err != nil {
-		return common.CheckDeletedDiag(d, err, "unable to get Workspace APP group")
-	}
-
-	if len(resp.Get("items").Array()) == 0 {
-		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "error deleting Workspace APP group")
-	}
-
-	return diag.Errorf("error deleting Workspace APP group: the app group (%s) still exists", d.Id())
+	return nil
 }
 
-// @API WORKSPACEAPP POST /v1/{project_id}/app-groups/batch-delete
-func (w *AppGroupRSWrapper) BatchDeleteAppGroup() (*gjson.Result, error) {
+// @API WORKSPACEAPP DELETE /v1/{project_id}/app-groups/{app_group_id}
+func (w *AppGroupRSWrapper) DeleteAppGroup() (*gjson.Result, error) {
 	client, err := w.NewClient(w.Config, "appstream")
 	if err != nil {
 		return nil, err
 	}
 
-	uri := "/v1/{project_id}/app-groups/batch-delete"
-	params := map[string]any{
-		"ids": []string{w.Id()},
-	}
-	params = utils.RemoveNil(params)
+	uri := "/v1/{project_id}/app-groups/{app_group_id}"
+	uri = strings.ReplaceAll(uri, "{app_group_id}", w.Id())
 	return httphelper.New(client).
-		Method("POST").
+		Method("DELETE").
 		URI(uri).
-		Body(params).
 		Send()
 }
 
@@ -186,22 +167,18 @@ func (w *AppGroupRSWrapper) CreateAppGroup() (*gjson.Result, error) {
 		Result()
 }
 
-// @API WORKSPACEAPP GET /v1/{project_id}/app-groups
-func (w *AppGroupRSWrapper) ListAppGroup() (*gjson.Result, error) {
+// @API WORKSPACEAPP GET /v1/{project_id}/app-groups/{app_group_id}
+func (w *AppGroupRSWrapper) GetAppGroup() (*gjson.Result, error) {
 	client, err := w.NewClient(w.Config, "appstream")
 	if err != nil {
 		return nil, err
 	}
 
-	uri := "/v1/{project_id}/app-groups"
-	params := map[string]any{
-		"app_group_id": w.Id(),
-	}
-	params = utils.RemoveNil(params)
+	uri := "/v1/{project_id}/app-groups/{app_group_id}"
+	uri = strings.ReplaceAll(uri, "{app_group_id}", w.Id())
 	return httphelper.New(client).
 		Method("GET").
 		URI(uri).
-		Query(params).
 		Request().
 		Result()
 }
@@ -229,19 +206,19 @@ func (w *AppGroupRSWrapper) UpdateAppGroup() (*gjson.Result, error) {
 		Result()
 }
 
-func (w *AppGroupRSWrapper) listAppGroupToSchema(body *gjson.Result) error {
+func (w *AppGroupRSWrapper) getAppGroupToSchema(body *gjson.Result) error {
 	d := w.ResourceData
 	mErr := multierror.Append(nil,
 		d.Set("region", w.Config.GetRegion(w.ResourceData)),
-		d.Set("name", body.Get("items.0.name").Value()),
-		d.Set("server_group_id", body.Get("items.0.app_server_group_id").Value()),
-		d.Set("description", body.Get("items.0.description").Value()),
-		d.Set("type", body.Get("items.0.app_type").Value()),
+		d.Set("name", body.Get("name").Value()),
+		d.Set("server_group_id", body.Get("app_server_group_id").Value()),
+		d.Set("description", body.Get("description").Value()),
+		d.Set("type", body.Get("app_type").Value()),
 		d.Set("created_at", w.setItemsCreateAt(*body)),
 	)
 	return mErr.ErrorOrNil()
 }
 
 func (*AppGroupRSWrapper) setItemsCreateAt(data gjson.Result) string {
-	return utils.FormatTimeStampRFC3339(utils.ConvertTimeStrToNanoTimestamp(data.Get("items.0.create_at").String())/1000, false)
+	return utils.FormatTimeStampRFC3339(utils.ConvertTimeStrToNanoTimestamp(data.Get("create_at").String())/1000, false)
 }

@@ -20,6 +20,7 @@ func getAppPolicyGroupFunc(conf *config.Config, state *terraform.ResourceState) 
 	return workspace.GetAppGroupPolicy(client, state.Primary.Attributes["name"], state.Primary.ID)
 }
 
+// Before running this test, please create a workspace APP server group with SESSION_DESKTOP_APP type.
 func TestAccAppPolicyGroup_basic(t *testing.T) {
 	var (
 		policyGroup  interface{}
@@ -37,7 +38,7 @@ func TestAccAppPolicyGroup_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckWorkspaceAppServerGroup(t)
+			acceptance.TestAccPreCheckWorkspaceAppServerGroupId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -48,7 +49,7 @@ func TestAccAppPolicyGroup_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "priority", "1"),
-					resource.TestCheckResourceAttr(resourceName, "description", "Created APP policy group by script"),
+					resource.TestCheckResourceAttr(resourceName, "description", "Created by terraform script"),
 					resource.TestCheckResourceAttr(resourceName, "targets.0.type", "APPGROUP"),
 					resource.TestCheckResourceAttrPair(resourceName, "targets.0.id", "huaweicloud_workspace_app_group.test", "id"),
 					resource.TestCheckResourceAttrPair(resourceName, "targets.0.name", "huaweicloud_workspace_app_group.test", "name"),
@@ -60,7 +61,7 @@ func TestAccAppPolicyGroup_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", updateName),
 					resource.TestCheckResourceAttr(resourceName, "priority", "1"),
-					resource.TestCheckResourceAttr(resourceName, "description", "Updated APP policy group by script"),
+					resource.TestCheckResourceAttr(resourceName, "description", "Updated by terraform script"),
 					resource.TestCheckResourceAttr(resourceName, "targets.0.type", "ALL"),
 					resource.TestCheckResourceAttr(resourceName, "targets.0.id", "default-apply-all-targets"),
 					resource.TestCheckResourceAttr(resourceName, "targets.0.name", "All-Targets"),
@@ -94,7 +95,7 @@ func testAccAppPolicyGroup_basic_step1(name string) string {
 resource "huaweicloud_workspace_app_policy_group" "test" {
   name        = "%[2]s"
   priority    = 1
-  description = "Created APP policy group by script"
+  description = "Created by terraform script"
 
   targets {
     id   = huaweicloud_workspace_app_group.test.id
@@ -110,17 +111,15 @@ resource "huaweicloud_workspace_app_policy_group" "test" {
     }
   })
 }
-`, testResourceWorkspaceAppGroup_basic_step1(testResourceWorkspaceAppGroup_base(name), name), name)
+`, testDataSourceAppGroups_base(name), name)
 }
 
 func testAccAppPolicyGroup_basic_step2(name string) string {
 	return fmt.Sprintf(`
-%[1]s
-
 resource "huaweicloud_workspace_app_policy_group" "test" {
-  name        = "%[2]s"
+  name        = "%[1]s"
   priority    = 1
-  description = "Updated APP policy group by script"
+  description = "Updated by terraform script"
 
   targets {
     id   = "default-apply-all-targets"
@@ -136,15 +135,13 @@ resource "huaweicloud_workspace_app_policy_group" "test" {
     }
   })
 }
-`, testResourceWorkspaceAppGroup_basic_step1(testResourceWorkspaceAppGroup_base(name), name), name)
+`, name)
 }
 
 func testAccAppPolicyGroup_basic_step3(name string) string {
 	return fmt.Sprintf(`
-%[1]s
-
 resource "huaweicloud_workspace_app_policy_group" "test" {
-  name     = "%[2]s"
+  name     = "%[1]s"
   priority = 1
 
   policies = jsonencode({
@@ -155,5 +152,5 @@ resource "huaweicloud_workspace_app_policy_group" "test" {
     }
   })
 }
-`, testResourceWorkspaceAppGroup_basic_step1(testResourceWorkspaceAppGroup_base(name), name), name)
+`, name)
 }
