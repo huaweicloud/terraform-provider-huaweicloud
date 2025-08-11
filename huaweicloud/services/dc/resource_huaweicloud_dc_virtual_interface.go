@@ -5,9 +5,11 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -503,8 +505,13 @@ func resourceVirtualInterfaceCreate(ctx context.Context, d *schema.ResourceData,
 	}
 	d.SetId(id)
 
+	err = waitForVirtualInterfaceAvailable(ctx, client, id, d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	// create tags
-	if err := utils.CreateResourceTags(client, d, "dc-vif", d.Id()); err != nil {
+	if err = utils.CreateResourceTags(client, d, "dc-vif", d.Id()); err != nil {
 		return diag.Errorf("error creating tags of DC virtual interface (%s): %s", d.Id(), err)
 	}
 
@@ -515,7 +522,6 @@ func resourceVirtualInterfaceRead(_ context.Context, d *schema.ResourceData, met
 	var (
 		cfg     = meta.(*config.Config)
 		region  = cfg.GetRegion(d)
-		httpUrl = "v3/{project_id}/dcaas/virtual-interfaces/{interfaceId}"
 		product = "dc"
 	)
 	client, err := cfg.NewServiceClient(product, region)
@@ -523,22 +529,9 @@ func resourceVirtualInterfaceRead(_ context.Context, d *schema.ResourceData, met
 		return diag.Errorf("error creating DC client: %s", err)
 	}
 
-	requestPath := client.Endpoint + httpUrl
-	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
-	requestPath = strings.ReplaceAll(requestPath, "{interfaceId}", d.Id())
-	requestOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-
-	resp, err := client.Request("GET", requestPath, &requestOpt)
+	respBody, err := getVirtualInterface(client, d.Id())
 	if err != nil {
-		// When the interface does not exist, the response HTTP status code of the details API is 404.
 		return common.CheckDeletedDiag(d, err, "error retrieving DC virtual interface")
-	}
-
-	respBody, err := utils.FlattenResponse(resp)
-	if err != nil {
-		return diag.FromErr(err)
 	}
 
 	interfaceResp := utils.PathSearch("virtual_interface", respBody, nil)
@@ -655,7 +648,7 @@ func buildUpdateVirtualInterfaceBodyParams(d *schema.ResourceData) map[string]in
 	}
 }
 
-func closeVirtualInterfaceNetworkDetection(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+func closeVirtualInterfaceNetworkDetection(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
 	bodyParams := make(map[string]interface{})
 	// At the same time, only one of BFD and NQA is enabled.
 	if d.HasChange("enable_bfd") && !d.Get("enable_bfd").(bool) {
@@ -682,10 +675,11 @@ func closeVirtualInterfaceNetworkDetection(client *golangsdk.ServiceClient, d *s
 	if err != nil {
 		return fmt.Errorf("error closing network detection of the virtual interface (%s): %s", d.Id(), err)
 	}
-	return nil
+
+	return waitForVirtualInterfaceAvailable(ctx, client, d.Id(), d.Timeout(schema.TimeoutUpdate))
 }
 
-func openVirtualInterfaceNetworkDetection(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+func openVirtualInterfaceNetworkDetection(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
 	bodyParams := make(map[string]interface{})
 	detectionOpened := false
 	if d.HasChange("enable_bfd") && d.Get("enable_bfd").(bool) {
@@ -719,7 +713,7 @@ func openVirtualInterfaceNetworkDetection(client *golangsdk.ServiceClient, d *sc
 	if err != nil {
 		return fmt.Errorf("error opening network detection of the virtual interface (%s): %s", d.Id(), err)
 	}
-	return nil
+	return waitForVirtualInterfaceAvailable(ctx, client, d.Id(), d.Timeout(schema.TimeoutUpdate))
 }
 
 func resourceVirtualInterfaceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -746,16 +740,21 @@ func resourceVirtualInterfaceUpdate(ctx context.Context, d *schema.ResourceData,
 		if err != nil {
 			return diag.Errorf("error updating DC virtual interface: %s", err)
 		}
+
+		err = waitForVirtualInterfaceAvailable(ctx, client, d.Id(), d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
 	if d.HasChanges("enable_bfd", "enable_nqa") {
 		// BFD and NQA cannot be enabled at the same time.
 		// When BFD (NQA) is enabled and NQA (BFD) is disabled, we need to disable BFD (NQA) first, and then enable NQA (BFD).
 		// If the disable and enable requests are sent at the same time, an error will be reported.
-		if err = closeVirtualInterfaceNetworkDetection(client, d); err != nil {
+		if err = closeVirtualInterfaceNetworkDetection(ctx, client, d); err != nil {
 			return diag.FromErr(err)
 		}
-		if err = openVirtualInterfaceNetworkDetection(client, d); err != nil {
+		if err = openVirtualInterfaceNetworkDetection(ctx, client, d); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -769,7 +768,7 @@ func resourceVirtualInterfaceUpdate(ctx context.Context, d *schema.ResourceData,
 	return resourceVirtualInterfaceRead(ctx, d, meta)
 }
 
-func resourceVirtualInterfaceDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceVirtualInterfaceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg     = meta.(*config.Config)
 		region  = cfg.GetRegion(d)
@@ -794,5 +793,70 @@ func resourceVirtualInterfaceDelete(_ context.Context, d *schema.ResourceData, m
 		return common.CheckDeletedDiag(d, err, "error deleting DC virtual interface")
 	}
 
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"DELETED"},
+		Refresh:      virtualInterfaceRefreshFunc(client, d.Id()),
+		Timeout:      d.Timeout(schema.TimeoutDelete),
+		Delay:        5 * time.Second,
+		PollInterval: 5 * time.Second,
+	}
+	if _, err = stateConf.WaitForStateContext(ctx); err != nil {
+		return diag.Errorf("error waiting for DC virtual interface(%s) to be deleted: %s ", d.Id(), err)
+	}
+
 	return nil
+}
+
+func waitForVirtualInterfaceAvailable(ctx context.Context, client *golangsdk.ServiceClient, id string, timeout time.Duration) error {
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"ACTIVE", "DOWN"},
+		Refresh:      virtualInterfaceRefreshFunc(client, id),
+		Timeout:      timeout,
+		Delay:        5 * time.Second,
+		PollInterval: 5 * time.Second,
+	}
+	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
+		return fmt.Errorf("error waiting for DC virtual interface(%s) to available: %s ", id, err)
+	}
+	return nil
+}
+
+func virtualInterfaceRefreshFunc(client *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		getRespBody, err := getVirtualInterface(client, id)
+		if err != nil {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
+				return "", "DELETED", nil
+			}
+			return nil, "ERROR", err
+		}
+
+		completeStatus := []string{"ACTIVE", "DOWN", "ADMIN_SHUTDOWN", "DELETED", "REJECTED"}
+		failStatus := []string{"ERROR"}
+		status := utils.PathSearch("virtual_interface.status", getRespBody, "").(string)
+		if utils.StrSliceContains(completeStatus, status) || utils.StrSliceContains(failStatus, status) {
+			return getRespBody, status, nil
+		}
+
+		return getRespBody, "PENDING", nil
+	}
+}
+
+func getVirtualInterface(client *golangsdk.ServiceClient, id string) (interface{}, error) {
+	httpUrl := "v3/{project_id}/dcaas/virtual-interfaces/{interfaceId}"
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{interfaceId}", id)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	resp, err := client.Request("GET", requestPath, &requestOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(resp)
 }
