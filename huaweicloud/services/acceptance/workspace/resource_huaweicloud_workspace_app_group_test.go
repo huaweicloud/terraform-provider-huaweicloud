@@ -3,17 +3,15 @@ package workspace
 import (
 	"fmt"
 	"regexp"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/httphelper"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func getResourceWorkspaceAppGroupFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -22,23 +20,13 @@ func getResourceWorkspaceAppGroupFunc(cfg *config.Config, state *terraform.Resou
 		return nil, fmt.Errorf("error creating Workspace APP client: %s", err)
 	}
 
-	uri := "/v1/{project_id}/app-groups"
-	queryParam := map[string]any{
-		"app_group_id": state.Primary.ID,
-	}
-	resp, err := httphelper.New(client).
+	uri := "/v1/{project_id}/app-groups/{app_group_id}"
+	uri = strings.ReplaceAll(uri, "{app_group_id}", state.Primary.ID)
+	return httphelper.New(client).
 		Method("GET").
 		URI(uri).
-		Query(queryParam).
 		Request().
-		Data()
-
-	groups := utils.PathSearch("items", resp, make([]interface{}, 0))
-	if len(groups.([]interface{})) == 0 {
-		return nil, golangsdk.ErrDefault404{}
-	}
-
-	return resp, err
+		Result()
 }
 
 func TestAccResourceAppGroup_basic(t *testing.T) {
