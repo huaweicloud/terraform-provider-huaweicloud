@@ -2065,6 +2065,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dc_hosted_connect":             dc.ResourceHostedConnect(),
 			"huaweicloud_dc_global_gateway":             dc.ResourceDcGlobalGateway(),
 			"huaweicloud_dc_global_gateway_peer_link":   dc.ResourceDcGlobalGatewayPeerLink(),
+			"huaweicloud_dc_global_gateway_route_table": dc.ResourceDcGlobalGatewayRouteTable(),
 			"huaweicloud_dc_connect_gateway":            dc.ResourceDcConnectGateway(),
 
 			"huaweicloud_dcs_instance":                           dcs.ResourceDcsInstance(),
