@@ -1408,6 +1408,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_sdrs_protected_instance_tags":     sdrs.DataSourceSdrsProtectedInstanceTags(),
 
 			"huaweicloud_secmaster_workflows":                 secmaster.DataSourceSecmasterWorkflows(),
+			"huaweicloud_secmaster_workflow_instances":        secmaster.DataSourceWorkflowInstances(),
 			"huaweicloud_secmaster_workspaces":                secmaster.DataSourceSecmasterWorkspaces(),
 			"huaweicloud_secmaster_incidents":                 secmaster.DataSourceIncidents(),
 			"huaweicloud_secmaster_alerts":                    secmaster.DataSourceAlerts(),
