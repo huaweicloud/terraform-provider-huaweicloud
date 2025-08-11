@@ -21,9 +21,10 @@ import (
 )
 
 // @API Workspace POST /v1/{project_id}/app-servers/actions/create
-// @API Workspace GET /v1/{project_id}/app-servers
+// @API Workspace GET /v2/{project_id}/job/{job_id}
+// @API Workspace GET /v1/{project_id}/app-servers/{server_id}
 // @API Workspace PATCH /v1/{project_id}/app-servers/{server_id}
-// @API Workspace POST /v1/{project_id}/app-servers/actions/batch-delete
+// @API Workspace DELETE /v1/{project_id}/app-servers/{server_id}
 func ResourceAppServer() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAppServerCreate,
@@ -431,28 +432,20 @@ func flattenAppServerRootVolume(resp interface{}) []map[string]interface{} {
 
 // GetServerById is amethod used to query server detail by server ID.
 func GetServerById(client *golangsdk.ServiceClient, serverId string) (interface{}, error) {
-	httpUrl := "v1/{project_id}/app-servers"
+	httpUrl := "v1/{project_id}/app-servers/{server_id}"
 	getPath := client.Endpoint + httpUrl
 	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
-	getPath = fmt.Sprintf("%s?server_id=%s", getPath, serverId)
+	getPath = strings.ReplaceAll(getPath, "{server_id}", serverId)
+
 	getOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 	}
 	requestResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving server (%s): %s", serverId, err)
+		return nil, err
 	}
 
-	respBody, err := utils.FlattenResponse(requestResp)
-	if err != nil {
-		return nil, fmt.Errorf("unable to parsing server from API response: %s", err)
-	}
-
-	server := utils.PathSearch("items|[0]", respBody, nil)
-	if server == nil {
-		return nil, golangsdk.ErrDefault404{}
-	}
-	return server, nil
+	return utils.FlattenResponse(requestResp)
 }
 
 func resourceAppServerUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -530,7 +523,7 @@ func resourceAppServerDelete(ctx context.Context, d *schema.ResourceData, meta i
 				serverId, d.Get("server_group_id").(string), err)
 		}
 	} else {
-		if err := deleteAppServerById(client, serverId); err != nil {
+		if err := deleteAppServerById(ctx, client, serverId, d.Timeout(schema.TimeoutDelete)); err != nil {
 			return common.CheckDeletedDiag(d, err, "delete Workspace APP server")
 		}
 	}
@@ -542,20 +535,36 @@ func resourceAppServerDelete(ctx context.Context, d *schema.ResourceData, meta i
 	return nil
 }
 
-func deleteAppServerById(client *golangsdk.ServiceClient, serverId string) error {
-	httpUrl := "v1/{project_id}/app-servers/actions/batch-delete"
+func deleteAppServerById(ctx context.Context, client *golangsdk.ServiceClient, serverId string, timeout time.Duration) error {
+	httpUrl := "v1/{project_id}/app-servers/{server_id}"
 	deletePath := client.Endpoint + httpUrl
 	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = strings.ReplaceAll(deletePath, "{server_id}", serverId)
 	deleteOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		JSONBody: map[string]interface{}{
-			"items": []string{serverId},
-		},
 	}
 
 	// When deleting a non-existent server, the response status code is 200.
-	_, err := client.Request("POST", deletePath, &deleteOpt)
-	return err
+	requestResp, err := client.Request("DELETE", deletePath, &deleteOpt)
+	if err != nil {
+		return err
+	}
+	respBody, err := utils.FlattenResponse(requestResp)
+	if err != nil {
+		return err
+	}
+
+	jobId := utils.PathSearch("job_id", respBody, "").(string)
+	if jobId == "" {
+		log.Printf("[ERROR] Unable to find job ID from API response")
+		return nil
+	}
+
+	_, err = waitForAppServerJobCompleted(ctx, client, timeout, jobId)
+	if err != nil {
+		return fmt.Errorf("error waiting for the job (%s) completed: %s", jobId, err)
+	}
+	return nil
 }
 
 func waitingForServerDeleteCompleted(ctx context.Context, client *golangsdk.ServiceClient, serverId string, timeout time.Duration) error {
