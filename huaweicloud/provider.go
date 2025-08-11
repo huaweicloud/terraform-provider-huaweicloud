@@ -1647,6 +1647,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_workspace_app_publishable_apps":                workspace.DataSourceWorkspaceAppPublishableApps(),
 			"huaweicloud_workspace_app_schedule_tasks":                  workspace.DataSourceAppScheduleTasks(),
 			"huaweicloud_workspace_app_schedule_task_executions":        workspace.DataSourceAppScheduleTaskExecutions(),
+			"huaweicloud_workspace_app_schedule_task_execute_details":   workspace.DataSourceAppScheduleTaskExecuteDetails(),
 			"huaweicloud_workspace_app_schedule_task_future_executions": workspace.DataSourceAppScheduleTaskFutureExecutions(),
 			"huaweicloud_workspace_app_servers":                         workspace.DataSourceAppServers(),
 			"huaweicloud_workspace_app_service":                         workspace.DataSourceAppService(),
