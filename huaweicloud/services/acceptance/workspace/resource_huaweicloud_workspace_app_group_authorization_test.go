@@ -10,12 +10,13 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
+// Before running this test, please create a workspace APP server group with SESSION_DESKTOP_APP type.
 func TestAccResourceAppGroupAuthorization_basic(t *testing.T) {
 	name := acceptance.RandomAccResourceName()
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckWorkspaceAppServerGroup(t)
+			acceptance.TestAccPreCheckWorkspaceAppServerGroupId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      nil,
@@ -29,44 +30,20 @@ func TestAccResourceAppGroupAuthorization_basic(t *testing.T) {
 
 func testAccAppGroupAuthorization_base(name string) string {
 	return fmt.Sprintf(`
-data "huaweicloud_workspace_service" "test" {}
-
-resource "huaweicloud_workspace_app_server_group" "test" {
-  name             = "%[1]s"
-  os_type          = "Windows"
-  flavor_id        = "%[2]s"
-  vpc_id           = data.huaweicloud_workspace_service.test.vpc_id
-  subnet_id        = data.huaweicloud_workspace_service.test.network_ids[0]
-  system_disk_type = "SAS"
-  system_disk_size = 80
-  is_vdi           = true
-  app_type         = "SESSION_DESKTOP_APP"
-  image_id         = "%[3]s"
-  image_type       = "gold"
-  image_product_id = "%[4]s"
-}
-
-resource "huaweicloud_workspace_app_group" "test" {
-  server_group_id = huaweicloud_workspace_app_server_group.test.id
-  name            = "%[1]s"
-  type            = "SESSION_DESKTOP_APP"
-  description     = "Created APP group by script"
-}
+%[1]s
 
 resource "huaweicloud_workspace_user" "test" {
-  name  = "%[1]s"
+  name  = "%[2]s"
   email = "tf@example.com"
 }
 
 resource "huaweicloud_workspace_user_group" "test" {
   count = 2
 
-  name  = "%[1]s${count.index}"
+  name  = "%[2]s${count.index}"
   type  = "LOCAL"
 }
-`, name, acceptance.HW_WORKSPACE_APP_SERVER_GROUP_FLAVOR_ID,
-		acceptance.HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_ID,
-		acceptance.HW_WORKSPACE_APP_SERVER_GROUP_IMAGE_PRODUCT_ID)
+`, testDataSourceAppGroups_base(name), name)
 }
 
 func testAccAppGroupAuthorization_basic(name string) string {
@@ -99,7 +76,7 @@ func TestAccResourceAppGroupAuthorization_expectErr(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckWorkspaceAppServerGroup(t)
+			acceptance.TestAccPreCheckWorkspaceAppServerGroupId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      nil,
@@ -139,5 +116,5 @@ resource "huaweicloud_workspace_app_group_authorization" "test" {
     type    = "USER"
   }
 }
-`, testResourceWorkspaceAppGroup_basic_step1(testResourceWorkspaceAppGroup_base(name), name), name)
+`, testDataSourceAppGroups_base(name), name)
 }

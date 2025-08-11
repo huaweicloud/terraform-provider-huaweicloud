@@ -10,6 +10,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
+// Before running this test, please create a workspace APP server group with SESSION_DESKTOP_APP type.
 func TestAccDataSourceAppGroups_basic(t *testing.T) {
 	var (
 		rName      = acceptance.RandomAccResourceName()
@@ -32,7 +33,7 @@ func TestAccDataSourceAppGroups_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckWorkspaceAppServerGroup(t)
+			acceptance.TestAccPreCheckWorkspaceAppServerGroupId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -62,6 +63,22 @@ func TestAccDataSourceAppGroups_basic(t *testing.T) {
 	})
 }
 
+func testDataSourceAppGroups_base(name string, appType ...string) string {
+	actAppType := "SESSION_DESKTOP_APP"
+	if len(appType) > 0 {
+		actAppType = appType[0]
+	}
+
+	return fmt.Sprintf(`
+resource "huaweicloud_workspace_app_group" "test" {
+  server_group_id = "%[1]s"
+  name            = "%[2]s"
+  type            = "%[3]s"
+  description     = "Created by terraform script"
+}
+`, acceptance.HW_WORKSPACE_APP_SERVER_GROUP_ID, name, actAppType)
+}
+
 func testDataSourceDataSourceWorkspaceAppGroups_basic(name string) string {
 	return fmt.Sprintf(`
 %[1]s
@@ -78,6 +95,8 @@ locals {
 }
 
 data "huaweicloud_workspace_app_groups" "filter_by_server_group_id" {
+  depends_on = [huaweicloud_workspace_app_group.test]
+
   server_group_id = local.server_group_id
 }
 
@@ -91,6 +110,8 @@ output "is_server_group_id_filter_useful" {
 }
 
 data "huaweicloud_workspace_app_groups" "filter_by_id" {
+  depends_on = [huaweicloud_workspace_app_group.test]
+
   group_id = local.group_id
 }
 
@@ -130,5 +151,5 @@ locals {
 output "is_type_filter_useful" {
   value = length(local.type_result) > 0 && alltrue(local.type_result)
 }
-`, testResourceWorkspaceAppGroup_basic_step1(testResourceWorkspaceAppGroup_base(name), name))
+`, testDataSourceAppGroups_base(name))
 }
