@@ -560,6 +560,9 @@ var (
 	HW_EVS_ENABLE_FLAG              = os.Getenv("HW_EVS_ENABLE_FLAG")
 	HW_EVS_VOLUME_ID                = os.Getenv("HW_EVS_VOLUME_ID")
 	HW_EVS_SERVER_ID                = os.Getenv("HW_EVS_SERVER_ID")
+	HW_EVS_VOLUME_NEW_SIZE          = os.Getenv("HW_EVS_VOLUME_NEW_SIZE")
+	HW_EVS_PREPAID_VOLUME_ID        = os.Getenv("HW_EVS_PREPAID_VOLUME_ID")
+	HW_EVS_PREPAID_VOLUME_NEW_SIZE  = os.Getenv("HW_EVS_PREPAID_VOLUME_NEW_SIZE")
 
 	HW_ECS_LAUNCH_TEMPLATE_ID = os.Getenv("HW_ECS_LAUNCH_TEMPLATE_ID")
 	HW_ECS_ID                 = os.Getenv("HW_ECS_ID")
@@ -1330,6 +1333,27 @@ func TestAccPreCheckEVSServerID(t *testing.T) {
 func TestAccPreCheckEVSVolumeID(t *testing.T) {
 	if HW_EVS_VOLUME_ID == "" {
 		t.Skip("HW_EVS_VOLUME_ID must be set for acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckEVSVolumeNewSize(t *testing.T) {
+	if HW_EVS_VOLUME_NEW_SIZE == "" {
+		t.Skip("HW_EVS_VOLUME_NEW_SIZE must be set for acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckEVSPrepaidVolumeID(t *testing.T) {
+	if HW_EVS_PREPAID_VOLUME_ID == "" {
+		t.Skip("HW_EVS_PREPAID_VOLUME_ID must be set for acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckEVSPrepaidVolumeNewSize(t *testing.T) {
+	if HW_EVS_PREPAID_VOLUME_NEW_SIZE == "" {
+		t.Skip("HW_EVS_PREPAID_VOLUME_NEW_SIZE must be set for acceptance tests")
 	}
 }
 
