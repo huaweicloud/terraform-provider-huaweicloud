@@ -279,6 +279,14 @@ The `extend_attribute` block supports:
 
 * `local_disclaim` - The local identifier of the static BFD session.
 
+## Timeouts
+
+This resource provides the following timeouts configuration options:
+
+* `create` - Default is 30 minutes.
+* `update` - Default is 30 minutes.
+* `delete` - Default is 30 minutes.
+
 ## Import
 
 Virtual interfaces can be imported using their `id`, e.g.

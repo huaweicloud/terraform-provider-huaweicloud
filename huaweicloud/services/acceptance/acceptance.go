@@ -347,6 +347,8 @@ var (
 	HW_DC_ENABLE_FLAG                     = os.Getenv("HW_DC_ENABLE_FLAG")
 	HW_DC_GLOBAL_GATEWAY_ID               = os.Getenv("HW_DC_GLOBAL_GATEWAY_ID")
 	HW_DC_GLOBAL_GATEWAY_ID_HAS_PEER_LINK = os.Getenv("HW_DC_GLOBAL_GATEWAY_ID_HAS_PEER_LINK")
+	HW_DC_CONNECT_GATEWAY_ID              = os.Getenv("HW_DC_CONNECT_GATEWAY_ID")
+	HW_GLOBAL_EIP_ID                      = os.Getenv("HW_GLOBAL_EIP_ID")
 
 	HW_DSC_INSTANCE_ID    = os.Getenv("HW_DSC_INSTANCE_ID")
 	HW_DSC_ALARM_TOPIC_ID = os.Getenv("HW_DSC_ALARM_TOPIC_ID")
@@ -2099,6 +2101,20 @@ func TestAccPreCheckDcGlobalGatewayID(t *testing.T) {
 func TestAccPreCheckDcGlobalGatewayIDHasPeerLink(t *testing.T) {
 	if HW_DC_GLOBAL_GATEWAY_ID_HAS_PEER_LINK == "" {
 		t.Skip("HW_DC_GLOBAL_GATEWAY_ID_HAS_PEER_LINK must be set for this acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDcConnectGatewayId(t *testing.T) {
+	if HW_DC_CONNECT_GATEWAY_ID == "" {
+		t.Skip("HW_DC_CONNECT_GATEWAY_ID must be set for this acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckGlobalEipId(t *testing.T) {
+	if HW_GLOBAL_EIP_ID == "" {
+		t.Skip("HW_GLOBAL_EIP_ID must be set for this acceptance test")
 	}
 }
 
