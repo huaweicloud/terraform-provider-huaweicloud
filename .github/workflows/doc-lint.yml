@@ -38,7 +38,7 @@ jobs:
           github_token: ${{ secrets.github_token }}
           locale: "US"
           ignore: |
-            analyses,cancelled,classis,cancelling,catalogue,catalogues,
+            analyses,cancelled,classis,cancelling,catalogue,catalogues,defence,
           pattern: |
             *.md
             *.tf
