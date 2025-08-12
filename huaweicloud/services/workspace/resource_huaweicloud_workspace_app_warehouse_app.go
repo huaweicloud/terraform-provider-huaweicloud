@@ -16,10 +16,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API WORKSPACEAPP POST /v1/{project_id}/app-warehouse/apps
-// @API WORKSPACEAPP GET /v1/{project_id}/app-warehouse/apps
-// @API WORKSPACEAPP PATCH /v1/{project_id}/app-warehouse/apps/{id}
-// @API WORKSPACEAPP POST /v1/{project_id}/app-warehouse/actions/batch-delete
+// @API Workspace POST /v1/{project_id}/app-warehouse/apps
+// @API Workspace GET /v1/{project_id}/app-warehouse/apps
+// @API Workspace PATCH /v1/{project_id}/app-warehouse/apps/{id}
+// @API Workspace DELETE /v1/{project_id}/app-warehouse/apps/{id}
 func ResourceWarehouseApplication() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceWarehouseApplicationCreate,
@@ -228,7 +228,7 @@ func buildUpdateWarehouseAppBodyParams(d *schema.ResourceData) map[string]interf
 
 func resourceWarehouseApplicationDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	httpUrl := "v1/{project_id}/app-warehouse/actions/batch-delete"
+	httpUrl := "v1/{project_id}/app-warehouse/apps/{id}"
 	client, err := cfg.NewServiceClient("appstream", cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating Workspace APP client: %s", err)
@@ -236,16 +236,14 @@ func resourceWarehouseApplicationDelete(_ context.Context, d *schema.ResourceDat
 
 	deletePath := client.Endpoint + httpUrl
 	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = strings.ReplaceAll(deletePath, "{id}", d.Id())
 	deleteOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		JSONBody: map[string]interface{}{
-			"ids": []string{d.Id()},
-		},
 	}
 	// Although the deletion result of the main region shows that the interface returns a 200 status code when
 	// deleting a non-existent warehouse application, in order to avoid the possible return of a 404 status code in the
 	// future, the CheckDeleted design is retained here.
-	_, err = client.Request("POST", deletePath, &deleteOpt)
+	_, err = client.Request("DELETE", deletePath, &deleteOpt)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "application of Workspace APP warehouse")
 	}
