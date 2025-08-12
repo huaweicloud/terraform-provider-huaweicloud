@@ -2753,6 +2753,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_sfs_turbo_du_task":            sfsturbo.ResourceDuTask(),
 			"huaweicloud_sfs_turbo_obs_target":         sfsturbo.ResourceOBSTarget(),
 			"huaweicloud_sfs_turbo_perm_rule":          sfsturbo.ResourceSFSTurboPermRule(),
+			"huaweicloud_sfs_turbo_change_charge_mode": sfsturbo.ResourceSFSTurboChangeChargeMode(),
 
 			"huaweicloud_smn_topic":                      smn.ResourceTopic(),
 			"huaweicloud_smn_subscription":               smn.ResourceSubscription(),
