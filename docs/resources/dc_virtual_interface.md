@@ -42,13 +42,11 @@ resource "huaweicloud_dc_virtual_interface" "test" {
 
 ```hcl
 variable "direct_connect_id" {}
-variable "vgw_id" {}
 variable "interface_name" {}
 variable "gateway_id" {}
 
 resource "huaweicloud_dc_virtual_interface" "test" {
   direct_connect_id = var.direct_connect_id
-  vgw_id            = var.vgw_id
   name              = var.interface_name
   type              = "private"
   route_mode        = "static"
@@ -76,10 +74,6 @@ The following arguments are supported:
 
 * `direct_connect_id` - (Required, String, ForceNew) Specifies the ID of the direct connection associated with the
   virtual interface.
-  Changing this will create a new resource.
-
-* `vgw_id` - (Required, String, ForceNew) Specifies the ID of the virtual gateway to which the virtual interface is
-  connected.
   Changing this will create a new resource.
 
 * `name` - (Required, String) Specifies the name of the virtual interface.
@@ -117,6 +111,9 @@ The following arguments are supported:
 * `service_type` - (Optional, String, ForceNew) Specifies the service type of the virtual interface.
   The valid values are **VGW**, **GDGW** and **LGW**. The default value is **VGW**.
   Changing this will create a new resource.
+
+* `vgw_id` - (Optional, String, ForceNew) Specifies the ID of the virtual gateway to which the virtual interface is
+  connected.
 
 * `gateway_id` - (Optional, String, ForceNew) Specifies the ID of the gateway associated with the virtual
   interface (the ID of the global DC gateway).
