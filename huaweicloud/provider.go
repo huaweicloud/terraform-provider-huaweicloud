@@ -1440,8 +1440,9 @@ func Provider() *schema.Provider {
 			// and their API URLs are both named with "components". To differentiate them, all resources under the
 			// Plugin Management group are prefixed with "soc", since the API URLs in the Plugin Management group
 			// also contain "soc".
-			"huaweicloud_secmaster_soc_components":       secmaster.DataSourceSocComponents(),
-			"huaweicloud_secmaster_soc_component_detail": secmaster.DataSourceSocComponentDetail(),
+			"huaweicloud_secmaster_soc_components":         secmaster.DataSourceSocComponents(),
+			"huaweicloud_secmaster_soc_component_detail":   secmaster.DataSourceSocComponentDetail(),
+			"huaweicloud_secmasterv2_alert_rule_templates": secmaster.DataSourceAlertRuleTemplatesV2(),
 
 			// Querying by Ver.2 APIs
 			"huaweicloud_servicestage_component_runtimes": servicestage.DataSourceComponentRuntimes(),
