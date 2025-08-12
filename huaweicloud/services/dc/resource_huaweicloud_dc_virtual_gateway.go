@@ -18,6 +18,7 @@ import (
 // @API DC GET /v3/{project_id}/dcaas/virtual-gateways/{gatewayId}
 // @API DC PUT /v3/{project_id}/dcaas/virtual-gateways/{gatewayId}
 // @API DC POST /v3/{project_id}/dcaas/virtual-gateways
+// @API DC POST /v3/{project_id}/{resource_type}/{resource_id}/tags/action
 func ResourceVirtualGateway() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceVirtualGatewayCreate,
@@ -95,6 +96,7 @@ func buildVirtualGatewayCreateOpts(d *schema.ResourceData, cfg *config.Config) g
 		Description:         d.Get("description").(string),
 		BgpAsn:              d.Get("asn").(int),
 		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
+		Tags:                utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 	}
 }
 
@@ -111,11 +113,6 @@ func resourceVirtualGatewayCreate(ctx context.Context, d *schema.ResourceData, m
 		return diag.Errorf("error creating virtual gateway: %s", err)
 	}
 	d.SetId(resp.ID)
-
-	// create tags
-	if err := utils.CreateResourceTags(client, d, "dc-vgw", d.Id()); err != nil {
-		return diag.Errorf("error setting tags of DC virtual gateway %s: %s", d.Id(), err)
-	}
 
 	return resourceVirtualGatewayRead(ctx, d, meta)
 }
@@ -143,8 +140,7 @@ func resourceVirtualGatewayRead(_ context.Context, d *schema.ResourceData, meta 
 		d.Set("asn", resp.BgpAsn),
 		d.Set("enterprise_project_id", resp.EnterpriseProjectId),
 		d.Set("status", resp.Status),
-		utils.SetResourceTagsToState(d, client, "dc-vgw", d.Id()),
-		d.Set("tags", d.Get("tags")),
+		d.Set("tags", utils.TagsToMap(resp.Tags)),
 	)
 
 	if err = mErr.ErrorOrNil(); err != nil {

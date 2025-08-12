@@ -23,6 +23,7 @@ import (
 // @API DC GET /v3/{project_id}/dcaas/virtual-interfaces/{interfaceId}
 // @API DC PUT /v3/{project_id}/dcaas/virtual-interfaces/{interfaceId}
 // @API DC POST /v3/{project_id}/dcaas/virtual-interfaces
+// @API DC POST /v3/{project_id}/{resource_type}/{resource_id}/tags/action
 func ResourceVirtualInterface() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceVirtualInterfaceCreate,
@@ -463,6 +464,7 @@ func buildCreateVirtualInterfaceBodyParams(d *schema.ResourceData, cfg *config.C
 		"lag_id":                utils.ValueIgnoreEmpty(d.Get("lag_id")),
 		"resource_tenant_id":    utils.ValueIgnoreEmpty(d.Get("resource_tenant_id")),
 		"enterprise_project_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
+		"tags":                  utils.ExpandResourceTagsMap(d.Get("tags").(map[string]interface{})),
 	}
 
 	return map[string]interface{}{
@@ -508,11 +510,6 @@ func resourceVirtualInterfaceCreate(ctx context.Context, d *schema.ResourceData,
 	err = waitForVirtualInterfaceAvailable(ctx, client, id, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.FromErr(err)
-	}
-
-	// create tags
-	if err = utils.CreateResourceTags(client, d, "dc-vif", d.Id()); err != nil {
-		return diag.Errorf("error creating tags of DC virtual interface (%s): %s", d.Id(), err)
 	}
 
 	return resourceVirtualInterfaceRead(ctx, d, meta)
@@ -577,8 +574,7 @@ func resourceVirtualInterfaceRead(_ context.Context, d *schema.ResourceData, met
 		d.Set("route_limit", utils.PathSearch("route_limit", interfaceResp, nil)),
 		d.Set("vif_peers", flattenVifPeersAttribute(utils.PathSearch("vif_peers", interfaceResp, make([]interface{}, 0)).([]interface{}))),
 		d.Set("extend_attribute", flattenExtendAttribute(utils.PathSearch("extend_attribute", interfaceResp, nil))),
-		utils.SetResourceTagsToState(d, client, "dc-vif", d.Id()),
-		d.Set("tags", d.Get("tags")),
+		d.Set("tags", utils.FlattenTagsToMap(utils.PathSearch("tags", interfaceResp, nil))),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
