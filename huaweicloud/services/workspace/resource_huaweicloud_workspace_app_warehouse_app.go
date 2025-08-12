@@ -79,6 +79,11 @@ func ResourceWarehouseApplication() *schema.Resource {
 				Optional:    true,
 				Description: `The icon of the application.`,
 			},
+			"record_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The record ID of the application.`,
+			},
 		},
 	}
 }
@@ -153,6 +158,7 @@ func resourceWarehouseApplicationRead(_ context.Context, d *schema.ResourceData,
 		d.Set("version_name", utils.PathSearch("version_name", application, nil)),
 		d.Set("file_store_path", utils.PathSearch("appfile_store_path", application, nil)),
 		d.Set("description", utils.PathSearch("app_description", application, nil)),
+		d.Set("record_id", utils.PathSearch("id", application, nil)),
 	)
 
 	if err = mErr.ErrorOrNil(); err != nil {
