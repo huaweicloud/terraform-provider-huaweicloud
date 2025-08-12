@@ -1435,6 +1435,12 @@ func Provider() *schema.Provider {
 			"huaweicloud_secmaster_component_templates":       secmaster.DataSourceComponentTemplates(),
 			"huaweicloud_secmaster_vpc_endpoint_services":     secmaster.DataSourceSecmasterVpcEndpointServices(),
 			"huaweicloud_secmaster_catalogues_search":         secmaster.DataSourceSecmasterCataloguesSearch(),
+			// In the API documentation, there are two API groups: Plugin Management and Component Management,
+			// and their API URLs are both named with "components". To differentiate them, all resources under the
+			// Plugin Management group are prefixed with "soc", since the API URLs in the Plugin Management group
+			// also contain "soc".
+			"huaweicloud_secmaster_soc_components":       secmaster.DataSourceSocComponents(),
+			"huaweicloud_secmaster_soc_component_detail": secmaster.DataSourceSocComponentDetail(),
 
 			// Querying by Ver.2 APIs
 			"huaweicloud_servicestage_component_runtimes": servicestage.DataSourceComponentRuntimes(),
