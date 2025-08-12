@@ -13,7 +13,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/workspace"
 )
 
-func getApplicationFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getAppPublishedApplicationFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := cfg.NewServiceClient("appstream", acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating Workspace APP client: %s", err)
@@ -33,7 +33,7 @@ func TestAccAppPublishment_basic(t *testing.T) {
 	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&application,
-		getApplicationFunc,
+		getAppPublishedApplicationFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
