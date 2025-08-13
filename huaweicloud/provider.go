@@ -2913,6 +2913,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_workspace_app_server_group_scaling_policy": workspace.ResourceAppServerGroupScalingPolicy(),
 			"huaweicloud_workspace_app_server_group":                workspace.ResourceAppServerGroup(),
 			"huaweicloud_workspace_app_server":                      workspace.ResourceAppServer(),
+			"huaweicloud_workspace_app_server_action":               workspace.ResourceAppServerAction(),
 			"huaweicloud_workspace_app_server_batch_action":         workspace.ResourceAppServerBatchAction(),
 			"huaweicloud_workspace_app_shared_folder":               workspace.ResourceAppSharedFolder(),
 			"huaweicloud_workspace_app_storage_policy":              workspace.ResourceAppStoragePolicy(),
