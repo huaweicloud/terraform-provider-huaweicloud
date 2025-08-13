@@ -2914,6 +2914,7 @@ func Provider() *schema.Provider {
 
 			// Workspace APP
 			"huaweicloud_workspace_app_application_batch_attach":        workspace.ResourceAppApplicationBatchAttach(),
+			"huaweicloud_workspace_app_bucket_authorize":                workspace.ResourceAppBucketAuthorize(),
 			"huaweicloud_workspace_app_group_authorization":             workspace.ResourceAppGroupAuthorization(),
 			"huaweicloud_workspace_app_group":                           workspace.ResourceWorkspaceAppGroup(),
 			"huaweicloud_workspace_app_image_server":                    workspace.ResourceAppImageServer(),
