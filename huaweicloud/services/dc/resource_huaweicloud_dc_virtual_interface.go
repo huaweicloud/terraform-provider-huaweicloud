@@ -37,6 +37,12 @@ func ResourceVirtualInterface() *schema.Resource {
 
 		CustomizeDiff: config.MergeDefaultTags(),
 
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(30 * time.Minute),
+			Update: schema.DefaultTimeout(30 * time.Minute),
+			Delete: schema.DefaultTimeout(30 * time.Minute),
+		},
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:        schema.TypeString,
@@ -833,8 +839,11 @@ func virtualInterfaceRefreshFunc(client *golangsdk.ServiceClient, id string) res
 		completeStatus := []string{"ACTIVE", "DOWN", "ADMIN_SHUTDOWN", "DELETED", "REJECTED"}
 		failStatus := []string{"ERROR"}
 		status := utils.PathSearch("virtual_interface.status", getRespBody, "").(string)
-		if utils.StrSliceContains(completeStatus, status) || utils.StrSliceContains(failStatus, status) {
+		if utils.StrSliceContains(completeStatus, status) {
 			return getRespBody, status, nil
+		}
+		if utils.StrSliceContains(failStatus, status) {
+			return nil, status, errors.New("error getting virtual interface")
 		}
 
 		return getRespBody, "PENDING", nil
