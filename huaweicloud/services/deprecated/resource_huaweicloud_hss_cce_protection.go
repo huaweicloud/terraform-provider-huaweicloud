@@ -1,4 +1,4 @@
-package hss
+package deprecated
 
 import (
 	"context"
@@ -39,6 +39,8 @@ func ResourceCCEProtection() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceCCEProtectionImportState,
 		},
+
+		DeprecationMessage: "Abandon the resource and use a disposable resource instead.",
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(12 * time.Minute),
