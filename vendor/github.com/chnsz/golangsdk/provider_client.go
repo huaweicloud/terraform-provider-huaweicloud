@@ -429,6 +429,11 @@ func (client *ProviderClient) doRequest(method, url string, options *RequestOpts
 			if error404er, ok := errType.(Err404er); ok {
 				err = error404er.Error404(respErr)
 			}
+		case http.StatusConflict:
+			err = ErrDefault409{respErr}
+			if error409er, ok := errType.(Err409er); ok {
+				err = error409er.Error409(respErr)
+			}
 		case http.StatusMethodNotAllowed:
 			err = ErrDefault405{respErr}
 			if error405er, ok := errType.(Err405er); ok {

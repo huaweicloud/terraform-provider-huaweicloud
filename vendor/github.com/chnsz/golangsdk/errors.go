@@ -96,6 +96,11 @@ type ErrDefault408 struct {
 	ErrUnexpectedResponseCode
 }
 
+// ErrDefault409 is the default error type returned on a 409 HTTP response code.
+type ErrDefault409 struct {
+	ErrUnexpectedResponseCode
+}
+
 // ErrDefault429 is the default error type returned on a 429 HTTP response code.
 type ErrDefault429 struct {
 	ErrUnexpectedResponseCode
@@ -157,6 +162,9 @@ func (e ErrDefault405) Error() string {
 }
 func (e ErrDefault408) Error() string {
 	return "The server timed out waiting for the request"
+}
+func (e ErrDefault409) Error() string {
+	return "The request could not be processed due to conflict in the request"
 }
 func (e ErrDefault429) Error() string {
 	e.DefaultErrString = fmt.Sprintf(
@@ -220,6 +228,12 @@ type Err405er interface {
 // from a 408 error.
 type Err408er interface {
 	Error408(ErrUnexpectedResponseCode) error
+}
+
+// Err409er is the interface resource error types implement to override the error message
+// from a 409 error.
+type Err409er interface {
+	Error409(ErrUnexpectedResponseCode) error
 }
 
 // Err429er is the interface resource error types implement to override the error message
