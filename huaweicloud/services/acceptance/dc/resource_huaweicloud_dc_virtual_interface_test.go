@@ -175,7 +175,6 @@ func TestAccVirtualInterface_gdgw(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "direct_connect_id", acceptance.HW_DC_DIRECT_CONNECT_ID),
-					resource.TestCheckResourceAttrPair(rName, "vgw_id", "huaweicloud_dc_virtual_gateway.test", "id"),
 					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttr(rName, "description", "Created by acc test"),
 					resource.TestCheckResourceAttr(rName, "type", "private"),
@@ -225,7 +224,6 @@ func TestAccVirtualInterface_gdgw(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "direct_connect_id", acceptance.HW_DC_DIRECT_CONNECT_ID),
-					resource.TestCheckResourceAttrPair(rName, "vgw_id", "huaweicloud_dc_virtual_gateway.test", "id"),
 					resource.TestCheckResourceAttr(rName, "name", updateName),
 					resource.TestCheckResourceAttr(rName, "description", ""),
 					resource.TestCheckResourceAttr(rName, "type", "private"),
@@ -275,16 +273,6 @@ resource "huaweicloud_vpc" "test" {
   cidr = "192.168.0.0/16"
 }
 
-resource "huaweicloud_dc_virtual_gateway" "test" {
-  vpc_id      = huaweicloud_vpc.test.id
-  name        = "%[1]s"
-  description = "Created by acc test"
-
-  local_ep_group = [
-    huaweicloud_vpc.test.cidr,
-  ]
-}
-
 resource "huaweicloud_dc_global_gateway" "test" {
   name           = "%[1]s"
   description    = "test description"
@@ -300,7 +288,6 @@ func testAccVirtualInterface_gdgw(name string) string {
 
 resource "huaweicloud_dc_virtual_interface" "test" {
   direct_connect_id = "%[2]s"
-  vgw_id            = huaweicloud_dc_virtual_gateway.test.id
   name              = "%[3]s"
   description       = "Created by acc test"
   type              = "private"
@@ -334,7 +321,6 @@ func testAccVirtualInterface_gdgw_update1(name string) string {
 
 resource "huaweicloud_dc_virtual_interface" "test" {
   direct_connect_id = "%[2]s"
-  vgw_id            = huaweicloud_dc_virtual_gateway.test.id
   name              = "%[3]s"
   type              = "private"
   route_mode        = "static"
@@ -368,7 +354,6 @@ func testAccVirtualInterface_gdgw_update2(name string) string {
 
 resource "huaweicloud_dc_virtual_interface" "test" {
   direct_connect_id = "%[2]s"
-  vgw_id            = huaweicloud_dc_virtual_gateway.test.id
   name              = "%[3]s"
   type              = "private"
   route_mode        = "static"
