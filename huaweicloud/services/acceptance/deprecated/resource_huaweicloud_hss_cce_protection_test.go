@@ -1,4 +1,4 @@
-package hss
+package deprecated
 
 import (
 	"fmt"
@@ -11,7 +11,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/hss"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/deprecated"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
@@ -29,7 +29,7 @@ func getCCEProtectionFunc(conf *config.Config, state *terraform.ResourceState) (
 		return nil, fmt.Errorf("error creating HSS client: %s", err)
 	}
 
-	respBody, err := hss.ReadCCEProtection(client, clusterID, clusterName, epsID, region)
+	respBody, err := deprecated.ReadCCEProtection(client, clusterID, clusterName, epsID, region)
 	if err != nil {
 		return nil, fmt.Errorf("error retrieving CCE protection configuration: %s", err)
 	}
