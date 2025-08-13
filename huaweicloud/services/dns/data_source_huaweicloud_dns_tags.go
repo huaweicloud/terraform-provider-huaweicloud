@@ -90,7 +90,7 @@ func dataSourceDNSTagsRead(_ context.Context, d *schema.ResourceData, meta inter
 
 // @API DNS GET /v2/{project_id}/{resource_type}/tags
 func (w *TagsDSWrapper) ListTags() (*gjson.Result, error) {
-	client, err := w.NewClient(w.Config, "dns")
+	client, err := w.NewClient(w.Config, "dns_region")
 	if err != nil {
 		return nil, err
 	}
