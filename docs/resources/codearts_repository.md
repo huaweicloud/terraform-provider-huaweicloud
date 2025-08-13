@@ -19,13 +19,13 @@ variable "repository_description" {}
 resource "huaweicloud_codearts_repository" "test" {
   project_id = var.project_id // You can use project resource to generate it
 
-  name               = var.repository_name
-  description        = var.repository_description
-  gitignore_language = "Go"
-  enable_readme      = 0  // Do not auto generate README.md
-  visibility_level   = 20 // Public read-only
-  license_id         = 2  // MIT License
-  import_members     = 0  // Do not import members of the project into this repository when creating
+  name             = var.repository_name
+  description      = var.repository_description
+  gitignore_id     = "Go"
+  enable_readme    = 0  // Do not auto generate README.md
+  visibility_level = 20 // Public read-only
+  license_id       = 2  // MIT License
+  import_members   = 0  // Do not import members of the project into this repository when creating
 }
 ```
 
