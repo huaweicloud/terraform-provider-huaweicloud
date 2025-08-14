@@ -272,7 +272,7 @@ func buildApplicationQueryParams(d *schema.ResourceData) string {
 	return res
 }
 
-func listApplication(client *golangsdk.ServiceClient, d ...*schema.ResourceData) ([]interface{}, error) {
+func listApplications(client *golangsdk.ServiceClient, d ...*schema.ResourceData) ([]interface{}, error) {
 	var (
 		httpUrl = "v1/{project_id}/app-center/apps?limit={limit}"
 		offset  = 0
@@ -319,7 +319,7 @@ func listApplication(client *golangsdk.ServiceClient, d ...*schema.ResourceData)
 
 // GetApplicationById is a method is used to get the application.
 func GetApplicationById(client *golangsdk.ServiceClient, applicationId string) (interface{}, error) {
-	applications, err := listApplication(client)
+	applications, err := listApplications(client)
 	if err != nil {
 		return nil, err
 	}
