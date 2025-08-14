@@ -17,13 +17,13 @@ Use this resource to attach applications to Workspace APP image instance in Huaw
 
 ```hcl
 variable "server_id" {}
-variable "applications_ids" {
+variable "record_ids" {
   type = list(string)
 }
 
 resource "huaweicloud_workspace_app_application_batch_attach" "test" {
-  server_id        = var.server_id
-  applications_ids = var.applications_ids
+  server_id  = var.server_id
+  record_ids = var.record_ids
 }
 ```
 
@@ -36,7 +36,7 @@ The following arguments are supported:
 
 * `server_id` - (Required, String) Specifies the ID of the image server instance.
 
-* `applications_ids` - (Required, List) Specifies the list of application IDs to be attach.
+* `record_ids` - (Required, List) Specifies the list of application record IDs to be attach.
 
 ## Attribute Reference
 
