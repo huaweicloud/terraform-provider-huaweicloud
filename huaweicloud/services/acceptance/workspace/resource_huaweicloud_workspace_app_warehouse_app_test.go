@@ -58,6 +58,7 @@ func TestAccAppWarehouseApp_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "version_name", "terraform"),
 					resource.TestCheckResourceAttr(resourceName, "file_store_path", acceptance.HW_WORKSPACE_APP_FILE_NAME),
 					resource.TestCheckResourceAttr(resourceName, "description", "Created by script"),
+					resource.TestCheckResourceAttrSet(resourceName, "record_id"),
 				),
 			},
 			{
