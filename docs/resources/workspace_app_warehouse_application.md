@@ -1,12 +1,12 @@
 ---
 subcategory: "Workspace"
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_workspace_app_warehouse_app"
+page_title: "HuaweiCloud: huaweicloud_workspace_app_warehouse_application"
 description: |-
   Manages an application resource of Workspace APP warehouse within HuaweiCloud.
 ---
 
-# huaweicloud_workspace_app_warehouse_app
+# huaweicloud_workspace_app_warehouse_application
 
 Manages an application resource of Workspace APP warehouse within HuaweiCloud.
 
@@ -18,7 +18,7 @@ var "version" {}
 var "version_name" {}
 var "file_store_obs_path" {}
 
-resource "huaweicloud_workspace_app_warehouse_app" "test" {
+resource "huaweicloud_workspace_app_warehouse_application" "test" {
   name            = var.application_name
   category        = "OTHER"
   os_type         = "Windows"
@@ -89,7 +89,7 @@ In addition to all arguments above, the following attributes are exported:
 The resource can be imported using `id`, e.g.
 
 ```bash
-$ terraform import huaweicloud_workspace_app_warehouse_app.test <id>
+$ terraform import huaweicloud_workspace_app_warehouse_application.test <id>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
@@ -100,7 +100,7 @@ You can then decide if changes should be applied to the instance, or the resourc
 align with the instance. Also you can ignore changes as below.
 
 ```hcl
-resource "huaweicloud_workspace_app_warehouse_app" "test" {
+resource "huaweicloud_workspace_app_warehouse_application" "test" {
   ...
 
   lifecycle {
