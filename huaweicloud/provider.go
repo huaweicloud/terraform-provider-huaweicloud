@@ -2934,7 +2934,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_workspace_app_server_batch_action":             workspace.ResourceAppServerBatchAction(),
 			"huaweicloud_workspace_app_shared_folder":                   workspace.ResourceAppSharedFolder(),
 			"huaweicloud_workspace_app_storage_policy":                  workspace.ResourceAppStoragePolicy(),
-			"huaweicloud_workspace_app_warehouse_app":                   workspace.ResourceWarehouseApplication(),
+			"huaweicloud_workspace_app_warehouse_application":           workspace.ResourceAppWarehouseApplication(),
 
 			"huaweicloud_cpts_project": cpts.ResourceProject(),
 			"huaweicloud_cpts_task":    cpts.ResourceTask(),
@@ -3184,6 +3184,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_iotda_batchtask_file": deprecated.ResourceBatchTaskFile(),
 
 			"huaweicloud_images_image": deprecated.ResourceImsImage(),
+
+			"huaweicloud_workspace_app_warehouse_app": workspace.ResourceAppWarehouseApplication(),
 		},
 	}
 
