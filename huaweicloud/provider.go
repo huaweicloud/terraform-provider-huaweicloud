@@ -821,6 +821,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dbss_rds_databases":             dbss.DataSourceDbssRdsDatabases(),
 
 			"huaweicloud_dc_connections":               dc.DataSourceDcConnections(),
+			"huaweicloud_dc_hosted_connects":           dc.DataSourceDcHostedConnects(),
 			"huaweicloud_dc_quotas":                    dc.DataSourceDcQuotas(),
 			"huaweicloud_dc_virtual_gateways":          dc.DataSourceDCVirtualGateways(),
 			"huaweicloud_dc_virtual_interfaces":        dc.DataSourceDCVirtualInterfaces(),
