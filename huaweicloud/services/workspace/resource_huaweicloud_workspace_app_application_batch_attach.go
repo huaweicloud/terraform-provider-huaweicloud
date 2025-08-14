@@ -15,7 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-var applicationBatchAttachNonUpdateParams = []string{"server_id", "applications_ids"}
+var applicationBatchAttachNonUpdateParams = []string{"server_id", "record_ids"}
 
 // @API Workspace POST /v1/{project_id}/image-servers/{server_id}/actions/attach-app
 func ResourceAppApplicationBatchAttach() *schema.Resource {
@@ -40,11 +40,11 @@ func ResourceAppApplicationBatchAttach() *schema.Resource {
 				Required:    true,
 				Description: `The ID of the image server instance.`,
 			},
-			"applications_ids": {
+			"record_ids": {
 				Type:        schema.TypeList,
 				Required:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: `The list of application IDs to be attach.`,
+				Description: `The list of application record IDs to be attach.`,
 			},
 			"uri": {
 				Type:        schema.TypeString,
@@ -80,7 +80,7 @@ func resourceAppApplicationBatchAttachCreate(_ context.Context, d *schema.Resour
 	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		JSONBody: map[string]interface{}{
-			"items": utils.ExpandToStringList(d.Get("applications_ids").([]interface{})),
+			"items": utils.ExpandToStringList(d.Get("record_ids").([]interface{})),
 		},
 	}
 

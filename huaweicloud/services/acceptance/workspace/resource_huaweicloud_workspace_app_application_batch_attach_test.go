@@ -42,7 +42,8 @@ func TestAccResourceAppApplicationBatchAttach_basic(t *testing.T) {
 			{
 				Config: testAccResourceAppApplicationBatchAttach_basic(name),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestMatchResourceAttr(resourceName, "applications_ids.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
+					resource.TestMatchResourceAttr(resourceName, "record_ids.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
+					resource.TestCheckResourceAttrSet(resourceName, "uri"),
 				),
 			},
 		},
@@ -52,8 +53,8 @@ func TestAccResourceAppApplicationBatchAttach_basic(t *testing.T) {
 func testAccResourceAppApplicationBatchAttach_expectError(randomId string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_workspace_app_application_batch_attach" "expectError" {
-  server_id        = "%[1]s"
-  applications_ids = ["%[1]s"]
+  server_id  = "%[1]s"
+  record_ids = ["%[1]s"]
 }
 `, randomId)
 }
@@ -166,8 +167,8 @@ func testAccResourceAppApplicationBatchAttach_basic(name string) string {
 %[1]s
 
 resource "huaweicloud_workspace_app_application_batch_attach" "test" {
-  server_id        = huaweicloud_workspace_app_image_server.test.id
-  applications_ids = [huaweicloud_workspace_app_warehouse_app.test.id]
+  server_id  = huaweicloud_workspace_app_image_server.test.id
+  record_ids = [huaweicloud_workspace_app_warehouse_app.test.record_id]
 }
 `, testAccResourceAppApplicationBatchAttach_base(name))
 }
