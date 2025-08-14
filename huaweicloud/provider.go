@@ -2902,6 +2902,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_workspace_app_application_batch_attach":    workspace.ResourceAppApplicationBatchAttach(),
 			"huaweicloud_workspace_app_group_authorization":         workspace.ResourceAppGroupAuthorization(),
 			"huaweicloud_workspace_app_group":                       workspace.ResourceWorkspaceAppGroup(),
+			"huaweicloud_workspace_app_hda_batch_upgrade":           workspace.ResourceAppHdaBatchUpgrade(),
 			"huaweicloud_workspace_app_image_server":                workspace.ResourceAppImageServer(),
 			"huaweicloud_workspace_app_image":                       workspace.ResourceAppImage(),
 			"huaweicloud_workspace_app_nas_storage":                 workspace.ResourceAppNasStorage(),
