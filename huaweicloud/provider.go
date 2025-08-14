@@ -1447,6 +1447,7 @@ func Provider() *schema.Provider {
 			// also contain "soc".
 			"huaweicloud_secmaster_soc_components":         secmaster.DataSourceSocComponents(),
 			"huaweicloud_secmaster_soc_component_detail":   secmaster.DataSourceSocComponentDetail(),
+			"huaweicloud_secmaster_soc_component_actions":  secmaster.DataSourceSocComponentActions(),
 			"huaweicloud_secmasterv2_alert_rule_templates": secmaster.DataSourceAlertRuleTemplatesV2(),
 
 			// Querying by Ver.2 APIs
