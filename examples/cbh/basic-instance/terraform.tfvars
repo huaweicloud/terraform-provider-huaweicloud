@@ -1,0 +1,5 @@
+vpc_name            = "tf_test_cbh_instance_vpc"
+subnet_name         = "tf_test_cbh_instance_subnet"
+security_group_name = "tf_test_cbh_instance_security_group"
+instance_name       = "tf_test_cbh_instance"
+instance_password   = "YourCBHInstancePassword!"

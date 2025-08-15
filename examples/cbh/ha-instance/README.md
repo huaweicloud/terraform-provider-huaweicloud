@@ -1,68 +1,92 @@
 # Create a CBH HA instance
 
-This example creates a CBH HA instance. The CBH dedicated instance requires a VPC,
-Subnet and security group. In this example, we all create them in the simplest
-way. You can replace them with resources already created in Huawei Cloud.
+This example provides best practice code for using Terraform to create a high-availability CBH HA instance in HuaweiCloud.
 
-Compared with the CBH basic instance, the most notable difference of the CBH HA instance
-lies in the necessity of clearly designating the primary and backup availability zones.
+## Prerequisites
 
-To run, configure your HuaweiCloud provider as described in the
-[document](https://registry.terraform.io/providers/huaweicloud/huaweicloud/latest/docs).
+* A HuaweiCloud account
+* Terraform installed
+* HuaweiCloud access key and secret key (AK/SK)
 
-## The CBH HA instance configuration
+## Required Variables
 
-| Attributes    | Value           |
-|---------------|-----------------|
-| name          | Cbh_HA_demo     |
-| flavor_id     | cbh.basic.50    |
-| password      | Cbh@Huawei123   |
-| charging_mode | prePaid         |
-| period_unit   | mouth           |
-| period        | 1               |
+### Authentication Variables
 
-### FAQ
+* `region_name` - The region where the CBH HA instance is located
+* `access_key`  - The access key of the IAM user
+* `secret_key`  - The secret key of the IAM user
 
-- **How can we configure the availability zones of the CBH HA instance?**
+### Resource Variables
 
-    If your business requires high performance (e.g., low network latency), deploy primary and standby
-    availability zones in the same region. This ensures fast and stable network connections.  
-    The expected `master_availability_zone`、`slave_availability_zone` can be obtained in the following way.
+#### Required Variables
 
-    ```hcl
-    data "huaweicloud_cbh_instance" "cbh_HA_demo" {
-        master_availability_zone = data.huaweicloud_availability_zones.default.names[0]
-        slave_availability_zone  = data.huaweicloud_availability_zones.default.names[0]
-    }
-    ```
+* `vpc_name` - The name of the VPC
+* `subnet_name` - The name of the subnet
+* `security_group_name` - The name of the security group
+* `instance_name` - The name of the CBH HA instance
+* `instance_password` - The login password for the CBH HA instance
 
-    For disaster recovery priorities, place primary and standby zones in different regions.  
-    This improves system resilience against failures as follow:
+#### Optional Variables
 
-    ```hcl
-    data "huaweicloud_cbh_instance" "cbh_HA_demo" {
-        master_availability_zone = data.huaweicloud_availability_zones.default.names[0]
-        slave_availability_zone  = data.huaweicloud_availability_zones.default.names[1]
-    }
-    ```
-
-    Note: Cross-region deployment may slow down system performance.  
-    Carefully evaluate performance trade-offs and disaster recovery needs during planning.
+* `master_availability_zone` - The availability zone name of the master instance (default: "")
+* `slave_availability_zone` - The availability zone name of the slave instance (default: "")
+* `instance_flavor_id` - The flavor ID of the CBH HA instance (default: "")
+* `instance_flavor_type` - The flavor type of the CBH HA instance (default: "basic")
+* `vpc_cidr` - The CIDR block of the VPC (default: "192.168.0.0/16")
+* `subnet_cidr` - The CIDR block of the subnet (default: "")
+* `subnet_gateway_ip` - The gateway IP address of the subnet (default: "")
+* `charging_mode` - The charging mode of the CBH HA instance (default: "prePaid")
+* `period_unit` - The charging period unit of the CBH HA instance (default: "month")
+* `period` - The charging period of the CBH HA instance (default: 1)
+* `auto_renew` - Whether to enable auto-renew for the CBH HA instance (default: "false")
 
 ## Usage
 
-```shell
-terraform init
-terraform plan
-terraform apply
-terraform destroy
-```
+* Copy this example script to your `main.tf`.
+* Create a `terraform.tfvars` file and fill in the required variables:
 
-It takes about 30 minutes to create a CBH HA instance with primary-backup mode.
+  ```hcl
+  vpc_name            = "your_vpc_name"
+  subnet_name         = "your_subnet_name"
+  security_group_name = "your_security_group_name"
+  instance_name       = "your_cbh_ha_instance_name"
+  instance_flavor_id  = "your_cbh_ha_instance_flavor_id"
+  instance_password   = "your_cbh_ha_instance_password"
+  ```
+
+* Initialize Terraform:
+
+   ```bash
+   terraform init
+   ```
+
+* Review the Terraform plan:
+
+   ```bash
+   terraform plan
+   ```
+
+* Apply the configuration:
+
+   ```bash
+   terraform apply
+   ```
+
+* To clean up the resources:
+
+   ```bash
+   terraform destroy
+   ```
+
+## Note
+
+* Make sure to keep your credentials secure and never commit them to version control
+* The creation of the CBH HA instance takes about 30 minutes
+* All resources will be created in the specified region
 
 ## Requirements
 
 | Name        | Version   |
 |-------------|-----------|
-| terraform   | >= 0.12.0 |
-| huaweicloud | >= 1.40.0 |
+| terraform   | >= 1.1.0 |
+| huaweicloud | >= 1.64.3 |
