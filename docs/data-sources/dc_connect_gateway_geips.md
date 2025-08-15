@@ -3,12 +3,12 @@ subcategory: "Direct Connect (DC)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_dc_connect_gateway_geips"
 description: |-
-  Use this data source to get the list of global EIPs bound to a connect gateway
+  Use this data source to get the list of global EIPs bound to a connect gateway.
 ---
 
 # huaweicloud_dc_connect_gateway_geips
 
-Use this data source to get the list of global EIPs bound to a connect gateway
+Use this data source to get the list of global EIPs bound to a connect gateway.
 
 ## Example Usage
 
