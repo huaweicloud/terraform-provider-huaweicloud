@@ -25,7 +25,7 @@ func DataSourceKmsTags() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				Description: `Specifies the region in which to query the resource. If omitted, the provider-level region will be used.`,
+				Description: `Specifies the region in which to query the resource. `,
 			},
 
 			"tags": {
