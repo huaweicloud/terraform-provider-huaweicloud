@@ -245,3 +245,49 @@ resource "huaweicloud_workspace_app_server_batch_action" "test" {
 }
 `, testAccAppServerBatchAction_base(name))
 }
+
+func TestAccAppServerBatchAction_batchMaint(t *testing.T) {
+	var (
+		resourceName = "huaweicloud_workspace_app_server_batch_action.test"
+		name         = acceptance.RandomAccResourceName()
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckWorkspaceAppServerGroupId(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		// This resource is a one-time batch action resource and there is no logic in the delete method.
+		// lintignore:AT001
+		CheckDestroy: nil,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccAppServerBatchAction_batchMaint(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "type", "batch-maint"),
+				),
+			},
+		},
+	})
+}
+
+func testAccAppServerBatchAction_batchMaint(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_workspace_app_server_batch_action" "test" {
+  type    = "batch-maint"
+  content = jsonencode({
+    items           = [huaweicloud_workspace_app_server.test.id]
+    maintain_status = true
+  })
+
+  max_retries = 3
+
+  provisioner "local-exec" {
+    command = "sleep 120"
+  }
+}
+`, testAccAppServerBatchAction_base(name))
+}

@@ -86,6 +86,22 @@ resource "huaweicloud_workspace_app_server_batch_action" "update_tsvi" {
 }
 ```
 
+### Mark Server Maintenance Status
+
+```hcl
+variable "operate_server_ids" {
+  type = list(string)
+}
+
+resource "huaweicloud_workspace_app_server_batch_action" "maintain_status" {
+  type    = "batch-maint"
+  content = jsonencode({
+    items           = var.operate_server_ids
+    maintain_status = true
+  })
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -99,6 +115,7 @@ The following arguments are supported:
   + **batch-reinstall**: Reinstall server.
   + **batch-rejoin-domain**: Rejoin AD domain.
   + **batch-update-tsvi**: Update virtual session IP configuration.
+  + **batch-maint**: Mark server maintenance status.
 
 * `content` - (Required, String, NonUpdatable) Specifies the JSON string content for the batch operation (action)
   request.

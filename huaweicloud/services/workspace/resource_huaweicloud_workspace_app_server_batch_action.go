@@ -21,6 +21,7 @@ var batchActionHTTPMethodMap = map[string]string{
 	"batch-reinstall":     "POST",
 	"batch-rejoin-domain": "PATCH",
 	"batch-update-tsvi":   "PATCH",
+	"batch-maint":         "PATCH",
 }
 
 var appServerBatchActionNonUpdatableParams = []string{"type", "content"}
@@ -29,6 +30,7 @@ var appServerBatchActionNonUpdatableParams = []string{"type", "content"}
 // @API Workspace POST /v1/{project_id}/app-servers/actions/batch-reinstall
 // @API Workspace PATCH /v1/{project_id}/app-servers/actions/batch-rejoin-domain
 // @API Workspace PATCH /v1/{project_id}/app-servers/actions/batch-update-tsvi
+// @API Workspace PATCH /v1/{project_id}/app-servers/actions/batch-maint
 func ResourceAppServerBatchAction() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAppServerBatchActionCreate,
@@ -57,6 +59,7 @@ func ResourceAppServerBatchAction() *schema.Resource {
 					"batch-reinstall",
 					"batch-rejoin-domain",
 					"batch-update-tsvi",
+					"batch-maint",
 				}, false),
 			},
 			"content": {
