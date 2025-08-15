@@ -2865,6 +2865,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpc_traffic_mirror_filter":       vpc.ResourceTrafficMirrorFilter(),
 			"huaweicloud_vpc_traffic_mirror_filter_rule":  vpc.ResourceTrafficMirrorFilterRule(),
 			"huaweicloud_vpc_traffic_mirror_session":      vpc.ResourceTrafficMirrorSession(),
+			"huaweicloud_vpc_subnet_cidr_reservation":     vpc.ResourceVpcSubnetCidrReservation(),
 
 			"huaweicloud_vpcep_approval": vpcep.ResourceVPCEndpointApproval(),
 			"huaweicloud_vpcep_endpoint": vpcep.ResourceVPCEndpoint(),
