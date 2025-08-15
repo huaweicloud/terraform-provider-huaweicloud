@@ -1,6 +1,6 @@
 # Variable definitions for authentication
 variable "region_name" {
-  description = "The region where the Kafka instance is located"
+  description = "The region where the RabbitMQ instance is located"
   type        = string
 }
 
@@ -16,7 +16,7 @@ variable "secret_key" {
 
 # Variable definitions for resources/data sources
 variable "availability_zones" {
-  description = "The availability zones to which the Kafka instance belongs"
+  description = "The availability zones to which the RabbitMQ instance belongs"
   type        = list(string)
   default     = []
 }
@@ -55,92 +55,107 @@ variable "security_group_name" {
 }
 
 variable "instance_flavor_id" {
-  description = "The flavor ID of the Kafka instance"
+  description = "The flavor ID of the RabbitMQ instance"
   type        = string
   default     = ""
 }
 
 variable "instance_flavor_type" {
-  description = "The flavor type of the Kafka instance"
+  description = "The flavor type of the RabbitMQ instance"
   type        = string
   default     = "cluster"
 }
 
 variable "instance_storage_spec_code" {
-  description = "The storage specification code of the Kafka instance"
+  description = "The storage specification code of the RabbitMQ instance"
   type        = string
   default     = "dms.physical.storage.ultra.v2"
 }
 
+variable "availability_zone_number" {
+  description = "The number of availability zones to which the RabbitMQ instance belongs"
+  type        = number
+  default     = 1
+}
+
 variable "instance_name" {
-  description = "The name of the Kafka instance"
+  description = "The name of the RabbitMQ instance"
   type        = string
 }
 
 variable "instance_engine_version" {
-  description = "The engine version of the Kafka instance"
+  description = "The engine version of the RabbitMQ instance"
   type        = string
-  default     = "2.7"
-}
-
-variable "instance_storage_space" {
-  description = "The storage space of the Kafka instance"
-  type        = number
-  default     = 600
+  default     = "3.12.13"
 }
 
 variable "instance_broker_num" {
-  description = "The number of brokers of the Kafka instance"
+  description = "The number of brokers of the RabbitMQ instance"
   type        = number
   default     = 3
 }
 
+variable "instance_storage_space" {
+  description = "The storage space of the RabbitMQ instance"
+  type        = number
+  default     = 600
+}
+
 variable "instance_ssl_enable" {
-  description = "The SSL enable of the Kafka instance"
+  description = "The SSL enable of the RabbitMQ instance"
   type        = bool
   default     = false
 }
 
 variable "instance_access_user_name" {
-  description = "The access user of the Kafka instance"
+  description = "The access user of the RabbitMQ instance"
   type        = string
-  default     = ""
 }
 
-variable "instance_access_user_password" {
-  description = "The access password of the Kafka instance"
+variable "instance_password" {
+  description = "The access password of the RabbitMQ instance"
   sensitive   = true
   type        = string
-  default     = ""
 }
 
 variable "instance_description" {
-  description = "The description of the Kafka instance"
+  description = "The description of the RabbitMQ instance"
   type        = string
   default     = ""
 }
 
+variable "enterprise_project_id" {
+  description = "The ID of the enterprise project to which the RabbitMQ instance belongs"
+  type        = string
+  default     = null
+}
+
+variable "instance_tags" {
+  description = "The key/value pairs to associate with the instance"
+  type        = map(string)
+  default     = {}
+}
+
 variable "charging_mode" {
-  description = "The charging mode of the Kafka instance"
+  description = "The charging mode of the RabbitMQ instance"
   type        = string
   default     = "postPaid"
 }
 
 variable "period_unit" {
-  description = "The period unit of the Kafka instance"
+  description = "The period unit of the RabbitMQ instance"
   type        = string
   default     = null
 }
 
 variable "period" {
-  description = "The period of the Kafka instance"
+  description = "The period of the RabbitMQ instance"
   type        = number
   default     = null
 }
 
 variable "auto_renew" {
-  description = "The auto renew of the Kafka instance"
+  description = "The auto renew of the RabbitMQ instance"
   type        = string
   default     = "false"
 }
-
