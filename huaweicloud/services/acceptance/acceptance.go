@@ -435,7 +435,8 @@ var (
 	HW_SECMASTER_VERSION_ID = os.Getenv("HW_SECMASTER_VERSION_ID")
 
 	// The SecMaster alert ID
-	HW_SECMASTER_ALERT_ID = os.Getenv("HW_SECMASTER_ALERT_ID")
+	HW_SECMASTER_ALERT_ID    = os.Getenv("HW_SECMASTER_ALERT_ID")
+	HW_SECMASTER_WORKFLOW_ID = os.Getenv("HW_SECMASTER_WORKFLOW_ID")
 
 	HW_SECMASTER_COMPONENT_ID = os.Getenv("HW_SECMASTER_COMPONENT_ID")
 
@@ -2392,6 +2393,13 @@ func TestAccPreCheckSecMasterAlertId(t *testing.T) {
 func TestAccPreCheckSecMasterComponentId(t *testing.T) {
 	if HW_SECMASTER_COMPONENT_ID == "" {
 		t.Skip("HW_SECMASTER_COMPONENT_ID must be set for SecMaster acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckSecMasterWorkflowId(t *testing.T) {
+	if HW_SECMASTER_WORKFLOW_ID == "" {
+		t.Skip("HW_SECMASTER_WORKFLOW_ID must be set for SecMaster acceptance tests")
 	}
 }
 
