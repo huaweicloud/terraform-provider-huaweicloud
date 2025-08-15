@@ -22,6 +22,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+var (
+	enableDNSSECHttpUrl = "v2/zones/{zone_id}/enable-dnssec"
+	diableDNSSECHttpUrl = "v2/zones/{zone_id}/disable-dnssec"
+)
+
 // @API DNS POST /v2/zones/{zone_id}/associaterouter
 // @API DNS POST /v2/zones/{zone_id}/disassociaterouter
 // @API DNS DELETE /v2/zones/{zone_id}
@@ -33,6 +38,9 @@ import (
 // @API DNS GET /v2/{project_id}/DNS-public_zone/{resource_id}/tags
 // @API DNS GET /v2/{project_id}/DNS-private_zone/{resource_id}/tags
 // @API DNS PUT /v2/zones/{zone_id}/statuses
+// @API DNS POST /v2/zones/{zone_id}/enable-dnssec
+// @API DNS POST /v2/zones/{zone_id}/disable-dnssec
+// @API DNS GET /v2/zones/{zone_id}/dnssec
 func ResourceDNSZone() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDNSZoneCreate,
@@ -133,6 +141,19 @@ func ResourceDNSZone() *schema.Resource {
 				Description: `The recursive resolution proxy mode for subdomains of the private zone.`,
 			},
 			"tags": common.TagsSchema(`The key/value pairs to associate with the zone.`),
+			"dnssec": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringInSlice([]string{"DISABLE", "ENABLE"}, false),
+				Description:  `Specifies whether to enable DNSSEC for a public zone.`,
+			},
+			"dnssec_infos": {
+				Type:        schema.TypeList,
+				Elem:        dnsZoneDnssecInfos(),
+				Computed:    true,
+				Description: `Indicates the DNSSEC infos.`,
+			},
 			"masters": {
 				Type:        schema.TypeSet,
 				Computed:    true,
@@ -141,6 +162,69 @@ func ResourceDNSZone() *schema.Resource {
 			},
 		},
 	}
+}
+
+func dnsZoneDnssecInfos() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"key_tag": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `Indicates the key tag.`,
+			},
+			"flag": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `Indicates the flag.`,
+			},
+			"digest_algorithm": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the digest algorithm.`,
+			},
+			"digest_type": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `Indicates the digest type.`,
+			},
+			"digest": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the digest.`,
+			},
+			"signature": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the signature algorithm.`,
+			},
+			"signature_type": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `Indicates the signature type.`,
+			},
+			"ksk_public_key": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the public key.`,
+			},
+			"ds_record": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the DS record.`,
+			},
+			"created_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the creation time. Format is **yyyy-MM-dd'T'HH:mm:ss.SSS**.`,
+			},
+			"updated_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the update time. Format is **yyyy-MM-dd'T'HH:mm:ss.SSS**.`,
+			},
+		},
+	}
+	return &sc
 }
 
 func resourceDNSRouter(d *schema.ResourceData, region string) *zones.RouterOpts {
@@ -259,6 +343,12 @@ func resourceDNSZoneCreate(ctx context.Context, d *schema.ResourceData, meta int
 		}
 	}
 
+	if d.Get("dnssec").(string) == "ENABLE" {
+		if err := updateDNSZoneDNSSEC(dnsClient, d, enableDNSSECHttpUrl); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	// After zone is created, the status is ACTIVE (ENABLE).
 	// This action cannot be called repeatedly.
 	if v, ok := d.GetOk("status"); ok && v != "ENABLE" {
@@ -283,6 +373,20 @@ func resourceDNSZoneCreate(ctx context.Context, d *schema.ResourceData, meta int
 
 	log.Printf("[DEBUG] Created DNS zone %s: %#v", n.ID, n)
 	return resourceDNSZoneRead(ctx, d, meta)
+}
+
+func updateDNSZoneDNSSEC(client *golangsdk.ServiceClient, d *schema.ResourceData, httpUrl string) error {
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{zone_id}", d.Id())
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	_, err := client.Request("POST", updatePath, &updateOpt)
+	if err != nil {
+		return fmt.Errorf("error updating DNSSEC: %s", err)
+	}
+	return nil
 }
 
 func resourceDNSZoneRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -331,6 +435,16 @@ func resourceDNSZoneRead(_ context.Context, d *schema.ResourceData, meta interfa
 		d.Set("masters", zoneInfo.Masters),
 	)
 
+	dnssec, err := getDNSZoneDNSSEC(dnsClient, d)
+	if err != nil {
+		log.Printf("[WARN] error fetching DNS zone DNSSEC: %s", err)
+	} else {
+		mErr = multierror.Append(mErr,
+			d.Set("dnssec", utils.PathSearch("status", dnssec, nil)),
+			d.Set("dnssec_infos", flattenDNSZoneDNSSECInfos(dnssec)),
+		)
+	}
+
 	// save tags
 	if resourceType, err := utils.GetDNSZoneTagType(zoneInfo.ZoneType); err == nil {
 		resourceTags, err := tags.Get(dnsClient, resourceType, d.Id()).Extract()
@@ -369,6 +483,42 @@ func parseZoneStatus(status string) string {
 		return "ENABLE"
 	}
 	return status
+}
+
+func getDNSZoneDNSSEC(client *golangsdk.ServiceClient, d *schema.ResourceData) (interface{}, error) {
+	getPath := client.Endpoint + "v2/zones/{zone_id}/dnssec"
+	getPath = strings.ReplaceAll(getPath, "{zone_id}", d.Id())
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return nil, err
+	}
+
+	return getRespBody, nil
+}
+
+func flattenDNSZoneDNSSECInfos(resp interface{}) []map[string]interface{} {
+	m := map[string]interface{}{
+		"key_tag":          utils.PathSearch("key_tag", resp, nil),
+		"flag":             utils.PathSearch("flag", resp, nil),
+		"digest_algorithm": utils.PathSearch("digest_algorithm", resp, nil),
+		"digest_type":      utils.PathSearch("digest_type", resp, nil),
+		"digest":           utils.PathSearch("digest", resp, nil),
+		"signature":        utils.PathSearch("signature", resp, nil),
+		"signature_type":   utils.PathSearch("signature_type", resp, nil),
+		"ksk_public_key":   utils.PathSearch("ksk_public_key", resp, nil),
+		"ds_record":        utils.PathSearch("ds_record", resp, nil),
+		"created_at":       utils.PathSearch("created_at", resp, nil),
+		"updated_at":       utils.PathSearch("updated_at", resp, nil),
+	}
+	return []map[string]interface{}{m}
 }
 
 func resourceDNSZoneUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -411,6 +561,17 @@ func resourceDNSZoneUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	// This operation is supported only when the zone status is enabled.
 	if d.HasChange("router") && zoneType == "private" {
 		if err := updateDNSZoneRouters(ctx, d, dnsClient, region); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	// This operation is supported only when the zone status is enabled.
+	if d.HasChange("dnssec") {
+		httpUrl := diableDNSSECHttpUrl
+		if d.Get("dnssec").(string) == "ENABLE" {
+			httpUrl = enableDNSSECHttpUrl
+		}
+		if err := updateDNSZoneDNSSEC(dnsClient, d, httpUrl); err != nil {
 			return diag.FromErr(err)
 		}
 	}
