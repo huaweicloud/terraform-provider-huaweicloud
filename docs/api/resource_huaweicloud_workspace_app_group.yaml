@@ -9,13 +9,12 @@ tags:
     - name: WORKSPACEAPP
 paths:
     /v1/{project_id}/app-groups:
-        GET:
-            tag: WORKSPACEAPP
         POST:
             tag: WORKSPACEAPP
     /v1/{project_id}/app-groups/{app_group_id}:
-        PATCH:
+        DELETE:
             tag: WORKSPACEAPP
-    /v1/{project_id}/app-groups/batch-delete:
-        POST:
+        GET:
+            tag: WORKSPACEAPP
+        PATCH:
             tag: WORKSPACEAPP

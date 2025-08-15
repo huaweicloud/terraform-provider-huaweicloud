@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_cce_cluster_upgrade_info
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CCE
+paths:
+    /api/v3/projects/{project_id}/clusters/{cluster_id}/upgradeinfo:
+        GET:
+            tag: CCE

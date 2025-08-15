@@ -1,0 +1,22 @@
+info:
+    version: ""
+    title: resource_huaweicloud_evs_volumes_batch_expand
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: EVS
+paths:
+    /v1/{project_id}/jobs/{job_id}:
+        GET:
+            tag: EVS
+    /v2/orders/customer-orders/details/{order_id}:
+        GET:
+            tag: BSS
+    /v2/orders/suscriptions/resources/query:
+        POST:
+            tag: BSS
+    /v5/{project_id}/volumes/batch-extend:
+        POST:
+            tag: EVS

@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_sfs_turbo_change_charge_mode
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: SFSTurbo
+paths:
+    /v2/{project_id}/sfs-turbo/shares/{share_id}/change-charge-mode:
+        POST:
+            tag: SFSTurbo

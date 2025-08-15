@@ -6,16 +6,15 @@ schemes:
     - https
 host: huaweicloud.com
 tags:
-    - name: WORKSPACEAPP
+    - name: Workspace
 paths:
-    /v1/{project_id}/app-warehouse/actions/batch-delete:
-        POST:
-            tag: WORKSPACEAPP
     /v1/{project_id}/app-warehouse/apps:
         GET:
-            tag: WORKSPACEAPP
+            tag: Workspace
         POST:
-            tag: WORKSPACEAPP
+            tag: Workspace
     /v1/{project_id}/app-warehouse/apps/{id}:
+        DELETE:
+            tag: Workspace
         PATCH:
-            tag: WORKSPACEAPP
+            tag: Workspace
