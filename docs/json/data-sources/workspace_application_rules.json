@@ -2,10 +2,24 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "data_source_schemas": {
-        "huaweicloud_workspace_app_rules": {
+        "huaweicloud_workspace_application_rules": {
           "block": {
             "attributes": {
-              "app_rules": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the application rule to be queried.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the application rules are located.",
+                "computed": true
+              },
+              "rules": {
                 "type": [
                   "list",
                   [
@@ -13,9 +27,7 @@
                     {
                       "create_time": "string",
                       "description": "string",
-                      "id": "string",
-                      "name": "string",
-                      "rule": [
+                      "detail": [
                         "list",
                         [
                           "object",
@@ -48,26 +60,14 @@
                           }
                         ]
                       ],
+                      "id": "string",
+                      "name": "string",
                       "rule_source": "string",
                       "update_time": "string"
                     }
                   ]
                 ],
                 "description": "The list of application rules that match the filter parameters.",
-                "computed": true
-              },
-              "id": {
-                "type": "string",
-                "computed": true
-              },
-              "name": {
-                "type": "string",
-                "description": "The name of the application rule to be queried.",
-                "optional": true
-              },
-              "region": {
-                "type": "string",
-                "description": "The region where the application rules are located.",
                 "computed": true
               }
             }

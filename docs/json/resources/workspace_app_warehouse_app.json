@@ -40,6 +40,11 @@
                 "description": "The operating system type of the application.",
                 "required": true
               },
+              "record_id": {
+                "type": "string",
+                "description": "The record ID of the application.",
+                "computed": true
+              },
               "region": {
                 "type": "string",
                 "computed": true

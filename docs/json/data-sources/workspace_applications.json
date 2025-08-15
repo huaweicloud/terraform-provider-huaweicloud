@@ -1,0 +1,83 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_workspace_applications": {
+          "block": {
+            "attributes": {
+              "applications": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "application_file_store": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "bucket_store": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "bucket_file_path": "string",
+                                  "bucket_name": "string"
+                                }
+                              ]
+                            ],
+                            "file_link": "string",
+                            "store_type": "string"
+                          }
+                        ]
+                      ],
+                      "application_icon_url": "string",
+                      "application_source": "string",
+                      "authorization_type": "string",
+                      "catalog": "string",
+                      "catalog_id": "string",
+                      "create_time": "string",
+                      "description": "string",
+                      "id": "string",
+                      "install_command": "string",
+                      "install_info": "string",
+                      "install_type": "string",
+                      "name": "string",
+                      "status": "string",
+                      "support_os": "string",
+                      "uninstall_command": "string",
+                      "version": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of applications that match the filter parameters.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The application name to be queried and supports fuzzy matching.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the applications are located.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

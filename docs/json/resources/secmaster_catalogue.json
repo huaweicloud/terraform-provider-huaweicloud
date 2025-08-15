@@ -1,0 +1,125 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_secmaster_catalogue": {
+          "block": {
+            "attributes": {
+              "catalogue_address": {
+                "type": "string",
+                "description": "Specifies the address of the directory.",
+                "optional": true,
+                "computed": true
+              },
+              "catalogue_status": {
+                "type": "bool",
+                "description": "The flag indicating whether it is a built-in directory.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_card_area": {
+                "type": "bool",
+                "description": "The flag indicating whether to display the card area.",
+                "computed": true
+              },
+              "is_display": {
+                "type": "bool",
+                "description": "The flag indicating whether to display the directory.",
+                "computed": true
+              },
+              "is_landing_page": {
+                "type": "bool",
+                "description": "The flag indicating whether it is a landing page.",
+                "computed": true
+              },
+              "is_navigation": {
+                "type": "bool",
+                "description": "The flag indicating whether to display the breadcrumb navigation.",
+                "computed": true
+              },
+              "layout_id": {
+                "type": "string",
+                "description": "Specifies the ID of the layout.",
+                "optional": true,
+                "computed": true
+              },
+              "layout_name": {
+                "type": "string",
+                "description": "Specifies the name of the layout.",
+                "optional": true,
+                "computed": true
+              },
+              "parent_alias_en": {
+                "type": "string",
+                "description": "Specifies the English alias of the first-level directory.",
+                "optional": true,
+                "computed": true
+              },
+              "parent_alias_zh": {
+                "type": "string",
+                "description": "Specifies the Chinese alias of the first-level directory.",
+                "optional": true,
+                "computed": true
+              },
+              "parent_catalogue": {
+                "type": "string",
+                "description": "Specifies the name of the first-level directory.",
+                "optional": true,
+                "computed": true
+              },
+              "publisher_name": {
+                "type": "string",
+                "description": "Specifies the name of the publisher.",
+                "optional": true,
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region where the resource is located.",
+                "computed": true
+              },
+              "second_alias_en": {
+                "type": "string",
+                "description": "Specifies the English alias of the second-level directory.",
+                "optional": true,
+                "computed": true
+              },
+              "second_alias_zh": {
+                "type": "string",
+                "description": "Specifies the Chinese alias of the second-level directory.",
+                "optional": true,
+                "computed": true
+              },
+              "second_catalogue": {
+                "type": "string",
+                "description": "Specifies the name of the second-level directory.",
+                "optional": true,
+                "computed": true
+              },
+              "second_catalogue_code": {
+                "type": "string",
+                "description": "Specifies the code of the second-level directory.",
+                "optional": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "Specifies the workspace ID.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

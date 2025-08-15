@@ -1,0 +1,155 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_workspace_application": {
+          "block": {
+            "attributes": {
+              "application_icon_url": {
+                "type": "string",
+                "description": "The icon URL of the application.",
+                "optional": true,
+                "computed": true
+              },
+              "application_source": {
+                "type": "string",
+                "description": "The source of the application.",
+                "computed": true
+              },
+              "authorization_type": {
+                "type": "string",
+                "description": "The authorization type of the application.",
+                "required": true
+              },
+              "catalog": {
+                "type": "string",
+                "description": "The catalog name of the application.",
+                "computed": true
+              },
+              "catalog_id": {
+                "type": "string",
+                "description": "The catalog ID of the application.",
+                "required": true
+              },
+              "create_time": {
+                "type": "string",
+                "description": "The creation time of the application, in UTC format.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the application.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "install_command": {
+                "type": "string",
+                "description": "The installation command of the application.",
+                "optional": true
+              },
+              "install_info": {
+                "type": "string",
+                "description": "The installation information of the application.",
+                "optional": true
+              },
+              "install_type": {
+                "type": "string",
+                "description": "The installation type of the application.",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the application.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the application is located.",
+                "computed": true
+              },
+              "reserve_obs_file": {
+                "type": "bool",
+                "description": "Whether to delete the installation package in the OBS bucket.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the application.",
+                "computed": true
+              },
+              "support_os": {
+                "type": "string",
+                "description": "The supported operating system of the application.",
+                "required": true
+              },
+              "uninstall_command": {
+                "type": "string",
+                "description": "The uninstallation command of the application.",
+                "optional": true
+              },
+              "version": {
+                "type": "string",
+                "description": "The version of the application.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "application_file_store": {
+                "block": {
+                  "attributes": {
+                    "file_link": {
+                      "type": "string",
+                      "description": "The external file link.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "store_type": {
+                      "type": "string",
+                      "description": "The store type of the application file.",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "bucket_store": {
+                      "block": {
+                        "attributes": {
+                          "bucket_file_path": {
+                            "type": "string",
+                            "description": "The file path in the OBS bucket.",
+                            "required": true
+                          },
+                          "bucket_name": {
+                            "type": "string",
+                            "description": "The name of the OBS bucket.",
+                            "required": true
+                          }
+                        },
+                        "description": "The OBS bucket store configuration."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    }
+                  },
+                  "description": "The file store configuration of the application."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

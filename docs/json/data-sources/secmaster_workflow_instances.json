@@ -1,0 +1,131 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_secmaster_workflow_instances": {
+          "block": {
+            "attributes": {
+              "dataclass_id": {
+                "type": "string",
+                "optional": true
+              },
+              "defence_id": {
+                "type": "string",
+                "optional": true
+              },
+              "from_date": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "optional": true
+              },
+              "instance": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "dataclass": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "en_name": "string",
+                            "id": "string",
+                            "name": "string"
+                          }
+                        ]
+                      ],
+                      "dataobject_id": "string",
+                      "defense_id": "string",
+                      "end_time": "string",
+                      "id": "string",
+                      "name": "string",
+                      "playbook": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "en_name": "string",
+                            "id": "string",
+                            "name": "string"
+                          }
+                        ]
+                      ],
+                      "retry_count": "number",
+                      "start_time": "string",
+                      "status": "string",
+                      "trigger_type": "string",
+                      "workflow": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "name": "string",
+                            "name_en": "string",
+                            "version": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "playbook_id": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "sort_dir": {
+                "type": "string",
+                "optional": true
+              },
+              "sort_key": {
+                "type": "string",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "optional": true
+              },
+              "to_date": {
+                "type": "string",
+                "optional": true
+              },
+              "trigger_type": {
+                "type": "string",
+                "optional": true
+              },
+              "workflow_id": {
+                "type": "string",
+                "optional": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

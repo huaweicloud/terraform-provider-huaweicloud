@@ -1,0 +1,93 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_secmaster_subscription_resource": {
+          "block": {
+            "attributes": {
+              "create_time": {
+                "type": "number",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "index_shards_unused": {
+                "type": "number",
+                "computed": true
+              },
+              "index_shards_upper_limit": {
+                "type": "number",
+                "computed": true
+              },
+              "index_storage_upper_limit": {
+                "type": "number",
+                "computed": true
+              },
+              "partition_upper_limit": {
+                "type": "number",
+                "computed": true
+              },
+              "partitions_unused": {
+                "type": "number",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "sku": {
+                "type": "string",
+                "optional": true
+              },
+              "sku_attribute": {
+                "type": "string",
+                "computed": true
+              },
+              "step": {
+                "type": "number",
+                "computed": true
+              },
+              "unit": {
+                "type": "string",
+                "computed": true
+              },
+              "unused_amount": {
+                "type": "number",
+                "computed": true
+              },
+              "update_time": {
+                "type": "number",
+                "computed": true
+              },
+              "upper_limit": {
+                "type": "number",
+                "computed": true
+              },
+              "used_amount": {
+                "type": "number",
+                "computed": true
+              },
+              "version": {
+                "type": "number",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

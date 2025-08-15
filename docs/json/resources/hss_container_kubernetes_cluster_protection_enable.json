@@ -1,0 +1,78 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_hss_container_kubernetes_cluster_protection_enable": {
+          "block": {
+            "attributes": {
+              "cce_protection_type": {
+                "type": "string",
+                "description": "Specifies the CCE protection type.",
+                "optional": true
+              },
+              "charging_mode": {
+                "type": "string",
+                "description": "Specifies the charging mode.",
+                "optional": true
+              },
+              "cluster_id": {
+                "type": "string",
+                "description": "Specifies the ID of the cluster.",
+                "required": true
+              },
+              "cluster_name": {
+                "type": "string",
+                "description": "Specifies the name of the cluster.",
+                "required": true
+              },
+              "cluster_type": {
+                "type": "string",
+                "description": "Specifies the type of CCE cluster.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the ID of the enterprise project to which the resource belongs.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "monitor_protection_statuses": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the monitor protection status.",
+                "optional": true
+              },
+              "prefer_packet_cycle": {
+                "type": "bool",
+                "description": "Specifies whether to prioritize the use of packet cycle quota.",
+                "optional": true
+              },
+              "protect_status": {
+                "type": "string",
+                "description": "The protection status.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region where the resource is located.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

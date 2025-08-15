@@ -2,7 +2,7 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "resource_schemas": {
-        "huaweicloud_workspace_app_rule": {
+        "huaweicloud_workspace_application_rule": {
           "block": {
             "attributes": {
               "description": {
@@ -26,7 +26,7 @@
               }
             },
             "block_types": {
-              "rule": {
+              "detail": {
                 "block": {
                   "attributes": {
                     "scope": {
@@ -96,7 +96,7 @@
                       "max_items": 1
                     }
                   },
-                  "description": "The config object list of the application rule."
+                  "description": "The detail of the application rule."
                 },
                 "nesting_mode": "list",
                 "min_items": 1,

@@ -1,0 +1,89 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_container_kubernetes_clusters_configs": {
+          "block": {
+            "attributes": {
+              "cluster_id_list": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the cluster ID list.",
+                "optional": true
+              },
+              "data_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "charging_mode": "string",
+                      "cluster_id": "string",
+                      "cluster_name": "string",
+                      "cluster_type": "string",
+                      "fail_reason": "string",
+                      "node_total_num": "number",
+                      "prefer_packet_cycle": "number",
+                      "protect_degradation_node_num": "number",
+                      "protect_interrupt_node_num": "number",
+                      "protect_node_num": "number",
+                      "protect_status": "string",
+                      "protect_type": "string",
+                      "unprotect_node_num": "number"
+                    }
+                  ]
+                ],
+                "description": "The list of cluster configurations.",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the ID of the enterprise project that the server belongs to.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "cluster_info_list": {
+                "block": {
+                  "attributes": {
+                    "cluster_id": {
+                      "type": "string",
+                      "description": "Specifies the cluster ID.",
+                      "required": true
+                    },
+                    "cluster_name": {
+                      "type": "string",
+                      "description": "Specifies the cluster name.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the cluster information list."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dns_endpoints": {
+          "block": {
+            "attributes": {
+              "direction": {
+                "type": "string",
+                "description": "Specifies the direction of the endpoint.",
+                "required": true
+              },
+              "endpoints": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "create_time": "string",
+                      "direction": "string",
+                      "id": "string",
+                      "ipaddress_count": "number",
+                      "name": "string",
+                      "resolver_rule_count": "number",
+                      "status": "string",
+                      "update_time": "string",
+                      "vpc_id": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the returned endpoints.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the endpoint.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "description": "Specifies the ID of the VPC to which the endpoint belongs.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DNS",
+            "name": "Domain Name Service",
+            "catalog": "Business Applications",
+            "name_cn": "云解析服务",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

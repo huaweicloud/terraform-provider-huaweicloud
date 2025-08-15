@@ -239,7 +239,8 @@
               "vgw_id": {
                 "type": "string",
                 "description": "The ID of the virtual gateway to which the virtual interface is connected.",
-                "required": true,
+                "optional": true,
+                "computed": true,
                 "forcenew": true
               },
               "vif_peers": {
