@@ -20,12 +20,12 @@ import (
 // @API Workspace GET /v1/{project_id}/app-warehouse/apps
 // @API Workspace PATCH /v1/{project_id}/app-warehouse/apps/{id}
 // @API Workspace DELETE /v1/{project_id}/app-warehouse/apps/{id}
-func ResourceWarehouseApplication() *schema.Resource {
+func ResourceAppWarehouseApplication() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceWarehouseApplicationCreate,
-		ReadContext:   resourceWarehouseApplicationRead,
-		UpdateContext: resourceWarehouseApplicationUpdate,
-		DeleteContext: resourceWarehouseApplicationDelete,
+		CreateContext: resourceAppWarehouseApplicationCreate,
+		ReadContext:   resourceAppWarehouseApplicationRead,
+		UpdateContext: resourceAppWarehouseApplicationUpdate,
+		DeleteContext: resourceAppWarehouseApplicationDelete,
 
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -88,7 +88,7 @@ func ResourceWarehouseApplication() *schema.Resource {
 	}
 }
 
-func resourceWarehouseApplicationCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceAppWarehouseApplicationCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	httpUrl := "v1/{project_id}/app-warehouse/apps"
 	client, err := cfg.NewServiceClient("appstream", cfg.GetRegion(d))
@@ -100,7 +100,7 @@ func resourceWarehouseApplicationCreate(ctx context.Context, d *schema.ResourceD
 	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
 	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		JSONBody:         utils.RemoveNil(buildCreateWarehouseAppBodyParams(d)),
+		JSONBody:         utils.RemoveNil(buildCreateWarehouseApplicationBodyParams(d)),
 	}
 	requestResp, err := client.Request("POST", createPath, &createOpt)
 	if err != nil {
@@ -117,10 +117,10 @@ func resourceWarehouseApplicationCreate(ctx context.Context, d *schema.ResourceD
 		return diag.Errorf("unable to find application ID from API response")
 	}
 	d.SetId(applicationId)
-	return resourceWarehouseApplicationRead(ctx, d, meta)
+	return resourceAppWarehouseApplicationRead(ctx, d, meta)
 }
 
-func buildCreateWarehouseAppBodyParams(d *schema.ResourceData) map[string]interface{} {
+func buildCreateWarehouseApplicationBodyParams(d *schema.ResourceData) map[string]interface{} {
 	return map[string]interface{}{
 		"app_name":           d.Get("name"),
 		"app_category":       d.Get("category"),
@@ -133,7 +133,7 @@ func buildCreateWarehouseAppBodyParams(d *schema.ResourceData) map[string]interf
 	}
 }
 
-func resourceWarehouseApplicationRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceAppWarehouseApplicationRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg    = meta.(*config.Config)
 		region = cfg.GetRegion(d)
@@ -193,7 +193,7 @@ func GetWarehouseApplicationById(client *golangsdk.ServiceClient, applicationId 
 	return application, nil
 }
 
-func resourceWarehouseApplicationUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceAppWarehouseApplicationUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.NewServiceClient("appstream", cfg.GetRegion(d))
 	if err != nil {
@@ -208,7 +208,7 @@ func resourceWarehouseApplicationUpdate(ctx context.Context, d *schema.ResourceD
 		updatePath = strings.ReplaceAll(updatePath, "{id}", applicationId)
 		updateOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
-			JSONBody:         utils.RemoveNil(buildUpdateWarehouseAppBodyParams(d)),
+			JSONBody:         utils.RemoveNil(buildUpdateWarehouseApplicationBodyParams(d)),
 		}
 
 		_, err := client.Request("PATCH", updatePath, &updateOpt)
@@ -217,10 +217,10 @@ func resourceWarehouseApplicationUpdate(ctx context.Context, d *schema.ResourceD
 		}
 	}
 
-	return resourceWarehouseApplicationRead(ctx, d, meta)
+	return resourceAppWarehouseApplicationRead(ctx, d, meta)
 }
 
-func buildUpdateWarehouseAppBodyParams(d *schema.ResourceData) map[string]interface{} {
+func buildUpdateWarehouseApplicationBodyParams(d *schema.ResourceData) map[string]interface{} {
 	return map[string]interface{}{
 		"app_name":        utils.ValueIgnoreEmpty(d.Get("name")),
 		"app_category":    utils.ValueIgnoreEmpty(d.Get("category")),
@@ -232,7 +232,7 @@ func buildUpdateWarehouseAppBodyParams(d *schema.ResourceData) map[string]interf
 	}
 }
 
-func resourceWarehouseApplicationDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceAppWarehouseApplicationDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	httpUrl := "v1/{project_id}/app-warehouse/apps/{id}"
 	client, err := cfg.NewServiceClient("appstream", cfg.GetRegion(d))

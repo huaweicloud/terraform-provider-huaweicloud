@@ -168,5 +168,5 @@ locals {
 output "is_verify_status_filter_useful" {
   value = length(local.verify_status_filter_result) > 0 && alltrue(local.verify_status_filter_result)
 }
-`, testAccWarehouseApp_basic_step1(name))
+`, testAccResourceWarehouseApplication_basic_step1(name))
 }

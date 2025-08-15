@@ -20,10 +20,10 @@ func getWarehouseApplicationFunc(conf *config.Config, state *terraform.ResourceS
 	return workspace.GetWarehouseApplicationById(client, state.Primary.ID)
 }
 
-func TestAccAppWarehouseApp_basic(t *testing.T) {
+func TestAccResourceAppWarehouseApplication_basic(t *testing.T) {
 	var (
 		application  interface{}
-		resourceName = "huaweicloud_workspace_app_warehouse_app.test"
+		resourceName = "huaweicloud_workspace_app_warehouse_application.test"
 		name         = acceptance.RandomAccResourceName()
 		updateName   = acceptance.RandomAccResourceName()
 		rc           = acceptance.InitResourceCheck(
@@ -48,7 +48,7 @@ func TestAccAppWarehouseApp_basic(t *testing.T) {
 		CheckDestroy: rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccWarehouseApp_basic_step1(name),
+				Config: testAccResourceWarehouseApplication_basic_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
@@ -62,7 +62,7 @@ func TestAccAppWarehouseApp_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccWarehouseApp_basic_step2(updateName),
+				Config: testAccResourceWarehouseApplication_basic_step2(updateName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", updateName),
@@ -128,11 +128,11 @@ resource "huaweicloud_obs_bucket_object" "test" {
 }`, acceptance.HW_REGION_NAME, acceptance.HW_WORKSPACE_APP_FILE_NAME)
 }
 
-func testAccWarehouseApp_basic_step1(name string) string {
+func testAccResourceWarehouseApplication_basic_step1(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-resource "huaweicloud_workspace_app_warehouse_app" "test" {
+resource "huaweicloud_workspace_app_warehouse_application" "test" {
   name            = "%[2]s"
   category        = "OTHER"
   os_type         = "Windows"
@@ -144,11 +144,11 @@ resource "huaweicloud_workspace_app_warehouse_app" "test" {
 `, executionFileUploadResourcesConfig(), name, acceptance.HW_WORKSPACE_APP_FILE_NAME)
 }
 
-func testAccWarehouseApp_basic_step2(name string) string {
+func testAccResourceWarehouseApplication_basic_step2(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-resource "huaweicloud_workspace_app_warehouse_app" "test" {
+resource "huaweicloud_workspace_app_warehouse_application" "test" {
   name            = "%[2]s"
   category        = "PRODUCTIVITY_AND_COLLABORATION"
   os_type         = "Linux"
