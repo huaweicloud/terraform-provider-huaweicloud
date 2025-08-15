@@ -39,21 +39,13 @@ type CreateOpts struct {
 	// Specifies the description of the VPC endpoint service
 	Description string `json:"description,omitempty"`
 	// Specifies the endpoint policy information for the gateway type
-	PolicyStatement []PolicyStatement `json:"policy_statement,omitempty"`
+	PolicyStatement interface{} `json:"policy_statement,omitempty"`
 	// Specifies the endpoint policy information for the gateway type
 	PolicyDocument interface{} `json:"policy_document,omitempty"`
 	// Specifies the IP version
 	IPVersion string `json:"ip_version,omitempty"`
 	// Specifies the IPv6 address
 	IPv6Address string `json:"ipv6_address,omitempty"`
-}
-
-// PolicyStatement represents the Statement of the gateway
-type PolicyStatement struct {
-	Effect    string                 `json:"Effect" required:"true"`
-	Action    []string               `json:"Action" required:"true"`
-	Resource  []string               `json:"Resource" required:"true"`
-	Condition map[string]interface{} `json:"Condition,omitempty"`
 }
 
 // ToEndpointCreateMap assembles a request body based on the contents of a CreateOpts.
@@ -115,7 +107,7 @@ type UpdatePolicyOptsBuilder interface {
 // UpdatePolicyOpts using to pass to UpdatePolicy()
 type UpdatePolicyOpts struct {
 	// Specifies the endpoint policy information for the gateway type
-	PolicyStatement []PolicyStatement `json:"policy_statement,omitempty"`
+	PolicyStatement interface{} `json:"policy_statement,omitempty"`
 	// Specifies the endpoint policy information for the gateway type
 	PolicyDocument interface{} `json:"policy_document,omitempty"`
 }
