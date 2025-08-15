@@ -8,6 +8,9 @@ host: huaweicloud.com
 tags:
     - name: DC
 paths:
+    /v3/{project_id}/{resource_type}/{resource_id}/tags/action:
+        POST:
+            tag: DC
     /v3/{project_id}/dcaas/virtual-interfaces:
         POST:
             tag: DC

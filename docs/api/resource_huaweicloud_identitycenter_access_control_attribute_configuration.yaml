@@ -1,0 +1,19 @@
+info:
+    version: ""
+    title: resource_huaweicloud_identitycenter_access_control_attribute_configuration
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: IdentityCenter
+paths:
+    /v1/instances/{instance_id}/access-control-attribute-configuration:
+        DELETE:
+            tag: IdentityCenter
+        GET:
+            tag: IdentityCenter
+        POST:
+            tag: IdentityCenter
+        PUT:
+            tag: IdentityCenter

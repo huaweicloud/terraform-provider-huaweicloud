@@ -1,6 +1,6 @@
 info:
     version: ""
-    title: data_source_huaweicloud_workspace_app_rules
+    title: data_source_huaweicloud_workspace_application_catalogs
     description: ""
 schemes:
     - https
@@ -8,6 +8,6 @@ host: huaweicloud.com
 tags:
     - name: Workspace
 paths:
-    /v1/{project_id}/app-center/app-rules:
+    /v1/{project_id}/app-center/app-catalogs:
         GET:
             tag: Workspace
