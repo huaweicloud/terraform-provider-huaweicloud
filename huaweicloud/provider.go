@@ -944,6 +944,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dns_zones":               dns.DataSourceZones(),
 			"huaweicloud_dns_tags":                dns.DataSourceDNSTags(),
 			"huaweicloud_dns_tags_filter":         dns.DataSourceDNSTagsFilter(),
+			"huaweicloud_dns_endpoints":           dns.DataSourceDNSEndpoints(),
 
 			"huaweicloud_drs_availability_zones": drs.DataSourceAvailabilityZones(),
 			"huaweicloud_drs_node_types":         drs.DataSourceNodeTypes(),
