@@ -41,6 +41,7 @@ var (
 // @API DNS POST /v2/zones/{zone_id}/enable-dnssec
 // @API DNS POST /v2/zones/{zone_id}/disable-dnssec
 // @API DNS GET /v2/zones/{zone_id}/dnssec
+// @API DNS POST /v2/zones/{zone_id}/actions/set-proxy-pattern
 func ResourceDNSZone() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDNSZoneCreate,
@@ -137,7 +138,6 @@ func ResourceDNSZone() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				ForceNew:    true,
 				Description: `The recursive resolution proxy mode for subdomains of the private zone.`,
 			},
 			"tags": common.TagsSchema(`The key/value pairs to associate with the zone.`),
@@ -438,6 +438,10 @@ func resourceDNSZoneRead(_ context.Context, d *schema.ResourceData, meta interfa
 	dnssec, err := getDNSZoneDNSSEC(dnsClient, d)
 	if err != nil {
 		log.Printf("[WARN] error fetching DNS zone DNSSEC: %s", err)
+		mErr = multierror.Append(mErr,
+			d.Set("dnssec", nil),
+			d.Set("dnssec_infos", nil),
+		)
 	} else {
 		mErr = multierror.Append(mErr,
 			d.Set("dnssec", utils.PathSearch("status", dnssec, nil)),
@@ -572,6 +576,12 @@ func resourceDNSZoneUpdate(ctx context.Context, d *schema.ResourceData, meta int
 			httpUrl = enableDNSSECHttpUrl
 		}
 		if err := updateDNSZoneDNSSEC(dnsClient, d, httpUrl); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("proxy_pattern") {
+		if err := updateDNSPrivateZoneProxyPattern(dnsClient, d); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -711,6 +721,24 @@ func updateZoneStatus(ctx context.Context, d *schema.ResourceData, client *golan
 		return fmt.Errorf("error waiting for updating the zone status completed: %s", err)
 	}
 
+	return nil
+}
+
+func updateDNSPrivateZoneProxyPattern(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	httpUrl := "v2/zones/{zone_id}/actions/set-proxy-pattern"
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{zone_id}", d.Id())
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"proxy_pattern": d.Get("proxy_pattern"),
+		},
+	}
+
+	_, err := client.Request("POST", updatePath, &updateOpt)
+	if err != nil {
+		return fmt.Errorf("error updating private zone proxy pattern: %s", err)
+	}
 	return nil
 }
 
