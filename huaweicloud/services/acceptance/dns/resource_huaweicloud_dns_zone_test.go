@@ -56,6 +56,19 @@ func TestAccDNSZone_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
 					resource.TestCheckResourceAttrSet(resourceName, "email"),
 					resource.TestCheckResourceAttr(resourceName, "status", "DISABLE"),
+					resource.TestCheckResourceAttr(resourceName, "dnssec", "ENABLE"),
+					resource.TestCheckResourceAttrSet(resourceName, "dnssec_infos.#"),
+					resource.TestCheckResourceAttrSet(resourceName, "dnssec_infos.0.key_tag"),
+					resource.TestCheckResourceAttrSet(resourceName, "dnssec_infos.0.flag"),
+					resource.TestCheckResourceAttrSet(resourceName, "dnssec_infos.0.digest_algorithm"),
+					resource.TestCheckResourceAttrSet(resourceName, "dnssec_infos.0.digest_type"),
+					resource.TestCheckResourceAttrSet(resourceName, "dnssec_infos.0.digest"),
+					resource.TestCheckResourceAttrSet(resourceName, "dnssec_infos.0.signature"),
+					resource.TestCheckResourceAttrSet(resourceName, "dnssec_infos.0.signature_type"),
+					resource.TestCheckResourceAttrSet(resourceName, "dnssec_infos.0.ksk_public_key"),
+					resource.TestCheckResourceAttrSet(resourceName, "dnssec_infos.0.ds_record"),
+					resource.TestCheckResourceAttrSet(resourceName, "dnssec_infos.0.created_at"),
+					resource.TestCheckResourceAttrSet(resourceName, "dnssec_infos.0.updated_at"),
 				),
 			},
 			{
@@ -72,6 +85,7 @@ func TestAccDNSZone_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "tf-acc"),
 					resource.TestCheckResourceAttrSet(resourceName, "email"),
 					resource.TestCheckResourceAttr(resourceName, "status", "ENABLE"),
+					resource.TestCheckResourceAttr(resourceName, "dnssec", "DISABLE"),
 				),
 			},
 		},
@@ -204,6 +218,7 @@ resource "huaweicloud_dns_zone" "test" {
   description = "a zone"
   ttl         = 300
   status      = "DISABLE"
+  dnssec      = "ENABLE"
 
   tags = {
     zone_type = "public"
@@ -220,6 +235,7 @@ resource "huaweicloud_dns_zone" "test" {
   description = "an updated zone"
   ttl         = 600
   status      = "ENABLE"
+  dnssec      = "DISABLE"
 
   tags = {
     zone_type = "public"

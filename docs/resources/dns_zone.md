@@ -111,13 +111,48 @@ The `router` block supports:
 
 * `router_region` - (Optional, String) Specifies the region of the VPC.
 
+* `dnssec` - (Optional, String) Specifies whether to enable DNSSEC for a public zone.
+  The valid values are as follows:
+  + **ENABLE**
+  + **DISABLE**
+
+  -> Before changing this parameter, make sure the zone status is enabled.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 
 * `id` -  The resource ID, also the zone ID.
 
+* `dnssec_infos` - Indicates the DNSSEC infos.
+  The [dnssec_infos](#attrblock--dnssec_infos) structure is documented below.
+
 * `masters` - The list of the masters of the DNS server.
+
+<a name="attrblock--dnssec_infos"></a>
+The `dnssec_infos` block supports:
+
+* `digest` - Indicates the digest.
+
+* `digest_algorithm` - Indicates the digest algorithm.
+
+* `digest_type` - Indicates the digest type.
+
+* `ds_record` - Indicates the DS record.
+
+* `flag` - Indicates the flag.
+
+* `key_tag` - Indicates the key tag.
+
+* `ksk_public_key` - Indicates the public key.
+
+* `signature` - Indicates the signature algorithm.
+
+* `signature_type` - Indicates the signature type.
+
+* `created_at` - Indicates the creation time. Format is **yyyy-MM-dd'T'HH:mm:ss.SSS**.
+
+* `updated_at` - Indicates the update time. Format is **yyyy-MM-dd'T'HH:mm:ss.SSS**.
 
 ## Timeouts
 
