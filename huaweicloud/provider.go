@@ -2781,6 +2781,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_servicestagev3_runtime_stack_batch_release": servicestage.ResourceV3RuntimeStackBatchRelease(),
 
 			"huaweicloud_sfs_turbo":                    sfsturbo.ResourceSFSTurbo(),
+			"huaweicloud_sfs_turbo_ad_domain":          sfsturbo.ResourceSFSTurboAdDomain(),
 			"huaweicloud_sfs_turbo_cold_data_eviction": sfsturbo.ResourceColdDataEviction(),
 			"huaweicloud_sfs_turbo_dir":                sfsturbo.ResourceSfsTurboDir(),
 			"huaweicloud_sfs_turbo_dir_quota":          sfsturbo.ResourceSfsTurboDirQuota(),
