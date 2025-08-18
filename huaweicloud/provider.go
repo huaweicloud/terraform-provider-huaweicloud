@@ -701,6 +701,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_coc_patch_compliance_reports":      coc.DataSourceCocPatchComplianceReports(),
 			"huaweicloud_coc_patch_compliance_report_items": coc.DataSourceCocPatchComplianceReportItems(),
 			"huaweicloud_coc_public_scripts":                coc.DataSourceCocPublicScripts(),
+			"huaweicloud_coc_document_atomic_detail":        coc.DataSourceCocDocumentAtomicDetail(),
 
 			"huaweicloud_compute_flavors":                 ecs.DataSourceEcsFlavors(),
 			"huaweicloud_compute_instance":                ecs.DataSourceComputeInstance(),
