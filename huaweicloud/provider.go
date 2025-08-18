@@ -1677,6 +1677,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_workspace_app_groups":                          workspace.DataSourceWorkspaceAppGroups(),
 			"huaweicloud_workspace_app_hda_configurations":              workspace.DataSourceAppHdaConfigurations(),
 			"huaweicloud_workspace_app_hda_latest_versions":             workspace.DataSourceAppHdaLatestVersions(),
+			"huaweicloud_workspace_app_hda_upgrade_records":             workspace.DataSourceAppHdaUpgradeRecords(),
 			"huaweicloud_workspace_app_ies_availability_zones":          workspace.DataSourceIesAvailabilityZones(),
 			"huaweicloud_workspace_app_image_servers":                   workspace.DataSourceWorkspaceAppImageServers(),
 			"huaweicloud_workspace_app_latest_attached_applications":    workspace.DataSourceLatestAttachedApplications(),
