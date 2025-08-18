@@ -134,6 +134,7 @@ func TestAccDNSZone_private(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "router.0.router_id"),
 					resource.TestCheckResourceAttrSet(resourceName, "router.0.router_region"),
 					resource.TestCheckResourceAttr(resourceName, "status", "ENABLE"),
+					resource.TestCheckResourceAttr(resourceName, "proxy_pattern", "AUTHORITY"),
 				),
 			},
 			{
@@ -312,7 +313,7 @@ resource "huaweicloud_dns_zone" "test" {
     }
   }
 
-  proxy_pattern = "RECURSIVE"
+  proxy_pattern = "AUTHORITY"
 
   tags = {
     zone_type = "private"

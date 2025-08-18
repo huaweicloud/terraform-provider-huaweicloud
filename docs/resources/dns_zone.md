@@ -90,11 +90,8 @@ Router configuration block which is required if zone_type is private.
 
   -> This is a one-time action.
 
-* `proxy_pattern` - (Optional, String, ForceNew) Specifies the recursive resolution proxy mode for subdomains of
-  the private zone.  
-  Defaults to **AUTHORITY**.  
-  Changing this parameter will create a new resource.  
-  The valid values are as follows:
+* `proxy_pattern` - (Optional, String) Specifies the recursive resolution proxy mode for subdomains of the private zone.
+  Defaults to **AUTHORITY**. The valid values are as follows:
   + **AUTHORITY**: The recursive resolution proxy is disabled for the private zone.
   + **RECURSIVE**: The recursive resolution proxy is enabled for the private zone.
   
