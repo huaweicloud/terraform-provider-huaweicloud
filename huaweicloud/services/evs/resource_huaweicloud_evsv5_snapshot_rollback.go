@@ -21,7 +21,7 @@ var snapshotRollBackNonUpdatableParams = []string{
 	"name",
 }
 
-// @API EVS POST /v5/{project_id}/cloudsnapshots/{snapshot_id}/rollback
+// @API EVS POST /v5/{project_id}/snapshots/{snapshot_id}/rollback
 func ResourceV5SnapshotRollBack() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceV5SnapshotRollBackCreate,
