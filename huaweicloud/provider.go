@@ -3675,6 +3675,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_enterprise_project_action":    eps.ResourceAction(),
 			"huaweicloud_enterprise_project_authority": eps.ResourceAuthority(),
 
+			// EventGrid
 			"huaweicloud_er_association":         er.ResourceAssociation(),
 			"huaweicloud_er_attachment_accepter": er.ResourceAttachmentAccepter(),
 			"huaweicloud_er_instance":            er.ResourceInstance(),
@@ -3683,6 +3684,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_er_static_route":        er.ResourceStaticRoute(),
 			"huaweicloud_er_vpc_attachment":      er.ResourceVpcAttachment(),
 			"huaweicloud_er_flow_log":            er.ResourceFlowLog(),
+			// Professional EventGrid
+			"huaweicloud_eg_eventrouter_cluster": eg.ResourceEventRouterCluster(),
 
 			"huaweicloud_evsv5_snapshot_rollback":        evs.ResourceV5SnapshotRollBack(),
 			"huaweicloud_evs_snapshot":                   evs.ResourceEvsSnapshot(),
