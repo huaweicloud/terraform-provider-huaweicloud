@@ -1011,6 +1011,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_fgs_function_triggers":     fgs.DataSourceFunctionTriggers(),
 			"huaweicloud_fgs_functions":             fgs.DataSourceFunctions(),
 			"huaweicloud_fgs_quotas":                fgs.DataSourceQuotas(),
+			"huaweicloud_fgs_resource_tags":         fgs.DataSourceResourceTags(),
 
 			"huaweicloud_ga_accelerators":       ga.DataSourceAccelerators(),
 			"huaweicloud_ga_access_logs":        ga.DataSourceGaAccessLogs(),
