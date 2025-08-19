@@ -30,10 +30,22 @@ paths:
             tag: DNS
         PATCH:
             tag: DNS
+    /v2/zones/{zone_id}/actions/set-proxy-pattern:
+        POST:
+            tag: DNS
     /v2/zones/{zone_id}/associaterouter:
         POST:
             tag: DNS
+    /v2/zones/{zone_id}/disable-dnssec:
+        POST:
+            tag: DNS
     /v2/zones/{zone_id}/disassociaterouter:
+        POST:
+            tag: DNS
+    /v2/zones/{zone_id}/dnssec:
+        GET:
+            tag: DNS
+    /v2/zones/{zone_id}/enable-dnssec:
         POST:
             tag: DNS
     /v2/zones/{zone_id}/statuses:

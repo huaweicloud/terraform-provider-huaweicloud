@@ -8,6 +8,6 @@ host: huaweicloud.com
 tags:
     - name: EVS
 paths:
-    /v5/{project_id}/cloudsnapshots/{snapshot_id}/rollback:
+    /v5/{project_id}/snapshots/{snapshot_id}/rollback:
         POST:
             tag: EVS

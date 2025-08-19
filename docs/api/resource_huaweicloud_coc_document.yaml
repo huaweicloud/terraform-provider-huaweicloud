@@ -1,0 +1,20 @@
+info:
+    version: ""
+    title: resource_huaweicloud_coc_document
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: COC
+paths:
+    /v1/documents:
+        POST:
+            tag: COC
+    /v1/documents/{document_id}:
+        DELETE:
+            tag: COC
+        GET:
+            tag: COC
+        PUT:
+            tag: COC

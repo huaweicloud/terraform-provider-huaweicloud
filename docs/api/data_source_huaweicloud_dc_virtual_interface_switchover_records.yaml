@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_dc_virtual_interface_switchover_records
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DC
+paths:
+    /v3/{project_id}/dcaas/switchover-test:
+        GET:
+            tag: DC

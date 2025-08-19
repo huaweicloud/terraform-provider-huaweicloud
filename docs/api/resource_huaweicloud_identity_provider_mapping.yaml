@@ -1,0 +1,23 @@
+info:
+    version: ""
+    title: resource_huaweicloud_identity_provider_mapping
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: IAM
+paths:
+    /v3/OS-FEDERATION/identity_providers/{id}:
+        GET:
+            tag: IAM
+    /v3/OS-FEDERATION/mappings:
+        GET:
+            tag: IAM
+    /v3/OS-FEDERATION/mappings/{id}:
+        GET:
+            tag: IAM
+        PATCH:
+            tag: IAM
+        PUT:
+            tag: IAM

@@ -1,0 +1,22 @@
+info:
+    version: ""
+    title: resource_huaweicloud_sfs_turbo_ad_domain
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: SFSTurbo
+paths:
+    /v1/{project_id}/sfs-turbo/jobs/{job_id}:
+        GET:
+            tag: SFSTurbo
+    /v1/{project_id}/sfs-turbo/shares/{share_id}/fs/active-directory-domain:
+        DELETE:
+            tag: SFSTurbo
+        GET:
+            tag: SFSTurbo
+        POST:
+            tag: SFSTurbo
+        PUT:
+            tag: SFSTurbo

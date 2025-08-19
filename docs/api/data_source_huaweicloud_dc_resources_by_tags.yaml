@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_dc_resources_by_tags
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DC
+paths:
+    /v3/{project_id}/{resource_type}/resource-instances/action:
+        POST:
+            tag: DC

@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_secmaster_workflow_versions
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: SecMaster
+paths:
+    /v1/{project_id}/workspaces/{workspace_id}/soc/workflows/{workflow_id}/versions:
+        GET:
+            tag: SecMaster
