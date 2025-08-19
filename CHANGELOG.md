@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.77.4 (Aug 19, 2025)
+
+ENHANCEMENTS:
+
+* refactor GetRawConfigTags to allow empty value [GH-7560]
+
 ## 1.77.3 (Aug 8, 2025)
 
 ENHANCEMENTS:
