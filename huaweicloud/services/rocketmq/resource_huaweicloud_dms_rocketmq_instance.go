@@ -34,7 +34,6 @@ type dmsError struct {
 // @API RocketMQ POST /v2/{project_id}/rocketmq/{instance_id}/tags/action
 // @API RocketMQ GET /v2/{project_id}/rocketmq/{instance_id}/tags
 // @API RocketMQ POST /v2/{project_id}/instances/{instance_id}/crossvpc/modify
-// @API RocketMQ GET /v2/{project_id}/instances/{instance_id}/tasks
 // @API RocketMQ POST /v2/{engine}/{project_id}/instances/{instance_id}/extend
 // @API RocketMQ PUT /v2/{project_id}/rocketmq/instances/{instance_id}/configs
 // @API RocketMQ GET /v2/{project_id}/rocketmq/instances/{instance_id}/configs
