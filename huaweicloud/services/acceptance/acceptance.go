@@ -89,6 +89,7 @@ var (
 	HW_CBR_EXTERNAL_PROJECT_ID = os.Getenv("HW_CBR_EXTERNAL_PROJECT_ID")
 	HW_CBR_BACKUP_ID           = os.Getenv("HW_CBR_BACKUP_ID")
 	HW_CBR_BACKUP_NAME         = os.Getenv("HW_CBR_BACKUP_NAME")
+	HW_CBR_RESOURCE_ID         = os.Getenv("HW_CBR_RESOURCE_ID")
 
 	HW_CBC_UNSUBSCRIBE_RESOURCE_ID = os.Getenv("HW_CBC_UNSUBSCRIBE_RESOURCE_ID")
 
@@ -1210,6 +1211,13 @@ func TestAccPreCheckCBRBackupID(t *testing.T) {
 func TestAccPreCheckCBRBackupName(t *testing.T) {
 	if HW_CBR_BACKUP_NAME == "" {
 		t.Skip("HW_CBR_BACKUP_NAME must be set for acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCbrResourceId(t *testing.T) {
+	if HW_CBR_RESOURCE_ID == "" {
+		t.Skip("HW_CBR_RESOURCE_ID must be set for acceptance tests")
 	}
 }
 
