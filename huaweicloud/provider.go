@@ -835,6 +835,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dc_connect_gateways":                     dc.DataSourceDcConnectGateways(),
 			"huaweicloud_dc_connect_gateway_geips":                dc.DataSourceDcConnectGatewayGeips(),
 			"huaweicloud_dc_tags":                                 dc.DataSourceDcTags(),
+			"huaweicloud_dc_resources_by_tags":                    dc.DataSourceDcResourcesByTags(),
 
 			"huaweicloud_dcs_quotas":                              dcs.DataSourceDcsQuotas(),
 			"huaweicloud_dcs_flavors":                             dcs.DataSourceDcsFlavorsV2(),
