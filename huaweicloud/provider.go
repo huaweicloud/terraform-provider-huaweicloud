@@ -2039,6 +2039,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cnad_advanced_policy":             cnad.ResourceCNADAdvancedPolicy(),
 			"huaweicloud_cnad_advanced_policy_associate":   cnad.ResourcePolicyAssociate(),
 			"huaweicloud_cnad_advanced_protected_object":   cnad.ResourceProtectedObject(),
+			"huaweicloud_cnad_advanced_protected_ip_tag":   cnad.ResourceProtectedIpTag(),
 
 			"huaweicloud_compute_instance":          ecs.ResourceComputeInstance(),
 			"huaweicloud_compute_interface_attach":  ecs.ResourceComputeInterfaceAttach(),
