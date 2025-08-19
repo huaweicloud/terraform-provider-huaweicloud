@@ -206,10 +206,10 @@ resource "huaweicloud_identity_provider" "provider_1" {
   description = "unit test"
 
   access_config {
-    access_type            = "program"
-    provider_url           = "https://accounts.example.com"
-    client_id              = "client_id_example3"
-    signing_key            = jsonencode(
+    access_type  = "program"
+    provider_url = "https://accounts.example.com"
+    client_id    = "client_id_example3"
+    signing_key  = jsonencode(
     {
       keys = [
         {
