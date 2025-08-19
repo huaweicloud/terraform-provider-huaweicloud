@@ -495,6 +495,10 @@ var (
 	HW_EG_TEST_ON     = os.Getenv("HW_EG_TEST_ON") // Whether to run the EG related tests.
 	HW_EG_CHANNEL_ID  = os.Getenv("HW_EG_CHANNEL_ID")
 	HW_EG_AGENCY_NAME = os.Getenv("HW_EG_AGENCY_NAME")
+	// Currently, only up to 3 target connections are allowed to be created, so this variable is provided.
+	// The IDs of the EG connections. Using commas (,) to separate multiple IDs, the first ID is the webhook connection,
+	// the second is the Kafka connection, and the connections cannot be the default.
+	HW_EG_CONNECTION_IDS = os.Getenv("HW_EG_CONNECTION_IDS")
 
 	HW_KOOGALLERY_ASSET = os.Getenv("HW_KOOGALLERY_ASSET")
 
@@ -2538,6 +2542,13 @@ func TestAccPreCheckEgChannelId(t *testing.T) {
 func TestAccPreCheckEgAgencyName(t *testing.T) {
 	if HW_EG_AGENCY_NAME == "" {
 		t.Skip("HW_EG_AGENCY_NAME must be set for resource creation of the EG connection")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckEgConnectionIds(t *testing.T) {
+	if HW_EG_CONNECTION_IDS == "" || len(strings.Split(HW_EG_CONNECTION_IDS, ",")) != 2 {
+		t.Skip("The number of HW_EG_CONNECTION_IDS must be 2 for the acceptance test, separated by a comma (,)")
 	}
 }
 

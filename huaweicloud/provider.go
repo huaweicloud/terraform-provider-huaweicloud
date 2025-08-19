@@ -952,6 +952,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_drs_availability_zones": drs.DataSourceAvailabilityZones(),
 			"huaweicloud_drs_node_types":         drs.DataSourceNodeTypes(),
 
+			"huaweicloud_eg_connections":           eg.DataSourceConnections(),
 			"huaweicloud_eg_custom_event_channels": eg.DataSourceCustomEventChannels(),
 			"huaweicloud_eg_custom_event_sources":  eg.DataSourceCustomEventSources(),
 			"huaweicloud_eg_event_channels":        eg.DataSourceEventChannels(),
