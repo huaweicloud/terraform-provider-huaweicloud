@@ -440,6 +440,9 @@ var (
 
 	HW_SECMASTER_COMPONENT_ID = os.Getenv("HW_SECMASTER_COMPONENT_ID")
 
+	// The SecMaster field ID
+	HW_SECMASTER_FIELD_ID = os.Getenv("HW_SECMASTER_FIELD_ID")
+
 	HW_MODELARTS_HAS_SUBSCRIBE_MODEL                  = os.Getenv("HW_MODELARTS_HAS_SUBSCRIBE_MODEL")
 	HW_MODELARTS_USER_LOGIN_PASSWORD                  = os.Getenv("HW_MODELARTS_USER_LOGIN_PASSWORD")
 	HW_MODELARTS_DEVSERVER_FLAVOR                     = os.Getenv("HW_MODELARTS_DEVSERVER_FLAVOR")
@@ -2410,6 +2413,13 @@ func TestAccPreCheckSecMasterComponentId(t *testing.T) {
 func TestAccPreCheckSecMasterWorkflowId(t *testing.T) {
 	if HW_SECMASTER_WORKFLOW_ID == "" {
 		t.Skip("HW_SECMASTER_WORKFLOW_ID must be set for SecMaster acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckSecMasterFieldId(t *testing.T) {
+	if HW_SECMASTER_FIELD_ID == "" {
+		t.Skip("HW_SECMASTER_FIELD_ID must be set for SecMaster acceptance tests")
 	}
 }
 
