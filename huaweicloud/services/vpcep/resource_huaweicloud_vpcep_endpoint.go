@@ -159,12 +159,12 @@ func policyDiffSuppressFunc(_, o, n string, _ *schema.ResourceData) bool {
 	return equal
 }
 
-func buildPolicyStatement(d *schema.ResourceData) ([]endpoints.PolicyStatement, error) {
+func buildPolicyStatement(d *schema.ResourceData) (interface{}, error) {
 	if d.Get("policy_statement").(string) == "" {
 		return nil, nil
 	}
 
-	var statements []endpoints.PolicyStatement
+	var statements interface{}
 	err := json.Unmarshal([]byte(d.Get("policy_statement").(string)), &statements)
 	if err != nil {
 		return nil, fmt.Errorf("error unmarshalling policy, please check the format of the policy statement: %s", err)
