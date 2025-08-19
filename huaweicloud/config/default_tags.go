@@ -16,7 +16,9 @@ func GetRawConfigTags(rawConfig cty.Value) map[string]interface{} {
 
 	result := make(map[string]interface{})
 	for k, v := range tagsRaw.AsValueMap() {
-		result[k] = v.AsString()
+		if !v.IsNull() {
+			result[k] = v.AsString()
+		}
 	}
 	return result
 }
