@@ -46,6 +46,25 @@ resource "huaweicloud_dli_elastic_resource_pool" "test" {
 }
 ```
 
+### Create a basic elastic resource pool with prePaid mode
+
+```hcl
+variable "resoure_pool_name" {}
+
+resource "huaweicloud_dli_elastic_resource_pool" "test" {
+  name          = var.resoure_pool_name
+  min_cu        = 32
+  max_cu        = 64
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 1
+
+  label = {
+    spec = "basic"
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -87,6 +106,25 @@ The following arguments are supported:
   Changing this will create a new resource.  
   If not specified, the default is the standard edition. The key/value corresponding to the basic edition is `spec = "basic"`.
 
+* `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the elastic resource pool.  
+  Defaults to **postPaid**.  
+  The valid values are **postPaid** and **prePaid**.  
+  Changing this creates a new resource.
+
+* `period_unit` - (Optional, String, ForceNew) Specifies the period unit of the elastic resource pool.  
+  The valid values are **month** and **year**.  
+  This parameter is **required** and available only when `charging_mode` is set to **prePaid**.  
+  Changing this creates a new resource.
+
+* `period` - (Optional, Int, ForceNew) Specifies the period of the elastic resource pool.  
+  This parameter is **required** and available only when `charging_mode` is set to **prePaid**.  
+  Changing this creates a new resource.
+
+* `auto_renew` - (Optional, String) Specifies whether to enable auto-renew for the elastic resource pool.  
+  Defaults to **false**.  
+  The valid values are **true** and **false**.
+  This parameter is available only when `charging_mode` is set to **prePaid**.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -104,6 +142,8 @@ In addition to all arguments above, the following attributes are exported:
 * `current_cu` - The current CU number of the elastic resource pool.
 
 * `actual_cu` - The current CU number of the elastic resource pool.
+
+* `prepay_cu` - The number of prepaid CUs of the elastic resource pool.
 
 * `created_at` - The creation time of the elastic resource pool.  
   The format is `YYYY-MM-DDThh:mm:ss{timezone}`, e.g. `2024-01-01T08:00:00+08:00`.
@@ -125,8 +165,8 @@ $ terraform import huaweicloud_dli_elastic_resource_pool.test <name>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
-API response, security or some other reason. The missing attributes include: `tags` and `label`.
-It is generally recommended running `terraform plan` after importing a resource.
+API response, security or some other reason. The missing attributes include: `tags`, `period`, `period_unit`
+and `auto_renew`. It is generally recommended running `terraform plan` after importing a resource.
 You can then decide if changes should be applied to the resource, or the resource definition should be updated to
 align with the resource. Also you can ignore changes as below.
 
@@ -136,7 +176,7 @@ resource "huaweicloud_dli_elastic_resource_pool" "test" {
 
   lifecycle {
     ignore_changes = [
-      tags, label,
+      tags, period, period_unit, auto_renew,
     ]
   }
 }
