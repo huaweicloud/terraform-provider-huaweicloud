@@ -1,0 +1,73 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_coc_public_scripts": {
+          "block": {
+            "attributes": {
+              "data": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "description": "string",
+                      "gmt_created": "number",
+                      "id": "number",
+                      "name": "string",
+                      "properties": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "risk_level": "string",
+                            "version": "string"
+                          }
+                        ]
+                      ],
+                      "script_uuid": "string",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of public scripts.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the script name.",
+                "optional": true
+              },
+              "name_like": {
+                "type": "string",
+                "description": "Specifies the script name, only right fuzzy search is supported.",
+                "optional": true
+              },
+              "risk_level": {
+                "type": "string",
+                "description": "Specifies the risk level.",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the script type.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "COC",
+            "name": "Cloud Operations Center",
+            "catalog": "Management & Governance",
+            "name_cn": "云运维中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

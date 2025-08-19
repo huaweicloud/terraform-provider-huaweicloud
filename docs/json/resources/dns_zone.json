@@ -10,6 +10,35 @@
                 "description": "The description of the zone.",
                 "optional": true
               },
+              "dnssec": {
+                "type": "string",
+                "description": "Specifies whether to enable DNSSEC for a public zone.",
+                "optional": true,
+                "computed": true
+              },
+              "dnssec_infos": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "digest": "string",
+                      "digest_algorithm": "string",
+                      "digest_type": "number",
+                      "ds_record": "string",
+                      "flag": "number",
+                      "key_tag": "number",
+                      "ksk_public_key": "string",
+                      "signature": "string",
+                      "signature_type": "number",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the DNSSEC infos.",
+                "computed": true
+              },
               "email": {
                 "type": "string",
                 "description": "The email address of the administrator managing the zone.",
@@ -45,8 +74,7 @@
                 "type": "string",
                 "description": "The recursive resolution proxy mode for subdomains of the private zone.",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "region": {
                 "type": "string",

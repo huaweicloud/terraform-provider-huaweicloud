@@ -1,0 +1,86 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_coc_public_script_detail": {
+          "block": {
+            "attributes": {
+              "content": {
+                "type": "string",
+                "description": "Indicates the script content.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Indicates the script description.",
+                "computed": true
+              },
+              "gmt_created": {
+                "type": "number",
+                "description": "Indicates the creation time.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Indicates the script name.",
+                "computed": true
+              },
+              "properties": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "risk_level": "string",
+                      "version": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the script attachment property.",
+                "computed": true
+              },
+              "script_params": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "param_description": "string",
+                      "param_name": "string",
+                      "param_order": "number",
+                      "param_value": "string",
+                      "sensitive": "bool"
+                    }
+                  ]
+                ],
+                "description": "Indicates the script input parameters.",
+                "computed": true
+              },
+              "script_uuid": {
+                "type": "string",
+                "description": "Specifies the public script UUID.",
+                "required": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Indicates the script type.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "COC",
+            "name": "Cloud Operations Center",
+            "catalog": "Management & Governance",
+            "name_cn": "云运维中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_workspace_app_latest_attached_applications": {
+          "block": {
+            "attributes": {
+              "applications": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "app_id": "string",
+                      "record_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of latest attached applications.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the Workspace APP attached applications are located."
+              },
+              "server_id": {
+                "type": "string",
+                "description": "The ID of the image server instance.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

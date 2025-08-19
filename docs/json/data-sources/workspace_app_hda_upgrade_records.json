@@ -1,0 +1,51 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_workspace_app_hda_upgrade_records": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "records": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "current_version": "string",
+                      "machine_name": "string",
+                      "server_group_name": "string",
+                      "server_id": "string",
+                      "server_name": "string",
+                      "sid": "string",
+                      "target_version": "string",
+                      "upgrade_status": "string",
+                      "upgrade_time": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of HDA upgrade records that matched filter parameters.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the HDA upgrade records are located.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

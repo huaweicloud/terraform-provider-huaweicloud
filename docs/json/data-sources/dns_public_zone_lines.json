@@ -1,0 +1,50 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dns_public_zone_lines": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "lines": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "create_time": "string",
+                      "id": "string",
+                      "line": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the lines.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "zone_id": {
+                "type": "string",
+                "description": "Specifies the zone ID.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "DNS",
+            "name": "Domain Name Service",
+            "catalog": "Business Applications",
+            "name_cn": "云解析服务",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

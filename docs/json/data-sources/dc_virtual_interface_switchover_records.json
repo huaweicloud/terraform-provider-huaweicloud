@@ -1,0 +1,57 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dc_virtual_interface_switchover_records": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "resource_id": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the resource ID used for querying switchover test records.",
+                "optional": true
+              },
+              "switchover_test_records": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "end_time": "string",
+                      "id": "string",
+                      "operate_status": "string",
+                      "operation": "string",
+                      "resource_id": "string",
+                      "resource_type": "string",
+                      "start_time": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of the switchover test records.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DC",
+            "name": "Direct Connect",
+            "catalog": "Networking",
+            "name_cn": "云专线",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

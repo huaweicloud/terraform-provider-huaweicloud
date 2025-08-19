@@ -1,0 +1,68 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_sfs_turbo_ad_domain": {
+          "block": {
+            "attributes": {
+              "dns_server": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "required": true
+              },
+              "domain_name": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "organization_unit": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "overwrite_same_account": {
+                "type": "bool",
+                "optional": true
+              },
+              "password": {
+                "type": "string",
+                "required": true,
+                "sensitive": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "service_account": {
+                "type": "string",
+                "required": true
+              },
+              "share_id": {
+                "type": "string",
+                "required": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "system_name": {
+                "type": "string",
+                "required": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
