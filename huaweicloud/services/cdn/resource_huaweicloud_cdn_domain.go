@@ -998,28 +998,48 @@ func ResourceCdnDomain() *schema.Resource {
 							Computed: true,
 						},
 						"bucket_access_key": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Computed:    true,
-							Description: "Third-party object storage access key.",
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+							Description: utils.SchemaDesc(
+								"Third-party object storage access key.",
+								utils.SchemaDescInput{
+									Internal: true,
+								},
+							),
 						},
 						"bucket_secret_key": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Computed:    true,
-							Description: "Third-party object storage secret key.",
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+							Description: utils.SchemaDesc(
+								"Third-party object storage secret key.",
+								utils.SchemaDescInput{
+									Internal: true,
+								},
+							),
 						},
 						"bucket_region": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Computed:    true,
-							Description: "Third-party object storage bucket region.",
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+							Description: utils.SchemaDesc(
+								"Third-party object storage bucket region.",
+								utils.SchemaDescInput{
+									Internal: true,
+								},
+							),
 						},
 						"bucket_name": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Computed:    true,
-							Description: "Third-party object storage bucket name.",
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+							Description: utils.SchemaDesc(
+								"Third-party object storage bucket name.",
+								utils.SchemaDescInput{
+									Internal: true,
+								},
+							),
 						},
 					},
 				},
@@ -1242,7 +1262,7 @@ func buildCreateCdnDomainSourcesBodyParams(d *schema.ResourceData) []interface{}
 
 	for _, v := range sources {
 		sourceMap := v.(map[string]interface{})
-		rst = append(rst, map[string]interface{}{
+		rst = append(rst, utils.RemoveNil(map[string]interface{}{
 			"ip_or_domain":      sourceMap["origin"],
 			"origin_type":       sourceMap["origin_type"],
 			"active_standby":    sourceMap["active"],
@@ -1252,7 +1272,7 @@ func buildCreateCdnDomainSourcesBodyParams(d *schema.ResourceData) []interface{}
 			"bucket_region":     sourceMap["bucket_region"],
 			"bucket_name":       sourceMap["bucket_name"],
 			"host_name":         sourceMap["retrieval_host"],
-		})
+		}))
 	}
 	return rst
 }
@@ -2235,7 +2255,7 @@ func buildCdnDomainSourcesOpts(rawSources []interface{}) []interface{} {
 	rst := make([]interface{}, 0, len(rawSources))
 	for _, v := range rawSources {
 		rawMap := v.(map[string]interface{})
-		rst = append(rst, map[string]interface{}{
+		rst = append(rst, utils.RemoveNil(map[string]interface{}{
 			"origin_addr":            rawMap["origin"],
 			"origin_type":            rawMap["origin_type"],
 			"priority":               buildCdnDomainSourcesPriorityOpts(rawMap["active"].(int)),
@@ -2245,11 +2265,11 @@ func buildCdnDomainSourcesOpts(rawSources []interface{}) []interface{} {
 			"host_name":              utils.ValueIgnoreEmpty(rawMap["retrieval_host"]),
 			"weight":                 utils.ValueIgnoreEmpty(rawMap["weight"]),
 			"obs_bucket_type":        utils.ValueIgnoreEmpty(rawMap["obs_bucket_type"]),
-			"bucket_access_key":      rawMap["bucket_access_key"],
-			"bucket_secret_key":      rawMap["bucket_secret_key"],
-			"bucket_region":          rawMap["bucket_region"],
-			"bucket_name":            rawMap["bucket_name"],
-		})
+			"bucket_access_key":      utils.ValueIgnoreEmpty(rawMap["bucket_access_key"]),
+			"bucket_secret_key":      utils.ValueIgnoreEmpty(rawMap["bucket_secret_key"]),
+			"bucket_region":          utils.ValueIgnoreEmpty(rawMap["bucket_region"]),
+			"bucket_name":            utils.ValueIgnoreEmpty(rawMap["bucket_name"]),
+		}))
 	}
 	return rst
 }
