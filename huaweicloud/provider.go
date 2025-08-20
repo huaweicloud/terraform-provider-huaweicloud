@@ -706,6 +706,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_coc_public_scripts":                coc.DataSourceCocPublicScripts(),
 			"huaweicloud_coc_public_script_detail":          coc.DataSourceCocPublicScriptDetail(),
 			"huaweicloud_coc_documents":                     coc.DataSourceCocDocuments(),
+			"huaweicloud_coc_document_atomics":              coc.DataSourceCocDocumentAtomics(),
 			"huaweicloud_coc_document_atomic_detail":        coc.DataSourceCocDocumentAtomicDetail(),
 
 			"huaweicloud_compute_flavors":                 ecs.DataSourceEcsFlavors(),
