@@ -15,13 +15,13 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API AAD POST /v3/cnad/policies/{policy_id}/bind
-func ResourcePolicyIpBinding() *schema.Resource {
+// @API AAD POST /v3/cnad/policies/{policy_id}/unbind
+func ResourcePolicyIpUnbinding() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourcePolicyIpBindingCreate,
-		ReadContext:   resourcePolicyIpBindingRead,
-		UpdateContext: resourcePolicyIpBindingUpdate,
-		DeleteContext: resourcePolicyIpBindingDelete,
+		CreateContext: resourcePolicyIpUnbindingCreate,
+		ReadContext:   resourcePolicyIpUnbindingRead,
+		UpdateContext: resourcePolicyIpUnbindingUpdate,
+		DeleteContext: resourcePolicyIpUnbindingDelete,
 
 		CustomizeDiff: config.FlexibleForceNew([]string{"policy_id", "ip_list"}),
 
@@ -29,13 +29,13 @@ func ResourcePolicyIpBinding() *schema.Resource {
 			"policy_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: `Specifies the ID of the protection policy.`,
+				Description: `Specifies the ID of the protection policy to unbind the IPs from.`,
 			},
 			"ip_list": {
 				Type:        schema.TypeList,
 				Required:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: `Specifies the list of IP addresses to bind the policy.`,
+				Description: `Specifies the list of IP addresses to unbind from the policy.`,
 			},
 			"enable_force_new": {
 				Type:         schema.TypeString,
@@ -47,15 +47,14 @@ func ResourcePolicyIpBinding() *schema.Resource {
 	}
 }
 
-func resourcePolicyIpBindingCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourcePolicyIpUnbindingCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg     = meta.(*config.Config)
-		region  = cfg.GetRegion(d)
-		httpUrl = "v3/cnad/policies/{policy_id}/bind"
+		httpUrl = "v3/cnad/policies/{policy_id}/unbind"
 		product = "aad"
 	)
 
-	client, err := cfg.NewServiceClient(product, region)
+	client, err := cfg.NewServiceClient(product, cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating CNAD client: %s", err)
 	}
@@ -71,7 +70,7 @@ func resourcePolicyIpBindingCreate(ctx context.Context, d *schema.ResourceData, 
 
 	_, err = client.Request("POST", requestPath, &requestOpt)
 	if err != nil {
-		return diag.Errorf("error binding IPs to CNAD policy: %s", err)
+		return diag.Errorf("error unbinding IPs from CNAD policy: %s", err)
 	}
 
 	id, err := uuid.GenerateUUID()
@@ -80,21 +79,21 @@ func resourcePolicyIpBindingCreate(ctx context.Context, d *schema.ResourceData, 
 	}
 	d.SetId(id)
 
-	return resourcePolicyIpBindingRead(ctx, d, meta)
+	return resourcePolicyIpUnbindingRead(ctx, d, meta)
 }
 
-func resourcePolicyIpBindingRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourcePolicyIpUnbindingRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	// No processing is performed in the 'Read()' method because the resource is a one-time action resource.
 	return nil
 }
 
-func resourcePolicyIpBindingUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourcePolicyIpUnbindingUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	// No processing is performed in the 'Update()' method because the resource is a one-time action resource.
 	return nil
 }
 
-func resourcePolicyIpBindingDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
-	errorMsg := `This resource is a one-time action resource using to bind IP addresses to a policy. Deleting this 
+func resourcePolicyIpUnbindingDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+	errorMsg := `This resource is a one-time action resource using to unbind IP addresses from a policy. Deleting this 
 resource will not change the current CNAD policy IP binding, but will only remove the resource information from the 
 tfstate file.`
 	return diag.Diagnostics{
