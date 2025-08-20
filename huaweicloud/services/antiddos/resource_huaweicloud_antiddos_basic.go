@@ -2,6 +2,7 @@ package antiddos
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"math"
@@ -59,6 +60,7 @@ var (
 // @API Anti-DDoS GET /v1/{project_id}/antiddos/{floating_ip_id}
 // @API Anti-DDoS PUT /v1/{project_id}/antiddos/{floating_ip_id}
 // @API Anti-DDoS GET /v1/{project_id}/antiddos
+// @API Anti-DDoS GET /v2/{project_id}/query-task-status
 // @API Anti-DDoS GET /v2/{project_id}/warnalert/alertconfig/query
 // @API Anti-DDoS POST /v2/{project_id}/warnalert/alertconfig/update
 // @API EIP GET /v1/{project_id}/publicips/{publicip_id}
@@ -337,8 +339,18 @@ func updateAntiDdosTrafficThreshold(ctx context.Context, d *schema.ResourceData,
 		}
 
 		log.Printf("[DEBUG] AntiDDoS updating options: %#v", updateOpts)
-		if _, err := antiddossdk.Update(client, antiDDoSId, updateOpts).Extract(); err != nil {
+
+		updateResp, err := antiddossdk.Update(client, antiDDoSId, updateOpts).Extract()
+		if err != nil {
 			return fmt.Errorf("error updating AntiDDoS: %s", err)
+		}
+
+		// If task_id is not empty, you need to monitor the task status through the query task interface.
+		if taskID := updateResp.TaskId; taskID != "" {
+			err := waitingAntiDdosTaskSuccess(ctx, client, taskID, d.Timeout(schema.TimeoutUpdate))
+			if err != nil {
+				return fmt.Errorf("error waiting for AntiDDoS task to become success: %s", err)
+			}
 		}
 
 		stateConf := &resource.StateChangeConf{
@@ -357,6 +369,61 @@ func updateAntiDdosTrafficThreshold(ctx context.Context, d *schema.ResourceData,
 	}
 
 	return nil
+}
+
+func waitingAntiDdosTaskSuccess(ctx context.Context, client *golangsdk.ServiceClient, taskID string,
+	timeout time.Duration) error {
+	var (
+		errorStatuses = []string{"failed"}
+		httpUrl       = "v2/{project_id}/query-task-status"
+	)
+
+	stateConf := &resource.StateChangeConf{
+		Pending: []string{"PENDING"},
+		Target:  []string{"COMPLETED"},
+		Refresh: func() (result interface{}, state string, err error) {
+			requestPath := client.Endpoint + httpUrl
+			requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+			requestPath = fmt.Sprintf("%s?task_id=%s", requestPath, taskID)
+			requestOpt := golangsdk.RequestOpts{
+				MoreHeaders: map[string]string{
+					"Content-Type": "application/json;charset=utf8",
+				},
+				KeepResponseBody: true,
+			}
+
+			resp, err := client.Request("GET", requestPath, &requestOpt)
+			if err != nil {
+				return nil, "ERROR", fmt.Errorf("error retrieving Anti-DDoS task: %s", err)
+			}
+
+			respBody, err := utils.FlattenResponse(resp)
+			if err != nil {
+				return nil, "ERROR", fmt.Errorf("error retrieving Anti-DDoS task: Failed to flatten response (%s)", err)
+			}
+
+			taskStatus := utils.PathSearch("task_status", respBody, "").(string)
+			if taskStatus == "" {
+				return nil, "ERROR", errors.New("error retrieving Anti-DDoS task: Task status is not found in API response")
+			}
+
+			if utils.StrSliceContains(errorStatuses, taskStatus) {
+				return respBody, "ERROR", fmt.Errorf("unexpected status: '%s'", taskStatus)
+			}
+
+			if taskStatus == "success" {
+				return respBody, "COMPLETED", nil
+			}
+
+			return respBody, "PENDING", nil
+		},
+		Timeout:      timeout,
+		Delay:        5 * time.Second,
+		PollInterval: 5 * time.Second,
+	}
+
+	_, err := stateConf.WaitForStateContext(ctx)
+	return err
 }
 
 func getAntiDdosStatus(client *golangsdk.ServiceClient, antiddosID string) resource.StateRefreshFunc {
