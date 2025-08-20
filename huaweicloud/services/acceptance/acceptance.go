@@ -354,6 +354,9 @@ var (
 	HW_DSC_INSTANCE_ID    = os.Getenv("HW_DSC_INSTANCE_ID")
 	HW_DSC_ALARM_TOPIC_ID = os.Getenv("HW_DSC_ALARM_TOPIC_ID")
 
+	HW_EIP_ID      = os.Getenv("HW_EIP_ID")
+	HW_EIP_ADDRESS = os.Getenv("HW_EIP_ADDRESS")
+
 	HW_CES_ALARM_TEMPLATE_ID = os.Getenv("HW_CES_ALARM_TEMPLATE_ID")
 	HW_CES_START_TIME        = os.Getenv("HW_CES_START_TIME")
 	HW_CES_END_TIME          = os.Getenv("HW_CES_END_TIME")
@@ -3672,6 +3675,13 @@ func TestAccPrecheckDscInstance(t *testing.T) {
 func TestAccPrecheckDscAlarmTopicID(t *testing.T) {
 	if HW_DSC_ALARM_TOPIC_ID == "" {
 		t.Skip("HW_DSC_ALARM_TOPIC_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPrecheckEipIDAndIP(t *testing.T) {
+	if HW_EIP_ID == "" || HW_EIP_ADDRESS == "" {
+		t.Skip("HW_EIP_ID and HW_EIP_ADDRESS must be set for the acceptance test")
 	}
 }
 
