@@ -963,7 +963,7 @@ func ResourceCdnDomain() *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 							ValidateFunc: validation.StringInSlice([]string{
-								"ipaddr", "domain", "obs_bucket",
+								"ipaddr", "domain", "obs_bucket", "third_bucket",
 							}, true),
 						},
 						"active": {
@@ -1000,6 +1000,50 @@ func ResourceCdnDomain() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
+						},
+						"bucket_access_key": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+							Description: utils.SchemaDesc(
+								"Third-party object storage access key.",
+								utils.SchemaDescInput{
+									Internal: true,
+								},
+							),
+						},
+						"bucket_secret_key": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+							Description: utils.SchemaDesc(
+								"Third-party object storage secret key.",
+								utils.SchemaDescInput{
+									Internal: true,
+								},
+							),
+						},
+						"bucket_region": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+							Description: utils.SchemaDesc(
+								"Third-party object storage bucket region.",
+								utils.SchemaDescInput{
+									Internal: true,
+								},
+							),
+						},
+						"bucket_name": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+							Description: utils.SchemaDesc(
+								"Third-party object storage bucket name.",
+								utils.SchemaDescInput{
+									Internal: true,
+								},
+							),
 						},
 					},
 				},
@@ -1222,11 +1266,17 @@ func buildCreateCdnDomainSourcesBodyParams(d *schema.ResourceData) []interface{}
 
 	for _, v := range sources {
 		sourceMap := v.(map[string]interface{})
-		rst = append(rst, map[string]interface{}{
-			"ip_or_domain":   sourceMap["origin"],
-			"origin_type":    sourceMap["origin_type"],
-			"active_standby": sourceMap["active"],
-		})
+		rst = append(rst, utils.RemoveNil(map[string]interface{}{
+			"ip_or_domain":      sourceMap["origin"],
+			"origin_type":       sourceMap["origin_type"],
+			"active_standby":    sourceMap["active"],
+			"obs_bucket_type":   sourceMap["obs_bucket_type"],
+			"bucket_access_key": sourceMap["bucket_access_key"],
+			"bucket_secret_key": sourceMap["bucket_secret_key"],
+			"bucket_region":     sourceMap["bucket_region"],
+			"bucket_name":       sourceMap["bucket_name"],
+			"host_name":         sourceMap["retrieval_host"],
+		}))
 	}
 	return rst
 }
@@ -1444,6 +1494,10 @@ func flattenSourcesAttributes(configResp interface{}) []interface{} {
 			"retrieval_host":          sourceMap["host_name"],
 			"weight":                  sourceMap["weight"],
 			"obs_bucket_type":         sourceMap["obs_bucket_type"],
+			"bucket_access_key":       sourceMap["bucket_access_key"],
+			"bucket_secret_key":       sourceMap["bucket_secret_key"],
+			"bucket_region":           sourceMap["bucket_region"],
+			"bucket_name":             sourceMap["bucket_name"],
 		})
 	}
 	return rst
@@ -2205,7 +2259,7 @@ func buildCdnDomainSourcesOpts(rawSources []interface{}) []interface{} {
 	rst := make([]interface{}, 0, len(rawSources))
 	for _, v := range rawSources {
 		rawMap := v.(map[string]interface{})
-		rst = append(rst, map[string]interface{}{
+		rst = append(rst, utils.RemoveNil(map[string]interface{}{
 			"origin_addr":            rawMap["origin"],
 			"origin_type":            rawMap["origin_type"],
 			"priority":               buildCdnDomainSourcesPriorityOpts(rawMap["active"].(int)),
@@ -2215,7 +2269,11 @@ func buildCdnDomainSourcesOpts(rawSources []interface{}) []interface{} {
 			"host_name":              utils.ValueIgnoreEmpty(rawMap["retrieval_host"]),
 			"weight":                 utils.ValueIgnoreEmpty(rawMap["weight"]),
 			"obs_bucket_type":        utils.ValueIgnoreEmpty(rawMap["obs_bucket_type"]),
-		})
+			"bucket_access_key":      utils.ValueIgnoreEmpty(rawMap["bucket_access_key"]),
+			"bucket_secret_key":      utils.ValueIgnoreEmpty(rawMap["bucket_secret_key"]),
+			"bucket_region":          utils.ValueIgnoreEmpty(rawMap["bucket_region"]),
+			"bucket_name":            utils.ValueIgnoreEmpty(rawMap["bucket_name"]),
+		}))
 	}
 	return rst
 }
