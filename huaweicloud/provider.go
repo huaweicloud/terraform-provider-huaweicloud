@@ -953,6 +953,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dns_tags_filter":         dns.DataSourceDNSTagsFilter(),
 			"huaweicloud_dns_endpoints":           dns.DataSourceDNSEndpoints(),
 			"huaweicloud_dns_endpoint_vpcs":       dns.DataSourceDNSEndpointVpcs(),
+			"huaweicloud_dnsv21_ptrrecords":       dns.DataSourceDNSV21PtrRecords(),
 
 			"huaweicloud_drs_availability_zones": drs.DataSourceAvailabilityZones(),
 			"huaweicloud_drs_node_types":         drs.DataSourceNodeTypes(),
@@ -2232,6 +2233,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_dns_custom_line":             dns.ResourceCustomLine(),
 			"huaweicloud_dns_ptrrecord":               dns.ResourcePtrRecord(),
+			"huaweicloud_dnsv21_ptrrecord":            dns.ResourceDNSV21PtrRecord(),
 			"huaweicloud_dns_recordset":               dns.ResourceDNSRecordset(),
 			"huaweicloud_dns_zone":                    dns.ResourceDNSZone(),
 			"huaweicloud_dns_endpoint_assignment":     dns.ResourceEndpointAssignment(),
