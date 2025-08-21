@@ -433,10 +433,8 @@ func waitForSubnetDelete(networkingClient *golangsdk.ServiceClient, subnetId str
 				logp.Printf("[DEBUG] Successfully deleted HuaweiCloud Subnet %s", subnetId)
 				return s, "DELETED", nil
 			}
-			if errCode, ok := err.(golangsdk.ErrUnexpectedResponseCode); ok {
-				if errCode.Actual == 409 {
-					return s, "ACTIVE", nil
-				}
+			if _, ok := err.(golangsdk.ErrDefault409); ok {
+				return s, "ACTIVE", nil
 			}
 			return s, "ACTIVE", err
 		}

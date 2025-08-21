@@ -226,13 +226,11 @@ func waitForFirewallPolicyDeletion(fwClient *golangsdk.ServiceClient, id string)
 			return "", "DELETED", nil
 		}
 
-		if errCode, ok := err.(golangsdk.ErrUnexpectedResponseCode); ok {
-			if errCode.Actual == 409 {
-				// This error usually means that the policy is attached
-				// to a firewall. At this point, the firewall is probably
-				// being delete. So, we retry a few times.
-				return nil, "ACTIVE", nil
-			}
+		if _, ok := err.(golangsdk.ErrDefault409); ok {
+			// This error usually means that the policy is attached
+			// to a firewall. At this point, the firewall is probably
+			// being delete. So, we retry a few times.
+			return nil, "ACTIVE", nil
 		}
 
 		return nil, "ACTIVE", err

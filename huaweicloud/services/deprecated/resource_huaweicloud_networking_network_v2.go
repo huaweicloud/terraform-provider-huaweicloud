@@ -315,10 +315,8 @@ func waitForNetworkDelete(networkingClient *golangsdk.ServiceClient, networkId s
 				logp.Printf("[DEBUG] Successfully deleted HuaweiCloud Network %s", networkId)
 				return n, "DELETED", nil
 			}
-			if errCode, ok := err.(golangsdk.ErrUnexpectedResponseCode); ok {
-				if errCode.Actual == 409 {
-					return n, "ACTIVE", nil
-				}
+			if _, ok := err.(golangsdk.ErrDefault409); ok {
+				return n, "ACTIVE", nil
 			}
 			return n, "ACTIVE", err
 		}

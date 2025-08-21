@@ -448,7 +448,7 @@ func handleOperationError(err error, operateType string, operateObj string) (boo
 	if err == nil {
 		return false, nil
 	}
-	if errCode, ok := err.(golangsdk.ErrUnexpectedResponseCode); ok && errCode.Actual == 409 {
+	if errCode, ok := err.(golangsdk.ErrDefault409); ok {
 		var apiError ddmError
 		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
 			return false, fmt.Errorf("error %s DDM %s: error format error: %s", operateType,
