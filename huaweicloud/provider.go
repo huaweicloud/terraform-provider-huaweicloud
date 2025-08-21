@@ -1618,6 +1618,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_waf_config":                               waf.DataSourceWafConfig(),
 			"huaweicloud_waf_dedicated_domains":                    waf.DataSourceWafDedicatedDomains(),
 			"huaweicloud_waf_dedicated_instances":                  waf.DataSourceWafDedicatedInstances(),
+			"huaweicloud_waf_domain_status":                        waf.DataSourceWafDomainStatus(),
 			"huaweicloud_waf_domains":                              waf.DataSourceWafDomains(),
 			"huaweicloud_waf_instance_groups":                      waf.DataSourceWafInstanceGroups(),
 			"huaweicloud_waf_overviews_bandwidth_timeline":         waf.DataSourceWafOverviewsBandwidthTimeline(),
