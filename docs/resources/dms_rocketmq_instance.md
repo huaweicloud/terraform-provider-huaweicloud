@@ -78,7 +78,9 @@ The following arguments are supported:
   The description can contain a maximum of `1,024` characters.
 
 * `ssl_enable` - (Optional, Bool, ForceNew) Specifies whether the RocketMQ SASL_SSL is enabled. Defaults to **false**.
-  Changing this parameter will create a new resource.
+  Changing this parameter will create a new resource.  
+  If this parameter is set to **true**, `tls_mode` can be omitted or must be set to **SSL**.
+  If this parameter is set to **false**, `tls_mode` cannot be set to **SSL**.
 
 * `ipv6_enable` - (Optional, Bool, ForceNew) Specifies whether to support IPv6. Defaults to **false**.
   Changing this parameter will create a new resource.
@@ -112,6 +114,12 @@ The following arguments are supported:
 
 * `configs` - (Optional, List) Specifies the instance configs.
   The [configs](#dms_configs) structure is documented below.
+
+* `tls_mode` - (Optional, String) Specifies TLS mode of the instance.  
+  The valid values are as follows:
+  + **PLAINTEXT**
+  + **SSL**
+  + **PERMISSIVE**
 
 <a name="dms_configs"></a>
 The `configs` block supports:

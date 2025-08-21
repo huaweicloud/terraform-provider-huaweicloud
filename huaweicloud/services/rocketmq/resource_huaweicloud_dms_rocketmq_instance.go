@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 	"strings"
 	"time"
 
@@ -38,6 +39,7 @@ type dmsError struct {
 // @API RocketMQ POST /v2/{engine}/{project_id}/instances/{instance_id}/extend
 // @API RocketMQ PUT /v2/{project_id}/rocketmq/instances/{instance_id}/configs
 // @API RocketMQ GET /v2/{project_id}/rocketmq/instances/{instance_id}/configs
+// @API RocketMQ POST /v2/{project_id}/{engine}/instances/{instance_id}/plain-ssl-switch
 // @API EIP GET /v1/{project_id}/publicips
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
 // @API BSS POST /v2/orders/subscriptions/resources/autorenew/{instance_id}
@@ -183,6 +185,14 @@ func ResourceDmsRocketMQInstance() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				Description: `Specifies the instance configs.`,
+			},
+			// From the behavior of the Console page, this parameter is required.
+			// In order to ensure that the default value is returned in future, set Computed behavior.
+			"tls_mode": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `The TLS mode of the instance.`,
 			},
 			"status": {
 				Type:        schema.TypeString,
@@ -506,6 +516,7 @@ func buildCreateRocketmqInstanceBodyParams(d *schema.ResourceData, cfg *config.C
 		"publicip_id":           utils.ValueIgnoreEmpty(d.Get("publicip_id")),
 		"broker_num":            utils.ValueIgnoreEmpty(d.Get("broker_num")),
 		"enterprise_project_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
+		"tls_mode":              utils.ValueIgnoreEmpty(d.Get("tls_mode")),
 	}
 	if chargingMode, ok := d.GetOk("charging_mode"); ok && chargingMode == "prePaid" {
 		bodyParams["bss_param"] = buildCreateRocketmqInstanceBodyBssParams(d)
@@ -577,6 +588,46 @@ func buildRocketmqConfigsRequestBody(configs []interface{}) []map[string]string 
 		}
 	}
 	return rst
+}
+
+func updateRocketmqInstanceTLSMode(ctx context.Context, client *golangsdk.ServiceClient, timeout time.Duration,
+	instanceId string, tlsMode string) error {
+	httpUrl := "v2/{project_id}/rocketmq/instances/{instance_id}/plain-ssl-switch"
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", instanceId)
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"tls_mode": tlsMode,
+		},
+	}
+
+	retryFunc := func() (interface{}, bool, error) {
+		resp, err := client.Request("POST", updatePath, &updateOpt)
+		retry, err := handleMultiOperationsError(err)
+		return resp, retry, err
+	}
+	resp, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     rocketmqInstanceStateRefreshFunc(client, instanceId),
+		WaitTarget:   []string{"RUNNING"},
+		Timeout:      timeout,
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 20 * time.Second,
+	})
+	if err != nil {
+		return err
+	}
+
+	respBody, err := utils.FlattenResponse(resp.(*http.Response))
+	if err != nil {
+		return err
+	}
+
+	return waitForInstanceTaskStatusCompleted(ctx, client, instanceId, utils.PathSearch("job_id", respBody, "").(string), timeout)
 }
 
 func resourceDmsRocketMQInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -711,6 +762,14 @@ func resourceDmsRocketMQInstanceUpdate(ctx context.Context, d *schema.ResourceDa
 		err := updateRocketmqConfigs(ctx, updateRocketmqInstanceClient, d.Timeout(schema.TimeoutUpdate), d.Id(), configs)
 		if err != nil {
 			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("tls_mode") {
+		err = updateRocketmqInstanceTLSMode(ctx, updateRocketmqInstanceClient, d.Timeout(schema.TimeoutUpdate),
+			instanceId, d.Get("tls_mode").(string))
+		if err != nil {
+			return diag.Errorf("error updating SSL mode of the RocketMQ instance (%s): %s", instanceId, err)
 		}
 	}
 
@@ -882,6 +941,7 @@ func resourceDmsRocketMQInstanceRead(_ context.Context, d *schema.ResourceData, 
 		d.Set("resource_spec_code", utils.PathSearch("resource_spec_code", getRocketmqInstanceRespBody, nil)),
 		d.Set("cross_vpc_accesses", crossVpcAccess),
 		d.Set("charging_mode", chargingMode),
+		d.Set("tls_mode", utils.PathSearch("tls_mode", getRocketmqInstanceRespBody, nil)),
 	)
 
 	// get configs

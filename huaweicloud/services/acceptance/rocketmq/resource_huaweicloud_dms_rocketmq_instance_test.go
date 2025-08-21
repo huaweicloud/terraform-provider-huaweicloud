@@ -71,6 +71,8 @@ func TestAccDmsRocketMQInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "storage_space", "500"),
 					resource.TestCheckResourceAttrPair(resourceName, "engine_version", "data.huaweicloud_dms_rocketmq_flavors.test", "versions.0"),
 					resource.TestCheckResourceAttrPair(resourceName, "flavor_id", "data.huaweicloud_dms_rocketmq_flavors.test", "flavors.0.id"),
+					resource.TestCheckResourceAttr(resourceName, "ssl_enable", "true"),
+					resource.TestCheckResourceAttr(resourceName, "tls_mode", "SSL"),
 				),
 			},
 			{
@@ -89,6 +91,8 @@ func TestAccDmsRocketMQInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(resourceName, "flavor_id", "data.huaweicloud_dms_rocketmq_flavors.test", "flavors.1.id"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.name", "fileReservedTime"),
 					resource.TestCheckResourceAttr(resourceName, "configs.0.value", "72"),
+					resource.TestCheckResourceAttr(resourceName, "ssl_enable", "false"),
+					resource.TestCheckResourceAttr(resourceName, "tls_mode", "PLAINTEXT"),
 				),
 			},
 			{
@@ -337,6 +341,7 @@ resource "huaweicloud_dms_rocketmq_instance" "test" {
   flavor_id         = local.flavor.id
   storage_space     = 500  
   broker_num        = 1
+  tls_mode          = "SSL"
 
   tags = {
     key1 = "value1"
@@ -381,6 +386,7 @@ resource "huaweicloud_dms_rocketmq_instance" "test" {
   flavor_id         = local.newFlavor.id
   storage_space     = 1200 
   broker_num        = 2
+  tls_mode          = "PLAINTEXT"
 
   configs {
     name  = "fileReservedTime"
