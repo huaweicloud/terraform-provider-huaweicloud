@@ -223,11 +223,29 @@ func buildUpdateGroupBodyParams(d *schema.ResourceData) map[string]interface{} {
 	}
 }
 
+func DeleteGroupById(client *golangsdk.ServiceClient, groupId string) error {
+	httpUrl := "v2/{project_id}/groups/{log_group_id}"
+	deletePath := client.Endpoint + httpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = strings.ReplaceAll(deletePath, "{log_group_id}", groupId)
+
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	_, err := client.Request("DELETE", deletePath, &opt)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func resourceGroupDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg     = meta.(*config.Config)
 		region  = cfg.GetRegion(d)
-		httpUrl = "v2/{project_id}/groups/{log_group_id}"
 		groupId = d.Id()
 	)
 
@@ -235,15 +253,8 @@ func resourceGroupDelete(_ context.Context, d *schema.ResourceData, meta interfa
 	if err != nil {
 		return diag.Errorf("error creating LTS client: %s", err)
 	}
-	deletePath := client.Endpoint + httpUrl
-	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
-	deletePath = strings.ReplaceAll(deletePath, "{log_group_id}", groupId)
 
-	deleteOpts := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
-	}
-	_, err = client.Request("DELETE", deletePath, &deleteOpts)
+	err = DeleteGroupById(client, groupId)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error deleting log group")
 	}
