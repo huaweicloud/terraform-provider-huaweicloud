@@ -935,6 +935,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_rabbitmq_queues":           rabbitmq.DataSourceDmsRabbitmqQueues(),
 			"huaweicloud_dms_rabbitmq_users":            rabbitmq.DataSourceDmsRabbitmqUsers(),
 
+			"huaweicloud_dms_rocketmq_background_tasks":            rocketmq.DataSourceRocketmqBackgroundTasks(),
 			"huaweicloud_dms_rocketmq_broker":                      rocketmq.DataSourceDmsRocketMQBroker(),
 			"huaweicloud_dms_rocketmq_instances":                   rocketmq.DataSourceDmsRocketMQInstances(),
 			"huaweicloud_dms_rocketmq_topics":                      rocketmq.DataSourceDmsRocketMQTopics(),
