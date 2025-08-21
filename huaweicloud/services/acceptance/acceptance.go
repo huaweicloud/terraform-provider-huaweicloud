@@ -501,13 +501,13 @@ var (
 	HW_CODEARTS_SSH_CREDENTIAL_ID = os.Getenv("HW_CODEARTS_SSH_CREDENTIAL_ID")
 
 	HW_EG_TEST_ON     = os.Getenv("HW_EG_TEST_ON") // Whether to run the EG related tests.
-	HW_EG_CHANNEL_ID  = os.Getenv("HW_EG_CHANNEL_ID")
 	HW_EG_AGENCY_NAME = os.Getenv("HW_EG_AGENCY_NAME")
+	HW_EG_CHANNEL_ID  = os.Getenv("HW_EG_CHANNEL_ID")
 	// Currently, only up to 3 target connections are allowed to be created, so this variable is provided.
 	// The IDs of the EG connections. Using commas (,) to separate multiple IDs, the first ID is the webhook connection,
 	// the second is the Kafka connection, and the connections cannot be the default.
-	HW_EG_CONNECTION_IDS  = os.Getenv("HW_EG_CONNECTION_IDS")
-	HW_EG_EVENT_SOURCE_ID = os.Getenv("HW_EG_EVENT_SOURCE_ID")
+	HW_EG_CONNECTION_IDS         = os.Getenv("HW_EG_CONNECTION_IDS")
+	HW_EG_EVENT_SUBSCRIPTION_IDS = os.Getenv("HW_EG_EVENT_SUBSCRIPTION_IDS")
 
 	HW_KOOGALLERY_ASSET = os.Getenv("HW_KOOGALLERY_ASSET")
 
@@ -2584,9 +2584,10 @@ func TestAccPreCheckEgConnectionIds(t *testing.T) {
 }
 
 // lintignore:AT003
-func TestAccPreCheckEgEventSourceId(t *testing.T) {
-	if HW_EG_EVENT_SOURCE_ID == "" {
-		t.Skip("The sub-resource acceptance test of the EG event source must set 'HW_EG_EVENT_SOURCE_ID'")
+func TestAccPreCheckEgEventSubscriptionIds(t *testing.T, min int) {
+	if HW_EG_EVENT_SUBSCRIPTION_IDS == "" || len(strings.Split(HW_EG_EVENT_SUBSCRIPTION_IDS, ",")) >= min {
+		t.Skipf(`At least %d subscription ID(s) must be supported during the HW_EG_EVENT_SUBSCRIPTION_IDS, separated by 
+		commas (,).`, min)
 	}
 }
 
