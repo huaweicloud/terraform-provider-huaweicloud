@@ -2047,12 +2047,14 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_cloudtable_cluster": cloudtable.ResourceCloudTableCluster(),
 
-			"huaweicloud_cnad_advanced_alarm_notification": cnad.ResourceAlarmNotification(),
-			"huaweicloud_cnad_advanced_black_white_list":   cnad.ResourceBlackWhiteList(),
-			"huaweicloud_cnad_advanced_policy":             cnad.ResourceCNADAdvancedPolicy(),
-			"huaweicloud_cnad_advanced_policy_associate":   cnad.ResourcePolicyAssociate(),
-			"huaweicloud_cnad_advanced_protected_object":   cnad.ResourceProtectedObject(),
-			"huaweicloud_cnad_advanced_protected_ip_tag":   cnad.ResourceProtectedIpTag(),
+			"huaweicloud_cnad_advanced_alarm_notification":  cnad.ResourceAlarmNotification(),
+			"huaweicloud_cnad_advanced_black_white_list":    cnad.ResourceBlackWhiteList(),
+			"huaweicloud_cnad_advanced_policy":              cnad.ResourceCNADAdvancedPolicy(),
+			"huaweicloud_cnad_advanced_policy_associate":    cnad.ResourcePolicyAssociate(),
+			"huaweicloud_cnad_advanced_protected_object":    cnad.ResourceProtectedObject(),
+			"huaweicloud_cnad_advanced_protected_ip_tag":    cnad.ResourceProtectedIpTag(),
+			"huaweicloud_cnad_advanced_policy_ip_binding":   cnad.ResourcePolicyIpBinding(),
+			"huaweicloud_cnad_advanced_policy_ip_unbinding": cnad.ResourcePolicyIpUnbinding(),
 
 			"huaweicloud_compute_instance":          ecs.ResourceComputeInstance(),
 			"huaweicloud_compute_interface_attach":  ecs.ResourceComputeInterfaceAttach(),
