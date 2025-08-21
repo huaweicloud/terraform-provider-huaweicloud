@@ -2416,6 +2416,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_fgs_function":                       fgs.ResourceFgsFunction(),
 			"huaweicloud_fgs_function_event":                 fgs.ResourceFunctionEvent(),
 			"huaweicloud_fgs_function_topping":               fgs.ResourceFunctionTopping(),
+			"huaweicloud_fgs_function_tracing_configuration": fgs.ResourceFunctionTracingConfiguration(),
 			"huaweicloud_fgs_function_trigger":               fgs.ResourceFunctionTrigger(),
 			"huaweicloud_fgs_function_trigger_status_action": fgs.ResourceFunctionTriggerStatusAction(),
 			"huaweicloud_fgs_lts_log_enable":                 fgs.ResourceLtsLogEnable(),
