@@ -464,6 +464,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_aad_unblock_quota_statistics": aad.DataSourceUnblockQuotaStatistics(),
 			"huaweicloud_aad_black_white_lists":        aad.DataSourceAadBlackWhiteLists(),
 			"huaweicloud_aad_web_protection_policies":  aad.DataSourceAadWebProtectionPolicies(),
+			"huaweicloud_aad_geoip_rules":              aad.DataSourceGeoIpRules(),
 			"huaweicloud_aad_block_statistics":         aad.DataSourceBlockStatistics(),
 			"huaweicloud_aad_unblock_records":          aad.DataSourceUnblockRecords(),
 			"huaweicloud_aad_domains":                  aad.DataSourceAadDomains(),
