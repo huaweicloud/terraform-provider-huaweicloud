@@ -1,0 +1,50 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dns_private_zone_associate": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "router_id": {
+                "type": "string",
+                "description": "The ID of the associated VPC.",
+                "required": true
+              },
+              "router_region": {
+                "type": "string",
+                "description": "The region of the VPC.",
+                "optional": true,
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the associated VPC.",
+                "computed": true
+              },
+              "zone_id": {
+                "type": "string",
+                "description": "The ID of the zone to which the record set belongs.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "DNS",
+            "name": "Domain Name Service",
+            "catalog": "Business Applications",
+            "name_cn": "云解析服务",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

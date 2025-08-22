@@ -1,0 +1,110 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_aad_frequency_control_rules": {
+          "block": {
+            "attributes": {
+              "domain_name": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "items": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "action": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "category": "string",
+                            "detail": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "response": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "content": "string",
+                                        "content_type": "string"
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "captcha_lock_time": "number",
+                      "conditions": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "category": "string",
+                            "contents": [
+                              "list",
+                              "string"
+                            ],
+                            "index": "string",
+                            "logic_operation": "string"
+                          }
+                        ]
+                      ],
+                      "domain_aggregation": "bool",
+                      "grayscale_time": "bool",
+                      "id": "string",
+                      "limit_num": "string",
+                      "limit_period": "string",
+                      "lock_time": "string",
+                      "mode": "string",
+                      "name": "string",
+                      "producer": "number",
+                      "region_aggregation": "bool",
+                      "tag_condition": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "category": "string",
+                            "contents": [
+                              "list",
+                              "string"
+                            ]
+                          }
+                        ]
+                      ],
+                      "tag_index": "string",
+                      "tag_type": "string",
+                      "unlock_num": "number",
+                      "url": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "AAD",
+            "name": "Advanced Anti-DDoS",
+            "catalog": "Security & Compliance",
+            "name_cn": "DDoS高防",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dnsv21_ptrrecords": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The enterprise project ID corresponding to the PTR record.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ptrrecords": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "address": "string",
+                      "description": "string",
+                      "enterprise_project_id": "string",
+                      "id": "string",
+                      "names": [
+                        "list",
+                        "string"
+                      ],
+                      "publicip_id": "string",
+                      "status": "string",
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "ttl": "number"
+                    }
+                  ]
+                ],
+                "description": "Indicates the PTR records list.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "resource_type": {
+                "type": "string",
+                "description": "The resource type.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the PTR record.",
+                "optional": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "The key/value pairs to associate with the PTR record.",
+                "optional": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

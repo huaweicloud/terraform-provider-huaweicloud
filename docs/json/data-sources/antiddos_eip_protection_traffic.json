@@ -1,0 +1,59 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_antiddos_eip_protection_traffic": {
+          "block": {
+            "attributes": {
+              "data": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "bps_attack": "number",
+                      "bps_in": "number",
+                      "period_start": "number",
+                      "pps_attack": "number",
+                      "pps_in": "number",
+                      "total_bps": "number",
+                      "total_pps": "number"
+                    }
+                  ]
+                ],
+                "description": "The list of daily protection statistics.",
+                "computed": true
+              },
+              "floating_ip_id": {
+                "type": "string",
+                "description": "Specifies the ID of the EIP.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ip": {
+                "type": "string",
+                "description": "Specifies the EIP address.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Anti-DDoS",
+            "name": "Anti-DDoS",
+            "catalog": "Security & Compliance",
+            "name_cn": "Anti-DDoS流量清洗",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_eg_connections": {
+          "block": {
+            "attributes": {
+              "connections": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "agency": "string",
+                      "created_time": "string",
+                      "description": "string",
+                      "error_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "error_code": "string",
+                            "error_detail": "string",
+                            "error_msg": "string"
+                          }
+                        ]
+                      ],
+                      "flavor": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "bandwidth_type": "string",
+                            "concurrency": "number",
+                            "concurrency_type": "string",
+                            "name": "string"
+                          }
+                        ]
+                      ],
+                      "id": "string",
+                      "kafka_detail": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "acks": "string",
+                            "connect_address": "string",
+                            "enable_sasl_ssl": "bool",
+                            "instance_id": "string",
+                            "security_protocol": "string",
+                            "user_name": "string"
+                          }
+                        ]
+                      ],
+                      "name": "string",
+                      "status": "string",
+                      "subnet_id": "string",
+                      "type": "string",
+                      "updated_time": "string",
+                      "vpc_id": "string"
+                    }
+                  ]
+                ],
+                "description": "All connections that match the filter parameters.",
+                "computed": true
+              },
+              "fuzzy_name": {
+                "type": "string",
+                "description": "The name of the connection to be queried for fuzzy matching.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The exact name of the connection to be queried.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the connections are located.",
+                "computed": true
+              },
+              "sort": {
+                "type": "string",
+                "description": "The sorting method for query results.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "EG",
+            "name": "EventGrid",
+            "catalog": "Middleware",
+            "name_cn": "事件网格",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

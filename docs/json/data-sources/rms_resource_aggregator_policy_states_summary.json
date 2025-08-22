@@ -1,0 +1,70 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_rms_resource_aggregator_policy_states_summary": {
+          "block": {
+            "attributes": {
+              "account_id": {
+                "type": "string",
+                "optional": true
+              },
+              "aggregator_id": {
+                "type": "string",
+                "required": true
+              },
+              "group_by_key": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "results": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "assignment_details": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "compliant_count": "number",
+                            "non_compliant_count": "number"
+                          }
+                        ]
+                      ],
+                      "group_account_name": "string",
+                      "group_name": "string",
+                      "resource_details": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "compliant_count": "number",
+                            "non_compliant_count": "number"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Config",
+            "name": "Config",
+            "catalog": "Management & Governance",
+            "name_cn": "配置审计",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

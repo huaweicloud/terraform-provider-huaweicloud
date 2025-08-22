@@ -1,0 +1,75 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_workspace_app_warehouse_application": {
+          "block": {
+            "attributes": {
+              "category": {
+                "type": "string",
+                "description": "The category of the application.",
+                "required": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the application.",
+                "optional": true
+              },
+              "file_store_path": {
+                "type": "string",
+                "description": "The storage path of the OBS bucket where the application is located.",
+                "required": true,
+                "forcenew": true
+              },
+              "icon": {
+                "type": "string",
+                "description": "The icon of the application.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the application.",
+                "required": true
+              },
+              "os_type": {
+                "type": "string",
+                "description": "The operating system type of the application.",
+                "required": true
+              },
+              "record_id": {
+                "type": "string",
+                "description": "The record ID of the application.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "version": {
+                "type": "string",
+                "description": "The version of the application.",
+                "required": true
+              },
+              "version_name": {
+                "type": "string",
+                "description": "The version name of the application.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

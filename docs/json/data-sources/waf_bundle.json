@@ -1,0 +1,85 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_waf_bundle": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "feature": {
+                "type": [
+                  "map",
+                  "bool"
+                ],
+                "computed": true
+              },
+              "host": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "computed": true
+              },
+              "options": {
+                "type": [
+                  "map",
+                  "bool"
+                ],
+                "computed": true
+              },
+              "premium_host": {
+                "type": "string",
+                "computed": true
+              },
+              "premium_name": {
+                "type": "string",
+                "computed": true
+              },
+              "premium_type": {
+                "type": "number",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "rule": {
+                "type": [
+                  "map",
+                  "number"
+                ],
+                "computed": true
+              },
+              "type": {
+                "type": "number",
+                "computed": true
+              },
+              "upgrade": {
+                "type": [
+                  "map",
+                  "number"
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "WAF",
+            "name": "Web Application Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "Web应用防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}
