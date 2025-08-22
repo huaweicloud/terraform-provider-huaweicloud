@@ -24,9 +24,6 @@ data "huaweicloud_rms_policy_assignment_summary" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String) Specifies the region in which to query the resource.
-  If omitted, the provider-level region will be used.
-
 * `policy_assignment_id` - (Required, String) Specifies the policy assignment ID.
 
 * `resource_name` - (Optional, String) Specifies the resource name.

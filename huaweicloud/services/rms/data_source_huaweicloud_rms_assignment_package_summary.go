@@ -22,12 +22,6 @@ func DataSourceRmsAssignmentPackageSummary() *schema.Resource {
 		ReadContext: dataSourceRmsAssignmentPackageSummaryRead,
 
 		Schema: map[string]*schema.Schema{
-			"region": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: `Specifies the region in which to query the resource. If omitted, the provider-level region will be used.`,
-			},
 			"conformance_pack_name": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -119,7 +113,6 @@ func (w *AssignmentPackageSummaryDSWrapper) CollectConformancePackComplianceSumm
 func (w *AssignmentPackageSummaryDSWrapper) collectConformancePackComplianceSummaryToSchema(body *gjson.Result) error {
 	d := w.ResourceData
 	mErr := multierror.Append(nil,
-		d.Set("region", w.Config.GetRegion(w.ResourceData)),
 		d.Set("value", schemas.SliceToList(body.Get("value"),
 			func(value gjson.Result) any {
 				return map[string]any{

@@ -20,9 +20,6 @@ data "huaweicloud_rms_assignment_package_summary" "test" {}
 
 The following arguments are supported:
 
-* `region` - (Optional, String) Specifies the region in which to query the resource.
-  If omitted, the provider-level region will be used.
-
 * `conformance_pack_name` - (Optional, String) Specifies the conformance package name.
 
 ## Attribute Reference

@@ -23,11 +23,6 @@ func DataSourceRmsResourcePolicyStatesSummary() *schema.Resource {
 		ReadContext: dataSourceRmsResourcePolicyStatesSummaryRead,
 
 		Schema: map[string]*schema.Schema{
-			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
 			"resource_id": {
 				Type:     schema.TypeString,
 				Optional: true,

@@ -21,12 +21,6 @@ func DataSourceRmsPolicyAssignmentEvaluateStatus() *schema.Resource {
 		ReadContext: dataSourceRmsPolicyAssignmentEvaluateStatusRead,
 
 		Schema: map[string]*schema.Schema{
-			"region": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: `Specifies the region in which to query the resource. If omitted, the provider-level region will be used.`,
-			},
 			"policy_assignment_id": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -110,7 +104,6 @@ func (w *PolicyAssignmentEvaluateStatusDSWrapper) ShowEvaluationStateByAssignmen
 func (w *PolicyAssignmentEvaluateStatusDSWrapper) showEvaluationStateByAssignmentIdToSchema(body *gjson.Result) error {
 	d := w.ResourceData
 	mErr := multierror.Append(nil,
-		d.Set("region", w.Config.GetRegion(w.ResourceData)),
 		d.Set("start_time", body.Get("start_time").Value()),
 		d.Set("end_time", body.Get("end_time").Value()),
 		d.Set("state", body.Get("state").Value()),
