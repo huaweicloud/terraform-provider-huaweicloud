@@ -2274,6 +2274,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dnsv21_ptrrecord":            dns.ResourceDNSV21PtrRecord(),
 			"huaweicloud_dns_recordset":               dns.ResourceDNSRecordset(),
 			"huaweicloud_dns_zone":                    dns.ResourceDNSZone(),
+			"huaweicloud_dns_private_zone_associate":  dns.ResourceDNSPrivateZoneAssociate(),
 			"huaweicloud_dns_endpoint_assignment":     dns.ResourceEndpointAssignment(),
 			"huaweicloud_dns_endpoint":                dns.ResourceDNSEndpoint(),
 			"huaweicloud_dns_resolver_rule":           dns.ResourceResolverRule(),
