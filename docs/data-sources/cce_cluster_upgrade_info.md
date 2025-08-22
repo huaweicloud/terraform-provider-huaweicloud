@@ -1,5 +1,5 @@
 ---
-subcategory: "cce"
+subcategory: "Cloud Container Engine (CCE)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_cce_cluster_upgrade_info"
 description: |-
