@@ -22,11 +22,6 @@ func DataSourceRmsPolicyStates() *schema.Resource {
 		ReadContext: dataSourceRmsPolicyStatesRead,
 
 		Schema: map[string]*schema.Schema{
-			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
 			"resource_id": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -155,7 +150,6 @@ func (w *PolicyStatesDSWrapper) ListPolicyStatesByResourceId() (*gjson.Result, e
 func (w *PolicyStatesDSWrapper) listPolicyStatesByResourceIdToSchema(body *gjson.Result) error {
 	d := w.ResourceData
 	mErr := multierror.Append(nil,
-		d.Set("region", w.Config.GetRegion(w.ResourceData)),
 		d.Set("value", schemas.SliceToList(body.Get("value"),
 			func(value gjson.Result) any {
 				return map[string]any{

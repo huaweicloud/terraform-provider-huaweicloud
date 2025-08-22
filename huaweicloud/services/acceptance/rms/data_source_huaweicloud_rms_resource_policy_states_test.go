@@ -22,7 +22,6 @@ func TestAccDataSourceRmsResourcePolicyStates_basic(t *testing.T) {
 				Config: testDataSourceRmsResourcePolicyStates_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttrSet(dataSource, "region"),
 					resource.TestCheckResourceAttrSet(dataSource, "value.#"),
 					resource.TestCheckResourceAttrSet(dataSource, "value.0.domain_id"),
 					resource.TestCheckResourceAttrSet(dataSource, "value.0.region_id"),

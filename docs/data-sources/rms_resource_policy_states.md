@@ -24,9 +24,6 @@ data "huaweicloud_rms_resource_policy_states" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String) Specifies the region in which to query the resource.
-  If omitted, the provider-level region will be used.
-
 * `resource_id` - (Required, String) Specifies the resource ID.
 
 * `compliance_state` - (Optional, String) Specifies the compliance status.
