@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
@@ -98,6 +99,12 @@ func ResourceDNSV21PtrRecord() *schema.Resource {
 				Description: `Specifies the enterprise project ID of the PTR record.`,
 			},
 			"tags": common.TagsSchema(`Specifies the key/value pairs to associate with the PTR record.`),
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
+			},
 			"address": {
 				Type:        schema.TypeString,
 				Computed:    true,
