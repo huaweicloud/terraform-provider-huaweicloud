@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.77.5 (Aug 22, 2025)
+
+ENHANCEMENTS:
+
+* refactor to use ErrDefault409 err check [GH-7595]
+
 ## 1.77.4 (Aug 19, 2025)
 
 ENHANCEMENTS:
