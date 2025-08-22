@@ -1,5 +1,5 @@
 ---
-subcategory: "rms"
+subcategory: "Config"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_rms_resource_policy_states_summary"
 description: |-
