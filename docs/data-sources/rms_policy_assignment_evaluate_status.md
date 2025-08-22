@@ -1,5 +1,5 @@
 ---
-subcategory: "rms"
+subcategory: "Config"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_rms_policy_assignment_evaluate_status"
 description: |-
