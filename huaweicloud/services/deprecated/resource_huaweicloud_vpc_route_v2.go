@@ -166,10 +166,8 @@ func waitForVpcRouteDelete(vpcRouteClient *golangsdk.ServiceClient, routeId stri
 				log.Printf("[INFO] Successfully deleted vpc route %s", routeId)
 				return r, "DELETED", nil
 			}
-			if errCode, ok := err.(golangsdk.ErrUnexpectedResponseCode); ok {
-				if errCode.Actual == 409 {
-					return r, "ACTIVE", nil
-				}
+			if _, ok := err.(golangsdk.ErrDefault409); ok {
+				return r, "ACTIVE", nil
 			}
 			return r, "ACTIVE", err
 		}

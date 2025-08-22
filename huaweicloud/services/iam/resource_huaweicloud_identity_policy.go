@@ -327,7 +327,7 @@ func handleAddVersionError409(err error) (bool, error) {
 	if err == nil {
 		return false, nil
 	}
-	if errCode, ok := err.(golangsdk.ErrUnexpectedResponseCode); ok && errCode.Actual == 409 {
+	if errCode, ok := err.(golangsdk.ErrDefault409); ok {
 		var apiError interface{}
 		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
 			return false, jsonErr

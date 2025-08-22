@@ -208,10 +208,8 @@ func waitForSecurityGroupDelete(iecClient *golangsdk.ServiceClient, groupID stri
 				log.Printf("[DEBUG] successfully deleted IEC security group %s", groupID)
 				return sg, "DELETED", nil
 			}
-			if errCode, ok := err.(golangsdk.ErrUnexpectedResponseCode); ok {
-				if errCode.Actual == 409 {
-					return sg, "ACTIVE", nil
-				}
+			if _, ok := err.(golangsdk.ErrDefault409); ok {
+				return sg, "ACTIVE", nil
 			}
 			return sg, "ACTIVE", err
 		}
