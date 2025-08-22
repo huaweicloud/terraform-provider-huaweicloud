@@ -2265,6 +2265,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_rabbitmq_user":                   rabbitmq.ResourceDmsRabbitmqUser(),
 
 			"huaweicloud_dms_rocketmq_instance":             rocketmq.ResourceDmsRocketMQInstance(),
+			"huaweicloud_dms_rocketmq_instance_restart":     rocketmq.ResourceDmsRocketMQInstanceRestart(),
 			"huaweicloud_dms_rocketmq_consumer_group":       rocketmq.ResourceDmsRocketMQConsumerGroup(),
 			"huaweicloud_dms_rocketmq_consumption_verify":   rocketmq.ResourceDmsRocketMQConsumptionVerify(),
 			"huaweicloud_dms_rocketmq_message_offset_reset": rocketmq.ResourceDmsRocketMQMessageOffsetReset(),
