@@ -2,46 +2,39 @@ package apig
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/appauths"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/apig"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getAppAuthFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := cfg.ApigV2Client(acceptance.HW_REGION_NAME)
+func getApplicationAuthorizationFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := cfg.NewServiceClient("apig", acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating APIG v2 client: %s", err)
+		return nil, fmt.Errorf("error creating APIG client: %s", err)
 	}
 
-	opts := appauths.ListOpts{
-		InstanceId: state.Primary.Attributes["instance_id"],
-		AppId:      state.Primary.Attributes["application_id"],
-	}
-	resp, err := appauths.ListAuthorized(client, opts)
-	if err != nil {
-		return nil, err
-	}
-	if len(resp) < 1 {
-		return nil, golangsdk.ErrDefault404{}
-	}
-	return resp, nil
+	return apig.GetLocalAuthorizedApiIds(client, state.Primary.Attributes["instance_id"],
+		state.Primary.Attributes["env_id"], state.Primary.Attributes["application_id"],
+		utils.ParseStateAttributeToListWithSeparator(state.Primary.Attributes["api_ids_origin"], ","))
 }
 
-func TestAccAppAuth_basic(t *testing.T) {
+func TestAccApplicationAuthorization_basic(t *testing.T) {
 	var (
-		authApis []appauths.ApiAuthInfo
+		obj interface{}
 
-		rName      = "huaweicloud_apig_application_authorization.test"
-		rc         = acceptance.InitResourceCheck(rName, &authApis, getAppAuthFunc)
-		baseConfig = testAccAppAuth_base()
+		resourceNamePart1 = "huaweicloud_apig_application_authorization.part1"
+		resourceNamePart2 = "huaweicloud_apig_application_authorization.part2"
+		rcPart1           = acceptance.InitResourceCheck(resourceNamePart1, &obj, getApplicationAuthorizationFunc)
+		rcPart2           = acceptance.InitResourceCheck(resourceNamePart2, &obj, getApplicationAuthorizationFunc)
+		baseConfig        = testAccApplicationAuthorization_base()
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -50,48 +43,77 @@ func TestAccAppAuth_basic(t *testing.T) {
 			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			rcPart1.CheckResourceDestroy(),
+			rcPart2.CheckResourceDestroy(),
+		),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccAppAuth_basic_step1(baseConfig),
+				Config: testAccApplicationAuthorization_basic_step1(baseConfig),
 				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
+					rcPart1.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceNamePart1, "api_ids.#", "2"),
+					resource.TestCheckResourceAttr(resourceNamePart1, "api_ids_origin.#", "2"),
+					rcPart1.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceNamePart2, "api_ids.#", "1"),
+					resource.TestCheckResourceAttr(resourceNamePart2, "api_ids_origin.#", "1"),
 				),
 			},
 			{
-				Config: testAccAppAuth_basic_step2(baseConfig),
+				Config: testAccApplicationAuthorization_basic_step2(baseConfig),
 				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
+					rcPart1.CheckResourceExists(),
+					// After resources refreshed, the api_ids will be overridden as all APIs under the same
+					// environment are authorized.
+					resource.TestCheckResourceAttr(resourceNamePart1, "api_ids.#", "3"),
+					resource.TestCheckResourceAttr(resourceNamePart1, "api_ids_origin.#", "2"),
+					rcPart1.CheckResourceExists(),
+					// After resources refreshed, the api_ids will be overridden as all APIs under the same
+					// environment are authorized.
+					resource.TestCheckResourceAttr(resourceNamePart2, "api_ids.#", "3"),
+					resource.TestCheckResourceAttr(resourceNamePart2, "api_ids_origin.#", "1"),
 				),
 			},
 			{
-				ResourceName:      rName,
+				Config: testAccApplicationAuthorization_basic_step3(baseConfig),
+				Check: resource.ComposeTestCheckFunc(
+					rcPart1.CheckResourceExists(),
+					// When multiple resources are used to manage the same function, api_ids will store the results
+					// modified by other resources, resulting in api_ids displaying all binding results except for the
+					// first change.
+					resource.TestMatchResourceAttr(resourceNamePart1, "api_ids.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
+					resource.TestCheckResourceAttr(resourceNamePart1, "api_ids_origin.#", "1"),
+					rcPart2.CheckResourceExists(),
+					resource.TestMatchResourceAttr(resourceNamePart2, "api_ids.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
+					resource.TestCheckResourceAttr(resourceNamePart2, "api_ids_origin.#", "2"),
+				),
+			},
+			{
+				ResourceName:      resourceNamePart1,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccAppAuthImportIdFunc(rName),
+				ImportStateVerifyIgnore: []string{
+					"api_ids",
+				},
+			},
+			{
+				// After resource part1 is imported, then api_ids will be overridden as all APIs under the same
+				// environment are authorized.
+				Config: testAccApplicationAuthorization_basic_step3(baseConfig),
+				Check: resource.ComposeTestCheckFunc(
+					rcPart1.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceNamePart1, "api_ids.#", "3"),
+					resource.TestCheckResourceAttr(resourceNamePart1, "api_ids_origin.#", "1"),
+					rcPart2.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceNamePart2, "api_ids.#", "3"),
+					resource.TestCheckResourceAttr(resourceNamePart2, "api_ids_origin.#", "2"),
+				),
 			},
 		},
 	})
 }
 
-func testAccAppAuthImportIdFunc(rsName string) resource.ImportStateIdFunc {
-	return func(s *terraform.State) (string, error) {
-		rs, ok := s.RootModule().Resources[rsName]
-		if !ok {
-			return "", fmt.Errorf("resource (%s) not found: %s", rsName, rs)
-		}
-
-		instanceId := rs.Primary.Attributes["instance_id"]
-		resourceId := rs.Primary.ID
-		if instanceId == "" || resourceId == "" {
-			return "", fmt.Errorf("missing some attributes, want '<instance_id>/<id>' (the format of resource ID is "+
-				"'<env_id>/<application_id>'), but got '%s/%s'", instanceId, resourceId)
-		}
-		return fmt.Sprintf("%s/%s", instanceId, resourceId), nil
-	}
-}
-
-func testAccAppAuth_base() string {
+func testAccApplicationAuthorization_base() string {
 	name := acceptance.RandomAccResourceName()
 
 	return fmt.Sprintf(`
@@ -150,7 +172,7 @@ resource "huaweicloud_apig_channel" "test" {
 }
 
 resource "huaweicloud_apig_api" "test" {
-  count = 3
+  count = 4
 
   instance_id             = local.instance_id
   group_id                = huaweicloud_apig_group.test.id
@@ -177,7 +199,7 @@ resource "huaweicloud_apig_environment" "test" {
 }
 
 resource "huaweicloud_apig_api_publishment" "test" {
-  count = 3
+  count = 4
 
   instance_id = local.instance_id
   api_id      = huaweicloud_apig_api.test[count.index].id
@@ -185,7 +207,7 @@ resource "huaweicloud_apig_api_publishment" "test" {
 }
 
 resource "huaweicloud_apig_application" "test" {
-  instance_id = local.instance_id// local.instance_id
+  instance_id = local.instance_id
   name        = "%[2]s"
 }
 `, common.TestBaseComputeResources(name), name,
@@ -193,11 +215,11 @@ resource "huaweicloud_apig_application" "test" {
 		acceptance.HW_APIG_DEDICATED_INSTANCE_ID)
 }
 
-func testAccAppAuth_basic_step1(baseConfig string) string {
+func testAccApplicationAuthorization_basic_step1(baseConfig string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-resource "huaweicloud_apig_application_authorization" "test" {
+resource "huaweicloud_apig_application_authorization" "part1" {
   depends_on = [huaweicloud_apig_api_publishment.test]
 
   instance_id    = local.instance_id
@@ -205,20 +227,43 @@ resource "huaweicloud_apig_application_authorization" "test" {
   env_id         = huaweicloud_apig_environment.test.id
   api_ids        = slice(huaweicloud_apig_api.test[*].id, 0, 2)
 }
-`, baseConfig)
-}
 
-func testAccAppAuth_basic_step2(baseConfig string) string {
-	return fmt.Sprintf(`
-%[1]s
-
-resource "huaweicloud_apig_application_authorization" "test" {
+resource "huaweicloud_apig_application_authorization" "part2" {
   depends_on = [huaweicloud_apig_api_publishment.test]
 
   instance_id    = local.instance_id
   application_id = huaweicloud_apig_application.test.id
   env_id         = huaweicloud_apig_environment.test.id
-  api_ids        = slice(huaweicloud_apig_api.test[*].id, 1, 3)
+  api_ids        = slice(huaweicloud_apig_api.test[*].id, 3, 4)
+}
+`, baseConfig)
+}
+
+func testAccApplicationAuthorization_basic_step2(baseConfig string) string {
+	// Refresh the api_ids for all authorization resources.
+	return testAccApplicationAuthorization_basic_step1(baseConfig)
+}
+
+func testAccApplicationAuthorization_basic_step3(baseConfig string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_apig_application_authorization" "part1" {
+  depends_on = [huaweicloud_apig_api_publishment.test]
+
+  instance_id    = local.instance_id
+  application_id = huaweicloud_apig_application.test.id
+  env_id         = huaweicloud_apig_environment.test.id
+  api_ids        = slice(huaweicloud_apig_api.test[*].id, 0, 1)
+}
+
+resource "huaweicloud_apig_application_authorization" "part2" {
+  depends_on = [huaweicloud_apig_api_publishment.test]
+
+  instance_id    = local.instance_id
+  application_id = huaweicloud_apig_application.test.id
+  env_id         = huaweicloud_apig_environment.test.id
+  api_ids        = slice(huaweicloud_apig_api.test[*].id, 2, 4)
 }
 `, baseConfig)
 }

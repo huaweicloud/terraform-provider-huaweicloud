@@ -4,41 +4,34 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strconv"
 	"strings"
-	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/appauths"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+var strSliceParamKeys = []string{"api_ids"}
+
 // @API APIG DELETE /v2/{project_id}/apigw/instances/{instance_id}/app-auths/{app_auth_id}
 // @API APIG POST /v2/{project_id}/apigw/instances/{instance_id}/app-auths
 // @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/app-auths/binded-apis
-// @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/app-auths/unbinded-apis
-func ResourceAppAuth() *schema.Resource {
+func ResourceApplicationAuthorization() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceAppAuthCreate,
-		ReadContext:   resourceAppAuthRead,
-		UpdateContext: resourceAppAuthUpdate,
-		DeleteContext: resourceAppAuthDelete,
+		CreateContext: resourceApplicationAuthorizationCreate,
+		ReadContext:   resourceApplicationAuthorizationRead,
+		UpdateContext: resourceApplicationAuthorizationUpdate,
+		DeleteContext: resourceApplicationAuthorizationDelete,
 
 		Importer: &schema.ResourceImporter{
-			StateContext: resourceAppAuthImportState,
-		},
-
-		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(3 * time.Minute),
-			Update: schema.DefaultTimeout(3 * time.Minute),
-			Delete: schema.DefaultTimeout(3 * time.Minute),
+			StateContext: resourceApplicationAuthorizationImportState,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -68,85 +61,213 @@ func ResourceAppAuth() *schema.Resource {
 				Description: "The environment ID where the APIs were published.",
 			},
 			"api_ids": {
-				Type:        schema.TypeSet,
-				Required:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: "The authorized API IDs",
+				Type:             schema.TypeSet,
+				Required:         true,
+				Description:      `The list of API IDs to be authorized for the application.`,
+				Elem:             &schema.Schema{Type: schema.TypeString},
+				DiffSuppressFunc: utils.SuppressStrSliceDiffs(),
+			},
+			"api_ids_origin": {
+				Type:             schema.TypeList,
+				Optional:         true,
+				Computed:         true,
+				Elem:             &schema.Schema{Type: schema.TypeString},
+				DiffSuppressFunc: utils.SuppressDiffAll,
+				Description: utils.SchemaDesc(
+					`The script configuration value of this change is also the original value used for comparison with
+the new value next time the change is made. The corresponding parameter name is 'api_ids'.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
 			},
 		},
 	}
 }
 
-func resourceAppAuthCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func createApplicationAuthorizationForApis(client *golangsdk.ServiceClient, instanceId, envId, appId string, apiIds []interface{}) error {
+	httpUrl := "v2/{project_id}/apigw/instances/{instance_id}/app-auths"
+	createPath := client.Endpoint + httpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+	createPath = strings.ReplaceAll(createPath, "{instance_id}", instanceId)
+
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+		JSONBody: map[string]interface{}{
+			"app_ids": []string{appId},
+			"env_id":  envId,
+			"api_ids": apiIds,
+		},
+	}
+
+	requestBody, err := client.Request("POST", createPath, &createOpt)
+	if err != nil {
+		return fmt.Errorf("error authorizing APIs to application (%s) under dedicated instance (%s): %s", appId, instanceId, err)
+	}
+	respBody, err := utils.FlattenResponse(requestBody)
+	if err != nil {
+		return err
+	}
+
+	failedApiRecords := utils.PathSearch("auths[?auth_result.status=='FAILED'].api_id", respBody, make([]interface{}, 0)).([]interface{})
+	if len(failedApiRecords) > 0 {
+		return fmt.Errorf("error authorizing APIs to application (%s) under dedicated instance (%s), the failed API IDs are: %s",
+			appId, instanceId, failedApiRecords)
+	}
+	return nil
+}
+
+func resourceApplicationAuthorizationCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg    = meta.(*config.Config)
 		region = cfg.GetRegion(d)
 	)
-	client, err := cfg.ApigV2Client(region)
+	client, err := cfg.NewServiceClient("apig", region)
 	if err != nil {
-		return diag.Errorf("error creating APIG v2 client: %s", err)
-	}
-
-	var (
-		appId  = d.Get("application_id").(string)
-		envId  = d.Get("env_id").(string)
-		apiIds = utils.ExpandToStringListBySet(d.Get("api_ids").(*schema.Set))
-	)
-	err = createAppAuthForApis(ctx, client, d, apiIds, d.Timeout(schema.TimeoutCreate))
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	d.SetId(fmt.Sprintf("%s/%s", envId, appId))
-
-	return resourceAppAuthRead(ctx, d, meta)
-}
-
-func flattenAuthorizedApis(apiInfos []appauths.ApiAuthInfo) []string {
-	result := make([]string, len(apiInfos))
-	for i, val := range apiInfos {
-		result[i] = val.ApiId
-	}
-	return result
-}
-
-func resourceAppAuthRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	var (
-		cfg    = meta.(*config.Config)
-		region = cfg.GetRegion(d)
-	)
-	client, err := cfg.ApigV2Client(region)
-	if err != nil {
-		return diag.Errorf("error creating APIG v2 client: %s", err)
+		return diag.Errorf("error creating APIG client: %s", err)
 	}
 
 	var (
 		instanceId = d.Get("instance_id").(string)
 		appId      = d.Get("application_id").(string)
-		opts       = appauths.ListOpts{
-			InstanceId: instanceId,
-			AppId:      appId,
-		}
+		envId      = d.Get("env_id").(string)
+		apiIds     = d.Get("api_ids").(*schema.Set).List()
+		resourceId = fmt.Sprintf("%s/%s/%s", instanceId, envId, appId)
 	)
-	resp, err := appauths.ListAuthorized(client, opts)
+	// Lock the resource to prevent concurrent updates (error APIG.3500 will be returned if the etcd data synchronize
+	// failed)
+	config.MutexKV.Lock(resourceId)
+	defer config.MutexKV.Unlock(resourceId)
+
+	err = createApplicationAuthorizationForApis(client, instanceId, envId, appId, apiIds)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error querying authorized APIs from application (%s) under dedicated instance (%s)",
-			appId, instanceId))
+		return diag.FromErr(err)
 	}
-	if len(resp) < 1 {
-		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "Application Authorization")
+	d.SetId(resourceId)
+
+	// If the request is successful, obtain the values of all slice parameters first and save them to the corresponding
+	// '_origin' attributes for subsequent determination and construction of the request body during next updates.
+	// And whether corresponding parameters are changed, the origin values must be refreshed.
+	err = utils.RefreshSliceParamOriginValues(d, strSliceParamKeys)
+	if err != nil {
+		// Don't fail the creation if origin refresh fails
+		log.Printf("[WARN] Unable to refresh the origin values: %s", err)
+	}
+
+	return resourceApplicationAuthorizationRead(ctx, d, meta)
+}
+
+func listApplicationAuthorizedApisUnderEnv(client *golangsdk.ServiceClient, instanceId, envId, appId string) ([]interface{}, error) {
+	var (
+		httpUrl = "v2/{project_id}/apigw/instances/{instance_id}/app-auths/binded-apis?app_id={app_id}&env_id={env_id}&limit={limit}"
+		limit   = 100
+		offset  = 0
+		result  = make([]interface{}, 0)
+	)
+
+	listPath := client.Endpoint + httpUrl
+	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
+	listPath = strings.ReplaceAll(listPath, "{instance_id}", instanceId)
+	listPath = strings.ReplaceAll(listPath, "{app_id}", appId)
+	listPath = strings.ReplaceAll(listPath, "{env_id}", envId)
+	listPath = strings.ReplaceAll(listPath, "{limit}", strconv.Itoa(limit))
+
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+	}
+
+	for {
+		listPathWithOffset := fmt.Sprintf("%s&offset=%d", listPath, offset)
+		requestBody, err := client.Request("GET", listPathWithOffset, &getOpt)
+		if err != nil {
+			return nil, err
+		}
+		respBody, err := utils.FlattenResponse(requestBody)
+		if err != nil {
+			return nil, err
+		}
+
+		authorizedApis := utils.PathSearch("auths", respBody, make([]interface{}, 0)).([]interface{})
+		result = append(result, authorizedApis...)
+		if len(authorizedApis) < limit {
+			break
+		}
+		offset += limit
+	}
+	if len(result) < 1 {
+		return nil, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "GET",
+				URL:       "/v2/{project_id}/apigw/instances/{instance_id}/app-auths/binded-apis",
+				RequestId: "NONE",
+				Body:      []byte("all APIs are not authorized for the application"),
+			},
+		}
+	}
+	return result, nil
+}
+
+func GetLocalAuthorizedApiIds(client *golangsdk.ServiceClient, instanceId, envId, appId string, originApiIds []interface{}) ([]interface{}, error) {
+	authorizedApis, err := listApplicationAuthorizedApisUnderEnv(client, instanceId, envId, appId)
+	if err != nil {
+		return nil, err
+	}
+
+	authorizedApiIds := utils.PathSearch("[*].api_id", authorizedApis, make([]interface{}, 0)).([]interface{})
+	if len(originApiIds) > 0 && len(utils.FildSliceIntersection(authorizedApiIds, originApiIds)) < 1 {
+		return nil, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "GET",
+				URL:       "/v2/{project_id}/apigw/instances/{instance_id}/app-auths/binded-apis",
+				RequestId: "NONE",
+				Body:      []byte(fmt.Sprintf("all locally managed APIs have been deauthorized: %v", originApiIds)),
+			},
+		}
+	}
+	return authorizedApiIds, nil
+}
+
+func resourceApplicationAuthorizationRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg    = meta.(*config.Config)
+		region = cfg.GetRegion(d)
+	)
+	client, err := cfg.NewServiceClient("apig", region)
+	if err != nil {
+		return diag.Errorf("error creating APIG client: %s", err)
+	}
+
+	var (
+		instanceId   = d.Get("instance_id").(string)
+		appId        = d.Get("application_id").(string)
+		envId        = d.Get("env_id").(string)
+		originApiIds = d.Get("api_ids_origin").([]interface{})
+	)
+
+	authorizedApiIds, err := GetLocalAuthorizedApiIds(client, instanceId, envId, appId, originApiIds)
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error querying authorized APIs from application (%s) under specified environment (%s)",
+			appId, envId))
 	}
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("api_ids", flattenAuthorizedApis(resp)),
+		d.Set("api_ids", authorizedApiIds),
 	)
 	if err = mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error saving authorization fields for specified application (%s): %s", appId, err)
 	}
+
 	return nil
 }
 
-func resourceAppAuthUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceApplicationAuthorizationUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
 	if err != nil {
@@ -154,194 +275,158 @@ func resourceAppAuthUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	}
 
 	var (
-		oldRaw, newRaw = d.GetChange("api_ids")
+		resourceId = d.Id()
+		instanceId = d.Get("instance_id").(string)
+		appId      = d.Get("application_id").(string)
+		envId      = d.Get("env_id").(string)
 
-		addSet = newRaw.(*schema.Set).Difference(oldRaw.(*schema.Set))
-		rmSet  = oldRaw.(*schema.Set).Difference(newRaw.(*schema.Set))
+		consoleApiIds, scriptApiIds = d.GetChange("api_ids")
+
+		consoleApiIdsList = consoleApiIds.(*schema.Set).List()
+		scriptApiIdsList  = scriptApiIds.(*schema.Set).List()
+		originApiIdsList  = d.Get("api_ids_origin").([]interface{})
 	)
-	if rmSet.Len() > 0 {
-		apiIds := utils.ExpandToStringListBySet(rmSet)
-		err := deleteAppAuthFromApis(ctx, client, d, apiIds, d.Timeout(schema.TimeoutUpdate))
+
+	// Lock the resource to prevent concurrent updates (error APIG.3500 will be returned if the etcd data synchronize
+	// failed)
+	config.MutexKV.Lock(resourceId)
+	defer config.MutexKV.Unlock(resourceId)
+
+	newApiIds := utils.FindSliceElementsNotInAnother(scriptApiIdsList, consoleApiIdsList)
+	rmApiIds := utils.FindSliceElementsNotInAnother(originApiIdsList, scriptApiIdsList)
+
+	if len(rmApiIds) > 0 {
+		log.Printf("[DEBUG] Prepare to delete the authorization for specified API IDs: %v", rmApiIds)
+		err := deleteApplicationAuthorizationForApis(client, instanceId, envId, appId, rmApiIds)
 		if err != nil {
 			return diag.FromErr(err)
 		}
 	}
-	if addSet.Len() > 0 {
-		apiIds := utils.ExpandToStringListBySet(addSet)
-		err = createAppAuthForApis(ctx, client, d, apiIds, d.Timeout(schema.TimeoutUpdate))
+
+	if len(newApiIds) > 0 {
+		log.Printf("[DEBUG] Prepare to create the authorization for specified API IDs: %v", newApiIds)
+		err = createApplicationAuthorizationForApis(client, instanceId, envId, appId, newApiIds)
 		if err != nil {
 			return diag.FromErr(err)
 		}
 	}
-	return resourceAppAuthRead(ctx, d, meta)
+
+	// If the request is successful, obtain the values of all slice parameters first and save them to the corresponding
+	// '_origin' attributes for subsequent determination and construction of the request body during next updates.
+	// And whether corresponding parameters are changed, the origin values must be refreshed.
+	err = utils.RefreshSliceParamOriginValues(d, strSliceParamKeys)
+	if err != nil {
+		// Don't fail the update if origin refresh fails
+		log.Printf("[WARN] Unable to refresh the origin values: %s", err)
+	}
+
+	return resourceApplicationAuthorizationRead(ctx, d, meta)
 }
 
-func resourceAppAuthDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceApplicationAuthorizationDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	client, err := cfg.ApigV2Client(region)
+	client, err := cfg.NewServiceClient("apig", cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating APIG v2 client: %s", err)
+		return diag.Errorf("error creating APIG client: %s", err)
 	}
 
-	apiIds := d.Get("api_ids").(*schema.Set)
-	if err = deleteAppAuthFromApis(ctx, client, d, utils.ExpandToStringListBySet(apiIds), d.Timeout(schema.TimeoutDelete)); err != nil {
-		return common.CheckDeletedDiag(d, err, "error unbinding APIs from application")
-	}
-	return nil
-}
-
-func createAppAuthForApis(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, apiIds []string,
-	timeout time.Duration) error {
 	var (
+		resourceId = d.Id()
 		instanceId = d.Get("instance_id").(string)
 		appId      = d.Get("application_id").(string)
 		envId      = d.Get("env_id").(string)
-		opts       = appauths.CreateOpts{
-			InstanceId: instanceId,
-			AppIds:     []string{appId},
-			EnvId:      envId,
-			ApiIds:     apiIds,
-		}
+
+		rmApiIds = getConfiguredApiIds(d)
 	)
 
-	_, err := appauths.Create(client, opts)
-	if err != nil {
-		return fmt.Errorf("error authorizing APIs to application (%s) under dedicated instance (%s): %s", appId, instanceId, err)
-	}
+	// Lock the resource to prevent concurrent updates (error APIG.3500 will be returned if the etcd data synchronize
+	// failed)
+	config.MutexKV.Lock(resourceId)
+	defer config.MutexKV.Unlock(resourceId)
 
-	stateConf := &resource.StateChangeConf{
-		Pending: []string{"PENDING"},
-		Target:  []string{"COMPLETED"},
-		Refresh: authApisStateRefreshFunc(client, instanceId, appId, envId, apiIds),
-		Timeout: timeout,
-		// In most cases, the unbind operation will be completed immediately, but in a few cases, it needs to wait
-		// for a short period of time, and the polling is performed by incrementing the time here.
-		MinTimeout: 2 * time.Second,
-	}
-	_, err = stateConf.WaitForStateContext(ctx)
-	if err != nil {
-		return fmt.Errorf("error waiting for API authorize operations completed: %s", err)
+	if err := deleteApplicationAuthorizationForApis(client, instanceId, envId, appId, rmApiIds); err != nil {
+		return diag.Errorf("error deleting configured API bindings: %s", err)
 	}
 
 	return nil
 }
 
-func deleteAppAuthFromApis(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, apiIds []string,
-	timeout time.Duration) error {
-	var (
-		instanceId = d.Get("instance_id").(string)
-		appId      = d.Get("application_id").(string)
-		envId      = d.Get("env_id").(string)
-		opts       = appauths.ListOpts{
-			InstanceId: instanceId,
-			AppId:      appId,
-			EnvId:      envId,
-		}
-		notFoundErr = fmt.Sprintf("[DEBUG] All APIs have been unauthorized form application (%s) under dedicated instance (%s)", appId, instanceId)
-	)
+// getConfiguredApiIds retrieves API IDs from configuration or origin
+func getConfiguredApiIds(d *schema.ResourceData) []interface{} {
+	// Fallback to origin (last known configuration)
+	if origin, ok := d.Get("api_ids_origin").([]interface{}); ok && len(origin) > 0 {
+		log.Printf("[DEBUG] Found %d API ID(s) from the origin attribute: %v", len(origin), origin)
+		return origin
+	}
 
-	resp, err := appauths.ListAuthorized(client, opts)
+	log.Printf("[DEBUG] Unable to find the API IDs from the origin attribute, so try to get from current state")
+	// After resource imported, the origin attribute is not set, so try to get from current state
+	current := d.Get("api_ids").(*schema.Set).List()
+	log.Printf("[DEBUG] Found %d API ID(s) from the current state: %v", len(current), current)
+
+	return current
+}
+
+func deleteApplicationAuthorizationForApi(client *golangsdk.ServiceClient, instanceId, envId, appId, authId string) error {
+	httpUrl := "v2/{project_id}/apigw/instances/{instance_id}/app-auths/{app_auth_id}?app_id={app_id}&env_id={env_id}"
+	deletePath := client.Endpoint + httpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = strings.ReplaceAll(deletePath, "{instance_id}", instanceId)
+	deletePath = strings.ReplaceAll(deletePath, "{app_auth_id}", authId)
+	deletePath = strings.ReplaceAll(deletePath, "{app_id}", appId)
+	deletePath = strings.ReplaceAll(deletePath, "{env_id}", envId)
+
+	deleteOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+	}
+
+	_, err := client.Request("DELETE", deletePath, &deleteOpt)
+	if err != nil {
+		return fmt.Errorf("error deleting application authorization (%s) under specified environment (%s): %s", authId, envId, err)
+	}
+	return nil
+}
+
+func deleteApplicationAuthorizationForApis(client *golangsdk.ServiceClient, instanceId, envId, appId string, apiIds []interface{}) error {
+	notFoundErr := fmt.Sprintf("[DEBUG] All APIs have been unauthorized form application (%s) under dedicated instance (%s)", appId, instanceId)
+
+	authorizedApis, err := listApplicationAuthorizedApisUnderEnv(client, instanceId, envId, appId)
 	if err != nil {
 		if _, ok := err.(golangsdk.ErrDefault404); ok {
 			log.Println(notFoundErr)
-			return err
+			return nil
 		}
 		return fmt.Errorf("error querying authorized APIs for application (%s) under dedicated instance (%s)", appId, instanceId)
 	}
-	if len(resp) < 1 {
-		log.Println(notFoundErr)
-		return nil
-	}
 
-	for _, val := range resp {
-		if !utils.StrSliceContains(apiIds, val.ApiId) {
+	var mErr *multierror.Error
+	for _, apiId := range apiIds {
+		authId := utils.PathSearch(fmt.Sprintf("[?api_id=='%s'].id|[0]", apiId), authorizedApis, "").(string)
+		if authId == "" {
+			log.Printf("[DEBUG] Unable to find the authorization ID via API ID (%s), so skip this auth deletion", apiId)
 			continue
 		}
-
-		authId := val.ID
-		err = appauths.Delete(client, instanceId, authId)
+		log.Printf("[DEBUG] Prepare to delete the authorization ID (%s) via API ID (%s)", authId, apiId)
+		err = deleteApplicationAuthorizationForApi(client, instanceId, envId, appId, authId)
 		if err != nil {
-			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				log.Printf("[DEBUG] All APIs has been unauthorized from the application (%s)", appId)
-				continue
-			}
-			return fmt.Errorf("error unauthorizing APIs form application (%s) under dedicated instance (%s): %s", appId, instanceId, err)
+			mErr = multierror.Append(mErr, err)
 		}
 	}
 
-	stateConf := &resource.StateChangeConf{
-		Pending: []string{"PENDING"},
-		Target:  []string{"COMPLETED"},
-		Refresh: unauthApisStateRefreshFunc(client, instanceId, appId, envId, apiIds),
-		Timeout: timeout,
-		// In most cases, the unbind operation will be completed immediately, but in a few cases, it needs to wait
-		// for a short period of time, and the polling is performed by incrementing the time here.
-		MinTimeout: 2 * time.Second,
-	}
-	_, err = stateConf.WaitForStateContext(ctx)
-	if err != nil {
-		return fmt.Errorf("error waiting for API unauthorize operations completed: %s", err)
-	}
-	return nil
+	return mErr.ErrorOrNil()
 }
 
-func authApisStateRefreshFunc(client *golangsdk.ServiceClient, instanceId, appId, envId string, apiIds []string) resource.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		opts := appauths.ListOpts{
-			InstanceId: instanceId,
-			AppId:      appId,
-			EnvId:      envId,
-		}
-		resp, err := appauths.ListUnauthorized(client, opts)
-		if err != nil {
-			return resp, "", err
-		}
-
-		for _, val := range resp {
-			if utils.StrSliceContains(apiIds, val.ID) {
-				return resp, "PENDING", nil
-			}
-		}
-		return resp, "COMPLETED", nil
-	}
-}
-
-func unauthApisStateRefreshFunc(client *golangsdk.ServiceClient, instanceId, appId, envId string, apiIds []string) resource.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		opts := appauths.ListOpts{
-			InstanceId: instanceId,
-			AppId:      appId,
-			EnvId:      envId,
-		}
-		resp, err := appauths.ListAuthorized(client, opts)
-		if err != nil {
-			// The API returns a 404 error, which means that the instance or application has been deleted.
-			// In this case, there's no need to disassociate API, also this action has been completed.
-			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				return "instance_or_application_not_exist", "COMPLETED", nil
-			}
-			return resp, "", err
-		}
-
-		for _, val := range resp {
-			if utils.StrSliceContains(apiIds, val.ApiId) {
-				return resp, "PENDING", nil
-			}
-		}
-		return resp, "COMPLETED", nil
-	}
-}
-
-func resourceAppAuthImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
+func resourceApplicationAuthorizationImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
 	importedId := d.Id()
 	parts := strings.Split(importedId, "/")
 	if len(parts) != 3 {
-		return nil, fmt.Errorf("invalid format specified for import ID, want '<instance_id>/<id>' (the format of resource ID is "+
-			"'<env_id>/<application_id>'), but got '%s'", importedId)
+		return nil, fmt.Errorf("invalid format specified for import ID, want '<instance_id>/<env_id>/<application_id>', "+
+			"but got '%s'", importedId)
 	}
 
-	d.SetId(fmt.Sprintf("%s/%s", parts[1], parts[2]))
 	mErr := multierror.Append(nil,
 		d.Set("instance_id", parts[0]),
 		d.Set("env_id", parts[1]),

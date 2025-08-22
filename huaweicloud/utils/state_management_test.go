@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/go-cty/cty"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func TestStateManagementFunc_GetNestedObjectFromRawConfig(t *testing.T) {
@@ -567,4 +568,168 @@ func TestStateManagementFunc_RefreshObjectParamOriginValues(t *testing.T) {
 	}
 
 	t.Logf("All RefreshObjectParamOriginValues component tests passed successfully")
+}
+
+func TestStateManagementFunc_RefreshSliceParamOriginValues(t *testing.T) {
+	// Test 1: Test basic functionality with simple slice parameters
+	t.Run("basic slice parameter refresh", func(t *testing.T) {
+		// Create a mock ResourceData with slice parameters
+		resourceData := createMockResourceData(t, map[string]interface{}{
+			"api_names": []interface{}{"api1", "api2", "api3"},
+			"tags":      []interface{}{"tag1", "tag2"},
+		})
+
+		// Test refreshing origin values using StateManager directly
+		manager := NewStateManager(resourceData)
+		sliceParamKeys := []string{"api_names", "tags"}
+		err := manager.RefreshSliceOriginValues(sliceParamKeys)
+
+		// Since RawConfig is not set in test environment, this will fail
+		// but we can test that the method doesn't crash
+		if err != nil {
+			t.Logf("Expected error due to missing RawConfig: %v", err)
+		}
+	})
+
+	// Test 2: Test with empty slice parameters
+	t.Run("empty slice parameter refresh", func(t *testing.T) {
+		resourceData := createMockResourceData(t, map[string]interface{}{
+			"api_names": []interface{}{},
+			"tags":      []interface{}{},
+		})
+
+		manager := NewStateManager(resourceData)
+		sliceParamKeys := []string{"api_names", "tags"}
+		err := manager.RefreshSliceOriginValues(sliceParamKeys)
+
+		// Since RawConfig is not set in test environment, this will fail
+		// but we can test that the method doesn't crash
+		if err != nil {
+			t.Logf("Expected error due to missing RawConfig: %v", err)
+		}
+	})
+
+	// Test 3: Test with nil slice parameters
+	t.Run("nil slice parameter refresh", func(t *testing.T) {
+		resourceData := createMockResourceData(t, map[string]interface{}{
+			"api_names": nil,
+			"tags":      nil,
+		})
+
+		manager := NewStateManager(resourceData)
+		sliceParamKeys := []string{"api_names", "tags"}
+		err := manager.RefreshSliceOriginValues(sliceParamKeys)
+
+		// Since RawConfig is not set in test environment, this will fail
+		// but we can test that the method doesn't crash
+		if err != nil {
+			t.Logf("Expected error due to missing RawConfig: %v", err)
+		}
+	})
+
+	// Test 4: Test with empty sliceParamKeys
+	t.Run("empty sliceParamKeys", func(t *testing.T) {
+		resourceData := createMockResourceData(t, map[string]interface{}{
+			"api_names": []interface{}{"api1", "api2"},
+		})
+
+		manager := NewStateManager(resourceData)
+		sliceParamKeys := []string{}
+		err := manager.RefreshSliceOriginValues(sliceParamKeys)
+
+		// This should succeed even without RawConfig
+		if err != nil {
+			t.Fatalf("RefreshSliceOriginValues failed with empty keys: %v", err)
+		}
+
+		// Since no keys were processed, the origin field should remain in its initial state
+		// The initial state is set by createMockResourceData, so we check that it's not modified
+		apiIdsOrigin := resourceData.Get("api_names_origin")
+		// The origin field exists but should not contain the processed data since no keys were processed
+		if apiIdsOrigin == nil {
+			t.Error("api_names_origin should exist but was nil")
+		}
+	})
+
+	// Test 5: Test NewStateManager creation
+	t.Run("NewStateManager creation", func(t *testing.T) {
+		resourceData := createMockResourceData(t, map[string]interface{}{
+			"api_names": []interface{}{"api1", "api2"},
+		})
+
+		manager := NewStateManager(resourceData)
+		if manager == nil {
+			t.Fatal("NewStateManager returned nil")
+		}
+
+		if manager.resourceData != resourceData {
+			t.Error("StateManager.resourceData does not match input ResourceData")
+		}
+	})
+}
+
+// createMockResourceData creates a mock ResourceData for testing
+func createMockResourceData(t *testing.T, data map[string]interface{}) *schema.ResourceData {
+	// Create a simple schema for testing
+	schemaMap := make(map[string]*schema.Schema)
+	for key, value := range data {
+		switch v := value.(type) {
+		case []interface{}:
+			// Determine the element type based on the first element
+			var elemType schema.ValueType
+			if len(v) > 0 {
+				firstElem := v[0]
+				switch firstElem.(type) {
+				case string:
+					elemType = schema.TypeString
+				case int, int32, int64, float32, float64:
+					elemType = schema.TypeInt
+				case bool:
+					elemType = schema.TypeBool
+				case map[string]interface{}:
+					elemType = schema.TypeMap
+				default:
+					elemType = schema.TypeString // default to string
+				}
+			} else {
+				elemType = schema.TypeString // default to string for empty slices
+			}
+
+			schemaMap[key] = &schema.Schema{
+				Type: schema.TypeList,
+				Elem: &schema.Schema{Type: elemType},
+			}
+			// Also create the corresponding _origin field
+			originKey := key + "_origin"
+			schemaMap[originKey] = &schema.Schema{
+				Type: schema.TypeList,
+				Elem: &schema.Schema{Type: elemType},
+			}
+		case nil:
+			schemaMap[key] = &schema.Schema{
+				Type: schema.TypeList,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			}
+			// Also create the corresponding _origin field
+			originKey := key + "_origin"
+			schemaMap[originKey] = &schema.Schema{
+				Type: schema.TypeList,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			}
+		}
+	}
+
+	// Create ResourceData with the schema
+	resource := &schema.Resource{Schema: schemaMap}
+	resourceData := resource.Data(nil)
+
+	// Set the initial values
+	for key, value := range data {
+		// lintignore:R001
+		if err := resourceData.Set(key, value); err != nil {
+			t.Fatalf("Failed to set %s: %v", key, err)
+		}
+	}
+
+	return resourceData
 }

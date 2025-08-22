@@ -27,7 +27,6 @@ github.com/chnsz/golangsdk/openstack/aom/v1/icagents
 github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/acls
 github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/apigroups
 github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/apis
-github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/appauths
 github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/applications
 github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/authorizers
 github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/certificates
