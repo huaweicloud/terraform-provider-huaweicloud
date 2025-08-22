@@ -974,6 +974,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_eg_event_channels":        eg.DataSourceEventChannels(),
 			"huaweicloud_eg_event_sources":         eg.DataSourceEventSources(),
 			"huaweicloud_eg_event_streams":         eg.DataSourceEventStreams(),
+			"huaweicloud_eg_traced_events":         eg.DataSourceTracedEvents(),
 
 			"huaweicloud_enterprise_project":        eps.DataSourceEnterpriseProject(),
 			"huaweicloud_enterprise_projects":       eps.DataSourceEnterpriseProjects(),
