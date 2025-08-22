@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_cnad_advanced_block_list
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: AAD
+paths:
+    /v1/unblockservice/{domain_id}/block-list:
+        GET:
+            tag: AAD

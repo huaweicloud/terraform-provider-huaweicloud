@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cnad_advanced_update_package_name
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: AAD
+paths:
+    /v1/cnad/packages/{package_id}/name:
+        PUT:
+            tag: AAD

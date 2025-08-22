@@ -11,6 +11,9 @@ paths:
     /v1/{project_id}/app-servers/actions/batch-change-image:
         POST:
             tag: Workspace
+    /v1/{project_id}/app-servers/actions/batch-maint:
+        PATCH:
+            tag: Workspace
     /v1/{project_id}/app-servers/actions/batch-reinstall:
         POST:
             tag: Workspace

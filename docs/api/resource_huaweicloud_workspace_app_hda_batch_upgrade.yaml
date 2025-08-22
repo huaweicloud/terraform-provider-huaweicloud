@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_workspace_app_hda_batch_upgrade
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: Workspace
+paths:
+    /v1/{project_id}/app-servers/access-agent/actions/upgrade:
+        PATCH:
+            tag: Workspace

@@ -1,6 +1,6 @@
 info:
     version: ""
-    title: resource_huaweicloud_workspace_app_warehouse_app
+    title: resource_huaweicloud_workspace_app_warehouse_application
     description: ""
 schemes:
     - https
