@@ -698,6 +698,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cnad_advanced_instances":           cnad.DataSourceInstances(),
 			"huaweicloud_cnad_advanced_alarm_notifications": cnad.DataSourceAlarmNotifications(),
 			"huaweicloud_cnad_advanced_available_objects":   cnad.DataSourceAvailableProtectedObjects(),
+			"huaweicloud_cnad_advanced_block_list":          cnad.DataSourceAdvancedBlockList(),
 			"huaweicloud_cnad_advanced_protected_objects":   cnad.DataSourceProtectedObjects(),
 
 			"huaweicloud_coc_applications":                  coc.DataSourceCocApplications(),
