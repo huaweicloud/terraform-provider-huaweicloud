@@ -465,6 +465,7 @@ var (
 	HW_COC_SCENE_ID              = os.Getenv("HW_COC_SCENE_ID")
 	HW_COC_INTEGRATION_KEY       = os.Getenv("HW_COC_INTEGRATION_KEY")
 	HW_COC_INSTANCE_COMPLIANT_ID = os.Getenv("HW_COC_INSTANCE_COMPLIANT_ID")
+	HW_COC_COMPONENT_ID          = os.Getenv("HW_COC_COMPONENT_ID")
 
 	// Deprecated
 	HW_SRC_ACCESS_KEY = os.Getenv("HW_SRC_ACCESS_KEY")
@@ -2774,6 +2775,13 @@ func TestAccPreCheckCocInstanceID(t *testing.T) {
 func TestAccPreCheckCocApplicationID(t *testing.T) {
 	if HW_COC_APPLICATION_ID == "" {
 		t.Skip("HW_COC_APPLICATION_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCocComponentID(t *testing.T) {
+	if HW_COC_COMPONENT_ID == "" {
+		t.Skip("HW_COC_COMPONENT_ID must be set for the acceptance test")
 	}
 }
 
