@@ -688,6 +688,9 @@ var (
 	HW_DMS_ROCKETMQ_INSTANCE_ID = os.Getenv("HW_DMS_ROCKETMQ_INSTANCE_ID")
 	HW_DMS_ROCKETMQ_TOPIC_NAME  = os.Getenv("HW_DMS_ROCKETMQ_TOPIC_NAME")
 	HW_DMS_ROCKETMQ_GROUP_NAME  = os.Getenv("HW_DMS_ROCKETMQ_GROUP_NAME")
+	// The list of dead letter message IDs. Using commas (,) to separate multiple IDs.
+	// At least one ID is required.
+	HW_DMS_ROCKETMQ_DEAD_LETTER_MESSAGE_IDs = os.Getenv("HW_DMS_ROCKETMQ_DEAD_LETTER_MESSAGE_IDs")
 
 	HW_SFS_TURBO_SHARE_ID                = os.Getenv("HW_SFS_TURBO_SHARE_ID")
 	HW_SFS_TURBO_BACKUP_ID               = os.Getenv("HW_SFS_TURBO_BACKUP_ID")
@@ -3527,6 +3530,14 @@ func TestAccPreCheckDMSRocketMQGroupName(t *testing.T) {
 func TestAccPreCheckDMSRocketMQTopicName(t *testing.T) {
 	if HW_DMS_ROCKETMQ_TOPIC_NAME == "" {
 		t.Skip("HW_DMS_ROCKETMQ_TOPIC_NAME must be set for DMS acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDMSRocketMQDeadLetterMessageIDs(t *testing.T, min int) {
+	if HW_DMS_ROCKETMQ_DEAD_LETTER_MESSAGE_IDs == "" || len(strings.Split(HW_DMS_ROCKETMQ_DEAD_LETTER_MESSAGE_IDs, ",")) < min {
+		t.Skipf("At least %d dead letter message IDs must be must be supported during the HW_DMS_ROCKETMQ_DEAD_LETTER_MESSAGE_IDs, "+
+			"separated by commas (,).", min)
 	}
 }
 
