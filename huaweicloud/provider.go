@@ -1646,6 +1646,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_waf_instance_groups":                      waf.DataSourceWafInstanceGroups(),
 			"huaweicloud_waf_overviews_attack_top_domains":         waf.DataSourceOverviewsAttackTopDomains(),
 			"huaweicloud_waf_overviews_bandwidth_timeline":         waf.DataSourceWafOverviewsBandwidthTimeline(),
+			"huaweicloud_waf_overviews_abnormal":                   waf.DataSourceWafOverviewsAbnormal(),
 			"huaweicloud_waf_overviews_classification":             waf.DataSourceWafOverviewsClassification(),
 			"huaweicloud_waf_overviews_qps_timeline":               waf.DataSourceWafOverviewsQPSTimeline(),
 			"huaweicloud_waf_overviews_request_timeline":           waf.DataSourceWafOverviewsRequestTimeline(),
