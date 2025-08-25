@@ -506,7 +506,8 @@ var (
 	// Currently, only up to 3 target connections are allowed to be created, so this variable is provided.
 	// The IDs of the EG connections. Using commas (,) to separate multiple IDs, the first ID is the webhook connection,
 	// the second is the Kafka connection, and the connections cannot be the default.
-	HW_EG_CONNECTION_IDS = os.Getenv("HW_EG_CONNECTION_IDS")
+	HW_EG_CONNECTION_IDS  = os.Getenv("HW_EG_CONNECTION_IDS")
+	HW_EG_EVENT_SOURCE_ID = os.Getenv("HW_EG_EVENT_SOURCE_ID")
 
 	HW_KOOGALLERY_ASSET = os.Getenv("HW_KOOGALLERY_ASSET")
 
@@ -2579,6 +2580,13 @@ func TestAccPreCheckEgAgencyName(t *testing.T) {
 func TestAccPreCheckEgConnectionIds(t *testing.T) {
 	if HW_EG_CONNECTION_IDS == "" || len(strings.Split(HW_EG_CONNECTION_IDS, ",")) != 2 {
 		t.Skip("The number of HW_EG_CONNECTION_IDS must be 2 for the acceptance test, separated by a comma (,)")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckEgEventSourceId(t *testing.T) {
+	if HW_EG_EVENT_SOURCE_ID == "" {
+		t.Skip("The sub-resource acceptance test of the EG event source must set 'HW_EG_EVENT_SOURCE_ID'")
 	}
 }
 

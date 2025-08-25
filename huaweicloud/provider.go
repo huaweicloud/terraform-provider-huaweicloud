@@ -2320,6 +2320,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_eg_custom_event_channel": eg.ResourceCustomEventChannel(),
 			"huaweicloud_eg_custom_event_source":  eg.ResourceCustomEventSource(),
 			"huaweicloud_eg_endpoint":             eg.ResourceEndpoint(),
+			"huaweicloud_eg_event_batch_action":   eg.ResourceEventBatchAction(),
 			"huaweicloud_eg_event_stream":         eg.ResourceEventStream(),
 			"huaweicloud_eg_event_subscription":   eg.ResourceEventSubscription(),
 
