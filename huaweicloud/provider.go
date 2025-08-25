@@ -1446,6 +1446,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rms_resource_policy_states":                    rms.DataSourceRmsPolicyStates(),
 			"huaweicloud_rms_resource_policy_states_summary":            rms.DataSourceRmsResourcePolicyStatesSummary(),
 			"huaweicloud_rms_tags":                                      rms.DataSourceRmsTags(),
+			"huaweicloud_rms_tracked_resource_tags":                     rms.DataSourceTrackedResourceTags(),
 
 			"huaweicloud_sdrs_domain":                      sdrs.DataSourceSDRSDomain(),
 			"huaweicloud_sdrs_quotas":                      sdrs.DataSourceSdrsQuotas(),
