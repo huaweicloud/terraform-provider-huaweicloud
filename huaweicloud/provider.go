@@ -982,6 +982,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_eg_event_sources":         eg.DataSourceEventSources(),
 			"huaweicloud_eg_event_streams":         eg.DataSourceEventStreams(),
 			"huaweicloud_eg_event_target_catalogs": eg.DataSourceEventTargetCatalogs(),
+			"huaweicloud_eg_quotas":                eg.DataSourceQuotas(),
 
 			// Professional EventRouter
 			"huaweicloud_eg_eventrouter_availability_zones": eg.DataSourceEventRouterAvailabilityZones(),
