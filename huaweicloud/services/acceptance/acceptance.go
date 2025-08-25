@@ -1620,15 +1620,6 @@ func TestAccPreCheckDliFlinkStreamGraph(t *testing.T) {
 	}
 }
 
-// Since it takes at least one hour to execute the elastic resource pool resource test case,
-// this variable is provided to distinguish the full test cases.
-// lintignore:AT003
-func TestAccPreCheckDliElasticResourcePool(t *testing.T) {
-	if HW_DLI_ELASTIC_RESOURCE_POOL == "" {
-		t.Skip("HW_DLI_ELASTIC_RESOURCE_POOL must be set for DLI acceptance tests.")
-	}
-}
-
 // lintignore:AT003
 func TestAccPreCheckRepoTokenAuth(t *testing.T) {
 	if HW_GITHUB_PERSONAL_TOKEN == "" {

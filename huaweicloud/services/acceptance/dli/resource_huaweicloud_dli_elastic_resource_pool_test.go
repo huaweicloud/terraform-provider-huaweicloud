@@ -39,7 +39,6 @@ func TestAccElasticResourcePool_basic(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckEpsID(t)
-			acceptance.TestAccPreCheckDliElasticResourcePool(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy: resource.ComposeTestCheckFunc(
@@ -79,12 +78,12 @@ func TestAccElasticResourcePool_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(withStandard, "description", ""),
 					resource.TestCheckResourceAttr(withStandard, "min_cu", "64"),
 					resource.TestCheckResourceAttr(withStandard, "max_cu", "112"),
-					resource.TestCheckResourceAttr(withStandard, "enterprise_project_id", acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(withStandard, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					rcWithBasic.CheckResourceExists(),
 					resource.TestCheckResourceAttr(withBasic, "min_cu", "16"),
 					resource.TestCheckResourceAttr(withBasic, "max_cu", "64"),
 					resource.TestCheckResourceAttr(withBasic, "description", "Updated basic resource pool by terraform script"),
-					resource.TestCheckResourceAttr(withBasic, "enterprise_project_id", acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(withBasic, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					waitForDeletionCooldownComplete(),
 					waitForCUModificationComplete(withStandard),
 					waitForCUModificationComplete(withBasic),
@@ -103,7 +102,6 @@ func TestAccElasticResourcePool_basic(t *testing.T) {
 				ImportStateIdFunc: testAccElasticResourcePoolImportStateFunc(withBasic),
 				ImportStateVerifyIgnore: []string{
 					"tags",
-					"label",
 				},
 			},
 		},
@@ -220,5 +218,120 @@ resource "huaweicloud_dli_elastic_resource_pool" "basic" {
     spec = "basic"
   }
 }
-`, name, acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST)
+`, name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+}
+
+func TestAccElasticResourcePool_prePaid(t *testing.T) {
+	var (
+		name = acceptance.RandomAccResourceName()
+
+		obj          interface{}
+		resourceName = "huaweicloud_dli_elastic_resource_pool.test"
+		rc           = acceptance.InitResourceCheck(resourceName, &obj, getElasticResourcePoolFunc)
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckEpsID(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			rc.CheckResourceDestroy(),
+		),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccElasticResourcePool_prePaid_step1(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "description", "Created by terraform script"),
+					resource.TestCheckResourceAttr(resourceName, "min_cu", "16"),
+					resource.TestCheckResourceAttr(resourceName, "max_cu", "32"),
+					resource.TestCheckResourceAttr(resourceName, "cidr", "172.16.0.0/12"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
+					resource.TestCheckResourceAttrSet(resourceName, "status"),
+					resource.TestCheckResourceAttrSet(resourceName, "current_cu"),
+					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
+					resource.TestCheckResourceAttrSet(resourceName, "prepay_cu"),
+					resource.TestCheckResourceAttr(resourceName, "tags.%", "1"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "label.spec", "basic"),
+					// The number of parameter 'actual_cu' needs to be returned after the queues are created, and will
+					// not be tested for the time being.
+				),
+			},
+			{
+				Config: testAccElasticResourcePool_prePaid_step2(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "description", ""),
+					resource.TestCheckResourceAttr(resourceName, "min_cu", "16"),
+					resource.TestCheckResourceAttr(resourceName, "max_cu", "48"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					// waitForDeletionCooldownComplete(),
+					waitForCUModificationComplete(resourceName),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccElasticResourcePoolImportStateFunc(resourceName),
+				ImportStateVerifyIgnore: []string{
+					"tags",
+					"period_unit",
+					"period",
+					"auto_renew",
+				},
+			},
+		},
+	})
+}
+
+func testAccElasticResourcePool_prePaid_step1(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_dli_elastic_resource_pool" "test" {
+  name          = "%[1]s"
+  description   = "Created by terraform script"
+  min_cu        = 16
+  max_cu        = 32
+  charging_mode = "prePaid"
+  period_unit   = "month"
+  period        = 1
+  auto_renew    = "true"
+
+  tags = {
+    foo = "bar"
+  }
+
+  label = {
+    spec = "basic"
+  }
+}
+`, name)
+}
+
+func testAccElasticResourcePool_prePaid_step2(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_dli_elastic_resource_pool" "test" {
+  name                  = "%[1]s"
+  min_cu                = 16
+  max_cu                = 48
+  enterprise_project_id = "%[2]s"
+  charging_mode         = "prePaid"
+  period_unit           = "month"
+  period                = 1
+  auto_renew            = "false"
+
+  tags = {
+    foo = "bar"
+  }
+
+  label = {
+    spec = "basic"
+  }
+}
+`, name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
