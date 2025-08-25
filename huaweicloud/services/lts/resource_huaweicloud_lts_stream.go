@@ -189,21 +189,11 @@ func getEnterpriseProjectById(cfg *config.Config, region, epsId string) (interfa
 	return respBody, nil
 }
 
-func resourceStreamRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	var (
-		cfg      = meta.(*config.Config)
-		region   = cfg.GetRegion(d)
-		httpUrl  = "v2/{project_id}/groups/{log_group_id}/streams"
-		streamId = d.Id()
-	)
-
-	client, err := cfg.NewServiceClient("lts", region)
-	if err != nil {
-		return diag.Errorf("error creating LTS client: %s", err)
-	}
+func GetLogStreams(client *golangsdk.ServiceClient, logGroupId string) (interface{}, error) {
+	httpUrl := "v2/{project_id}/groups/{log_group_id}/streams"
 	getPath := client.Endpoint + httpUrl
 	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
-	getPath = strings.ReplaceAll(getPath, "{log_group_id}", d.Get("group_id").(string))
+	getPath = strings.ReplaceAll(getPath, "{log_group_id}", logGroupId)
 
 	getOpts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -212,17 +202,48 @@ func resourceStreamRead(_ context.Context, d *schema.ResourceData, meta interfac
 
 	requestResp, err := client.Request("GET", getPath, &getOpts)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving log stream")
+		return nil, err
 	}
 
-	respBody, err := utils.FlattenResponse(requestResp)
+	return utils.FlattenResponse(requestResp)
+}
+
+func GetLogStreamById(client *golangsdk.ServiceClient, logGroupId, streamId string) (interface{}, error) {
+	streams, err := GetLogStreams(client, logGroupId)
 	if err != nil {
-		return diag.Errorf("error parsing the log stream: %s", err)
+		return nil, err
 	}
 
-	streamResult := utils.PathSearch(fmt.Sprintf("log_streams|[?log_stream_id=='%s']|[0]", streamId), respBody, nil)
+	streamResult := utils.PathSearch(fmt.Sprintf("log_streams|[?log_stream_id=='%s']|[0]", streamId), streams, nil)
 	if streamResult == nil {
-		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, fmt.Sprintf("unable to find log stream by its ID (%s)", streamId))
+		return nil, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "GET",
+				URL:       "v2/{project_id}/groups/{log_group_id}/streams",
+				RequestId: "NONE",
+				Body:      []byte(fmt.Sprintf("the log stream (%s) has been deleted", streamId)),
+			},
+		}
+	}
+
+	return streamResult, nil
+}
+
+func resourceStreamRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg      = meta.(*config.Config)
+		region   = cfg.GetRegion(d)
+		streamId = d.Id()
+	)
+
+	client, err := cfg.NewServiceClient("lts", region)
+	if err != nil {
+		return diag.Errorf("error creating LTS client: %s", err)
+	}
+
+	streamResult, err := GetLogStreamById(client, d.Get("group_id").(string), streamId)
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, fmt.Sprintf("unable to find log stream by its ID (%s)", streamId))
 	}
 
 	mErr := multierror.Append(nil,
