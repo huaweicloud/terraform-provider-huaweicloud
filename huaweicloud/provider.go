@@ -716,6 +716,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_coc_documents":                     coc.DataSourceCocDocuments(),
 			"huaweicloud_coc_document_atomics":              coc.DataSourceCocDocumentAtomics(),
 			"huaweicloud_coc_document_atomic_detail":        coc.DataSourceCocDocumentAtomicDetail(),
+			"huaweicloud_coc_application_views":             coc.DataSourceCocApplicationViews(),
 
 			"huaweicloud_compute_flavors":                 ecs.DataSourceEcsFlavors(),
 			"huaweicloud_compute_instance":                ecs.DataSourceComputeInstance(),
