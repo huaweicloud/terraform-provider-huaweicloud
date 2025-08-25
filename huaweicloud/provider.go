@@ -477,6 +477,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_aad_custom_rules":             aad.DataSourceCustomRules(),
 			"huaweicloud_aad_frequency_control_rules":  aad.DataSourceFrequencyControlRules(),
 			"huaweicloud_aad_ip_ddos_statistics":       aad.DataSourceIpDdosStatistics(),
+			"huaweicloud_aad_flow_block":               aad.DataSourceFlowBlock(),
 
 			"huaweicloud_antiddos_config_ranges":                antiddos.DataSourceConfigRanges(),
 			"huaweicloud_antiddos_weekly_protection_statistics": antiddos.DataSourceWeeklyProtectionStatistics(),
