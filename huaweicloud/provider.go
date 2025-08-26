@@ -482,6 +482,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_antiddos_config_ranges":                antiddos.DataSourceConfigRanges(),
 			"huaweicloud_antiddos_weekly_protection_statistics": antiddos.DataSourceWeeklyProtectionStatistics(),
 			"huaweicloud_antiddos_eip_defense_statuses":         antiddos.DataSourceEipDefenseStatuses(),
+			"huaweicloud_antiddosv2_eip_defense_statuses":       antiddos.DataSourceEipDefenseStatusesV2(),
 			"huaweicloud_antiddos_eip_protection_traffic":       antiddos.DataSourceEipProtectionTraffic(),
 			"huaweicloud_antiddos_eip_exception_events":         antiddos.DataSourceEipExceptionEvents(),
 
