@@ -1866,6 +1866,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_aad_black_white_list":           aad.ResourceBlackWhiteList(),
 			"huaweicloud_aad_change_specification":       aad.ResourceChangeSpecification(),
 			"huaweicloud_aad_domain_security_protection": aad.ResourceDomainSecurityProtection(),
+			"huaweicloud_aad_policy_black_white_rule":    aad.ResourcePolicyBlackWhiteRule(),
 			"huaweicloud_aad_unblock_ip":                 aad.ResourceUnblockIp(),
 
 			"huaweicloud_antiddos_basic":                     antiddos.ResourceCloudNativeAntiDdos(),
