@@ -964,6 +964,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_rocketmq_message_traces":              rocketmq.DataSourceDmsRocketmqMessageTraces(),
 			"huaweicloud_dms_rocketmq_extend_flavors":              rocketmq.DataSourceDmsRocketmqExtendFlavors(),
 			"huaweicloud_dms_rocketmq_messages":                    rocketmq.DataSourceDmsRocketMQMessages(),
+			"huaweicloud_dms_rocketmq_tags":                        rocketmq.DataSourceTags(),
 
 			"huaweicloud_dns_custom_lines":        dns.DataSourceCustomLines(),
 			"huaweicloud_dns_floating_ptrrecords": dns.DataSourceFloatingPtrRecords(),
