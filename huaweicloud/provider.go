@@ -470,6 +470,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_aad_cc_attack_protection_qps":    aad.DataSourceCcAttackProtectionQPS(),
 			"huaweicloud_aad_unblock_records":             aad.DataSourceUnblockRecords(),
 			"huaweicloud_aad_domains":                     aad.DataSourceAadDomains(),
+			"huaweicloud_aad_instance_domains":            aad.DataSourceInstanceDomains(),
 			"huaweicloud_aad_source_ips":                  aad.DataSourceAadSourceIps(),
 			"huaweicloud_aad_domain_certificate":          aad.DataSourceAadDomainCertificate(),
 			"huaweicloud_aad_policy_black_white_lists":    aad.DataSourcePolicyBlackWhiteLists(),
@@ -479,6 +480,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_aad_ip_ddos_statistics":          aad.DataSourceIpDdosStatistics(),
 			"huaweicloud_aad_flow_block":                  aad.DataSourceFlowBlock(),
 			"huaweicloud_aad_ddos_attack_protection_info": aad.DataSourceDdosAttackProtectionInfo(),
+			"huaweicloud_aad_attack_events":               aad.DataSourceAttackEvents(),
 
 			"huaweicloud_antiddos_config_ranges":                antiddos.DataSourceConfigRanges(),
 			"huaweicloud_antiddos_weekly_protection_statistics": antiddos.DataSourceWeeklyProtectionStatistics(),
