@@ -2129,6 +2129,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_coc_document_execute":       coc.ResourceDocumentExecute(),
 			"huaweicloud_coc_application":            coc.ResourceApplication(),
 			"huaweicloud_coc_component":              coc.ResourceComponent(),
+			"huaweicloud_coc_group":                  coc.ResourceGroup(),
 
 			"huaweicloud_cph_server":         cph.ResourceCphServer(),
 			"huaweicloud_cph_adb_command":    cph.ResourceAdbCommand(),
