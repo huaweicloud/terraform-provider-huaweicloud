@@ -4,6 +4,8 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
@@ -165,4 +167,221 @@ func TestResourceDiffunc_TakeObjectsDifferent(t *testing.T) {
 	}
 
 	t.Logf("All processing results of the TakeObjectsDifferent method meets expectation")
+}
+
+func TestResourceDiffunc_SuppressStrSliceDiffs(t *testing.T) {
+	// Test 1: Test basic functionality with TypeSet length field
+	t.Run("TypeSet length field suppression", func(t *testing.T) {
+		// Create a mock ResourceData
+		resourceData := createMockResourceDataForDiffTest(t, map[string]interface{}{
+			"tags":        []interface{}{"tag1", "tag2", "tag3"},
+			"tags_origin": []interface{}{"tag1", "tag2"},
+		})
+
+		suppressFunc := utils.SuppressStrSliceDiffs()
+
+		// Test case: remote addition (should not suppress diff because new count > old count)
+		result := suppressFunc("tags.#", "2", "3", resourceData)
+		if result {
+			t.Errorf("Expected no diff suppression for count increase, got %v", result)
+		}
+
+		// Test case: local removal (should suppress diff if no local changes)
+		result = suppressFunc("tags.#", "3", "2", resourceData)
+		if !result {
+			t.Errorf("Expected diff suppression for count decrease, got %v", result)
+		}
+	})
+
+	// Test 2: Test TypeSet element field suppression
+	t.Run("TypeSet element field suppression", func(t *testing.T) {
+		resourceData := createMockResourceDataForDiffTest(t, map[string]interface{}{
+			"tags":        []interface{}{"tag1", "tag2", "tag3"},
+			"tags_origin": []interface{}{"tag1", "tag2"},
+		})
+
+		suppressFunc := utils.SuppressStrSliceDiffs()
+
+		// Test case: element addition (should not suppress if element not in origin)
+		result := suppressFunc("tags.1234567890", "", "tag3", resourceData)
+		if result {
+			t.Errorf("Expected no diff suppression for new element not in origin, got %v", result)
+		}
+
+		// Test case: element removal (should not suppress if element was in origin)
+		result = suppressFunc("tags.0987654321", "tag1", "", resourceData)
+		if result {
+			t.Errorf("Expected no diff suppression for removing element from origin, got %v", result)
+		}
+	})
+
+	// Test 3: Test main field suppression
+	t.Run("main field suppression", func(t *testing.T) {
+		resourceData := createMockResourceDataForDiffTest(t, map[string]interface{}{
+			"tags":        []interface{}{"tag1", "tag2", "tag3"},
+			"tags_origin": []interface{}{"tag1", "tag2"},
+		})
+
+		suppressFunc := utils.SuppressStrSliceDiffs()
+
+		// Test case: new script contains elements not in console (should not suppress diff)
+		result := suppressFunc("tags", "tag1,tag2", "tag1,tag2,tag3", resourceData)
+		if result {
+			t.Errorf("Expected no diff suppression for new elements, got %v", result)
+		}
+
+		// Test case: local additions (should not suppress diff)
+		result = suppressFunc("tags", "tag1,tag2", "tag1,tag2,tag4", resourceData)
+		if result {
+			t.Errorf("Expected no diff suppression for local additions, got %v", result)
+		}
+
+		// Test case: local removals (should suppress diff if no local additions)
+		result = suppressFunc("tags", "tag1,tag2,tag3", "tag1,tag2", resourceData)
+		if !result {
+			t.Errorf("Expected diff suppression for removals with no additions, got %v", result)
+		}
+	})
+
+	// Test 4: Test with empty origin values
+	t.Run("empty origin values", func(t *testing.T) {
+		resourceData := createMockResourceDataForDiffTest(t, map[string]interface{}{
+			"tags":        []interface{}{"tag1", "tag2"},
+			"tags_origin": []interface{}{},
+		})
+
+		suppressFunc := utils.SuppressStrSliceDiffs()
+
+		// Test case: first time setting value (should not suppress diff)
+		result := suppressFunc("tags", "", "tag1,tag2", resourceData)
+		if result {
+			t.Errorf("Expected no diff suppression for first time setting, got %v", result)
+		}
+	})
+
+	// Test 5: Test with nil origin values
+	t.Run("nil origin values", func(t *testing.T) {
+		resourceData := createMockResourceDataForDiffTest(t, map[string]interface{}{
+			"tags":        []interface{}{"tag1", "tag2"},
+			"tags_origin": nil,
+		})
+
+		suppressFunc := utils.SuppressStrSliceDiffs()
+
+		// Test case: first time setting value (should not suppress diff)
+		result := suppressFunc("tags", "", "tag1,tag2", resourceData)
+		if result {
+			t.Errorf("Expected no diff suppression for first time setting, got %v", result)
+		}
+	})
+
+	// Test 6: Test with complex scenarios
+	t.Run("complex scenarios", func(t *testing.T) {
+		resourceData := createMockResourceDataForDiffTest(t, map[string]interface{}{
+			"tags":        []interface{}{"tag1", "tag2", "tag3", "tag4"},
+			"tags_origin": []interface{}{"tag1", "tag2", "tag3"},
+		})
+
+		suppressFunc := utils.SuppressStrSliceDiffs()
+
+		// Test case: mixed changes (should not suppress if any local changes)
+		result := suppressFunc("tags", "tag1,tag2,tag3", "tag1,tag2,tag4", resourceData)
+		if result {
+			t.Errorf("Expected no diff suppression for mixed changes, got %v", result)
+		}
+
+		// Test case: only remote additions (should not suppress if new elements not in console)
+		result = suppressFunc("tags", "tag1,tag2,tag3", "tag1,tag2,tag3,tag4", resourceData)
+		if result {
+			t.Errorf("Expected no diff suppression for new elements not in console, got %v", result)
+		}
+	})
+
+	// Test 7: Test edge cases
+	t.Run("edge cases", func(t *testing.T) {
+		resourceData := createMockResourceDataForDiffTest(t, map[string]interface{}{
+			"tags":        []interface{}{"tag1", "tag2"},
+			"tags_origin": []interface{}{"tag1", "tag2"},
+		})
+
+		suppressFunc := utils.SuppressStrSliceDiffs()
+
+		// Test case: empty strings (should not suppress if new elements added)
+		result := suppressFunc("tags", "tag1,", "tag1,tag2", resourceData)
+		if result {
+			t.Errorf("Expected no diff suppression for new elements, got %v", result)
+		}
+
+		// Test case: whitespace handling (should not suppress if new elements added)
+		result = suppressFunc("tags", " tag1 , tag2 ", "tag1,tag2,tag3", resourceData)
+		if result {
+			t.Errorf("Expected no diff suppression for new elements, got %v", result)
+		}
+	})
+
+	// Test 8: Test successful suppression scenarios
+	t.Run("successful suppression scenarios", func(t *testing.T) {
+		resourceData := createMockResourceDataForDiffTest(t, map[string]interface{}{
+			"tags":        []interface{}{"tag1", "tag2"},
+			"tags_origin": []interface{}{"tag1", "tag2"},
+		})
+
+		suppressFunc := utils.SuppressStrSliceDiffs()
+
+		// Test case: same elements, no changes (should suppress diff)
+		result := suppressFunc("tags", "tag1,tag2", "tag1,tag2", resourceData)
+		if !result {
+			t.Errorf("Expected diff suppression for no changes, got %v", result)
+		}
+
+		// Test case: only remote additions (should suppress diff if no local changes)
+		// Create a scenario where console and new script are the same, but origin is different
+		resourceData2 := createMockResourceDataForDiffTest(t, map[string]interface{}{
+			"tags":        []interface{}{"tag1", "tag2", "tag3"},
+			"tags_origin": []interface{}{"tag1", "tag2"},
+		})
+
+		// When console and new script are the same, but origin is different
+		// This should suppress diff because there are no local changes
+		result = suppressFunc("tags", "tag1,tag2,tag3", "tag1,tag2,tag3", resourceData2)
+		if !result {
+			t.Errorf("Expected diff suppression for no local changes, got %v", result)
+		}
+	})
+
+	t.Logf("All processing results of the SuppressStrSliceDiffs method meets expectation")
+}
+
+// createMockResourceDataForDiffTest creates a mock ResourceData for diff testing
+func createMockResourceDataForDiffTest(t *testing.T, data map[string]interface{}) *schema.ResourceData {
+	// Create a simple schema for testing
+	schemaMap := make(map[string]*schema.Schema)
+	for key, value := range data {
+		switch value.(type) {
+		case []interface{}:
+			schemaMap[key] = &schema.Schema{
+				Type: schema.TypeSet,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			}
+		case nil:
+			schemaMap[key] = &schema.Schema{
+				Type: schema.TypeSet,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			}
+		}
+	}
+
+	// Create ResourceData with the schema
+	resource := &schema.Resource{Schema: schemaMap}
+	resourceData := resource.Data(nil)
+
+	// Set the initial values
+	for key, value := range data {
+		// lintignore:R001
+		if err := resourceData.Set(key, value); err != nil {
+			t.Fatalf("Failed to set %s: %v", key, err)
+		}
+	}
+
+	return resourceData
 }
