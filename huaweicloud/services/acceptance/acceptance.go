@@ -158,6 +158,7 @@ var (
 	HW_RMS_EXCLUDED_ACCOUNT_1       = os.Getenv("HW_RMS_EXCLUDED_ACCOUNT_1")
 	HW_RMS_EXCLUDED_ACCOUNT_2       = os.Getenv("HW_RMS_EXCLUDED_ACCOUNT_2")
 	HW_RMS_RESOURCE_RECORDER_CLOSED = os.Getenv("HW_RMS_RESOURCE_RECORDER_CLOSED")
+	HW_RMS_REQUESTER_ACCOUNT_ID     = os.Getenv("HW_RMS_REQUESTER_ACCOUNT_ID")
 
 	HW_CDN_DOMAIN_NAME = os.Getenv("HW_CDN_DOMAIN_NAME")
 	// `HW_CDN_CERT_DOMAIN_NAME` Configure the domain name environment variable of the certificate type.
@@ -1514,6 +1515,13 @@ func TestAccPreCheckRMSExcludedAccounts(t *testing.T) {
 func TestAccPreCheckRMSResourceRecorder(t *testing.T) {
 	if HW_RMS_RESOURCE_RECORDER_CLOSED == "" {
 		t.Skip("HW_RMS_RESOURCE_RECORDER_CLOSED must be set for the acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckRMSRequesterAccountId(t *testing.T) {
+	if HW_RMS_REQUESTER_ACCOUNT_ID == "" {
+		t.Skip("HW_RMS_REQUESTER_ACCOUNT_ID must be set for the acceptance tests.")
 	}
 }
 
