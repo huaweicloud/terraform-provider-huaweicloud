@@ -23,6 +23,7 @@ func ResourceNodeBatchRestart() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceNodeBatchRestartCreate,
 		ReadContext:   resourceNodeBatchRestartRead,
+		UpdateContext: resourceNodeBatchRestartUpdate,
 		DeleteContext: resourceNodeBatchRestartDelete,
 
 		CustomizeDiff: customdiff.All(
@@ -107,6 +108,9 @@ func resourceNodeBatchRestartRead(_ context.Context, _ *schema.ResourceData, _ i
 	return nil
 }
 
+func resourceNodeBatchRestartUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+	return nil
+}
 func resourceNodeBatchRestartDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	errorMsg := `This resource is a one-time action resource used to restart nodes of a RocketMQ instance. Deleting
 this resource will not clear the restart operation record, but will only remove the resource information from the
