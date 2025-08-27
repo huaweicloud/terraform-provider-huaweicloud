@@ -291,6 +291,8 @@ var (
 	HW_WORKSPACE_USER_NAMES                        = os.Getenv("HW_WORKSPACE_USER_NAMES")
 	HW_WORKSPACE_DESKTOP_POOL_IMAGE_ID             = os.Getenv("HW_WORKSPACE_DESKTOP_POOL_IMAGE_ID")
 
+	HW_FG_FUNCTION_NAME = os.Getenv("HW_EG_FUNCTION_NAME")
+
 	HW_FGS_AGENCY_NAME         = os.Getenv("HW_FGS_AGENCY_NAME")
 	HW_FGS_APP_AGENCY_NAME     = os.Getenv("HW_FGS_APP_AGENCY_NAME")
 	HW_FGS_GPU_TYPE            = os.Getenv("HW_FGS_GPU_TYPE")
@@ -1019,6 +1021,13 @@ func TestAccPreCheckMrsCustom(t *testing.T) {
 func TestAccPreCheckMrsBootstrapScript(t *testing.T) {
 	if HW_MAPREDUCE_BOOTSTRAP_SCRIPT == "" {
 		t.Skip("HW_MAPREDUCE_BOOTSTRAP_SCRIPT must be set for acceptance tests: cluster of map reduce with bootstrap")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckFgFunctionName(t *testing.T) {
+	if HW_FG_FUNCTION_NAME == "" {
+		t.Skip("HW_FG_FUNCTION_NAME must be set for FG acceptance tests")
 	}
 }
 
