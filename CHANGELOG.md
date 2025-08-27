@@ -1,11 +1,5 @@
 # CHANGELOG
 
-## 1.77.6 (Aug 27, 2025)
-
-ENHANCEMENTS:
-
-* resource/huaweicloud_apig_application_authorization: support partial management [GH-7645]
-
 ## 1.77.5 (Aug 22, 2025)
 
 ENHANCEMENTS:
