@@ -38,6 +38,13 @@ The following arguments are supported:
   The name must start with a lowercase letter and end with a lowercase letter or a digit.  
   Changing this creates a new resource.
 
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the ID of the enterprise project to which
+  the application belongs.  
+  Changing this creates a new resource.
+
+  -> This parameter value must be the same as the enterprise project ID of the environment, if it is the default
+     enterprise project ID, it can be omitted. And this parameter is only valid for enterprise users.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -54,4 +61,11 @@ The application can be imported using `environment_id` and `id`, separated by a 
 
 ```bash
 $ terraform import huaweicloud_cae_application.test <environment_id>/<id>
+```
+
+For the application with the `enterprise_project_id`, its enterprise project ID need to be specified additionanlly when
+importing. All fields are separated by slashes (/), e.g.
+
+```bash
+$ terraform import huaweicloud_cae_application.test <environment_id>/<id>/<enterprise_project_id>
 ```

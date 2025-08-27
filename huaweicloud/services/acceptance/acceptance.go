@@ -77,7 +77,10 @@ var (
 	HW_APIG_DEDICATED_INSTANCE_ID             = os.Getenv("HW_APIG_DEDICATED_INSTANCE_ID")
 	HW_APIG_DEDICATED_INSTANCE_USED_SUBNET_ID = os.Getenv("HW_APIG_DEDICATED_INSTANCE_USED_SUBNET_ID")
 
-	HW_CAE_ENVIRONMENT_ID     = os.Getenv("HW_CAE_ENVIRONMENT_ID")
+	HW_CAE_ENVIRONMENT_ID = os.Getenv("HW_CAE_ENVIRONMENT_ID")
+	// The list of CAE environment IDs. Using commas (,) to separate multiple IDs. At least one ID is required.
+	// The first environment ID belongs to the default enterprise project ID, and the second belongs to non-default.
+	HW_CAE_ENVIRONMENT_IDs    = os.Getenv("HW_CAE_ENVIRONMENT_IDs")
 	HW_CAE_APPLICATION_ID     = os.Getenv("HW_CAE_APPLICATION_ID")
 	HW_CAE_CODE_URL           = os.Getenv("HW_CAE_CODE_URL")
 	HW_CAE_CODE_BRANCH        = os.Getenv("HW_CAE_CODE_BRANCH")
@@ -754,6 +757,15 @@ func TestAccPreCheckMultiAccount(t *testing.T) {
 func TestAccPreCheckCaeEnvironment(t *testing.T) {
 	if HW_CAE_ENVIRONMENT_ID == "" {
 		t.Skip("HW_CAE_ENVIRONMENT_ID must be set for the CAE acceptance test")
+	}
+}
+
+// Before the CAE environment resource is released, temporarily use this environment variables for acceptance tests.
+// lintignore:AT003
+func TestAccPreCheckCaeEnvironmentIds(t *testing.T, min int) {
+	if HW_CAE_ENVIRONMENT_IDs == "" || len(strings.Split(HW_CAE_ENVIRONMENT_IDs, ",")) < min {
+		t.Skipf("At least %d environment IDs must be must be supported during the HW_CAE_ENVIRONMENT_IDs, "+
+			"separated by commas (,).", min)
 	}
 }
 

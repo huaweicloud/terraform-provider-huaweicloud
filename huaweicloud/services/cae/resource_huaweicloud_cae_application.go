@@ -53,6 +53,12 @@ func ResourceApplication() *schema.Resource {
 				ForceNew:    true,
 				Description: "The name of the application.",
 			},
+			"enterprise_project_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "The ID of the enterprise project to which the application belongs.",
+			},
 			"created_at": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -94,11 +100,8 @@ func resourceApplicationCreate(ctx context.Context, d *schema.ResourceData, meta
 
 	createOpts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"X-Environment-ID": envId,
-			"Content-Type":     "application/json",
-		},
-		JSONBody: utils.RemoveNil(buildCreateApplicationBodyParams(d)),
+		MoreHeaders:      buildRequestMoreHeaders(envId, cfg.GetEnterpriseProjectID(d)),
+		JSONBody:         utils.RemoveNil(buildCreateApplicationBodyParams(d)),
 	}
 	requestResp, err := client.Request("POST", createPath, &createOpts)
 	if err != nil {
@@ -119,7 +122,7 @@ func resourceApplicationCreate(ctx context.Context, d *schema.ResourceData, meta
 	return resourceApplicationRead(ctx, d, meta)
 }
 
-func GetApplicationById(client *golangsdk.ServiceClient, envId, appId string) (interface{}, error) {
+func GetApplicationById(client *golangsdk.ServiceClient, envId, appId, epsId string) (interface{}, error) {
 	httpUrl := "v1/{project_id}/cae/applications/{application_id}"
 	getPath := client.Endpoint + httpUrl
 	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
@@ -127,10 +130,7 @@ func GetApplicationById(client *golangsdk.ServiceClient, envId, appId string) (i
 
 	getOpts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"X-Environment-ID": envId,
-			"Content-Type":     "application/json",
-		},
+		MoreHeaders:      buildRequestMoreHeaders(envId, epsId),
 	}
 	requestResp, err := client.Request("GET", getPath, &getOpts)
 	if err != nil {
@@ -156,7 +156,7 @@ func resourceApplicationRead(_ context.Context, d *schema.ResourceData, meta int
 		return diag.Errorf("error creating CAE client: %s", err)
 	}
 
-	app, err := GetApplicationById(client, envId, appId)
+	app, err := GetApplicationById(client, envId, appId, cfg.GetEnterpriseProjectID(d))
 	if err != nil {
 		// 500 error returned if the application is not exist.
 		// 400 error returned if the related environment is not exist.
@@ -196,10 +196,7 @@ func resourceApplicationDelete(_ context.Context, d *schema.ResourceData, meta i
 
 	deleteOpts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"X-Environment-ID": envId,
-			"Content-Type":     "application/json",
-		},
+		MoreHeaders:      buildRequestMoreHeaders(envId, cfg.GetEnterpriseProjectID(d)),
 	}
 	_, err = client.Request("DELETE", deletePath, &deleteOpts)
 	if err != nil {
@@ -213,11 +210,20 @@ func resourceApplicationDelete(_ context.Context, d *schema.ResourceData, meta i
 func resourceApplicationImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
 	importedId := d.Id()
 	parts := strings.Split(importedId, "/")
-	if len(parts) != 2 {
-		return nil, fmt.Errorf("invalid format specified for import ID, want '<environment_id>/<id>', but got '%s'",
-			importedId)
+	switch len(parts) {
+	case 2:
+		d.SetId(parts[1])
+		return []*schema.ResourceData{d}, d.Set("environment_id", parts[0])
+	case 3:
+		d.SetId(parts[1])
+		mErr := multierror.Append(
+			d.Set("environment_id", parts[0]),
+			d.Set("enterprise_project_id", parts[2]),
+		)
+		return []*schema.ResourceData{d}, mErr.ErrorOrNil()
 	}
 
-	d.SetId(parts[1])
-	return []*schema.ResourceData{d}, d.Set("environment_id", parts[0])
+	return nil, fmt.Errorf("invalid format specified for import ID, want '<environment_id>/<id>' or "+
+		"'<environment_id>/<id>/<enterprise_project_id>', but got '%s'",
+		importedId)
 }
