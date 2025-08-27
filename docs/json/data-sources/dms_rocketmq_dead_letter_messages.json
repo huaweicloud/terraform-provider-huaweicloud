@@ -1,0 +1,83 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dms_rocketmq_dead_letter_messages": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the RocketMQ instance.",
+                "required": true
+              },
+              "messages": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "body": "string",
+                      "body_crc": "number",
+                      "born_host": "string",
+                      "born_time": "string",
+                      "instance_id": "string",
+                      "msg_id": "string",
+                      "property_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "name": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ],
+                      "queue_id": "number",
+                      "queue_offset": "number",
+                      "reconsume_times": "number",
+                      "store_host": "string",
+                      "store_size": "number",
+                      "store_time": "string",
+                      "topic": "string"
+                    }
+                  ]
+                ],
+                "description": "All dead letter messages that match the filter parameters.",
+                "computed": true
+              },
+              "msg_id_list": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The list of dead letter message IDs.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the dead letter messages are located.",
+                "computed": true
+              },
+              "topic": {
+                "type": "string",
+                "description": "The name of the topic to which the dead letter messages belong.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "RocketMQ",
+            "name": "Distributed Message Service for RocketMQ",
+            "catalog": "Middleware",
+            "name_cn": "分布式消息服务 RocketMQ",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

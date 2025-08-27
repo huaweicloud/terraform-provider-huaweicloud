@@ -72,17 +72,20 @@
               "enable_auth_in_header": {
                 "type": "bool",
                 "description": "Whether the authentication in the request header is enabled.",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "enable_class_isolation": {
                 "type": "bool",
                 "description": "Whether the class isolation is enabled for the JAVA runtime functions.",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "enable_dynamic_memory": {
                 "type": "bool",
                 "description": "Whether the dynamic memory configuration is enabled.",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "enable_lts_log": {
                 "type": "bool",
@@ -159,7 +162,8 @@
               "is_stateful_function": {
                 "type": "bool",
                 "description": "Whether the function is a stateful function.",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "log_group_id": {
                 "type": "string",
