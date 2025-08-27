@@ -10,6 +10,16 @@
                 "description": "The actual CU number of the elastic resource pool.",
                 "computed": true
               },
+              "auto_renew": {
+                "type": "string",
+                "optional": true
+              },
+              "charging_mode": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "cidr": {
                 "type": "string",
                 "description": "The CIDR block of network to associate with the elastic resource pool.",
@@ -66,6 +76,21 @@
                 "description": "The name of the elastic resource pool.",
                 "required": true,
                 "forcenew": true
+              },
+              "period": {
+                "type": "number",
+                "optional": true,
+                "forcenew": true
+              },
+              "period_unit": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "prepay_cu": {
+                "type": "number",
+                "description": "The number of prepaid CUs of the elastic resource pool.",
+                "computed": true
               },
               "region": {
                 "type": "string",

@@ -191,7 +191,8 @@
                   "string"
                 ],
                 "description": "The custom tags configuration that used to filter the LTS logs.",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "max_instance_num": {
                 "type": "string",

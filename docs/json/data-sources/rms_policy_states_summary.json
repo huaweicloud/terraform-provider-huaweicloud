@@ -1,0 +1,63 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_rms_policy_states_summary": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "results": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "assignment_details": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "compliant_count": "number",
+                            "non_compliant_count": "number"
+                          }
+                        ]
+                      ],
+                      "resource_details": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "compliant_count": "number",
+                            "non_compliant_count": "number"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "Config",
+            "name": "Config",
+            "catalog": "Management & Governance",
+            "name_cn": "配置审计",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

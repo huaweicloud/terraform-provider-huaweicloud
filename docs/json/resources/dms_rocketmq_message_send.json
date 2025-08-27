@@ -1,0 +1,85 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dms_rocketmq_message_send": {
+          "block": {
+            "attributes": {
+              "body": {
+                "type": "string",
+                "description": "The content of the message to be sent.",
+                "required": true
+              },
+              "broker_name": {
+                "type": "string",
+                "description": "The broker name of the message.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the RocketMQ instance.",
+                "required": true
+              },
+              "msg_id": {
+                "type": "string",
+                "description": "The ID of the message that was sent.",
+                "computed": true
+              },
+              "queue_id": {
+                "type": "number",
+                "description": "The queue ID of the message.",
+                "computed": true
+              },
+              "queue_offset": {
+                "type": "number",
+                "description": "The queue offset of the message.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the message to be sent is located.",
+                "computed": true
+              },
+              "topic": {
+                "type": "string",
+                "description": "The name of the topic to send the message.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "property_list": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "description": "The name of the property.",
+                      "required": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "description": "The value of the property.",
+                      "required": true
+                    }
+                  },
+                  "description": "The list of message properties."
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "RocketMQ",
+            "name": "Distributed Message Service for RocketMQ",
+            "catalog": "Middleware",
+            "name_cn": "分布式消息服务 RocketMQ",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_aad_ddos_attack_protection_info": {
+          "block": {
+            "attributes": {
+              "end_time": {
+                "type": "string",
+                "description": "Specifies the end time.",
+                "required": true
+              },
+              "flow_bps": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "attack_bps": "number",
+                      "normal_bps": "number",
+                      "utime": "number"
+                    }
+                  ]
+                ],
+                "description": "The BPS flow information list. This field is returned when type is **bps**.",
+                "computed": true
+              },
+              "flow_pps": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "attack_pps": "number",
+                      "normal_pps": "number",
+                      "utime": "number"
+                    }
+                  ]
+                ],
+                "description": "The PPS flow information list. This field is returned when type is **pps**.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the instance ID.",
+                "required": true
+              },
+              "ip": {
+                "type": "string",
+                "description": "Specifies the high defense IP address.",
+                "required": true
+              },
+              "start_time": {
+                "type": "string",
+                "description": "Specifies the start time.",
+                "required": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the request type. The valid values are **pps** and **bps**.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "AAD",
+            "name": "Advanced Anti-DDoS",
+            "catalog": "Security & Compliance",
+            "name_cn": "DDoS高防",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

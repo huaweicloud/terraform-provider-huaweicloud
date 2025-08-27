@@ -1,0 +1,52 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_rms_tracked_resource_tags": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "key": {
+                "type": "string",
+                "description": "Tag key name",
+                "optional": true
+              },
+              "resource_deleted": {
+                "type": "bool",
+                "description": "Whether to query deleted resources",
+                "optional": true
+              },
+              "tags": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "key": "string",
+                      "value": [
+                        "list",
+                        "string"
+                      ]
+                    }
+                  ]
+                ],
+                "description": "Tag list",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Config",
+            "name": "Config",
+            "catalog": "Management & Governance",
+            "name_cn": "配置审计",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

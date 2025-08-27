@@ -209,6 +209,12 @@
                 "optional": true,
                 "computed": true
               },
+              "tls_mode": {
+                "type": "string",
+                "description": "The TLS mode of the instance.",
+                "optional": true,
+                "computed": true
+              },
               "type": {
                 "type": "string",
                 "description": "Indicates the DMS RocketMQ instance type. Value: cluster.",

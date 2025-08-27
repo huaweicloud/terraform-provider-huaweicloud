@@ -142,6 +142,7 @@
               "priority": {
                 "type": "string",
                 "description": "The priority of a virtual interface.",
+                "optional": true,
                 "computed": true
               },
               "rate_limit": {

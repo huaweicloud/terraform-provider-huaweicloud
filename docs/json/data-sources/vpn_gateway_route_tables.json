@@ -1,0 +1,68 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_vpn_gateway_route_tables": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_include_nexthop_resource": {
+                "type": "bool",
+                "description": "Specifies whether to include the nexthop resource.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "routing_table": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "as_path": "string",
+                      "destination": "string",
+                      "med": "number",
+                      "nexthop": "string",
+                      "nexthop_resource": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "origin": "string",
+                      "outbound_interface_ip": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the route table of a specified VPN gateway.",
+                "computed": true
+              },
+              "vgw_id": {
+                "type": "string",
+                "description": "Specifies a VPN gateway ID.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "VPN",
+            "name": "Virtual Private Network",
+            "catalog": "Networking",
+            "name_cn": "虚拟专用网络",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

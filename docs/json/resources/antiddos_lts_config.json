@@ -1,0 +1,45 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_antiddos_lts_config": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "lts_attack_stream_id": {
+                "type": "string",
+                "description": "Specifies the LTS attack stream ID.",
+                "required": true
+              },
+              "lts_group_id": {
+                "type": "string",
+                "description": "Specifies the LTS group ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to create the resource.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Anti-DDoS",
+            "name": "Anti-DDoS",
+            "catalog": "Security & Compliance",
+            "name_cn": "Anti-DDoS流量清洗",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}
