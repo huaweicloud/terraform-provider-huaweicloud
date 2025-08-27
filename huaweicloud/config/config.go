@@ -61,6 +61,7 @@ type Config struct {
 	AssumeRoleDomain    string
 	AssumeRoleDomainID  string
 	AssumeRoleDuration  int
+	AssumeRoleList      []AssumeRole
 	Cloud               string
 	MaxRetries          int
 	TerraformVersion    string
@@ -111,6 +112,13 @@ type Config struct {
 	DefaultTags      map[string]interface{}
 }
 
+type AssumeRole struct {
+	RoleAgency   string
+	RoleDomain   string
+	RoleDomainID string
+	RoleDuration int
+}
+
 func (c *Config) LoadAndValidate() error {
 	if c.MaxRetries < 0 {
 		return fmt.Errorf("max_retries should be a positive value")
@@ -135,6 +143,11 @@ func (c *Config) LoadAndValidate() error {
 		if err != nil {
 			return err
 		}
+	}
+
+	// Assume role list
+	if len(c.AssumeRoleList) != 0 {
+		return buildClientByAgencyChain(c)
 	}
 
 	if c.HwClient != nil && c.HwClient.ProjectID != "" {

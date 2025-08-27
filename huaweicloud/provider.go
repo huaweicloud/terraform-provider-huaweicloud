@@ -237,7 +237,6 @@ func Provider() *schema.Provider {
 			"assume_role": {
 				Type:     schema.TypeList,
 				Optional: true,
-				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"agency_name": {
@@ -3401,11 +3400,26 @@ func configureProvider(_ context.Context, d *schema.ResourceData, terraformVersi
 			conf.AssumeRoleDuration = delegatedDuration
 		}
 	} else {
-		assumeRole := assumeRoleList[0].(map[string]interface{})
-		conf.AssumeRoleAgency = assumeRole["agency_name"].(string)
-		conf.AssumeRoleDomain = assumeRole["domain_name"].(string)
-		conf.AssumeRoleDomainID = assumeRole["domain_id"].(string)
-		conf.AssumeRoleDuration = assumeRole["duration"].(int)
+		if len(assumeRoleList) == 1 {
+			assumeRole := assumeRoleList[0].(map[string]interface{})
+			conf.AssumeRoleAgency = assumeRole["agency_name"].(string)
+			conf.AssumeRoleDomain = assumeRole["domain_name"].(string)
+			conf.AssumeRoleDomainID = assumeRole["domain_id"].(string)
+			conf.AssumeRoleDuration = assumeRole["duration"].(int)
+		} else {
+			roleList := make([]config.AssumeRole, len(assumeRoleList))
+			for i, v := range assumeRoleList {
+				role := v.(map[string]interface{})
+				roleList[i] = config.AssumeRole{
+					RoleAgency:   role["agency_name"].(string),
+					RoleDomain:   role["domain_name"].(string),
+					RoleDomainID: role["domain_id"].(string),
+					RoleDuration: role["duration"].(int),
+				}
+			}
+
+			conf.AssumeRoleList = roleList
+		}
 	}
 
 	conf.Region = d.Get("region").(string)

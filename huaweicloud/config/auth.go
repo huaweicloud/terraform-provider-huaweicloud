@@ -394,6 +394,109 @@ func buildClientByAgencyV5(c *Config) error {
 	return buildClientByAKSK(c)
 }
 
+func buildClientByAgencyChain(c *Config) error {
+	var err error
+	assumeRoleList := c.AssumeRoleList
+	for _, role := range assumeRoleList {
+		if role.RoleDomainID != "" {
+			err = getTemporaryAKSKByAgencyV5(c, role)
+		} else {
+			err = getTemporaryAKSKByAgency(c, role)
+		}
+		if err != nil {
+			return err
+		}
+	}
+
+	return buildClientByAKSK(c)
+}
+
+func getTemporaryAKSKByAgency(c *Config, role AssumeRole) error {
+	client, err := c.HcIamV3Client(c.Region)
+	if err != nil {
+		return fmt.Errorf("error creating Huaweicloud IAM client: %s", err)
+	}
+
+	request := &iam_model.CreateTemporaryAccessKeyByAgencyRequest{}
+	domainNameAssumeRoleIdentityAssumerole := role.RoleDomain
+	durationSecondsAssumeRoleIdentityAssumerole := assumeRoleDuration
+	assumeRoleIdentity := &iam_model.IdentityAssumerole{
+		AgencyName:      role.RoleAgency,
+		DomainName:      &domainNameAssumeRoleIdentityAssumerole,
+		DurationSeconds: &durationSecondsAssumeRoleIdentityAssumerole,
+	}
+	var listMethodsIdentity = []iam_model.AgencyAuthIdentityMethods{
+		iam_model.GetAgencyAuthIdentityMethodsEnum().ASSUME_ROLE,
+	}
+	identityAuth := &iam_model.AgencyAuthIdentity{
+		Methods:    listMethodsIdentity,
+		AssumeRole: assumeRoleIdentity,
+	}
+	authbody := &iam_model.AgencyAuth{
+		Identity: identityAuth,
+	}
+	request.Body = &iam_model.CreateTemporaryAccessKeyByAgencyRequestBody{
+		Auth: authbody,
+	}
+	response, err := client.CreateTemporaryAccessKeyByAgency(request)
+	if err != nil {
+		return fmt.Errorf("error Creating temporary accesskey by agency: %s", err)
+	}
+	c.AccessKey, c.SecretKey, c.SecurityToken = response.Credential.Access, response.Credential.Secret, response.Credential.Securitytoken
+
+	return nil
+}
+
+func getTemporaryAKSKByAgencyV5(c *Config, role AssumeRole) error {
+	client, err := c.NewServiceClient("sts", c.Region)
+	if err != nil {
+		return fmt.Errorf("error creating Huaweicloud IAM V5 client: %s", err)
+	}
+
+	createAssumeHttpUrl := "v5/agencies/assume"
+	createAssumePath := client.Endpoint + createAssumeHttpUrl
+	agencyUrn := "iam::" + role.RoleDomainID + ":agency:" + role.RoleAgency
+	createAssumeOpts := map[string]interface{}{
+		"agency_urn":          agencyUrn,
+		"agency_session_name": role.RoleAgency,
+	}
+	if role.RoleDuration != 0 {
+		createAssumeOpts["duration_seconds"] = role.RoleDuration
+	}
+	createAssumeOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(createAssumeOpts),
+	}
+	createAssumeResp, err := client.Request("POST", createAssumePath, &createAssumeOpt)
+	if err != nil {
+		return fmt.Errorf("error creating IAM agency assume: %s", err)
+	}
+	createAssumeRespBody, err := utils.FlattenResponse(createAssumeResp)
+	if err != nil {
+		return fmt.Errorf("error extracting IAM agency assume response: %s", err)
+	}
+
+	accessKey := utils.PathSearch("credentials.access_key_id", createAssumeRespBody, "").(string)
+	if accessKey == "" {
+		log.Printf("[DEBUG] unable to find the access key ID of the assume credential from the API response")
+	}
+	secretKey := utils.PathSearch("credentials.secret_access_key", createAssumeRespBody, "").(string)
+	if secretKey == "" {
+		log.Printf("[DEBUG] unable to find the secret access ID of the assume credential from the API response")
+	}
+	securityToken := utils.PathSearch("credentials.security_token", createAssumeRespBody, "").(string)
+	if securityToken == "" {
+		log.Printf("[DEBUG] unable to find the security token of the assume credential from the API response")
+	}
+	c.AccessKey, c.SecretKey, c.SecurityToken = accessKey, secretKey, securityToken
+
+	// set project map to empty, to use the project id of another account
+	c.RegionProjectIDMap = map[string]string{}
+
+	// rebuild the client to use new AK, SK and security_token
+	return buildClientByAKSK(c)
+}
+
 func (c *Config) reloadSecurityKey() error {
 	err := getAuthConfigByMeta(c)
 	if err != nil {
