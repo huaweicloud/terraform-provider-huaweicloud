@@ -91,6 +91,12 @@ func ResourceVirtualInterface() *schema.Resource {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: "The CIDR list of remote subnets.",
 			},
+			"priority": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "The priority of a virtual interface.",
+			},
 			// The field `service_ep_group` was not tested because the test condition was missing.
 			"service_ep_group": {
 				Type:        schema.TypeList,
@@ -232,11 +238,6 @@ func ResourceVirtualInterface() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The ID of the local gateway, which is used in IES scenarios.",
-			},
-			"priority": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: "The priority of a virtual interface.",
 			},
 			"rate_limit": {
 				Type:        schema.TypeBool,
@@ -452,6 +453,7 @@ func buildCreateVirtualInterfaceBodyParams(d *schema.ResourceData, cfg *config.C
 		"vlan":                  d.Get("vlan"),
 		"bandwidth":             d.Get("bandwidth"),
 		"remote_ep_group":       d.Get("remote_ep_group"),
+		"priority":              utils.ValueIgnoreEmpty(d.Get("priority")),
 		"service_ep_group":      utils.ValueIgnoreEmpty(d.Get("service_ep_group")),
 		"name":                  utils.ValueIgnoreEmpty(d.Get("name")),
 		"description":           utils.ValueIgnoreEmpty(d.Get("description")),
@@ -651,6 +653,16 @@ func buildUpdateVirtualInterfaceBodyParams(d *schema.ResourceData) map[string]in
 	}
 }
 
+func buildUpdateVirtualInterfacePriorityBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"priority": d.Get("priority"),
+	}
+
+	return map[string]interface{}{
+		"virtual_interface": bodyParams,
+	}
+}
+
 func closeVirtualInterfaceNetworkDetection(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
 	bodyParams := make(map[string]interface{})
 	// At the same time, only one of BFD and NQA is enabled.
@@ -742,6 +754,27 @@ func resourceVirtualInterfaceUpdate(ctx context.Context, d *schema.ResourceData,
 		_, err := client.Request("PUT", requestPath, &requestOpt)
 		if err != nil {
 			return diag.Errorf("error updating DC virtual interface: %s", err)
+		}
+
+		err = waitForVirtualInterfaceAvailable(ctx, client, d.Id(), d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	// priority can not be changed with other fields at the same time
+	if d.HasChanges("priority") {
+		requestPath := client.Endpoint + "v3/{project_id}/dcaas/virtual-interfaces/{interfaceId}"
+		requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+		requestPath = strings.ReplaceAll(requestPath, "{interfaceId}", d.Id())
+		requestOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			JSONBody:         utils.RemoveNil(buildUpdateVirtualInterfacePriorityBodyParams(d)),
+		}
+
+		_, err = client.Request("PUT", requestPath, &requestOpt)
+		if err != nil {
+			return diag.Errorf("error updating DC virtual interface priority: %s", err)
 		}
 
 		err = waitForVirtualInterfaceAvailable(ctx, client, d.Id(), d.Timeout(schema.TimeoutUpdate))
