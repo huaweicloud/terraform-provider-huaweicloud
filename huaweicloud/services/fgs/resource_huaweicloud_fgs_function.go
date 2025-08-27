@@ -497,15 +497,15 @@ func ResourceFgsFunction() *schema.Resource {
 				),
 			},
 			"enable_dynamic_memory": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				// The dynamic memory function can be closed, so computed behavior cannot be supported.
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Computed:    true,
 				Description: `Whether the dynamic memory configuration is enabled.`,
 			},
 			"is_stateful_function": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				// The stateful function can be closed, so computed behavior cannot be supported.
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Computed:    true,
 				Description: `Whether the function is a stateful function.`,
 			},
 			"network_controller": {
@@ -554,17 +554,15 @@ func ResourceFgsFunction() *schema.Resource {
 CIDR blocks used by the service.`,
 			},
 			"enable_auth_in_header": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				// The auth function can be closed, so computed behavior cannot be supported.
-				// And the default value (in the service API) is false.
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Computed:    true,
 				Description: `Whether the authentication in the request header is enabled.`,
 			},
 			"enable_class_isolation": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				// The isolation function can be closed, so computed behavior cannot be supported.
-				// And the default value (in the service API) is false.
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Computed:    true,
 				Description: `Whether the class isolation is enabled for the JAVA runtime functions.`,
 			},
 			"ephemeral_storage": {
@@ -845,8 +843,8 @@ func buildCreateFunctionBodyParams(cfg *config.Config, d *schema.ResourceData) m
 		"pre_stop_timeout":             utils.ValueIgnoreEmpty(d.Get("pre_stop_timeout")),
 		"func_code":                    buildFunctionCodeConfig(d.Get("func_code").(string)),
 		"log_config":                   buildFunctionLogConfig(rawConfig),
-		"enable_dynamic_memory":        d.Get("enable_dynamic_memory"),
-		"is_stateful_function":         d.Get("is_stateful_function"),
+		"enable_dynamic_memory":        utils.GetNestedObjectFromRawConfig(rawConfig, "enable_dynamic_memory"),
+		"is_stateful_function":         utils.GetNestedObjectFromRawConfig(rawConfig, "is_stateful_function"),
 		"network_controller":           buildFunctionNetworkController(d.Get("network_controller").([]interface{})),
 		"lts_custom_tag":               utils.ValueIgnoreEmpty(d.Get("lts_custom_tag")),
 		"enable_lts_log":               utils.GetNestedObjectFromRawConfig(rawConfig, "enable_lts_log"),
@@ -935,6 +933,8 @@ func buildFunctionStrategyConfig(concurrencyNum int) map[string]interface{} {
 }
 
 func buildUpdateFunctionMetadataBodyParams(cfg *config.Config, d *schema.ResourceData) map[string]interface{} {
+	rawConfig := d.GetRawConfig()
+
 	// Parameter app is recommended to replace parameter package.
 	pkg, ok := d.GetOk("app")
 	if !ok {
@@ -973,13 +973,13 @@ func buildUpdateFunctionMetadataBodyParams(cfg *config.Config, d *schema.Resourc
 		"func_mounts": buildFunctionMountConfig(d.Get("func_mounts").([]interface{}),
 			d.Get("mount_user_id").(int), d.Get("mount_user_group_id").(int)),
 		"strategy_config":              buildFunctionStrategyConfig(d.Get("concurrency_num").(int)),
-		"enable_dynamic_memory":        d.Get("enable_dynamic_memory"),
-		"is_stateful_function":         d.Get("is_stateful_function"),
+		"enable_dynamic_memory":        utils.GetNestedObjectFromRawConfig(rawConfig, "enable_dynamic_memory"),
+		"is_stateful_function":         utils.GetNestedObjectFromRawConfig(rawConfig, "is_stateful_function"),
 		"network_controller":           buildFunctionNetworkController(d.Get("network_controller").([]interface{})),
 		"enterprise_project_id":        cfg.GetEnterpriseProjectID(d),
 		"peering_cidr":                 d.Get("peering_cidr"),
-		"enable_auth_in_header":        d.Get("enable_auth_in_header"),
-		"enable_class_isolation":       d.Get("enable_class_isolation"),
+		"enable_auth_in_header":        utils.GetNestedObjectFromRawConfig(rawConfig, "enable_auth_in_header"),
+		"enable_class_isolation":       utils.GetNestedObjectFromRawConfig(rawConfig, "enable_class_isolation"),
 		"ephemeral_storage":            utils.ValueIgnoreEmpty(d.Get("ephemeral_storage")),
 		"heartbeat_handler":            d.Get("heartbeat_handler"),
 		"restore_hook_handler":         d.Get("restore_hook_handler"),
