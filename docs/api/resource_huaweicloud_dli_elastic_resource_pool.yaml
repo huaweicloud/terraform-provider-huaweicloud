@@ -18,3 +18,9 @@ paths:
             tag: DLI
         PUT:
             tag: DLI
+    /v3/{project_id}/orders/elastic-resource-pools:
+        POST:
+            tag: DLI
+    /v3/orders/customer-orders/pay:
+        POST:
+            tag: BSS

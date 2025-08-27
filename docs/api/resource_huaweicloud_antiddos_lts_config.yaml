@@ -1,0 +1,15 @@
+info:
+    version: ""
+    title: resource_huaweicloud_antiddos_lts_config
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: ANTI-DDOS
+paths:
+    /v1/{project_id}/antiddos/lts-config:
+        GET:
+            tag: ANTI-DDOS
+        PUT:
+            tag: ANTI-DDOS

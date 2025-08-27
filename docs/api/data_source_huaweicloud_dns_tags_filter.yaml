@@ -6,8 +6,8 @@ schemes:
     - https
 host: huaweicloud.com
 tags:
-    - name: APIG
+    - name: DNS
 paths:
     /v2/{project_id}/{resource_type}/resource_instances/action:
         POST:
-            tag: APIG
+            tag: DNS

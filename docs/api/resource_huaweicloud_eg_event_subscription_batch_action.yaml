@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_eg_event_subscription_batch_action
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: EG
+paths:
+    /v1/{project_id}/subscriptions/operation:
+        POST:
+            tag: EG

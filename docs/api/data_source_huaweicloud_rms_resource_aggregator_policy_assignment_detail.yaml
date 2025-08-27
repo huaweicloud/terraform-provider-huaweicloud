@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_rms_resource_aggregator_policy_assignment_detail
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CONFIG
+paths:
+    /v1/resource-manager/domains/{domain_id}/aggregators/aggregate-data/policy-assignment/detail:
+        POST:
+            tag: CONFIG
