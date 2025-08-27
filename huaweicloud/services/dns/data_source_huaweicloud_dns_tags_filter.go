@@ -15,7 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API APIG POST /v2/{project_id}/{resource_type}/resource_instances/action
+// @API DNS POST /v2/{project_id}/{resource_type}/resource_instances/action
 func DataSourceDNSTagsFilter() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceDNSTagsFilterRead,
