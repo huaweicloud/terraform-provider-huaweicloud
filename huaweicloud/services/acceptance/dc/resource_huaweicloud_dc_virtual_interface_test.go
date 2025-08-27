@@ -72,6 +72,7 @@ func TestAccVirtualInterface_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "route_mode", "static"),
 					resource.TestCheckResourceAttr(rName, "vlan", fmt.Sprintf("%v", vlan)),
 					resource.TestCheckResourceAttr(rName, "bandwidth", "5"),
+					resource.TestCheckResourceAttr(rName, "priority", "low"),
 					resource.TestCheckResourceAttr(rName, "enable_bfd", "true"),
 					resource.TestCheckResourceAttr(rName, "enable_nqa", "false"),
 					resource.TestCheckResourceAttr(rName, "remote_ep_group.0", "1.1.1.0/30"),
@@ -115,6 +116,7 @@ func TestAccVirtualInterface_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "route_mode", "static"),
 					resource.TestCheckResourceAttr(rName, "vlan", fmt.Sprintf("%v", vlan)),
 					resource.TestCheckResourceAttr(rName, "bandwidth", "10"),
+					resource.TestCheckResourceAttr(rName, "priority", "normal"),
 					resource.TestCheckResourceAttr(rName, "enable_bfd", "false"),
 					resource.TestCheckResourceAttr(rName, "enable_nqa", "true"),
 					resource.TestCheckResourceAttr(rName, "remote_ep_group.0", "1.1.1.0/30"),
@@ -473,6 +475,7 @@ resource "huaweicloud_dc_virtual_interface" "test" {
   route_mode        = "static"
   vlan              = %[4]d
   bandwidth         = 5
+  priority          = "low"
   enable_bfd        = true
   enable_nqa        = false
 
@@ -504,6 +507,7 @@ resource "huaweicloud_dc_virtual_interface" "test" {
   route_mode        = "static"
   vlan              = %[4]d
   bandwidth         = 10
+  priority          = "normal"
   enable_bfd        = false
   enable_nqa        = true
 
@@ -536,6 +540,7 @@ resource "huaweicloud_dc_virtual_interface" "test" {
   route_mode        = "static"
   vlan              = %[4]d
   bandwidth         = 10
+  priority          = "normal"
   enable_bfd        = true
   enable_nqa        = false
 

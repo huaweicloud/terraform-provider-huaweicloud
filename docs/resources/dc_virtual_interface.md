@@ -101,6 +101,12 @@ The following arguments are supported:
   `local_gateway_v6_ip`) and remote subnet (corresponding to the parameter `remote_gateway_v4_ip` or
   `remote_gateway_v6_ip`) must exist in the list.
 
+* `priority` - (Optional, String) The priority of a virtual interface. The value can be **normal** or **low**.
+  If the priorities are the same, the virtual interfaces work in load balancing mode.
+  If the priorities are different, the virtual interfaces work in active/standby pairs.
+  Outbound traffic is preferentially forwarded to the normal virtual interface with a higher priority.
+  This option is only supported by virtual interfaces that use BGP routing.
+
 * `service_ep_group` - (Optional, List) Specifies the subnets that access Internet services through a connection.
   This field is required in public network connections.
 
@@ -193,12 +199,6 @@ In addition to all arguments above, the following attributes are exported:
 * `ies_id` - The edge site ID.
 
 * `lgw_id` - The ID of the local gateway, which is used in IES scenarios.
-
-* `priority` - The priority of a virtual interface. The value can be **normal** or **low**.
-  If the priorities are the same, the virtual interfaces work in load balancing mode.
-  If the priorities are different, the virtual interfaces work in active/standby pairs.
-  Outbound traffic is preferentially forwarded to the normal virtual interface with a higher priority.
-  This option is only supported by virtual interfaces that use BGP routing.
 
 * `rate_limit` - Whether rate limiting is enabled on a virtual interface.
 
