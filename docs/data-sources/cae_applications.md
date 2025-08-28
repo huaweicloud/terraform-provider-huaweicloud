@@ -12,7 +12,7 @@ Use this data source to get the list of CAE applications within HuaweiCloud.
 
 ## Example Usage
 
-### Query the all applications under the default enterprise project
+### Query all applications under the default enterprise project or EPS service is not enable
 
 ```hcl
 variable "environment_id" {}
@@ -53,8 +53,8 @@ The following arguments are supported:
 
 * `enterprise_project_id` - (Optional, String) Specifies the ID of the enterprise project to which the applications
   belong.  
-  If the `environment_id` belongs to the non-default enterprise project, this parameter is required and is only valid for
-  enterprise users.
+  If the `environment_id` belongs to the non-default enterprise project, this parameter is required and is only valid
+  for enterprise users.
 
 ## Attribute Reference
 

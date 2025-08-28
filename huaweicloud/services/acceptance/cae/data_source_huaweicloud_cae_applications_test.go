@@ -76,7 +76,7 @@ resource "huaweicloud_cae_application" "test" {
   enterprise_project_id = count.index == 1 ? try(data.huaweicloud_cae_environments.test.environments[0].annotations.enterprise_project_id,
   null) : null
 }
-`, acceptance.HW_CAE_ENVIRONMENT_IDs, name)
+`, acceptance.HW_CAE_ENVIRONMENT_IDS, name)
 }
 
 func testAccDatasourceApplications_basic(name string) string {

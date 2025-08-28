@@ -74,6 +74,11 @@ The following arguments are supported:
   -> If the `spec` parameter specified in this resource is inconsistent with the `huaweicloud_cae_component` resource,
      you can handle the changes in the `huaweicloud_cae_component` resource by `lifecycle.ignore_changes` or manual synchronization.
 
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the ID of the enterprise project to which the
+  component belongs.  
+  If the `application_id` belongs to the non-default enterprise project, this parameter is required and is only valid
+  for enterprise users.
+
 <a name="component_action_metadata"></a>
 The `metadata` block supports:
 

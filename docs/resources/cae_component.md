@@ -123,6 +123,11 @@ The following arguments are supported:
 
   -> This parameter must be used together with `action` parameter.
 
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the ID of the enterprise project to which the
+  component belongs.  
+  If the `application_id` belongs to the non-default enterprise project, this parameter is required and is only valid
+  for enterprise users.
+
 <a name="component_metadata"></a>
 The `metadata` block supports:
 
@@ -254,10 +259,17 @@ This resource provides the following timeouts configuration options:
 
 ## Import
 
-The CAE component can be imported using `environment_id`, `application_id` and `id`, separated by slashes (/), e.g.
+The component can be imported using `environment_id`, `application_id` and `id`, separated by slashes (/), e.g.
 
 ```bash
 $ terraform import huaweicloud_cae_component.test <environment_id>/<application_id>/<id>
+```
+
+For the component with the `enterprise_project_id`, its enterprise project ID need to be specified additionanlly when
+importing. All fields are separated by slashes (/), e.g.
+
+```bash
+$ terraform import huaweicloud_cae_component.test <environment_id>/<application_id>/<id>/<enterprise_project_id>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the

@@ -80,10 +80,8 @@ var (
 	HW_CAE_ENVIRONMENT_ID = os.Getenv("HW_CAE_ENVIRONMENT_ID")
 	// The list of CAE environment IDs. Using commas (,) to separate multiple IDs. At least one ID is required.
 	// The first environment ID belongs to the default enterprise project ID, and the second belongs to non-default.
-	HW_CAE_ENVIRONMENT_IDs    = os.Getenv("HW_CAE_ENVIRONMENT_IDs")
+	HW_CAE_ENVIRONMENT_IDS    = os.Getenv("HW_CAE_ENVIRONMENT_IDS")
 	HW_CAE_APPLICATION_ID     = os.Getenv("HW_CAE_APPLICATION_ID")
-	HW_CAE_CODE_URL           = os.Getenv("HW_CAE_CODE_URL")
-	HW_CAE_CODE_BRANCH        = os.Getenv("HW_CAE_CODE_BRANCH")
 	HW_CAE_CODE_AUTH_NAME     = os.Getenv("HW_CAE_CODE_AUTH_NAME")
 	HW_CAE_CODE_NAMESPACE     = os.Getenv("HW_CAE_CODE_NAMESPACE")
 	HW_CAE_ARTIFACT_NAMESPACE = os.Getenv("HW_CAE_ARTIFACT_NAMESPACE")
@@ -765,8 +763,8 @@ func TestAccPreCheckCaeEnvironment(t *testing.T) {
 // Before the CAE environment resource is released, temporarily use this environment variables for acceptance tests.
 // lintignore:AT003
 func TestAccPreCheckCaeEnvironmentIds(t *testing.T, min int) {
-	if HW_CAE_ENVIRONMENT_IDs == "" || len(strings.Split(HW_CAE_ENVIRONMENT_IDs, ",")) < min {
-		t.Skipf("At least %d environment IDs must be must be supported during the HW_CAE_ENVIRONMENT_IDs, "+
+	if HW_CAE_ENVIRONMENT_IDS == "" || len(strings.Split(HW_CAE_ENVIRONMENT_IDS, ",")) < min {
+		t.Skipf("At least %d environment IDs must be must be supported during the HW_CAE_ENVIRONMENT_IDS, "+
 			"separated by commas (,).", min)
 	}
 }
@@ -780,8 +778,8 @@ func TestAccPreCheckCaeApplication(t *testing.T) {
 }
 
 // lintignore:AT003
-func TestAccPreCheckCaeComponent(t *testing.T) {
-	if HW_CAE_CODE_URL == "" || HW_CAE_CODE_AUTH_NAME == "" || HW_CAE_CODE_BRANCH == "" || HW_CAE_CODE_NAMESPACE == "" ||
+func TestAccPreCheckCaeComponentRepoAuth(t *testing.T) {
+	if HW_GITHUB_REPO_URL == "" || HW_CAE_CODE_AUTH_NAME == "" || HW_CAE_CODE_NAMESPACE == "" ||
 		HW_CAE_ARTIFACT_NAMESPACE == "" || HW_CAE_BUILD_BASE_IMAGE == "" || HW_CAE_IMAGE_URL == "" {
 		t.Skip("Skip the CAE acceptance tests.")
 	}

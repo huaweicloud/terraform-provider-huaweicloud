@@ -12,6 +12,8 @@ Use this data source to get the list of CAE components within HuaweiCloud.
 
 ## Example Usage
 
+### Query all components under the default enterprise project or EPS service is not enable
+
 ```hcl
 variable "environment_id" {}
 variable "application_id" {}
@@ -19,6 +21,20 @@ variable "application_id" {}
 data "huaweicloud_cae_components" "test" {
   environment_id = var.environment_id
   application_id = var.application_id
+}
+```
+
+### Query all components under the specified enterprise project
+
+```hcl
+variable "environment_id" {}
+variable "application_id" {}
+variable "enterprise_project_id" {}
+
+data "huaweicloud_cae_components" "test" {
+  environment_id        = var.environment_id
+  application_id        = var.application_id
+  enterprise_project_id = var.enterprise_project_id
 }
 ```
 
@@ -32,6 +48,11 @@ The following arguments are supported:
 * `environment_id` - (Required, String) Specifies the ID of the environment to which the components belong.
 
 * `application_id` - (Required, String) Specifies the ID of the application to which the components belong.
+
+* `enterprise_project_id` - (Optional, String) Specifies the ID of the enterprise project to which the components
+  belong.  
+  If the `application_id` belongs to the non-default enterprise project, this parameter is required and is only valid
+  for enterprise users.
 
 ## Attribute Reference
 
