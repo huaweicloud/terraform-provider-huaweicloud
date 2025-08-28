@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -25,7 +24,6 @@ var groupNonUpdatableParams = []string{"component_id", "region_id", "vendor", "a
 // @API COC PUT /v1/groups/{id}
 // @API COC GET /v1/groups
 // @API COC DELETE /v1/groups/{id}
-// @API COC GET /v1/application-model/next
 func ResourceGroup() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceGroupCreate,
@@ -224,10 +222,6 @@ func resourceGroupRead(_ context.Context, d *schema.ResourceData, meta interface
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving group")
 	}
-	groupSyncRules, err := GetGroupSyncRules(client, componentID, d.Id())
-	if err != nil {
-		log.Printf("[WARN] error fetching group sync rules (%s): %s", d.Id(), err)
-	}
 
 	mErr = multierror.Append(mErr,
 		d.Set("name", utils.PathSearch("name", group, nil)),
@@ -240,7 +234,8 @@ func resourceGroupRead(_ context.Context, d *schema.ResourceData, meta interface
 		d.Set("sync_mode", utils.PathSearch("sync_mode", group, nil)),
 		d.Set("relation_configurations", flattenGroupRelationConfigurations(
 			utils.PathSearch("relation_configurations", group, nil))),
-		d.Set("sync_rules", flattenGroupSyncRules(groupSyncRules)),
+		d.Set("sync_rules", flattenGroupSyncRules(
+			utils.PathSearch("sync_rules", group, nil))),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -314,50 +309,6 @@ func GetGroup(client *golangsdk.ServiceClient, componentID string, groupID strin
 	}
 
 	return group, nil
-}
-
-func GetGroupSyncRules(client *golangsdk.ServiceClient, componentID string, groupID string) (interface{}, error) {
-	getHttpUrl := "v1/application-model/next?component_id={component_id}&limit=100"
-	basePath := client.Endpoint + getHttpUrl
-	basePath = strings.ReplaceAll(basePath, "{component_id}", componentID)
-	getOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"Content-Type": "application/json",
-		},
-	}
-
-	var marker string
-	for {
-		getPath := basePath
-		if marker != "" {
-			getPath = fmt.Sprintf("%s&marker=%v", getPath, marker)
-		}
-		getResp, err := client.Request("GET", getPath, &getOpt)
-
-		if err != nil {
-			return nil, err
-		}
-
-		getRespBody, err := utils.FlattenResponse(getResp)
-		if err != nil {
-			return nil, err
-		}
-
-		groups := utils.PathSearch("data.groups", getRespBody, make([]interface{}, 0)).([]interface{})
-		if len(groups) < 1 {
-			return nil, golangsdk.ErrDefault404{}
-		}
-
-		searchGroupPath := fmt.Sprintf("data.groups[?id=='%s']|[0]", groupID)
-		group := utils.PathSearch(searchGroupPath, getRespBody, nil)
-		if group != nil {
-			syncRules := utils.PathSearch("sync_rules", group, nil)
-			return syncRules, nil
-		}
-
-		marker = utils.PathSearch("data.groups[-1].id", getRespBody, "").(string)
-	}
 }
 
 func resourceGroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
