@@ -2811,6 +2811,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_rms_policy_assignment":                           rms.ResourcePolicyAssignment(),
 			"huaweicloud_rms_policy_assignment_evaluate":                  rms.ResourcePolicyAssignmentEvaluate(),
+			"huaweicloud_rms_policy_assignment_evaluate_result_update":    rms.ResourcePolicyAssignmentEvaluateResultUpdate(),
 			"huaweicloud_rms_resource_aggregator":                         rms.ResourceAggregator(),
 			"huaweicloud_rms_resource_aggregation_authorization":          rms.ResourceAggregationAuthorization(),
 			"huaweicloud_rms_resource_aggregation_pending_request_delete": rms.ResourceRmsResourceAggregationPendingRequestDelete(),

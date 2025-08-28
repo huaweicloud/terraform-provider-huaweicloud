@@ -156,12 +156,13 @@ var (
 	HW_RAM_SHARE_INVITATION_ID       = os.Getenv("HW_RAM_SHARE_INVITATION_ID")
 	HW_RAM_SHARE_ID                  = os.Getenv("HW_RAM_SHARE_ID")
 
-	HW_RMS_TARGET_ID_FOR_FGS        = os.Getenv("HW_RMS_TARGET_ID_FOR_FGS")
-	HW_RMS_TARGET_ID_FOR_RFS        = os.Getenv("HW_RMS_TARGET_ID_FOR_RFS")
-	HW_RMS_EXCLUDED_ACCOUNT_1       = os.Getenv("HW_RMS_EXCLUDED_ACCOUNT_1")
-	HW_RMS_EXCLUDED_ACCOUNT_2       = os.Getenv("HW_RMS_EXCLUDED_ACCOUNT_2")
-	HW_RMS_RESOURCE_RECORDER_CLOSED = os.Getenv("HW_RMS_RESOURCE_RECORDER_CLOSED")
-	HW_RMS_REQUESTER_ACCOUNT_ID     = os.Getenv("HW_RMS_REQUESTER_ACCOUNT_ID")
+	HW_RMS_TARGET_ID_FOR_FGS                 = os.Getenv("HW_RMS_TARGET_ID_FOR_FGS")
+	HW_RMS_TARGET_ID_FOR_RFS                 = os.Getenv("HW_RMS_TARGET_ID_FOR_RFS")
+	HW_RMS_EXCLUDED_ACCOUNT_1                = os.Getenv("HW_RMS_EXCLUDED_ACCOUNT_1")
+	HW_RMS_EXCLUDED_ACCOUNT_2                = os.Getenv("HW_RMS_EXCLUDED_ACCOUNT_2")
+	HW_RMS_RESOURCE_RECORDER_CLOSED          = os.Getenv("HW_RMS_RESOURCE_RECORDER_CLOSED")
+	HW_RMS_REQUESTER_ACCOUNT_ID              = os.Getenv("HW_RMS_REQUESTER_ACCOUNT_ID")
+	HW_RMS_POLICY_ASSIGNMENT_EVALUATION_HASH = os.Getenv("HW_RMS_POLICY_ASSIGNMENT_EVALUATION_HASH")
 
 	HW_CDN_DOMAIN_NAME = os.Getenv("HW_CDN_DOMAIN_NAME")
 	// `HW_CDN_CERT_DOMAIN_NAME` Configure the domain name environment variable of the certificate type.
@@ -1534,6 +1535,13 @@ func TestAccPreCheckRMSResourceRecorder(t *testing.T) {
 func TestAccPreCheckRMSRequesterAccountId(t *testing.T) {
 	if HW_RMS_REQUESTER_ACCOUNT_ID == "" {
 		t.Skip("HW_RMS_REQUESTER_ACCOUNT_ID must be set for the acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckRMSPolicyAssignmentEvaluationHash(t *testing.T) {
+	if HW_RMS_POLICY_ASSIGNMENT_EVALUATION_HASH == "" {
+		t.Skip("HW_RMS_POLICY_ASSIGNMENT_EVALUATION_HASH must be set for the acceptance tests.")
 	}
 }
 
