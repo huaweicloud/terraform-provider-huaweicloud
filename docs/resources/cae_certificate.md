@@ -49,6 +49,13 @@ The following arguments are supported:
 * `key` - (Required, String) Specifies the private key of the certificate.  
   Base64 format corresponding to PEM encoding.
 
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the ID of the enterprise project to which the
+  certificate belongs.  
+  Changing this creates a new resource.
+
+-> If the `environment_id` belongs to the non-default enterprise project, this parameter is required and is only valid
+   for enterprise users.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -63,4 +70,11 @@ The certificate resource can be imported using `environment_id` and `name`, sepa
 
 ```bash
 $ terraform import huaweicloud_cae_certificate.test <environment_id>/<name>
+```
+
+For the certificate with a non-default enterprise project ID, its enterprise project ID need to be specified
+additionanlly when importing. All fields are separated by slashes (/), e.g.
+
+```bash
+$ terraform import huaweicloud_cae_certificate.test <environment_id>/<name>/<enterprise_project_id>
 ```
