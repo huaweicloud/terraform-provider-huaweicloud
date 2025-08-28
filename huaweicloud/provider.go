@@ -1484,6 +1484,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_secmaster_incidents":                   secmaster.DataSourceIncidents(),
 			"huaweicloud_secmaster_alerts":                      secmaster.DataSourceAlerts(),
 			"huaweicloud_secmaster_indicators":                  secmaster.DataSourceIndicators(),
+			"huaweicloud_secmaster_layout_fields":               secmaster.DataSourceLayoutFields(),
 			"huaweicloud_secmaster_layout_wizard_detail":        secmaster.DataSourceLayoutWizardDetail(),
 			"huaweicloud_secmaster_layout_wizards":              secmaster.DataSourceLayoutWizards(),
 			"huaweicloud_secmaster_metric_results":              secmaster.DataSourceMetricResults(),
