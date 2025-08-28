@@ -766,6 +766,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_codearts_pipeline_publishers":             codeartspipeline.DataSourceCodeArtsPipelinePublishers(),
 			"huaweicloud_codearts_pipeline_plugins":                codeartspipeline.DataSourceCodeArtsPipelinePlugins(),
 			"huaweicloud_codearts_pipeline_plugin_metrics":         codeartspipeline.DataSourceCodeArtsPipelinePluginMetrics(),
+			"huaweicloud_codearts_pipeline_plugin_versions":        codeartspipeline.DataSourceCodeartsPipelinePluginVersions(),
 			"huaweicloud_codearts_pipeline_rules":                  codeartspipeline.DataSourceCodeArtsPipelineRules(),
 
 			"huaweicloud_codearts_build_tasks":        codeartsbuild.DataSourceCodeArtsBuildTasks(),
