@@ -50,6 +50,7 @@ var pipelineNonUpdatableParams = []string{
 // @API CodeArtsPipeline PUT /v5/{project_id}/api/pipeline-permissions/{pipeline_id}/update-permission-switch
 // @API CodeArtsPipeline GET /v5/{project_id}/api/pipeline-permissions/{pipeline_id}/permission-switch
 // @API CodeArtsPipeline GET /v5/{project_id}/api/pipeline-permissions/{pipeline_id}/role-permission
+// @API CodeArtsPipeline GET /v5/{project_id}/api/pipelines/{pipeline_id}/webhook
 func ResourceCodeArtsPipeline() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourcePipelineCreate,
