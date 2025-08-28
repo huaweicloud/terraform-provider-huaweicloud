@@ -3,6 +3,8 @@ package lts
 import (
 	"context"
 	"fmt"
+	"log"
+	"strconv"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -265,11 +267,67 @@ func buildQueryTransfersBodyParams(d *schema.ResourceData) string {
 	return res
 }
 
+func ListTransfers(client *golangsdk.ServiceClient, queryParams ...string) ([]interface{}, error) {
+	var (
+		httpUrl = "v2/{project_id}/transfers?limit={limit}"
+		limit   = 100
+		offset  = 0
+		result  = make([]interface{}, 0)
+	)
+
+	listPath := client.Endpoint + httpUrl
+	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
+	listPath = strings.ReplaceAll(listPath, "{limit}", strconv.Itoa(limit))
+	if len(queryParams) > 0 {
+		listPath += queryParams[0]
+	}
+
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+	}
+
+	for {
+		// Until 25/08/21, query parameter 'offset' is still unavailable.
+		listPathWithOffset := listPath + fmt.Sprintf("&offset=%d", offset)
+		requestResp, err := client.Request("GET", listPathWithOffset, &opt)
+		if err != nil {
+			return nil, err
+		}
+
+		respBody, err := utils.FlattenResponse(requestResp)
+		if err != nil {
+			return nil, err
+		}
+
+		transfers := utils.PathSearch("log_transfers", respBody, make([]interface{}, 0)).([]interface{})
+		if len(transfers) < limit {
+			result = append(result, transfers...)
+			break
+		}
+
+		transferIdForFirstRecord := utils.PathSearch("[0].log_transfer_id", transfers, "").(string)
+		if transferIdForFirstRecord == "" {
+			log.Printf("[ERROR] Unable to find the log_transfer_id from the first record of the response body.")
+			break
+		} else if utils.PathSearch(fmt.Sprintf("[?log_transfer_id=='%s']|[0].log_transfer_id", transferIdForFirstRecord), result, "").(string) != "" {
+			log.Printf("[ERROR] Duplicate record is found, break immediately.")
+			break
+		}
+
+		result = append(result, transfers...)
+		offset += limit
+	}
+
+	return result, nil
+}
+
 func dataSourceLtsTransfersRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg     = meta.(*config.Config)
-		region  = cfg.GetRegion(d)
-		httpUrl = "v2/{project_id}/transfers?limit=100"
+		cfg    = meta.(*config.Config)
+		region = cfg.GetRegion(d)
 	)
 
 	client, err := cfg.NewServiceClient("lts", region)
@@ -277,24 +335,9 @@ func dataSourceLtsTransfersRead(_ context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("error creating LTS client: %s", err)
 	}
 
-	listPath := client.Endpoint + httpUrl
-	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
-	listPath += buildQueryTransfersBodyParams(d)
-
-	getTransferOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
-	}
-
-	// The query parameter 'offset' is unavailable
-	requestResp, err := client.Request("GET", listPath, &getTransferOpt)
+	transfers, err := ListTransfers(client, buildQueryTransfersBodyParams(d))
 	if err != nil {
 		return diag.Errorf("error querying log transfers: %s", err)
-	}
-
-	respBody, err := utils.FlattenResponse(requestResp)
-	if err != nil {
-		return diag.FromErr(err)
 	}
 
 	generateUUID, err := uuid.GenerateUUID()
@@ -303,7 +346,6 @@ func dataSourceLtsTransfersRead(_ context.Context, d *schema.ResourceData, meta 
 	}
 	d.SetId(generateUUID)
 
-	transfers := utils.PathSearch("log_transfers", respBody, make([]interface{}, 0)).([]interface{})
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
 		d.Set("transfers", flattenTransfers(transfers)),

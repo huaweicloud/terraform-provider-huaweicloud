@@ -2413,6 +2413,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_fgs_application":                    fgs.ResourceApplication(),
 			"huaweicloud_fgs_async_invoke_configuration":     fgs.ResourceAsyncInvokeConfiguration(),
+			"huaweicloud_fgs_async_log_configuration":        fgs.ResourceAsyncLogConfiguration(),
 			"huaweicloud_fgs_dependency":                     fgs.ResourceDependency(),
 			"huaweicloud_fgs_dependency_version":             fgs.ResourceDependencyVersion(),
 			"huaweicloud_fgs_function":                       fgs.ResourceFgsFunction(),
