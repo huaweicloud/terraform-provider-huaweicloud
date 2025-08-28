@@ -193,7 +193,7 @@ func GetAsyncIncokeConfigurations(client *golangsdk.ServiceClient, functionUrn s
 	return utils.FlattenResponse(requestResp)
 }
 
-func flattenDestinationConfig(destConfig map[string]interface{}) []interface{} {
+func flattenDestinationItem(destConfig map[string]interface{}) []interface{} {
 	if len(destConfig) < 1 {
 		return nil
 	}
@@ -230,9 +230,9 @@ func resourceAsyncInvokeConfigurationRead(_ context.Context, d *schema.ResourceD
 		d.Set("region", region),
 		d.Set("max_async_event_age_in_seconds", utils.PathSearch("max_async_event_age_in_seconds", resp, nil)),
 		d.Set("max_async_retry_attempts", utils.PathSearch("max_async_retry_attempts", resp, nil)),
-		d.Set("on_success", flattenDestinationConfig(utils.PathSearch("destination_config.on_success",
+		d.Set("on_success", flattenDestinationItem(utils.PathSearch("destination_config.on_success",
 			resp, make(map[string]interface{})).(map[string]interface{}))),
-		d.Set("on_failure", flattenDestinationConfig(utils.PathSearch("destination_config.on_failure",
+		d.Set("on_failure", flattenDestinationItem(utils.PathSearch("destination_config.on_failure",
 			resp, make(map[string]interface{})).(map[string]interface{}))),
 		d.Set("enable_async_status_log", utils.PathSearch("enable_async_status_log", resp, nil)),
 		d.Set("created_at", utils.PathSearch("created_time", resp, nil)),
