@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net/http"
 	"regexp"
 	"sort"
 	"strconv"
@@ -39,7 +40,7 @@ const engineKafka = "kafka"
 // @API Kafka DELETE /v2/{project_id}/instances/{instance_id}
 // @API Kafka GET /v2/{project_id}/instances/{instance_id}
 // @API Kafka PUT /v2/{project_id}/instances/{instance_id}
-// @API Kafka POST /v2/{project_id}/instances
+// @API Kafka POST /v2/{engine}/{project_id}/instances
 // @API Kafka GET /v2/{project_id}/kafka/{instance_id}/tags
 // @API Kafka POST /v2/{project_id}/kafka/{instance_id}/tags/action
 // @API Kafka POST /v2/{project_id}/instances/{instance_id}/autotopic
@@ -49,6 +50,7 @@ const engineKafka = "kafka"
 // @API Kafka PUT /v2/{project_id}/instances/{instance_id}/configs
 // @API Kafka GET /v2/{project_id}/instances/{instance_id}/configs
 // @API Kafka POST /v2/{project_id}/instances/action
+// @API Kafka POST /v2/{project_id}/{engine}/instances/{instance_id}/plain-ssl-switch
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
 // @API BSS POST /v2/orders/subscriptions/resources/autorenew/{instance_id}
 // @API BSS DELETE /v2/orders/subscriptions/resources/autorenew/{instance_id}
@@ -157,7 +159,6 @@ func ResourceDmsKafkaInstance() *schema.Resource {
 			"access_user": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 			},
 			"password": {
 				Type:      schema.TypeString,
@@ -199,7 +200,6 @@ func ResourceDmsKafkaInstance() *schema.Resource {
 			"enabled_mechanisms": {
 				Type:     schema.TypeSet,
 				Optional: true,
-				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"retention_policy": {
@@ -256,6 +256,151 @@ func ResourceDmsKafkaInstance() *schema.Resource {
 				ForceNew: true,
 			},
 			"tags": common.TagsSchema(),
+			"cross_vpc_accesses": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				MinItems: 3,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"advertised_ip": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"listener_ip": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"port": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"port_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						// Typo, it is only kept in the code, will not be shown in the docs.
+						"lisenter_ip": {
+							Type:       schema.TypeString,
+							Computed:   true,
+							Deprecated: "typo in lisenter_ip, please use \"listener_ip\" instead.",
+						},
+					},
+				},
+			},
+			"port_protocol": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"private_plain_enable": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Computed:    true,
+							Description: `Whether to enable private plaintext access.`,
+						},
+						"private_sasl_ssl_enable": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Computed:    true,
+							Description: `Whether to enable private SASL SSL access.`,
+						},
+						"private_sasl_plaintext_enable": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Computed:    true,
+							Description: `Whether to enable private SASL plaintext access.`,
+						},
+						"public_plain_enable": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Computed:    true,
+							Description: `Whether to enable public plaintext access.`,
+						},
+						"public_sasl_ssl_enable": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Computed:    true,
+							Description: `Whether to enable public SASL SSL access.`,
+						},
+						"public_sasl_plaintext_enable": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Computed:    true,
+							Description: `Whether to enable public SASL plaintext access.`,
+						},
+						"private_plain_address": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The address of the private plaintext access.`,
+						},
+						"private_plain_domain_name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The domain name of the private plaintext access.`,
+						},
+						"private_sasl_ssl_address": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The address of the private SASL SSL access.`,
+						},
+						"private_sasl_ssl_domain_name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The domain name of the private SASL SSL access.`,
+						},
+						"private_sasl_plaintext_address": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The address of the private SASL plaintext access.`,
+						},
+						"private_sasl_plaintext_domain_name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The domain name of the private SASL plaintext access.`,
+						},
+						"public_plain_address": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The address of the public plaintext access.`,
+						},
+						"public_plain_domain_name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The domain name of the public plaintext access.`,
+						},
+						"public_sasl_ssl_address": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The address of the public SASL SSL access.`,
+						},
+						"public_sasl_ssl_domain_name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The domain name of the public SASL SSL access.`,
+						},
+						"public_sasl_plaintext_address": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The address of the public SASL plaintext access.`,
+						},
+						"public_sasl_plaintext_domain_name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The domain name of the public SASL plaintext access.`,
+						},
+					},
+				},
+				Description: `The port protocol information of the Kafka instance.`,
+			},
+			"charging_mode": common.SchemaChargingMode(nil),
+			"period_unit":   common.SchemaPeriodUnit(nil),
+			"period":        common.SchemaPeriod(nil),
+			"auto_renew":    common.SchemaAutoRenewUpdatable(nil),
+			// Attributes.
 			"engine": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -358,6 +503,53 @@ func ResourceDmsKafkaInstance() *schema.Resource {
 				Type:     schema.TypeBool,
 				Computed: true,
 			},
+			"type": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			// Deprecated parameters.
+			"manager_user": {
+				Type:       schema.TypeString,
+				Optional:   true,
+				ForceNew:   true,
+				Deprecated: "Deprecated",
+			},
+			"manager_password": {
+				Type:       schema.TypeString,
+				Optional:   true,
+				Sensitive:  true,
+				ForceNew:   true,
+				Deprecated: "Deprecated",
+			},
+			"available_zones": {
+				Type:         schema.TypeList,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     true,
+				Elem:         &schema.Schema{Type: schema.TypeString},
+				AtLeastOneOf: []string{"available_zones", "availability_zones"},
+				Deprecated:   "available_zones has deprecated, please use \"availability_zones\" instead.",
+			},
+			"bandwidth": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+				Deprecated: "The bandwidth has been deprecated. " +
+					"If you need to change the bandwidth, please update the product_id.",
+			},
+			// Deprecated attributes.
+			"management_connect_address": {
+				Type:       schema.TypeString,
+				Computed:   true,
+				Deprecated: "Deprecated",
+			},
+			// Typo, it is only kept in the code, will not be shown in the docs.
+			"manegement_connect_address": {
+				Type:       schema.TypeString,
+				Computed:   true,
+				Deprecated: "typo in manegement_connect_address, please use \"management_connect_address\" instead.",
+			},
 			"port_protocols": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -437,89 +629,11 @@ func ResourceDmsKafkaInstance() *schema.Resource {
 						},
 					},
 				},
+				Description: utils.SchemaDesc("Use port_protocol instead.",
+					utils.SchemaDescInput{
+						Deprecated: true,
+					}),
 			},
-			"manager_user": {
-				Type:       schema.TypeString,
-				Optional:   true,
-				ForceNew:   true,
-				Deprecated: "Deprecated",
-			},
-			"manager_password": {
-				Type:       schema.TypeString,
-				Optional:   true,
-				Sensitive:  true,
-				ForceNew:   true,
-				Deprecated: "Deprecated",
-			},
-			"management_connect_address": {
-				Type:       schema.TypeString,
-				Computed:   true,
-				Deprecated: "Deprecated",
-			},
-			// Typo, it is only kept in the code, will not be shown in the docs.
-			"manegement_connect_address": {
-				Type:       schema.TypeString,
-				Computed:   true,
-				Deprecated: "typo in manegement_connect_address, please use \"management_connect_address\" instead.",
-			},
-			"type": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"available_zones": {
-				Type:         schema.TypeList,
-				Optional:     true,
-				Computed:     true,
-				ForceNew:     true,
-				Elem:         &schema.Schema{Type: schema.TypeString},
-				AtLeastOneOf: []string{"available_zones", "availability_zones"},
-				Deprecated:   "available_zones has deprecated, please use \"availability_zones\" instead.",
-			},
-			"bandwidth": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-				Deprecated: "The bandwidth has been deprecated. " +
-					"If you need to change the bandwidth, please update the product_id.",
-			},
-			"cross_vpc_accesses": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Computed: true,
-				MinItems: 3,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"advertised_ip": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-						},
-						"listener_ip": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"port": {
-							Type:     schema.TypeInt,
-							Computed: true,
-						},
-						"port_id": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						// Typo, it is only kept in the code, will not be shown in the docs.
-						"lisenter_ip": {
-							Type:       schema.TypeString,
-							Computed:   true,
-							Deprecated: "typo in lisenter_ip, please use \"listener_ip\" instead.",
-						},
-					},
-				},
-			},
-			"charging_mode": common.SchemaChargingMode(nil),
-			"period_unit":   common.SchemaPeriodUnit(nil),
-			"period":        common.SchemaPeriod(nil),
-			"auto_renew":    common.SchemaAutoRenewUpdatable(nil),
 		},
 	}
 }
@@ -691,6 +805,22 @@ func resourceDmsKafkaInstanceCreate(ctx context.Context, d *schema.ResourceData,
 	return resourceDmsKafkaInstanceRead(ctx, d, meta)
 }
 
+func buildKafkaPortProtocol(portProtocols []interface{}) *instances.PortProtocol {
+	if len(portProtocols) == 0 {
+		return nil
+	}
+
+	portProtocol := portProtocols[0].(map[string]interface{})
+	return &instances.PortProtocol{
+		PrivatePlainEnable:         utils.Bool(portProtocol["private_plain_enable"].(bool)),
+		PrivateSaslSslEnable:       utils.Bool(portProtocol["private_sasl_ssl_enable"].(bool)),
+		PrivateSaslPlaintextEnable: utils.Bool(portProtocol["private_sasl_plaintext_enable"].(bool)),
+		PublicPlainEnable:          utils.Bool(portProtocol["public_plain_enable"].(bool)),
+		PublicSaslSslEnable:        utils.Bool(portProtocol["public_sasl_ssl_enable"].(bool)),
+		PublicSaslPlaintextEnable:  utils.Bool(portProtocol["public_sasl_plaintext_enable"].(bool)),
+	}
+}
+
 func createKafkaInstanceWithFlavor(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -725,6 +855,8 @@ func createKafkaInstanceWithFlavor(ctx context.Context, d *schema.ResourceData, 
 		SaslEnabledMechanisms: utils.ExpandToStringList(d.Get("enabled_mechanisms").(*schema.Set).List()),
 		Ipv6Enable:            d.Get("ipv6_enable").(bool),
 		VpcClientPlain:        d.Get("vpc_client_plain").(bool),
+		PortProtocol:          buildKafkaPortProtocol(d.Get("port_protocol").([]interface{})),
+		TenantIps:             utils.ExpandToStringList(d.Get("new_tenant_ips").([]interface{})),
 	}
 
 	if chargingMode, ok := d.GetOk("charging_mode"); ok && chargingMode == "prePaid" {
@@ -778,7 +910,7 @@ func createKafkaInstanceWithFlavor(ctx context.Context, d *schema.ResourceData, 
 	createOpts.Password = password
 	createOpts.KafkaManagerPassword = d.Get("manager_password").(string)
 
-	kafkaInstance, err := instances.Create(client, createOpts).Extract()
+	kafkaInstance, err := instances.CreateWithEngine(client, createOpts, engineKafka).Extract()
 	if err != nil {
 		return diag.Errorf("error creating Kafka instance: %s", err)
 	}
@@ -875,6 +1007,8 @@ func createKafkaInstanceWithProductID(ctx context.Context, d *schema.ResourceDat
 		SaslEnabledMechanisms: utils.ExpandToStringList(d.Get("enabled_mechanisms").(*schema.Set).List()),
 		Ipv6Enable:            d.Get("ipv6_enable").(bool),
 		VpcClientPlain:        d.Get("vpc_client_plain").(bool),
+		PortProtocol:          buildKafkaPortProtocol(d.Get("port_protocol").([]interface{})),
+		TenantIps:             utils.ExpandToStringList(d.Get("new_tenant_ips").([]interface{})),
 	}
 
 	if chargingMode, ok := d.GetOk("charging_mode"); ok && chargingMode == "prePaid" {
@@ -920,7 +1054,7 @@ func createKafkaInstanceWithProductID(ctx context.Context, d *schema.ResourceDat
 	createOpts.Password = password
 	createOpts.KafkaManagerPassword = d.Get("manager_password").(string)
 
-	kafkaInstance, err := instances.Create(client, createOpts).Extract()
+	kafkaInstance, err := instances.CreateWithEngine(client, createOpts, engineKafka).Extract()
 	if err != nil {
 		return diag.Errorf("error creating DMS kafka instance: %s", err)
 	}
@@ -1182,13 +1316,11 @@ func resourceDmsKafkaInstanceRead(ctx context.Context, d *schema.ResourceData, m
 		setKafkaFlavorId(d, v.ProductID), // Set flavor_id or product_id.
 		d.Set("name", v.Name),
 		d.Set("description", v.Description),
-		d.Set("engine", v.Engine),
 		d.Set("engine_version", v.EngineVersion),
 		d.Set("bandwidth", v.Specification),
 		// storage_space indicates total_storage_space while creating
 		// set value of total_storage_space to storage_space to keep consistent
 		d.Set("storage_space", v.TotalStorageSpace),
-		d.Set("partition_num", partitionNum),
 		d.Set("vpc_id", v.VPCID),
 		d.Set("security_group_id", v.SecurityGroupID),
 		d.Set("network_id", v.SubnetID),
@@ -1198,13 +1330,26 @@ func resourceDmsKafkaInstanceRead(ctx context.Context, d *schema.ResourceData, m
 		d.Set("broker_num", v.BrokerNum),
 		d.Set("maintain_begin", v.MaintainBegin),
 		d.Set("maintain_end", v.MaintainEnd),
-		d.Set("enable_public_ip", v.EnablePublicIP),
 		d.Set("ssl_enable", v.SslEnable),
 		d.Set("retention_policy", v.RetentionPolicy),
 		d.Set("dumping", v.ConnectorEnalbe),
 		d.Set("enable_auto_topic", v.EnableAutoTopic),
 		d.Set("storage_spec_code", v.StorageSpecCode),
 		d.Set("enterprise_project_id", v.EnterpriseProjectID),
+		d.Set("manegement_connect_address", v.ManagementConnectAddress),
+		d.Set("management_connect_address", v.ManagementConnectAddress),
+		d.Set("access_user", v.AccessUser),
+		d.Set("cross_vpc_accesses", crossVpcAccess),
+		d.Set("charging_mode", chargingMode),
+		d.Set("public_ip_ids", publicIpIds),
+		d.Set("vpc_client_plain", v.VpcClientPlain),
+		d.Set("port_protocols", flattenKafkaSecurityConfig(v.PortProtocols)),
+		d.Set("port_protocol", flattenKafkaSecurityConfig(v.PortProtocols)),
+		// Attributes.
+		d.Set("engine", v.Engine),
+		d.Set("partition_num", partitionNum),
+		d.Set("enable_public_ip", v.EnablePublicIP),
+		d.Set("public_ip_address", publicIpAddrs),
 		d.Set("used_storage_space", v.UsedStorageSpace),
 		d.Set("connect_address", v.ConnectAddress),
 		d.Set("port", v.Port),
@@ -1212,21 +1357,12 @@ func resourceDmsKafkaInstanceRead(ctx context.Context, d *schema.ResourceData, m
 		d.Set("resource_spec_code", v.ResourceSpecCode),
 		d.Set("user_id", v.UserID),
 		d.Set("user_name", v.UserName),
-		d.Set("manegement_connect_address", v.ManagementConnectAddress),
-		d.Set("management_connect_address", v.ManagementConnectAddress),
-		d.Set("type", v.Type),
-		d.Set("access_user", v.AccessUser),
-		d.Set("cross_vpc_accesses", crossVpcAccess),
-		d.Set("charging_mode", chargingMode),
-		d.Set("public_ip_ids", publicIpIds),
-		d.Set("public_ip_address", publicIpAddrs),
-		d.Set("vpc_client_plain", v.VpcClientPlain),
 		d.Set("extend_times", v.ExtendTimes),
+		d.Set("ipv6_connect_addresses", v.Ipv6ConnectAddresses),
 		d.Set("connector_id", v.ConnectorID),
 		d.Set("connector_node_num", v.ConnectorNodeNum),
 		d.Set("storage_resource_id", v.StorageResourceID),
 		d.Set("storage_type", v.StorageType),
-		d.Set("ipv6_connect_addresses", v.Ipv6ConnectAddresses),
 		d.Set("created_at", utils.FormatTimeStampRFC3339(int64(createdAt)/1000, false)),
 		d.Set("cert_replaced", v.CertReplaced),
 		d.Set("is_logical_volume", v.IsLogicalVolume),
@@ -1235,7 +1371,7 @@ func resourceDmsKafkaInstanceRead(ctx context.Context, d *schema.ResourceData, m
 		d.Set("pod_connect_address", v.PodConnectAddress),
 		d.Set("public_bandwidth", v.PublicBandWidth),
 		d.Set("ssl_two_way_enable", v.SslTwoWayEnable),
-		d.Set("port_protocols", flattenKafkaSecurityConfig(v.PortProtocols)),
+		d.Set("type", v.Type),
 	)
 
 	// set tags
@@ -1445,6 +1581,13 @@ func resourceDmsKafkaInstanceUpdate(ctx context.Context, d *schema.ResourceData,
 		}
 	}
 
+	// This logic must be done before resetting the password, because resetting the password is not possible when SSL has never been enabled.
+	if d.HasChange("port_protocol") {
+		if err = updateInstancePortProtocol(ctx, client, d); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	if d.HasChanges("password", "kms_encrypted_password") {
 		password := d.Get("password").(string)
 		if password == "" {
@@ -1485,6 +1628,7 @@ func resourceDmsKafkaInstanceUpdate(ctx context.Context, d *schema.ResourceData,
 	if mErr.ErrorOrNil() != nil {
 		return diag.Errorf("error while updating DMS Kafka instances, %s", mErr)
 	}
+
 	return resourceDmsKafkaInstanceRead(ctx, d, meta)
 }
 
@@ -1652,6 +1796,122 @@ func kafkaResizeStateRefresh(client *golangsdk.ServiceClient, d *schema.Resource
 
 		return v, v.Status, nil
 	}
+}
+
+func buildSwitchInstancePortProtocolBodyParams(d *schema.ResourceData, protocol string, enable bool) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"protocol":  protocol,
+		"enable":    enable,
+		"user_name": utils.ValueIgnoreEmpty(d.Get("access_user").(string)),
+		"pass_word": utils.ValueIgnoreEmpty(d.Get("password").(string)),
+	}
+
+	// sasl_enabled_mechanisms only support encrypted protocol.
+	encryptedProtocolFields := []string{
+		"private_sasl_ssl_enable",
+		"private_sasl_plaintext_enable",
+		"public_sasl_ssl_enable",
+		"public_sasl_plaintext_enable",
+	}
+	if utils.StrSliceContains(encryptedProtocolFields, protocol) {
+		bodyParams["sasl_enabled_mechanisms"] = utils.ValueIgnoreEmpty(utils.ExpandToStringList(d.Get("enabled_mechanisms").(*schema.Set).List()))
+	}
+
+	return bodyParams
+}
+
+func switchInstancePortProtocol(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
+	protocol string, enable bool) error {
+	var (
+		httpUrl       = "v2/{project_id}/kafka/instances/{instance_id}/plain-ssl-switch"
+		instanceId    = d.Id()
+		updateTimeout = d.Timeout(schema.TimeoutUpdate)
+	)
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", instanceId)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildSwitchInstancePortProtocolBodyParams(d, protocol, enable)),
+	}
+
+	retryFunc := func() (interface{}, bool, error) {
+		resp, err := client.Request("POST", updatePath, &requestOpt)
+		retry, err := handleMultiOperationsError(err)
+		return resp, retry, err
+	}
+	resp, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     KafkaInstanceStateRefreshFunc(client, d.Id()),
+		WaitTarget:   []string{"RUNNING"},
+		Timeout:      updateTimeout,
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating instance port protocol (%s), %s", protocol, err)
+	}
+
+	respBody, err := utils.FlattenResponse(resp.(*http.Response))
+	if err != nil {
+		return err
+	}
+
+	jobId := utils.PathSearch("job_id", respBody, "").(string)
+	if jobId == "" {
+		return fmt.Errorf("unable to find job ID of the instance port protocol (%s) update", protocol)
+	}
+
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"CREATED"},
+		Target:       []string{"SUCCESS"},
+		Refresh:      kafkaInstanceTaskStatusRefreshFunc(client, instanceId, jobId),
+		Timeout:      updateTimeout,
+		Delay:        15 * time.Second,
+		PollInterval: 15 * time.Second,
+	}
+	_, err = stateConf.WaitForStateContext(ctx)
+
+	return err
+}
+
+func updateInstancePortProtocol(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	oldRaw, newRaw := d.GetChange("port_protocol")
+	newPortProtocol := newRaw.([]interface{})[0].(map[string]interface{})
+	oldPortProtocol := oldRaw.([]interface{})[0].(map[string]interface{})
+	parsedPortProtocol := make([]map[string]interface{}, 0, len(newPortProtocol))
+	for k, v := range newPortProtocol {
+		newValue, ok := v.(bool)
+		if !ok {
+			continue
+		}
+
+		// Compare the new and old port protocol, if the value is different, add it to the parsedPortProtocol.
+		if newValue != oldPortProtocol[k].(bool) {
+			item := map[string]interface{}{
+				"key":   k,
+				"value": newValue,
+			}
+
+			// At least one of the port protocol should be enabled, so enable them first and then disable.
+			if newValue {
+				parsedPortProtocol = append([]map[string]interface{}{item}, parsedPortProtocol...)
+				continue
+			}
+			parsedPortProtocol = append(parsedPortProtocol, item)
+		}
+	}
+
+	for _, item := range parsedPortProtocol {
+		err := switchInstancePortProtocol(ctx, client, d, utils.PathSearch("key", item, "").(string),
+			utils.PathSearch("value", item, "").(bool))
+		if err != nil {
+			return fmt.Errorf("error updating port protocol instance (%s), %s", d.Id(), err)
+		}
+	}
+
+	return nil
 }
 
 func resourceDmsKafkaInstanceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
