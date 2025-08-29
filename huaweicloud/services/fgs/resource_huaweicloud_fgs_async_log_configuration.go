@@ -215,12 +215,8 @@ func buildQueryTransfersBodyParams(logGroupName string) string {
 }
 
 func forceDeleteAsyncLogConfiguration(client *golangsdk.ServiceClient, groupId, groupName string) error {
-	log.Printf("[Lance] Ready to execute forceDeleteAsyncLogConfiguration")
-	log.Printf("[Lance] groupId: %s", groupId)
-	log.Printf("[Lance] groupName: %s", groupName)
 	transfers, err := lts.ListTransfers(client, buildQueryTransfersBodyParams(groupName))
 	if err != nil {
-		log.Printf("[Lance] Error querying log transfers: %s", err)
 		// error LTS.0201 means that the log group does not exist.
 		return common.ConvertExpected400ErrInto404Err(err, "error_code", "LTS.0201")
 	}
@@ -238,7 +234,6 @@ func forceDeleteAsyncLogConfiguration(client *golangsdk.ServiceClient, groupId, 
 			return fmt.Errorf("error deleting log transfer (%s): %s", transferId, err)
 		}
 	}
-	log.Printf("[Lance] Successfully deleted all log transfers")
 
 	return lts.DeleteGroupById(client, groupId)
 }
