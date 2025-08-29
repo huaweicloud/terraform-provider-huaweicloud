@@ -2794,6 +2794,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_sqlserver_database_copy":        rds.ResourceSQLServerDatabaseCopy(),
 			"huaweicloud_rds_sqlserver_database_privilege":   rds.ResourceSQLServerDatabasePrivilege(),
 			"huaweicloud_rds_instance":                       rds.ResourceRdsInstance(),
+			"huaweicloud_rds_instance_restart":               rds.ResourceInstanceRestart(),
 			"huaweicloud_rds_instance_eip_associate":         rds.ResourceRdsInstanceEipAssociate(),
 			"huaweicloud_rds_parametergroup":                 rds.ResourceRdsConfiguration(),
 			"huaweicloud_rds_parametergroup_copy":            rds.ResourceRdsConfigurationCopy(),
