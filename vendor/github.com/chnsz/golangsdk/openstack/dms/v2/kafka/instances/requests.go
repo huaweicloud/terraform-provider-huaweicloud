@@ -150,6 +150,12 @@ type CreateOps struct {
 
 	// Indicates the parameter related to the yearly/monthly billing mode.
 	BssParam BssParam `json:"bss_param,omitempty"`
+
+	// The access mode of the Kafka instance.
+	PortProtocol *PortProtocol `json:"port_protocol,omitempty"`
+
+	// The private IP addresses of the Kafka instance.
+	TenantIps []string `json:"tenant_ips,omitempty"`
 }
 
 type BssParam struct {
@@ -169,6 +175,39 @@ type BssParam struct {
 	IsAutoPay *bool `json:"is_auto_pay,omitempty"`
 }
 
+type PortProtocol struct {
+	// Whether to enable private plaintext access. Default to `false`.
+	// + true: Enable private plaintext access. Connection address: ip:9092, access protocol: PLAINTEXT.
+	// + false: Disable private plaintext access.
+	PrivatePlainEnable *bool `json:"private_plain_enable,omitempty"`
+
+	// Whether to enable private ciphertext access mode with the SASL_SSL security protocol. Default to `false`.
+	// `private_sasl_ssl_enable` and `private_sasl_plaintext_enable` cannot be set to `true` at the same time.
+	PrivateSaslSslEnable *bool `json:"private_sasl_ssl_enable,omitempty"`
+
+	// Whether to enable private SASL plaintext access. Default to `false`.
+	// Connection address: ip:9093, access protocol: SASL_PLAINTEXT.
+	// `private_sasl_plaintext_enable` and `private_sasl_ssl_enable` cannot be set to `true` at the same time.
+	PrivateSaslPlaintextEnable *bool `json:"private_sasl_plaintext_enable,omitempty"`
+
+	// Whether to enable public plaintext access. Default to `false`.
+	// Before enabling public plaintext access, you must enable public network access.
+	// Connection address: ip:9094, access protocol: PLAINTEXT.
+	PublicPlainEnable *bool `json:"public_plain_enable,omitempty"`
+
+	// Whether to enable public SASL SSL access. Default to `false`.
+	// Connection address: ip:9095, access protocol: SASL_SSL.
+	// `public_sasl_ssl_enable` and `public_sasl_plaintext_enable` cannot be set to `true` at the same time.
+	// When this parameter is set to `true`, the instance must be enabled for public network access.
+	PublicSaslSslEnable *bool `json:"public_sasl_ssl_enable,omitempty"`
+
+	// Whether to enable public SASL plaintext access. Default to `false`.
+	// Connection address: ip:9095, access protocol: SASL_PLAINTEXT.
+	// `public_sasl_plaintext_enable` and `public_sasl_ssl_enable` cannot be set to `true` at the same time.
+	// When this parameter is set to `true`, the instance must be enabled for public network access.
+	PublicSaslPlaintextEnable *bool `json:"public_sasl_plaintext_enable,omitempty"`
+}
+
 // ToInstanceCreateMap is used for type convert
 func (ops CreateOps) ToInstanceCreateMap() (map[string]interface{}, error) {
 	return golangsdk.BuildRequestBody(ops, "")
@@ -183,6 +222,20 @@ func Create(client *golangsdk.ServiceClient, ops CreateOpsBuilder) (r CreateResu
 	}
 
 	_, r.Err = client.Post(createURL(client), b, &r.Body, &golangsdk.RequestOpts{
+		OkCodes: []int{200},
+	})
+
+	return
+}
+
+func CreateWithEngine(client *golangsdk.ServiceClient, ops CreateOpsBuilder, engine string) (r CreateResult) {
+	b, err := ops.ToInstanceCreateMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = client.Post(createURLWithEngine(engine, client), b, &r.Body, &golangsdk.RequestOpts{
 		OkCodes: []int{200},
 	})
 

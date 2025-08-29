@@ -139,8 +139,11 @@ The following arguments are supported:
 
   -> The number of specified IP addresses must be less than or equal to the number of new brokers.
 
-* `access_user` - (Optional, String, ForceNew) Specifies the username of SASL_SSL user. A username consists of 4
+* `access_user` - (Optional, String) Specifies the username of SASL_SSL user. A username consists of 4
   to 64 characters and supports only letters, digits, and hyphens (-). Changing this creates a new instance resource.
+
+  -> This parameter can be modified only when SSL is enabled for the first time using the `port_protocol` parameter.
+     This parameter cannot be modified after encrypted access is enabled.
 
 * `password` - (Optional, String) Specifies the password of SASL_SSL user. A password must meet the following
   complexity requirements: Must be 8 to 32 characters long. Must contain at least 2 of the following character types:
@@ -155,12 +158,18 @@ The following arguments are supported:
   
   Defaults to **SASL_SSL**. Changing this creates a new instance resource.
 
-* `enabled_mechanisms` - (Optional, List, ForceNew) Specifies the authentication mechanisms to use after SASL is
+  -> If `port_protocol` is used to set the private network access security protocol and the public network access
+  security protocol, this parameter is invalid.
+
+* `enabled_mechanisms` - (Optional, List) Specifies the authentication mechanisms to use after SASL is
   enabled. Value options:
   + **PLAIN**: Simple username and password verification.
   + **SCRAM-SHA-512**: User credential verification, which is more secure than **PLAIN**.
   
   Defaults to [**PLAIN**]. Changing this creates a new instance resource.
+
+  -> This parameter can be modified only when SSL is enabled for the first time using the `port_protocol` parameter.
+     This parameter cannot be modified after encrypted access is enabled.
 
 * `description` - (Optional, String) Specifies the description of the DMS Kafka instance. It is a character string
   containing not more than 1,024 characters.
@@ -213,8 +222,10 @@ The following arguments are supported:
 
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID of the Kafka instance.
 
-* `ssl_enable` - (Optional, Bool, ForceNew) Specifies whether the Kafka SASL_SSL is enabled.
-  Changing this creates a new resource.
+* `ssl_enable` - (Optional, Bool, ForceNew) Specifies whether the Kafka SASL_SSL is enabled.  
+  Defaults to **false**.  
+  Changing this creates a new resource.  
+  When both `port_protocol` and `ssl_enable` parameters are set, `port_protocol` takes precedence.
 
 * `vpc_client_plain` - (Optional, Bool, ForceNew) Specifies whether the intra-VPC plaintext access is enabled.
   Defaults to **false**. Changing this creates a new resource.
@@ -223,6 +234,9 @@ The following arguments are supported:
 
 * `cross_vpc_accesses` - (Optional, List) Specifies the cross-VPC access information.
   The [object](#dms_cross_vpc_accesses) structure is documented below.
+
+* `port_protocol` - (Optional, List) Specifies the port protocol information.  
+  The [object](#kafka_instance_port_protocol) structure is documented below.
 
 * `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the instance. Valid values are *prePaid*
   and *postPaid*, defaults to *postPaid*. Changing this creates a new resource.
@@ -248,6 +262,25 @@ The `parameters` block supports:
 * `name` - (Required, String) Specifies the parameter name. Static parameter needs to restart the instance to take effect.
 
 * `value` - (Required, String) Specifies the parameter value.
+
+<a name="kafka_instance_port_protocol"></a>
+The `port_protocol` block supports:
+
+* `private_plain_enable` - (Optional, Bool) Specifies whether the private plaintext access is enabled.
+
+  -> The private plaintext access and private SSL access cannot be disabled at the same time.
+
+* `private_sasl_ssl_enable` - (Optional, Bool) Specifies whether the private SASL SSL access is enabled.  
+  This parameter and `private_sasl_plaintext_enable` cannot be set to `true` at the same time.
+
+* `private_sasl_plaintext_enable` - (Optional, Bool) Specifies whether the private SASL plaintext access is enabled.
+
+* `public_plain_enable` - (Optional, Bool) Specifies whether the public plaintext access is enabled.
+
+* `public_sasl_ssl_enable` - (Optional, Bool) Specifies whether the public SASL SSL access is enabled.
+  This parameter and `public_sasl_plaintext_enable` cannot be set to **true** at the same time.
+
+* `public_sasl_plaintext_enable` - (Optional, Bool) Specifies whether the public SASL plaintext access is enabled.
 
 ## Attribute Reference
 
@@ -283,8 +316,9 @@ In addition to all arguments above, the following attributes are exported:
 * `pod_connect_address` - Indicates the connection address on the tenant side.
 * `public_bandwidth` - Indicates the public network access bandwidth.
 * `ssl_two_way_enable` - Indicates whether to enable two-way authentication.
-* `port_protocols` - Indicates instance connection address. The structure is documented below.
-  The [port_protocols](#attr_port_protocols) structure is documented below.
+
+* `port_protocol` - Indicates instance connection address. The structure is documented below.
+  The [port_protocol](#dms_instance_port_protocol_attr) structure is documented below.
 
 <a name="attr_cross_vpc_accesses"></a>
 The `cross_vpc_accesses` block supports:
@@ -293,26 +327,31 @@ The `cross_vpc_accesses` block supports:
 * `port` - The port number.
 * `port_id` - The port ID associated with the address.
 
-<a name="attr_port_protocols"></a>
+<a name="dms_instance_port_protocol_attr"></a>
 The `port_protocols` block supports:
 
-* `private_plain_enable` - Whether the private plain enabled.
 * `private_plain_address` - The private plain address.
+
 * `private_plain_domain_name` - The private plain domain name.
-* `private_sasl_ssl_enable` - Whether the private sasl ssl enabled.
+
 * `private_sasl_ssl_address` - The private sasl ssl address.
+
 * `private_sasl_ssl_domain_name` - The private sasl ssl domain name.
-* `private_sasl_plaintext_enable` - Whether the private sasl plaintext enabled.
+
 * `private_sasl_plaintext_address` - The private sasl plaintext address.
+
 * `private_sasl_plaintext_domain_name` - The private sasl plaintext domain name.
-* `public_plain_enable` - Whether the public plain enabled.
+
 * `public_plain_address` - The public plain address.
+
 * `public_plain_domain_name` - The public plain domain name.
-* `public_sasl_ssl_enable` - Whether the public sasl ssl enabled.
+
 * `public_sasl_ssl_address` - The public sasl ssl address.
+
 * `public_sasl_ssl_domain_name` - The public sasl ssl domain name.
-* `public_sasl_plaintext_enable` - Whether the public sasl plaintext enabled.
+
 * `public_sasl_plaintext_address` - The public sasl plaintext address.
+
 * `public_sasl_plaintext_domain_name` - The public sasl plaintext domain name.
 
 ## Timeouts
@@ -333,7 +372,7 @@ DMS Kafka instance can be imported using the instance id, e.g.
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include:
-`password`, `public_ip_ids`, `security_protocol`, `enabled_mechanisms` and `arch_type`.
+`password`, `security_protocol`, `enabled_mechanisms`, `arch_type` and `new_tenant_ips`.
 It is generally recommended running `terraform plan` after importing
 a DMS Kafka instance. You can then decide if changes should be applied to the instance, or the resource definition
 should be updated to align with the instance. Also you can ignore changes as below.
@@ -344,7 +383,7 @@ resource "huaweicloud_dms_kafka_instance" "instance_1" {
 
   lifecycle {
     ignore_changes = [
-      password,
+      password, security_protocol, enabled_mechanisms, arch_type, new_tenant_ips
     ]
   }
 }
