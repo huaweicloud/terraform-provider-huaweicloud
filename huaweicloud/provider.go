@@ -612,7 +612,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cae_applications":       cae.DataSourceApplications(),
 			"huaweicloud_cae_components":         cae.DataSourceComponents(),
 			"huaweicloud_cae_environments":       cae.DataSourceEnvironments(),
-			"huaweicloud_cae_notification_rules": cae.DataSourceCaeNotificationRules(),
+			"huaweicloud_cae_notification_rules": cae.DataSourceNotificationRules(),
 
 			"huaweicloud_cbr_agent_checks":             cbr.DataSourceAgentChecks(),
 			"huaweicloud_cbr_backup":                   cbr.DataSourceBackup(),

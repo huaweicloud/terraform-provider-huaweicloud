@@ -27,6 +27,7 @@ func ResourceNotificationRule() *schema.Resource {
 		ReadContext:   resourceNotificationRuleRead,
 		UpdateContext: resourceNotificationRuleUpdate,
 		DeleteContext: resourceNotificationRuleDelete,
+
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceNotificationRuleImportState,
 		},
@@ -141,10 +142,25 @@ func ResourceNotificationRule() *schema.Resource {
 				},
 				Description: `The configuration of the event notification.`,
 			},
+
+			// Optional parameter(s).
 			"enabled": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Description: `Whether to enable the event notification rule.`,
+			},
+
+			// Internal parameter(s).
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Description: utils.SchemaDesc(
+					`The ID of the enterprise project to which the notification rule belongs.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
 			},
 		},
 	}
@@ -210,6 +226,7 @@ func resourceNotificationRuleCreate(ctx context.Context, d *schema.ResourceData,
 	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		JSONBody:         utils.RemoveNil(buildCreateEventNotificationRuleBodyParams(d)),
+		MoreHeaders:      buildRequestMoreHeaders("", cfg.GetEnterpriseProjectID(d)),
 	}
 	resp, err := client.Request("POST", createPath, &createOpt)
 	if err != nil {
@@ -242,7 +259,7 @@ func resourceNotificationRuleRead(_ context.Context, d *schema.ResourceData, met
 		return diag.Errorf("error creating CAE client: %s", err)
 	}
 
-	notificationRule, err := GetEventNotificationRuleById(client, d.Id())
+	notificationRule, err := GetEventNotificationRuleById(client, d.Id(), cfg.GetEnterpriseProjectID(d))
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error retrieving event notification rule (%s)", d.Get("name").(string)))
 	}
@@ -291,13 +308,14 @@ func flattenRuleNotification(notification interface{}) []map[string]interface{} 
 	}
 }
 
-func GetEventNotificationRuleById(client *golangsdk.ServiceClient, notificationRuleId string) (interface{}, error) {
+func GetEventNotificationRuleById(client *golangsdk.ServiceClient, notificationRuleId, epsId string) (interface{}, error) {
 	httpUrl := "v1/{project_id}/cae/notice-rules/{rule_id}"
 	getPath := client.Endpoint + httpUrl
 	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
 	getPath = strings.ReplaceAll(getPath, "{rule_id}", notificationRuleId)
 	getOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders:      buildRequestMoreHeaders("", epsId),
 	}
 	resp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
@@ -338,6 +356,7 @@ func resourceNotificationRuleUpdate(ctx context.Context, d *schema.ResourceData,
 		updateOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
 			JSONBody:         utils.RemoveNil(buildUpdateEventNotificationRuleBodyParams(d)),
+			MoreHeaders:      buildRequestMoreHeaders("", cfg.GetEnterpriseProjectID(d)),
 		}
 		_, err = client.Request("PUT", updatePath, &updateOpt)
 		if err != nil {
@@ -365,6 +384,7 @@ func resourceNotificationRuleDelete(_ context.Context, d *schema.ResourceData, m
 
 	deleteOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders:      buildRequestMoreHeaders("", cfg.GetEnterpriseProjectID(d)),
 	}
 
 	_, err = client.Request("DELETE", deletePath, &deleteOpt)
@@ -376,12 +396,14 @@ func resourceNotificationRuleDelete(_ context.Context, d *schema.ResourceData, m
 	return nil
 }
 
-func getEventNotificationRules(client *golangsdk.ServiceClient) (interface{}, error) {
+func getEventNotificationRules(client *golangsdk.ServiceClient, epsId string) (interface{}, error) {
 	httpUrl := "v1/{project_id}/cae/notice-rules"
 	listPath := client.Endpoint + httpUrl
 	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
+
 	getListOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders:      buildRequestMoreHeaders("", epsId),
 	}
 	resp, err := client.Request("GET", listPath, &getListOpt)
 	if err != nil {
@@ -391,11 +413,24 @@ func getEventNotificationRules(client *golangsdk.ServiceClient) (interface{}, er
 	return utils.FlattenResponse(resp)
 }
 
+func getEventNotificationRuleIdByName(client *golangsdk.ServiceClient, notificationRuleName, epsId string) (string, error) {
+	notificationRules, err := getEventNotificationRules(client, epsId)
+	if err != nil {
+		return "", fmt.Errorf("error retrieving event notification rules: %s", err)
+	}
+
+	notificationRuleId := utils.PathSearch(fmt.Sprintf("items[?name=='%s']|[0].id", notificationRuleName), notificationRules, "").(string)
+	if notificationRuleId == "" {
+		return "", fmt.Errorf("unable to find event notification rule ID (%s) from API response : %s", notificationRuleName, err)
+	}
+	return notificationRuleId, nil
+}
+
 // Since the ID cannot be found on the console, so we need to import by the event notification rule name.
 func resourceNotificationRuleImportState(_ context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	var (
-		cfg                  = meta.(*config.Config)
-		notificationRuleName = d.Id()
+		cfg        = meta.(*config.Config)
+		importedId = d.Id()
 	)
 
 	client, err := cfg.NewServiceClient("cae", cfg.GetRegion(d))
@@ -403,17 +438,34 @@ func resourceNotificationRuleImportState(_ context.Context, d *schema.ResourceDa
 		return nil, fmt.Errorf("error creating CAE client: %s", err)
 	}
 
-	notificationRules, err := getEventNotificationRules(client)
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving event notification rules: %s", err)
+	errorMsg := fmt.Errorf("invalid notification rule import (%s), expected format: '<id>', '<name>', '<id>/<enterprise_project_id>' "+
+		"or '<name>/<enterprise_project_id>'", importedId)
+	if importedId == "" {
+		return nil, errorMsg
 	}
 
-	notificationRuleId := utils.PathSearch(fmt.Sprintf("items[?name=='%s']|[0].id", notificationRuleName), notificationRules, "").(string)
-	if notificationRuleId == "" {
-		return []*schema.ResourceData{d},
-			fmt.Errorf("unable to find event notification rule ID (%s) from API response : %s", notificationRuleName, err)
+	parts := strings.Split(importedId, "/")
+	switch len(parts) {
+	case 1:
+		if !utils.IsUUID(importedId) {
+			notificationRuleId, err := getEventNotificationRuleIdByName(client, importedId, cfg.GetEnterpriseProjectID(d))
+			if err != nil {
+				return nil, err
+			}
+			d.SetId(notificationRuleId)
+		}
+	case 2:
+		if !utils.IsUUID(parts[0]) {
+			notificationRuleId, err := getEventNotificationRuleIdByName(client, importedId, cfg.GetEnterpriseProjectID(d))
+			if err != nil {
+				return nil, err
+			}
+			d.SetId(notificationRuleId)
+		}
+		d.Set("enterprise_project_id", parts[1])
+	default:
+		return nil, errorMsg
 	}
 
-	d.SetId(notificationRuleId)
 	return []*schema.ResourceData{d}, nil
 }

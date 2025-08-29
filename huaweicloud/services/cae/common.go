@@ -25,8 +25,10 @@ func marshalJsonFormatParamster(paramName, paramVal interface{}) interface{} {
 
 func buildRequestMoreHeaders(envId, epsId string) map[string]string {
 	moreHeaders := map[string]string{
-		"Content-Type":     "application/json",
-		"X-Environment-ID": envId,
+		"Content-Type": "application/json",
+	}
+	if envId != "" {
+		moreHeaders["X-Environment-ID"] = envId
 	}
 	if epsId != "" {
 		moreHeaders["X-Enterprise-Project-ID"] = epsId
