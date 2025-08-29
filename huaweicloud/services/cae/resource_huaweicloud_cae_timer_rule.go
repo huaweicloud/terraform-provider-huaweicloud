@@ -111,6 +111,12 @@ func ResourceTimerRule() *schema.Resource {
 				},
 				Description: `The list of the components in which the timer rule takes effect.`,
 			},
+			"enterprise_project_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The ID of the enterprise project to which the timer rule belongs.`,
+			},
 		},
 	}
 }
@@ -177,10 +183,8 @@ func resourceTimerRuleCreate(ctx context.Context, d *schema.ResourceData, meta i
 	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
 	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"X-Environment-Id": d.Get("environment_id").(string),
-		},
-		JSONBody: utils.RemoveNil(buildTimerRuleBodyParams(d)),
+		MoreHeaders:      buildRequestMoreHeaders(d.Get("environment_id").(string), cfg.GetEnterpriseProjectID(d)),
+		JSONBody:         utils.RemoveNil(buildTimerRuleBodyParams(d)),
 	}
 	resp, err := client.Request("POST", createPath, &createOpt)
 	if err != nil {
@@ -202,8 +206,8 @@ func resourceTimerRuleCreate(ctx context.Context, d *schema.ResourceData, meta i
 	return resourceTimerRuleRead(ctx, d, meta)
 }
 
-func GetTimerRuleById(client *golangsdk.ServiceClient, environmentId, timerRuleId string) (interface{}, error) {
-	timerRules, err := getTimerRules(client, environmentId)
+func GetTimerRuleById(client *golangsdk.ServiceClient, environmentId, timerRuleId, epsId string) (interface{}, error) {
+	timerRules, err := getTimerRules(client, environmentId, epsId)
 	if err != nil {
 		return nil, common.ConvertExpected400ErrInto404Err(err, "error_code", envResourceNotFoundCodes...)
 	}
@@ -215,15 +219,13 @@ func GetTimerRuleById(client *golangsdk.ServiceClient, environmentId, timerRuleI
 	return timerRule, nil
 }
 
-func getTimerRules(client *golangsdk.ServiceClient, environmentId string) (interface{}, error) {
+func getTimerRules(client *golangsdk.ServiceClient, environmentId, epsId string) (interface{}, error) {
 	httpUrl := "v1/{project_id}/cae/timer-rules"
 	listPath := client.Endpoint + httpUrl
 	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
 	getListOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"X-Environment-Id": environmentId,
-		},
+		MoreHeaders:      buildRequestMoreHeaders(environmentId, epsId),
 	}
 	resp, err := client.Request("GET", listPath, &getListOpt)
 	if err != nil {
@@ -244,7 +246,7 @@ func resourceTimerRuleRead(_ context.Context, d *schema.ResourceData, meta inter
 		return diag.Errorf("error creating CAE client: %s", err)
 	}
 
-	timerRule, err := GetTimerRuleById(client, d.Get("environment_id").(string), d.Id())
+	timerRule, err := GetTimerRuleById(client, d.Get("environment_id").(string), d.Id(), cfg.GetEnterpriseProjectID(d))
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error retrieving the timer rule (%s)", d.Get("name").(string)))
 	}
@@ -310,11 +312,9 @@ func resourceTimerRuleUpdate(ctx context.Context, d *schema.ResourceData, meta i
 	updatePath = strings.ReplaceAll(updatePath, "{timer_rule_id}", d.Id())
 	updateOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"X-Environment-Id": d.Get("environment_id").(string),
-		},
-		JSONBody: utils.RemoveNil(buildTimerRuleBodyParams(d)),
-		OkCodes:  []int{204},
+		MoreHeaders:      buildRequestMoreHeaders(d.Get("environment_id").(string), cfg.GetEnterpriseProjectID(d)),
+		JSONBody:         utils.RemoveNil(buildTimerRuleBodyParams(d)),
+		OkCodes:          []int{204},
 	}
 	_, err = client.Request("PUT", updatePath, &updateOpt)
 	if err != nil {
@@ -341,9 +341,7 @@ func resourceTimerRuleDelete(_ context.Context, d *schema.ResourceData, meta int
 
 	deleteOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"X-Environment-Id": d.Get("environment_id").(string),
-		},
+		MoreHeaders:      buildRequestMoreHeaders(d.Get("environment_id").(string), cfg.GetEnterpriseProjectID(d)),
 	}
 
 	_, err = client.Request("DELETE", deletePath, &deleteOpt)
@@ -362,18 +360,23 @@ func resourceTimerRuleImportState(_ context.Context, d *schema.ResourceData, met
 		parts      = strings.Split(importedId, "/")
 	)
 
-	if len(parts) != 2 {
-		return nil, fmt.Errorf("invalid format specified for import ID, want '<environment_id>/<name>', but got '%s'",
+	if len(parts) != 2 && len(parts) != 3 {
+		return nil, fmt.Errorf("invalid format specified for import ID, want '<environment_id>/<name>' or "+
+			"'<environment_id>/<name>/<enterprise_project_id>', but got '%s'",
 			importedId)
 	}
 
-	var (
-		environmentId = parts[0]
-		timerRuleName = parts[1]
-	)
-	mErr := multierror.Append(nil,
+	timerRuleName := parts[1]
+	environmentId := parts[0]
+	mErr := multierror.Append(
 		d.Set("environment_id", environmentId),
+		d.Set("name", timerRuleName),
 	)
+
+	if len(parts) == 3 {
+		mErr = multierror.Append(mErr, d.Set("enterprise_project_id", parts[2]))
+	}
+
 	if mErr.ErrorOrNil() != nil {
 		return nil, mErr
 	}
@@ -383,7 +386,7 @@ func resourceTimerRuleImportState(_ context.Context, d *schema.ResourceData, met
 		return nil, fmt.Errorf("error creating CAE client: %s", err)
 	}
 
-	timerRules, err := getTimerRules(client, environmentId)
+	timerRules, err := getTimerRules(client, environmentId, cfg.GetEnterpriseProjectID(d))
 	if err != nil {
 		return nil, fmt.Errorf("error retrieving the timer rules: %s", err)
 	}

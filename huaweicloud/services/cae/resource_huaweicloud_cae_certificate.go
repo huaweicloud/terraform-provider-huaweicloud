@@ -66,6 +66,12 @@ func ResourceCertificate() *schema.Resource {
 				Sensitive:   true,
 				Description: `The private key of the certificate.`,
 			},
+			"enterprise_project_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The ID of the enterprise project to which the certificate belongs.`,
+			},
 			"created_at": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -110,10 +116,8 @@ func resourceCertificateCreate(ctx context.Context, d *schema.ResourceData, meta
 	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
 	createOpts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"X-Environment-Id": environmentId,
-		},
-		JSONBody: buildCertificateBodyParams(d, true),
+		MoreHeaders:      buildRequestMoreHeaders(environmentId, cfg.GetEnterpriseProjectID(d)),
+		JSONBody:         buildCertificateBodyParams(d, true),
 	}
 	createResp, err := client.Request("POST", createPath, &createOpts)
 	if err != nil {
@@ -134,8 +138,8 @@ func resourceCertificateCreate(ctx context.Context, d *schema.ResourceData, meta
 	return resourceCertificateRead(ctx, d, meta)
 }
 
-func GetCertificateById(client *golangsdk.ServiceClient, environmentId, certificateId string) (interface{}, error) {
-	certificateInfos, err := getCertificates(client, environmentId)
+func GetCertificateById(client *golangsdk.ServiceClient, environmentId, certificateId, epsId string) (interface{}, error) {
+	certificateInfos, err := getCertificates(client, environmentId, epsId)
 	if err != nil {
 		return nil, common.ConvertExpected400ErrInto404Err(err, "error_code", envResourceNotFoundCodes...)
 	}
@@ -148,15 +152,13 @@ func GetCertificateById(client *golangsdk.ServiceClient, environmentId, certific
 	return certificateInfo, nil
 }
 
-func getCertificates(client *golangsdk.ServiceClient, environmentId string) (interface{}, error) {
+func getCertificates(client *golangsdk.ServiceClient, environmentId, epsId string) (interface{}, error) {
 	httpUrl := "v1/{project_id}/cae/certificates"
 	listPath := client.Endpoint + httpUrl
 	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
 	listOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"X-Environment-Id": environmentId,
-		},
+		MoreHeaders:      buildRequestMoreHeaders(environmentId, epsId),
 	}
 	resp, err := client.Request("GET", listPath, &listOpt)
 	if err != nil {
@@ -177,7 +179,7 @@ func resourceCertificateRead(_ context.Context, d *schema.ResourceData, meta int
 		return diag.Errorf("error creating CAE client: %s", err)
 	}
 
-	certificateInfo, err := GetCertificateById(client, d.Get("environment_id").(string), d.Id())
+	certificateInfo, err := GetCertificateById(client, d.Get("environment_id").(string), d.Id(), cfg.GetEnterpriseProjectID(d))
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving certificate")
 	}
@@ -207,11 +209,9 @@ func resourceCertificateUpdate(ctx context.Context, d *schema.ResourceData, meta
 		updatePath = strings.ReplaceAll(updatePath, "{certificate_id}", d.Id())
 		updateOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
-			MoreHeaders: map[string]string{
-				"X-Environment-Id": d.Get("environment_id").(string),
-			},
-			JSONBody: buildCertificateBodyParams(d, false),
-			OkCodes:  []int{204},
+			MoreHeaders:      buildRequestMoreHeaders(d.Get("environment_id").(string), cfg.GetEnterpriseProjectID(d)),
+			JSONBody:         buildCertificateBodyParams(d, false),
+			OkCodes:          []int{204},
 		}
 
 		_, err = client.Request("PUT", updatePath, &updateOpt)
@@ -238,9 +238,7 @@ func resourceCertificateDelete(_ context.Context, d *schema.ResourceData, meta i
 	deletePath = strings.ReplaceAll(deletePath, "{certificate_id}", d.Id())
 	deleteOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"X-Environment-Id": d.Get("environment_id").(string),
-		},
+		MoreHeaders:      buildRequestMoreHeaders(d.Get("environment_id").(string), cfg.GetEnterpriseProjectID(d)),
 	}
 
 	_, err = client.Request("DELETE", deletePath, &deleteOpt)
@@ -257,16 +255,23 @@ func resourceCertificateImportState(_ context.Context, d *schema.ResourceData, m
 		cfg        = meta.(*config.Config)
 		importedId = d.Id()
 		parts      = strings.Split(importedId, "/")
+		mErr       *multierror.Error
 	)
 
-	if len(parts) != 2 {
-		return nil, fmt.Errorf("invalid format specified for import ID, want '<environment_id>/<name>', but got '%s'",
+	switch len(parts) {
+	case 2:
+		mErr = multierror.Append(d.Set("environment_id", parts[0]))
+	case 3:
+		mErr = multierror.Append(
+			d.Set("environment_id", parts[0]),
+			d.Set("enterprise_project_id", parts[2]),
+		)
+	default:
+		return nil, fmt.Errorf("invalid format specified for import ID, want '<environment_id>/<name>' or "+
+			"'<environment_id>/<name>/<enterprise_project_id>', but got '%s'",
 			importedId)
 	}
 
-	mErr := multierror.Append(nil,
-		d.Set("environment_id", parts[0]),
-	)
 	if mErr.ErrorOrNil() != nil {
 		return nil, mErr
 	}
@@ -276,7 +281,7 @@ func resourceCertificateImportState(_ context.Context, d *schema.ResourceData, m
 		return nil, fmt.Errorf("error creating CAE client: %s", err)
 	}
 
-	certificates, err := getCertificates(client, parts[0])
+	certificates, err := getCertificates(client, parts[0], cfg.GetEnterpriseProjectID(d))
 	if err != nil {
 		return nil, fmt.Errorf("error retrieving the list of the certificates: %s", err)
 	}

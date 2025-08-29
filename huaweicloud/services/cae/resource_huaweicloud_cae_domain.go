@@ -47,6 +47,12 @@ func ResourceDomain() *schema.Resource {
 				ForceNew:    true,
 				Description: `The domain name to be associated with the CAE environment.`,
 			},
+			"enterprise_project_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The ID of the enterprise project to which the domain name belongs.`,
+			},
 			"created_at": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -82,10 +88,8 @@ func resourceDomainCreate(ctx context.Context, d *schema.ResourceData, meta inte
 	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
 	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"X-Environment-ID": environmentId,
-		},
-		JSONBody: buildCreateDomainBodyParams(d),
+		MoreHeaders:      buildRequestMoreHeaders(environmentId, cfg.GetEnterpriseProjectID(d)),
+		JSONBody:         buildCreateDomainBodyParams(d),
 	}
 	resp, err := client.Request("POST", createPath, &createOpt)
 	if err != nil {
@@ -118,7 +122,7 @@ func resourceDomainRead(_ context.Context, d *schema.ResourceData, meta interfac
 		return diag.Errorf("error creating CAE client: %s", err)
 	}
 
-	domainInfo, err := GetDomainById(client, d.Get("environment_id").(string), d.Id())
+	domainInfo, err := GetDomainById(client, d.Get("environment_id").(string), d.Id(), cfg.GetEnterpriseProjectID(d))
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error retrieving domain name (%s)", d.Get("name").(string)))
 	}
@@ -132,8 +136,8 @@ func resourceDomainRead(_ context.Context, d *schema.ResourceData, meta interfac
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func GetDomainById(client *golangsdk.ServiceClient, environmentId, domainId string) (interface{}, error) {
-	domains, err := getDomains(client, environmentId)
+func GetDomainById(client *golangsdk.ServiceClient, environmentId, domainId, epsId string) (interface{}, error) {
+	domains, err := getDomains(client, environmentId, epsId)
 	if err != nil {
 		return nil, common.ConvertExpected400ErrInto404Err(err, "error_code", envResourceNotFoundCodes...)
 	}
@@ -162,9 +166,7 @@ func resourceDomainDelete(_ context.Context, d *schema.ResourceData, meta interf
 
 	deleteOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"X-Environment-ID": d.Get("environment_id").(string),
-		},
+		MoreHeaders:      buildRequestMoreHeaders(d.Get("environment_id").(string), cfg.GetEnterpriseProjectID(d)),
 	}
 
 	_, err = client.Request("DELETE", deletePath, &deleteOpt)
@@ -176,15 +178,13 @@ func resourceDomainDelete(_ context.Context, d *schema.ResourceData, meta interf
 	return nil
 }
 
-func getDomains(client *golangsdk.ServiceClient, environmentId string) (interface{}, error) {
+func getDomains(client *golangsdk.ServiceClient, environmentId, epsId string) (interface{}, error) {
 	httpUrl := "v1/{project_id}/cae/domains"
 	listPath := client.Endpoint + httpUrl
 	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
 	listOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"X-Environment-ID": environmentId,
-		},
+		MoreHeaders:      buildRequestMoreHeaders(environmentId, epsId),
 	}
 	resp, err := client.Request("GET", listPath, &listOpt)
 	if err != nil {
@@ -202,8 +202,9 @@ func resourceDomainImportState(_ context.Context, d *schema.ResourceData, meta i
 		parts      = strings.Split(importedId, "/")
 	)
 
-	if len(parts) != 2 {
-		return nil, fmt.Errorf("invalid format specified for import ID, want '<environment_id>/<name>', but got '%s'",
+	if len(parts) != 2 && len(parts) != 3 {
+		return nil, fmt.Errorf("invalid format specified for import ID, want '<environment_id>/<name>' or "+
+			"'<environment_id>/<name>/<enterprise_project_id>', but got '%s'",
 			importedId)
 	}
 
@@ -211,9 +212,16 @@ func resourceDomainImportState(_ context.Context, d *schema.ResourceData, meta i
 		environmentId = parts[0]
 		domainName    = parts[1]
 	)
-	mErr := multierror.Append(nil,
+
+	mErr := multierror.Append(
 		d.Set("environment_id", environmentId),
+		d.Set("name", domainName),
 	)
+
+	if len(parts) == 3 {
+		mErr = multierror.Append(mErr, d.Set("enterprise_project_id", parts[2]))
+	}
+
 	if mErr.ErrorOrNil() != nil {
 		return nil, mErr
 	}
@@ -223,7 +231,7 @@ func resourceDomainImportState(_ context.Context, d *schema.ResourceData, meta i
 		return nil, fmt.Errorf("error creating CAE client: %s", err)
 	}
 
-	domains, err := getDomains(client, environmentId)
+	domains, err := getDomains(client, environmentId, cfg.GetEnterpriseProjectID(d))
 	if err != nil {
 		return nil, fmt.Errorf("error retrieving domains: %s", err)
 	}

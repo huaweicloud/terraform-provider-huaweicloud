@@ -58,6 +58,12 @@ func ResourceVpcEgress() *schema.Resource {
 				ForceNew:    true,
 				Description: `The destination CIDR of the routing table corresponding to the subnet to which the CAE environment belongs.`,
 			},
+			"enterprise_project_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The ID of the enterprise project to which the VPC egress belongs.`,
+			},
 		},
 	}
 }
@@ -93,10 +99,8 @@ func resourceVpcEgressCreate(ctx context.Context, d *schema.ResourceData, meta i
 	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
 	createOpts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"X-Environment-Id": environmentId,
-		},
-		JSONBody: buildCreateVpcEgressBodyParams(d),
+		MoreHeaders:      buildRequestMoreHeaders(environmentId, cfg.GetEnterpriseProjectID(d)),
+		JSONBody:         buildCreateVpcEgressBodyParams(d),
 	}
 	createResp, err := client.Request("POST", createPath, &createOpts)
 	if err != nil {
@@ -117,8 +121,8 @@ func resourceVpcEgressCreate(ctx context.Context, d *schema.ResourceData, meta i
 	return resourceVpcEgressRead(ctx, d, meta)
 }
 
-func GetVpcEgressById(client *golangsdk.ServiceClient, environmentId, vpcEgressId string) (interface{}, error) {
-	vpcEgresses, err := getVpcEgresses(client, environmentId)
+func GetVpcEgressById(client *golangsdk.ServiceClient, environmentId, vpcEgressId, epsId string) (interface{}, error) {
+	vpcEgresses, err := getVpcEgresses(client, environmentId, epsId)
 	if err != nil {
 		return nil, common.ConvertExpected400ErrInto404Err(err, "error_code", vpcEgressResourceNotFoundCodes...)
 	}
@@ -131,15 +135,13 @@ func GetVpcEgressById(client *golangsdk.ServiceClient, environmentId, vpcEgressI
 	return vpcEgress, nil
 }
 
-func getVpcEgresses(client *golangsdk.ServiceClient, environmentId string) (interface{}, error) {
+func getVpcEgresses(client *golangsdk.ServiceClient, environmentId string, epsId string) (interface{}, error) {
 	httpUrl := "v1/{project_id}/cae/vpc-egress"
 	listPath := client.Endpoint + httpUrl
 	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
 	listOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"X-Environment-Id": environmentId,
-		},
+		MoreHeaders:      buildRequestMoreHeaders(environmentId, epsId),
 	}
 	resp, err := client.Request("GET", listPath, &listOpt)
 	if err != nil {
@@ -165,7 +167,7 @@ func resourceVpcEgressRead(_ context.Context, d *schema.ResourceData, meta inter
 		return diag.Errorf("error creating CAE client: %s", err)
 	}
 
-	vpcEgress, err := GetVpcEgressById(client, d.Get("environment_id").(string), d.Id())
+	vpcEgress, err := GetVpcEgressById(client, d.Get("environment_id").(string), d.Id(), cfg.GetEnterpriseProjectID(d))
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving CAE environment access VPC configuration")
 	}
@@ -195,9 +197,7 @@ func resourceVpcEgressDelete(_ context.Context, d *schema.ResourceData, meta int
 	deletePath = strings.ReplaceAll(deletePath, "{vpc_egress_id}", vpcEgressId)
 	deleteOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"X-Environment-Id": d.Get("environment_id").(string),
-		},
+		MoreHeaders:      buildRequestMoreHeaders(d.Get("environment_id").(string), cfg.GetEnterpriseProjectID(d)),
 	}
 
 	_, err = client.Request("DELETE", deletePath, &deleteOpt)
@@ -220,16 +220,28 @@ func resourceVpcEgressImportState(_ context.Context, d *schema.ResourceData, met
 		parts = strings.Split(importedId, ",")
 	)
 
-	if len(parts) != 3 {
-		return nil, fmt.Errorf("invalid format specified for import ID, want '<environment_id>,<route_table_id>,<cidr>', but got '%s'",
+	if len(parts) != 3 && len(parts) != 4 {
+		return nil, fmt.Errorf("invalid format specified for import ID, want '<environment_id>,<route_table_id>,<cidr>', or "+
+			"'<environment_id>,<route_table_id>,<cidr>,<enterprise_project_id>' but got '%s'",
 			importedId)
 	}
 
-	mErr := multierror.Append(nil,
-		d.Set("environment_id", parts[0]),
-		d.Set("route_table_id", parts[1]),
-		d.Set("cidr", parts[2]),
+	var (
+		environmentId = parts[0]
+		routeTableId  = parts[1]
+		cidr          = parts[2]
 	)
+
+	mErr := multierror.Append(nil,
+		d.Set("environment_id", environmentId),
+		d.Set("route_table_id", routeTableId),
+		d.Set("cidr", cidr),
+	)
+
+	if len(parts) == 4 {
+		mErr = multierror.Append(mErr, d.Set("enterprise_project_id", parts[3]))
+	}
+
 	if mErr.ErrorOrNil() != nil {
 		return nil, mErr
 	}
@@ -239,14 +251,15 @@ func resourceVpcEgressImportState(_ context.Context, d *schema.ResourceData, met
 		return nil, fmt.Errorf("error creating CAE client: %s", err)
 	}
 
-	vpcEgresses, err := getVpcEgresses(client, parts[0])
+	vpcEgresses, err := getVpcEgresses(client, environmentId, cfg.GetEnterpriseProjectID(d))
 	if err != nil {
 		return nil, fmt.Errorf("error retrieving the list of the CAE environment access VPC configurations: %s", err)
 	}
 
-	vpcEgressId := utils.PathSearch(fmt.Sprintf("[?route_table_id=='%s'&&cidr=='%s']|[0].id", parts[1], parts[2]), vpcEgresses, "").(string)
+	vpcEgressId := utils.PathSearch(fmt.Sprintf("[?route_table_id=='%s'&&cidr=='%s']|[0].id", routeTableId, cidr), vpcEgresses, "").(string)
 	if vpcEgressId == "" {
-		return nil, fmt.Errorf("unable to find the egress ID of the CAE environment access VPC from API response : %s", err)
+		return nil, fmt.Errorf("unable to find the VPC egress ID of the route table (%s) and CIDR (%s) from API response",
+			routeTableId, cidr)
 	}
 
 	d.SetId(vpcEgressId)

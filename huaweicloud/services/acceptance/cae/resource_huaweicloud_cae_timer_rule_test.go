@@ -19,7 +19,12 @@ func getTimerRuleFunc(cfg *config.Config, state *terraform.ResourceState) (inter
 		return nil, fmt.Errorf("error creating CAE client: %s", err)
 	}
 
-	return cae.GetTimerRuleById(client, state.Primary.Attributes["environment_id"], state.Primary.ID)
+	return cae.GetTimerRuleById(
+		client,
+		state.Primary.Attributes["environment_id"],
+		state.Primary.ID,
+		state.Primary.Attributes["enterprise_project_id"],
+	)
 }
 
 func getCronPrefix(isOneTime bool) string {
@@ -48,6 +53,9 @@ func TestAccTimerRule_basic(t *testing.T) {
 		withAppRc = acceptance.InitResourceCheck(withApp, &obj, getTimerRuleFunc)
 		withComRc = acceptance.InitResourceCheck(withCom, &obj, getTimerRuleFunc)
 
+		withSpecifiedEpsId   = "huaweicloud_cae_timer_rule.specified_eps"
+		withSpecifiedEpsIdRc = acceptance.InitResourceCheck(withSpecifiedEpsId, &obj, getTimerRuleFunc)
+
 		oneTimeCron  = getCronPrefix(true)
 		withDayCron  = fmt.Sprintf("%s ? * * *", getCronPrefix(false))
 		withWeekCron = fmt.Sprintf("%s ? * 0,1,2,3,4,5,6 *", getCronPrefix(false))
@@ -56,14 +64,14 @@ func TestAccTimerRule_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckCaeEnvironment(t)
-			acceptance.TestAccPreCheckCaeApplication(t)
+			acceptance.TestAccPreCheckCaeEnvironmentIds(t, 2)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy: resource.ComposeTestCheckFunc(
 			withEnvRc.CheckResourceDestroy(),
 			withAppRc.CheckResourceDestroy(),
 			withComRc.CheckResourceDestroy(),
+			withSpecifiedEpsIdRc.CheckResourceDestroy(),
 		),
 		Steps: []resource.TestStep{
 			{
@@ -71,7 +79,7 @@ func TestAccTimerRule_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					// For all components in the environment.
 					withEnvRc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(withEnv, "environment_id", acceptance.HW_CAE_ENVIRONMENT_ID),
+					resource.TestCheckResourceAttrSet(withEnv, "environment_id"),
 					resource.TestCheckResourceAttr(withEnv, "name", name+"_env"),
 					resource.TestCheckResourceAttr(withEnv, "type", "start"),
 					resource.TestCheckResourceAttr(withEnv, "effective_range", "environment"),
@@ -87,10 +95,8 @@ func TestAccTimerRule_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(withApp, "effective_policy", "periodic"),
 					resource.TestCheckResourceAttr(withApp, "cron", withDayCron),
 					resource.TestCheckResourceAttr(withApp, "applications.#", "1"),
-					resource.TestCheckResourceAttrPair(withApp, "applications.0.id", "data.huaweicloud_cae_applications.test",
-						"applications.0.id"),
-					resource.TestCheckResourceAttrPair(withApp, "applications.0.name", "data.huaweicloud_cae_applications.test",
-						"applications.0.name"),
+					resource.TestCheckResourceAttrPair(withApp, "applications.0.id", "huaweicloud_cae_application.test", "id"),
+					resource.TestCheckResourceAttrPair(withApp, "applications.0.name", "huaweicloud_cae_application.test", "name"),
 					resource.TestCheckResourceAttr(withApp, "components.#", "0"),
 					// For specified components.
 					withComRc.CheckResourceExists(),
@@ -103,6 +109,13 @@ func TestAccTimerRule_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(withCom, "components.#", "2"),
 					resource.TestCheckResourceAttrSet(withCom, "components.0.id"),
 					resource.TestCheckResourceAttrSet(withCom, "components.0.name"),
+					resource.TestCheckNoResourceAttr(withCom, "enterprise_project_id"),
+					// For specified enterprise project.
+					withSpecifiedEpsIdRc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(withSpecifiedEpsId, "name", name+"_specified_eps"),
+					resource.TestCheckResourceAttrSet(withSpecifiedEpsId, "environment_id"),
+					resource.TestCheckResourceAttrPair(withSpecifiedEpsId, "enterprise_project_id", "data.huaweicloud_cae_environments.test",
+						"environments.0.annotations.enterprise_project_id"),
 				),
 			},
 			{
@@ -116,9 +129,7 @@ func TestAccTimerRule_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(withEnv, "effective_policy", "periodic"),
 					resource.TestCheckResourceAttr(withEnv, "cron", withWeekCron),
 					resource.TestCheckResourceAttr(withEnv, "applications.#", "1"),
-					resource.TestCheckResourceAttrPair(withEnv, "applications.0.id", "data.huaweicloud_cae_applications.test",
-						"applications.0.id"),
-					resource.TestCheckResourceAttr(withEnv, "applications.0.name", ""),
+					resource.TestCheckResourceAttrPair(withEnv, "applications.0.id", "huaweicloud_cae_application.test", "id"),
 					resource.TestCheckResourceAttr(withEnv, "components.#", "0"),
 					// Update from all components in the application to specified components.
 					withAppRc.CheckResourceExists(),
@@ -140,27 +151,40 @@ func TestAccTimerRule_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(withCom, "cron", withDayCron),
 					resource.TestCheckResourceAttr(withCom, "components.#", "0"),
 					resource.TestCheckResourceAttr(withCom, "applications.#", "0"),
+					// For specified enterprise project.
+					withSpecifiedEpsIdRc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(withSpecifiedEpsId, "name", updateName+"_specified_eps"),
+					resource.TestCheckResourceAttrSet(withSpecifiedEpsId, "environment_id"),
+					resource.TestCheckResourceAttrPair(withSpecifiedEpsId, "enterprise_project_id", "data.huaweicloud_cae_environments.test",
+						"environments.0.annotations.enterprise_project_id"),
 				),
 			},
 			{
 				ResourceName:            withEnv,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateIdFunc:       testAccTimerRuleImportStateFunc(withEnv),
+				ImportStateIdFunc:       testAccTimerRuleImportStateFunc(withEnv, true),
 				ImportStateVerifyIgnore: []string{"status"},
 			},
 			{
 				ResourceName:            withApp,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateIdFunc:       testAccTimerRuleImportStateFunc(withApp),
+				ImportStateIdFunc:       testAccTimerRuleImportStateFunc(withApp, true),
 				ImportStateVerifyIgnore: []string{"status"},
 			},
 			{
 				ResourceName:            withCom,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateIdFunc:       testAccTimerRuleImportStateFunc(withCom),
+				ImportStateIdFunc:       testAccTimerRuleImportStateFunc(withCom, true),
+				ImportStateVerifyIgnore: []string{"status"},
+			},
+			{
+				ResourceName:            withSpecifiedEpsId,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateIdFunc:       testAccTimerRuleImportStateFunc(withSpecifiedEpsId, false),
 				ImportStateVerifyIgnore: []string{"status"},
 			},
 		},
@@ -169,6 +193,20 @@ func TestAccTimerRule_basic(t *testing.T) {
 
 func testAccResourceTimerRule_base(name string) string {
 	return fmt.Sprintf(`
+locals {
+  env_id_with_default_eps_id   = split(",", "%[1]s")[0]
+  env_id_with_specified_eps_id = split(",", "%[1]s")[1]
+}
+
+data "huaweicloud_cae_environments" "test" {
+  environment_id = local.env_id_with_specified_eps_id
+}
+
+resource "huaweicloud_cae_application" "test" {
+  environment_id = local.env_id_with_default_eps_id
+  name           = "%[2]s"
+}
+
 data "huaweicloud_swr_repositories" "test" {}
 
 locals {
@@ -177,11 +215,11 @@ locals {
 
 resource "huaweicloud_cae_component" "test" {
   count          = 2
-  environment_id = "%[1]s"
-  application_id = "%[2]s"
+  environment_id = local.env_id_with_default_eps_id
+  application_id = huaweicloud_cae_application.test.id
 
   metadata {
-    name = "%[3]s${count.index}"
+    name = "%[2]s${count.index}"
 
     annotations = {
       version = "1.0.0"
@@ -203,12 +241,7 @@ resource "huaweicloud_cae_component" "test" {
     }
   }
 }
-
-data "huaweicloud_cae_applications" "test" {
-  environment_id = "%[1]s"
-  application_id = "%[2]s"
-}
-`, acceptance.HW_CAE_ENVIRONMENT_ID, acceptance.HW_CAE_APPLICATION_ID, name)
+`, acceptance.HW_CAE_ENVIRONMENT_IDS, name)
 }
 
 func testAccTimerRule_step1(name, oneTimeCron, withDayCron, withWeekCron string) string {
@@ -216,38 +249,38 @@ func testAccTimerRule_step1(name, oneTimeCron, withDayCron, withWeekCron string)
 %[1]s
 
 resource "huaweicloud_cae_timer_rule" "env" {
-  environment_id   = "%[2]s"
-  name             = "%[3]s_env"
+  environment_id   = local.env_id_with_default_eps_id
+  name             = "%[2]s_env"
   type             = "start"
   status           = "on"
   effective_range  = "environment"
   effective_policy = "onetime"
-  cron             = "%[4]s"
+  cron             = "%[3]s"
 }
 
 resource "huaweicloud_cae_timer_rule" "app" {
-  environment_id   = "%[2]s"
-  name             = "%[3]s_app"
+  environment_id   = local.env_id_with_default_eps_id
+  name             = "%[2]s_app"
   type             = "stop"
   status           = "off"
   effective_range  = "application"
   effective_policy = "periodic"
-  cron             = "%[5]s"
+  cron             = "%[4]s"
 
   applications {
-    id   = data.huaweicloud_cae_applications.test.applications[0].id
-    name = data.huaweicloud_cae_applications.test.applications[0].name
+    id   = huaweicloud_cae_application.test.id
+    name = huaweicloud_cae_application.test.name
   }
 }
 
 resource "huaweicloud_cae_timer_rule" "com" {
-  environment_id   = "%[2]s"
-  name             = "%[3]s_com"
+  environment_id   = local.env_id_with_default_eps_id
+  name             = "%[2]s_com"
   type             = "start"
   status           = "off"
   effective_range  = "component"
   effective_policy = "periodic"
-  cron             = "%[6]s"
+  cron             = "%[5]s"
 
   dynamic "components" {
     for_each = huaweicloud_cae_component.test[*]
@@ -257,7 +290,18 @@ resource "huaweicloud_cae_timer_rule" "com" {
     }
   }
 }
-`, testAccResourceTimerRule_base(name), acceptance.HW_CAE_ENVIRONMENT_ID, name, oneTimeCron, withDayCron, withWeekCron)
+
+resource "huaweicloud_cae_timer_rule" "specified_eps" {
+  environment_id        = local.env_id_with_specified_eps_id
+  name                  = "%[2]s_specified_eps"
+  type                  = "stop"
+  status                = "on"
+  effective_range       = "environment"
+  effective_policy      = "onetime"
+  cron                  = "%[3]s"
+  enterprise_project_id = data.huaweicloud_cae_environments.test.environments[0].annotations.enterprise_project_id
+}
+`, testAccResourceTimerRule_base(name), name, oneTimeCron, withDayCron, withWeekCron)
 }
 
 func testAccTimerRule_step2(name, updateName, oneTimeCron, withDayCron, withWeekCron string) string {
@@ -265,27 +309,27 @@ func testAccTimerRule_step2(name, updateName, oneTimeCron, withDayCron, withWeek
 %[1]s
 
 resource "huaweicloud_cae_timer_rule" "env" {
-  environment_id   = "%[2]s"
-  name             = "%[3]s_app"
+  environment_id   = local.env_id_with_default_eps_id
+  name             = "%[2]s_app"
   type             = "stop"
   status           = "off"
   effective_range  = "application"
   effective_policy = "periodic"
-  cron             = "%[6]s"
+  cron             = "%[5]s"
 
   applications {
-    id   = data.huaweicloud_cae_applications.test.applications[0].id
+    id = huaweicloud_cae_application.test.id
   }
 }
 
 resource "huaweicloud_cae_timer_rule" "app" {
-  environment_id   = "%[2]s"
-  name             = "%[3]s_com"
+  environment_id   = local.env_id_with_default_eps_id
+  name             = "%[2]s_com"
   type             = "stop"
   status           = "on"
   effective_range  = "component"
   effective_policy = "onetime"
-  cron             = "%[4]s"
+  cron             = "%[3]s"
 
   components {
     id   = huaweicloud_cae_component.test[0].id
@@ -293,18 +337,29 @@ resource "huaweicloud_cae_timer_rule" "app" {
 }
 
 resource "huaweicloud_cae_timer_rule" "com" {
-  environment_id   = "%[2]s"
-  name             = "%[3]s_env"
+  environment_id   = local.env_id_with_default_eps_id
+  name             = "%[2]s_env"
   type             = "stop"
   status           = "on"
   effective_range  = "environment"
   effective_policy = "periodic"
-  cron             = "%[5]s"
-}
-`, testAccResourceTimerRule_base(name), acceptance.HW_CAE_ENVIRONMENT_ID, updateName, oneTimeCron, withDayCron, withWeekCron)
+  cron             = "%[4]s"
 }
 
-func testAccTimerRuleImportStateFunc(name string) resource.ImportStateIdFunc {
+resource "huaweicloud_cae_timer_rule" "specified_eps" {
+  environment_id        = local.env_id_with_specified_eps_id
+  name                  = "%[2]s_specified_eps"
+  type                  = "stop"
+  status                = "on"
+  effective_range       = "environment"
+  effective_policy      = "periodic"
+  cron                  = "%[4]s"
+  enterprise_project_id = data.huaweicloud_cae_environments.test.environments[0].annotations.enterprise_project_id
+}
+`, testAccResourceTimerRule_base(name), updateName, oneTimeCron, withDayCron, withWeekCron)
+}
+
+func testAccTimerRuleImportStateFunc(name string, isDefaultEps bool) resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
 		rs, ok := s.RootModule().Resources[name]
 		if !ok {
@@ -316,10 +371,21 @@ func testAccTimerRuleImportStateFunc(name string) resource.ImportStateIdFunc {
 			timerRuleName = rs.Primary.Attributes["name"]
 		)
 		if environmentId == "" || timerRuleName == "" {
-			return "", fmt.Errorf("some import IDs are missing, want '<environment_id>/<name>', but got '%s/%s'",
+			return "", fmt.Errorf("some import IDs are missing, want '<environment_id>/<name>' or "+
+				"'<environment_id>/<name>/<enterprise_project_id>', but got '%s/%s'",
 				environmentId, timerRuleName)
 		}
 
-		return fmt.Sprintf("%s/%s", environmentId, timerRuleName), nil
+		if isDefaultEps {
+			return fmt.Sprintf("%s/%s", environmentId, timerRuleName), nil
+		}
+
+		epsId := rs.Primary.Attributes["enterprise_project_id"]
+		if epsId == "" {
+			return "", fmt.Errorf("some import IDs are missing, want '<environment_id>/<name>/<enterprise_project_id>', but got '%s/%s'",
+				environmentId, timerRuleName)
+		}
+
+		return fmt.Sprintf("%s/%s/%s", environmentId, timerRuleName, epsId), nil
 	}
 }

@@ -39,6 +39,13 @@ The following arguments are supported:
   The domain name consists of multiple strings separated by dots (.), and the maximum length of a single string is `63` characters.
   Only letters, digits, and hyphens (-) allowed, and must start with a letter or a digit.
 
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the ID of the enterprise project to which the
+  domain name belongs.  
+  Changing this creates a new resource.
+
+-> If the `environment_id` belongs to the non-default enterprise project, this parameter is required and is
+   only valid for enterprise users.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -53,4 +60,11 @@ The resource can be imported using `environment_id` and `name`, separated by a s
 
 ```bash
 $ terraform import huaweicloud_cae_domain.test <environment_id>/<name>
+```
+
+For the domain with the non-default enterprise project ID, its enterprise project ID need to be specified
+additionanlly when importing. All fields are separated by slashes (/), e.g.
+
+```bash
+$ terraform import huaweicloud_cae_domain.test <environment_id>/<name>/<enterprise_project_id>
 ```
