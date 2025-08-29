@@ -28,6 +28,8 @@ func DataSourceComponents() *schema.Resource {
 				Computed:    true,
 				Description: `The region where the components are located.`,
 			},
+
+			// Required parameter(s).
 			"environment_id": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -38,6 +40,14 @@ func DataSourceComponents() *schema.Resource {
 				Required:    true,
 				Description: `The ID of the application to which the components belong.`,
 			},
+
+			// Optional parameter(s).
+			"enterprise_project_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The ID of the enterprise project to which the components belong.`,
+			},
+
 			"components": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -131,7 +141,7 @@ func DataSourceComponents() *schema.Resource {
 	}
 }
 
-func queryComponents(client *golangsdk.ServiceClient, environmentId, appId string) ([]interface{}, error) {
+func queryComponents(client *golangsdk.ServiceClient, epsId, environmentId, appId string) ([]interface{}, error) {
 	var (
 		httpUrl = "v1/{project_id}/cae/applications/{application_id}/components?limit=100"
 		offset  = 0
@@ -144,10 +154,7 @@ func queryComponents(client *golangsdk.ServiceClient, environmentId, appId strin
 
 	opt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"Content-Type":     "application/json",
-			"X-Environment-ID": environmentId,
-		},
+		MoreHeaders:      buildRequestMoreHeaders(environmentId, epsId),
 	}
 
 	for {
@@ -239,7 +246,7 @@ func dataSourceComponentsRead(_ context.Context, d *schema.ResourceData, meta in
 		return diag.Errorf("error creating CAE client: %s", err)
 	}
 
-	components, err := queryComponents(client, envId, appId)
+	components, err := queryComponents(client, cfg.GetEnterpriseProjectID(d), envId, appId)
 	if err != nil {
 		return diag.Errorf("error getting components: %s", err)
 	}

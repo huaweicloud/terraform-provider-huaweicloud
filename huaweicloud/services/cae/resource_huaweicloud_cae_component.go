@@ -55,6 +55,8 @@ func ResourceComponent() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
+
+			// Required parameter(s).
 			"environment_id": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -129,6 +131,8 @@ func ResourceComponent() *schema.Resource {
 					},
 				},
 			},
+
+			// Optional parameter(s).
 			"action": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -154,6 +158,14 @@ func ResourceComponent() *schema.Resource {
 				},
 				Description: `The list of configurations of the component.`,
 			},
+			"enterprise_project_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The ID of the enterprise project to which the component belongs.`,
+			},
+
+			// Attribute(s).
 			"available_replica": {
 				Type:        schema.TypeInt,
 				Computed:    true,
@@ -172,7 +184,8 @@ func ResourceComponent() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			// Deprecated arguments
+
+			// Deprecated parameter(s).
 			"deploy_after_create": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -333,7 +346,7 @@ func resourceComponentCreate(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error creating CAE client: %s", err)
 	}
 
-	createRespBody, err := createComponent(client, d, environmentId, applicationId)
+	createRespBody, err := createComponent(client, cfg, d, environmentId, applicationId)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -352,7 +365,12 @@ func resourceComponentCreate(ctx context.Context, d *schema.ResourceData, meta i
 			}
 		}
 
-		err = doActionComponent(ctx, client, d, componentId, buildActionComponentBodyParams("deploy", d), d.Timeout(schema.TimeoutUpdate))
+		opts := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			MoreHeaders:      buildRequestMoreHeaders(environmentId, cfg.GetEnterpriseProjectID(d)),
+			JSONBody:         utils.RemoveNil(buildActionComponentBodyParams("deploy", d)),
+		}
+		err = doActionComponent(ctx, client, d, componentId, opts, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return diag.Errorf("unable to deploy the component (%s): %s", componentId, err)
 		}
@@ -361,7 +379,8 @@ func resourceComponentCreate(ctx context.Context, d *schema.ResourceData, meta i
 	return resourceComponentRead(ctx, d, meta)
 }
 
-func createComponent(client *golangsdk.ServiceClient, d *schema.ResourceData, environmentId, applicationId string) (interface{}, error) {
+func createComponent(client *golangsdk.ServiceClient, cfg *config.Config, d *schema.ResourceData, environmentId,
+	applicationId string) (interface{}, error) {
 	httpUrl := "v1/{project_id}/cae/applications/{application_id}/components"
 	createPath := client.Endpoint + httpUrl
 	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
@@ -369,10 +388,8 @@ func createComponent(client *golangsdk.ServiceClient, d *schema.ResourceData, en
 
 	createOpts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"X-Environment-ID": environmentId,
-		},
-		JSONBody: utils.RemoveNil(buildCreateOrUpdateComponentBodyParams(d)),
+		MoreHeaders:      buildRequestMoreHeaders(environmentId, cfg.GetEnterpriseProjectID(d)),
+		JSONBody:         utils.RemoveNil(buildCreateOrUpdateComponentBodyParams(d)),
 	}
 	createResp, err := client.Request("POST", createPath, &createOpts)
 	if err != nil {
@@ -383,7 +400,7 @@ func createComponent(client *golangsdk.ServiceClient, d *schema.ResourceData, en
 }
 
 // GetComponentById is a method to query component details from a specified application ID using given parameters.
-func GetComponentById(client *golangsdk.ServiceClient, environmentId, applicationId, componentId string) (interface{}, error) {
+func GetComponentById(client *golangsdk.ServiceClient, epsId, environmentId, applicationId, componentId string) (interface{}, error) {
 	httpUrl := "v1/{project_id}/cae/applications/{application_id}/components/{component_id}"
 	getPath := client.Endpoint + httpUrl
 	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
@@ -391,9 +408,7 @@ func GetComponentById(client *golangsdk.ServiceClient, environmentId, applicatio
 	getPath = strings.ReplaceAll(getPath, "{component_id}", componentId)
 	getComponentOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"X-Environment-ID": environmentId,
-		},
+		MoreHeaders:      buildRequestMoreHeaders(environmentId, epsId),
 	}
 	resp, err := client.Request("GET", getPath, &getComponentOpt)
 	if err != nil {
@@ -416,7 +431,8 @@ func resourceComponentRead(_ context.Context, d *schema.ResourceData, meta inter
 		return diag.Errorf("error creating CAE client: %s", err)
 	}
 
-	componentRespBody, err := GetComponentById(client, d.Get("environment_id").(string), d.Get("application_id").(string), componentId)
+	componentRespBody, err := GetComponentById(client, cfg.GetEnterpriseProjectID(d), d.Get("environment_id").(string),
+		d.Get("application_id").(string), componentId)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error retrieving CAE component (%s)", componentId))
 	}
@@ -583,7 +599,7 @@ func buildActionComponentBodyParams(action string, d *schema.ResourceData) map[s
 }
 
 func doActionComponent(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, componentId string,
-	params map[string]interface{}, timeOut time.Duration) error {
+	opts golangsdk.RequestOpts, timeOut time.Duration) error {
 	var (
 		httpUrl       = "v1/{project_id}/cae/applications/{application_id}/components/{component_id}/action"
 		environmentId = d.Get("environment_id").(string)
@@ -594,13 +610,7 @@ func doActionComponent(ctx context.Context, client *golangsdk.ServiceClient, d *
 	actionPath = strings.ReplaceAll(actionPath, "{project_id}", client.ProjectID)
 	actionPath = strings.ReplaceAll(actionPath, "{application_id}", applicationId)
 	actionPath = strings.ReplaceAll(actionPath, "{component_id}", componentId)
-	opts := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"X-Environment-ID": environmentId,
-		},
-		JSONBody: utils.RemoveNil(params),
-	}
+
 	requestResp, err := client.Request("POST", actionPath, &opts)
 	if err != nil {
 		return err
@@ -673,7 +683,12 @@ func resourceComponentUpdate(ctx context.Context, d *schema.ResourceData, meta i
 	// Allow multiple upgrades without changing the action.
 	if val, ok := d.GetOk("action"); ok {
 		action := val.(string)
-		err = doActionComponent(ctx, client, d, componentId, buildActionComponentBodyParams(action, d), d.Timeout(schema.TimeoutUpdate))
+		opts := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			MoreHeaders:      buildRequestMoreHeaders(environmentId, cfg.GetEnterpriseProjectID(d)),
+			JSONBody:         utils.RemoveNil(buildActionComponentBodyParams(action, d)),
+		}
+		err = doActionComponent(ctx, client, d, componentId, opts, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return diag.Errorf("unable to %s the component (%s): %s", action, componentId, err)
 		}
@@ -698,7 +713,12 @@ func resourceComponentDelete(ctx context.Context, d *schema.ResourceData, meta i
 
 	// If there are available instances under the component, the component must be stopped before it can be deleted.
 	if d.Get("available_replica").(int) > 0 {
-		err = doActionComponent(ctx, client, d, componentId, buildActionComponentBodyParams("stop", d), d.Timeout(schema.TimeoutDelete))
+		opts := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			MoreHeaders:      buildRequestMoreHeaders(environmentId, cfg.GetEnterpriseProjectID(d)),
+			JSONBody:         utils.RemoveNil(buildActionComponentBodyParams("stop", d)),
+		}
+		err = doActionComponent(ctx, client, d, componentId, opts, d.Timeout(schema.TimeoutDelete))
 		if err != nil {
 			return diag.Errorf("unable to stop the component (%s): %s", componentId, err)
 		}
@@ -711,9 +731,7 @@ func resourceComponentDelete(ctx context.Context, d *schema.ResourceData, meta i
 
 	deleteComponentOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"X-Environment-ID": environmentId,
-		},
+		MoreHeaders:      buildRequestMoreHeaders(environmentId, cfg.GetEnterpriseProjectID(d)),
 	}
 	resp, err := client.Request("DELETE", deletePath, &deleteComponentOpt)
 	if err != nil {
@@ -729,7 +747,7 @@ func resourceComponentDelete(ctx context.Context, d *schema.ResourceData, meta i
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"DELETED"},
-		Refresh:      refreshDeleteComponentFunc(client, environmentId, applicationId, componentId),
+		Refresh:      refreshDeleteComponentFunc(client, cfg.GetEnterpriseProjectID(d), environmentId, applicationId, componentId),
 		Timeout:      d.Timeout(schema.TimeoutDelete),
 		Delay:        10 * time.Second,
 		PollInterval: 20 * time.Second,
@@ -742,9 +760,9 @@ func resourceComponentDelete(ctx context.Context, d *schema.ResourceData, meta i
 	return nil
 }
 
-func refreshDeleteComponentFunc(client *golangsdk.ServiceClient, environmentId, applicationId, componentId string) resource.StateRefreshFunc {
+func refreshDeleteComponentFunc(client *golangsdk.ServiceClient, epsId, environmentId, applicationId, componentId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		respBody, err := GetComponentById(client, environmentId, applicationId, componentId)
+		respBody, err := GetComponentById(client, epsId, environmentId, applicationId, componentId)
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
 				return "deleted", "DELETED", nil
@@ -758,14 +776,24 @@ func refreshDeleteComponentFunc(client *golangsdk.ServiceClient, environmentId, 
 func resourceComponentImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
 	importedId := d.Id()
 	parts := strings.Split(importedId, "/")
-	if len(parts) != 3 {
-		return nil, fmt.Errorf("invalid format specified for import ID, want '<environment_id>/<application_id>/<id>', but got '%s'",
-			importedId)
+	switch len(parts) {
+	case 3:
+		d.SetId(parts[2])
+		mErr := multierror.Append(nil,
+			d.Set("environment_id", parts[0]),
+			d.Set("application_id", parts[1]),
+		)
+		return []*schema.ResourceData{d}, mErr.ErrorOrNil()
+	case 4:
+		d.SetId(parts[2])
+		mErr := multierror.Append(nil,
+			d.Set("environment_id", parts[0]),
+			d.Set("application_id", parts[1]),
+			d.Set("enterprise_project_id", parts[3]),
+		)
+		return []*schema.ResourceData{d}, mErr.ErrorOrNil()
 	}
-	d.SetId(parts[2])
-	mErr := multierror.Append(nil,
-		d.Set("environment_id", parts[0]),
-		d.Set("application_id", parts[1]),
-	)
-	return []*schema.ResourceData{d}, mErr.ErrorOrNil()
+	return nil, fmt.Errorf("invalid format specified for import ID, want '<environment_id>/<application_id>/<id>' or "+
+		"'<environment_id>/<application_id>/<enterprise_project_id>/<id>', but got '%s'",
+		importedId)
 }

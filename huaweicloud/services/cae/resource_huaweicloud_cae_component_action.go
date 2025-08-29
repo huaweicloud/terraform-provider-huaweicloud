@@ -40,6 +40,8 @@ func ResourceComponentAction() *schema.Resource {
 				ForceNew:    true,
 				Description: `The region where the component to be operated is located.`,
 			},
+
+			// Required parameter(s).
 			"environment_id": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -79,11 +81,19 @@ func ResourceComponentAction() *schema.Resource {
 				},
 				Description: `The metadata of this action request.`,
 			},
+
+			// Optional parameter(s).
 			"spec": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.StringIsJSON,
 				Description:  `The specification detail of the action, in JSON format.`,
+			},
+			"enterprise_project_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: `The ID of the enterprise project to which the component to be operated belongs.`,
 			},
 		},
 	}
@@ -150,16 +160,22 @@ func deployJobRefreshFunc(client *golangsdk.ServiceClient, environmentId, jobId 
 
 func resourceComponentActionCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg         = meta.(*config.Config)
-		region      = cfg.GetRegion(d)
-		componentId = d.Get("component_id").(string)
+		cfg           = meta.(*config.Config)
+		region        = cfg.GetRegion(d)
+		environmentId = d.Get("environment_id").(string)
+		componentId   = d.Get("component_id").(string)
 	)
 	client, err := cfg.NewServiceClient("cae", region)
 	if err != nil {
 		return diag.Errorf("error creating CAE client: %s", err)
 	}
 
-	err = doActionComponent(ctx, client, d, componentId, buildCreateComponentActionBodyParams(d), d.Timeout(schema.TimeoutCreate))
+	opts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      buildRequestMoreHeaders(environmentId, cfg.GetEnterpriseProjectID(d)),
+		JSONBody:         utils.RemoveNil(buildCreateComponentActionBodyParams(d)),
+	}
+	err = doActionComponent(ctx, client, d, componentId, opts, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.Errorf("error operating the component (%s): %s", componentId, err)
 	}
@@ -175,16 +191,22 @@ func resourceComponentActionRead(_ context.Context, _ *schema.ResourceData, _ in
 
 func resourceComponentActionUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg         = meta.(*config.Config)
-		region      = cfg.GetRegion(d)
-		componentId = d.Get("component_id").(string)
+		cfg           = meta.(*config.Config)
+		region        = cfg.GetRegion(d)
+		environmentId = d.Get("environment_id").(string)
+		componentId   = d.Get("component_id").(string)
 	)
 	client, err := cfg.NewServiceClient("cae", region)
 	if err != nil {
 		return diag.Errorf("error creating CAE client: %s", err)
 	}
 
-	err = doActionComponent(ctx, client, d, componentId, buildCreateComponentActionBodyParams(d), d.Timeout(schema.TimeoutUpdate))
+	opts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      buildRequestMoreHeaders(environmentId, cfg.GetEnterpriseProjectID(d)),
+		JSONBody:         utils.RemoveNil(buildCreateComponentActionBodyParams(d)),
+	}
+	err = doActionComponent(ctx, client, d, componentId, opts, d.Timeout(schema.TimeoutUpdate))
 	if err != nil {
 		return diag.Errorf("unable to operate the component (%s): %s", componentId, err)
 	}
