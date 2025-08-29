@@ -2365,6 +2365,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_eg_event_stream":                    eg.ResourceEventStream(),
 			"huaweicloud_eg_event_subscription":              eg.ResourceEventSubscription(),
 			"huaweicloud_eg_event_subscription_batch_action": eg.ResourceEventSubscriptionBatchAction(),
+			"huaweicloud_eg_event_subscription_target":       eg.ResourceEventSubscriptionTarget(),
 
 			"huaweicloud_elb_certificate":                  elb.ResourceCertificateV3(),
 			"huaweicloud_elb_certificate_private_key_echo": elb.ResourceCertificatePrivateKeyEcho(),
