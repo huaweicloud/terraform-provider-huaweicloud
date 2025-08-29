@@ -66,7 +66,7 @@ The following arguments are supported:
   + If the route type is **ecs**, the value is an ECS instance ID in the VPC.
   + If the route type is **eni**, the value is the extension NIC of an ECS in the VPC.
   + If the route type is **vip**, the value is a virtual IP address.
-  + If the route type is **nat**, the value is a VPN gateway ID.
+  + If the route type is **nat**, the value is a NAT gateway ID.
   + If the route type is **peering**, the value is a VPC peering connection ID.
   + If the route type is **vpn**, the value is a VPN gateway ID.
   + If the route type is **dc**, the value is a Direct Connect gateway ID.
