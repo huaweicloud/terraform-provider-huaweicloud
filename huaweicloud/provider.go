@@ -267,6 +267,53 @@ func Provider() *schema.Provider {
 				},
 			},
 
+			"assume_role_with_oidc": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"agency_name": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: descriptions["assume_role_agency_name"],
+							DefaultFunc: schema.EnvDefaultFunc("HW_ASSUME_ROLE_AGENCY_NAME", nil),
+						},
+						"domain_id": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: descriptions["assume_role_domain_id"],
+							DefaultFunc: schema.EnvDefaultFunc("HW_ASSUME_ROLE_DOMAIN_ID", nil),
+						},
+						"duration": {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Description: descriptions["assume_role_duration"],
+							DefaultFunc: schema.EnvDefaultFunc("HW_ASSUME_ROLE_DURATION", nil),
+						},
+						"idp_id": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "The ID of the external IdP.",
+							DefaultFunc: schema.EnvDefaultFunc("HW_ASSUME_ROLE_IDP_ID", nil),
+						},
+						"id_token_file": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  "The file path of Id token that is issued by the external IdP.",
+							DefaultFunc:  schema.EnvDefaultFunc("HW_ASSUME_ROLE_ID_TOKEN_FILE", nil),
+							ExactlyOneOf: []string{"assume_role_with_oidc.0.id_token", "assume_role_with_oidc.0.id_token_file"},
+						},
+						"id_token": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							DefaultFunc:  schema.EnvDefaultFunc("HW_ASSUME_ROLE_ID_TOKEN", nil),
+							ExactlyOneOf: []string{"assume_role_with_oidc.0.id_token", "assume_role_with_oidc.0.id_token_file"},
+						},
+					},
+				},
+			},
+
 			"project_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -3481,6 +3528,43 @@ func configureProvider(_ context.Context, d *schema.ResourceData, terraformVersi
 
 			conf.AssumeRoleList = roleList
 		}
+	}
+
+	// get assume role with oidc
+	assumeRoleOidcList := d.Get("assume_role_with_oidc").([]interface{})
+	if len(assumeRoleOidcList) == 0 {
+		// without assume_role_with_oidc block in provider
+		delegatedAgencyName := os.Getenv("HW_ASSUME_ROLE_AGENCY_NAME")
+		delegatedDomianID := os.Getenv("HW_ASSUME_ROLE_DOMAIN_ID")
+		delegatedDurationStr := os.Getenv("HW_ASSUME_ROLE_DURATION")
+		delegatedIdpIDStr := os.Getenv("HW_ASSUME_ROLE_IDP_ID")
+		delegatedIdTokenStr := os.Getenv("HW_ASSUME_ROLE_ID_TOKEN")
+		delegatedIdTokenFileStr := os.Getenv("HW_ASSUME_ROLE_ID_TOKEN_FILE")
+		var delegatedDuration int
+		if delegatedDurationStr != "" {
+			var err error
+			delegatedDuration, err = strconv.Atoi(delegatedDurationStr)
+			if err != nil {
+				log.Printf("Error converting HW_ASSUME_ROLE_DURATION to int: %v", err)
+				delegatedDuration = 0 // or some default value
+			}
+		}
+		if delegatedIdpIDStr != "" {
+			conf.AssumeRoleAgency = delegatedAgencyName
+			conf.AssumeRoleDomainID = delegatedDomianID
+			conf.AssumeRoleDuration = delegatedDuration
+			conf.AssumeRoleIdpID = delegatedIdpIDStr
+			conf.AssumeRoleIdToken = delegatedIdTokenStr
+			conf.AssumeRoleIdTokenFile = delegatedIdTokenFileStr
+		}
+	} else {
+		assumeRoleOidc := assumeRoleOidcList[0].(map[string]interface{})
+		conf.AssumeRoleAgency = assumeRoleOidc["agency_name"].(string)
+		conf.AssumeRoleDomainID = assumeRoleOidc["domain_id"].(string)
+		conf.AssumeRoleDuration = assumeRoleOidc["duration"].(int)
+		conf.AssumeRoleIdpID = assumeRoleOidc["idp_id"].(string)
+		conf.AssumeRoleIdToken = assumeRoleOidc["id_token"].(string)
+		conf.AssumeRoleIdTokenFile = assumeRoleOidc["id_token_file"].(string)
 	}
 
 	conf.Region = d.Get("region").(string)

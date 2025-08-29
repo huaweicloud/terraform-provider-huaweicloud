@@ -1,9 +1,11 @@
 package config
 
 import (
+	"bytes"
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -558,4 +560,139 @@ func buildClientByMeta(c *Config) error {
 	}
 	log.Printf("[DEBUG] Successfully got metadata security key, which will expire at: %s", c.SecurityKeyExpiresAt)
 	return buildClientByAKSK(c)
+}
+
+// getSubjectTokenByIdp gets the subject token using ID token
+func getSubjectTokenByIdp(c *Config) (string, error) {
+	iamBaseURL := fmt.Sprintf("https://iam.%s.myhuaweicloud.com", c.Region)
+	idTokenURL := fmt.Sprintf("%s/v3.0/OS-AUTH/id-token/tokens", iamBaseURL)
+
+	// Create HTTP Client with logging
+	transport := &http.Transport{
+		Proxy: http.ProxyFromEnvironment,
+	}
+	client := &http.Client{
+		Transport: &LogRoundTripper{
+			Rt:         transport,
+			MaxRetries: c.MaxRetries,
+		},
+	}
+
+	// Prepare request body
+	body, err := json.Marshal(map[string]interface{}{
+		"auth": map[string]interface{}{
+			"id_token": map[string]string{
+				"id": c.AssumeRoleIdToken,
+			},
+		},
+	})
+	if err != nil {
+		return "", fmt.Errorf("Error marshal Id Token request body: %s", err.Error())
+	}
+
+	// Create POST request
+	req, err := http.NewRequest("POST", idTokenURL, bytes.NewBuffer(body))
+	if err != nil {
+		return "", fmt.Errorf("Error building Id Token API request: %s", err.Error())
+	}
+
+	// Set request headers
+	req.Header.Set("Content-Type", "application/json;charset=UTF-8")
+	req.Header.Set("X-Idp-Id", c.AssumeRoleIdpID)
+
+	// Execute request
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("Error requesting Id Token API: %s", err.Error())
+	}
+
+	// Check response status
+	if resp.StatusCode != http.StatusCreated {
+		return "", fmt.Errorf("Error requesting Id Token API: status code = %d", resp.StatusCode)
+	}
+
+	// Extract subject token from response header
+	subjectToken := resp.Header.Get("X-Subject-Token")
+	if subjectToken == "" {
+		return "", fmt.Errorf("Error fetching X-Subject-Token from Idp auth response: %s", err.Error())
+	}
+
+	return subjectToken, nil
+}
+
+// getSecurityTokenByIdp gets the security token using subject token
+func getSecurityTokenByIdp(c *Config, subjectToken string) error {
+	iamBaseURL := fmt.Sprintf("https://iam.%s.myhuaweicloud.com", c.Region)
+	securityTokenURL := fmt.Sprintf("%s/v3.0/OS-CREDENTIAL/securitytokens", iamBaseURL)
+
+	// Create HTTP Client with logging
+	transport := &http.Transport{
+		Proxy: http.ProxyFromEnvironment,
+	}
+	client := &http.Client{
+		Transport: &LogRoundTripper{
+			Rt:         transport,
+			MaxRetries: c.MaxRetries,
+		},
+	}
+
+	// Prepare request body
+	body, err := json.Marshal(map[string]interface{}{
+		"auth": map[string]interface{}{
+			"identity": map[string]interface{}{
+				"methods": []string{"token"},
+				"token": map[string]interface{}{
+					"id": subjectToken,
+				},
+			},
+		},
+	})
+	if err != nil {
+		return fmt.Errorf("Error marshal Security Token request body: %s", err.Error())
+	}
+
+	// Create POST request
+	req, err := http.NewRequest("POST", securityTokenURL, bytes.NewBuffer(body))
+	if err != nil {
+		return fmt.Errorf("Error building Security Token API request: %s", err.Error())
+	}
+
+	// Set request headers
+	req.Header.Set("Content-Type", "application/json;charset=UTF-8")
+
+	// Execute request
+	resp, err := client.Do(req)
+	if err != nil {
+		return fmt.Errorf("Error requesting Security Token API: %s", err.Error())
+	}
+	defer resp.Body.Close()
+
+	// Check response status
+	if resp.StatusCode != http.StatusCreated {
+		return fmt.Errorf("Error requesting Security Token API: status code = %d", resp.StatusCode)
+	}
+
+	// Read response body
+	rawBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("Error reading security token API response: %s", err.Error())
+	}
+
+	var parsedBody interface{}
+	err = json.Unmarshal(rawBody, &parsedBody)
+	if err != nil {
+		return fmt.Errorf("Error unmarshal security token API response: %s", err.Error())
+	}
+
+	// Extract security token
+	accessKey := utils.PathSearch("credential.access", parsedBody, "").(string)
+	secretKey := utils.PathSearch("credential.secret", parsedBody, "").(string)
+	securityToken := utils.PathSearch("credential.securitytoken", parsedBody, "").(string)
+
+	if accessKey == "" || secretKey == "" || securityToken == "" {
+		return errors.New("Error fetching security token from API response")
+	}
+	c.AccessKey, c.SecretKey, c.SecurityToken = accessKey, secretKey, securityToken
+
+	return nil
 }
