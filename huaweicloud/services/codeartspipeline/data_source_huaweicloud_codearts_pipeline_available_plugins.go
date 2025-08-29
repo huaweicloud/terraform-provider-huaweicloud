@@ -261,17 +261,30 @@ func dataSourceCodeartsPipelineAvailablePluginsRead(_ context.Context, d *schema
 		}
 
 		for _, plugin := range plugins {
-			rst = append(rst, map[string]interface{}{
-				"unique_id":     utils.PathSearch("unique_id", plugin, nil),
-				"display_name":  utils.PathSearch("display_name", plugin, nil),
-				"business_type": utils.PathSearch("business_type", plugin, nil),
-				"conditions":    utils.PathSearch("conditions", plugin, nil),
-				"removable":     utils.PathSearch("removable", plugin, nil),
-				"cloneable":     utils.PathSearch("cloneable", plugin, nil),
-				"disabled":      utils.PathSearch("disabled", plugin, nil),
-				"editable":      utils.PathSearch("editable", plugin, nil),
-				"plugins_list":  flattenPipelineAvailablePluginsPluginsList(plugin),
-			})
+			id := utils.PathSearch("unique_id", plugin, "").(string)
+			found := false
+			for _, r := range rst {
+				if r["unique_id"].(string) == id {
+					temp := r["plugins_list"].([]interface{})
+					temp = append(temp, flattenPipelineAvailablePluginsPluginsList(plugin)...)
+					r["plugins_list"] = temp
+					found = true
+					break
+				}
+			}
+			if !found {
+				rst = append(rst, map[string]interface{}{
+					"unique_id":     utils.PathSearch("unique_id", plugin, nil),
+					"display_name":  utils.PathSearch("display_name", plugin, nil),
+					"business_type": utils.PathSearch("business_type", plugin, nil),
+					"conditions":    utils.PathSearch("conditions", plugin, nil),
+					"removable":     utils.PathSearch("removable", plugin, nil),
+					"cloneable":     utils.PathSearch("cloneable", plugin, nil),
+					"disabled":      utils.PathSearch("disabled", plugin, nil),
+					"editable":      utils.PathSearch("editable", plugin, nil),
+					"plugins_list":  flattenPipelineAvailablePluginsPluginsList(plugin),
+				})
+			}
 		}
 
 		// use total, which is the total of `plugins_list` in actual
