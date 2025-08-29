@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.77.7 (Aug 29, 2025)
+
+ENHANCEMENTS:
+
+* add assume role with oidc support [GH-7683]
+
 ## 1.77.6 (Aug 27, 2025)
 
 ENHANCEMENTS:
