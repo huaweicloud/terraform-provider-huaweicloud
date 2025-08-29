@@ -63,6 +63,8 @@ supported, in this order, and explained below:
 * Environment variables
 * Shared configuration file
 * ECS Instance Metadata Service
+* Assume Role
+* Assume Role with OIDC
 
 The Huawei Cloud Provider supports assuming role with IAM agency, either in the provider configuration
 block parameter assume_role or shared configuration file.
@@ -199,6 +201,26 @@ provider "huaweicloud" {
 }
 ```
 
+### Assume role with OIDC
+
+If provided with an IAM agency and token from an identity provider, Terraform will attempt to assume this role
+using the supplied credentials.
+
+Usage:
+
+```hcl
+provider "huaweicloud" {
+  region = "cn-north-4"
+
+  assume_role_with_oidc {
+    agency_name   = "agency"
+    domain_id     = "agency_domain"
+    idp_id        = "idp_id"
+    id_token_file = "/Users/tf_user/secrets/oidc-token"
+  }
+}
+```
+
 ## Configuration Reference
 
 The following arguments are supported:
@@ -219,6 +241,9 @@ The following arguments are supported:
   variable is used. Defaults to the `current` profile in the shared config file.
 
 * `assume_role` - (Optional) Configuration block for an assumed role. See below.
+
+* `assume_role_with_oidc` - (Optional) Configuration block for an assumed role with oidc.
+  The [assume_role_with_oidc](#block--assumeroleoidc) structure is documented below.
 
 * `project_name` - (Optional) The Name of the project to login with. If omitted, the `HW_PROJECT_NAME` environment
   variable or `region` is used.
@@ -282,6 +307,27 @@ The `assume_role` block supports:
 
 * `domain_name` - (Required) The name of the agency domain for assume role.
   If omitted, the `HW_ASSUME_ROLE_DOMAIN_NAME` environment variable is used.
+
+<a name="block--assumeroleoidc"></a>
+The `assume_role_with_oidc` block supports:
+
+* `agency_name` - (Required) The name of the agency for assume role.
+  If omitted, the `HW_ASSUME_ROLE_AGENCY_NAME` environment variable is used.
+
+* `domain_id` - (Required) The id of the agency domain(account) for assume role.
+  If omitted, the `HW_ASSUME_ROLE_DOMAIN_ID` environment variable is used.
+
+* `duration` - (Optional) The duration for v5 assume role.
+  If omitted, the `HW_ASSUME_ROLE_DURATION` environment variable is used.
+
+* `idp_id` - (Required) The ID of the external IdP for assume role.
+  If omitted, the `HW_ASSUME_ROLE_IDP_ID` environment variable is used.
+
+* `id_token` - (Optional) The Id token that is issued by the external IdP.
+  If omitted, the `HW_ASSUME_ROLE_ID_TOKEN` environment variable is used.
+
+* `id_token_file` - (Optional) The file path of Id token that is issued by the external IdP.
+  If omitted, the `HW_ASSUME_ROLE_ID_TOKEN_FILE` environment variable is used.
 
 <a name="block--endpoints"></a>
 The `endpoints` block supports:

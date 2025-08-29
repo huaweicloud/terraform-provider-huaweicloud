@@ -3,6 +3,7 @@ package config
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"math"
@@ -43,32 +44,35 @@ var (
 )
 
 type Config struct {
-	AccessKey           string
-	SecretKey           string
-	CACertFile          string
-	ClientCertFile      string
-	ClientKeyFile       string
-	DomainID            string
-	DomainName          string
-	IdentityEndpoint    string
-	Insecure            bool
-	Region              string
-	TenantID            string
-	TenantName          string
-	Token               string
-	SecurityToken       string
-	AssumeRoleAgency    string
-	AssumeRoleDomain    string
-	AssumeRoleDomainID  string
-	AssumeRoleDuration  int
-	AssumeRoleList      []AssumeRole
-	Cloud               string
-	MaxRetries          int
-	TerraformVersion    string
-	RegionClient        bool
-	EnterpriseProjectID string
-	SharedConfigFile    string
-	Profile             string
+	AccessKey             string
+	SecretKey             string
+	CACertFile            string
+	ClientCertFile        string
+	ClientKeyFile         string
+	DomainID              string
+	DomainName            string
+	IdentityEndpoint      string
+	Insecure              bool
+	Region                string
+	TenantID              string
+	TenantName            string
+	Token                 string
+	SecurityToken         string
+	AssumeRoleAgency      string
+	AssumeRoleDomain      string
+	AssumeRoleDomainID    string
+	AssumeRoleDuration    int
+	AssumeRoleList        []AssumeRole
+	AssumeRoleIdpID       string
+	AssumeRoleIdToken     string
+	AssumeRoleIdTokenFile string
+	Cloud                 string
+	MaxRetries            int
+	TerraformVersion      string
+	RegionClient          bool
+	EnterpriseProjectID   string
+	SharedConfigFile      string
+	Profile               string
 
 	// metadata security key expires at
 	SecurityKeyExpiresAt time.Time
@@ -122,6 +126,32 @@ type AssumeRole struct {
 func (c *Config) LoadAndValidate() error {
 	if c.MaxRetries < 0 {
 		return fmt.Errorf("max_retries should be a positive value")
+	}
+
+	// Assume role OIDC
+	if c.AssumeRoleIdpID != "" {
+		if c.Region == "" {
+			return errors.New("region should be provided")
+		}
+
+		// Get token from file if not specified
+		if c.AssumeRoleIdToken == "" && c.AssumeRoleIdTokenFile != "" {
+			token, err := os.ReadFile(c.AssumeRoleIdTokenFile)
+			if err != nil {
+				return fmt.Errorf("Error reading id_token_file: %s", err)
+			}
+			tokenStr := string(token)
+			c.AssumeRoleIdToken = strings.Trim(tokenStr, "\n")
+		}
+
+		subjectToken, err := getSubjectTokenByIdp(c)
+		if err != nil {
+			return err
+		}
+		err = getSecurityTokenByIdp(c, subjectToken)
+		if err != nil {
+			return err
+		}
 	}
 
 	err := buildClient(c)
