@@ -47,6 +47,11 @@
                 "description": "All queried components.",
                 "computed": true
               },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The ID of the enterprise project to which the components belong.",
+                "optional": true
+              },
               "environment_id": {
                 "type": "string",
                 "description": "The ID of the environment to which the components belong.",

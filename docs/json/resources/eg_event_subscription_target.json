@@ -1,0 +1,307 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_eg_event_subscription_target": {
+          "block": {
+            "attributes": {
+              "connection_id": {
+                "type": "string",
+                "description": "The connection ID used by the event subscription target.",
+                "optional": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The create time, in UTC format.",
+                "computed": true
+              },
+              "detail": {
+                "type": "string",
+                "description": "The configuration details of the event subscription target, in JSON format.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The ID of the enterprise project.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the event subscription target.",
+                "required": true
+              },
+              "provider_type": {
+                "type": "string",
+                "description": "The provider type of the event subscription target.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the event subscription target is located.",
+                "computed": true
+              },
+              "retry_times": {
+                "type": "number",
+                "description": "The number of retry times for the event subscription target.",
+                "optional": true,
+                "default": 3
+              },
+              "subscription_id": {
+                "type": "string",
+                "description": "The ID of the event subscription.",
+                "required": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The update time, in UTC format.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "apigw_detail": {
+                "block": {
+                  "attributes": {
+                    "url": {
+                      "type": "string",
+                      "description": "The URL of the APIGW endpoint.",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "invocation_http_parameters": {
+                      "block": {
+                        "block_types": {
+                          "header_parameters": {
+                            "block": {
+                              "attributes": {
+                                "is_value_secret": {
+                                  "type": "bool",
+                                  "description": "Whether the header parameter value is secret.",
+                                  "optional": true,
+                                  "default": false
+                                },
+                                "key": {
+                                  "type": "string",
+                                  "description": "The key of the header parameter.",
+                                  "optional": true
+                                },
+                                "value": {
+                                  "type": "string",
+                                  "description": "The value of the header parameter.",
+                                  "optional": true
+                                }
+                              },
+                              "description": "The header parameters for the HTTP request."
+                            },
+                            "nesting_mode": "list"
+                          }
+                        },
+                        "description": "The HTTP parameters for the APIGW invocation."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    }
+                  },
+                  "description": "The APIGW target configuration details."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "dead_letter_queue": {
+                "block": {
+                  "attributes": {
+                    "connection_id": {
+                      "type": "string",
+                      "description": "The connection ID of the dead letter queue.",
+                      "required": true
+                    },
+                    "instance_id": {
+                      "type": "string",
+                      "description": "The instance ID of the dead letter queue.",
+                      "required": true
+                    },
+                    "topic": {
+                      "type": "string",
+                      "description": "The topic name of the dead letter queue.",
+                      "required": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The type of dead letter queue.",
+                      "required": true
+                    }
+                  },
+                  "description": "The dead letter queue configuration of the event subscription target."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "eg_detail": {
+                "block": {
+                  "attributes": {
+                    "agency_name": {
+                      "type": "string",
+                      "description": "The agency name of cross-account access.",
+                      "required": true
+                    },
+                    "cross_account": {
+                      "type": "bool",
+                      "description": "Whether this is a cross-account EG channel target.",
+                      "optional": true,
+                      "default": false
+                    },
+                    "cross_region": {
+                      "type": "bool",
+                      "description": "Whether this is a cross-region EG channel target.",
+                      "optional": true,
+                      "default": false
+                    },
+                    "target_channel_id": {
+                      "type": "string",
+                      "description": "The target channel ID of the EG channel.",
+                      "required": true
+                    },
+                    "target_project_id": {
+                      "type": "string",
+                      "description": "The target project ID of the EG channel.",
+                      "required": true
+                    },
+                    "target_region": {
+                      "type": "string",
+                      "description": "The target region of the EG channel.",
+                      "required": true
+                    }
+                  },
+                  "description": "The EG channel target configuration details."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "kafka_detail": {
+                "block": {
+                  "attributes": {
+                    "topic": {
+                      "type": "string",
+                      "description": "The topic name of the Kafka instance.",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "key_transform": {
+                      "block": {
+                        "attributes": {
+                          "template": {
+                            "type": "string",
+                            "description": "The template definition for VARIABLE type transform rules.",
+                            "optional": true
+                          },
+                          "type": {
+                            "type": "string",
+                            "description": "The type of transform rule.",
+                            "required": true
+                          },
+                          "value": {
+                            "type": "string",
+                            "description": "The value of the transform rule.",
+                            "optional": true
+                          }
+                        },
+                        "description": "The transform configuration of the Kafka messages."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    }
+                  },
+                  "description": "The Kafka target configuration details."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "key_transform": {
+                "block": {
+                  "attributes": {
+                    "template": {
+                      "type": "string",
+                      "description": "The template definition for VARIABLE type transform rules.",
+                      "optional": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The type of transform rule.",
+                      "required": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "description": "The value of the transform rule.",
+                      "optional": true
+                    }
+                  },
+                  "description": "The transform configuration for event data transformation."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "smn_detail": {
+                "block": {
+                  "attributes": {
+                    "agency_name": {
+                      "type": "string",
+                      "description": "The agency name for cross-account access.",
+                      "required": true
+                    },
+                    "urn": {
+                      "type": "string",
+                      "description": "The URN of the SMN topic.",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "key_transform": {
+                      "block": {
+                        "attributes": {
+                          "template": {
+                            "type": "string",
+                            "description": "The template definition for VARIABLE type transform rules.",
+                            "optional": true
+                          },
+                          "type": {
+                            "type": "string",
+                            "description": "The type of transform rule.",
+                            "required": true
+                          },
+                          "value": {
+                            "type": "string",
+                            "description": "The value of the transform rule.",
+                            "optional": true
+                          }
+                        },
+                        "description": "The subject transform configuration of the SMN messages."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    }
+                  },
+                  "description": "The SMN target configuration details."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "EG",
+            "name": "EventGrid",
+            "catalog": "Middleware",
+            "name_cn": "事件网格",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

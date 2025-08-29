@@ -1,0 +1,106 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_codearts_pipeline_available_plugins": {
+          "block": {
+            "attributes": {
+              "business_type": {
+                "type": "string",
+                "description": "Specifies the service type.",
+                "optional": true
+              },
+              "data": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "business_type": "string",
+                      "cloneable": "bool",
+                      "conditions": [
+                        "list",
+                        "string"
+                      ],
+                      "disabled": "bool",
+                      "display_name": "string",
+                      "editable": "bool",
+                      "plugins_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "all_steps": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "display_name": "string",
+                                  "plugin_name": "string",
+                                  "version": "string"
+                                }
+                              ]
+                            ],
+                            "description": "string",
+                            "disabled": "bool",
+                            "display_name": "string",
+                            "group_name": "string",
+                            "group_type": "string",
+                            "icon_url": "string",
+                            "location": "string",
+                            "manifest_version": "string",
+                            "multi_step_editable": "number",
+                            "plugin_attribution": "string",
+                            "plugin_composition_type": "string",
+                            "plugin_name": "string",
+                            "publisher_unique_id": "string",
+                            "runtime_attribution": "string",
+                            "unique_id": "string",
+                            "version_attribution": "string"
+                          }
+                        ]
+                      ],
+                      "removable": "bool",
+                      "unique_id": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the result set.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "input_repo_type": {
+                "type": "string",
+                "description": "Specifies the source code repository type.",
+                "optional": true
+              },
+              "input_source_type": {
+                "type": "string",
+                "description": "Specifies the input source type, whether a pipeline has one source or multiple sources.",
+                "optional": true
+              },
+              "regex_name": {
+                "type": "string",
+                "description": "Specifies the regex name.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "use_condition": {
+                "type": "string",
+                "description": "Specifies the use condition.",
+                "optional": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

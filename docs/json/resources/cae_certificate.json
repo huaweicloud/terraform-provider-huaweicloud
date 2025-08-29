@@ -16,6 +16,12 @@
                 "required": true,
                 "sensitive": true
               },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The ID of the enterprise project to which the certificate belongs.",
+                "optional": true,
+                "forcenew": true
+              },
               "environment_id": {
                 "type": "string",
                 "description": "The ID of the CAE environment.",

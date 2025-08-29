@@ -1,0 +1,122 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_fgs_resources_filter": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the target resources are located.",
+                "computed": true
+              },
+              "resource_type": {
+                "type": "string",
+                "description": "The type of the resource used to filter the target resources.",
+                "required": true
+              },
+              "resources": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "detail": "string",
+                      "id": "string",
+                      "name": "string",
+                      "tags": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "key": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The list of target resources that matched filter parameters.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "matches": {
+                "block": {
+                  "attributes": {
+                    "key": {
+                      "type": "string",
+                      "description": "The match key used to filter the target resources.",
+                      "required": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "description": "The match value used to filter the target resources.",
+                      "required": true
+                    }
+                  },
+                  "description": "The key-value pairs used to filter the target resources."
+                },
+                "nesting_mode": "list"
+              },
+              "sys_tags": {
+                "block": {
+                  "attributes": {
+                    "key": {
+                      "type": "string",
+                      "description": "The key of the system tag used to filter the target resources.",
+                      "required": true
+                    },
+                    "values": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The values of the system tag used to filter the target resources.",
+                      "required": true
+                    }
+                  },
+                  "description": "schema:{\"Internal\":true};The system tags used to filter the target resources."
+                },
+                "nesting_mode": "list"
+              },
+              "tags": {
+                "block": {
+                  "attributes": {
+                    "key": {
+                      "type": "string",
+                      "description": "The key of the resource tag used to filter the target resources.",
+                      "required": true
+                    },
+                    "values": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The values corresponding to the current key used to filter the target resources.",
+                      "required": true
+                    }
+                  },
+                  "description": "schema:{\"Internal\":true};The resource tags used to filter the target resources."
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "FunctionGraph",
+            "name": "FunctionGraph",
+            "catalog": "Compute",
+            "name_cn": "函数工作流",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

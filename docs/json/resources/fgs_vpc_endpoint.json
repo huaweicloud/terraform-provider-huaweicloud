@@ -1,0 +1,63 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_fgs_vpc_endpoint": {
+          "block": {
+            "attributes": {
+              "address": {
+                "type": "string",
+                "description": "The domain address of the VPC endpoint.",
+                "computed": true
+              },
+              "endpoints": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The list of IP addresses of the VPC endpoint.",
+                "computed": true
+              },
+              "flavor": {
+                "type": "string",
+                "description": "The flavor of the VPC endpoint.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the VPC endpoint is located.",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "description": "The ID of the subnet to which the VPC endpoint belongs.",
+                "required": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "description": "The ID of the VPC to which the VPC endpoint belongs.",
+                "required": true
+              },
+              "xrole": {
+                "type": "string",
+                "description": "The IAM agency name of the VPC endpoint.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "FunctionGraph",
+            "name": "FunctionGraph",
+            "catalog": "Compute",
+            "name_cn": "函数工作流",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

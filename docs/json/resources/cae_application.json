@@ -10,6 +10,12 @@
                 "description": "The creation time of the application, in RFC3339 format.",
                 "computed": true
               },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The ID of the enterprise project to which the application belongs.",
+                "optional": true,
+                "forcenew": true
+              },
               "environment_id": {
                 "type": "string",
                 "description": "The ID of the environment to which the application belongs.",

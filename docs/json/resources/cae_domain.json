@@ -10,6 +10,12 @@
                 "description": "The time when the domain name is associated, in RFC3339 format.",
                 "computed": true
               },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The ID of the enterprise project to which the domain name belongs.",
+                "optional": true,
+                "forcenew": true
+              },
               "environment_id": {
                 "type": "string",
                 "description": "The ID of the CAE environment.",

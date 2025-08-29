@@ -11,6 +11,7 @@
               },
               "region": {
                 "type": "string",
+                "description": "The region where the notification rules are located.",
                 "computed": true
               },
               "rules": {

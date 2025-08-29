@@ -24,6 +24,12 @@
                 "type": "string",
                 "computed": true
               },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The ID of the enterprise project to which the component belongs.",
+                "optional": true,
+                "forcenew": true
+              },
               "environment_id": {
                 "type": "string",
                 "required": true,

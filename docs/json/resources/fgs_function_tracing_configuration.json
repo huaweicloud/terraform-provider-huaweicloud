@@ -1,0 +1,47 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_fgs_function_tracing_configuration": {
+          "block": {
+            "attributes": {
+              "function_urn": {
+                "type": "string",
+                "description": "The URN of the function to which the tracing configuration belongs.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the function tracing configuration is located.",
+                "computed": true
+              },
+              "tracing_ak": {
+                "type": "string",
+                "description": "The APM access key for tracing configuration.",
+                "required": true,
+                "sensitive": true
+              },
+              "tracing_sk": {
+                "type": "string",
+                "description": "The APM secret key for tracing configuration.",
+                "required": true,
+                "sensitive": true
+              }
+            }
+          },
+          "product": {
+            "short": "FunctionGraph",
+            "name": "FunctionGraph",
+            "catalog": "Compute",
+            "name_cn": "函数工作流",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

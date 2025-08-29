@@ -1,0 +1,81 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_fgs_async_invoke_configurations": {
+          "block": {
+            "attributes": {
+              "configurations": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_time": "string",
+                      "destination_config": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "on_failure": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "destination": "string",
+                                  "param": "string"
+                                }
+                              ]
+                            ],
+                            "on_success": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "destination": "string",
+                                  "param": "string"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "enable_async_status_log": "bool",
+                      "func_urn": "string",
+                      "last_modified": "string",
+                      "max_async_event_age_in_seconds": "number",
+                      "max_async_retry_attempts": "number"
+                    }
+                  ]
+                ],
+                "description": "The list of queried async invoke configurations.",
+                "computed": true
+              },
+              "function_urn": {
+                "type": "string",
+                "description": "The function URN to query async invoke configurations.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the async invoke configurations are located.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "FunctionGraph",
+            "name": "FunctionGraph",
+            "catalog": "Compute",
+            "name_cn": "函数工作流",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

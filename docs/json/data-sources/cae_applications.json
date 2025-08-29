@@ -24,6 +24,11 @@
                 ],
                 "computed": true
               },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The ID of the enterprise project to which the applications belong.",
+                "optional": true
+              },
               "environment_id": {
                 "type": "string",
                 "required": true

@@ -17,6 +17,12 @@
                 "required": true,
                 "forcenew": true
               },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The ID of the enterprise project to which the component to be operated belongs.",
+                "optional": true,
+                "forcenew": true
+              },
               "environment_id": {
                 "type": "string",
                 "description": "The ID of the environment where the application is located.",

@@ -2,26 +2,21 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "data_source_schemas": {
-        "huaweicloud_ccm_private_ca_export": {
+        "huaweicloud_antiddos_quota": {
           "block": {
             "attributes": {
-              "ca_id": {
-                "type": "string",
-                "description": "Specifies the ID of the CA certificate you want to export.",
-                "required": true
-              },
-              "certificate": {
-                "type": "string",
-                "description": "The certificate content.",
-                "computed": true
-              },
-              "certificate_chain": {
-                "type": "string",
-                "description": "The content of the certificate chain.",
+              "current": {
+                "type": "number",
+                "description": "The current used quota.",
                 "computed": true
               },
               "id": {
                 "type": "string",
+                "computed": true
+              },
+              "quota": {
+                "type": "number",
+                "description": "The maximum quota limit.",
                 "computed": true
               },
               "region": {
@@ -32,10 +27,10 @@
             }
           },
           "product": {
-            "short": "CCM",
-            "name": "Cloud Certificate & Manager",
+            "short": "Anti-DDoS",
+            "name": "Anti-DDoS",
             "catalog": "Security & Compliance",
-            "name_cn": "云证书与管理服务",
+            "name_cn": "Anti-DDoS流量清洗",
             "catalog_cn": "安全与合规"
           }
         }
