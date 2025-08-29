@@ -8,7 +8,10 @@ host: huaweicloud.com
 tags:
     - name: Kafka
 paths:
-    /v2/{project_id}/instances:
+    /v2/{engine}/{project_id}/instances:
+        POST:
+            tag: Kafka
+    /v2/{project_id}/{engine}/instances/{instance_id}/plain-ssl-switch:
         POST:
             tag: Kafka
     /v2/{project_id}/instances/{instance_id}:

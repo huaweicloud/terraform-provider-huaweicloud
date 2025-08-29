@@ -1,0 +1,20 @@
+info:
+    version: ""
+    title: resource_huaweicloud_coc_group
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: COC
+paths:
+    /v1/groups:
+        GET:
+            tag: COC
+        POST:
+            tag: COC
+    /v1/groups/{id}:
+        DELETE:
+            tag: COC
+        PUT:
+            tag: COC

@@ -1,0 +1,27 @@
+info:
+    version: ""
+    title: resource_huaweicloud_fgs_async_log_configuration
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: FunctionGraph
+paths:
+    /v2/{project_id}/fgs/functions/async-status-log-detail:
+        GET:
+            tag: FunctionGraph
+    /v2/{project_id}/fgs/functions/enable-async-status-logs:
+        POST:
+            tag: FunctionGraph
+    /v2/{project_id}/groups/{log_group_id}:
+        DELETE:
+            tag: LTS
+    /v2/{project_id}/groups/{log_group_id}/streams:
+        GET:
+            tag: LTS
+    /v2/{project_id}/transfers:
+        DELETE:
+            tag: LTS
+        GET:
+            tag: LTS

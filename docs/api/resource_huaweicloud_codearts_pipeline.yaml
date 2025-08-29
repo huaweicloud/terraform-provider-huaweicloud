@@ -45,3 +45,6 @@ paths:
     /v5/{project_id}/api/pipelines/{pipeline_id}/unban:
         PUT:
             tag: CodeArtsPipeline
+    /v5/{project_id}/api/pipelines/{pipeline_id}/webhook:
+        GET:
+            tag: CodeArtsPipeline

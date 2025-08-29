@@ -1,0 +1,20 @@
+info:
+    version: ""
+    title: resource_huaweicloud_eg_event_subscription_target
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: EG
+paths:
+    /v1/{project_id}/subscriptions/{subscription_id}/targets:
+        POST:
+            tag: EG
+    /v1/{project_id}/subscriptions/{subscription_id}/targets/{target_id}:
+        DELETE:
+            tag: EG
+        GET:
+            tag: EG
+        PUT:
+            tag: EG

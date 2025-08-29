@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_rms_resource_aggregation_pending_request_delete
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: Config
+paths:
+    /v1/resource-manager/domains/{domain_id}/aggregators/pending-aggregation-request/{requester_account_id}:
+        DELETE:
+            tag: Config
