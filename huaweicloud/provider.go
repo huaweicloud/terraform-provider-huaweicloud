@@ -1435,6 +1435,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_business_partners":                 rds.DataSourceRdsBusinessPartners(),
 			"huaweicloud_rds_marketplace_engine_products":       rds.DataSourceRdsMarketplaceEngineProducts(),
 			"huaweicloud_rds_instant_tasks":                     rds.DataSourceRdsInstantTasks(),
+			"huaweicloud_rds_schedule_tasks":                    rds.DataSourceRdsScheduleTasks(),
 
 			"huaweicloud_rms_policy_definitions":                           rms.DataSourcePolicyDefinitions(),
 			"huaweicloud_rms_assignment_package_templates":                 rms.DataSourceTemplates(),
