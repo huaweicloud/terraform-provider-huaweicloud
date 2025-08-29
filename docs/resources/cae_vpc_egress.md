@@ -43,6 +43,13 @@ The following arguments are supported:
   to which the CAE environment belongs.  
   Changing this creates a new resource.
 
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the ID of the enterprise project to which the
+  VPC egress belongs.  
+  Changing this creates a new resource.
+
+-> If the `environment_id` belongs to the non-default enterprise project, this parameter is required and is only valid
+  for enterprise users.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -55,4 +62,11 @@ The resource can be imported using `environment_id`, `route_table_id`, and `cidr
 
 ```bash
 $ terraform import huaweicloud_cae_vpc_egress.test <environment_id>,<route_table_id>,<cidr>
+```
+
+For the VPC egress with the non-default enterprise project ID, its enterprise project ID need to be specified
+additionanlly when importing. All fields are separated by commas (,), e.g.
+
+```bash
+$ terraform import huaweicloud_cae_vpc_egress.test <environment_id>,<route_table_id>,<cidr>,<enterprise_project_id>
 ```
