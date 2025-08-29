@@ -179,6 +179,26 @@ provider "huaweicloud" {
 }
 ```
 
+Role Chain:
+
+```hcl
+provider "huaweicloud" {
+  region     = "cn-north-4"
+  access_key = "my-access-key"
+  secret_key = "my-secret-key"
+
+  assume_role {
+    agency_name = "initial_agency"
+    domain_name = "initial_agency_domain"
+  }
+
+  assume_role {
+    agency_name = "final_agency"
+    domain_name = "final_agency_domain"
+  }
+}
+```
+
 ## Configuration Reference
 
 The following arguments are supported:
@@ -198,8 +218,7 @@ The following arguments are supported:
 * `profile` - (Optional) The profile name as set in the shared config file. If omitted, the `HW_PROFILE` environment
   variable is used. Defaults to the `current` profile in the shared config file.
 
-* `assume_role` - (Optional) Configuration block for an assumed role. See below. Only one assume_role
-  block may be in the configuration.
+* `assume_role` - (Optional) Configuration block for an assumed role. See below.
 
 * `project_name` - (Optional) The Name of the project to login with. If omitted, the `HW_PROJECT_NAME` environment
   variable or `region` is used.
