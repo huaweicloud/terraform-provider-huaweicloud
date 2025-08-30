@@ -14,13 +14,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/cce/v3/clusters"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 // @API CCE GET /api/v3/projects/{project_id}/clusters/{cluster_id}
+// @API CCE POST /api/v3/projects/{project_id}/clusters/{cluster_id}/operation/upgradeworkflows
 // @API CCE POST /api/v3/projects/{project_id}/clusters/{cluster_id}/operation/upgrade
 // @API CCE GET /api/v3/projects/{project_id}/clusters/{cluster_id}/operation/upgrade/tasks/{task_id}
 // @API CCE POST /api/v3/projects/{project_id}/clusters/{cluster_id}/operation/precheck
@@ -28,7 +28,7 @@ import (
 // @API CCE POST /api/v3.1/projects/{project_id}/clusters/{cluster_id}/operation/snapshot
 // @API CCE GET /api/v3.1/projects/{project_id}/clusters/{cluster_id}/operation/snapshot/tasks
 // @API CCE POST /api/v3/projects/{project_id}/clusters/{cluster_id}/operation/postcheck
-var clusterUpgradeNonUpdatableParams = []string{"cluster_id", "target_version", "addons", "is_snapshot",
+var clusterUpgradeNonUpdatableParams = []string{"cluster_id", "target_version", "current_version", "addons", "is_snapshot",
 	"addons.*.addon_template_name",
 	"addons.*.operation",
 	"addons.*.version",
@@ -67,6 +67,10 @@ func ResourceClusterUpgrade() *schema.Resource {
 			"target_version": {
 				Type:     schema.TypeString,
 				Required: true,
+			},
+			"current_version": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"addons": {
 				Type:     schema.TypeList,
@@ -150,6 +154,10 @@ func ResourceClusterUpgrade() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
+			"is_postcheck": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
 			"enable_force_new": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -160,7 +168,7 @@ func ResourceClusterUpgrade() *schema.Resource {
 	}
 }
 
-func buildClusterUpgradeCreateOpts(d *schema.ResourceData) (map[string]interface{}, error) {
+func buildClusterUpgradeCreateOpts(d *schema.ResourceData, targetVersion string) (map[string]interface{}, error) {
 	nodeOrder, err := buildClusterUpgradeNodeOrderOpts(d)
 	if err != nil {
 		return nil, fmt.Errorf("error building node_order Opts: %s", err)
@@ -182,7 +190,7 @@ func buildClusterUpgradeCreateOpts(d *schema.ResourceData) (map[string]interface
 				"nodeOrder":     nodeOrder,
 				"nodePoolOrder": d.Get("nodepool_order"),
 				"strategy":      buildClusterUpgradeStrategyOpts(d),
-				"targetVersion": d.Get("target_version"),
+				"targetVersion": targetVersion,
 			},
 		},
 	}
@@ -321,15 +329,23 @@ func resourceClusterUpgradeCreate(ctx context.Context, d *schema.ResourceData, m
 		return diag.Errorf("error waiting for CCE cluster to become available: %s", err)
 	}
 
-	cluster, err := clusters.Get(client, clusterID).Extract()
-	if err != nil {
-		return diag.Errorf("error getting CCE cluster: %s", err)
-	}
-	currentVersion := cluster.Spec.Version
+	currentVersion := d.Get("current_version").(string)
 	targetVersion := d.Get("target_version").(string)
 
+	// workflow
+	workflowResp, err := createWorkflow(client, clusterID, currentVersion, targetVersion)
+	if err != nil {
+		return diag.Errorf("error creating CCE cluster precheck: %s", err)
+	}
+
+	exactCurrentVersion := utils.PathSearch("spec.clusterVersion", workflowResp, "").(string)
+	exactTargetVersion := utils.PathSearch("spec.targetVersion", workflowResp, "").(string)
+	if exactCurrentVersion == "" || exactTargetVersion == "" {
+		return diag.Errorf("unable to get clusterVersion or targetVersion in workflow response: %s", workflowResp)
+	}
+
 	// precheck
-	createPreCheckResp, err := createPreCheck(client, clusterID, currentVersion, targetVersion)
+	createPreCheckResp, err := createPreCheck(client, clusterID, exactCurrentVersion, exactTargetVersion)
 	if err != nil {
 		return diag.Errorf("error creating CCE cluster precheck: %s", err)
 	}
@@ -364,7 +380,7 @@ func resourceClusterUpgradeCreate(ctx context.Context, d *schema.ResourceData, m
 		KeepResponseBody: true,
 	}
 
-	createOpts, err := buildClusterUpgradeCreateOpts(d)
+	createOpts, err := buildClusterUpgradeCreateOpts(d, exactTargetVersion)
 	if err != nil {
 		return nil
 	}
@@ -394,12 +410,40 @@ func resourceClusterUpgradeCreate(ctx context.Context, d *schema.ResourceData, m
 	}
 
 	// postcheck
-	err = checkoutAfterUpgrade(client, clusterID, currentVersion, targetVersion)
-	if err != nil {
-		return diag.FromErr(err)
+	if d.Get("is_postcheck").(bool) {
+		err = checkoutAfterUpgrade(client, clusterID, exactCurrentVersion, exactTargetVersion)
+		if err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
 	return resourceClusterUpgradeRead(ctx, d, meta)
+}
+
+func createWorkflow(client *golangsdk.ServiceClient, clusterID, currentVersion, targetVersion string) (interface{}, error) {
+	workflowHttpUrl := "api/v3/projects/{project_id}/clusters/{cluster_id}/operation/upgradeworkflows"
+	workflowPath := client.Endpoint + workflowHttpUrl
+	workflowPath = strings.ReplaceAll(workflowPath, "{project_id}", client.ProjectID)
+	workflowPath = strings.ReplaceAll(workflowPath, "{cluster_id}", clusterID)
+
+	workflowOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"kind":       "WorkFlowTask",
+			"apiVersion": "v3",
+			"spec": map[string]interface{}{
+				"clusterID":      clusterID,
+				"clusterVersion": currentVersion,
+				"targetVersion":  targetVersion,
+			},
+		},
+	}
+	workflowResp, err := client.Request("POST", workflowPath, &workflowOpt)
+	if err != nil {
+		return nil, fmt.Errorf("error preccheck CCE cluster: %s", err)
+	}
+
+	return utils.FlattenResponse(workflowResp)
 }
 
 func createPreCheck(client *golangsdk.ServiceClient, clusterID, currentVersion, targetVersion string) (interface{}, error) {
@@ -422,7 +466,7 @@ func createPreCheck(client *golangsdk.ServiceClient, clusterID, currentVersion, 
 	}
 	preCheckResp, err := client.Request("POST", preCheckPath, &preCheckOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error preccheck CCE cluster: %s", err)
+		return nil, fmt.Errorf("error precheck CCE cluster: %s", err)
 	}
 
 	return utils.FlattenResponse(preCheckResp)
