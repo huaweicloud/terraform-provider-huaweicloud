@@ -34,8 +34,7 @@ resource "huaweicloud_cce_node_pool_nodes_add" "test" {
 
 ```
 
-  ~> Deleting nodes add resource is not supported, it will only be removed from the state.  
-    When the ECS instance is added into the node pool, the `image_id`, `security_group_ids` and `tags`
+  ~> When the ECS instance is added into the node pool, the `image_id`, `security_group_ids` and `tags`
     will be changed. You can ignore these changes as below.
 
 ```hcl
@@ -64,6 +63,9 @@ The following arguments are supported:
 * `node_list` - (Required, List, NonUpdatable) Specifies the list of nodes to add into the pool.
   The [node_list](#node_list) structure is documented below.
 
+* `remove_nodes_on_delete` - (Optional, Bool) Whether to remove nodes when delete this resource.
+  If set to **false**, it will only be removed from the state. Defaults to **false**.
+
 <a name="node_list"></a>
 The `node_list` block supports:
 
@@ -80,3 +82,5 @@ In addition to all arguments above, the following attributes are exported:
 This resource provides the following timeouts configuration options:
 
 * `create` - Default is 20 minutes.
+
+* `delete` - Default is 20 minutes.
