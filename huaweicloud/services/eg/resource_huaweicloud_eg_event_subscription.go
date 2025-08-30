@@ -243,9 +243,9 @@ func buildEventTargetsOpts(newTargets *schema.Set) []interface{} {
 		element := map[string]interface{}{
 			"provider_type":                   newTarget["provider_type"],
 			"name":                            newTarget["name"],
-			"connection_id":                   newTarget["connection_id"],
 			newTarget["detail_name"].(string): unmarshalEventSubscriptionParamsters("event target detail", newTarget["detail"].(string)),
 			"transform":                       unmarshalEventSubscriptionParamsters("transform of event target", newTarget["transform"].(string)),
+			"connection_id":                   utils.ValueIgnoreEmpty(utils.PathSearch("connection_id", newTarget, nil)),
 		}
 		if queueRaw := newTarget["dead_letter_queue"].(string); queueRaw != "" {
 			element["dead_letter_queue"] = unmarshalEventSubscriptionParamsters("dead letter queue of event target", queueRaw)

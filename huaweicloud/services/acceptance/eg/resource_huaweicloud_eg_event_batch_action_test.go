@@ -58,7 +58,7 @@ resource "huaweicloud_eg_event_batch_action" "test" {
 
   events {
     id                = "%[1]s"
-    source            = huaweicloud_eg_custom_event_source.test.id
+    source            = huaweicloud_eg_custom_event_source.test.name
     spec_version      = "1.0"
     type              = "com.example.object.created.v1"
     data_content_type = "application/json"
