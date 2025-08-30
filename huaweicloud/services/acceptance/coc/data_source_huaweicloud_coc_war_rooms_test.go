@@ -17,7 +17,6 @@ func TestAccDataSourceCocWarRooms_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckCocApplicationID(t)
 			acceptance.TestAccPreCheckUserId(t)
 			acceptance.TestAccPreCheckCocRoleID(t)
 			acceptance.TestAccPreCheckCocSceneID(t)
@@ -80,19 +79,17 @@ func testDataSourceDataSourceCocWarRooms_basic(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-data "huaweicloud_coc_applications" "test" {}
-
 resource "huaweicloud_coc_war_room" "test" {
   war_room_name         = "%[2]s"
-  application_id_list   = ["%[3]s"]
+  application_id_list   = [huaweicloud_coc_application.test.id]
   incident_number       = huaweicloud_coc_incident.test.id
-  war_room_admin        = "%[4]s"
+  war_room_admin        = "%[3]s"
   enterprise_project_id = "0"
-  region_code_list      = ["%[5]s"]
+  region_code_list      = ["%[4]s"]
 
   schedule_group {
-    role_id  = "%[6]s"
-    scene_id = "%[7]s"
+    role_id  = "%[5]s"
+    scene_id = "%[6]s"
   }
 
   depends_on = [huaweicloud_coc_incident_handle.test]
@@ -249,6 +246,6 @@ output "war_room_nums_filter_is_useful" {
       contains([huaweicloud_coc_war_room.test.id], v)]
   )
 }
-`, testIncidentHandle_basic(name), name, acceptance.HW_COC_APPLICATION_ID, acceptance.HW_USER_ID,
-		acceptance.HW_REGION_NAME, acceptance.HW_COC_ROLE_ID, acceptance.HW_COC_SCENE_ID)
+`, testIncidentHandle_basic(name), name, acceptance.HW_USER_ID, acceptance.HW_REGION_NAME, acceptance.HW_COC_ROLE_ID,
+		acceptance.HW_COC_SCENE_ID)
 }
