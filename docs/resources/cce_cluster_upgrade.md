@@ -117,7 +117,9 @@ The following arguments are supported:
 
 * `cluster_id` - (Required, String, NonUpdatable) Specifies the cluster ID.
 
-* `target_version` - (Required, String, NonUpdatable) Specifies the target version.
+* `target_version` - (Required, String, NonUpdatable) Specifies the target version, e.g. **v1.29.13-r10**.
+
+* `current_version` - (Optional, String, NonUpdatable) Specifies the current version, e.g. **v1.28.15-r30**.
 
 * `strategy` - (Required, List, NonUpdatable) Specifies the upgrade strategy.
   The [strategy](#strategy) structure is documented below.
@@ -135,6 +137,8 @@ The following arguments are supported:
   A larger value indicates a higher priority.
 
 * `is_snapshot` - (Optional, Bool, NonUpdatable) Specifies whether the cluster is snapshotted.
+
+* `is_postcheck` - (Optional, Bool, NonUpdatable) Specifies whether to run postcheck.
 
 <a name="addons"></a>
 The `addons` block supports:
