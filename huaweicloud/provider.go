@@ -2190,6 +2190,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_coc_incident_handle":        coc.ResourceIncidentHandle(),
 			"huaweicloud_coc_war_room":               coc.ResourceWarRoom(),
 			"huaweicloud_coc_custom_event_report":    coc.ResourceCustomEventReport(),
+			"huaweicloud_coc_public_script_execute":  coc.ResourcePublicScriptExecute(),
 			"huaweicloud_coc_document":               coc.ResourceDocument(),
 			"huaweicloud_coc_document_execute":       coc.ResourceDocumentExecute(),
 			"huaweicloud_coc_application":            coc.ResourceApplication(),
