@@ -32,3 +32,6 @@ paths:
     /api/v3/projects/{project_id}/clusters/{cluster_id}/operation/upgrade/tasks/{task_id}:
         GET:
             tag: CCE
+    /api/v3/projects/{project_id}/clusters/{cluster_id}/operation/upgradeworkflows:
+        POST:
+            tag: CCE
