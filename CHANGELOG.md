@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 1.78.0 (Aug 30, 2025)
+
+* **New Resource:**
+  + `huaweicloud_metastudio_instance` [GH-7691]
+
 ## 1.77.7 (Aug 29, 2025)
 
 ENHANCEMENTS:
