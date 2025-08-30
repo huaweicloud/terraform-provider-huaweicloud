@@ -9,9 +9,17 @@
                 "type": "string",
                 "required": true
               },
+              "current_version": {
+                "type": "string",
+                "optional": true
+              },
               "id": {
                 "type": "string",
                 "computed": true
+              },
+              "is_postcheck": {
+                "type": "bool",
+                "optional": true
               },
               "is_snapshot": {
                 "type": "bool",
