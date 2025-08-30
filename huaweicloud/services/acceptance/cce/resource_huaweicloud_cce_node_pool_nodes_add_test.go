@@ -32,6 +32,28 @@ func TestAccPoolNodesAdd_basic(t *testing.T) {
 	})
 }
 
+func TestAccPoolNodesAdd_removeNodes(t *testing.T) {
+	var (
+		name = acceptance.RandomAccResourceNameWithDash()
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckChargingMode(t)
+			acceptance.TestAccPreCheckUserId(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      nil,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccPoolNodesAdd_removeNodes(name),
+				// there is nothing to check, if no error occurred, that means the test is successful
+			},
+		},
+	})
+}
+
 func testAccPoolNodesAdd_base(name string) string {
 	return fmt.Sprintf(`
 %[1]s
@@ -158,6 +180,26 @@ func testAccPoolNodesAdd_basic(name string) string {
 resource "huaweicloud_cce_node_pool_nodes_add" "test" {
   cluster_id  = huaweicloud_cce_cluster.test.id
   nodepool_id = huaweicloud_cce_node_pool.test.id
+
+  node_list {
+    server_id = huaweicloud_compute_instance.basic1.id
+  }
+  node_list {
+    server_id = huaweicloud_compute_instance.basic2.id
+  }
+}
+`, testAccPoolNodesAdd_base(name), name)
+}
+
+func testAccPoolNodesAdd_removeNodes(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_cce_node_pool_nodes_add" "test" {
+  cluster_id  = huaweicloud_cce_cluster.test.id
+  nodepool_id = huaweicloud_cce_node_pool.test.id
+
+  remove_nodes_on_delete = true
 
   node_list {
     server_id = huaweicloud_compute_instance.basic1.id
