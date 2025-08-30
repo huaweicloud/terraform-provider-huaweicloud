@@ -996,6 +996,13 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		WithOutProjectID: true,
 		Product:          "KooGallery",
 	},
+
+	// catalog for MetaStudio
+	"metastudio": {
+		Name:    "metastudio",
+		Version: "v1",
+		Product: "MetaStudio",
+	},
 }
 
 // GetServiceEndpoint try to get the endpoint from customizing map
