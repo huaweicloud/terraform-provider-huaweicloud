@@ -94,14 +94,67 @@ func TestAccScript_basic(t *testing.T) {
 	})
 }
 
+func TestAccScript_reviewers(t *testing.T) {
+	var obj interface{}
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_coc_script.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getScriptResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckUserId(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: tesScript_reviewers(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "description", "a demo script"),
+					resource.TestCheckResourceAttr(resourceName, "risk_level", "LOW"),
+					resource.TestCheckResourceAttr(resourceName, "version", "1.0.0"),
+					resource.TestCheckResourceAttr(resourceName, "parameters.#", "1"),
+					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: tesScript_reviewers_updated(rName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "description", "a new demo script"),
+					resource.TestCheckResourceAttr(resourceName, "risk_level", "MEDIUM"),
+					resource.TestCheckResourceAttr(resourceName, "version", "1.0.1"),
+					resource.TestCheckResourceAttr(resourceName, "parameters.#", "2"),
+					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
+					resource.TestCheckResourceAttrSet(resourceName, "updated_at"),
+				),
+			},
+		},
+	})
+}
+
 func tesScript_basic(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_coc_script" "test" {
-  name        = "%s"
-  description = "a demo script"
-  risk_level  = "LOW"
-  version     = "1.0.0"
-  type        = "SHELL"
+  name                  = "%s"
+  description           = "a demo script"
+  risk_level            = "LOW"
+  version               = "1.0.0"
+  type                  = "SHELL"
+  enterprise_project_id = "0"
 
   content = <<EOF
 #! /bin/bash
@@ -119,11 +172,12 @@ EOF
 func tesScript_updated(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_coc_script" "test" {
-  name        = "%s"
-  description = "a new demo script"
-  risk_level  = "MEDIUM"
-  version     = "1.0.1"
-  type        = "SHELL"
+  name                  = "%s"
+  description           = "a new demo script"
+  risk_level            = "MEDIUM"
+  version               = "1.0.1"
+  type                  = "SHELL"
+  enterprise_project_id = "0"
 
   content = <<EOF
 #! /bin/bash
@@ -142,4 +196,62 @@ EOF
     sensitive   = true
   }
 }`, name)
+}
+
+func tesScript_reviewers(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_coc_script" "test" {
+  name                  = "%s"
+  description           = "a demo script"
+  risk_level            = "LOW"
+  version               = "1.0.0"
+  type                  = "SHELL"
+  enterprise_project_id = "0"
+
+  content = <<EOF
+#! /bin/bash
+echo "hello $${name}!"
+EOF
+
+  parameters {
+    name        = "name"
+    value       = "world"
+    description = "the first parameter"
+  }
+}`, name)
+}
+
+func tesScript_reviewers_updated(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_coc_script" "test" {
+  name                  = "%[1]s"
+  description           = "a new demo script"
+  risk_level            = "MEDIUM"
+  version               = "1.0.1"
+  type                  = "SHELL"
+  enterprise_project_id = "0"
+
+  content = <<EOF
+#! /bin/bash
+echo "hello $${name}@$${company}!"
+EOF
+
+  protocol = "DEFAULT"
+  reviewers {
+    reviewer_id   = "%[2]s"
+    reviewer_name = "%[3]s"
+  }
+
+  parameters {
+    name        = "name"
+    value       = "world"
+    description = "the first parameter"
+  }
+  parameters {
+    name        = "company"
+    value       = "Huawei"
+    description = "the second parameter"
+    sensitive   = true
+  }
+}`, name, acceptance.HW_USER_ID, acceptance.HW_USER_NAME)
 }

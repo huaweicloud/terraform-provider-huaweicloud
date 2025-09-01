@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
@@ -28,6 +29,10 @@ var scriptResourceNotFoundErrCodes = []string{
 	"COC.00040604", // Script not exist
 }
 
+var scriptNonUpdatableParams = []string{
+	"type", "name", "enterprise_project_id",
+}
+
 // @API COC POST /v1/job/scripts
 // @API COC GET /v1/job/scripts/{script_uuid}
 // @API COC PUT /v1/job/scripts/{script_uuid}
@@ -42,11 +47,12 @@ func ResourceScript() *schema.Resource {
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 
+		CustomizeDiff: config.FlexibleForceNew(scriptNonUpdatableParams),
+
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -63,12 +69,35 @@ func ResourceScript() *schema.Resource {
 			"type": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"content": {
 				Type:             schema.TypeString,
 				Required:         true,
 				DiffSuppressFunc: suppressDosOrUnix,
+			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"reviewers": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"reviewer_name": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"reviewer_id": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
+			},
+			"protocol": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"parameters": {
 				Type:     schema.TypeList,
@@ -96,6 +125,12 @@ func ResourceScript() *schema.Resource {
 						},
 					},
 				},
+			},
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
 			},
 
 			// attributes
@@ -140,17 +175,40 @@ func buildScriptParamsBody(rawParams interface{}) []map[string]interface{} {
 
 func buildCreateScriptBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":          d.Get("name"),
-		"description":   d.Get("description"),
-		"type":          d.Get("type"),
-		"content":       d.Get("content"),
-		"script_params": buildScriptParamsBody(d.Get("parameters")),
+		"name":                  d.Get("name"),
+		"description":           d.Get("description"),
+		"type":                  d.Get("type"),
+		"content":               d.Get("content"),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(d.Get("enterprise_project_id")),
+		"script_params":         buildScriptParamsBody(d.Get("parameters")),
 		"properties": map[string]interface{}{
 			"risk_level": d.Get("risk_level"),
 			"version":    d.Get("version"),
+			"protocol":   utils.ValueIgnoreEmpty(d.Get("protocol")),
+			"reviewers":  buildCreateScriptReviewersBodyParams(d.Get("reviewers")),
 		},
 	}
 	return bodyParams
+}
+
+func buildCreateScriptReviewersBodyParams(rawParams interface{}) []map[string]interface{} {
+	if rawArray, ok := rawParams.([]interface{}); ok {
+		if len(rawArray) == 0 {
+			return nil
+		}
+
+		params := make([]map[string]interface{}, len(rawArray))
+		for i, v := range rawArray {
+			raw := v.(map[string]interface{})
+			params[i] = map[string]interface{}{
+				"reviewer_name": raw["reviewer_name"],
+				"reviewer_id":   raw["reviewer_id"],
+			}
+		}
+		return params
+	}
+
+	return nil
 }
 
 func resourceScriptCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -226,6 +284,9 @@ func resourceScriptRead(_ context.Context, d *schema.ResourceData, meta interfac
 		d.Set("status", utils.PathSearch("data.status", getScriptRespBody, nil)),
 		d.Set("risk_level", utils.PathSearch("data.properties.risk_level", getScriptRespBody, nil)),
 		d.Set("version", utils.PathSearch("data.properties.version", getScriptRespBody, nil)),
+		d.Set("reviewers", flattenScriptReviewers(
+			utils.PathSearch("data.properties.reviewers", getScriptRespBody, nil))),
+		d.Set("enterprise_project_id", utils.PathSearch("data.enterprise_project_id", getScriptRespBody, nil)),
 		d.Set("parameters", flattenScriptParams(getScriptRespBody)),
 		d.Set("created_at", flattenScriptTimeStamp(getScriptRespBody, "data.gmt_created")),
 		d.Set("updated_at", flattenScriptTimeStamp(getScriptRespBody, "data.gmt_modified")),
@@ -233,6 +294,27 @@ func resourceScriptRead(_ context.Context, d *schema.ResourceData, meta interfac
 
 	if err := mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error setting COC script fields: %s", err)
+	}
+
+	return nil
+}
+
+func flattenScriptReviewers(rawParams interface{}) []interface{} {
+	if paramsList, ok := rawParams.([]interface{}); ok {
+		if len(paramsList) == 0 {
+			return nil
+		}
+		rst := make([]interface{}, 0, len(paramsList))
+		for _, params := range paramsList {
+			raw := params.(map[string]interface{})
+			m := map[string]interface{}{
+				"reviewer_name": utils.PathSearch("reviewer_name", raw, nil),
+				"reviewer_id":   utils.PathSearch("reviewer_id", raw, nil),
+			}
+			rst = append(rst, m)
+		}
+
+		return rst
 	}
 
 	return nil
@@ -275,6 +357,8 @@ func buildUpdateScriptBodyParams(d *schema.ResourceData) map[string]interface{} 
 		"properties": map[string]interface{}{
 			"risk_level": d.Get("risk_level"),
 			"version":    d.Get("version"),
+			"protocol":   utils.ValueIgnoreEmpty(d.Get("protocol")),
+			"reviewers":  buildCreateScriptReviewersBodyParams(d.Get("reviewers")),
 		},
 	}
 	return bodyParams
