@@ -1097,6 +1097,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_fgs_applications":                fgs.DataSourceApplications(),
 			"huaweicloud_fgs_application_templates":       fgs.DataSourceApplicationTemplates(),
+			"huaweicloud_fgs_async_invocations":           fgs.DataSourceAsyncInvocations(),
 			"huaweicloud_fgs_async_invoke_configurations": fgs.DataSourceAsyncInvokeConfigurations(),
 			"huaweicloud_fgs_dependencies":                fgs.DataSourceDependencies(),
 			"huaweicloud_fgs_dependency_versions":         fgs.DataSourceDependencieVersions(),
