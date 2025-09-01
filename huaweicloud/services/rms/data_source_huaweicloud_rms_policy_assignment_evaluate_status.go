@@ -84,7 +84,7 @@ func dataSourceRmsPolicyAssignmentEvaluateStatusRead(_ context.Context, d *schem
 	return nil
 }
 
-// @API RMS GET /v1/resource-manager/domains/{domain_id}/policy-assignments/{policy_assignment_id}/policy-states/evaluation-state
+// @API CONFIG GET /v1/resource-manager/domains/{domain_id}/policy-assignments/{policy_assignment_id}/policy-states/evaluation-state
 func (w *PolicyAssignmentEvaluateStatusDSWrapper) ShowEvaluationStateByAssignmentId() (*gjson.Result, error) {
 	client, err := w.NewClient(w.Config, "rms")
 	if err != nil {
