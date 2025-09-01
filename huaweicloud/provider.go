@@ -1573,6 +1573,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_secmaster_vpc_endpoint_services":        secmaster.DataSourceSecmasterVpcEndpointServices(),
 			"huaweicloud_secmaster_catalogues_search":            secmaster.DataSourceSecmasterCataloguesSearch(),
 			"huaweicloud_secmaster_installation_scripts":         secmaster.DataSourceSecmasterInstallationScripts(),
+			"huaweicloud_secmaster_retrieve_scripts":             secmaster.DataSourceRetrieveScripts(),
 			"huaweicloud_secmasterv2_alert_rule_template_detail": secmaster.DataSourceAlertRuleTemplateDetailV2(),
 			"huaweicloud_secmasterv2_alert_rule_templates":       secmaster.DataSourceAlertRuleTemplatesV2(),
 			// In the API documentation, there are two API groups: Plugin Management and Component Management,
