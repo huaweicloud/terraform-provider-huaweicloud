@@ -2,9 +2,13 @@ package vpn
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -17,6 +21,7 @@ import (
 var gatewayUpgradeNonUpdatableParams = []string{"vgw_id", "action"}
 
 // @API VPN POST /v5/{project_id}/vpn-gateways/{vgw_id}/upgrade
+// @API VPN GET /v5/{project_id}/vpn-gateways/jobs
 func ResourceGatewayUpgrade() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceGatewayUpgradeCreate,
@@ -53,7 +58,7 @@ func ResourceGatewayUpgrade() *schema.Resource {
 	}
 }
 
-func resourceGatewayUpgradeCreate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceGatewayUpgradeCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	client, err := cfg.NewServiceClient("vpn", region)
@@ -90,7 +95,76 @@ func resourceGatewayUpgradeCreate(_ context.Context, d *schema.ResourceData, met
 	}
 	d.SetId(id)
 
+	if err = waitForGatewayJobComplete(ctx, client, d); err != nil {
+		return diag.Errorf("error waiting for gateway job (%s) to be completed: %s", id, err)
+	}
+
 	return nil
+}
+
+func waitForGatewayJobComplete(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	var pending []string
+	var target []string
+
+	statusType := d.Get("action").(string)
+	switch statusType {
+	case "start":
+		pending = []string{"upgrading"}
+		target = []string{"pending_upgrade_confirm"}
+	case "finish":
+		pending = []string{"pending_upgrade_confirm"}
+		target = []string{"success"}
+	case "rollback":
+		pending = []string{"rolling_back"}
+		target = []string{"rollback_success"}
+	default:
+		return errors.New("unsupport action")
+	}
+	stateConf := &resource.StateChangeConf{
+		Pending: pending,
+		Target:  target,
+		Refresh: func() (interface{}, string, error) {
+			job, err := getGatewayJob(client, d)
+			if err != nil {
+				return nil, "ERROR", err
+			}
+
+			status := utils.PathSearch("status", job, "").(string)
+			return job, status, nil
+		},
+		Timeout:      d.Timeout(schema.TimeoutCreate),
+		Delay:        1 * time.Second,
+		PollInterval: 3 * time.Second,
+	}
+	_, err := stateConf.WaitForStateContext(ctx)
+	return err
+}
+
+func getGatewayJob(client *golangsdk.ServiceClient, d *schema.ResourceData) (interface{}, error) {
+	httpUrl := "v5/{project_id}/vpn-gateways/jobs?resource_id={resource_id}"
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", d.Get("project_id").(string))
+	getPath = strings.ReplaceAll(getPath, "{resource_id}", d.Get("vgw_id").(string))
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return nil, err
+	}
+
+	searchPath := fmt.Sprintf("jobs[?id=='%s']", d.Id())
+	job := utils.PathSearch(searchPath, getRespBody, nil)
+	if job == nil {
+		return nil, golangsdk.ErrDefault404{}
+	}
+
+	return job, nil
 }
 
 func resourceGatewayUpgradeRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
