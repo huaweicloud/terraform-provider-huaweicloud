@@ -2186,6 +2186,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_coc_script":                 coc.ResourceScript(),
 			"huaweicloud_coc_script_execute":         coc.ResourceScriptExecute(),
 			"huaweicloud_coc_script_order_operation": coc.ResourceScriptOrderOperation(),
+			"huaweicloud_coc_script_approval":        coc.ResourceScriptApproval(),
 			"huaweicloud_coc_incident":               coc.ResourceIncident(),
 			"huaweicloud_coc_incident_handle":        coc.ResourceIncidentHandle(),
 			"huaweicloud_coc_war_room":               coc.ResourceWarRoom(),
