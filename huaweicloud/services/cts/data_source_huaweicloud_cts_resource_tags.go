@@ -16,9 +16,9 @@ import (
 )
 
 // @API CTS GET /v3/{project_id}/{resource_type}/{resource_id}/tags
-func DataSourceCtsResourcesTags() *schema.Resource {
+func DataSourceCtsResourceTags() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceCtsResourcesTagsRead,
+		ReadContext: dataSourceCtsResourceTagsRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -60,7 +60,7 @@ func DataSourceCtsResourcesTags() *schema.Resource {
 	}
 }
 
-func dataSourceCtsResourcesTagsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceCtsResourceTagsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	client, err := cfg.NewServiceClient("cts", region)
