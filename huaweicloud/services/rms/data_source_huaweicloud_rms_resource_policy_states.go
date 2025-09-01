@@ -124,7 +124,7 @@ func dataSourceRmsPolicyStatesRead(_ context.Context, d *schema.ResourceData, me
 	return nil
 }
 
-// @API RMS GET /v1/resource-manager/domains/{domain_id}/resources/{resource_id}/policy-states
+// @API CONFIG GET /v1/resource-manager/domains/{domain_id}/resources/{resource_id}/policy-states
 func (w *PolicyStatesDSWrapper) ListPolicyStatesByResourceId() (*gjson.Result, error) {
 	client, err := w.NewClient(w.Config, "rms")
 	if err != nil {
