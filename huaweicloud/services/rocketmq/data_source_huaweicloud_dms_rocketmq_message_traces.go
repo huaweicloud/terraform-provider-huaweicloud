@@ -183,7 +183,7 @@ func dataSourceDmsRocketmqMessageTracesRead(_ context.Context, d *schema.Resourc
 	return nil
 }
 
-// @API RorcketMQ GET /v2/{engine}/{project_id}/instances/{instance_id}/trace
+// @API RocketMQ GET /v2/{engine}/{project_id}/instances/{instance_id}/trace
 func (w *RocketmqMessageTracesDSWrapper) ListMessageTrace() (*gjson.Result, error) {
 	client, err := w.NewClient(w.Config, "dmsv2")
 	if err != nil {

@@ -16,7 +16,7 @@ Use this data source to get the list of RocketMQ message traces.
 variable "instance_id" {}
 variable "message_id" {}
 
-data "huaweicloud_dms_rocketmq_traces" "test" {
+data "huaweicloud_dms_rocketmq_message_traces" "test" {
   instance_id = var.instance_id
   message_id  = var.message_id
 }
