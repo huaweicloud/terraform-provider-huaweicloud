@@ -55,6 +55,8 @@ func ResourceEvsVolume() *schema.Resource {
 			Delete: schema.DefaultTimeout(3 * time.Minute),
 		},
 
+		CustomizeDiff: config.MergeDefaultTags(),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,

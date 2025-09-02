@@ -80,6 +80,8 @@ func ResourceDcsInstance() *schema.Resource {
 			Delete: schema.DefaultTimeout(15 * time.Minute),
 		},
 
+		CustomizeDiff: config.MergeDefaultTags(),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
