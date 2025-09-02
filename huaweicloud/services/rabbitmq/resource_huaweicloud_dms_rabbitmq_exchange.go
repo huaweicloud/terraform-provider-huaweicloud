@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
@@ -75,6 +76,13 @@ func ResourceDmsRabbitmqExchange() *schema.Resource {
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
+			},
+			"arguments": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringIsJSON,
+				Description:  `The argument configuration of the exchange, in JSON format.`,
 			},
 			"bindings": {
 				Type:     schema.TypeList,
@@ -143,6 +151,7 @@ func buildRabbitmqExchangeRequestBody(d *schema.ResourceData) map[string]interfa
 		"auto_delete": d.Get("auto_delete"),
 		"durable":     utils.ValueIgnoreEmpty(d.Get("durable")),
 		"internal":    utils.ValueIgnoreEmpty(d.Get("internal")),
+		"arguments":   utils.StringToJson(d.Get("arguments").(string)),
 	}
 	return bodyParams
 }
@@ -170,6 +179,8 @@ func resourceDmsRabbitmqExchangeRead(_ context.Context, d *schema.ResourceData, 
 		d.Set("auto_delete", utils.PathSearch("auto_delete", exchange, nil)),
 		d.Set("durable", utils.PathSearch("durable", exchange, nil)),
 		d.Set("internal", utils.PathSearch("internal", exchange, nil)),
+		d.Set("arguments", flattenExchangeArguments(utils.PathSearch("arguments",
+			exchange, make(map[string]interface{})).(map[string]interface{}))),
 	)
 
 	listRabbitmqExchangeBindingsResp, err := listRabbitmqExchangeBindings(client, d)
@@ -266,6 +277,15 @@ func flattenExchangeBindings(paramsList []interface{}) interface{} {
 		})
 	}
 	return rst
+}
+
+func flattenExchangeArguments(arguments map[string]interface{}) interface{} {
+	// If the arguments is empty object, return nil.
+	if len(arguments) == 0 {
+		return nil
+	}
+
+	return utils.JsonToString(arguments)
 }
 
 func resourceDmsRabbitmqExchangeDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

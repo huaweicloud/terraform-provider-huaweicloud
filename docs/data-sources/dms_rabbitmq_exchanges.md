@@ -59,3 +59,5 @@ The `exchanges` block supports:
 * `internal` - Indicates whether the exchange is internal.
 
 * `default` - Indicates whether the exchange is default.
+
+* `arguments` - The argument configuration of the exchange, in JSON format.
