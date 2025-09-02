@@ -2923,6 +2923,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_secmaster_clone_playbook_version":      secmaster.ResourceClonePlaybookAndVersion(),
 			"huaweicloud_secmaster_data_object_relations":       secmaster.ResourceDataObjectRelations(),
 			"huaweicloud_secmaster_dataspace":                   secmaster.ResourceDataspace(),
+			"huaweicloud_secmaster_delete_policies":             secmaster.ResourceDeletePolicies(),
 			"huaweicloud_secmaster_playbook":                    secmaster.ResourcePlaybook(),
 			"huaweicloud_secmaster_playbook_enable":             secmaster.ResourcePlaybookEnable(),
 			"huaweicloud_secmaster_playbook_version":            secmaster.ResourcePlaybookVersion(),
