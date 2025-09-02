@@ -15,7 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API FunctionGraph GET /v2/{project_id}/functions/tags
+// @API FunctionGraph GET /v2/{project_id}/{resource_type}/tags
 func DataSourceResourceTags() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceResourceTagsRead,
