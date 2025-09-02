@@ -65,6 +65,11 @@ func DataSourceDmsRabbitmqExchanges() *schema.Resource {
 							Type:     schema.TypeBool,
 							Computed: true,
 						},
+						"arguments": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The argument configuration of the exchange, in JSON format.`,
+						},
 					},
 				},
 			},
@@ -133,6 +138,8 @@ func getRabbitmqExchangesList(client *golangsdk.ServiceClient, d *schema.Resourc
 				"durable":     utils.PathSearch("durable", exchange, nil),
 				"internal":    utils.PathSearch("internal", exchange, nil),
 				"default":     utils.PathSearch("default", exchange, nil),
+				"arguments": flattenExchangeArguments(utils.PathSearch("arguments",
+					exchange, make(map[string]interface{})).(map[string]interface{})),
 			})
 		}
 

@@ -77,6 +77,7 @@ resource "huaweicloud_dms_rabbitmq_exchange" "test" {
 }
 
 func TestAccRabbitmqExchange_special_charcters(t *testing.T) {
+	name := acceptance.RandomAccResourceNameWithDash()
 	var obj interface{}
 	resourceName := "huaweicloud_dms_rabbitmq_exchange.test"
 	rc := acceptance.InitResourceCheck(
@@ -91,11 +92,13 @@ func TestAccRabbitmqExchange_special_charcters(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testRabbitmqExchange_special_charcters(),
+				Config: testRabbitmqExchange_special_charcters(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", "/test%Exchange|-_"),
 					resource.TestCheckResourceAttr(resourceName, "vhost", "__F_SLASH__test%25Vhost%7C-_"),
+					resource.TestCheckResourceAttr(resourceName, "type", "x-delayed-message"),
+					resource.TestCheckResourceAttrSet(resourceName, "arguments"),
 				),
 			},
 			{
@@ -108,9 +111,14 @@ func TestAccRabbitmqExchange_special_charcters(t *testing.T) {
 	})
 }
 
-func testRabbitmqExchange_special_charcters() string {
+func testRabbitmqExchange_special_charcters(name string) string {
 	return fmt.Sprintf(`
 %s
+
+resource "huaweicloud_dms_rabbitmq_vhost" "test" {
+  instance_id = huaweicloud_dms_rabbitmq_instance.test.id
+  name        = "/test%%Vhost|-_"
+}
 
 resource "huaweicloud_dms_rabbitmq_exchange" "test" {
   depends_on = [huaweicloud_dms_rabbitmq_vhost.test]
@@ -118,10 +126,14 @@ resource "huaweicloud_dms_rabbitmq_exchange" "test" {
   instance_id = huaweicloud_dms_rabbitmq_instance.test.id
   vhost       = urlencode(replace(huaweicloud_dms_rabbitmq_vhost.test.name, "/", "__F_SLASH__"))
   name        = "/test%%Exchange|-_"
-  type        = "direct"
+  type        = "x-delayed-message"
   auto_delete = false
+
+  arguments   = jsonencode({
+    "x-delayed-type" = "header"
+  })
 }
-`, testRabbitmqVhost_special_charcters())
+`, testAccDmsRabbitmqInstance_amqp_single(name, false))
 }
 
 func testAccResourceExchangeOrQueueImportStateIDFunc(resourceName string) resource.ImportStateIdFunc {
