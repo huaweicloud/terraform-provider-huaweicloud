@@ -661,6 +661,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cc_support_binding_global_connection_bandwidths": cc.DataSourceCcSupportBindingGlobalConnectionBandwidths(),
 			"huaweicloud_cc_network_instances":                            cc.DataSourceCcNetworkInstances(),
 			"huaweicloud_cc_permissions":                                  cc.DataSourceCcPermissions(),
+			"huaweicloud_cc_site_network_capabilities":                    cc.DataSourceCcSiteNetworkCapabilities(),
 
 			"huaweicloud_cce_addon_template":         cce.DataSourceAddonTemplate(),
 			"huaweicloud_cce_cluster":                cce.DataSourceCCEClusterV3(),
