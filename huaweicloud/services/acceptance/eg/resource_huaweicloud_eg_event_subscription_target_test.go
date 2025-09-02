@@ -36,7 +36,7 @@ func TestAccEventSubscriptionTarget_basic(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckProjectID(t)
-			acceptance.TestAccPreCheckFgFunctionName(t)
+			acceptance.TestAccPreCheckFgsFunctionName(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy: resource.ComposeTestCheckFunc(
@@ -177,7 +177,7 @@ resource "huaweicloud_eg_event_subscription_target" "test" {
   }
 }
 `, testEventSubscriptionTarget_base(name), acceptance.HW_PROJECT_ID, acceptance.HW_REGION_NAME,
-		acceptance.HW_FG_FUNCTION_NAME)
+		acceptance.HW_FGS_FUNCTION_NAME)
 }
 
 func testEventSubscriptionTarget_basic_update(name string) string {
