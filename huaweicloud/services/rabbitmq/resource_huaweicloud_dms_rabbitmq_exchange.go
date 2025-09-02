@@ -213,7 +213,7 @@ func GetRabbitmqExchange(client *golangsdk.ServiceClient, instanceID, vhost, nam
 		currentPath := listPath + fmt.Sprintf("&offset=%d", offset)
 		listResp, err := client.Request("GET", currentPath, &listOpt)
 		if err != nil {
-			return nil, fmt.Errorf("error retrieving the exchanges list: %s", err)
+			return nil, err
 		}
 		listRespBody, err := utils.FlattenResponse(listResp)
 		if err != nil {
