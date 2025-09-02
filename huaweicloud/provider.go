@@ -775,6 +775,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_coc_application_next_models":       coc.DataSourceCocApplicationNextModels(),
 			"huaweicloud_coc_components":                    coc.DataSourceCocComponents(),
 			"huaweicloud_coc_groups":                        coc.DataSourceCocGroups(),
+			"huaweicloud_coc_instance_batches":              coc.DataSourceCocInstanceBatches(),
 
 			"huaweicloud_compute_flavors":                 ecs.DataSourceEcsFlavors(),
 			"huaweicloud_compute_instance":                ecs.DataSourceComputeInstance(),
