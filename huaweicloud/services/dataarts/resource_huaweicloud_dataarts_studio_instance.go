@@ -39,6 +39,8 @@ func ResourceStudioInstance() *schema.Resource {
 			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
 
+		CustomizeDiff: config.MergeDefaultTags(),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
@@ -221,6 +223,7 @@ func resourceStudioInstanceRead(_ context.Context, d *schema.ResourceData, meta 
 		d.Set("order_id", object.OrderID),
 		d.Set("expire_days", object.ExpireDays),
 		d.Set("status", object.Status),
+		d.Set("tags", d.Get("tags")),
 	)
 
 	if err = mErr.ErrorOrNil(); err != nil {
