@@ -1010,6 +1010,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_rocketmq_background_tasks":            rocketmq.DataSourceBackgroundTasks(),
 			"huaweicloud_dms_rocketmq_broker":                      rocketmq.DataSourceDmsRocketMQBroker(),
 			"huaweicloud_dms_rocketmq_consumer_group_access_users": rocketmq.DataSourceDmsRocketmqConsumerGroupAccessUsers(),
+			"huaweicloud_dms_rocketmq_consumer_group_topics":       rocketmq.DataSourceConsumerGroupTopics(),
 			"huaweicloud_dms_rocketmq_consumer_groups":             rocketmq.DataSourceDmsRocketMQConsumerGroups(),
 			"huaweicloud_dms_rocketmq_consumers":                   rocketmq.DataSourceDmsRocketmqConsumers(),
 			"huaweicloud_dms_rocketmq_dead_letter_messages":        rocketmq.DataSourceDeadLetterMessages(),
