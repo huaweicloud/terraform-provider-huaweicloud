@@ -1584,6 +1584,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_secmaster_alert_rule_template_metrics":  secmaster.DataSourceAlertRuleTemplateMetrics(),
 			"huaweicloud_secmaster_catalogues":                   secmaster.DataSourceSecmasterCatalogues(),
 			"huaweicloud_secmaster_component_templates":          secmaster.DataSourceComponentTemplates(),
+			"huaweicloud_secmaster_component_running_nodes":      secmaster.DataSourceComponentRunningNodes(),
 			"huaweicloud_secmaster_upgradation_version":          secmaster.DataSourceUpgradationVersion(),
 			"huaweicloud_secmaster_vpc_endpoint_services":        secmaster.DataSourceSecmasterVpcEndpointServices(),
 			"huaweicloud_secmaster_catalogues_search":            secmaster.DataSourceSecmasterCataloguesSearch(),
