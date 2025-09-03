@@ -2655,6 +2655,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_iotda_device_policy":            iotda.ResourceDevicePolicy(),
 
 			"huaweicloud_kms_data_encrypt_decrypt":      dew.ResourceKmsDataEncryptDecrypt(),
+			"huaweicloud_kms_sign":                      dew.ResourceKmsSign(),
 			"huaweicloud_kms_key":                       dew.ResourceKmsKey(),
 			"huaweicloud_kps_keypair":                   dew.ResourceKeypair(),
 			"huaweicloud_kms_grant":                     dew.ResourceKmsGrant(),
