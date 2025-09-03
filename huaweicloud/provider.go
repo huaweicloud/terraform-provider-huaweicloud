@@ -2945,6 +2945,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_secmaster_post_paid_order":             secmaster.ResourcePostPaidOrder(),
 			"huaweicloud_secmaster_workspace":                   secmaster.ResourceWorkspace(),
 			"huaweicloud_secmaster_workflow_action":             secmaster.ResourceWorkflowAction(),
+			"huaweicloud_secmaster_workflow_version":            secmaster.ResourceWorkflowVersion(),
 			"huaweicloud_secmaster_catalogue":                   secmaster.ResourceCatalogue(),
 
 			"huaweicloud_servicestage_application":                 servicestage.ResourceApplication(),
