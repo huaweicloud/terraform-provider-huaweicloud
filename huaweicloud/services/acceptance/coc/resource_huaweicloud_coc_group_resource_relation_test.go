@@ -39,23 +39,20 @@ func testAccGroupResourceRelation_basic(name string) string {
 
 %[2]s
 
-data "huaweicloud_coc_resources" "test" {
-  depends_on = [huaweicloud_coc_group.test]
+resource "time_sleep" "wait_1_minute" {
+  depends_on      = [huaweicloud_compute_instance.test]
+  create_duration = "1m"
+}
 
+data "huaweicloud_coc_resources" "test" {
   cloud_service_name = "ecs"
   type               = "cloudservers"
   resource_id_list   = [huaweicloud_compute_instance.test.id]
-}
 
-resource "time_sleep" "wait_10_seconds" {
-  depends_on = [huaweicloud_coc_group.test]
-
-  create_duration = "10s"
+  depends_on = [time_sleep.wait_1_minute]
 }
 
 resource "huaweicloud_coc_group_resource_relation" "test" {
-  depends_on = [time_sleep.wait_10_seconds]
-
   group_id         = huaweicloud_coc_group.test.id
   cmdb_resource_id = data.huaweicloud_coc_resources.test.data[0].id
 }
