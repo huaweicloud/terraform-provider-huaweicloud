@@ -2634,7 +2634,7 @@ func TestAccPreCheckEgConnectionIds(t *testing.T) {
 
 // lintignore:AT003
 func TestAccPreCheckEgEventSubscriptionIds(t *testing.T, min int) {
-	if HW_EG_EVENT_SUBSCRIPTION_IDS == "" || len(strings.Split(HW_EG_EVENT_SUBSCRIPTION_IDS, ",")) >= min {
+	if HW_EG_EVENT_SUBSCRIPTION_IDS == "" || len(strings.Split(HW_EG_EVENT_SUBSCRIPTION_IDS, ",")) < min {
 		t.Skipf(`At least %d subscription ID(s) must be supported during the HW_EG_EVENT_SUBSCRIPTION_IDS, separated by 
 		commas (,).`, min)
 	}
