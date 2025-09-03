@@ -3,9 +3,9 @@ package coc
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -35,7 +35,7 @@ func ResourceEnterpriseProjectCollection() *schema.Resource {
 	}
 }
 
-func buildEnterpriseProjectCollectionOpts(epIdList []interface{}) map[string]interface{} {
+func buildEnterpriseProjectCollectionOpts(epIdList []interface{}, collectionID string) map[string]interface{} {
 	if epIdList == nil {
 		epIdList = make([]interface{}, 0)
 		epIdList = append(epIdList, "")
@@ -44,11 +44,14 @@ func buildEnterpriseProjectCollectionOpts(epIdList []interface{}) map[string]int
 	bodyParams := map[string]interface{}{
 		"ep_id_list": epIdList,
 	}
+	if collectionID != "" {
+		bodyParams["id"] = collectionID
+	}
 
 	return bodyParams
 }
 
-func createOrUpdateOrDeleteEnterpriseProjectCollection(client *golangsdk.ServiceClient, bodyParams map[string]interface{}) error {
+func createOrUpdateOrDeleteEnterpriseProjectCollection(client *golangsdk.ServiceClient, bodyParams map[string]interface{}) (interface{}, error) {
 	httpUrl := "v1/enterprise-project-collect"
 	createPath := client.Endpoint + httpUrl
 	createOpt := golangsdk.RequestOpts{
@@ -56,8 +59,11 @@ func createOrUpdateOrDeleteEnterpriseProjectCollection(client *golangsdk.Service
 		JSONBody:         utils.RemoveNil(bodyParams),
 	}
 
-	_, err := client.Request("PUT", createPath, &createOpt)
-	return err
+	requestResp, err := client.Request("PUT", createPath, &createOpt)
+	if err != nil {
+		return nil, err
+	}
+	return utils.FlattenResponse(requestResp)
 }
 
 func resourceEnterpriseProjectCollectionCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -69,24 +75,25 @@ func resourceEnterpriseProjectCollectionCreate(ctx context.Context, d *schema.Re
 		return diag.Errorf("error creating COC client: %s", err)
 	}
 
-	err = createOrUpdateOrDeleteEnterpriseProjectCollection(client,
-		buildEnterpriseProjectCollectionOpts(d.Get("ep_id_list").(*schema.Set).List()))
+	respBody, err := createOrUpdateOrDeleteEnterpriseProjectCollection(client,
+		buildEnterpriseProjectCollectionOpts(d.Get("ep_id_list").(*schema.Set).List(), ""))
 	if err != nil {
 		return diag.Errorf("error creating the COC enterprise project collection: %s", err)
 	}
 
-	id, err := uuid.GenerateUUID()
-	if err != nil {
-		return diag.FromErr(err)
+	id := utils.PathSearch("data", respBody, "").(string)
+	if id == "" {
+		return diag.Errorf("unable to find ID from API response")
 	}
 	d.SetId(id)
 
 	return resourceEnterpriseProjectCollectionRead(ctx, d, meta)
 }
 
-func getEnterpriseProjectCollection(client *golangsdk.ServiceClient) (interface{}, error) {
-	httpUrl := "v1/enterprise-project-collect?limit=100"
+func getEnterpriseProjectCollection(client *golangsdk.ServiceClient, collectionID string) (interface{}, error) {
+	httpUrl := "v1/enterprise-project-collect?limit=1&id={id}"
 	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{id}", collectionID)
 	getOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 	}
@@ -119,7 +126,7 @@ func resourceEnterpriseProjectCollectionRead(_ context.Context, d *schema.Resour
 		return diag.Errorf("error creating COC client: %s", err)
 	}
 
-	enterpriseProjectCollection, err := getEnterpriseProjectCollection(client)
+	enterpriseProjectCollection, err := getEnterpriseProjectCollection(client, d.Id())
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving the collection list of enterprise project ID")
 	}
@@ -141,8 +148,8 @@ func resourceEnterpriseProjectCollectionUpdate(ctx context.Context, d *schema.Re
 		return diag.Errorf("error creating COC client: %s", err)
 	}
 
-	err = createOrUpdateOrDeleteEnterpriseProjectCollection(client,
-		buildEnterpriseProjectCollectionOpts(d.Get("ep_id_list").(*schema.Set).List()))
+	_, err = createOrUpdateOrDeleteEnterpriseProjectCollection(client,
+		buildEnterpriseProjectCollectionOpts(d.Get("ep_id_list").(*schema.Set).List(), d.Id()))
 	if err != nil {
 		return diag.Errorf("error updating the COC enterprise project collection: %s", err)
 	}
@@ -159,7 +166,7 @@ func resourceEnterpriseProjectCollectionDelete(_ context.Context, d *schema.Reso
 		return diag.Errorf("error creating COC client: %s", err)
 	}
 
-	err = createOrUpdateOrDeleteEnterpriseProjectCollection(client, buildEnterpriseProjectCollectionOpts(nil))
+	_, err = createOrUpdateOrDeleteEnterpriseProjectCollection(client, buildEnterpriseProjectCollectionOpts(nil, d.Id()))
 	if err != nil {
 		return diag.Errorf("error deleting the COC enterprise project collection: %s", err)
 	}
