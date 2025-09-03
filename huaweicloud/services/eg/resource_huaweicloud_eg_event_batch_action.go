@@ -123,10 +123,14 @@ func buildEventBatchActionEvents(events []interface{}) []map[string]interface{} 
 			"specversion":     utils.PathSearch("spec_version", event, nil),
 			"type":            utils.PathSearch("type", event, nil),
 			"datacontenttype": utils.ValueIgnoreEmpty(utils.PathSearch("data_content_type", event, nil)),
-			"dataschema":      utils.ValueIgnoreEmpty(utils.PathSearch("data_schema", event, nil)),
 			"data":            utils.StringToJson(utils.PathSearch("data", event, nil).(string)),
 			"time":            utils.ValueIgnoreEmpty(utils.PathSearch("time", event, nil)),
-			"subject":         utils.ValueIgnoreEmpty(utils.PathSearch("subject", event, nil)),
+		}
+		if v := utils.PathSearch("data_schema", event, ""); v != "" {
+			eventMap["data_schema"] = v
+		}
+		if v := utils.PathSearch("subject", event, ""); v != "" {
+			eventMap["subject"] = v
 		}
 		result = append(result, eventMap)
 	}
