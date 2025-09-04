@@ -70,6 +70,9 @@ func TestAccScript_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "risk_level", "LOW"),
 					resource.TestCheckResourceAttr(resourceName, "version", "1.0.0"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "tags.%", "2"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
 				),
 			},
@@ -86,6 +89,9 @@ func TestAccScript_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "risk_level", "MEDIUM"),
 					resource.TestCheckResourceAttr(resourceName, "version", "1.0.1"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "tags.%", "2"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo2", "bar2"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key2", "value2"),
 					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
 					resource.TestCheckResourceAttrSet(resourceName, "updated_at"),
 				),
@@ -166,6 +172,11 @@ EOF
     value       = "world"
     description = "the first parameter"
   }
+
+  tags = {
+    key = "value"
+    foo = "bar"
+  }
 }`, name)
 }
 
@@ -194,6 +205,11 @@ EOF
     value       = "Huawei"
     description = "the second parameter"
     sensitive   = true
+  }
+
+  tags = {
+    key2 = "value2"
+    foo2 = "bar2"
   }
 }`, name)
 }

@@ -11,6 +11,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -37,6 +38,7 @@ var scriptNonUpdatableParams = []string{
 // @API COC GET /v1/job/scripts/{script_uuid}
 // @API COC PUT /v1/job/scripts/{script_uuid}
 // @API COC DELETE /v1/job/scripts/{script_uuid}
+// @API COC POST /v1/script/{resource_type}/{resource_id}/tags/update
 func ResourceScript() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceScriptCreate,
@@ -47,7 +49,10 @@ func ResourceScript() *schema.Resource {
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 
-		CustomizeDiff: config.FlexibleForceNew(scriptNonUpdatableParams),
+		CustomizeDiff: customdiff.All(
+			config.FlexibleForceNew(scriptNonUpdatableParams),
+			config.MergeDefaultTags(),
+		),
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -126,6 +131,7 @@ func ResourceScript() *schema.Resource {
 					},
 				},
 			},
+			"tags": common.TagsSchema(),
 			"enable_force_new": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -244,7 +250,30 @@ func resourceScriptCreate(ctx context.Context, d *schema.ResourceData, meta inte
 	}
 
 	d.SetId(scriptId)
+
+	if v, ok := d.GetOk("tags"); ok {
+		tags := utils.ExpandResourceTagsMap(v.(map[string]interface{}))
+		err = updateScriptTags(client, scriptId, tags)
+		if err != nil {
+			return diag.Errorf("error updating COC script tags: %s", err)
+		}
+	}
 	return resourceScriptRead(ctx, d, meta)
+}
+
+func updateScriptTags(client *golangsdk.ServiceClient, scriptId string, tags []map[string]interface{}) error {
+	updateHttpUrl := "v1/script/coc:script/{resource_id}/tags/update"
+	updatePath := client.Endpoint + updateHttpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{resource_id}", scriptId)
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"tags": tags,
+		},
+	}
+
+	_, err := client.Request("POST", updatePath, &updateOpt)
+	return err
 }
 
 func resourceScriptRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -290,6 +319,7 @@ func resourceScriptRead(_ context.Context, d *schema.ResourceData, meta interfac
 		d.Set("parameters", flattenScriptParams(getScriptRespBody)),
 		d.Set("created_at", flattenScriptTimeStamp(getScriptRespBody, "data.gmt_created")),
 		d.Set("updated_at", flattenScriptTimeStamp(getScriptRespBody, "data.gmt_modified")),
+		d.Set("tags", utils.FlattenTagsToMap(utils.PathSearch("data.resource_tags", getScriptRespBody, nil))),
 	)
 
 	if err := mErr.ErrorOrNil(); err != nil {
@@ -386,6 +416,14 @@ func resourceScriptUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 	_, err = client.Request("PUT", updateScriptPath, &updateScriptOpt)
 	if err != nil {
 		return diag.Errorf("error updating COC script: %s", err)
+	}
+
+	if d.HasChange("tags") {
+		tags := utils.ExpandResourceTagsMap(d.Get("tags").(map[string]interface{}))
+		err = updateScriptTags(client, d.Id(), tags)
+		if err != nil {
+			return diag.Errorf("error updating COC script tags: %s", err)
+		}
 	}
 
 	return resourceScriptRead(ctx, d, meta)
