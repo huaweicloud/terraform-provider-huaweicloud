@@ -13,25 +13,25 @@ import (
 
 func TestAccDataSourceInstanceAssociatedSSLCertificates_basic(t *testing.T) {
 	var (
-		dataSource = "data.huaweicloud_apig_instance_ssl_certificates.test"
+		dataSource = "data.huaweicloud_apig_instance_associated_ssl_certificates.test"
 		dc         = acceptance.InitDataSourceCheck(dataSource)
 
-		byInstanceId   = "data.huaweicloud_apig_instance_ssl_certificates.filter_by_instance_id"
+		byInstanceId   = "data.huaweicloud_apig_instance_associated_ssl_certificates.filter_by_instance_id"
 		dcByInstanceId = acceptance.InitDataSourceCheck(byInstanceId)
 
-		byName   = "data.huaweicloud_apig_instance_ssl_certificates.filter_by_name"
+		byName   = "data.huaweicloud_apig_instance_associated_ssl_certificates.filter_by_name"
 		dcByName = acceptance.InitDataSourceCheck(byName)
 
-		byCommonName   = "data.huaweicloud_apig_instance_ssl_certificates.filter_by_common_name"
+		byCommonName   = "data.huaweicloud_apig_instance_associated_ssl_certificates.filter_by_common_name"
 		dcByCommonName = acceptance.InitDataSourceCheck(byCommonName)
 
-		bySignatureAlgorithm   = "data.huaweicloud_apig_instance_ssl_certificates.filter_by_signature_algorithm"
+		bySignatureAlgorithm   = "data.huaweicloud_apig_instance_associated_ssl_certificates.filter_by_signature_algorithm"
 		dcBySignatureAlgorithm = acceptance.InitDataSourceCheck(bySignatureAlgorithm)
 
-		byType   = "data.huaweicloud_apig_instance_ssl_certificates.filter_by_type"
+		byType   = "data.huaweicloud_apig_instance_associated_ssl_certificates.filter_by_type"
 		dcByType = acceptance.InitDataSourceCheck(byType)
 
-		byAlgorithmType   = "data.huaweicloud_apig_instance_ssl_certificates.filter_by_algorithm_type"
+		byAlgorithmType   = "data.huaweicloud_apig_instance_associated_ssl_certificates.filter_by_algorithm_type"
 		dcByAlgorithmType = acceptance.InitDataSourceCheck(byAlgorithmType)
 	)
 
@@ -75,7 +75,7 @@ func TestAccDataSourceInstanceAssociatedSSLCertificates_basic(t *testing.T) {
 
 func testAccDataSourceInstanceAssociatedSSLCertificates_step1() string {
 	return fmt.Sprintf(`
-data "huaweicloud_apig_instance_ssl_certificates" "test" {
+data "huaweicloud_apig_instance_associated_ssl_certificates" "test" {
   instance_id = "%[1]s"
 }
 
@@ -84,13 +84,13 @@ locals {
   instance_id = "%[1]s"
 }
 
-data "huaweicloud_apig_instance_ssl_certificates" "filter_by_instance_id" {
+data "huaweicloud_apig_instance_associated_ssl_certificates" "filter_by_instance_id" {
   instance_id = local.instance_id
 }
 
 locals {
   instance_id_filter_result = [
-    for v in data.huaweicloud_apig_instance_ssl_certificates.filter_by_instance_id.certificates[*].instance_id : v == local.instance_id || v == "common"
+    for v in data.huaweicloud_apig_instance_associated_ssl_certificates.filter_by_instance_id.certificates[*].instance_id : v == local.instance_id || v == "common"
   ]
 }
 
@@ -100,17 +100,17 @@ output "instance_id_filter_is_useful" {
 
 # Filter by Name
 locals {
-  name = data.huaweicloud_apig_instance_ssl_certificates.test.certificates[0].name
+  name = data.huaweicloud_apig_instance_associated_ssl_certificates.test.certificates[0].name
 }
 
-data "huaweicloud_apig_instance_ssl_certificates" "filter_by_name" {
+data "huaweicloud_apig_instance_associated_ssl_certificates" "filter_by_name" {
   instance_id = local.instance_id
   name = local.name
 }
 
 locals {
   name_filter_result = [
-    for v in data.huaweicloud_apig_instance_ssl_certificates.filter_by_name.certificates[*].name : v == local.name
+    for v in data.huaweicloud_apig_instance_associated_ssl_certificates.filter_by_name.certificates[*].name : v == local.name
   ]
 }
 
@@ -120,17 +120,17 @@ output "certificate_name_filter_is_useful" {
 
 # Filter by Common Name
 locals {
-  common_name = data.huaweicloud_apig_instance_ssl_certificates.test.certificates[0].common_name
+  common_name = data.huaweicloud_apig_instance_associated_ssl_certificates.test.certificates[0].common_name
 }
 
-data "huaweicloud_apig_instance_ssl_certificates" "filter_by_common_name" {
+data "huaweicloud_apig_instance_associated_ssl_certificates" "filter_by_common_name" {
   instance_id = local.instance_id
   common_name = local.common_name
 }
 
 locals {
   common_name_filter_result = [
-    for v in data.huaweicloud_apig_instance_ssl_certificates.filter_by_common_name.certificates[*].common_name : v == local.common_name
+    for v in data.huaweicloud_apig_instance_associated_ssl_certificates.filter_by_common_name.certificates[*].common_name : v == local.common_name
   ]
 }
 
@@ -140,17 +140,17 @@ output "certificate_common_name_filter_is_useful" {
 
 # Filter by Signature Algorithm
 locals {
-  signature_algorithm = data.huaweicloud_apig_instance_ssl_certificates.test.certificates[0].signature_algorithm
+  signature_algorithm = data.huaweicloud_apig_instance_associated_ssl_certificates.test.certificates[0].signature_algorithm
 }
 
-data "huaweicloud_apig_instance_ssl_certificates" "filter_by_signature_algorithm" {
+data "huaweicloud_apig_instance_associated_ssl_certificates" "filter_by_signature_algorithm" {
   instance_id = local.instance_id
   signature_algorithm = local.signature_algorithm
 }
 
 locals {
   signature_algorithm_filter_result = [
-    for v in data.huaweicloud_apig_instance_ssl_certificates.filter_by_signature_algorithm.certificates[*].signature_algorithm : v == local.signature_algorithm
+    for v in data.huaweicloud_apig_instance_associated_ssl_certificates.filter_by_signature_algorithm.certificates[*].signature_algorithm : v == local.signature_algorithm
   ]
 }
 
@@ -160,17 +160,17 @@ output "certificate_signature_algorithm_filter_is_useful" {
 
 # Filter by Type
 locals {
-  type = data.huaweicloud_apig_instance_ssl_certificates.test.certificates[0].type
+  type = data.huaweicloud_apig_instance_associated_ssl_certificates.test.certificates[0].type
 }
 
-data "huaweicloud_apig_instance_ssl_certificates" "filter_by_type" {
+data "huaweicloud_apig_instance_associated_ssl_certificates" "filter_by_type" {
   instance_id = local.instance_id
   type = local.type
 }
 
 locals {
   type_filter_result = [
-    for v in data.huaweicloud_apig_instance_ssl_certificates.filter_by_type.certificates[*].type : v == local.type
+    for v in data.huaweicloud_apig_instance_associated_ssl_certificates.filter_by_type.certificates[*].type : v == local.type
   ]
 }
 
@@ -180,17 +180,17 @@ output "certificate_type_filter_is_useful" {
 
 # Filter by Algorithm Type
 locals {
-  algorithm_type = data.huaweicloud_apig_instance_ssl_certificates.test.certificates[0].algorithm_type
+  algorithm_type = data.huaweicloud_apig_instance_associated_ssl_certificates.test.certificates[0].algorithm_type
 }
 
-data "huaweicloud_apig_instance_ssl_certificates" "filter_by_algorithm_type" {
+data "huaweicloud_apig_instance_associated_ssl_certificates" "filter_by_algorithm_type" {
   instance_id = local.instance_id
   algorithm_type = local.algorithm_type
 }
 
 locals {
   algorithm_type_result = [
-    for v in data.huaweicloud_apig_instance_ssl_certificates.filter_by_algorithm_type[*].algorithm_type : v == local.algorithm_type
+    for v in data.huaweicloud_apig_instance_associated_ssl_certificates.filter_by_algorithm_type[*].algorithm_type : v == local.algorithm_type
   ]
 }
 
@@ -208,13 +208,13 @@ locals {
   instance_id = "%[1]s"
 }
 
-data "huaweicloud_apig_instance_ssl_certificates" "filter_by_invalid_instance_id" {
+data "huaweicloud_apig_instance_associated_ssl_certificates" "filter_by_invalid_instance_id" {
   instance_id = local.instance_id
 }
 
 locals {
   invalid_instance_id_filter_result = [
-    for v in data.huaweicloud_apig_instance_ssl_certificates.filter_by_invalid_instance_id.certificates[*].instance_id : v == local.instance_id || v == "common"
+    for v in data.huaweicloud_apig_instance_associated_ssl_certificates.filter_by_invalid_instance_id.certificates[*].instance_id : v == local.instance_id || v == "common"
   ]
 }
 
