@@ -2800,6 +2800,13 @@ func TestAccPreCheckLTSLogConvergeMappingConfig(t *testing.T) {
 }
 
 // lintignore:AT003
+func TestAccPreCheckLTSMemberAccountId(t *testing.T) {
+	if HW_LTS_LOG_CONVERGE_MEMBER_ACCOUNT_ID == "" {
+		t.Skip("HW_LTS_LOG_CONVERGE_MEMBER_ACCOUNT_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
 func TestAccPreCheckAomSubApplicationId(t *testing.T) {
 	if HW_AOM_SUB_APPLICATION_ID == "" {
 		t.Skip("HW_AOM_SUB_APPLICATION_ID must be set for the acceptance test")
