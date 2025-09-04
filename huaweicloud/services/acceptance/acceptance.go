@@ -136,6 +136,7 @@ var (
 	HW_KPS_ENABLE_FLAG      = os.Getenv("HW_KPS_ENABLE_FLAG")
 	HW_KPS_FAILED_TASK_ID   = os.Getenv("HW_KPS_FAILED_TASK_ID")
 	HW_CSMS_TASK_ID         = os.Getenv("HW_CSMS_TASK_ID")
+	HW_CSMS_SECRET_ID       = os.Getenv("HW_CSMS_SECRET_ID")
 
 	HW_DEST_REGION          = os.Getenv("HW_DEST_REGION")
 	HW_DEST_PROJECT_ID      = os.Getenv("HW_DEST_PROJECT_ID")
@@ -3851,6 +3852,13 @@ func TestAccPrecheckDewFlag(t *testing.T) {
 func TestAccPrecheckCsmsTask(t *testing.T) {
 	if HW_CSMS_TASK_ID == "" {
 		t.Skip("HW_CSMS_TASK_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCsmsSecretID(t *testing.T) {
+	if HW_CSMS_SECRET_ID == "" {
+		t.Skip("HW_CSMS_SECRET_ID must be set for the acceptance test")
 	}
 }
 
