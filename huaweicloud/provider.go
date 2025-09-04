@@ -1351,6 +1351,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_lts_alarms":                       lts.DataSourceAlarms(),
 			"huaweicloud_lts_aom_accesses":                 lts.DataSourceAOMAccesses(),
 			"huaweicloud_lts_cce_accesses":                 lts.DataSourceCceAccesses(),
+			"huaweicloud_lts_context_logs":                 lts.DataSourceContextLogs(),
 			"huaweicloud_lts_groups":                       lts.DataSourceLtsGroups(),
 			"huaweicloud_lts_host_accesses":                lts.DataSourceHostAccesses(),
 			"huaweicloud_lts_hosts":                        lts.DataSourceHosts(),
