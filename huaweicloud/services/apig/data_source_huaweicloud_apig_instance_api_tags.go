@@ -16,9 +16,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/schemas"
 )
 
-func DataSourceApisTags() *schema.Resource {
+func DataSourceInstanceApiTags() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceApisTagsRead,
+		ReadContext: dataSourceInstanceApiTagsRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -41,20 +41,20 @@ func DataSourceApisTags() *schema.Resource {
 	}
 }
 
-type ApisTagsDSWrapper struct {
+type InstanceApiTagsDSWrapper struct {
 	*schemas.ResourceDataWrapper
 	Config *config.Config
 }
 
-func newApisTagsDSWrapper(d *schema.ResourceData, meta interface{}) *ApisTagsDSWrapper {
-	return &ApisTagsDSWrapper{
+func newInstanceApiTagsDSWrapper(d *schema.ResourceData, meta interface{}) *InstanceApiTagsDSWrapper {
+	return &InstanceApiTagsDSWrapper{
 		ResourceDataWrapper: schemas.NewSchemaWrapper(d),
 		Config:              meta.(*config.Config),
 	}
 }
 
-func dataSourceApisTagsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	wrapper := newApisTagsDSWrapper(d, meta)
+func dataSourceInstanceApiTagsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	wrapper := newInstanceApiTagsDSWrapper(d, meta)
 	listTagsV2Rst, err := wrapper.ListTagsV2()
 	if err != nil {
 		return diag.FromErr(err)
@@ -75,7 +75,7 @@ func dataSourceApisTagsRead(_ context.Context, d *schema.ResourceData, meta inte
 }
 
 // @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/tags
-func (w *ApisTagsDSWrapper) ListTagsV2() (*gjson.Result, error) {
+func (w *InstanceApiTagsDSWrapper) ListTagsV2() (*gjson.Result, error) {
 	client, err := w.NewClient(w.Config, "apig")
 	if err != nil {
 		return nil, err
@@ -91,7 +91,7 @@ func (w *ApisTagsDSWrapper) ListTagsV2() (*gjson.Result, error) {
 		Result()
 }
 
-func (w *ApisTagsDSWrapper) listTagsV2ToSchema(body *gjson.Result) error {
+func (w *InstanceApiTagsDSWrapper) listTagsV2ToSchema(body *gjson.Result) error {
 	d := w.ResourceData
 	mErr := multierror.Append(nil,
 		d.Set("region", w.Config.GetRegion(w.ResourceData)),
