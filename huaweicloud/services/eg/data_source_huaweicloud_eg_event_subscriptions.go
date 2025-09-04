@@ -271,7 +271,7 @@ func dataSourceEventSubscriptionsRead(_ context.Context, d *schema.ResourceData,
 		return diag.Errorf("error creating EG client: %s", err)
 	}
 
-	subscriptions, err := listEventSubscriptions(client, d)
+	subscriptions, err := ListEventSubscriptions(client, d)
 	if err != nil {
 		return diag.Errorf("error querying event subscriptions: %s", err)
 	}
@@ -290,7 +290,7 @@ func dataSourceEventSubscriptionsRead(_ context.Context, d *schema.ResourceData,
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func listEventSubscriptions(client *golangsdk.ServiceClient, d *schema.ResourceData) ([]interface{}, error) {
+func ListEventSubscriptions(client *golangsdk.ServiceClient, d ...*schema.ResourceData) ([]interface{}, error) {
 	var (
 		httpUrl = "v1/{project_id}/subscriptions?limit={limit}"
 		limit   = 1000
@@ -301,7 +301,10 @@ func listEventSubscriptions(client *golangsdk.ServiceClient, d *schema.ResourceD
 	listPath := client.Endpoint + httpUrl
 	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
 	listPath = strings.ReplaceAll(listPath, "{limit}", strconv.Itoa(limit))
-	listPath += buildEventSubscriptionsQueryParams(d)
+
+	if len(d) > 0 {
+		listPath += buildEventSubscriptionsQueryParams(d[0])
+	}
 
 	opt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
