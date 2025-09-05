@@ -1,12 +1,12 @@
 ---
 subcategory: "API Gateway (Dedicated APIG)"
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_apig_apis_tags"
+page_title: "HuaweiCloud: huaweicloud_apig_instance_api_tags"
 description: |-
   Use this data source to get the tag list of all APIs under specified APIG instance within HuaweiCloud.
 ---
 
-# huaweicloud_apig_apis_tags
+# huaweicloud_apig_instance_api_tags
 
 Use this data source to get the tag list of all APIs under specified APIG instance within HuaweiCloud.
 
@@ -15,7 +15,7 @@ Use this data source to get the tag list of all APIs under specified APIG instan
 ```hcl
 variable "instance_id" {}
 
-data "huaweicloud_apig_apis_tags" "test" {
+data "huaweicloud_apig_instance_api_tags" "test" {
   instance_id = var.instance_id
 }
 ```

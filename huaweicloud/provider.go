@@ -562,7 +562,6 @@ func Provider() *schema.Provider {
 			"huaweicloud_apig_api_associated_throttling_policies": apig.DataSourceApiAssociatedThrottlingPolicies(),
 			"huaweicloud_apig_api_basic_configurations":           apig.DataSourceApiBasicConfigurations(),
 			"huaweicloud_apig_api":                                apig.DataSourceApi(),
-			"huaweicloud_apig_apis_tags":                          apig.DataSourceApisTags(),
 			"huaweicloud_apig_appcodes":                           apig.DataSourceAppcodes(),
 			"huaweicloud_apig_applications":                       apig.DataSourceApplications(),
 			"huaweicloud_apig_availability_zones":                 apig.DataSourceAvailabilityZones(),
@@ -574,6 +573,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_apig_environment_variables":              apig.DataSourceApigEnvironmentVariables(),
 			"huaweicloud_apig_environments":                       apig.DataSourceEnvironments(),
 			"huaweicloud_apig_groups":                             apig.DataSourceGroups(),
+			"huaweicloud_apig_instance_api_tags":                  apig.DataSourceInstanceApiTags(),
 			"huaweicloud_apig_instance_ssl_certificates":          apig.DataSourceInstanceAssociatedSSLCertificates(),
 			"huaweicloud_apig_instance_features":                  apig.DataSourceInstanceFeatures(),
 			"huaweicloud_apig_instance_quotas":                    apig.DataSourceInstanceQuotas(),
@@ -1865,6 +1865,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_cpts_projects": cpts.DataSourceCptsProjects(),
 
 			// Legacy
+			"huaweicloud_apig_apis_tags": apig.DataSourceInstanceApiTags(),
+
 			"huaweicloud_images_image_v2":        ims.DataSourceImagesImageV2(),
 			"huaweicloud_networking_port_v2":     vpc.DataSourceNetworkingPortV2(),
 			"huaweicloud_networking_secgroup_v2": vpc.DataSourceNetworkingSecGroup(),

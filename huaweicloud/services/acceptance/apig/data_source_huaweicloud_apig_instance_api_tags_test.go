@@ -10,10 +10,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceApisTags_basic(t *testing.T) {
+func TestAccDataSourceInstanceApiTags_basic(t *testing.T) {
 	var (
 		name       = acceptance.RandomAccResourceName()
-		dataSource = "data.huaweicloud_apig_apis_tags.test"
+		dataSource = "data.huaweicloud_apig_instance_api_tags.test"
 		dc         = acceptance.InitDataSourceCheck(dataSource)
 	)
 
@@ -25,7 +25,7 @@ func TestAccDataSourceApisTags_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceApisTags_basic(name),
+				Config: testAccDataSourceInstanceApiTags_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestMatchResourceAttr(dataSource, "tags.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
@@ -36,7 +36,7 @@ func TestAccDataSourceApisTags_basic(t *testing.T) {
 	})
 }
 
-func testAccDataSourceApisTags_basic(name string) string {
+func testAccDataSourceInstanceApiTags_basic(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_apig_group" "test" {
   instance_id = "%[1]s"
@@ -60,14 +60,14 @@ resource "huaweicloud_apig_api" "test" {
   tags = count.index == 0 ? ["foo", "bar"] : ["TF"]
 }
 
-data "huaweicloud_apig_apis_tags" "test" {
+data "huaweicloud_apig_instance_api_tags" "test" {
   instance_id = "%[1]s"
 
   depends_on = [huaweicloud_apig_api.test]
 }
 
 locals {
-  filter_result = [for v in flatten(huaweicloud_apig_api.test[*].tags) : contains(data.huaweicloud_apig_apis_tags.test.tags, v)]
+  filter_result = [for v in flatten(huaweicloud_apig_api.test[*].tags) : contains(data.huaweicloud_apig_instance_api_tags.test.tags, v)]
 }
 
 output "is_tags_set_and_valid" {
