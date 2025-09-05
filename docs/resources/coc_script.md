@@ -71,6 +71,8 @@ The following arguments are supported:
 * `parameters` - (Optional, List) Specifies the input parameters of the script.
   Up to 20 script parameters can be added. The [parameters](#block--parameters) structure is documented below.
 
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the script.
+
 <a name="block--reviewers"></a>
 The `reviewers` block supports:
 
