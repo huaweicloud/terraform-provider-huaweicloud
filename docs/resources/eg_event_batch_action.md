@@ -1,5 +1,5 @@
 ---
-subcategory: "Event Grid (EG)"
+subcategory: "EventGrid (EG)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_eg_event_batch_action"
 description: |-
