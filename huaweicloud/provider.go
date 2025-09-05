@@ -671,6 +671,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_cc_cloud_connection_capabilities":                cc.DataSourceCcCloudConnectionCapabilities(),
 			"huaweicloud_cc_across_area_bandwidth_package_flavors":        cc.DataSourceCcAcrossAreaBandwidthPackageFlavors(),
 			"huaweicloud_cc_across_regions_bandwidth_package_flavors":     cc.DataSourceCcAcrossRegionsBandwidthPackageFlavors(),
+			"huaweicloud_cc_supported_areas":                              cc.DataSourceCcSupportedAreas(),
+			"huaweicloud_cc_supported_regions":                            cc.DataSourceCcSupportedRegions(),
 
 			"huaweicloud_cce_addon_template":         cce.DataSourceAddonTemplate(),
 			"huaweicloud_cce_cluster":                cce.DataSourceCCEClusterV3(),
