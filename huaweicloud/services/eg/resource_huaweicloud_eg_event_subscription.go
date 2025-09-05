@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
+	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/eg/v1/subscriptions"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -426,6 +427,10 @@ func resourceEventSubscriptionUpdate(ctx context.Context, d *schema.ResourceData
 	return resourceEventSubscriptionRead(ctx, d, meta)
 }
 
+func DeleteEventSubscription(client *golangsdk.ServiceClient, subscriptionId string) error {
+	return subscriptions.Delete(client, subscriptionId)
+}
+
 func resourceEventSubscriptionDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg            = meta.(*config.Config)
@@ -437,7 +442,7 @@ func resourceEventSubscriptionDelete(_ context.Context, d *schema.ResourceData, 
 		return diag.Errorf("error creating EG v1 client: %s", err)
 	}
 
-	err = subscriptions.Delete(client, subscriptionId)
+	err = DeleteEventSubscription(client, subscriptionId)
 	if err != nil {
 		return diag.Errorf("error deleting EG subscription (%s): %s", subscriptionId, err)
 	}

@@ -3,6 +3,7 @@ package fgs
 import (
 	"context"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -17,6 +18,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dew"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/eg"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
@@ -82,6 +84,13 @@ func ResourceFunctionTrigger() *schema.Resource {
 					triggerStatusActive, triggerStatusDisabled,
 				}, false),
 				Description: `The expected status of the function trigger.`,
+			},
+
+			// Optional parameters.
+			"cascade_delete_eg_subscription": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Whether to cascade delete the related EG event subscription of the function trigger.`,
 			},
 			"created_at": {
 				Type:        schema.TypeString,
@@ -275,6 +284,7 @@ func resourceFunctionTriggerRead(_ context.Context, d *schema.ResourceData, meta
 		d.Set("status", utils.PathSearch("trigger_status", respBody, nil)),
 		d.Set("event_data", utils.JsonToString(skipEventDataAndDecryptPassword(d.Get("event_data").(string),
 			utils.PathSearch("event_data", respBody, make(map[string]interface{}))))),
+		d.Set("cascade_delete_eg_subscription", d.Get("cascade_delete_eg_subscription")),
 		d.Set("created_at", utils.PathSearch("created_time", respBody, nil)),
 		d.Set("updated_at", utils.PathSearch("last_updated_time", respBody, nil)),
 	)
@@ -331,6 +341,22 @@ func resourceFunctionTriggerUpdate(ctx context.Context, d *schema.ResourceData, 
 	return nil
 }
 
+// Delete a not-exists event subscription will report a 404 error
+func cascadeDeleteEgResources(egClient *golangsdk.ServiceClient, subscriptionId string) error {
+	subscriptions, err := eg.ListEventSubscriptions(egClient)
+	if err != nil {
+		log.Printf("[DEBUG] Error querying event subscriptions: %s", err)
+		return nil
+	}
+
+	if len(utils.PathSearch(fmt.Sprintf("[?id=='%s']", subscriptionId), subscriptions, make([]interface{}, 0)).([]interface{})) < 1 {
+		log.Printf("[DEBUG] Unable to find the event subscription by its ID: %s", subscriptionId)
+		return nil
+	}
+
+	return eg.DeleteEventSubscription(egClient, subscriptionId)
+}
+
 func resourceFunctionTriggerDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg         = meta.(*config.Config)
@@ -341,13 +367,35 @@ func resourceFunctionTriggerDelete(ctx context.Context, d *schema.ResourceData, 
 		triggerId   = d.Id()
 	)
 
-	client, err := cfg.NewServiceClient("fgs", region)
+	fgsClient, err := cfg.NewServiceClient("fgs", region)
 	if err != nil {
 		return diag.Errorf("error creating FunctionGraph client: %s", err)
 	}
 
-	deletePath := client.Endpoint + httpUrl
-	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	if d.Get("cascade_delete_eg_subscription").(bool) {
+		egClient, err := cfg.NewServiceClient("eg", region)
+		if err != nil {
+			return diag.Errorf("error creating EG client: %s", err)
+		}
+
+		// The trigger ID is the same as the subscription ID.
+		err = cascadeDeleteEgResources(egClient, triggerId)
+		if err != nil {
+			return common.CheckDeletedDiag(d, err, "error deleting related EG subscription: %s")
+		}
+		// After deleting the EG event subscription resource, FunctionGraph will automatically delete the trigger.
+		_, err = GetTriggerById(fgsClient, functionUrn, triggerType, triggerId)
+		if err != nil {
+			if parsedErr, ok := err.(golangsdk.ErrDefault404); ok {
+				log.Printf("[DEBUG] After deleting the EG subscription, the function trigger is automatically "+
+					"deleted, because we found an error: %s.", parsedErr)
+				return nil
+			}
+		}
+	}
+
+	deletePath := fgsClient.Endpoint + httpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", fgsClient.ProjectID)
 	deletePath = strings.ReplaceAll(deletePath, "{function_urn}", functionUrn)
 	deletePath = strings.ReplaceAll(deletePath, "{trigger_type_code}", triggerType)
 	deletePath = strings.ReplaceAll(deletePath, "{trigger_id}", triggerId)
@@ -358,14 +406,14 @@ func resourceFunctionTriggerDelete(ctx context.Context, d *schema.ResourceData, 
 		},
 	}
 
-	_, err = client.Request("DELETE", deletePath, &deleteOpts)
+	_, err = fgsClient.Request("DELETE", deletePath, &deleteOpts)
 	if err != nil {
 		return common.CheckDeletedDiag(d,
 			common.ConvertExpected401ErrInto404Err(err, "error_code", "FSS.0401"), // Function not found.
 			"error deleting function trigger")
 	}
 
-	err = waitForFunctionTriggerDeleted(ctx, client, d)
+	err = waitForFunctionTriggerDeleted(ctx, fgsClient, d)
 	if err != nil {
 		diag.Errorf("error waiting for the function trigger (%s) status to become deleted: %s", triggerId, err)
 	}

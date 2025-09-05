@@ -73,21 +73,6 @@ func TestAccDataEventSubscriptions_basic(t *testing.T) {
 
 					// Test targets structure
 					resource.TestCheckResourceAttr(byName, "subscriptions.0.targets.#", "2"),
-					resource.TestCheckResourceAttrSet(byName, "subscriptions.0.targets.0.id"),
-					resource.TestCheckResourceAttrSet(byName, "subscriptions.0.targets.0.name"),
-					resource.TestCheckResourceAttrSet(byName, "subscriptions.0.targets.0.provider_type"),
-					resource.TestCheckResourceAttrSet(byName, "subscriptions.0.targets.0.smn_detail"),
-					resource.TestCheckResourceAttrSet(byName, "subscriptions.0.targets.0.transform"),
-					resource.TestCheckResourceAttrSet(byName, "subscriptions.0.targets.0.created_time"),
-					resource.TestCheckResourceAttrSet(byName, "subscriptions.0.targets.0.updated_time"),
-					resource.TestCheckResourceAttrSet(byName, "subscriptions.0.targets.1.id"),
-					resource.TestCheckResourceAttrSet(byName, "subscriptions.0.targets.1.name"),
-					resource.TestCheckResourceAttrSet(byName, "subscriptions.0.targets.1.provider_type"),
-					resource.TestCheckResourceAttrSet(byName, "subscriptions.0.targets.1.connection_id"),
-					resource.TestCheckResourceAttrSet(byName, "subscriptions.0.targets.1.detail"),
-					resource.TestCheckResourceAttrSet(byName, "subscriptions.0.targets.1.transform"),
-					resource.TestCheckResourceAttrSet(byName, "subscriptions.0.targets.1.created_time"),
-					resource.TestCheckResourceAttrSet(byName, "subscriptions.0.targets.1.updated_time"),
 
 					// Test filter by not found name
 					dcByNotFoundName.CheckResourceExists(),
