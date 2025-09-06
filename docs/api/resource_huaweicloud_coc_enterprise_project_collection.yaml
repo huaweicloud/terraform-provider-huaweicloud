@@ -1,0 +1,15 @@
+info:
+    version: ""
+    title: resource_huaweicloud_coc_enterprise_project_collection
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: COC
+paths:
+    /v1/enterprise-project-collect:
+        GET:
+            tag: COC
+        PUT:
+            tag: COC

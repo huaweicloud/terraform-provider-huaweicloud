@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_cc_site_network_capabilities
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CC
+paths:
+    /v3/{domain_id}/dcaas/site-network/capabilities:
+        GET:
+            tag: CC

@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_secmaster_siem_directories
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: Secmaster
+paths:
+    /v2/{project_id}/workspaces/{workspace_id}/siem/directories:
+        GET:
+            tag: Secmaster

@@ -1,6 +1,6 @@
 info:
     version: ""
-    title: data_source_huaweicloud_fgs_resource_tags
+    title: data_source_huaweicloud_fgs_async_invocations
     description: ""
 schemes:
     - https
@@ -8,6 +8,6 @@ host: huaweicloud.com
 tags:
     - name: FunctionGraph
 paths:
-    /v2/{project_id}/{resource_type}/tags:
+    /v2/{project_id}/fgs/functions/{function_urn}/async-invocations:
         GET:
             tag: FunctionGraph

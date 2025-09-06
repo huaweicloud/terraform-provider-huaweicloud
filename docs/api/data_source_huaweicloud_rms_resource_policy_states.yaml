@@ -6,8 +6,8 @@ schemes:
     - https
 host: huaweicloud.com
 tags:
-    - name: RMS
+    - name: CONFIG
 paths:
     /v1/resource-manager/domains/{domain_id}/resources/{resource_id}/policy-states:
         GET:
-            tag: RMS
+            tag: CONFIG

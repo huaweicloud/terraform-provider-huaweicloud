@@ -1,6 +1,6 @@
 info:
     version: ""
-    title: data_source_huaweicloud_apig_apis_tags
+    title: data_source_huaweicloud_apig_quotas
     description: ""
 schemes:
     - https
@@ -8,6 +8,6 @@ host: huaweicloud.com
 tags:
     - name: APIG
 paths:
-    /v2/{project_id}/apigw/instances/{instance_id}/tags:
+    /v2/{project_id}/apigw/instance/configs:
         GET:
             tag: APIG
