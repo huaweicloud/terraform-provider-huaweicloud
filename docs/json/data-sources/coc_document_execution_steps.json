@@ -1,0 +1,81 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_coc_document_execution_steps": {
+          "block": {
+            "attributes": {
+              "data": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "action": "string",
+                      "end_time": "number",
+                      "execution_step_id": "string",
+                      "inputs": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "key": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ],
+                      "message": "string",
+                      "name": "string",
+                      "outputs": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "key": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ],
+                      "properties": [
+                        "map",
+                        "string"
+                      ],
+                      "start_time": "number",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of execution steps.",
+                "computed": true
+              },
+              "execution_id": {
+                "type": "string",
+                "description": "Specifies the work order ID.",
+                "required": true
+              },
+              "execution_step_id_list": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the execution step IDs.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "COC",
+            "name": "Cloud Operations Center",
+            "catalog": "Management & Governance",
+            "name_cn": "云运维中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

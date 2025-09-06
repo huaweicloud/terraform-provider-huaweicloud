@@ -1,0 +1,34 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_vpn_connection_reset": {
+          "block": {
+            "attributes": {
+              "connection_id": {
+                "type": "string",
+                "description": "Specifies the connection ID of a VPN gateway.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "VPN",
+            "name": "Virtual Private Network",
+            "catalog": "Networking",
+            "name_cn": "虚拟专用网络",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_apig_api_debug": {
+          "block": {
+            "attributes": {
+              "api_id": {
+                "type": "string",
+                "description": "The ID of the API to be debugged.",
+                "required": true
+              },
+              "body": {
+                "type": "string",
+                "description": "The request message body of the API.",
+                "optional": true
+              },
+              "header": {
+                "type": "string",
+                "description": "The request header parameters of the API, in JSON format.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the dedicated instance to which the API belongs.",
+                "required": true
+              },
+              "latency": {
+                "type": "number",
+                "description": "The debug latency in milliseconds.",
+                "computed": true
+              },
+              "method": {
+                "type": "string",
+                "description": "The request method of the API.",
+                "required": true
+              },
+              "mode": {
+                "type": "string",
+                "description": "The debug mode.",
+                "required": true
+              },
+              "path": {
+                "type": "string",
+                "description": "The request path of the API.",
+                "required": true
+              },
+              "query": {
+                "type": "string",
+                "description": "The request query parameters of the API, in JSON format.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the dedicated instance to which the API belongs is located.",
+                "computed": true
+              },
+              "request": {
+                "type": "string",
+                "description": "The debug request message content.",
+                "computed": true
+              },
+              "response": {
+                "type": "string",
+                "description": "The debug response message content.",
+                "computed": true
+              },
+              "scheme": {
+                "type": "string",
+                "description": "The request protocol.",
+                "required": true
+              },
+              "stage": {
+                "type": "string",
+                "description": "The runtime environment for debug request.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

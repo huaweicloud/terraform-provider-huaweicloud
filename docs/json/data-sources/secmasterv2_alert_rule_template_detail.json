@@ -1,0 +1,179 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_secmasterv2_alert_rule_template_detail": {
+          "block": {
+            "attributes": {
+              "accumulated_times": {
+                "type": "number",
+                "computed": true
+              },
+              "create_by": {
+                "type": "string",
+                "computed": true
+              },
+              "create_time": {
+                "type": "number",
+                "computed": true
+              },
+              "cu_quota_amount": {
+                "type": "number",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "computed": true
+              },
+              "environment": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "job_mode": {
+                "type": "string",
+                "computed": true
+              },
+              "job_mode_setting": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "batch_overtime_strategy_interval": "number",
+                      "batch_overtime_strategy_unit": "string",
+                      "search_delay_interval": "number",
+                      "search_delay_unit": "string",
+                      "search_frequency_interval": "number",
+                      "search_frequency_unit": "string",
+                      "search_overtime_interval": "number",
+                      "search_overtime_unit": "string",
+                      "search_period_interval": "number",
+                      "search_period_unit": "string",
+                      "search_table_id": "string",
+                      "search_table_name": "number",
+                      "streaming_checkpoint_ttl_interval": "number",
+                      "streaming_checkpoint_ttl_unit": "string",
+                      "streaming_startup_mode": "string",
+                      "streaming_state_ttl_unit": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "job_output_setting": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "alert_custom_properties": [
+                        "map",
+                        "string"
+                      ],
+                      "alert_description": "string",
+                      "alert_grouping": "bool",
+                      "alert_mapping": [
+                        "map",
+                        "string"
+                      ],
+                      "alert_name": "string",
+                      "alert_remediation": "string",
+                      "alert_severity": "string",
+                      "alert_suppression": "bool",
+                      "alert_type": [
+                        "map",
+                        "string"
+                      ],
+                      "entity_extraction": [
+                        "map",
+                        "string"
+                      ],
+                      "field_mapping": [
+                        "map",
+                        "string"
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "process_error": {
+                "type": "string",
+                "computed": true
+              },
+              "process_status": {
+                "type": "string",
+                "computed": true
+              },
+              "query_type": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "rule_template_id": {
+                "type": "string",
+                "computed": true
+              },
+              "script": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "table_name": {
+                "type": "string",
+                "computed": true
+              },
+              "template_id": {
+                "type": "string",
+                "required": true
+              },
+              "template_name": {
+                "type": "string",
+                "computed": true
+              },
+              "triggers": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "accumulated_times": "number",
+                      "expression": "string",
+                      "job_id": "string",
+                      "mode": "string",
+                      "operator": "string",
+                      "severity": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "update_by": {
+                "type": "string",
+                "computed": true
+              },
+              "update_time": {
+                "type": "number",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "required": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

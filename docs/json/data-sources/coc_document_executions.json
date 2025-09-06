@@ -1,0 +1,128 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_coc_document_executions": {
+          "block": {
+            "attributes": {
+              "creator": {
+                "type": "string",
+                "description": "Specifies the fuzzy query the creator.",
+                "optional": true
+              },
+              "data": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "creator": "string",
+                      "description": "string",
+                      "document_id": "string",
+                      "document_name": "string",
+                      "document_version": "string",
+                      "document_version_id": "string",
+                      "end_time": "number",
+                      "execution_id": "string",
+                      "parameters": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "key": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ],
+                      "start_time": "number",
+                      "status": "string",
+                      "sys_tags": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "key": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ],
+                      "tags": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "key": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ],
+                      "target_parameter_name": "string",
+                      "targets": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "key": "string",
+                            "values": [
+                              "list",
+                              "string"
+                            ]
+                          }
+                        ]
+                      ],
+                      "type": "string",
+                      "update_time": "number"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of document execution.",
+                "computed": true
+              },
+              "document_id": {
+                "type": "string",
+                "description": "Specifies the document ID.",
+                "optional": true
+              },
+              "document_name": {
+                "type": "string",
+                "description": "Specifies the fuzzy query the document name.",
+                "optional": true
+              },
+              "end_time": {
+                "type": "number",
+                "description": "Specifies the end time less than.",
+                "optional": true
+              },
+              "exclude_child_executions": {
+                "type": "bool",
+                "description": "Specifies whether list queries should not return child tickets.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "start_time": {
+                "type": "number",
+                "description": "Specifies the start time greater than.",
+                "optional": true
+              },
+              "tags": {
+                "type": "string",
+                "description": "Specifies the tag filtering conditions.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "COC",
+            "name": "Cloud Operations Center",
+            "catalog": "Management & Governance",
+            "name_cn": "云运维中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

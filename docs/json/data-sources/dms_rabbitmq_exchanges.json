@@ -11,6 +11,7 @@
                   [
                     "object",
                     {
+                      "arguments": "string",
                       "auto_delete": "bool",
                       "default": "bool",
                       "durable": "bool",

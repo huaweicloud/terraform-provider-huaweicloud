@@ -1,0 +1,87 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cc_global_connection_bandwidth_configs": {
+          "block": {
+            "attributes": {
+              "configs": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "bind_limit": "number",
+                      "charge_mode": [
+                        "list",
+                        "string"
+                      ],
+                      "crossborder": "bool",
+                      "enable_area_bandwidth": "bool",
+                      "enable_change_95": "bool",
+                      "enable_spec_code": "bool",
+                      "gcb_type": [
+                        "list",
+                        "string"
+                      ],
+                      "quotas": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "quota": "number",
+                            "type": "string",
+                            "used": "number"
+                          }
+                        ]
+                      ],
+                      "ratio_95peak_guar": "number",
+                      "ratio_95peak_plus": "number",
+                      "services": [
+                        "list",
+                        "string"
+                      ],
+                      "size_range": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "max": "number",
+                            "min": "number",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "sla_level": [
+                        "list",
+                        "string"
+                      ]
+                    }
+                  ]
+                ],
+                "description": "Indicates the dynamic configuration items for purchasing a global connection bandwidth.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CC",
+            "name": "Cloud Connect",
+            "catalog": "Networking",
+            "name_cn": "云连接",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

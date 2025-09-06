@@ -1,0 +1,90 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cc_site_network_capabilities": {
+          "block": {
+            "attributes": {
+              "capabilities": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "charge_mode": [
+                        "list",
+                        "string"
+                      ],
+                      "id": "string",
+                      "is_support": "bool",
+                      "is_support_enterprise_project": "bool",
+                      "is_support_intra_region": "bool",
+                      "is_support_tag": "bool",
+                      "size_range": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "max": "number",
+                            "min": "number"
+                          }
+                        ]
+                      ],
+                      "specification": "string",
+                      "support_dscp_regions": [
+                        "list",
+                        "string"
+                      ],
+                      "support_freeze_regions": [
+                        "list",
+                        "string"
+                      ],
+                      "support_locations": [
+                        "list",
+                        "string"
+                      ],
+                      "support_regions": [
+                        "list",
+                        "string"
+                      ],
+                      "support_topologies": [
+                        "list",
+                        "string"
+                      ]
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of site network capabilities.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "specification": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the site network capabilities. Multiple capabilities can be queried.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CC",
+            "name": "Cloud Connect",
+            "catalog": "Networking",
+            "name_cn": "云连接",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

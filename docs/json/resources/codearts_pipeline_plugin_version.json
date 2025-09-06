@@ -1,0 +1,153 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_codearts_pipeline_plugin_version": {
+          "block": {
+            "attributes": {
+              "business_type": {
+                "type": "string",
+                "description": "Specifies the service type.",
+                "required": true
+              },
+              "business_type_display_name": {
+                "type": "string",
+                "description": "Specifies the display name of service type.",
+                "optional": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the basic plugin description.",
+                "optional": true
+              },
+              "display_name": {
+                "type": "string",
+                "description": "Specifies the display name.",
+                "required": true
+              },
+              "icon_url": {
+                "type": "string",
+                "description": "Specifies the icon URL.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_formal": {
+                "type": "bool",
+                "description": "Specifies whether the plugin is formal.",
+                "optional": true
+              },
+              "is_private": {
+                "type": "number",
+                "description": "Specifies whether the plugin is private.",
+                "optional": true,
+                "computed": true
+              },
+              "maintainers": {
+                "type": "string",
+                "description": "Indicates the maintenance engineer.",
+                "computed": true
+              },
+              "op_time": {
+                "type": "string",
+                "description": "Indicates the operation time.",
+                "computed": true
+              },
+              "op_user": {
+                "type": "string",
+                "description": "Indicates the operator.",
+                "computed": true
+              },
+              "plugin_attribution": {
+                "type": "string",
+                "description": "Indicates the plugin attribution.",
+                "computed": true
+              },
+              "plugin_composition_type": {
+                "type": "string",
+                "description": "Indicates the combination extension type.",
+                "computed": true
+              },
+              "plugin_name": {
+                "type": "string",
+                "description": "Specifies the plugin name.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "runtime_attribution": {
+                "type": "string",
+                "description": "Specifies the runtime attributes.",
+                "required": true
+              },
+              "unique_id": {
+                "type": "string",
+                "description": "Indicates the unique ID.",
+                "computed": true
+              },
+              "version": {
+                "type": "string",
+                "description": "Specifies the version.",
+                "required": true
+              },
+              "version_description": {
+                "type": "string",
+                "description": "Specifies the version description.",
+                "optional": true
+              }
+            },
+            "block_types": {
+              "execution_info": {
+                "block": {
+                  "attributes": {
+                    "inner_execution_info": {
+                      "type": "string",
+                      "description": "Specifies the inner execution information.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the execution information."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "input_info": {
+                "block": {
+                  "attributes": {
+                    "default_value": {
+                      "type": "string",
+                      "description": "Specifies the default value.",
+                      "optional": true
+                    },
+                    "layout_content": {
+                      "type": "string",
+                      "description": "Specifies the style information..",
+                      "optional": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Specifies the name.",
+                      "optional": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Specifies the type.",
+                      "optional": true
+                    }
+                  },
+                  "description": "Specifies the input information."
+                },
+                "nesting_mode": "list"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

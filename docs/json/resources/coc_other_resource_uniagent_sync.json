@@ -1,0 +1,46 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_coc_other_resource_uniagent_sync": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "vendor": {
+                "type": "string",
+                "optional": true
+              }
+            },
+            "block_types": {
+              "resource_infos": {
+                "block": {
+                  "attributes": {
+                    "region_id": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "resource_id": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "COC",
+            "name": "Cloud Operations Center",
+            "catalog": "Management & Governance",
+            "name_cn": "云运维中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

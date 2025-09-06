@@ -1,0 +1,82 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_eg_traced_events": {
+          "block": {
+            "attributes": {
+              "channel_id": {
+                "type": "string",
+                "description": "The ID of the event channel.",
+                "required": true
+              },
+              "end_time": {
+                "type": "string",
+                "description": "The end time of the search time range, in UTC format.",
+                "required": true
+              },
+              "event_id": {
+                "type": "string",
+                "description": "The ID of the event.",
+                "optional": true
+              },
+              "event_type": {
+                "type": "string",
+                "description": "The type of the event.",
+                "optional": true
+              },
+              "events": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "string",
+                      "received_time": "string",
+                      "source_name": "string",
+                      "subscription_name": "string",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of traced events that matched filter parameters.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the events are located.",
+                "computed": true
+              },
+              "source_name": {
+                "type": "string",
+                "description": "The name of the event source.",
+                "optional": true
+              },
+              "start_time": {
+                "type": "string",
+                "description": "The start time of the search time range, in UTC format.",
+                "required": true
+              },
+              "subscription_name": {
+                "type": "string",
+                "description": "The name of the event subscription.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "EG",
+            "name": "EventGrid",
+            "catalog": "Middleware",
+            "name_cn": "事件网格",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

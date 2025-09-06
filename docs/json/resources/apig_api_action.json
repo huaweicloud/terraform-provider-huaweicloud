@@ -1,0 +1,75 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_apig_api_action": {
+          "block": {
+            "attributes": {
+              "action": {
+                "type": "string",
+                "description": "The operation on the API will be performed.",
+                "required": true
+              },
+              "api_id": {
+                "type": "string",
+                "description": "The ID of the API to be published.",
+                "required": true
+              },
+              "api_name": {
+                "type": "string",
+                "description": "The name of the API.",
+                "computed": true
+              },
+              "env_id": {
+                "type": "string",
+                "description": "The ID of the environment to which the API will be published.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the dedicated instance to which the API belongs.",
+                "required": true
+              },
+              "publish_id": {
+                "type": "string",
+                "description": "The ID of the publish record.",
+                "computed": true
+              },
+              "publish_time": {
+                "type": "string",
+                "description": "The time when the API was published, in UTC format.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the APIG instance to which the API belongs is located.",
+                "computed": true
+              },
+              "remark": {
+                "type": "string",
+                "description": "The description of the publish action.",
+                "optional": true
+              },
+              "version_id": {
+                "type": "string",
+                "description": "The version ID of the online API.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

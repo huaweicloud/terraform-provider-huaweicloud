@@ -1,0 +1,66 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cc_cloud_connection_capabilities": {
+          "block": {
+            "attributes": {
+              "capabilities": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "bandwidth": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "max": "number",
+                            "min": "number"
+                          }
+                        ]
+                      ],
+                      "created_at": "string",
+                      "description": "string",
+                      "id": "string",
+                      "resource_type": "string",
+                      "support_regions": [
+                        "list",
+                        "string"
+                      ],
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the cloud connection capabilities list.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "resource_type": {
+                "type": "string",
+                "description": "Specifies the resource type.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CC",
+            "name": "Cloud Connect",
+            "catalog": "Networking",
+            "name_cn": "云连接",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

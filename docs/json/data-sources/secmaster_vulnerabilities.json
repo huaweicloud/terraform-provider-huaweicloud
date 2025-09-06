@@ -1,0 +1,258 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_secmaster_vulnerabilities": {
+          "block": {
+            "attributes": {
+              "data": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "create_time": "string",
+                      "data_object": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "arrive_time": "string",
+                            "batch_number": "string",
+                            "count": "number",
+                            "create_time": "string",
+                            "data_source": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "company_name": "string",
+                                  "domain_id": "string",
+                                  "product_feature": "string",
+                                  "product_name": "string",
+                                  "project_id": "string",
+                                  "region_id": "string",
+                                  "source_type": "number"
+                                }
+                              ]
+                            ],
+                            "dataclass_id": "string",
+                            "description": "string",
+                            "domain_id": "string",
+                            "domain_name": "string",
+                            "environment": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "domain_id": "string",
+                                  "domain_name": "string",
+                                  "project_id": "string",
+                                  "region_id": "string",
+                                  "region_name": "string",
+                                  "vendor_type": "string"
+                                }
+                              ]
+                            ],
+                            "extend_properties": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "operations": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "is_build_in": "string"
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ],
+                            "first_observed_time": "string",
+                            "handled": "number",
+                            "id": "string",
+                            "is_deleted": "bool",
+                            "last_observed_time": "string",
+                            "project_id": "string",
+                            "region_id": "string",
+                            "region_name": "string",
+                            "remediation": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "recommendation": "string"
+                                }
+                              ]
+                            ],
+                            "resource": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "domain_id": "string",
+                                  "ep_id": "string",
+                                  "id": "string",
+                                  "name": "string",
+                                  "project_id": "string",
+                                  "provider": "string",
+                                  "region_id": "string",
+                                  "tags": [
+                                    "map",
+                                    "string"
+                                  ],
+                                  "type": "string"
+                                }
+                              ]
+                            ],
+                            "resource_num": "number",
+                            "trigger_flag": "bool",
+                            "update_time": "string",
+                            "version": "string",
+                            "vul_name": "string",
+                            "vulnerability": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "id": "string",
+                                  "level": "string",
+                                  "reason": "string",
+                                  "related": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "repair_severity": "number",
+                                  "solution": "string",
+                                  "status": "number",
+                                  "tags": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "type": "number",
+                                  "url": "string"
+                                }
+                              ]
+                            ],
+                            "vulnerability_type": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "category": "string",
+                                  "category_en": "string",
+                                  "category_zh": "string",
+                                  "id": "string",
+                                  "vulnerability_type": "string",
+                                  "vulnerability_type_en": "string",
+                                  "vulnerability_type_zh": "string"
+                                }
+                              ]
+                            ],
+                            "workspace_id": "string"
+                          }
+                        ]
+                      ],
+                      "dataclass_ref": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "name": "string"
+                          }
+                        ]
+                      ],
+                      "format_version": "number",
+                      "id": "string",
+                      "project_id": "string",
+                      "update_time": "string",
+                      "version": "number",
+                      "workspace_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "from_date": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "order": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "sort_by": {
+                "type": "string",
+                "optional": true
+              },
+              "to_date": {
+                "type": "string",
+                "optional": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "required": true
+              }
+            },
+            "block_types": {
+              "condition": {
+                "block": {
+                  "attributes": {
+                    "logics": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "optional": true
+                    }
+                  },
+                  "block_types": {
+                    "conditions": {
+                      "block": {
+                        "attributes": {
+                          "data": {
+                            "type": [
+                              "list",
+                              "string"
+                            ],
+                            "optional": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "optional": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list"
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_apig_instance_api_tags": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the APIG instance corresponding to the APIs to which the tags belong that to be queried.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The list of the tags.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

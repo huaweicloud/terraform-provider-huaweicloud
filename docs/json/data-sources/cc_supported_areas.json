@@ -1,0 +1,48 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cc_supported_areas": {
+          "block": {
+            "attributes": {
+              "areas": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "en_name": "string",
+                      "es_name": "string",
+                      "id": "string",
+                      "name": "string",
+                      "pt_name": "string",
+                      "station": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the geographic region list.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CC",
+            "name": "Cloud Connect",
+            "catalog": "Networking",
+            "name_cn": "云连接",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_secmaster_retrieve_scripts": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "records": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "category": "string",
+                      "create_by": "string",
+                      "create_time": "number",
+                      "description": "string",
+                      "directory": "string",
+                      "project_id": "string",
+                      "script": "string",
+                      "script_id": "string",
+                      "script_name": "string",
+                      "table_id": "string",
+                      "update_by": "string",
+                      "update_time": "number",
+                      "workspace_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The retrieve scripts list.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "script_name": {
+                "type": "string",
+                "description": "Specifies the script name.",
+                "optional": true
+              },
+              "sort_dir": {
+                "type": "string",
+                "description": "Specifies the sorting order. Supported values are **ASC** and **DESC**.",
+                "optional": true
+              },
+              "sort_key": {
+                "type": "string",
+                "description": "Specifies the attribute fields for sorting.",
+                "optional": true
+              },
+              "table_id": {
+                "type": "string",
+                "description": "Specifies the table ID.",
+                "optional": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "Specifies the workspace ID.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

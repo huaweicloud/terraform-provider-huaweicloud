@@ -1,0 +1,50 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cc_bandwidth_package_classes": {
+          "block": {
+            "attributes": {
+              "bandwidth_package_levels": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "description": "string",
+                      "display_priority": "number",
+                      "id": "string",
+                      "level": "string",
+                      "name_cn": "string",
+                      "name_en": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of bandwidth package classes.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CC",
+            "name": "Cloud Connect",
+            "catalog": "Networking",
+            "name_cn": "云连接",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

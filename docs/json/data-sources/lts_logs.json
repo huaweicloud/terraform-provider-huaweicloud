@@ -1,0 +1,101 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_lts_logs": {
+          "block": {
+            "attributes": {
+              "end_time": {
+                "type": "string",
+                "description": "The end time for querying log list, in RFC3339 format.",
+                "required": true
+              },
+              "highlight": {
+                "type": "bool",
+                "description": "Whether to highlight the keyword in the logs.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_custom_time_enabled": {
+                "type": "bool",
+                "description": "Whether to enable the custom time function for the log stream structured configuration.",
+                "optional": true
+              },
+              "is_desc": {
+                "type": "bool",
+                "description": "Whether to sort the logs in descending order.",
+                "optional": true
+              },
+              "is_iterative": {
+                "type": "bool",
+                "description": "Whether to enable iterative query.",
+                "optional": true
+              },
+              "keywords": {
+                "type": "string",
+                "description": "The keywords for exact search.",
+                "optional": true
+              },
+              "labels": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "The labels in key/value format to be queried.",
+                "optional": true
+              },
+              "log_group_id": {
+                "type": "string",
+                "description": "The ID of the log group to which the logs belong.",
+                "required": true
+              },
+              "log_stream_id": {
+                "type": "string",
+                "description": "The ID of the log stream to which the logs belong.",
+                "required": true
+              },
+              "logs": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "content": "string",
+                      "labels": [
+                        "map",
+                        "string"
+                      ],
+                      "line_num": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of logs that match the filter parameters.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the LTS logs are located.",
+                "computed": true
+              },
+              "start_time": {
+                "type": "string",
+                "description": "The start time for querying log list, in RFC3339 format.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "LTS",
+            "name": "Log Tank Service",
+            "catalog": "Management & Governance",
+            "name_cn": "云日志服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

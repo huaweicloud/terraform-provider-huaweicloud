@@ -1,0 +1,73 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cc_across_area_bandwidth_package_flavors": {
+          "block": {
+            "attributes": {
+              "area_specifications": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "string",
+                      "local_area_id": "string",
+                      "remote_area_id": "string",
+                      "spec_codes": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "billing_mode": "string",
+                            "max_bandwidth": "number",
+                            "mim_bandwidth": "number",
+                            "spec_code": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of bandwidth package specifications in a geographic region.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "local_area_id": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the IDs of a geographic region for querying the list of bandwidth package",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "remote_area_id": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the IDs of another geographic region for querying the list of bandwidth",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CC",
+            "name": "Cloud Connect",
+            "catalog": "Networking",
+            "name_cn": "云连接",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

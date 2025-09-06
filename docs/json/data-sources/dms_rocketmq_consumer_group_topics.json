@@ -1,0 +1,93 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dms_rocketmq_consumer_group_topics": {
+          "block": {
+            "attributes": {
+              "brokers": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "broker_name": "string",
+                      "queues": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "broker_offset": "number",
+                            "consumer_offset": "number",
+                            "id": "number",
+                            "lag": "number",
+                            "last_message_time": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "consumer_offset": {
+                "type": "number",
+                "description": "The number of consumed messages.",
+                "computed": true
+              },
+              "group": {
+                "type": "string",
+                "description": "The name of the consumer group.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the RocketMQ instance.",
+                "required": true
+              },
+              "lag": {
+                "type": "number",
+                "description": "The number of consumption accumulations.",
+                "computed": true
+              },
+              "max_offset": {
+                "type": "number",
+                "description": "The total number of messages.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the RocketMQ instance and consumer group are located.",
+                "computed": true
+              },
+              "topic": {
+                "type": "string",
+                "description": "The name of the topic to be queried.",
+                "optional": true
+              },
+              "topics": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The list of topics consumed by the consumer group.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "RocketMQ",
+            "name": "Distributed Message Service for RocketMQ",
+            "catalog": "Middleware",
+            "name_cn": "分布式消息服务 RocketMQ",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

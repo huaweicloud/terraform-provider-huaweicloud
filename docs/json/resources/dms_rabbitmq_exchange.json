@@ -5,6 +5,12 @@
         "huaweicloud_dms_rabbitmq_exchange": {
           "block": {
             "attributes": {
+              "arguments": {
+                "type": "string",
+                "description": "The argument configuration of the exchange, in JSON format.",
+                "optional": true,
+                "forcenew": true
+              },
               "auto_delete": {
                 "type": "bool",
                 "required": true,

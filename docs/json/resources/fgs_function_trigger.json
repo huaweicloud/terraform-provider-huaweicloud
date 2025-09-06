@@ -5,6 +5,11 @@
         "huaweicloud_fgs_function_trigger": {
           "block": {
             "attributes": {
+              "cascade_delete_eg_subscription": {
+                "type": "bool",
+                "description": "Whether to cascade delete the related EG event subscription of the function trigger.",
+                "optional": true
+              },
               "created_at": {
                 "type": "string",
                 "description": "The creation time of the function trigger.",
