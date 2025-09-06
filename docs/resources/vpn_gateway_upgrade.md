@@ -39,3 +39,27 @@ The following arguments are supported:
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID.
+
+* `status` - Indicates the job status.
+
+* `sub_jobs` - Indicates the sub-job info.
+  The [sub_jobs](#attrblock--sub_jobs) structure is documented below.
+
+* `created_at` - Indicates the creation time.
+
+* `updated_at` - Indicates the update time.
+
+<a name="attrblock--sub_jobs"></a>
+The `sub_jobs` block supports:
+
+* `id` - Indicates the job ID.
+
+* `job_type` - Indicates the job type.
+
+* `status` - Indicates the job status.
+
+* `error_message` - Indicates error information.
+
+* `created_at` - Indicates the creation time.
+
+* `finished_at` - Indicates the end time.
