@@ -72,6 +72,41 @@ func TestAccResourceApplication_basic(t *testing.T) {
 	})
 }
 
+func TestAccResourceApplication_parent_id(t *testing.T) {
+	var obj interface{}
+	name := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_coc_application.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getApplicationResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccApplication_parent_id(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "description", name),
+					resource.TestCheckResourceAttrSet(resourceName, "code"),
+					resource.TestCheckResourceAttrSet(resourceName, "domain_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "parent_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "path"),
+					resource.TestCheckResourceAttrSet(resourceName, "create_time"),
+				),
+			},
+		},
+	})
+}
+
 func testAccApplication_basic(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_coc_application" "test" {
@@ -88,6 +123,20 @@ resource "huaweicloud_coc_application" "test" {
   name          = "%[1]s"
   description   = "%[1]s"
   is_collection = false
+}
+`, name)
+}
+
+func testAccApplication_parent_id(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_coc_application" "parent" {
+  name = "parent-application"
+}
+
+resource "huaweicloud_coc_application" "test" {
+  name        = "%[1]s"
+  description = "%[1]s"
+  parent_id   = huaweicloud_coc_application.parent.id
 }
 `, name)
 }
