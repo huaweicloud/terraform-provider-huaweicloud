@@ -1,4 +1,4 @@
-package vpc_test
+package vpc
 
 import (
 	"fmt"
