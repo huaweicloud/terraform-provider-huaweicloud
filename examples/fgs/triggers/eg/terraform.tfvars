@@ -1,0 +1,5 @@
+source_bucket_name   = "tf-test-bucket-source"
+target_bucket_name   = "tf-test-bucket-target"
+function_name        = "tf-test-function-image-thumbnail"
+function_agency_name = "function_all_trust"
+trigger_name_suffix  = "demo"
