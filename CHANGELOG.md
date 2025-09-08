@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.78.2 (September 8, 2025)
+
+BUG FIXES:
+
+* data/huaweicloud_dcs_flavors: fix configurations set issue [GH-7774]
+
 ## 1.78.1 (September 6, 2025)
 
 * **New Data Source:**
