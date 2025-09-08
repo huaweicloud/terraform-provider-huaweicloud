@@ -1587,6 +1587,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_secmaster_alert_rule_templates":         secmaster.DataSourceSecmasterAlertRuleTemplates(),
 			"huaweicloud_secmaster_playbook_versions":            secmaster.DataSourceSecmasterPlaybookVersions(),
 			"huaweicloud_secmaster_playbook_instances":           secmaster.DataSourceSecmasterPlaybookInstances(),
+			"huaweicloud_secmaster_playbook_instance":            secmaster.DataSourcePlaybookInstance(),
 			"huaweicloud_secmaster_data_classes":                 secmaster.DataSourceSecmasterDataClasses(),
 			"huaweicloud_secmaster_data_class_fields":            secmaster.DataSourceSecmasterDataClassFields(),
 			"huaweicloud_secmaster_playbook_action_instances":    secmaster.DataSourceSecmasterPlaybookActionInstances(),
