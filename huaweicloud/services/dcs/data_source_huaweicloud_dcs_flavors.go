@@ -208,6 +208,7 @@ func flattenDcsFlavors(d *schema.ResourceData, resp interface{}) []map[string]in
 				"engine_versions":  utils.PathSearch("engine_version", v, nil),
 				"cpu_architecture": utils.PathSearch("cpu_type", v, nil),
 				"capacity":         capacityFloat,
+				"available_zones":  azCodes,
 				"charging_modes":   utils.PathSearch("billing_mode", v, nil),
 				"ip_count":         utils.PathSearch("tenant_ip_count", v, nil),
 			})
