@@ -939,7 +939,6 @@ func resourceDcsInstancesRead(ctx context.Context, d *schema.ResourceData, meta 
 		d.Set("name", utils.PathSearch("name", instance, nil)),
 		d.Set("engine", utils.PathSearch("engine", instance, nil)),
 		d.Set("engine_version", utils.PathSearch("engine_version", instance, nil)),
-		d.Set("capacity", utils.PathSearch("capacity", instance, nil)),
 		d.Set("flavor", utils.PathSearch("spec_code", instance, nil)),
 		d.Set("availability_zones", utils.PathSearch("az_codes", instance, nil)),
 		d.Set("vpc_id", utils.PathSearch("vpc_id", instance, nil)),
@@ -978,6 +977,13 @@ func resourceDcsInstancesRead(ctx context.Context, d *schema.ResourceData, meta 
 		d.Set("backup_policy", flattenInstanceBackupPolicy(instance)),
 		d.Set("tags", utils.FlattenTagsToMap(utils.PathSearch("tags", instance, make([]interface{}, 0)))),
 	)
+
+	capacity := utils.PathSearch("capacity", instance, float64(0)).(float64)
+	if capacity > 0 {
+		mErr = multierror.Append(mErr, d.Set("capacity", capacity))
+	} else {
+		mErr = multierror.Append(mErr, d.Set("capacity", utils.PathSearch("capacity_minor", instance, nil)))
+	}
 
 	mErr = multierror.Append(mErr, setDcsInstanceWhitelist(d, client)...)
 	mErr = multierror.Append(mErr, setDcsInstanceBigKeyAutoScan(d, client)...)
