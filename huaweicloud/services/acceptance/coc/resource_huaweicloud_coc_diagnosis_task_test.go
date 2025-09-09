@@ -59,11 +59,10 @@ func TestAccResourceCocDiagnosisTask_basic(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:            resourceName,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"node_list.0.status", "progress", "status"},
-				ImportStateIdFunc:       testDiagnosisTaskImportState(resourceName),
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testDiagnosisTaskImportState(resourceName),
 			},
 		},
 	})

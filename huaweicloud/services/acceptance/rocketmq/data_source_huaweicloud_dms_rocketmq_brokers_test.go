@@ -2,17 +2,19 @@ package rocketmq
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
+	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
-func TestAccDatasourceDmsRocketMQBroker_basic(t *testing.T) {
+func TestAccDataBrokers_basic(t *testing.T) {
 	name := acceptance.RandomAccResourceName()
-	dataSourceName := "data.huaweicloud_dms_rocketmq_broker.test"
+	dataSourceName := "data.huaweicloud_dms_rocketmq_brokers.test"
 	dc := acceptance.InitDataSourceCheck(dataSourceName)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -20,7 +22,11 @@ func TestAccDatasourceDmsRocketMQBroker_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDatasourceDmsRocketMQBroker_basic(name),
+				Config:      testAccDataBrokers_instanceNotFound(),
+				ExpectError: regexp.MustCompile("This DMS instance does not exist"),
+			},
+			{
+				Config: testAccDataBrokers_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(dataSourceName, "brokers.0", "broker-0"),
@@ -30,7 +36,7 @@ func TestAccDatasourceDmsRocketMQBroker_basic(t *testing.T) {
 	})
 }
 
-func testAccDatasourceDmsRocketMQBroker_base(name string) string {
+func testAccDataBrokers_base(name string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -55,12 +61,21 @@ resource "huaweicloud_dms_rocketmq_instance" "test" {
 `, common.TestBaseNetwork(name), name)
 }
 
-func testAccDatasourceDmsRocketMQBroker_basic(name string) string {
+func testAccDataBrokers_instanceNotFound() string {
+	randomId, _ := uuid.GenerateUUID()
+	return fmt.Sprintf(`
+data "huaweicloud_dms_rocketmq_brokers" "test" {
+  instance_id = "%s"
+}
+`, randomId)
+}
+
+func testAccDataBrokers_basic(name string) string {
 	return fmt.Sprintf(`
 %s
 
-data "huaweicloud_dms_rocketmq_broker" "test" {
+data "huaweicloud_dms_rocketmq_brokers" "test" {
   instance_id = huaweicloud_dms_rocketmq_instance.test.id
 }
-`, testAccDatasourceDmsRocketMQBroker_base(name))
+`, testAccDataBrokers_base(name))
 }

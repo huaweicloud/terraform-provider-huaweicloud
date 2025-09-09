@@ -88,10 +88,16 @@ The `node_list` block supports:
 
 * `status` - Indicates the execution status of the diagnostic task.
 
+## Timeouts
+
+This resource provides the following timeouts configuration options:
+
+* `create` - Default is 60 minutes.
+
 ## Import
 
-The COC group can be imported using `resource_id` and `id`, separated by a slash, e.g.
+The COC diagnosis task can be imported using `resource_id` and `id`, separated by a slash, e.g.
 
 ```bash
-$ terraform import huaweicloud_coc_group.test <resource_id>/<id>
+$ terraform import huaweicloud_coc_diagnosis_task.test <resource_id>/<id>
 ```

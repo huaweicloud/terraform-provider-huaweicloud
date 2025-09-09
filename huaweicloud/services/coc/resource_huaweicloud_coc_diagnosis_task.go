@@ -5,9 +5,11 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -31,6 +33,10 @@ func ResourceDiagnosisTask() *schema.Resource {
 
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceDiagnosisTaskImportState,
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(60 * time.Minute),
 		},
 
 		CustomizeDiff: config.FlexibleForceNew(diagnosisTaskNonUpdatableParams),
@@ -176,7 +182,7 @@ func resourceDiagnosisTaskCreate(ctx context.Context, d *schema.ResourceData, me
 	createPath := client.Endpoint + httpUrl
 	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		JSONBody:         utils.RemoveNil(buildDiagnosisTaskCreateOpts(d)),
+		JSONBody:         buildDiagnosisTaskCreateOpts(d),
 	}
 
 	createResp, err := client.Request("POST", createPath, &createOpt)
@@ -196,7 +202,49 @@ func resourceDiagnosisTaskCreate(ctx context.Context, d *schema.ResourceData, me
 
 	d.SetId(id)
 
+	err = waitForJobComplete(ctx, client, d.Timeout(schema.TimeoutCreate), id, d.Get("resource_id").(string))
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	return resourceDiagnosisTaskRead(ctx, d, meta)
+}
+
+func waitForJobComplete(ctx context.Context, client *golangsdk.ServiceClient, timeout time.Duration,
+	diagnosisTaskID string, resourceID string) error {
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      diagnosisTaskStatusRefreshFunc(client, diagnosisTaskID, resourceID),
+		Timeout:      timeout,
+		Delay:        10 * time.Second,
+		PollInterval: 20 * time.Second,
+	}
+
+	_, err := stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return fmt.Errorf("error waiting for diagnosis task (%s) to complete: %s", diagnosisTaskID, err)
+	}
+	return nil
+}
+
+func diagnosisTaskStatusRefreshFunc(client *golangsdk.ServiceClient, diagnosisTaskID string,
+	resourceID string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		readRespBody, err := GetDiagnosisTask(client, diagnosisTaskID, resourceID)
+		if err != nil {
+			return nil, "", err
+		}
+		status := utils.PathSearch("data.status", readRespBody, "").(string)
+		if utils.StrSliceContains([]string{"cancel", "failed"}, status) {
+			return readRespBody, "", fmt.Errorf("unexpected status '%s'", status)
+		}
+		if status == "finish" {
+			return readRespBody, "COMPLETED", nil
+		}
+
+		return readRespBody, "PENDING", nil
+	}
 }
 
 func resourceDiagnosisTaskRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -267,14 +315,13 @@ func flattenCocDiagnosisTaskNodeList(rawParams interface{}) []interface{} {
 		}
 		rst := make([]interface{}, 0, len(paramsList))
 		for _, params := range paramsList {
-			raw := params.(map[string]interface{})
 			m := map[string]interface{}{
-				"id":                utils.PathSearch("id", raw, nil),
-				"code":              utils.PathSearch("code", raw, nil),
-				"name":              utils.PathSearch("name", raw, nil),
-				"name_zh":           utils.PathSearch("name_zh", raw, nil),
-				"diagnosis_task_id": utils.PathSearch("diagnosis_task_id", raw, nil),
-				"status":            utils.PathSearch("status", raw, nil),
+				"id":                utils.PathSearch("id", params, nil),
+				"code":              utils.PathSearch("code", params, nil),
+				"name":              utils.PathSearch("name", params, nil),
+				"name_zh":           utils.PathSearch("name_zh", params, nil),
+				"diagnosis_task_id": utils.PathSearch("diagnosis_task_id", params, nil),
+				"status":            utils.PathSearch("status", params, nil),
 			}
 			rst = append(rst, m)
 		}
