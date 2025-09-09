@@ -15,7 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API DMS GET /v2/{project_id}/{engine}/instances/{instance_id}/nodes
+// @API RocketMQ GET /v2/{project_id}/{engine}/instances/{instance_id}/nodes
 func DataSourceDmsRocketMQInstanceNodes() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceDmsRocketMQInstanceNodesRead,
