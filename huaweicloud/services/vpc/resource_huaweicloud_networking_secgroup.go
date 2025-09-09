@@ -311,7 +311,9 @@ func resourceNetworkingSecGroupRead(_ context.Context, d *schema.ResourceData, m
 		}
 
 		mErr = multierror.Append(mErr,
-			d.Set("rules", rules), // Override the configuration of the rules list.
+			d.Set("rules", rules),                    // Override the configuration of the rules list.
+			d.Set("name", v3Resp.Name),               // Override the name
+			d.Set("description", v3Resp.Description), // Override the description
 			d.Set("created_at", v3Resp.CreatedAt),
 			d.Set("updated_at", v3Resp.UpdatedAt),
 		)
