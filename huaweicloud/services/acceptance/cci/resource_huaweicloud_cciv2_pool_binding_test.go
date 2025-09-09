@@ -12,10 +12,11 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getPoolBindingResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getV2PoolBindingResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := conf.NewServiceClient("cci", acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating CCI client: %s", err)
@@ -37,15 +38,15 @@ func getPoolBindingResourceFunc(conf *config.Config, state *terraform.ResourceSt
 	return utils.FlattenResponse(getPoolBindingResp)
 }
 
-func TestAccPoolBinding_basic(t *testing.T) {
+func TestAccV2PoolBinding_basic(t *testing.T) {
 	var obj interface{}
 	rName := acceptance.RandomAccResourceNameWithDash()
-	resourceName := "huaweicloud_cci_pool_binding.test"
+	resourceName := "huaweicloud_cciv2_pool_binding.test"
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
 		obj,
-		getPoolBindingResourceFunc,
+		getV2PoolBindingResourceFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -54,7 +55,7 @@ func TestAccPoolBinding_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccPoolBinding_basic(rName),
+				Config: testAccV2PoolBinding_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "namespace", rName),
@@ -71,13 +72,13 @@ func TestAccPoolBinding_basic(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccPoolBindingStateFunc(resourceName),
+				ImportStateIdFunc: testAccV2PoolBindingStateFunc(resourceName),
 			},
 		},
 	})
 }
 
-func testAccPoolBindingStateFunc(name string) resource.ImportStateIdFunc {
+func testAccV2PoolBindingStateFunc(name string) resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
 		rs, ok := s.RootModule().Resources[name]
 		if !ok {
@@ -91,11 +92,11 @@ func testAccPoolBindingStateFunc(name string) resource.ImportStateIdFunc {
 	}
 }
 
-func testAccPoolBinding_basic(rName string) string {
+func testAccV2PoolBinding_basic(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-resource "huaweicloud_cci_pool_binding" "test" {
+resource "huaweicloud_cciv2_pool_binding" "test" {
   namespace = huaweicloud_cciv2_namespace.test.name
   name      = "%[2]s"
   
@@ -110,17 +111,37 @@ resource "huaweicloud_cci_pool_binding" "test" {
     port  = tolist(huaweicloud_cciv2_service.test.ports)[0].port
   }
 }
-`, testAccPoolBinding_base(rName), rName)
+`, testAccV2PoolBinding_base(rName), rName)
 }
 
-func testAccPoolBinding_base(rName string) string {
+func testAccV2PoolBinding_base(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
+
+%[2]s
+
+resource "huaweicloud_cciv2_network" "test" {
+  namespace = huaweicloud_cciv2_namespace.test.name
+  name      = "%[3]s"
+
+  annotations = {
+    "yangtse.io/project-id"                 = huaweicloud_cciv2_namespace.test.annotations["tenant.kubernetes.io/project-id"],
+    "yangtse.io/domain-id"                  = huaweicloud_cciv2_namespace.test.annotations["tenant.kubernetes.io/domain-id"],
+    "yangtse.io/warm-pool-size"             = "10",
+    "yangtse.io/warm-pool-recycle-interval" = "2",
+  }
+  
+  subnets {
+    subnet_id = huaweicloud_vpc_subnet.test.subnet_id
+  }
+
+  security_group_ids = [huaweicloud_networking_secgroup.test.id]
+}
 
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_elb_loadbalancer" "test" {
-  name              = "%[2]s"
+  name              = "%[3]s"
   cross_vpc_backend = true
   vpc_id            = huaweicloud_vpc.test.id
   ipv4_subnet_id    = huaweicloud_vpc_subnet.test.ipv4_subnet_id
@@ -131,7 +152,7 @@ resource "huaweicloud_elb_loadbalancer" "test" {
 }
 
 resource "huaweicloud_elb_pool" "test" {
-  name        = "%[2]s"
+  name        = "%[3]s"
   protocol    = "HTTP"
   lb_method   = "ROUND_ROBIN"
   type        = "instance"
@@ -141,7 +162,7 @@ resource "huaweicloud_elb_pool" "test" {
 
 resource "huaweicloud_cciv2_service" "test" {
   namespace = huaweicloud_cciv2_namespace.test.name
-  name      = "%[2]s"
+  name      = "%[3]s"
 
   annotations = {
     "kubernetes.io/elb.class"         = "elb",
@@ -168,5 +189,5 @@ resource "huaweicloud_cciv2_service" "test" {
     ]
   }
 }
-`, testAccV2Network_basic(rName), rName)
+`, common.TestBaseNetwork(rName), testAccV2Namespace_basic(rName), rName)
 }
