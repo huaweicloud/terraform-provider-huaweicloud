@@ -1,20 +1,23 @@
 ---
 subcategory: "Distributed Message Service (DMS)"
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_dms_rocketmq_broker"
-description: ""
+page_title: "HuaweiCloud: huaweicloud_dms_rocketmq_brokers"
+description: |-
+  Use this data source to get the list of DMS rocketMQ brokers within HuaweiCloud.
 ---
 
-# huaweicloud_dms_rocketmq_broker
+# huaweicloud_dms_rocketmq_brokers
 
-Use this data source to get the list of DMS rocketMQ broker.
+Use this data source to get the list of DMS rocketMQ brokers within HuaweiCloud.
+
+-> This data source can only be used for RocketMQ `4.8.0` version instance.
 
 ## Example Usage
 
 ```hcl
-var "instance_id" {}
+variable "instance_id" {}
 
-data "huaweicloud_dms_rocketmq_broker" "test" {
+data "huaweicloud_dms_rocketmq_brokers" "test" {
   instance_id = var.instance_id
 }
 ```
@@ -23,7 +26,7 @@ data "huaweicloud_dms_rocketmq_broker" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String) Specifies the region in which to query the data source.
+* `region` - (Optional, String) Specifies the region where the RocketMQ brokers are located.  
   If omitted, the provider-level region will be used.
 
 * `instance_id` - (Required, String) Specifies the ID of the rocketMQ instance.
