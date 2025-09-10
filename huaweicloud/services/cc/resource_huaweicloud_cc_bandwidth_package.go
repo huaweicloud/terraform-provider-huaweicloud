@@ -27,7 +27,8 @@ import (
 // @API CC PUT /v3/{domain_id}/ccaas/bandwidth-packages/{id}
 // @API CC POST /v3/{domain_id}/ccaas/bandwidth-packages/{id}/associate
 // @API CC POST /v3/{domain_id}/ccaas/bandwidth-packages/{id}/disassociate
-// @API CC POST /v3/{domain_id}/ccaas/bandwidth-package/{id}/tags/action
+// @API CC POST /v3/{domain_id}/ccaas/bandwidth-packages/{id}/tag
+// @API CC POST /v3/{domain_id}/ccaas/bandwidth-packages/{id}/untag
 func ResourceBandwidthPackage() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceBandwidthPackageCreate,
@@ -437,47 +438,81 @@ func updateBandwidthPackage(client *golangsdk.ServiceClient, domainId, id string
 }
 
 func updateBandwidthPackageTags(client *golangsdk.ServiceClient, d *schema.ResourceData, domainId string) error {
-	var updateBandwidthPackageTagsHttpUrl = "v3/{domain_id}/ccaas/bandwidth-package/{id}/tags/action"
-
-	updateBandwidthPackageTagsPath := client.Endpoint + updateBandwidthPackageTagsHttpUrl
-	updateBandwidthPackageTagsPath = strings.ReplaceAll(updateBandwidthPackageTagsPath, "{domain_id}", domainId)
-	updateBandwidthPackageTagsPath = strings.ReplaceAll(updateBandwidthPackageTagsPath, "{id}", d.Id())
-
-	updateBandwidthPackageTagsOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		OkCodes: []int{
-			204,
-		},
-	}
-
 	oRaw, nRaw := d.GetChange("tags")
 	oMap := oRaw.(map[string]interface{})
 	nMap := nRaw.(map[string]interface{})
 
 	// remove old tags
 	if len(oMap) > 0 {
-		updateBandwidthPackageTagsOpt.JSONBody = map[string]interface{}{
-			"action": "delete",
-			"tags":   utils.ExpandResourceTagsMap(oMap),
-		}
-		_, err := client.Request("POST", updateBandwidthPackageTagsPath, &updateBandwidthPackageTagsOpt)
+		err := deleteBandwidthPackageTags(client, d, domainId, oMap)
 		if err != nil {
-			return fmt.Errorf("error updating bandwidth package: %s", err)
+			return err
 		}
 	}
 
 	// set new tags
 	if len(nMap) > 0 {
-		updateBandwidthPackageTagsOpt.JSONBody = map[string]interface{}{
-			"action": "create",
-			"tags":   utils.ExpandResourceTagsMap(nMap),
-		}
-		_, err := client.Request("POST", updateBandwidthPackageTagsPath, &updateBandwidthPackageTagsOpt)
+		err := addBandwidthPackageTags(client, d, domainId, nMap)
 		if err != nil {
-			return fmt.Errorf("error updating bandwidth package: %s", err)
+			return err
 		}
 	}
 	return nil
+}
+
+func addBandwidthPackageTags(client *golangsdk.ServiceClient, d *schema.ResourceData, domainId string,
+	tags map[string]interface{}) error {
+	var httpUrl = "v3/{domain_id}/ccaas/bandwidth-packages/{id}/tag"
+
+	addPath := client.Endpoint + httpUrl
+	addPath = strings.ReplaceAll(addPath, "{domain_id}", domainId)
+	addPath = strings.ReplaceAll(addPath, "{id}", d.Id())
+
+	addOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes: []int{
+			204,
+		},
+	}
+	addOpt.JSONBody = buildUpdateBandwidthPackageTagsBodyParams(tags)
+
+	_, err := client.Request("POST", addPath, &addOpt)
+	if err != nil {
+		return fmt.Errorf("error adding bandwidth package tags: %s", err)
+	}
+
+	return nil
+}
+
+func deleteBandwidthPackageTags(client *golangsdk.ServiceClient, d *schema.ResourceData, domainId string,
+	tags map[string]interface{}) error {
+	var httpUrl = "v3/{domain_id}/ccaas/bandwidth-packages/{id}/untag"
+
+	deletePath := client.Endpoint + httpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{domain_id}", domainId)
+	deletePath = strings.ReplaceAll(deletePath, "{id}", d.Id())
+
+	deleteOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes: []int{
+			204,
+		},
+	}
+	deleteOpt.JSONBody = buildUpdateBandwidthPackageTagsBodyParams(tags)
+
+	_, err := client.Request("POST", deletePath, &deleteOpt)
+	if err != nil {
+		return fmt.Errorf("error deleting bandwidth package tags: %s", err)
+	}
+
+	return nil
+}
+
+func buildUpdateBandwidthPackageTagsBodyParams(tags map[string]interface{}) interface{} {
+	bodyParams := map[string]interface{}{
+		"tags": utils.ExpandResourceTagsMap(tags),
+	}
+	return bodyParams
 }
 
 func buildUpdateBandwidthPackageBodyParams(d *schema.ResourceData) map[string]interface{} {
