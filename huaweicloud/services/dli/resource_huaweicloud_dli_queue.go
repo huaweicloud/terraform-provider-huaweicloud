@@ -370,6 +370,7 @@ func resourceDliQueueRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("create_time", queueDetail.CreateTime),
 		d.Set("vpc_cidr", queueDetail.CidrInVpc),
 		d.Set("elastic_resource_pool_name", queueDetail.ElasticResourcePoolName),
+		d.Set("tags", d.Get("tags")),
 	)
 
 	v3Client, err := cfg.DliV3Client(region)
