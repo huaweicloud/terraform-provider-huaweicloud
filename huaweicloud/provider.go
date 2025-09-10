@@ -2162,6 +2162,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cci_namespace":                 cci.ResourceCciNamespace(),
 			"huaweicloud_cci_network":                   cci.ResourceCciNetworkV1(),
 			"huaweicloud_cci_pvc":                       cci.ResourcePersistentVolumeClaimV1(),
+			"huaweicloud_cci_pool_binding":              cci.ResourceV2PoolBinding(),
 			"huaweicloud_cciv2_namespace":               cci.ResourceNamespace(),
 			"huaweicloud_cciv2_network":                 cci.ResourceV2Network(),
 			"huaweicloud_cciv2_config_map":              cci.ResourceV2ConfigMap(),
@@ -2173,7 +2174,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cciv2_pvc":                     cci.ResourceV2PersistentVolumeClaim(),
 			"huaweicloud_cciv2_pod":                     cci.ResourceV2Pod(),
 			"huaweicloud_cciv2_persistent_volume_claim": cci.ResourceV2PersistentVolumeClaim(),
-			"huaweicloud_cci_pool_binding":              cci.ResourcePoolBinding(),
+			"huaweicloud_cciv2_pool_binding":            cci.ResourceV2PoolBinding(),
 			"huaweicloud_cciv2_hpa":                     cci.ResourceV2HPA(),
 
 			"huaweicloud_ccm_certificate":                ccm.ResourceCCMCertificate(),

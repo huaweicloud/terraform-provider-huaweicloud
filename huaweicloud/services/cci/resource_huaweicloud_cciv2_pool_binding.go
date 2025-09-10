@@ -17,21 +17,26 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-var poolBindingNonUpdatableParams = []string{"name", "namespace"}
+var poolBindingNonUpdatableParams = []string{
+	"name", "namespace", "annotations", "labels", "finalizers", "generate_name",
+	"owner_references",
+	"pool_ref", "pool_ref.*.id",
+	"target_ref", "target_ref.*.group", "target_ref.*.kind,name", "target_ref.*.namespace", "target_ref.*.port",
+	"api_version", "kind",
+}
 
 // @API CCI POST /apis/loadbalancer.networking.openvessel.io/v1/namespaces/{namespace}/poolbindings
 // @API CCI GET /apis/loadbalancer.networking.openvessel.io/v1/namespaces/{namespace}/poolbindings/{name}
-// @API CCI PUT /apis/loadbalancer.networking.openvessel.io/v1/namespaces/{namespace}/poolbindings/{name}
 // @API CCI DELETE /apis/loadbalancer.networking.openvessel.io/v1/namespaces/{namespace}/poolbindings/{name}
-func ResourcePoolBinding() *schema.Resource {
+func ResourceV2PoolBinding() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourcePoolBindingCreate,
-		UpdateContext: resourcePoolBindingUpdate,
-		ReadContext:   resourcePoolBindingRead,
-		DeleteContext: resourcePoolBindingDelete,
+		CreateContext: resourceV2PoolBindingCreate,
+		ReadContext:   resourceV2PoolBindingRead,
+		UpdateContext: resourceV2PoolBindingUpdate,
+		DeleteContext: resourceV2PoolBindingDelete,
 
 		Importer: &schema.ResourceImporter{
-			StateContext: resourcePoolBindingImportState,
+			StateContext: resourceV2PoolBindingImportState,
 		},
 
 		CustomizeDiff: config.FlexibleForceNew(poolBindingNonUpdatableParams),
@@ -199,7 +204,7 @@ func ResourcePoolBinding() *schema.Resource {
 	}
 }
 
-func resourcePoolBindingCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV2PoolBindingCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	client, err := cfg.NewServiceClient("cci", region)
@@ -233,7 +238,7 @@ func resourcePoolBindingCreate(ctx context.Context, d *schema.ResourceData, meta
 	}
 	d.SetId(ns + "/" + name)
 
-	return resourcePoolBindingRead(ctx, d, meta)
+	return resourceV2PoolBindingRead(ctx, d, meta)
 }
 
 func buildCreatePoolBindingParams(d *schema.ResourceData) map[string]interface{} {
@@ -300,7 +305,7 @@ func buildCreatePoolBindingOwnerReferencesParams(ownerReferences []interface{}) 
 	return params
 }
 
-func resourcePoolBindingRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV2PoolBindingRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	client, err := cfg.NewServiceClient("cci", region)
@@ -400,32 +405,11 @@ func flattenPoolBindingTargetRef(targetRef interface{}) []map[string]interface{}
 	}
 }
 
-func resourcePoolBindingUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	client, err := cfg.NewServiceClient("cci", region)
-	if err != nil {
-		return diag.Errorf("error creating CCI client: %s", err)
-	}
-
-	updatePoolBindingHttpUrl := "apis/loadbalancer.networking.openvessel.io/v1/namespaces/{namespace}/poolbindings/{name}"
-	updatePoolBindingPath := client.Endpoint + updatePoolBindingHttpUrl
-	updatePoolBindingPath = strings.ReplaceAll(updatePoolBindingPath, "{namespace}", d.Get("namespace").(string))
-	updatePoolBindingPath = strings.ReplaceAll(updatePoolBindingPath, "{name}", d.Get("name").(string))
-	updatePoolBindingOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
-	}
-	updatePoolBindingOpt.JSONBody = utils.RemoveNil(buildCreatePoolBindingParams(d))
-
-	_, err = client.Request("PUT", updatePoolBindingPath, &updatePoolBindingOpt)
-	if err != nil {
-		return diag.Errorf("error updating CCI pool binding: %s", err)
-	}
-	return resourcePoolBindingRead(ctx, d, meta)
+func resourceV2PoolBindingUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+	return nil
 }
 
-func resourcePoolBindingDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV2PoolBindingDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	client, err := cfg.NewServiceClient("cci", region)
@@ -453,7 +437,7 @@ func resourcePoolBindingDelete(_ context.Context, d *schema.ResourceData, meta i
 	return nil
 }
 
-func resourcePoolBindingImportState(_ context.Context, d *schema.ResourceData,
+func resourceV2PoolBindingImportState(_ context.Context, d *schema.ResourceData,
 	_ interface{}) ([]*schema.ResourceData, error) {
 	importedId := d.Id()
 	parts := strings.Split(importedId, "/")
