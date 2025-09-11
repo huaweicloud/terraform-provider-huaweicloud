@@ -14,22 +14,57 @@ variable "secret_key" {
   type        = string
 }
 
-variable "name" {
+variable "dns_public_zone_name" {
   description = "The name of the zone"
   type        = string
 }
 
-variable "description" {
+variable "dns_public_zone_email" {
+  description = "The email address of the administrator managing the zone"
+  type        = string
+  default     = ""
+}
+
+variable "dns_public_zone_type" {
+  description = "The type of zone"
+  type        = string
+  default     = "public"
+}
+
+variable "dns_public_zone_description" {
   description = "The description of the zone"
   type        = string
 }
 
-variable "ttl" {
+variable "dns_public_zone_ttl" {
   description = "The time to live (TTL) of the zone"
   type        = number
+  default     = 300
 }
 
-variable "dnssec" {
+variable "dns_public_zone_enterprise_project_id" {
+  description = "The enterprise project ID of the zone"
+  type        = string
+  default     = ""
+}
+
+variable "dns_public_zone_status" {
+  description = "The status of the zone"
+  type        = string
+  default     = "ENABLE"
+}
+
+variable "dns_public_zone_dnssec" {
   description = "Whether to enable DNSSEC for a public zone"
   type        = string
+  default     = "DISABLE"
+}
+
+variable "dns_public_zone_router" {
+  description = "The list of the router of the zone"
+  type = list(object({
+    router_id     = string
+    router_region = string
+  }))
+  default = []
 }
