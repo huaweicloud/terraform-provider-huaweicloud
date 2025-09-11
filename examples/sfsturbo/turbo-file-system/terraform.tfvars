@@ -1,0 +1,6 @@
+vpc_name            = "tf_test_turbo"
+subnet_name         = "tf_test_turbo"
+security_group_name = "tf_test_turbo"
+turbo_name          = "tf_test_turbo_demo"
+turbo_share_type    = "HPC"
+turbo_hpc_bandwidth = "40M"
