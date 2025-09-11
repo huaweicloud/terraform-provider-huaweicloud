@@ -1,0 +1,7 @@
+vpc_name               = "tf_test_vpc"
+subnet_name            = "tf_test_subnet"
+security_group_name    = "tf_test_security_group"
+ecs_instance_name      = "tf_test_ecs"
+availability_zone      = "cn-north-4a"
+policy_assignment_name = "tf_test_policy_assignment_name"
+policy_definition_id   = "tf_test_policy_definition_id"
