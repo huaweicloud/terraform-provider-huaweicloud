@@ -22,22 +22,20 @@ The following variables need to be configured:
 
 #### Required Variables
 
-* `name` - The name of the zone, note the `.` at the end of the name
+* `dns_public_zone_name` - The name of the zone, note the `.` at the end of the name
 
 #### Optional Variables
 
-* `email` - The email address of the administrator managing the zone
-* `zone_type` - The type of zone (default: "public")
-* `ttl` - The time to live (TTL) of the zone (default: 300)
-* `description` - The description of the zone
-* `router` - The list of the router of the zone
+* `dns_public_zone_email` - The email address of the administrator managing the zone
+* `dns_public_zone_type` - The type of zone (default: "public")
+* `dns_public_zone_ttl` - The time to live (TTL) of the zone (default: 300)
+* `dns_public_zone_description` - The description of the zone
+* `dns_public_zone_router` - The list of the router of the zone
   - `router_id` - The ID of the associated VPC
   - `router_region` - The region of the VPC
-* `enterprise_project_id` - The enterprise project ID of the zone
-* `status` - The status of the zone (default: "ENABLE")
-* `proxy_pattern` - The recursive resolution proxy mode for subdomains of the private zone (default: "AUTHORITY")
-* `tags` - The key/value pairs to associate with the zone
-* `dnssec` - Whether to enable DNSSEC for a public zone (default: "DISABLE")
+* `dns_public_zone_enterprise_project_id` - The enterprise project ID of the zone
+* `dns_public_zone_status` - The status of the zone (default: "ENABLE")
+* `dns_public_zone_dnssec` - Whether to enable DNSSEC for a public zone (default: "DISABLE")
 
 ## Usage
 
