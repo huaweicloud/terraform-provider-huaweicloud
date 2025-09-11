@@ -35,7 +35,6 @@
   + `huaweicloud_swrv3_shared_repositories` [GH-7777]
   + `huaweicloud_vpc_subnet_cidr_reservations` [GH-7769]
 
-
 ## 1.78.2 (September 8, 2025)
 
 BUG FIXES:
