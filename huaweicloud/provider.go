@@ -563,6 +563,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_apig_api_associated_throttling_policies": apig.DataSourceApiAssociatedThrottlingPolicies(),
 			"huaweicloud_apig_api_basic_configurations":           apig.DataSourceApiBasicConfigurations(),
 			"huaweicloud_apig_api":                                apig.DataSourceApi(),
+			"huaweicloud_apig_api_history_versions":               apig.DataSourceApiHistoryVersions(),
 			"huaweicloud_apig_appcodes":                           apig.DataSourceAppcodes(),
 			"huaweicloud_apig_applications":                       apig.DataSourceApplications(),
 			"huaweicloud_apig_availability_zones":                 apig.DataSourceAvailabilityZones(),
