@@ -266,6 +266,7 @@ func resourceDedicatedInstanceRead(_ context.Context, d *schema.ResourceData, me
 		d.Set("specification_code", r.ResourceSpecCode),
 		// Only ELB mode uses this field
 		d.Set("group_id", r.PoolId),
+		d.Set("tags", d.Get("tags")),
 	)
 
 	if mErr.ErrorOrNil() != nil {
