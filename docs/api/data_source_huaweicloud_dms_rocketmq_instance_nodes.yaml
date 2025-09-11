@@ -6,8 +6,8 @@ schemes:
     - https
 host: huaweicloud.com
 tags:
-    - name: DMS
+    - name: RocketMQ
 paths:
     /v2/{project_id}/{engine}/instances/{instance_id}/nodes:
         GET:
-            tag: DMS
+            tag: RocketMQ

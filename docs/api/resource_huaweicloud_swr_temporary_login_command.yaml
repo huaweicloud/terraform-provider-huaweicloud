@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_swr_temporary_login_command
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: SWR
+paths:
+    /v2/manage/utils/authorizationtoken:
+        POST:
+            tag: SWR
+    /v2/manage/utils/secret:
+        POST:
+            tag: SWR

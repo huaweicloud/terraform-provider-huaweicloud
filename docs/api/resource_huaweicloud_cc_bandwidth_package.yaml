@@ -8,9 +8,6 @@ host: huaweicloud.com
 tags:
     - name: CC
 paths:
-    /v3/{domain_id}/ccaas/bandwidth-package/{id}/tags/action:
-        POST:
-            tag: CC
     /v3/{domain_id}/ccaas/bandwidth-packages:
         POST:
             tag: CC
@@ -25,5 +22,11 @@ paths:
         POST:
             tag: CC
     /v3/{domain_id}/ccaas/bandwidth-packages/{id}/disassociate:
+        POST:
+            tag: CC
+    /v3/{domain_id}/ccaas/bandwidth-packages/{id}/tag:
+        POST:
+            tag: CC
+    /v3/{domain_id}/ccaas/bandwidth-packages/{id}/untag:
         POST:
             tag: CC

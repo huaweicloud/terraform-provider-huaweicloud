@@ -1,0 +1,38 @@
+info:
+    version: ""
+    title: resource_huaweicloud_swr_enterprise_instance
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: SWR
+paths:
+    /v2/{project_id}/{resource_type}/{resource_id}/tags:
+        GET:
+            tag: SWR
+    /v2/{project_id}/{resource_type}/{resource_id}/tags/create:
+        POST:
+            tag: SWR
+    /v2/{project_id}/{resource_type}/{resource_id}/tags/delete:
+        DELETE:
+            tag: SWR
+    /v2/{project_id}/instances:
+        POST:
+            tag: SWR
+    /v2/{project_id}/instances/{instance_id}:
+        DELETE:
+            tag: SWR
+        GET:
+            tag: SWR
+    /v2/{project_id}/instances/{instance_id}/configurations:
+        GET:
+            tag: SWR
+        PUT:
+            tag: SWR
+    /v2/{project_id}/instances/{instance_id}/statistics:
+        GET:
+            tag: SWR
+    /v2/{project_id}/jobs/{job_id}:
+        GET:
+            tag: SWR
