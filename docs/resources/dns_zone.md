@@ -101,19 +101,19 @@ Router configuration block which is required if zone_type is private.
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the zone.
 
-<a name="zone_router"></a>
-The `router` block supports:
-
-* `router_id` - (Required, String) Specifies the ID of the associated VPC.
-
-* `router_region` - (Optional, String) Specifies the region of the VPC.
-
 * `dnssec` - (Optional, String) Specifies whether to enable DNSSEC for a public zone.
   The valid values are as follows:
   + **ENABLE**
   + **DISABLE**
 
   -> Before changing this parameter, make sure the zone status is enabled.
+
+<a name="zone_router"></a>
+The `router` block supports:
+
+* `router_id` - (Required, String) Specifies the ID of the associated VPC.
+
+* `router_region` - (Optional, String) Specifies the region of the VPC.
 
 ## Attribute Reference
 
