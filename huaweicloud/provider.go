@@ -2270,6 +2270,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_coc_group_resource_relation":       coc.ResourceGroupResourceRelation(),
 			"huaweicloud_coc_resource_uniagent_sync":        coc.ResourceResourceUniAgentSync(),
 			"huaweicloud_coc_other_resource_uniagent_sync":  coc.ResourceOtherResourceUniAgentSync(),
+			"huaweicloud_coc_diagnosis_task":                coc.ResourceDiagnosisTask(),
 
 			"huaweicloud_cph_server":         cph.ResourceCphServer(),
 			"huaweicloud_cph_adb_command":    cph.ResourceAdbCommand(),
