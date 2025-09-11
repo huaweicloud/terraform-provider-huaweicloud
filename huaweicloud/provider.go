@@ -2095,6 +2095,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_apig_channel_member":                      apig.ResourceChannelMember(),
 			"huaweicloud_apig_channel_member_group":                apig.ResourceChannelMemberGroup(),
 			"huaweicloud_apig_custom_authorizer":                   apig.ResourceApigCustomAuthorizerV2(),
+			"huaweicloud_apig_domain_certificate_associate":        apig.ResourceDomainCertificateAssociate(),
 			"huaweicloud_apig_endpoint_connection_management":      apig.ResourceEndpointConnectionManagement(),
 			"huaweicloud_apig_environment":                         apig.ResourceApigEnvironmentV2(),
 			"huaweicloud_apig_environment_variable":                apig.ResourceEnvironmentVariable(),
