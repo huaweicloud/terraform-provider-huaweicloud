@@ -232,9 +232,9 @@ func flattenAssociatedCertificates(certificates []interface{}) []interface{} {
 	result := make([]interface{}, 0, len(certificates))
 	for _, certificate := range certificates {
 		result = append(result, map[string]interface{}{
-			"id":                     utils.PathSearch("sign_id", certificate, nil),
-			"name":                   utils.PathSearch("sign_name", certificate, nil),
-			"type":                   utils.PathSearch("sign_type", certificate, nil),
+			"id":                     utils.PathSearch("id", certificate, nil),
+			"name":                   utils.PathSearch("name", certificate, nil),
+			"type":                   utils.PathSearch("type", certificate, nil),
 			"instance_id":            utils.PathSearch("instance_id", certificate, nil),
 			"project_id":             utils.PathSearch("project_id", certificate, nil),
 			"common_name":            utils.PathSearch("common_name", certificate, nil),

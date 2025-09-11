@@ -13,6 +13,8 @@ import (
 
 func TestAccDataSourceInstanceAssociatedSSLCertificates_basic(t *testing.T) {
 	var (
+		name = acceptance.RandomAccResourceName()
+
 		dataSource = "data.huaweicloud_apig_instance_ssl_certificates.test"
 		dc         = acceptance.InitDataSourceCheck(dataSource)
 
@@ -39,11 +41,16 @@ func TestAccDataSourceInstanceAssociatedSSLCertificates_basic(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
+			acceptance.TestAccPreCheckCertificateBase(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceInstanceAssociatedSSLCertificates_step1(),
+				Config:      testAccDataSourceInstanceAssociatedSSLCertificates_instanceNotFound(),
+				ExpectError: regexp.MustCompile("The instance does not exist"),
+			},
+			{
+				Config: testAccDataSourceInstanceAssociatedSSLCertificates_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestMatchResourceAttr(dataSource, "certificates.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
@@ -65,26 +72,38 @@ func TestAccDataSourceInstanceAssociatedSSLCertificates_basic(t *testing.T) {
 					resource.TestCheckOutput("certificate_algorithm_type_filter_is_useful", "true"),
 				),
 			},
-			{
-				Config:      testAccDataSourceInstanceAssociatedSSLCertificates_step2(),
-				ExpectError: regexp.MustCompile("The instance does not exist"),
-			},
 		},
 	})
 }
 
-func testAccDataSourceInstanceAssociatedSSLCertificates_step1() string {
+func testAccDataSourceInstanceAssociatedSSLCertificates_instanceNotFound() string {
+	randomUUID, _ := uuid.GenerateUUID()
 	return fmt.Sprintf(`
-data "huaweicloud_apig_instance_ssl_certificates" "test" {
+# Filter by Invalid Instance ID
+data "huaweicloud_apig_instance_ssl_certificates" "filter_by_invalid_instance_id" {
   instance_id = "%[1]s"
+}
+`, randomUUID)
+}
+
+func testAccDataSourceInstanceAssociatedSSLCertificates_basic(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+locals {
+  instance_id = "%[2]s"
+}
+
+data "huaweicloud_apig_instance_ssl_certificates" "test" {
+  depends_on = [huaweicloud_apig_certificate.test]
+
+  instance_id = local.instance_id
 }
 
 # Filter by Instance ID
-locals {
-  instance_id = "%[1]s"
-}
-
 data "huaweicloud_apig_instance_ssl_certificates" "filter_by_instance_id" {
+  depends_on = [huaweicloud_apig_certificate.test]
+
   instance_id = local.instance_id
 }
 
@@ -100,12 +119,14 @@ output "instance_id_filter_is_useful" {
 
 # Filter by Name
 locals {
-  name = data.huaweicloud_apig_instance_ssl_certificates.test.certificates[0].name
+  name = huaweicloud_apig_certificate.test.name
 }
 
 data "huaweicloud_apig_instance_ssl_certificates" "filter_by_name" {
+  depends_on = [huaweicloud_apig_certificate.test]
+
   instance_id = local.instance_id
-  name = local.name
+  name        = local.name
 }
 
 locals {
@@ -124,6 +145,8 @@ locals {
 }
 
 data "huaweicloud_apig_instance_ssl_certificates" "filter_by_common_name" {
+  depends_on = [huaweicloud_apig_certificate.test]
+
   instance_id = local.instance_id
   common_name = local.common_name
 }
@@ -144,7 +167,9 @@ locals {
 }
 
 data "huaweicloud_apig_instance_ssl_certificates" "filter_by_signature_algorithm" {
-  instance_id = local.instance_id
+  depends_on = [huaweicloud_apig_certificate.test]
+
+  instance_id         = local.instance_id
   signature_algorithm = local.signature_algorithm
 }
 
@@ -160,12 +185,14 @@ output "certificate_signature_algorithm_filter_is_useful" {
 
 # Filter by Type
 locals {
-  type = data.huaweicloud_apig_instance_ssl_certificates.test.certificates[0].type
+  type = huaweicloud_apig_certificate.test.type
 }
 
 data "huaweicloud_apig_instance_ssl_certificates" "filter_by_type" {
+  depends_on = [huaweicloud_apig_certificate.test]
+
   instance_id = local.instance_id
-  type = local.type
+  type        = local.type
 }
 
 locals {
@@ -184,7 +211,9 @@ locals {
 }
 
 data "huaweicloud_apig_instance_ssl_certificates" "filter_by_algorithm_type" {
-  instance_id = local.instance_id
+  depends_on = [huaweicloud_apig_certificate.test]
+
+  instance_id    = local.instance_id
   algorithm_type = local.algorithm_type
 }
 
@@ -197,29 +226,5 @@ locals {
 output "certificate_algorithm_type_filter_is_useful" {
   value = length(local.algorithm_type_result) > 0 && alltrue(local.algorithm_type_result)
 }
-`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID)
-}
-
-func testAccDataSourceInstanceAssociatedSSLCertificates_step2() string {
-	randomUUID, _ := uuid.GenerateUUID()
-	return fmt.Sprintf(`
-# Filter by Invalid Instance ID
-locals {
-  instance_id = "%[1]s"
-}
-
-data "huaweicloud_apig_instance_ssl_certificates" "filter_by_invalid_instance_id" {
-  instance_id = local.instance_id
-}
-
-locals {
-  invalid_instance_id_filter_result = [
-    for v in data.huaweicloud_apig_instance_ssl_certificates.filter_by_invalid_instance_id.certificates[*].instance_id : v == local.instance_id || v == "common"
-  ]
-}
-
-output "invalid_instance_id_filter_is_useful" {
-  value = length(local.invalid_instance_id_filter_result) == 0
-}
-`, randomUUID)
+`, testAccCertificate_instance_step1(name), acceptance.HW_APIG_DEDICATED_INSTANCE_ID)
 }
