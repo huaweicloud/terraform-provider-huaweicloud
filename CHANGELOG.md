@@ -1,5 +1,41 @@
 # CHANGELOG
 
+## 1.78.3 (September 11, 2025)
+
+* **New Resource:**
+  + `huaweicloud_apig_api_version_unpublish` [GH-7768]
+  + `huaweicloud_cciv2_pool_binding` [GH-7794]
+  + `huaweicloud_coc_diagnosis_task_cancel` [GH-7823]
+  + `huaweicloud_coc_diagnosis_task` [GH-7791]
+  + `huaweicloud_coc_scheduled_task` [GH-7750]
+  + `huaweicloud_kms_cancel_key_deletion` [GH-7753]
+  + `huaweicloud_kms_verify_sign` [GH-7765]
+  + `huaweicloud_secmaster_collector_channel_group` [GH-7789]
+  + `huaweicloud_swr_enterprise_instance` [GH-7816]
+  + `huaweicloud_swr_temporary_login_command` [GH-7788]
+
+* **New Data Source:**
+  + `huaweicloud_apig_api_history_versions` [GH-7771]
+  + `huaweicloud_apig_instance_tags` [GH-7756]
+  + `huaweicloud_cc_bandwidth_package_tags` [GH-7802]
+  + `huaweicloud_cc_central_networks_by_tags` [GH-7796]
+  + `huaweicloud_cc_global_connection_bandwidth_tags` [GH-7799]
+  + `huaweicloud_cc_site_network_quotas` [GH-7803]
+  + `huaweicloud_coc_document_execution_step_instances` [GH-7779]
+  + `huaweicloud_coc_incident_tasks` [GH-7821]
+  + `huaweicloud_coc_script_tags` [GH-7779]
+  + `huaweicloud_dms_rocketmq_brokers` [GH-7775]
+  + `huaweicloud_lts_context_logs` [GH-7748]
+  + `huaweicloud_secmaster_collector_channel_groups` [GH-7789]
+  + `huaweicloud_secmaster_collector_channel_instances` [GH-7782]
+  + `huaweicloud_secmaster_configuration_dictionaries` [GH-7762]
+  + `huaweicloud_secmaster_playbook_instance` [GH-7680]
+  + `huaweicloud_swr_image_auto_sync_jobs` [GH-7797]
+  + `huaweicloud_swrv3_repositories` [GH-7773]
+  + `huaweicloud_swrv3_shared_repositories` [GH-7777]
+  + `huaweicloud_vpc_subnet_cidr_reservations` [GH-7769]
+
+
 ## 1.78.2 (September 8, 2025)
 
 BUG FIXES:
@@ -7,6 +43,24 @@ BUG FIXES:
 * data/huaweicloud_dcs_flavors: fix configurations set issue [GH-7774]
 
 ## 1.78.1 (September 6, 2025)
+
+* **New Resource:**
+  + `huaweicloud_apig_api_action` [GH-7710]
+  + `huaweicloud_apig_api_batch_action` [GH-7723]
+  + `huaweicloud_apig_api_debug` [GH-7746]
+  + `huaweicloud_coc_document_execution_operation` [GH-7737]
+  + `huaweicloud_coc_enterprise_project_collection` [GH-7732]
+  + `huaweicloud_coc_group_resource_relation` [GH-7732]
+  + `huaweicloud_coc_other_resource_uniagent_sync` [GH-7685]
+  + `huaweicloud_coc_resource_uniagent_sync` [GH-7675]
+  + `huaweicloud_coc_script_approval` [GH-7654]
+  + `huaweicloud_codearts_pipeline_plugin_version` [GH-7668]
+  + `huaweicloud_dms_rocketmq_instance_diagnosis` [GH-7700]
+  + `huaweicloud_kms_sign` [GH-7727]
+  + `huaweicloud_secmaster_delete_policies` [GH-7709]
+  + `huaweicloud_secmaster_workflow_version` [GH-7680]
+  + `huaweicloud_vpn_connection_reset` [GH-7714]
+  + `huaweicloud_vpn_gateway_upgrade` [GH-7697]
 
 * **New Data Source:**
   + `huaweicloud_apig_instance_api_tags` [GH-7754]
@@ -52,24 +106,6 @@ BUG FIXES:
   + `huaweicloud_secmaster_tables` [GH-7705]
   + `huaweicloud_secmaster_vulnerabilities` [GH-7740]
   + `huaweicloud_secmasterv2_alert_rule_template_detail` [GH-7680]
-
-* **New Data Source:**
-  + `huaweicloud_apig_api_action` [GH-7710]
-  + `huaweicloud_apig_api_batch_action` [GH-7723]
-  + `huaweicloud_apig_api_debug` [GH-7746]
-  + `huaweicloud_coc_document_execution_operation` [GH-7737]
-  + `huaweicloud_coc_enterprise_project_collection` [GH-7732]
-  + `huaweicloud_coc_group_resource_relation` [GH-7732]
-  + `huaweicloud_coc_other_resource_uniagent_sync` [GH-7685]
-  + `huaweicloud_coc_resource_uniagent_sync` [GH-7675]
-  + `huaweicloud_coc_script_approval` [GH-7654]
-  + `huaweicloud_codearts_pipeline_plugin_version` [GH-7668]
-  + `huaweicloud_dms_rocketmq_instance_diagnosis` [GH-7700]
-  + `huaweicloud_kms_sign` [GH-7727]
-  + `huaweicloud_secmaster_delete_policies` [GH-7709]
-  + `huaweicloud_secmaster_workflow_version` [GH-7680]
-  + `huaweicloud_vpn_connection_reset` [GH-7714]
-  + `huaweicloud_vpn_gateway_upgrade` [GH-7697]
 
 ## 1.78.0 (Aug 30, 2025)
 
