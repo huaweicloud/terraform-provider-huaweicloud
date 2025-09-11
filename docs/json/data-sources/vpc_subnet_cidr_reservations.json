@@ -1,0 +1,105 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_vpc_subnet_cidr_reservations": {
+          "block": {
+            "attributes": {
+              "cidr": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the CIDRs of the subnet reservations.",
+                "optional": true
+              },
+              "description": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the descriptions of the subnet CIDR reservations.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ip_version": {
+                "type": [
+                  "list",
+                  "number"
+                ],
+                "description": "Specifies the IP versions of the subnets.",
+                "optional": true
+              },
+              "name": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the names of the subnet CIDR reservations.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource.",
+                "computed": true
+              },
+              "reservation_id": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the subnet CIDR reservation resource IDs. ",
+                "optional": true
+              },
+              "reservations": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cidr": "string",
+                      "created_at": "string",
+                      "description": "string",
+                      "id": "string",
+                      "ip_version": "number",
+                      "name": "string",
+                      "project_id": "string",
+                      "subnet_id": "string",
+                      "updated_at": "string",
+                      "vpc_id": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of VPC subnet CIDR reservations.",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the IDs of the subnets containing the CIDR reservations.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "VPC",
+            "name": "Virtual Private Cloud",
+            "catalog": "Networking",
+            "name_cn": "虚拟私有云",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

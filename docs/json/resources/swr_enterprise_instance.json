@@ -1,0 +1,159 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_swr_enterprise_instance": {
+          "block": {
+            "attributes": {
+              "access_address": {
+                "type": "string",
+                "description": "Indicates the access address of instance.",
+                "computed": true
+              },
+              "anonymous_access": {
+                "type": "bool",
+                "description": "Specifies whether to enable anonymous access.",
+                "optional": true
+              },
+              "charge_mode": {
+                "type": "string",
+                "description": "Indicates the charge mode of instance.",
+                "computed": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "Indicates the creation time.",
+                "computed": true
+              },
+              "delete_dns": {
+                "type": "bool",
+                "description": "Specifies whether to delete DNS resources when deleting instance.",
+                "optional": true
+              },
+              "delete_obs": {
+                "type": "bool",
+                "description": "Specifies whether to delete OBS bucket when deleting instance.",
+                "optional": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description.",
+                "optional": true
+              },
+              "encrypt_type": {
+                "type": "string",
+                "description": "Specifies the encrypt type.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID.",
+                "required": true
+              },
+              "expires_at": {
+                "type": "string",
+                "description": "Indicates the expired time.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the instance.",
+                "required": true
+              },
+              "obs_bucket_name": {
+                "type": "string",
+                "description": "Specifies the OBS bucket name.",
+                "optional": true,
+                "computed": true
+              },
+              "obs_encrypt": {
+                "type": "bool",
+                "description": "Specifies whether the OBS bucket is encrypted.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "spec": {
+                "type": "string",
+                "description": "Specifies the specification of the instance.",
+                "required": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Indicates the instance status.",
+                "computed": true
+              },
+              "subnet_cidr": {
+                "type": "string",
+                "description": "Indicates the range of available subnets for the subnet.",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "description": "Specifies the subnet ID.",
+                "required": true
+              },
+              "subnet_name": {
+                "type": "string",
+                "description": "Indicates the subnet name.",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "Specifies the key/value pairs to associate with the instance.",
+                "optional": true,
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "Indicates the last update time.",
+                "computed": true
+              },
+              "user_def_obs": {
+                "type": "bool",
+                "description": "Indicates whether the user specifies the OBS bucket.",
+                "computed": true
+              },
+              "version": {
+                "type": "string",
+                "description": "Indicates the instance version.",
+                "computed": true
+              },
+              "vpc_cidr": {
+                "type": "string",
+                "description": "Indicates the range of available subnets for the VPC.",
+                "computed": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "description": "Specifies the VPC ID .",
+                "required": true
+              },
+              "vpc_name": {
+                "type": "string",
+                "description": "Indicates the VPC name.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "SWR",
+            "name": "Software Repository for Container",
+            "catalog": "Containers",
+            "name_cn": "容器镜像服务",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

@@ -2,7 +2,7 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "data_source_schemas": {
-        "huaweicloud_dms_rocketmq_broker": {
+        "huaweicloud_dms_rocketmq_brokers": {
           "block": {
             "attributes": {
               "brokers": {

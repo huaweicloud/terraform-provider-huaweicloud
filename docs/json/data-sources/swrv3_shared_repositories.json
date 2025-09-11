@@ -1,0 +1,67 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_swrv3_shared_repositories": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the image repository name.",
+                "optional": true
+              },
+              "organization": {
+                "type": "string",
+                "description": "Specifies the organization name.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "repos": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "category": "string",
+                      "created_at": "string",
+                      "description": "string",
+                      "id": "number",
+                      "is_public": "bool",
+                      "name": "string",
+                      "num_download": "number",
+                      "num_images": "number",
+                      "organization": "string",
+                      "size": "number",
+                      "status": "bool",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the repositories.",
+                "computed": true
+              },
+              "shared_by": {
+                "type": "string",
+                "description": "Specifies the sharing mode.",
+                "required": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies whether the sharing has expired.",
+                "optional": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

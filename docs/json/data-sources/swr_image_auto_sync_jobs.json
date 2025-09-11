@@ -1,0 +1,64 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_swr_image_auto_sync_jobs": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "jobs": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "id": "number",
+                      "organization": "string",
+                      "override": "bool",
+                      "remote_organization": "string",
+                      "remote_region_id": "string",
+                      "repo_name": "string",
+                      "status": "string",
+                      "sync_operator_id": "string",
+                      "sync_operator_name": "string",
+                      "tag": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the jobs.",
+                "computed": true
+              },
+              "organization": {
+                "type": "string",
+                "description": "Specifies the organization name.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "repository": {
+                "type": "string",
+                "description": "Specifies the image repository name.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "SWR",
+            "name": "Software Repository for Container",
+            "catalog": "Containers",
+            "name_cn": "容器镜像服务",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

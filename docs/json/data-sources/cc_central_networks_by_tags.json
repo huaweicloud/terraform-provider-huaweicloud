@@ -1,0 +1,136 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cc_central_networks_by_tags": {
+          "block": {
+            "attributes": {
+              "central_networks": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "auto_associate_route_enabled": "bool",
+                      "auto_propagate_route_enabled": "bool",
+                      "created_at": "string",
+                      "default_plane_id": "string",
+                      "description": "string",
+                      "enterprise_project_id": "string",
+                      "er_instances": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "asn": "number",
+                            "enterprise_router_id": "string",
+                            "project_id": "string",
+                            "region_id": "string",
+                            "site_code": "string"
+                          }
+                        ]
+                      ],
+                      "id": "string",
+                      "name": "string",
+                      "planes": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "associate_er_tables": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "enterprise_router_id": "string",
+                                  "enterprise_router_table_id": "string",
+                                  "project_id": "string",
+                                  "region_id": "string"
+                                }
+                              ]
+                            ],
+                            "exclude_er_connections": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "exclude_er_instances": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "enterprise_router_id": "string",
+                                        "project_id": "string",
+                                        "region_id": "string"
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ],
+                            "id": "string",
+                            "is_full_mesh": "bool",
+                            "name": "string"
+                          }
+                        ]
+                      ],
+                      "state": "string",
+                      "tags": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "key": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ],
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "tags": {
+                "block": {
+                  "attributes": {
+                    "key": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "values": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "CC",
+            "name": "Cloud Connect",
+            "catalog": "Networking",
+            "name_cn": "云连接",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

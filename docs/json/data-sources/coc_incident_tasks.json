@@ -1,0 +1,56 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_coc_incident_tasks": {
+          "block": {
+            "attributes": {
+              "data": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "key": "string",
+                      "name": "string",
+                      "operations": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "key": "string",
+                            "task_id": "string"
+                          }
+                        ]
+                      ],
+                      "state": "string",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of incident tasks.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "incident_id": {
+                "type": "string",
+                "description": "Specifies the event ticket number.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "COC",
+            "name": "Cloud Operations Center",
+            "catalog": "Management & Governance",
+            "name_cn": "云运维中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,386 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_coc_scheduled_task": {
+          "block": {
+            "attributes": {
+              "agency_name": {
+                "type": "string",
+                "optional": true
+              },
+              "approve_comments": {
+                "type": "string",
+                "computed": true
+              },
+              "approve_status": {
+                "type": "string",
+                "computed": true
+              },
+              "associated_task_enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "associated_task_id": {
+                "type": "string",
+                "required": true
+              },
+              "associated_task_name": {
+                "type": "string",
+                "required": true
+              },
+              "associated_task_name_en": {
+                "type": "string",
+                "optional": true
+              },
+              "associated_task_type": {
+                "type": "string",
+                "required": true
+              },
+              "created_user_name": {
+                "type": "string",
+                "computed": true
+              },
+              "enable_approve": {
+                "type": "bool",
+                "required": true
+              },
+              "enable_message_notification": {
+                "type": "bool",
+                "required": true
+              },
+              "enabled": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "input_param": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "reviewer_user_name": {
+                "type": "string",
+                "optional": true
+              },
+              "risk_level": {
+                "type": "string",
+                "required": true
+              },
+              "runbook_instance_mode": {
+                "type": "string",
+                "optional": true
+              },
+              "task_type": {
+                "type": "string",
+                "required": true
+              },
+              "version_no": {
+                "type": "string",
+                "required": true
+              }
+            },
+            "block_types": {
+              "message_notification": {
+                "block": {
+                  "attributes": {
+                    "notification_endpoint_type": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "policy": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "protocol": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "recipients": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "schedule_role_id": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "schedule_scene_id": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "reviewer_notification": {
+                "block": {
+                  "attributes": {
+                    "notification_endpoint_type": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "policy": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "protocol": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "recipients": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "schedule_role_id": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "schedule_scene_id": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "target_instances": {
+                "block": {
+                  "attributes": {
+                    "batch_strategy": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "create_time": {
+                      "type": "number",
+                      "computed": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "order_no": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "schedule_id": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "target_instances": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "target_selection": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "update_time": {
+                      "type": "number",
+                      "computed": true
+                    }
+                  },
+                  "block_types": {
+                    "sub_target_instances": {
+                      "block": {
+                        "attributes": {
+                          "batch_strategy": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "order_no": {
+                            "type": "number",
+                            "required": true
+                          },
+                          "target_instances": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "target_selection": {
+                            "type": "string",
+                            "required": true
+                          }
+                        },
+                        "block_types": {
+                          "target_resource": {
+                            "block": {
+                              "attributes": {
+                                "app_name": {
+                                  "type": "string",
+                                  "optional": true
+                                },
+                                "id": {
+                                  "type": "string",
+                                  "optional": true
+                                },
+                                "region_id": {
+                                  "type": "string",
+                                  "optional": true
+                                },
+                                "type": {
+                                  "type": "string",
+                                  "optional": true
+                                }
+                              },
+                              "block_types": {
+                                "params": {
+                                  "block": {
+                                    "attributes": {
+                                      "key": {
+                                        "type": "string",
+                                        "required": true
+                                      },
+                                      "value": {
+                                        "type": "string",
+                                        "required": true
+                                      }
+                                    }
+                                  },
+                                  "nesting_mode": "list"
+                                }
+                              }
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          }
+                        }
+                      },
+                      "nesting_mode": "list"
+                    },
+                    "target_resource": {
+                      "block": {
+                        "attributes": {
+                          "app_name": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "id": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "region_id": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "type": {
+                            "type": "string",
+                            "optional": true
+                          }
+                        },
+                        "block_types": {
+                          "params": {
+                            "block": {
+                              "attributes": {
+                                "key": {
+                                  "type": "string",
+                                  "required": true
+                                },
+                                "value": {
+                                  "type": "string",
+                                  "required": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "list"
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              },
+              "ticket_infos": {
+                "block": {
+                  "attributes": {
+                    "scope_id": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "target_id": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "ticket_id": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "ticket_type": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              },
+              "trigger_time": {
+                "block": {
+                  "attributes": {
+                    "cron": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "period": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "periodic_scheduled_time": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "policy": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "scheduled_close_time": {
+                      "type": "number",
+                      "optional": true
+                    },
+                    "single_scheduled_time": {
+                      "type": "number",
+                      "optional": true
+                    },
+                    "time_zone": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "COC",
+            "name": "Cloud Operations Center",
+            "catalog": "Management & Governance",
+            "name_cn": "云运维中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}
