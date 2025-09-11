@@ -423,6 +423,7 @@ var (
 
 	// The SecMaster workspace ID
 	HW_SECMASTER_WORKSPACE_ID = os.Getenv("HW_SECMASTER_WORKSPACE_ID")
+	HW_SECMASTER_RDS_ASSET_ID = os.Getenv("HW_SECMASTER_RDS_ASSET_ID")
 	HW_SECMASTER_LAYOUT_ID    = os.Getenv("HW_SECMASTER_LAYOUT_ID")
 	// The SecMaster indicator ID
 	HW_SECMASTER_INDICATOR_TYPE_ID        = os.Getenv("HW_SECMASTER_INDICATOR_TYPE_ID")
@@ -2386,6 +2387,13 @@ func TestAccPreCheckSourceImage(t *testing.T) {
 func TestAccPreCheckSecMasterWorkspaceID(t *testing.T) {
 	if HW_SECMASTER_WORKSPACE_ID == "" {
 		t.Skip("HW_SECMASTER_WORKSPACE_ID must be set for SecMaster acceptance tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckSecMasterRDSAssetID(t *testing.T) {
+	if HW_SECMASTER_RDS_ASSET_ID == "" {
+		t.Skip("HW_SECMASTER_RDS_ASSET_ID must be set for SecMaster acceptance tests")
 	}
 }
 
