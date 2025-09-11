@@ -260,7 +260,6 @@ func ResourceDmsKafkaInstance() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				Computed: true,
-				MinItems: 3,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"advertised_ip": {
