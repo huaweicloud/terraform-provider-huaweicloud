@@ -1778,6 +1778,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpn_tags":                           vpn.DataSourceVpnTags(),
 			"huaweicloud_vpn_resource_instances":             vpn.DataSourceVpnInstances(),
 			"huaweicloud_vpn_gateway_route_tables":           vpn.DataSourceVpnGatewayRouteTables(),
+			"huaweicloud_vpn_gateway_jobs":                   vpn.DataSourceVpnGatewayJobs(),
 
 			"huaweicloud_waf_address_groups":                       waf.DataSourceWafAddressGroups(),
 			"huaweicloud_waf_alarm_notifications":                  waf.DataSourceWafAlarmNotifications(),
@@ -3129,6 +3130,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpn_access_policy":                     vpn.ResourceAccessPolicy(),
 			"huaweicloud_vpn_gateway":                           vpn.ResourceGateway(),
 			"huaweicloud_vpn_gateway_upgrade":                   vpn.ResourceGatewayUpgrade(),
+			"huaweicloud_vpn_gateway_job_delete":                vpn.ResourceGatewayJobDelete(),
 			"huaweicloud_vpn_customer_gateway":                  vpn.ResourceCustomerGateway(),
 			"huaweicloud_vpn_connection":                        vpn.ResourceConnection(),
 			"huaweicloud_vpn_connection_health_check":           vpn.ResourceConnectionHealthCheck(),
