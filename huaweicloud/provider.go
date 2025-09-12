@@ -1775,6 +1775,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpn_connection_health_checks":       vpn.DataSourceVpnConnectionHealthChecks(),
 			"huaweicloud_vpn_connection_logs":                vpn.DataSourceVpnConnectionLogs(),
 			"huaweicloud_vpn_p2c_gateways":                   vpn.DataSourceVpnP2cGateways(),
+			"huaweicloud_vpn_p2c_gateway_jobs":               vpn.DataSourceVpnP2CGatewayJobs(),
 			"huaweicloud_vpn_p2c_gateway_availability_zones": vpn.DataSourceVpnP2cGatewayAvailabilityZones(),
 			"huaweicloud_vpn_p2c_gateway_connections":        vpn.DataSourceVpnP2cGatewayConnections(),
 			"huaweicloud_vpn_servers":                        vpn.DataSourceVpnServers(),
@@ -3147,6 +3148,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpn_client_ca_certificate":             vpn.ResourceClientCACertificate(),
 			"huaweicloud_vpn_server":                            vpn.ResourceServer(),
 			"huaweicloud_vpn_p2c_gateway_connection_disconnect": vpn.ResourceP2CGatewayConnectionDisconnect(),
+			"huaweicloud_vpn_p2c_gateway_upgrade":               vpn.ResourceP2CGatewayUpgrade(),
+			"huaweicloud_vpn_p2c_gateway_job_delete":            vpn.ResourceP2CGatewayJobDelete(),
 
 			"huaweicloud_waf_address_group":                       waf.ResourceWafAddressGroup(),
 			"huaweicloud_waf_certificate":                         waf.ResourceWafCertificate(),
