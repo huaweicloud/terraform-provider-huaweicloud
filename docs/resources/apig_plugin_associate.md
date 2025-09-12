@@ -9,8 +9,11 @@ description: ""
 
 Use this resource to bind the APIs to the plugin within HuaweiCloud.
 
--> A published API can only create one `huaweicloud_apig_plugin_associate` resource.
-   For each type of plugin, the API can only bind at most one.
+~> Before binding the API(s), please make sure all APIs have been published, otherwise you will receive a service error.
+
+-> If this resource was imported and no changes were deployed before deletion (a change must be triggered to apply the
+   `api_ids` configured in the script), terraform will delete all bound APIs for current configured plugin in
+   specified publish environment. Otherwise, terraform will only delete the bound API(s) managed by the last change.
 
 ## Example Usage
 
