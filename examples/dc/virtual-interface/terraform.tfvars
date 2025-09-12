@@ -1,0 +1,9 @@
+vpc_name                  = "tf_test_vpc"
+virtual_gateway_name      = "tf_test_virtual_gateway"
+virtual_interface_name    = "tf_test_virtual_interface"
+direct_connect_id         = "f50a0a20-7214-4614-b2f8-830994186934"
+vlan                      = 100
+bandwidth                 = 100
+remote_ep_group           = ["10.10.10.0/30"]
+local_gateway_v4_ip       = "10.10.10.1/30"
+remote_gateway_v4_ip      = "10.10.10.2/30"
