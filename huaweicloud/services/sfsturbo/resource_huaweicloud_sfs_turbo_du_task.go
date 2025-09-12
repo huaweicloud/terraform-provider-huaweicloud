@@ -2,12 +2,15 @@ package sfsturbo
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -293,4 +296,24 @@ func resourceDuTaskImportState(_ context.Context, d *schema.ResourceData, _ inte
 		d.Set("share_id", parts[0]),
 	)
 	return []*schema.ResourceData{d}, mErr.ErrorOrNil()
+}
+
+// When the SFS Turbo does not exist, the response body example of the details interface is as follows:
+// {"errCode":"SFS.TURBO.9000","errMsg":"no privileges to operate"}
+func hasSpecifyErrorCode403(err error, specCode string) bool {
+	if errCode, ok := err.(golangsdk.ErrDefault403); ok {
+		var response interface{}
+		if jsonErr := json.Unmarshal(errCode.Body, &response); jsonErr == nil {
+			errorCode, parseErr := jmespath.Search("errCode", response)
+			if parseErr != nil {
+				log.Printf("[WARN] failed to parse errCode from response body: %s", parseErr)
+			}
+
+			if errorCode == specCode {
+				return true
+			}
+		}
+	}
+
+	return false
 }

@@ -2,9 +2,8 @@ package sfsturbo
 
 import (
 	"context"
-	"encoding/json"
+	"errors"
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -14,10 +13,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/sfs_turbo/v1/shares"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -25,12 +22,6 @@ import (
 )
 
 const (
-	prepaidUnitMonth int = 2
-	prepaidUnitYear  int = 3
-
-	autoRenewDisabled int = 0
-	autoRenewEnabled  int = 1
-
 	shareTypeStandard    = "STANDARD"
 	shareTypePerformance = "PERFORMANCE"
 	shareTypeHpc         = "HPC"
@@ -184,34 +175,31 @@ func ResourceSFSTurbo() *schema.Resource {
 	}
 }
 
-func buildTurboMetadataOpts(d *schema.ResourceData) shares.Metadata {
-	metaOpts := shares.Metadata{}
-	if v, ok := d.GetOk("crypt_key_id"); ok {
-		metaOpts.CryptKeyID = v.(string)
-	}
-	if v, ok := d.GetOk("dedicated_flavor"); ok {
-		metaOpts.DedicatedFlavor = v.(string)
-	}
-	if v, ok := d.GetOk("dedicated_storage_id"); ok {
-		metaOpts.DedicatedStorageID = v.(string)
-	}
-
+func validateParameter(d *schema.ResourceData) error {
+	_, isHpcBandwidthSet := d.GetOk("hpc_bandwidth")
+	_, isHpcCacheBandwidthSet := d.GetOk("hpc_cache_bandwidth")
 	switch d.Get("share_type").(string) {
 	case shareTypeHpc:
-		metaOpts.ExpandType = "hpc"
-		metaOpts.HpcBw = d.Get("hpc_bandwidth").(string)
+		if !isHpcBandwidthSet {
+			return errors.New("`hpc_bandwidth` is required when share type is HPC")
+		}
 	case shareTypeHpcCache:
-		metaOpts.ExpandType = "hpc_cache"
-		metaOpts.HpcBw = d.Get("hpc_cache_bandwidth").(string)
+		if !isHpcCacheBandwidthSet {
+			return errors.New("`hpc_cache_bandwidth` is required when share type is HPC_CACHE")
+		}
+		if d.Get("charging_mode").(string) == "prePaid" {
+			return errors.New("HPC_CACHE share type only support in postpaid charging mode")
+		}
 	default:
-		if _, ok := d.GetOk("enhanced"); ok {
-			metaOpts.ExpandType = "bandwidth"
+		if isHpcBandwidthSet || isHpcCacheBandwidthSet {
+			return errors.New("`hpc_bandwidth` and `hpc_cache_bandwidth` cannot be set when share type is" +
+				" STANDARD or PERFORMANCE")
 		}
 	}
-	return metaOpts
+	return nil
 }
 
-func convertShareType(d *schema.ResourceData) string {
+func buildTurboShareTypeParam(d *schema.ResourceData) string {
 	shareType := d.Get("share_type").(string)
 	if shareType == shareTypeStandard || shareType == shareTypePerformance {
 		return shareType
@@ -221,90 +209,170 @@ func convertShareType(d *schema.ResourceData) string {
 	return shareTypeStandard
 }
 
-func buildTurboCreateOpts(cfg *config.Config, d *schema.ResourceData) shares.CreateOpts {
-	result := shares.CreateOpts{
-		Share: shares.Share{
-			Name:                d.Get("name").(string),
-			Size:                d.Get("size").(int),
-			ShareProto:          d.Get("share_proto").(string),
-			VpcID:               d.Get("vpc_id").(string),
-			SubnetID:            d.Get("subnet_id").(string),
-			SecurityGroupID:     d.Get("security_group_id").(string),
-			AvailabilityZone:    d.Get("availability_zone").(string),
-			BackupID:            d.Get("backup_id").(string),
-			ShareType:           convertShareType(d),
-			EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
-			Metadata:            buildTurboMetadataOpts(d),
-		},
+func buildTurboMetadataBodyParams(d *schema.ResourceData) map[string]interface{} {
+	rstMap := map[string]interface{}{
+		"crypt_key_id":         utils.ValueIgnoreEmpty(d.Get("crypt_key_id")),
+		"dedicated_flavor":     utils.ValueIgnoreEmpty(d.Get("dedicated_flavor")),
+		"dedicated_storage_id": utils.ValueIgnoreEmpty(d.Get("dedicated_storage_id")),
 	}
-	if d.Get("charging_mode") == "prePaid" {
-		billing := shares.BssParam{
-			PeriodNum: d.Get("period").(int),
-			IsAutoPay: utils.Int(1), // Always enable auto-pay.
-		}
-		if d.Get("period_unit").(string) == "month" {
-			billing.PeriodType = prepaidUnitMonth
-		} else {
-			billing.PeriodType = prepaidUnitYear
-		}
-		if d.Get("auto_renew").(string) == "true" {
-			billing.IsAutoRenew = utils.Int(autoRenewEnabled)
-		} else {
-			billing.IsAutoRenew = utils.Int(autoRenewDisabled)
-		}
-		result.BssParam = &billing
-	}
-	return result
-}
 
-func validateParameter(d *schema.ResourceData) error {
-	_, isHpcBandwidthSet := d.GetOk("hpc_bandwidth")
-	_, isHpcCacheBandwidthSet := d.GetOk("hpc_cache_bandwidth")
 	switch d.Get("share_type").(string) {
 	case shareTypeHpc:
-		if !isHpcBandwidthSet {
-			return fmt.Errorf("`hpc_bandwidth` is required when share type is HPC")
-		}
+		rstMap["expand_type"] = "hpc"
+		rstMap["hpc_bw"] = d.Get("hpc_bandwidth")
 	case shareTypeHpcCache:
-		if !isHpcCacheBandwidthSet {
-			return fmt.Errorf("`hpc_cache_bandwidth` is required when share type is HPC_CACHE")
-		}
-		if d.Get("charging_mode").(string) == "prePaid" {
-			return fmt.Errorf("HPC_CACHE share type only support in postpaid charging mode")
-		}
+		rstMap["expand_type"] = "hpc_cache"
+		rstMap["hpc_bw"] = d.Get("hpc_cache_bandwidth")
 	default:
-		if isHpcBandwidthSet || isHpcCacheBandwidthSet {
-			return fmt.Errorf("`hpc_bandwidth` and `hpc_cache_bandwidth` cannot be set when share type is" +
-				" STANDARD or PERFORMANCE")
+		if _, ok := d.GetOk("enhanced"); ok {
+			rstMap["expand_type"] = "bandwidth"
 		}
 	}
-	return nil
+
+	return rstMap
+}
+
+func buildTurboShareCreateBodyParams(cfg *config.Config, d *schema.ResourceData) map[string]interface{} {
+	return map[string]interface{}{
+		"name":                  d.Get("name"),
+		"size":                  d.Get("size"),
+		"share_proto":           utils.ValueIgnoreEmpty(d.Get("share_proto")),
+		"vpc_id":                d.Get("vpc_id"),
+		"subnet_id":             d.Get("subnet_id"),
+		"security_group_id":     d.Get("security_group_id"),
+		"availability_zone":     d.Get("availability_zone"),
+		"backup_id":             utils.ValueIgnoreEmpty(d.Get("backup_id")),
+		"share_type":            buildTurboShareTypeParam(d),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
+		"metadata":              buildTurboMetadataBodyParams(d),
+	}
+}
+
+func buildTurboBillingPeriodTypeParam(d *schema.ResourceData) int {
+	if d.Get("period_unit").(string) == "month" {
+		return 2
+	}
+	return 3
+}
+
+func buildTurboBillingAutoRenewParam(d *schema.ResourceData) int {
+	if d.Get("auto_renew").(string) == "true" {
+		return 1
+	}
+	return 0
+}
+
+func buildTurboBillingCreateBodyParams(d *schema.ResourceData) map[string]interface{} {
+	if d.Get("charging_mode") != "prePaid" {
+		return nil
+	}
+
+	return map[string]interface{}{
+		"period_num":    d.Get("period"),
+		"is_auto_pay":   1,
+		"period_type":   buildTurboBillingPeriodTypeParam(d),
+		"is_auto_renew": buildTurboBillingAutoRenewParam(d),
+	}
+}
+
+func buildSFSTurboCreateBodyParams(cfg *config.Config, d *schema.ResourceData) map[string]interface{} {
+	return map[string]interface{}{
+		"share":     buildTurboShareCreateBodyParams(cfg, d),
+		"bss_param": buildTurboBillingCreateBodyParams(d),
+	}
+}
+
+func GetTurboDetail(client *golangsdk.ServiceClient, shareId string) (interface{}, error) {
+	requestPath := client.Endpoint + "v1/{project_id}/sfs-turbo/shares/{id}"
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{id}", shareId)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	resp, err := client.Request("GET", requestPath, &requestOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(resp)
+}
+
+func waitingForTurboStatusReady(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
+	timeout time.Duration) error {
+	stateConf := &resource.StateChangeConf{
+		Pending: []string{"PENDING"},
+		Target:  []string{"COMPLETED"},
+		Refresh: func() (interface{}, string, error) {
+			respBody, err := GetTurboDetail(client, d.Id())
+			if err != nil {
+				return nil, "ERROR", err
+			}
+
+			status := utils.PathSearch("status", respBody, "").(string)
+			if status == "" {
+				return nil, "ERROR", errors.New("status is not found in SFS Turbo detail API response")
+			}
+
+			if utils.StrSliceContains([]string{"303", "800"}, status) {
+				return respBody, "ERROR", fmt.Errorf("unexpected status: '%s'", status)
+			}
+
+			if utils.StrSliceContains([]string{"200"}, status) {
+				return respBody, "COMPLETED", nil
+			}
+
+			return respBody, "PENDING", nil
+		},
+		Timeout:      timeout,
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+
+	_, err := stateConf.WaitForStateContext(ctx)
+	return err
 }
 
 func resourceSFSTurboCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	sfsClient, err := cfg.SfsV1Client(region)
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		product = "sfs-turbo"
+		httpUrl = "v1/{project_id}/sfs-turbo/shares"
+	)
+
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating SFS v1 client: %s", err)
+		return diag.Errorf("error creating SFS Turbo client: %s", err)
 	}
 
 	if err := validateParameter(d); err != nil {
 		return diag.FromErr(err)
 	}
 
-	createOpts := buildTurboCreateOpts(cfg, d)
-	log.Printf("[DEBUG] create sfs turbo with option: %+v", createOpts)
-	resp, err := shares.Create(sfsClient, createOpts).Extract()
+	createPath := client.Endpoint + httpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildSFSTurboCreateBodyParams(cfg, d)),
+	}
+
+	resp, err := client.Request("POST", createPath, &createOpt)
 	if err != nil {
 		return diag.Errorf("error creating SFS Turbo: %s", err)
 	}
 
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	if d.Get("charging_mode").(string) == "prePaid" {
-		orderId := resp.OrderId
+		orderId := utils.PathSearch("orderId", respBody, "").(string)
 		if orderId == "" {
-			return diag.Errorf("unable to find the order ID, this is a COM (Cloud Order Management) error, " +
-				"please contact service for help and check your order status on the console.")
+			return diag.Errorf(`error creating SFS Turbo: unable to find the order ID,
+			 this is a COM (Cloud Order Management) error, please contact service for help and check your order
+			 status on the console.`)
 		}
 		bssClient, err := cfg.BssV2Client(region)
 		if err != nil {
@@ -320,101 +388,98 @@ func resourceSFSTurboCreate(ctx context.Context, d *schema.ResourceData, meta in
 		}
 		d.SetId(resourceId)
 	} else {
-		d.SetId(resp.ID)
+		id := utils.PathSearch("id", respBody, "").(string)
+		if id == "" {
+			return diag.Errorf("error creating SFS Turbo: unable to find the share ID")
+		}
+		d.SetId(id)
 	}
 
-	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"PENDING"},
-		Target:       []string{"COMPLETED"},
-		Refresh:      createWaitForSFSTurboStatus(sfsClient, resp.ID),
-		Timeout:      d.Timeout(schema.TimeoutCreate),
-		Delay:        10 * time.Second,
-		PollInterval: 10 * time.Second,
-	}
-	_, stateErr := stateConf.WaitForStateContext(ctx)
-	if stateErr != nil {
-		return diag.Errorf("error waiting for SFS Turbo (%s) to become ready: %s ", d.Id(), stateErr)
+	if err := waitingForTurboStatusReady(ctx, client, d, d.Timeout(schema.TimeoutCreate)); err != nil {
+		return diag.Errorf("error waiting for SFS Turbo (%s) to become ready: %s", d.Id(), err)
 	}
 
 	// add tags
-	if err := utils.CreateResourceTags(sfsClient, d, "sfs-turbo", d.Id()); err != nil {
+	if err := utils.CreateResourceTags(client, d, "sfs-turbo", d.Id()); err != nil {
 		return diag.Errorf("error setting tags of SFS Turbo %s: %s", d.Id(), err)
 	}
 
 	return resourceSFSTurboRead(ctx, d, meta)
 }
 
-func flattenSize(n *shares.Turbo) interface{} {
-	// n.Size is a string of float64, should convert it to int
-	if fsize, err := strconv.ParseFloat(n.Size, 64); err == nil {
+func flattenSizeAttribute(size string) interface{} {
+	// size is a string of float64, should convert it to int
+	if fsize, err := strconv.ParseFloat(size, 64); err == nil {
 		return int(fsize)
 	}
 
 	return nil
 }
 
-func flattenStatus(n *shares.Turbo) interface{} {
-	if n.SubStatus != "" {
-		return n.SubStatus
+func flattenStatusAttribute(respBody interface{}) interface{} {
+	if subStatus := utils.PathSearch("sub_status", respBody, nil); subStatus != nil {
+		return subStatus
 	}
 
-	return n.Status
+	return utils.PathSearch("status", respBody, nil)
 }
 
 func resourceSFSTurboRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	sfsClient, err := cfg.SfsV1Client(region)
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		product = "sfs-turbo"
+	)
+
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating SFS v1 client: %s", err)
+		return diag.Errorf("error creating SFS Turbo client: %s", err)
 	}
 
-	n, err := shares.Get(sfsClient, d.Id()).Extract()
+	respBody, err := GetTurboDetail(client, d.Id())
 	if err != nil {
-		if hasSpecifyErrorCode403(err, "SFS.TURBO.9000") {
-			err = golangsdk.ErrDefault404{}
-		}
-		return common.CheckDeletedDiag(d, err, "SFS Turbo")
+		return common.CheckDeletedDiag(
+			d,
+			common.ConvertExpected403ErrInto404Err(err, "errCode", "SFS.TURBO.9000"),
+			"error retrieving SFS Turbo")
 	}
 
 	mErr := multierror.Append(
-		nil,
-		d.Set("name", n.Name),
-		d.Set("share_proto", n.ShareProto),
-		d.Set("vpc_id", n.VpcID),
-		d.Set("subnet_id", n.SubnetID),
-		d.Set("security_group_id", n.SecurityGroupID),
-		d.Set("version", n.Version),
 		d.Set("region", region),
-		d.Set("availability_zone", n.AvailabilityZone),
-		d.Set("available_capacity", n.AvailCapacity),
-		d.Set("export_location", n.ExportLocation),
-		d.Set("crypt_key_id", n.CryptKeyID),
-		d.Set("enterprise_project_id", n.EnterpriseProjectId),
-		d.Set("backup_id", n.BackupId),
-		d.Set("size", flattenSize(n)),
-		d.Set("status", flattenStatus(n)),
+		d.Set("name", utils.PathSearch("name", respBody, nil)),
+		d.Set("share_proto", utils.PathSearch("share_proto", respBody, nil)),
+		d.Set("vpc_id", utils.PathSearch("vpc_id", respBody, nil)),
+		d.Set("subnet_id", utils.PathSearch("subnet_id", respBody, nil)),
+		d.Set("security_group_id", utils.PathSearch("security_group_id", respBody, nil)),
+		d.Set("version", utils.PathSearch("version", respBody, nil)),
+		d.Set("availability_zone", utils.PathSearch("availability_zone", respBody, nil)),
+		d.Set("available_capacity", utils.PathSearch("avail_capacity", respBody, nil)),
+		d.Set("export_location", utils.PathSearch("export_location", respBody, nil)),
+		d.Set("crypt_key_id", utils.PathSearch("crypt_key_id", respBody, nil)),
+		d.Set("enterprise_project_id", utils.PathSearch("enterprise_project_id", respBody, nil)),
+		d.Set("backup_id", utils.PathSearch("backup_id", respBody, nil)),
+		d.Set("size", flattenSizeAttribute(utils.PathSearch("size", respBody, "").(string))),
+		d.Set("status", flattenStatusAttribute(respBody)),
 	)
 
-	// Cannot obtain the billing parameters for pre-paid.
-
+	expandType := utils.PathSearch("expand_type", respBody, "").(string)
 	// `HPC` and `HPC_CACHE` are custom types. `STANDARD` and `PERFORMANCE` are system types.
-	switch n.ExpandType {
+	switch expandType {
 	case "hpc":
 		mErr = multierror.Append(
 			mErr,
 			d.Set("share_type", shareTypeHpc),
-			d.Set("hpc_bandwidth", n.HpcBw),
+			d.Set("hpc_bandwidth", utils.PathSearch("hpc_bw", respBody, nil)),
 		)
 	case "hpc_cache":
 		mErr = multierror.Append(
 			mErr,
 			d.Set("share_type", shareTypeHpcCache),
-			d.Set("hpc_cache_bandwidth", n.HpcBw),
+			d.Set("hpc_cache_bandwidth", utils.PathSearch("hpc_bw", respBody, nil)),
 		)
 	default:
-		mErr = multierror.Append(mErr, d.Set("share_type", n.ShareType))
-		if n.ExpandType == "bandwidth" {
+		mErr = multierror.Append(mErr, d.Set("share_type", utils.PathSearch("share_type", respBody, nil)))
+		if expandType == "bandwidth" {
 			mErr = multierror.Append(mErr, d.Set("enhanced", true))
 		} else {
 			mErr = multierror.Append(mErr, d.Set("enhanced", false))
@@ -422,26 +487,11 @@ func resourceSFSTurboRead(_ context.Context, d *schema.ResourceData, meta interf
 	}
 
 	// set tags
-	err = utils.SetResourceTagsToState(d, sfsClient, "sfs-turbo", d.Id())
+	err = utils.SetResourceTagsToState(d, client, "sfs-turbo", d.Id())
 	if err != nil {
 		return diag.FromErr(err)
 	}
 	return diag.FromErr(mErr.ErrorOrNil())
-}
-
-func buildTurboUpdateOpts(newSize, hpcCacheBandwidth int, isPrePaid bool) shares.ExpandOpts {
-	expandOpts := shares.ExtendOpts{
-		NewSize:      newSize,
-		NewBandwidth: hpcCacheBandwidth,
-	}
-	if isPrePaid {
-		expandOpts.BssParam = &shares.BssParamExtend{
-			IsAutoPay: utils.Int(1),
-		}
-	}
-	return shares.ExpandOpts{
-		Extend: expandOpts,
-	}
 }
 
 func convertHpcCacheBandwidth(d *schema.ResourceData) (int, error) {
@@ -461,15 +511,74 @@ func convertHpcCacheBandwidth(d *schema.ResourceData) (int, error) {
 	return 0, nil
 }
 
-func resourceSFSTurboUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	sfsClient, err := cfg.SfsV1Client(region)
-	if err != nil {
-		return diag.Errorf("error creating SFS v1 client: %s", err)
+func buildTurboExtendOpts(newSize, hpcCacheBandwidth int, isPrePaid bool) map[string]interface{} {
+	extendMap := map[string]interface{}{
+		"new_size":      newSize,
+		"new_bandwidth": hpcCacheBandwidth,
 	}
 
-	resourceId := d.Id()
+	if isPrePaid {
+		extendMap["bss_param"] = map[string]interface{}{
+			"is_auto_pay": 1,
+		}
+	}
+
+	return map[string]interface{}{
+		"extend": extendMap,
+	}
+}
+
+func waitingForTurboSubStatusReady(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
+	timeout time.Duration) error {
+	stateConf := &resource.StateChangeConf{
+		Pending: []string{"PENDING"},
+		Target:  []string{"COMPLETED"},
+		Refresh: func() (interface{}, string, error) {
+			respBody, err := GetTurboDetail(client, d.Id())
+			if err != nil {
+				return nil, "ERROR", err
+			}
+
+			subStatus := utils.PathSearch("sub_status", respBody, "").(string)
+			if subStatus == "" {
+				return nil, "ERROR", errors.New("sub_status is not found in SFS Turbo detail API response")
+			}
+
+			// '321' indicate expansion failed
+			// '332' indicate changing security group failed
+			if utils.StrSliceContains([]string{"321", "332"}, subStatus) {
+				return respBody, "ERROR", fmt.Errorf("unexpected sub_status: '%s'", subStatus)
+			}
+
+			// '221' indicate expansion succeeded
+			// '232' indicate changing security group succeeded
+			if utils.StrSliceContains([]string{"221", "232"}, subStatus) {
+				return respBody, "COMPLETED", nil
+			}
+
+			return respBody, "PENDING", nil
+		},
+		Timeout:      timeout,
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+
+	_, err := stateConf.WaitForStateContext(ctx)
+	return err
+}
+
+func resourceSFSTurboUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		product = "sfs-turbo"
+	)
+
+	client, err := cfg.NewServiceClient(product, region)
+	if err != nil {
+		return diag.Errorf("error creating SFS Turbo client: %s", err)
+	}
+
 	if d.HasChanges("size", "hpc_cache_bandwidth") {
 		old, newSize := d.GetChange("size")
 		if old.(int) > newSize.(int) {
@@ -486,14 +595,25 @@ func resourceSFSTurboUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		}
 
 		isPrePaid := d.Get("charging_mode").(string) == "prePaid"
-		updateOpts := buildTurboUpdateOpts(newSize.(int), hpcCacheBandwidth, isPrePaid)
-		resp, err := shares.Expand(sfsClient, d.Id(), updateOpts).Extract()
+		requestPath := client.Endpoint + "v1/{project_id}/sfs-turbo/shares/{id}/action"
+		requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+		requestPath = strings.ReplaceAll(requestPath, "{id}", d.Id())
+		requestOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			JSONBody:         buildTurboExtendOpts(newSize.(int), hpcCacheBandwidth, isPrePaid),
+		}
+		resp, err := client.Request("POST", requestPath, &requestOpt)
 		if err != nil {
 			return diag.Errorf("error expanding SFS Turbo size: %s", err)
 		}
 
+		respBody, err := utils.FlattenResponse(resp)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+
 		if isPrePaid {
-			orderId := resp.OrderId
+			orderId := utils.PathSearch("orderId", respBody, "").(string)
 			if orderId == "" {
 				return diag.Errorf("unable to find the order ID, this is a COM (Cloud Order Management) error, " +
 					"please contact service for help and check your order status on the console.")
@@ -511,24 +631,16 @@ func resourceSFSTurboUpdate(ctx context.Context, d *schema.ResourceData, meta in
 				return diag.FromErr(err)
 			}
 		}
-		stateConf := &resource.StateChangeConf{
-			Pending:      []string{"PENDING"},
-			Target:       []string{"COMPLETED"},
-			Refresh:      waitForSFSTurboSubStatus(sfsClient, resourceId),
-			Timeout:      d.Timeout(schema.TimeoutUpdate),
-			Delay:        10 * time.Second,
-			PollInterval: 10 * time.Second,
-		}
-		_, err = stateConf.WaitForStateContext(ctx)
-		if err != nil {
-			return diag.Errorf("error updating SFS Turbo: %s", err)
+
+		if err := waitingForTurboSubStatusReady(ctx, client, d, d.Timeout(schema.TimeoutUpdate)); err != nil {
+			return diag.Errorf("error waiting for SFS Turbo sub_status to be ready: %s", err)
 		}
 	}
 
 	// update tags
 	if d.HasChange("tags") {
-		if err := updateSFSTurboTags(sfsClient, d); err != nil {
-			return diag.Errorf("error updating tags of SFS Turbo %s: %s", resourceId, err)
+		if err := updateSFSTurboTags(client, d); err != nil {
+			return diag.Errorf("error updating tags of SFS Turbo %s: %s", d.Id(), err)
 		}
 	}
 
@@ -537,40 +649,49 @@ func resourceSFSTurboUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		if err != nil {
 			return diag.Errorf("error creating BSS V2 client: %s", err)
 		}
-		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), resourceId); err != nil {
-			return diag.Errorf("error updating the auto-renew of the SFS Turbo (%s): %s", resourceId, err)
+		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), d.Id()); err != nil {
+			return diag.Errorf("error updating the auto-renew of the SFS Turbo (%s): %s", d.Id(), err)
 		}
 	}
 
 	if d.HasChange("name") {
-		updateNameOpts := shares.UpdateNameOpts{
-			Name: d.Get("name").(string),
+		requestPath := client.Endpoint + "v1/{project_id}/sfs-turbo/shares/{id}/action"
+		requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+		requestPath = strings.ReplaceAll(requestPath, "{id}", d.Id())
+		requestOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			OkCodes:          []int{200, 201, 202, 204},
+			JSONBody: map[string]interface{}{
+				"change_name": map[string]interface{}{
+					"name": d.Get("name"),
+				},
+			},
 		}
-		err = shares.UpdateName(sfsClient, d.Id(), updateNameOpts).Err
+		_, err := client.Request("POST", requestPath, &requestOpt)
 		if err != nil {
 			return diag.Errorf("error updating name of SFS Turbo: %s", err)
 		}
 	}
 
 	if d.HasChange("security_group_id") {
-		updateSecurityGroupIdOpts := shares.UpdateSecurityGroupIdOpts{
-			SecurityGroupId: d.Get("security_group_id").(string),
+		requestPath := client.Endpoint + "v1/{project_id}/sfs-turbo/shares/{id}/action"
+		requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+		requestPath = strings.ReplaceAll(requestPath, "{id}", d.Id())
+		requestOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			JSONBody: map[string]interface{}{
+				"change_security_group": map[string]interface{}{
+					"security_group_id": d.Get("security_group_id"),
+				},
+			},
 		}
-		err = shares.UpdateSecurityGroupId(sfsClient, d.Id(), updateSecurityGroupIdOpts).Err
+		_, err := client.Request("POST", requestPath, &requestOpt)
 		if err != nil {
-			return diag.Errorf("error updating security group ID of SFS Turbo: %s", err)
+			return diag.Errorf("error updating security group of SFS Turbo: %s", err)
 		}
-		stateConf := &resource.StateChangeConf{
-			Pending:      []string{"PENDING"},
-			Target:       []string{"COMPLETED"},
-			Refresh:      waitForSFSTurboSubStatus(sfsClient, resourceId),
-			Timeout:      d.Timeout(schema.TimeoutUpdate),
-			Delay:        10 * time.Second,
-			PollInterval: 10 * time.Second,
-		}
-		_, err = stateConf.WaitForStateContext(ctx)
-		if err != nil {
-			return diag.Errorf("error updating SFS Turbo: %s", err)
+
+		if err := waitingForTurboSubStatusReady(ctx, client, d, d.Timeout(schema.TimeoutUpdate)); err != nil {
+			return diag.Errorf("error waiting for SFS Turbo sub_status to be ready: %s", err)
 		}
 	}
 
@@ -599,141 +720,64 @@ func getOldTagKeys(d *schema.ResourceData) []string {
 	return tagKeys
 }
 
-func resourceSFSTurboDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	sfsClient, err := cfg.SfsV1Client(cfg.GetRegion(d))
-	if err != nil {
-		return diag.Errorf("error creating SFS v1 client: %s", err)
-	}
-
-	resourceId := d.Id()
-	// for prePaid mode, we should unsubscribe the resource
-	if d.Get("charging_mode").(string) == "prePaid" {
-		err := common.UnsubscribePrePaidResource(d, cfg, []string{resourceId})
-		if err != nil {
-			return diag.Errorf("error unsubscribing SFS Turbo: %s", err)
-		}
-	} else {
-		err = shares.Delete(sfsClient, resourceId).ExtractErr()
-		if err != nil {
-			if hasSpecifyErrorCode403(err, "SFS.TURBO.9000") || hasSpecifyErrorCode400(err, "SFS.TURBO.0002") {
-				err = golangsdk.ErrDefault404{}
-			}
-			return common.CheckDeletedDiag(d, err, "SFS Turbo")
-		}
-	}
-
+func waitingForTurboSubStatusDeleted(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
+	timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"PENDING"},
-		Target:       []string{"DELETED"},
-		Refresh:      deleteWaitForSFSTurboStatus(sfsClient, resourceId),
-		Timeout:      d.Timeout(schema.TimeoutDelete),
+		Pending: []string{"PENDING"},
+		Target:  []string{"COMPLETED"},
+		Refresh: func() (interface{}, string, error) {
+			respBody, err := GetTurboDetail(client, d.Id())
+			if err != nil {
+				if _, ok := err.(golangsdk.ErrDefault404); ok {
+					return "Resource Not Found", "COMPLETED", nil
+				}
+				return nil, "ERROR", err
+			}
+
+			return respBody, "PENDING", nil
+		},
+		Timeout:      timeout,
 		Delay:        10 * time.Second,
 		PollInterval: 10 * time.Second,
 	}
 
-	_, err = stateConf.WaitForStateContext(ctx)
+	_, err := stateConf.WaitForStateContext(ctx)
+	return err
+}
+
+func resourceSFSTurboDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		product = "sfs-turbo"
+	)
+
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error deleting SFS Turbo: %s", err)
+		return diag.Errorf("error creating SFS Turbo client: %s", err)
+	}
+
+	// for prePaid mode, we should unsubscribe the resource
+	if d.Get("charging_mode").(string) == "prePaid" {
+		err := common.UnsubscribePrePaidResource(d, cfg, []string{d.Id()})
+		if err != nil {
+			return diag.Errorf("error unsubscribing SFS Turbo: %s", err)
+		}
+	} else {
+		requestPath := client.Endpoint + "v1/{project_id}/sfs-turbo/shares/{id}"
+		requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+		requestPath = strings.ReplaceAll(requestPath, "{id}", d.Id())
+		requestOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+		}
+		_, err := client.Request("DELETE", requestPath, &requestOpt)
+		if err != nil {
+			return diag.Errorf("error deleting SFS Turbo: %s", err)
+		}
+	}
+
+	if err := waitingForTurboSubStatusDeleted(ctx, client, d, d.Timeout(schema.TimeoutDelete)); err != nil {
+		return diag.Errorf("error waiting for SFS Turbo to be deleted: %s", err)
 	}
 	return nil
-}
-
-func createWaitForSFSTurboStatus(sfsClient *golangsdk.ServiceClient, shareId string) resource.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		resp, err := shares.Get(sfsClient, shareId).Extract()
-		if err != nil {
-			return nil, "ERROR", err
-		}
-
-		if utils.StrSliceContains([]string{"303", "800"}, resp.Status) {
-			return resp, "ERROR", fmt.Errorf("unexpected status: '%s'", resp.Status)
-		}
-
-		if utils.StrSliceContains([]string{"200"}, resp.Status) {
-			return resp, "COMPLETED", nil
-		}
-
-		return resp, "PENDING", nil
-	}
-}
-
-func deleteWaitForSFSTurboStatus(sfsClient *golangsdk.ServiceClient, shareId string) resource.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		resp, err := shares.Get(sfsClient, shareId).Extract()
-		if err != nil {
-			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				return "Resource Not Found", "DELETED", nil
-			}
-			return nil, "ERROR", err
-		}
-
-		return resp, "PENDING", nil
-	}
-}
-
-func waitForSFSTurboSubStatus(sfsClient *golangsdk.ServiceClient, shareId string) resource.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		resp, err := shares.Get(sfsClient, shareId).Extract()
-		if err != nil {
-			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				return "Resource Not Found", "DELETED", nil
-			}
-			return nil, "ERROR", err
-		}
-
-		// '321' indicate expansion failed
-		// '332' indicate changing security group failed
-		if utils.StrSliceContains([]string{"321", "332"}, resp.SubStatus) {
-			return resp, "ERROR", fmt.Errorf("unexpected status: '%s'", resp.SubStatus)
-		}
-
-		// '221' indicate expansion succeeded
-		// '232' indicate changing security group succeeded
-		if utils.StrSliceContains([]string{"221", "232"}, resp.SubStatus) {
-			return resp, "COMPLETED", nil
-		}
-
-		return resp, "PENDING", nil
-	}
-}
-
-// When the SFS Turbo does not exist, the response body example of the details interface is as follows:
-// {"errCode":"SFS.TURBO.0002","errMsg":"cluster not found"}
-func hasSpecifyErrorCode400(err error, specCode string) bool {
-	if errCode, ok := err.(golangsdk.ErrDefault400); ok {
-		var response interface{}
-		if jsonErr := json.Unmarshal(errCode.Body, &response); jsonErr == nil {
-			errorCode, parseErr := jmespath.Search("errCode", response)
-			if parseErr != nil {
-				log.Printf("[WARN] failed to parse errCode from response body: %s", parseErr)
-			}
-
-			if errorCode == specCode {
-				return true
-			}
-		}
-	}
-
-	return false
-}
-
-// When the SFS Turbo does not exist, the response body example of the details interface is as follows:
-// {"errCode":"SFS.TURBO.9000","errMsg":"no privileges to operate"}
-func hasSpecifyErrorCode403(err error, specCode string) bool {
-	if errCode, ok := err.(golangsdk.ErrDefault403); ok {
-		var response interface{}
-		if jsonErr := json.Unmarshal(errCode.Body, &response); jsonErr == nil {
-			errorCode, parseErr := jmespath.Search("errCode", response)
-			if parseErr != nil {
-				log.Printf("[WARN] failed to parse errCode from response body: %s", parseErr)
-			}
-
-			if errorCode == specCode {
-				return true
-			}
-		}
-	}
-
-	return false
 }
