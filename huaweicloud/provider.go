@@ -1530,6 +1530,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_rds_instant_tasks":                     rds.DataSourceRdsInstantTasks(),
 			"huaweicloud_rds_schedule_tasks":                    rds.DataSourceRdsScheduleTasks(),
 
+			"huaweicloud_rgc_home_region": rgc.DataSourceHomeRegion(),
+
 			"huaweicloud_rms_policy_definitions":                           rms.DataSourcePolicyDefinitions(),
 			"huaweicloud_rms_assignment_package_templates":                 rms.DataSourceTemplates(),
 			"huaweicloud_rms_regions":                                      rms.DataSourceRmsRegions(),
