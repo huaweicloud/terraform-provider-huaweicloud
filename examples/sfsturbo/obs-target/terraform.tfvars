@@ -1,0 +1,6 @@
+vpc_name            = "tf_test_tareget"
+subnet_name         = "tf_test_target"
+security_group_name = "tf_test_target"
+target_bucket_name  = "tf-test-target"
+turbo_name          = "tf_test_target_demo"
+target_obs_endpoint = "obs.cn-north-4.myhuaweicloud.com"
