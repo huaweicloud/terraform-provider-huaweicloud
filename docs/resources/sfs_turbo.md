@@ -145,6 +145,12 @@ The following arguments are supported:
 * `dedicated_storage_id` - (Optional, String, ForceNew) Specifies the ID of the dedicated distributed storage used
   when creating a dedicated file system.
 
+* `auto_create_security_group_rules` - (Optional, String) Specifies whether to automatically create security
+  group rules. **true** means automatically create security group rules.
+  **false** means not automatically create security group rules. Defaults to **true**.
+  This field cannot be edited individually. Editing this field alone will not make any changes to the resource.
+  Editing this field will only take effect when the `security_group_id` field is changed.
+
 * `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the file system. Changing this
   will create a new resource.
 
@@ -210,7 +216,8 @@ $ terraform import huaweicloud_sfs_turbo.test <id>
 
 Note that the imported state may not be identical to your resource definition, due to payment attributes missing from
 the API response.
-The missing attributes include: `charging_mode`, `period_unit`, `period`, `auto_renew`.
+The missing attributes include: `charging_mode`, `period_unit`, `period`, `auto_renew`,
+`auto_create_security_group_rules`, `dedicated_flavor`, `dedicated_storage_id`.
 It is generally recommended running `terraform plan` after importing an instance.
 You can ignore changes as below.
 
@@ -221,6 +228,7 @@ resource "huaweicloud_sfs_turbo" "test" {
   lifecycle {
     ignore_changes = [
       charging_mode, period_unit, period, auto_renew,
+      auto_create_security_group_rules, dedicated_flavor, dedicated_storage_id,
     ]
   }
 }

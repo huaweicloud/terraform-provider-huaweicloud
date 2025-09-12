@@ -58,6 +58,7 @@ func TestAccSFSTurbo_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "status", "200"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(resourceName, "auto_create_security_group_rules", "false"),
 					resource.TestCheckResourceAttrPair(resourceName, "security_group_id",
 						"huaweicloud_networking_secgroup.test", "id"),
 				),
@@ -66,6 +67,9 @@ func TestAccSFSTurbo_basic(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"auto_create_security_group_rules",
+				},
 			},
 			{
 				Config: testAccSFSTurbo_update(rName),
@@ -75,6 +79,7 @@ func TestAccSFSTurbo_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "size", "600"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar_update"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value_update"),
+					resource.TestCheckResourceAttr(resourceName, "auto_create_security_group_rules", "true"),
 					resource.TestCheckResourceAttrPair(resourceName, "security_group_id",
 						"huaweicloud_networking_secgroup.test_update", "id"),
 					resource.TestCheckResourceAttr(resourceName, "status", "232"),
@@ -416,13 +421,14 @@ func testAccSFSTurbo_basic(rName string) string {
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_sfs_turbo" "test" {
-  name              = "%s"
-  size              = 500
-  share_proto       = "NFS"
-  vpc_id            = huaweicloud_vpc.test.id
-  subnet_id         = huaweicloud_vpc_subnet.test.id
-  security_group_id = huaweicloud_networking_secgroup.test.id
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  name                             = "%s"
+  size                             = 500
+  share_proto                      = "NFS"
+  vpc_id                           = huaweicloud_vpc.test.id
+  subnet_id                        = huaweicloud_vpc_subnet.test.id
+  security_group_id                = huaweicloud_networking_secgroup.test.id
+  auto_create_security_group_rules = "false"
+  availability_zone                = data.huaweicloud_availability_zones.test.names[0]
 
   tags = {
     foo = "bar"
@@ -444,13 +450,14 @@ resource "huaweicloud_networking_secgroup" "test_update" {
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_sfs_turbo" "test" {
-  name              = "%[2]s_update"
-  size              = 600
-  share_proto       = "NFS"
-  vpc_id            = huaweicloud_vpc.test.id
-  subnet_id         = huaweicloud_vpc_subnet.test.id
-  security_group_id = huaweicloud_networking_secgroup.test_update.id
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  name                             = "%[2]s_update"
+  size                             = 600
+  share_proto                      = "NFS"
+  vpc_id                           = huaweicloud_vpc.test.id
+  subnet_id                        = huaweicloud_vpc_subnet.test.id
+  security_group_id                = huaweicloud_networking_secgroup.test_update.id
+  auto_create_security_group_rules = "true"
+  availability_zone                = data.huaweicloud_availability_zones.test.names[0]
 
   tags = {
     foo = "bar_update"

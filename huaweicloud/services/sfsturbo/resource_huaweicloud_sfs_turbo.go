@@ -128,6 +128,11 @@ func ResourceSFSTurbo() *schema.Resource {
 				Computed:      true,
 				ConflictsWith: []string{"enhanced", "hpc_bandwidth"},
 			},
+			// Editing this field will only take effect when the `security_group_id` field is changed.
+			"auto_create_security_group_rules": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -211,9 +216,10 @@ func buildTurboShareTypeParam(d *schema.ResourceData) string {
 
 func buildTurboMetadataBodyParams(d *schema.ResourceData) map[string]interface{} {
 	rstMap := map[string]interface{}{
-		"crypt_key_id":         utils.ValueIgnoreEmpty(d.Get("crypt_key_id")),
-		"dedicated_flavor":     utils.ValueIgnoreEmpty(d.Get("dedicated_flavor")),
-		"dedicated_storage_id": utils.ValueIgnoreEmpty(d.Get("dedicated_storage_id")),
+		"crypt_key_id":                     utils.ValueIgnoreEmpty(d.Get("crypt_key_id")),
+		"dedicated_flavor":                 utils.ValueIgnoreEmpty(d.Get("dedicated_flavor")),
+		"dedicated_storage_id":             utils.ValueIgnoreEmpty(d.Get("dedicated_storage_id")),
+		"auto_create_security_group_rules": utils.ValueIgnoreEmpty(d.Get("auto_create_security_group_rules")),
 	}
 
 	switch d.Get("share_type").(string) {
@@ -677,13 +683,16 @@ func resourceSFSTurboUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		requestPath := client.Endpoint + "v1/{project_id}/sfs-turbo/shares/{id}/action"
 		requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
 		requestPath = strings.ReplaceAll(requestPath, "{id}", d.Id())
+		requestBody := map[string]interface{}{
+			"change_security_group": map[string]interface{}{
+				"security_group_id": d.Get("security_group_id"),
+			},
+			"auto_create_security_group_rules": utils.ValueIgnoreEmpty(d.Get("auto_create_security_group_rules")),
+		}
+
 		requestOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
-			JSONBody: map[string]interface{}{
-				"change_security_group": map[string]interface{}{
-					"security_group_id": d.Get("security_group_id"),
-				},
-			},
+			JSONBody:         utils.RemoveNil(requestBody),
 		}
 		_, err := client.Request("POST", requestPath, &requestOpt)
 		if err != nil {
