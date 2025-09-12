@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"strconv"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -175,7 +176,7 @@ func buildPluginAssociableApisQueryParams(d *schema.ResourceData) string {
 
 func listPluginAssociableApis(client *golangsdk.ServiceClient, d *schema.ResourceData) ([]interface{}, error) {
 	var (
-		httpUrl = "v2/{project_id}/apigw/instances/{instance_id}/plugins/{plugin_id}/attachable-apis?limit=100"
+		httpUrl = "v2/{project_id}/apigw/instances/{instance_id}/plugins/{plugin_id}/attachable-apis?limit={limit}"
 		limit   = 100
 		offset  = 0
 		result  = make([]interface{}, 0)
@@ -185,6 +186,7 @@ func listPluginAssociableApis(client *golangsdk.ServiceClient, d *schema.Resourc
 	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
 	listPath = strings.ReplaceAll(listPath, "{instance_id}", d.Get("instance_id").(string))
 	listPath = strings.ReplaceAll(listPath, "{plugin_id}", d.Get("plugin_id").(string))
+	listPath = strings.ReplaceAll(listPath, "{limit}", strconv.Itoa(limit))
 	listPath += buildPluginAssociableApisQueryParams(d)
 
 	opt := golangsdk.RequestOpts{
