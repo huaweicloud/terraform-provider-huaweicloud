@@ -14,6 +14,8 @@ Use this data source to filter CTS resources by tags within Huaweicloud.
 
 ```hcl
 data "huaweicloud_cts_resource_tags_filter" "test" {
+  resource_type = "cts-tracker"
+  
   tags {
     key    = "foo"
     values = ["bar", "bax"]

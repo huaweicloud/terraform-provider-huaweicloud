@@ -16,7 +16,8 @@ Use this data source to get resource tag list of CTS service within HuaweiCloud.
 variable "tracker_id" {}
 
 data "huaweicloud_cts_resource_tags" "test" {
-  resource_id = var.tracker_id
+  resource_type = "cts-tracker"
+  resource_id   = var.tracker_id
 }
 ```
 
