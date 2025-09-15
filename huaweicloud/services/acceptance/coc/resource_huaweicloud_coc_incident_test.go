@@ -35,7 +35,6 @@ func TestAccResourceIncident_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckCocApplicationID(t)
 			acceptance.TestAccPreCheckUserId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
@@ -76,16 +75,18 @@ func TestAccResourceIncident_basic(t *testing.T) {
 
 func testIncident_basic(name string) string {
 	return fmt.Sprintf(`
+%[1]s
+
 resource "huaweicloud_coc_incident" "test" {
   incident_level        = "level_50"
   is_service_interrupt  = false
   incident_type         = "inc_type_p_security_issues"
-  incident_title        = "%[1]s"
+  incident_title        = "%[2]s"
   incident_source       = "incident_source_forwarding"
-  creator               = "%[2]s"
-  incident_assignee     = ["%[2]s"]
+  creator               = "%[3]s"
+  incident_assignee     = ["%[3]s"]
   enterprise_project    = ["0"]
-  current_cloud_service = ["%[3]s"]
-  incident_description  = "%[1]s"
-}`, name, acceptance.HW_USER_ID, acceptance.HW_COC_APPLICATION_ID)
+  current_cloud_service = [huaweicloud_coc_application.test.id]
+  incident_description  = "%[2]s"
+}`, testAccApplication_basic(name), name, acceptance.HW_USER_ID)
 }
