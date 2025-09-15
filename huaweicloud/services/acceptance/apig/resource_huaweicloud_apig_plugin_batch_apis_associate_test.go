@@ -15,7 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getPluginAssociateFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getPluginBatchApisAssociateFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := cfg.ApigV2Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating APIG v2 client: %s", err)
@@ -26,15 +26,15 @@ func getPluginAssociateFunc(cfg *config.Config, state *terraform.ResourceState) 
 		utils.ParseStateAttributeToListWithSeparator(state.Primary.Attributes["api_ids_origin"], ","))
 }
 
-func TestAccPluginAssociate_basic(t *testing.T) {
+func TestAccPluginBatchApisAssociate_basic(t *testing.T) {
 	var (
 		obj interface{}
 
-		resourceNamePart1 = "huaweicloud_apig_plugin_associate.part1"
-		resourceNamePart2 = "huaweicloud_apig_plugin_associate.part2"
-		rcPart1           = acceptance.InitResourceCheck(resourceNamePart1, &obj, getPluginAssociateFunc)
-		rcPart2           = acceptance.InitResourceCheck(resourceNamePart2, &obj, getPluginAssociateFunc)
-		baseConfig        = testAccPluginAssociate_base()
+		resourceNamePart1 = "huaweicloud_apig_plugin_batch_apis_associate.part1"
+		resourceNamePart2 = "huaweicloud_apig_plugin_batch_apis_associate.part2"
+		rcPart1           = acceptance.InitResourceCheck(resourceNamePart1, &obj, getPluginBatchApisAssociateFunc)
+		rcPart2           = acceptance.InitResourceCheck(resourceNamePart2, &obj, getPluginBatchApisAssociateFunc)
+		baseConfig        = testAccPluginBatchApisAssociate_base()
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -50,7 +50,7 @@ func TestAccPluginAssociate_basic(t *testing.T) {
 		),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccPluginAssociate_basic_step1(baseConfig),
+				Config: testAccPluginBatchApisAssociate_basic_step1(baseConfig),
 				Check: resource.ComposeTestCheckFunc(
 					rcPart1.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceNamePart1, "api_ids.#", "2"),
@@ -61,7 +61,7 @@ func TestAccPluginAssociate_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccPluginAssociate_basic_step2(baseConfig),
+				Config: testAccPluginBatchApisAssociate_basic_step2(baseConfig),
 				Check: resource.ComposeTestCheckFunc(
 					rcPart1.CheckResourceExists(),
 					// After resources refreshed, the api_ids will be overridden as all APIs under the same
@@ -76,7 +76,7 @@ func TestAccPluginAssociate_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccPluginAssociate_basic_step3(baseConfig),
+				Config: testAccPluginBatchApisAssociate_basic_step3(baseConfig),
 				Check: resource.ComposeTestCheckFunc(
 					rcPart1.CheckResourceExists(),
 					// When multiple resources are used to manage the same function, api_ids will store the results
@@ -100,7 +100,7 @@ func TestAccPluginAssociate_basic(t *testing.T) {
 			{
 				// After resource part1 is imported, then api_ids will be overridden as all APIs under the same
 				// environment are bound.
-				Config: testAccPluginAssociate_basic_step3(baseConfig),
+				Config: testAccPluginBatchApisAssociate_basic_step3(baseConfig),
 				Check: resource.ComposeTestCheckFunc(
 					rcPart1.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceNamePart1, "api_ids.#", "3"),
@@ -114,7 +114,7 @@ func TestAccPluginAssociate_basic(t *testing.T) {
 	})
 }
 
-func testAccPluginAssociate_base() string {
+func testAccPluginBatchApisAssociate_base() string {
 	name := acceptance.RandomAccResourceName()
 
 	return fmt.Sprintf(`
@@ -227,11 +227,11 @@ resource "huaweicloud_apig_plugin" "test" {
 		acceptance.HW_APIG_DEDICATED_INSTANCE_ID)
 }
 
-func testAccPluginAssociate_basic_step1(baseConfig string) string {
+func testAccPluginBatchApisAssociate_basic_step1(baseConfig string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-resource "huaweicloud_apig_plugin_associate" "part1" {
+resource "huaweicloud_apig_plugin_batch_apis_associate" "part1" {
   depends_on = [huaweicloud_apig_api_publishment.test]
 
   instance_id = local.instance_id
@@ -240,7 +240,7 @@ resource "huaweicloud_apig_plugin_associate" "part1" {
   api_ids     = slice(huaweicloud_apig_api.test[*].id, 0, 2)
 }
 
-resource "huaweicloud_apig_plugin_associate" "part2" {
+resource "huaweicloud_apig_plugin_batch_apis_associate" "part2" {
   depends_on = [huaweicloud_apig_api_publishment.test]
 
   instance_id = local.instance_id
@@ -251,16 +251,16 @@ resource "huaweicloud_apig_plugin_associate" "part2" {
 `, baseConfig)
 }
 
-func testAccPluginAssociate_basic_step2(baseConfig string) string {
+func testAccPluginBatchApisAssociate_basic_step2(baseConfig string) string {
 	// Refresh the api_ids for all plugin associate resources.
-	return testAccPluginAssociate_basic_step1(baseConfig)
+	return testAccPluginBatchApisAssociate_basic_step1(baseConfig)
 }
 
-func testAccPluginAssociate_basic_step3(baseConfig string) string {
+func testAccPluginBatchApisAssociate_basic_step3(baseConfig string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-resource "huaweicloud_apig_plugin_associate" "part1" {
+resource "huaweicloud_apig_plugin_batch_apis_associate" "part1" {
   depends_on = [huaweicloud_apig_api_publishment.test]
 
   instance_id = local.instance_id
@@ -269,7 +269,7 @@ resource "huaweicloud_apig_plugin_associate" "part1" {
   api_ids     = slice(huaweicloud_apig_api.test[*].id, 0, 1)
 }
 
-resource "huaweicloud_apig_plugin_associate" "part2" {
+resource "huaweicloud_apig_plugin_batch_apis_associate" "part2" {
   depends_on = [huaweicloud_apig_api_publishment.test]
 
   instance_id = local.instance_id
