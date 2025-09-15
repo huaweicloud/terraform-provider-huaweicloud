@@ -2513,6 +2513,13 @@ func TestAccPreCheckUpdateCertificateContent(t *testing.T) {
 }
 
 // lintignore:AT003
+func TestAccPreCheckCertificateRootCA(t *testing.T) {
+	if HW_CERTIFICATE_ROOT_CA == "" {
+		t.Skip("HW_CERTIFICATE_ROOT_CA must be set for root CA validation")
+	}
+}
+
+// lintignore:AT003
 func TestAccPreCheckCertificateBase(t *testing.T) {
 	if HW_CERTIFICATE_CONTENT == "" || HW_CERTIFICATE_PRIVATE_KEY == "" {
 		t.Skip("HW_CERTIFICATE_CONTENT and HW_CERTIFICATE_PRIVATE_KEY must be set for simple acceptance tests of SSL " +
