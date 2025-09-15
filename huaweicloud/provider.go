@@ -810,6 +810,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_coc_diagnosis_task_summary":            coc.DataSourceCocDiagnosisTaskSummary(),
 			"huaweicloud_coc_diagnosis_task_node_detail":        coc.DataSourceCocDiagnosisTaskNodeDetail(),
 			"huaweicloud_coc_scheduled_tasks":                   coc.DataSourceCocScheduledTasks(),
+			"huaweicloud_coc_scheduled_task_histories":          coc.DataSourceCocScheduledTaskHistories(),
 
 			"huaweicloud_compute_flavors":                 ecs.DataSourceEcsFlavors(),
 			"huaweicloud_compute_instance":                ecs.DataSourceComputeInstance(),
