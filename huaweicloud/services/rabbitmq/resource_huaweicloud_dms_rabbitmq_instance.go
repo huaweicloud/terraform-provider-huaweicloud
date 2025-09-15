@@ -135,15 +135,22 @@ func ResourceDmsRabbitmqInstance() *schema.Resource {
 				Computed:     true,
 				RequiredWith: []string{"flavor_id"},
 			},
+			// The API return format is "HH:mm:ss" for `maintain_begin` and `maintain_end`.
 			"maintain_begin": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
+				DiffSuppressFunc: func(_, o, n string, _ *schema.ResourceData) bool {
+					return regexp.MustCompile(fmt.Sprintf("^%s", n)).MatchString(o)
+				},
 			},
 			"maintain_end": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
+				DiffSuppressFunc: func(_, o, n string, _ *schema.ResourceData) bool {
+					return regexp.MustCompile(fmt.Sprintf("^%s", n)).MatchString(o)
+				},
 			},
 			"ssl_enable": {
 				Type:     schema.TypeBool,

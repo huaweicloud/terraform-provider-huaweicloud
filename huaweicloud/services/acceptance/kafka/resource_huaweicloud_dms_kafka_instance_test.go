@@ -51,6 +51,8 @@ func TestAccKafkaInstance_prePaid(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
 					resource.TestCheckResourceAttr(resourceName, "charging_mode", "prePaid"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "10:00:00"),
 				),
 			},
 			{
@@ -62,6 +64,8 @@ func TestAccKafkaInstance_prePaid(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.key1", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform_update"),
 					resource.TestCheckResourceAttr(resourceName, "charging_mode", "prePaid"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "02:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "06:00:00"),
 				),
 			},
 			{
@@ -119,6 +123,8 @@ func TestAccKafkaInstance_newFormat(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "cross_vpc_accesses.2.advertised_ip", "192.168.0.53"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "log.retention.hours"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "48"),
+					resource.TestCheckResourceAttrSet(resourceName, "maintain_begin"),
+					resource.TestCheckResourceAttrSet(resourceName, "maintain_end"),
 				),
 			},
 			{
@@ -140,6 +146,8 @@ func TestAccKafkaInstance_newFormat(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "cross_vpc_accesses.3.advertised_ip", "192.168.0.63"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.name", "auto.create.groups.enable"),
 					resource.TestCheckResourceAttr(resourceName, "parameters.0.value", "false"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "10:00:00"),
 				),
 			},
 		},
@@ -306,6 +314,8 @@ resource "huaweicloud_dms_kafka_instance" "test" {
   password           = "Kafkatest@123"
   security_protocol  = "SASL_PLAINTEXT"
   enabled_mechanisms = ["SCRAM-SHA-512"]
+  maintain_begin     = "06:00:00"
+  maintain_end       = "10:00:00"
 
   cross_vpc_accesses {
     advertised_ip = "192.168.0.61"
@@ -360,6 +370,8 @@ resource "huaweicloud_dms_kafka_instance" "test" {
 
   manager_user     = "kafka-user"
   manager_password = "Kafkatest@123"
+  maintain_begin   = "06:00"
+  maintain_end     = "10:00"
 
   charging_mode = "prePaid"
   period_unit   = "month"
@@ -407,6 +419,8 @@ resource "huaweicloud_dms_kafka_instance" "test" {
 
   manager_user     = "kafka-user"
   manager_password = "Kafkatest@123"
+  maintain_begin   = "02:00"
+  maintain_end     = "06:00"
 
   charging_mode = "prePaid"
   period_unit   = "month"

@@ -47,6 +47,8 @@ func TestAccDmsRabbitmqInstances_newFormat_cluster(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "description", "rabbitmq test"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
+					resource.TestCheckResourceAttrSet(resourceName, "maintain_begin"),
+					resource.TestCheckResourceAttrSet(resourceName, "maintain_end"),
 					resource.TestMatchResourceAttr(resourceName, "created_at",
 						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
 				),
@@ -59,6 +61,8 @@ func TestAccDmsRabbitmqInstances_newFormat_cluster(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "description", "rabbitmq test update"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key1", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform_update"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "10:00:00"),
 				),
 			},
 			{
@@ -97,6 +101,8 @@ func TestAccDmsRabbitmqInstances_newFormat_single(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "description", "rabbitmq test"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "06:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "10:00:00"),
 				),
 			},
 			{
@@ -107,6 +113,8 @@ func TestAccDmsRabbitmqInstances_newFormat_single(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "description", "rabbitmq test update"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key1", "value"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform_update"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_begin", "02:00:00"),
+					resource.TestCheckResourceAttr(resourceName, "maintain_end", "06:00:00"),
 				),
 			},
 			{
@@ -396,7 +404,9 @@ resource "huaweicloud_dms_rabbitmq_instance" "test" {
   broker_num        = 5
   access_user       = "user"
   password          = "Rabbitmqtest@123"
-
+  maintain_begin    = "06:00:00"
+  maintain_end      = "10:00:00"
+  
   tags = {
     key1  = "value"
     owner = "terraform_update"
@@ -437,6 +447,8 @@ resource "huaweicloud_dms_rabbitmq_instance" "test" {
   access_user       = "user"
   password          = "Rabbitmqtest@123"
   broker_num        = 1
+  maintain_begin    = "06:00"
+  maintain_end      = "10:00"
 
   tags = {
     key   = "value"
@@ -479,6 +491,8 @@ resource "huaweicloud_dms_rabbitmq_instance" "test" {
   access_user       = "user"
   password          = "Rabbitmqtest@123"
   broker_num        = 1
+  maintain_begin    = "02:00"
+  maintain_end      = "06:00"
 
   tags = {
     key1  = "value"
