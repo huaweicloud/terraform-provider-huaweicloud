@@ -2057,6 +2057,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_apig_api":                            apig.ResourceApigAPIV2(),
 			"huaweicloud_apig_api_action":                     apig.ResourceApigApiAction(),
 			"huaweicloud_apig_api_batch_action":               apig.ResourceApigApiBatchAction(),
+			"huaweicloud_apig_api_batch_plugins_associate":    apig.ResourceApiBatchPluginsAssociate(),
 			"huaweicloud_apig_api_check":                      apig.ResourceApiCheck(),
 			"huaweicloud_apig_api_debug":                      apig.ResourceApigApiDebug(),
 			"huaweicloud_apig_api_publishment":                apig.ResourceApigApiPublishment(),
