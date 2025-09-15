@@ -1706,6 +1706,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_swr_domain_overviews":          swr.DataSourceSwrDomainOverviews(),
 			"huaweicloud_swr_domain_resource_reports":   swr.DataSourceSwrDomainReports(),
 
+			"huaweicloud_swr_enterprise_namespaces": swrenterprise.DataSourceSwrEnterpriseNamespaces(),
+
 			"huaweicloud_tms_resource_types":      tms.DataSourceResourceTypes(),
 			"huaweicloud_tms_resource_instances":  tms.DataSourceResourceInstances(),
 			"huaweicloud_tms_resource_tag_keys":   tms.DataSourceTmsTagKeys(),
@@ -3092,7 +3094,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_swr_image_auto_sync":          swr.ResourceSwrImageAutoSync(),
 			"huaweicloud_swr_temporary_login_command":  swr.ResourceSwrTemporaryLoginCommand(),
 
-			"huaweicloud_swr_enterprise_instance": swrenterprise.ResourceSwrEnterpriseInstance(),
+			"huaweicloud_swr_enterprise_instance":  swrenterprise.ResourceSwrEnterpriseInstance(),
+			"huaweicloud_swr_enterprise_namespace": swrenterprise.ResourceSwrEnterpriseNamespace(),
 
 			"huaweicloud_tms_resource_tags": tms.ResourceResourceTags(),
 			"huaweicloud_tms_tags":          tms.ResourceTmsTag(),
