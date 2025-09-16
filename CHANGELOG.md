@@ -1,5 +1,38 @@
 # CHANGELOG
 
+## 1.78.4 (September 16, 2025)
+
+* **New Resource Source:**
+  + `huaweicloud_apig_channel_member_group` [GH-7801]
+  + `huaweicloud_apig_plugin_batch_apis_associate` [GH-7870]
+  + `huaweicloud_coc_diagnosis_task_retry` [GH-7824]
+  + `huaweicloud_coc_public_script_execute` [GH-7741]
+  + `huaweicloud_identitycenter_application_instance` [GH-7827]
+  + `huaweicloud_secmaster_asset` [GH-7815]
+  + `huaweicloud_swr_enterprise_namespace` [GH-7867]
+  + `huaweicloud_vpn_gateway_job_delete` [GH-7720]
+  + `huaweicloud_vpn_p2c_gateway_job_delete` [GH-7858]
+  + `huaweicloud_vpn_p2c_gateway_upgrade` [GH-7858]
+
+* **New Data Source:**
+  + `huaweicloud_apig_api_associable_plugins` [GH-7838]
+  + `huaweicloud_apig_plugin_associable_apis` [GH-7811]
+  + `huaweicloud_coc_diagnosis_task_node_detail` [GH-7834]
+  + `huaweicloud_coc_diagnosis_task_summary` [GH-7832]
+  + `huaweicloud_coc_diagnosis_tasks` [GH-7828]
+  + `huaweicloud_coc_scheduled_tasks` [GH-7853]
+  + `huaweicloud_identitycenter_application_templates` [GH-7827]
+  + `huaweicloud_identitycenter_catalog_applications` [GH-7829]
+  + `huaweicloud_kms_key_regions` [GH-7810]
+  + `huaweicloud_nat_gateways_by_tags` [GH-7822]
+  + `huaweicloud_nat_private_gateways_by_tags` [GH-7822]
+  + `huaweicloud_rgc_home_region` [GH-7813]
+  + `huaweicloud_swr_enterprise_instances` [GH-7869]
+  + `huaweicloud_swr_enterprise_namespaces` [GH-7867]
+  + `huaweicloud_vpcep_tags` [GH-7833]
+  + `huaweicloud_vpn_gateway_jobs` [GH-7720]
+  + `huaweicloud_vpn_p2c_gateway_jobs` [GH-7858]
+
 ## 1.78.3 (September 11, 2025)
 
 * **New Resource:**
