@@ -97,7 +97,7 @@ func dataSourceGaussdbMysqlEngineVersionsRead(_ context.Context, d *schema.Resou
 	return nil
 }
 
-// @API GAUSSDB GET /v3/{project_id}/datastores/{database_name}
+// @API GaussDBforMySQL GET /v3/{project_id}/datastores/{database_name}
 func (w *MysqlEngineVersionsDSWrapper) ShowGaussMySqlEngineVersion() (*gjson.Result, error) {
 	client, err := w.NewClient(w.Config, "gaussdb")
 	if err != nil {

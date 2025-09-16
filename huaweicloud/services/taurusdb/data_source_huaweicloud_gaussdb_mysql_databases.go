@@ -128,7 +128,7 @@ func dataSourceGaussdbMysqlDatabasesRead(_ context.Context, d *schema.ResourceDa
 	return nil
 }
 
-// @API GAUSSDB GET /v3/{project_id}/instances/{instance_id}/databases
+// @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/databases
 func (w *MysqlDatabasesDSWrapper) ListGaussMySqlDatabase() (*gjson.Result, error) {
 	client, err := w.NewClient(w.Config, "gaussdb")
 	if err != nil {

@@ -16,7 +16,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API GaussDBforMySQL POST /v3/{project_id}/instance/{instance_id}/auditlog/download-link
+// @API GaussDBforMySQL GET /v3/{project_id}/instance/{instance_id}/auditlog/download-link
 func DataSourceGaussDBMysqlAuditLogDownloadLinks() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceGaussDBMysqlAuditLogDownloadLinksRead,
