@@ -31,7 +31,7 @@
               "coordinator_num": {
                 "type": "number",
                 "optional": true,
-                "default": 3
+                "computed": true
               },
               "db_user_name": {
                 "type": "string",
@@ -150,8 +150,8 @@
               "replica_num": {
                 "type": "number",
                 "optional": true,
-                "forcenew": true,
-                "default": 3
+                "computed": true,
+                "forcenew": true
               },
               "security_group_id": {
                 "type": "string",
@@ -162,7 +162,7 @@
               "sharding_num": {
                 "type": "number",
                 "optional": true,
-                "default": 3
+                "computed": true
               },
               "status": {
                 "type": "string",
@@ -188,8 +188,8 @@
               "time_zone": {
                 "type": "string",
                 "optional": true,
-                "forcenew": true,
-                "default": "UTC+08:00"
+                "computed": true,
+                "forcenew": true
               },
               "type": {
                 "type": "string",

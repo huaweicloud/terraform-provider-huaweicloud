@@ -1,0 +1,72 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_swr_enterprise_instances": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID of the instance.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instances": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "access_address": "string",
+                      "charge_mode": "string",
+                      "created_at": "string",
+                      "description": "string",
+                      "enterprise_project_id": "string",
+                      "expires_at": "string",
+                      "id": "string",
+                      "name": "string",
+                      "obs_bucket_name": "string",
+                      "spec": "string",
+                      "status": "string",
+                      "subnet_cidr": "string",
+                      "subnet_id": "string",
+                      "subnet_name": "string",
+                      "updated_at": "string",
+                      "user_def_obs": "bool",
+                      "version": "string",
+                      "vpc_cidr": "string",
+                      "vpc_id": "string",
+                      "vpc_name": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the instances.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the instance status.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "SWR",
+            "name": "Software Repository for Container",
+            "catalog": "Containers",
+            "name_cn": "容器镜像服务",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

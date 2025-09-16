@@ -1,0 +1,80 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_coc_diagnosis_task_node_detail": {
+          "block": {
+            "attributes": {
+              "code": {
+                "type": "string",
+                "description": "Specifies the diagnostic step code.",
+                "required": true
+              },
+              "diagnosis_record_id": {
+                "type": "string",
+                "description": "Indicates the primary key ID of the diagnosis step.",
+                "computed": true
+              },
+              "diagnostic_task_node_id": {
+                "type": "string",
+                "description": "Indicates the diagnostic task node ID.",
+                "computed": true
+              },
+              "end_time": {
+                "type": "string",
+                "description": "Indicates the end time of the diagnostic step.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the instance being diagnosed.",
+                "required": true
+              },
+              "message": {
+                "type": "string",
+                "description": "Indicates the diagnostic step execution logging is performed.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Indicates the diagnosis step name.",
+                "computed": true
+              },
+              "name_zh": {
+                "type": "string",
+                "description": "Indicates the Chinese name of the diagnostic step.",
+                "computed": true
+              },
+              "start_time": {
+                "type": "string",
+                "description": "Indicates the start time of the diagnostic step.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Indicates the execution status of the diagnostic task.",
+                "computed": true
+              },
+              "task_id": {
+                "type": "string",
+                "description": "Specifies the diagnostic work order ID.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "COC",
+            "name": "Cloud Operations Center",
+            "catalog": "Management & Governance",
+            "name_cn": "云运维中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

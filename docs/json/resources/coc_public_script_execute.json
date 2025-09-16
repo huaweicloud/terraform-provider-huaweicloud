@@ -1,0 +1,175 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_coc_public_script_execute": {
+          "block": {
+            "attributes": {
+              "creator": {
+                "type": "string",
+                "computed": true
+              },
+              "current_execute_batch_index": {
+                "type": "number",
+                "computed": true
+              },
+              "execute_costs": {
+                "type": "number",
+                "computed": true
+              },
+              "execute_user": {
+                "type": "string",
+                "required": true
+              },
+              "gmt_created": {
+                "type": "number",
+                "computed": true
+              },
+              "gmt_finished": {
+                "type": "number",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "script_name": {
+                "type": "string",
+                "computed": true
+              },
+              "script_uuid": {
+                "type": "string",
+                "required": true
+              },
+              "script_version_name": {
+                "type": "string",
+                "computed": true
+              },
+              "script_version_uuid": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "success_rate": {
+                "type": "number",
+                "required": true
+              },
+              "timeout": {
+                "type": "number",
+                "required": true
+              }
+            },
+            "block_types": {
+              "execute_batches": {
+                "block": {
+                  "attributes": {
+                    "batch_index": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "rotation_strategy": {
+                      "type": "string",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "target_instances": {
+                      "block": {
+                        "attributes": {
+                          "cloud_service_name": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "region_id": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "resource_id": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "type": {
+                            "type": "string",
+                            "optional": true
+                          }
+                        },
+                        "block_types": {
+                          "custom_attributes": {
+                            "block": {
+                              "attributes": {
+                                "key": {
+                                  "type": "string",
+                                  "required": true
+                                },
+                                "value": {
+                                  "type": "string",
+                                  "required": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "list"
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "min_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              },
+              "script_params": {
+                "block": {
+                  "attributes": {
+                    "param_name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "param_value": {
+                      "type": "string",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "param_refer": {
+                      "block": {
+                        "attributes": {
+                          "param_id": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "param_version": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "refer_type": {
+                            "type": "string",
+                            "required": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "COC",
+            "name": "Cloud Operations Center",
+            "catalog": "Management & Governance",
+            "name_cn": "云运维中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

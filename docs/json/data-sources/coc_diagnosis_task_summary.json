@@ -1,0 +1,63 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_coc_diagnosis_task_summary": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_summary": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "abnormal_item_num": "number",
+                      "instance_id": "string",
+                      "instance_name": "string",
+                      "normal_item_num": "number",
+                      "progress": "number",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of summary information about the diagnosed instance.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Indicates the region where the diagnosed instance is located.",
+                "computed": true
+              },
+              "start_time": {
+                "type": "number",
+                "description": "Indicates the start time.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Indicates the work order execution status.",
+                "computed": true
+              },
+              "task_id": {
+                "type": "string",
+                "description": "Specifies the diagnostic task ID.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "COC",
+            "name": "Cloud Operations Center",
+            "catalog": "Management & Governance",
+            "name_cn": "云运维中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

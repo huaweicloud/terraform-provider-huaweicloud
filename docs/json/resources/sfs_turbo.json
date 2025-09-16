@@ -5,6 +5,10 @@
         "huaweicloud_sfs_turbo": {
           "block": {
             "attributes": {
+              "auto_create_security_group_rules": {
+                "type": "string",
+                "optional": true
+              },
               "auto_renew": {
                 "type": "string",
                 "optional": true

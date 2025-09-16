@@ -2,7 +2,7 @@
   "provider_schemas": {
     "huaweicloud/huaweicloud": {
       "resource_schemas": {
-        "huaweicloud_apig_plugin_associate": {
+        "huaweicloud_apig_plugin_batch_apis_associate": {
           "block": {
             "attributes": {
               "api_ids": {

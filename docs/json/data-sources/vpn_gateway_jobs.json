@@ -1,0 +1,66 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_vpn_gateway_jobs": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "jobs": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "id": "string",
+                      "job_type": "string",
+                      "resource_id": "string",
+                      "status": "string",
+                      "sub_jobs": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "created_at": "string",
+                            "error_message": "string",
+                            "finished_at": "string",
+                            "id": "string",
+                            "job_type": "string",
+                            "status": "string"
+                          }
+                        ]
+                      ],
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the job list.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "resource_id": {
+                "type": "string",
+                "description": "Specifies the instance ID of a VPN gateway.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "VPN",
+            "name": "Virtual Private Network",
+            "catalog": "Networking",
+            "name_cn": "虚拟专用网络",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_apig_api_associable_plugins": {
+          "block": {
+            "attributes": {
+              "api_id": {
+                "type": "string",
+                "description": "The ID of the API to be queried.",
+                "required": true
+              },
+              "env_id": {
+                "type": "string",
+                "description": "The ID of the environment where the API is published.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the dedicated instance to which the API and the associable plugins belong.",
+                "required": true
+              },
+              "plugin_id": {
+                "type": "string",
+                "description": "The ID of the specified associable plugin to be queried.",
+                "optional": true
+              },
+              "plugin_name": {
+                "type": "string",
+                "description": "The name of the associable plugins to be queried.",
+                "optional": true
+              },
+              "plugin_type": {
+                "type": "string",
+                "description": "The type of the associable plugins to be queried.",
+                "optional": true
+              },
+              "plugins": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "content": "string",
+                      "create_time": "string",
+                      "description": "string",
+                      "id": "string",
+                      "name": "string",
+                      "scope": "string",
+                      "type": "string",
+                      "update_time": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of plugins that can be bound to the specified API.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the API and the associable plugins are located.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

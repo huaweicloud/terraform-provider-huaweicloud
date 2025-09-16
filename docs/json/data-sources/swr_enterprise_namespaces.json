@@ -1,0 +1,81 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_swr_enterprise_namespaces": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the enterprise instance ID.",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the namespace name.",
+                "optional": true
+              },
+              "namespaces": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "id": "number",
+                      "metadata": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "public": "string"
+                          }
+                        ]
+                      ],
+                      "name": "string",
+                      "repo_count": "number",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the namespaces.",
+                "computed": true
+              },
+              "order_column": {
+                "type": "string",
+                "description": "Specifies the order column.",
+                "optional": true
+              },
+              "order_type": {
+                "type": "string",
+                "description": "Specifies the order type.",
+                "optional": true
+              },
+              "public": {
+                "type": "string",
+                "description": "Specifies whether the namespace is public.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "SWR",
+            "name": "Software Repository for Container",
+            "catalog": "Containers",
+            "name_cn": "容器镜像服务",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}
