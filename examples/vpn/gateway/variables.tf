@@ -9,6 +9,12 @@ variable "access_key" {
   type        = string
 }
 
+variable "secret_key" {
+  description = "The secret key of the IAM user"
+  type        = string
+}
+
+# Variable definitions for VPN resources
 variable "vpn_gateway_flavor" {
   description = "The flavor of the VPN gateway"
   type        = string
