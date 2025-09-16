@@ -569,6 +569,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_apig_applications":                       apig.DataSourceApplications(),
 			"huaweicloud_apig_availability_zones":                 apig.DataSourceAvailabilityZones(),
 			"huaweicloud_apig_application_acl":                    apig.DataSourceApplicationAcl(),
+			"huaweicloud_apig_application_associated_quota":       apig.DataSourceApplicationAssociatedQuota(),
 			"huaweicloud_apig_application_quotas":                 apig.DataSourceApigApplicationQuotas(),
 			"huaweicloud_apig_channels":                           apig.DataSourceChannels(),
 			"huaweicloud_apig_custom_authorizers":                 apig.DataSourceCustomAuthorizers(),
