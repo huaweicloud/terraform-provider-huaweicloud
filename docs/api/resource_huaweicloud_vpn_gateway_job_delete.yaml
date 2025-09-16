@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_vpn_gateway_job_delete
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: VPN
+paths:
+    /v5/{project_id}/vpn-gateways/jobs/{job_id}:
+        DELETE:
+            tag: VPN

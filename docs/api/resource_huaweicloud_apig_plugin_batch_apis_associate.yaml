@@ -1,6 +1,6 @@
 info:
     version: ""
-    title: resource_huaweicloud_apig_plugin_associate
+    title: resource_huaweicloud_apig_plugin_batch_apis_associate
     description: ""
 schemes:
     - https

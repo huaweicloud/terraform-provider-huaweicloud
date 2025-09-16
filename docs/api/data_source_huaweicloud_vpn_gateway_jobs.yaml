@@ -1,6 +1,6 @@
 info:
     version: ""
-    title: resource_huaweicloud_vpn_gateway_upgrade
+    title: data_source_huaweicloud_vpn_gateway_jobs
     description: ""
 schemes:
     - https
@@ -8,9 +8,6 @@ host: huaweicloud.com
 tags:
     - name: VPN
 paths:
-    /v5/{project_id}/vpn-gateways/{vgw_id}/upgrade:
-        POST:
-            tag: VPN
     /v5/{project_id}/vpn-gateways/jobs:
         GET:
             tag: VPN

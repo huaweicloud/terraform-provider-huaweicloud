@@ -9,5 +9,5 @@ tags:
     - name: GaussDBforMySQL
 paths:
     /v3/{project_id}/instance/{instance_id}/auditlog/download-link:
-        POST:
+        GET:
             tag: GaussDBforMySQL
