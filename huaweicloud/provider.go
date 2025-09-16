@@ -1707,8 +1707,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_swr_domain_overviews":          swr.DataSourceSwrDomainOverviews(),
 			"huaweicloud_swr_domain_resource_reports":   swr.DataSourceSwrDomainReports(),
 
-			"huaweicloud_swr_enterprise_instances":  swrenterprise.DataSourceSwrEnterpriseInstances(),
-			"huaweicloud_swr_enterprise_namespaces": swrenterprise.DataSourceSwrEnterpriseNamespaces(),
+			"huaweicloud_swr_enterprise_instances":             swrenterprise.DataSourceSwrEnterpriseInstances(),
+			"huaweicloud_swr_enterprise_namespaces":            swrenterprise.DataSourceSwrEnterpriseNamespaces(),
+			"huaweicloud_swr_enterprise_long_term_credentials": swrenterprise.DataSourceSwrEnterpriseLongTermCredentials(),
 
 			"huaweicloud_tms_resource_types":      tms.DataSourceResourceTypes(),
 			"huaweicloud_tms_resource_instances":  tms.DataSourceResourceInstances(),
@@ -3097,8 +3098,10 @@ func Provider() *schema.Provider {
 			"huaweicloud_swr_image_auto_sync":          swr.ResourceSwrImageAutoSync(),
 			"huaweicloud_swr_temporary_login_command":  swr.ResourceSwrTemporaryLoginCommand(),
 
-			"huaweicloud_swr_enterprise_instance":  swrenterprise.ResourceSwrEnterpriseInstance(),
-			"huaweicloud_swr_enterprise_namespace": swrenterprise.ResourceSwrEnterpriseNamespace(),
+			"huaweicloud_swr_enterprise_instance":             swrenterprise.ResourceSwrEnterpriseInstance(),
+			"huaweicloud_swr_enterprise_namespace":            swrenterprise.ResourceSwrEnterpriseNamespace(),
+			"huaweicloud_swr_enterprise_long_term_credential": swrenterprise.ResourceSwrEnterpriseLongTermCredential(),
+			"huaweicloud_swr_enterprise_temporary_credential": swrenterprise.ResourceSwrEnterpriseTemporaryCredential(),
 
 			"huaweicloud_tms_resource_tags": tms.ResourceResourceTags(),
 			"huaweicloud_tms_tags":          tms.ResourceTmsTag(),
