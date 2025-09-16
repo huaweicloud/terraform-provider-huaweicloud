@@ -28,6 +28,9 @@ The following arguments are supported:
 
 * `name` - (Optional, String) Specifies the name of the account.
 
+* `with_register_contact_info` - (Optional, Bool) Whether to return email addresses and mobile
+  numbers associated with the account.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -53,3 +56,9 @@ The `accounts` block supports:
 * `join_method` - How the account joined an organization.
 
 * `joined_at` - The time when the account joined an organization.
+
+* `mobile_phone` - The mobile phone number.
+
+* `intl_number_prefix` - The prefix of a mobile phone number.
+
+* `email` - The email address associated with the account.
