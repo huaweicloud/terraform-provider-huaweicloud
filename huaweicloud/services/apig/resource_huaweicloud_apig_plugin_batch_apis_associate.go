@@ -18,21 +18,21 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-var strSliceParamKeysForPluginAssociate = []string{"api_ids"}
+var strSliceParamKeysForPluginBatchApisAssociate = []string{"api_ids"}
 
-// ResourcePluginAssociate defines the provider resource of the APIG plugin binding.
+// ResourcePluginBatchApisAssociate defines the provider resource of the APIG plugin binding.
 // @API APIG PUT /v2/{project_id}/apigw/instances/{instance_id}/plugins/{plugin_id}/detach
 // @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/plugins/{plugin_id}/attached-apis
 // @API APIG POST /v2/{project_id}/apigw/instances/{instance_id}/plugins/{plugin_id}/attach
-func ResourcePluginAssociate() *schema.Resource {
+func ResourcePluginBatchApisAssociate() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourcePluginAssociateCreate,
-		ReadContext:   resourcePluginAssociateRead,
-		UpdateContext: resourcePluginAssociateUpdate,
-		DeleteContext: resourcePluginAssociateDelete,
+		CreateContext: resourcePluginBatchApisAssociateCreate,
+		ReadContext:   resourcePluginBatchApisAssociateRead,
+		UpdateContext: resourcePluginBatchApisAssociateUpdate,
+		DeleteContext: resourcePluginBatchApisAssociateDelete,
 
 		Importer: &schema.ResourceImporter{
-			StateContext: resourcePluginAssociateImportState,
+			StateContext: resourcePluginBatchApisAssociateImportState,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -122,7 +122,7 @@ func bindPluginToApis(client *golangsdk.ServiceClient, instanceId, pluginId, env
 	return nil
 }
 
-func resourcePluginAssociateCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourcePluginBatchApisAssociateCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg    = meta.(*config.Config)
 		region = cfg.GetRegion(d)
@@ -153,13 +153,13 @@ func resourcePluginAssociateCreate(ctx context.Context, d *schema.ResourceData, 
 	// If the request is successful, obtain the values of all slice parameters first and save them to the corresponding
 	// '_origin' attributes for subsequent determination and construction of the request body during next updates.
 	// And whether corresponding parameters are changed, the origin values must be refreshed.
-	err = utils.RefreshSliceParamOriginValues(d, strSliceParamKeysForPluginAssociate)
+	err = utils.RefreshSliceParamOriginValues(d, strSliceParamKeysForPluginBatchApisAssociate)
 	if err != nil {
 		// Don't fail the creation if origin refresh fails
 		log.Printf("[WARN] Unable to refresh the origin values: %s", err)
 	}
 
-	return resourcePluginAssociateRead(ctx, d, meta)
+	return resourcePluginBatchApisAssociateRead(ctx, d, meta)
 }
 
 func listPluginBoundApisUnderEnv(client *golangsdk.ServiceClient, instanceId, pluginId, envId string) ([]interface{}, error) {
@@ -237,7 +237,7 @@ func GetLocalBoundApiIdsForPlugin(client *golangsdk.ServiceClient, instanceId, p
 	return boundApiIds, nil
 }
 
-func resourcePluginAssociateRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourcePluginBatchApisAssociateRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg    = meta.(*config.Config)
 		region = cfg.GetRegion(d)
@@ -336,7 +336,7 @@ func unbindPluginFromApis(client *golangsdk.ServiceClient, instanceId, pluginId,
 	return mErr.ErrorOrNil()
 }
 
-func resourcePluginAssociateUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourcePluginBatchApisAssociateUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
 	if err != nil {
@@ -383,16 +383,16 @@ func resourcePluginAssociateUpdate(ctx context.Context, d *schema.ResourceData, 
 	// If the request is successful, obtain the values of all slice parameters first and save them to the corresponding
 	// '_origin' attributes for subsequent determination and construction of the request body during next updates.
 	// And whether corresponding parameters are changed, the origin values must be refreshed.
-	err = utils.RefreshSliceParamOriginValues(d, strSliceParamKeysForPluginAssociate)
+	err = utils.RefreshSliceParamOriginValues(d, strSliceParamKeysForPluginBatchApisAssociate)
 	if err != nil {
 		// Don't fail the update if origin refresh fails
 		log.Printf("[WARN] Unable to refresh the origin values: %s", err)
 	}
 
-	return resourcePluginAssociateRead(ctx, d, meta)
+	return resourcePluginBatchApisAssociateRead(ctx, d, meta)
 }
 
-func resourcePluginAssociateDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourcePluginBatchApisAssociateDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
 	if err != nil {
@@ -420,7 +420,7 @@ func resourcePluginAssociateDelete(_ context.Context, d *schema.ResourceData, me
 	return nil
 }
 
-func resourcePluginAssociateImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData,
+func resourcePluginBatchApisAssociateImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData,
 	error) {
 	importedId := d.Id()
 	parts := strings.Split(importedId, "/")

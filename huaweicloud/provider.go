@@ -2084,7 +2084,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_apig_instance_routes":                apig.ResourceInstanceRoutes(),
 			"huaweicloud_apig_instance":                       apig.ResourceApigInstanceV2(),
 			"huaweicloud_apig_orchestration_rule":             apig.ResourceOrchestrationRule(),
-			"huaweicloud_apig_plugin_associate":               apig.ResourcePluginAssociate(),
+			"huaweicloud_apig_plugin_batch_apis_associate":    apig.ResourcePluginBatchApisAssociate(),
 			"huaweicloud_apig_plugin":                         apig.ResourcePlugin(),
 			"huaweicloud_apig_response":                       apig.ResourceApigResponseV2(),
 			"huaweicloud_apig_signature_associate":            apig.ResourceSignatureAssociate(),
@@ -3294,6 +3294,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_lts_struct_template": lts.ResourceLtsStruct(),
 
 			// Legacy
+			"huaweicloud_apig_plugin_associate": apig.ResourcePluginBatchApisAssociate(),
+
 			"huaweicloud_networking_eip_associate": eip.ResourceEIPAssociate(),
 			"huaweicloud_dds_instance_recovery":    dds.ResourceDDSInstanceRestore(),
 
