@@ -177,15 +177,24 @@ func ResourceDmsKafkaInstance() *schema.Resource {
 				},
 				Description: "schema: Internal",
 			},
+			// The API return format is "HH:mm:ss" for `maintain_begin` and `maintain_end`.
 			"maintain_begin": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
+				DiffSuppressFunc: func(_, o, n string, _ *schema.ResourceData) bool {
+					log.Printf("[DEBUG] maintain_begin DiffSuppressFunc: %s, %s", o, n)
+					log.Printf("[DEBUG] maintain_begin: %v", regexp.MustCompile(fmt.Sprintf("^%s", n)).MatchString(o))
+					return regexp.MustCompile(fmt.Sprintf("^%s", n)).MatchString(o)
+				},
 			},
 			"maintain_end": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
+				DiffSuppressFunc: func(_, o, n string, _ *schema.ResourceData) bool {
+					return regexp.MustCompile(fmt.Sprintf("^%s", n)).MatchString(o)
+				},
 			},
 			"public_ip_ids": {
 				Type:     schema.TypeSet,
