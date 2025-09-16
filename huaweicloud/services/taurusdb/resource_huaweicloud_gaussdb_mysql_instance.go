@@ -46,6 +46,7 @@ type ctxType string
 // @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/monitor-policy
 // @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/internal-ip
 // @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/port
+// @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/security-group
 // @API GaussDBforMySQL POST /v3/{project_id}/instances/{instance_id}/dns
 // @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/dns
 // @API GaussDBforMySQL PUT /v3/{project_id}/instances/{instance_id}/ssl-option

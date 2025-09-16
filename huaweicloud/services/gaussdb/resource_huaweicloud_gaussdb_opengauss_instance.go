@@ -166,18 +166,18 @@ func ResourceOpenGaussInstance() *schema.Resource {
 			"sharding_num": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				Default:  3,
+				Computed: true,
 			},
 			"coordinator_num": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				Default:  3,
+				Computed: true,
 			},
 			"replica_num": {
 				Type:     schema.TypeInt,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
-				Default:  3,
 			},
 			"security_group_id": {
 				Type:     schema.TypeString,
@@ -215,8 +215,8 @@ func ResourceOpenGaussInstance() *schema.Resource {
 			"time_zone": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
-				Default:  "UTC+08:00",
 			},
 			"datastore": {
 				Type:     schema.TypeList,
@@ -813,6 +813,7 @@ func resourceOpenGaussInstanceRead(ctx context.Context, d *schema.ResourceData, 
 		d.Set("maintenance_window", utils.PathSearch("maintenance_window", instance, nil)),
 		d.Set("public_ips", utils.PathSearch("public_ips", instance, nil)),
 		d.Set("charging_mode", utils.PathSearch("charge_info.charge_mode", instance, nil)),
+		d.Set("enterprise_project_id", utils.PathSearch("enterprise_project_id", instance, nil)),
 		d.Set("ha", flattenGaussDBOpenGaussResponseBodyHa(instance)),
 		d.Set("datastore", flattenGaussDBOpenGaussResponseBodyDatastore(instance)),
 		d.Set("backup_strategy", flattenGaussDBOpenGaussResponseBodyBackupStrategy(instance)),

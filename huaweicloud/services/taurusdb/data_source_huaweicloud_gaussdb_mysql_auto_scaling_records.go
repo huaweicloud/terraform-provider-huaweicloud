@@ -118,7 +118,7 @@ func dataSourceGaussdbMysqlAutoScalingRecordsRead(_ context.Context, d *schema.R
 	return nil
 }
 
-// @API GAUSSDB GET /v3/{project_id}/instances/{instance_id}/auto-scaling/history
+// @API GaussDBforMySQL GET /v3/{project_id}/instances/{instance_id}/auto-scaling/history
 func (w *MysqlAutoScalingRecordsDSWrapper) ShowAutoScalingHistory() (*gjson.Result, error) {
 	client, err := w.NewClient(w.Config, "gaussdb")
 	if err != nil {
