@@ -51,6 +51,7 @@ var (
 // @API ECS POST /v1/{project_id}/cloudservers/{server_id}/tags/action
 // @API ECS POST /v2.1/{project_id}/servers/{server_id}/action
 // @API ECS GET /v1/{project_id}/cloudservers/{server_id}
+// @API ECS GET /v1.1/{project_id}/cloudservers/detail
 // @API ECS GET /v1/{project_id}/cloudservers/{server_id}/block_device/{volume_id}
 // @API ECS GET /v1/{project_id}/jobs/{job_id}
 // @API ECS POST /v1/{project_id}/cloudservers/{server_id}/changevpc
