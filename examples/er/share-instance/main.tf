@@ -1,21 +1,3 @@
-# Share (owner).
-provider "huaweicloud" {
-  alias = "owner"
-
-  region     = var.region_name
-  access_key = var.owner_ak
-  secret_key = var.owner_sk
-}
-
-# Other account (principal).
-provider "huaweicloud" {
-  alias = "principal"
-
-  region     = var.region_name
-  access_key = var.principal_ak
-  secret_key = var.principal_sk
-}
-
 data "huaweicloud_er_availability_zones" "test" {
   provider = huaweicloud.owner
 }
@@ -26,13 +8,13 @@ resource "huaweicloud_er_instance" "test" {
 
   availability_zones = slice(data.huaweicloud_er_availability_zones.test.names, 0, 1)
 
-  name        = var.er_instance_name
-  asn         = "64512"
-  description = "Create an ER instace to share"
+  name        = var.instance_name
+  asn         = var.instance_asn
+  description = var.instance_description
 
-  enable_default_propagation     = true
-  enable_default_association     = true
-  auto_accept_shared_attachments = false
+  enable_default_propagation     = var.instance_enable_default_propagation
+  enable_default_association     = var.instance_enable_default_association
+  auto_accept_shared_attachments = var.instance_auto_accept_shared_attachments
 }
 
 data "huaweicloud_ram_resource_permissions" "test" {
@@ -82,17 +64,17 @@ resource "huaweicloud_ram_resource_share_accepter" "test" {
 resource "huaweicloud_vpc" "test" {
   provider = huaweicloud.principal
 
-  name = var.vpc_name
-  cidr = "192.168.0.0/16"
+  name = var.principal_vpc_name
+  cidr = var.principal_vpc_cidr
 }
 
 resource "huaweicloud_vpc_subnet" "test" {
   provider = huaweicloud.principal
 
   vpc_id     = huaweicloud_vpc.test.id
-  name       = var.subnet_name
-  cidr       = "192.168.0.0/24"
-  gateway_ip = "192.168.0.1"
+  name       = var.principal_subnet_name
+  cidr       = var.principal_subnet_cidr != "" ? var.principal_subnet_cidr : cidrsubnet(huaweicloud_vpc.test.cidr, 8, 0)
+  gateway_ip = var.principal_subnet_gateway_ip != "" ? var.principal_subnet_gateway_ip : cidrhost(cidrsubnet(huaweicloud_vpc.test.cidr, 8, 0), 1)
 }
 
 # Principal creates a VPC attachment.
@@ -115,4 +97,3 @@ resource "huaweicloud_er_attachment_accepter" "test" {
   attachment_id = huaweicloud_er_vpc_attachment.test.id
   action        = "accept"
 }
-
