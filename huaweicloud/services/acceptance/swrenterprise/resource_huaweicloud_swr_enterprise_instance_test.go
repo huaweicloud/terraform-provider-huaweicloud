@@ -108,6 +108,18 @@ resource "huaweicloud_swr_enterprise_instance" "test" {
   enterprise_project_id = "0"
   anonymous_access      = true
 
+  public_network_access_control_status = "Enable"
+
+  public_network_access_white_ip_list {
+    ip          = "192.168.1.0/24"
+    description = "test-cidr"
+  }
+
+  public_network_access_white_ip_list {
+    ip          = "192.168.1.2/32"
+    description = "test-ip"
+  }
+
   tags = {
     key = "value"
     foo = "bar"
@@ -129,6 +141,8 @@ resource "huaweicloud_swr_enterprise_instance" "test" {
   anonymous_access      = false
   delete_obs            = true
   delete_dns            = true
+
+  public_network_access_control_status = "Disable"
 
   tags = {
     key = "value1"

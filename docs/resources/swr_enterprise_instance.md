@@ -48,6 +48,14 @@ The following arguments are supported:
 
 * `anonymous_access` - (Optional, Bool) Specifies whether to enable anonymous access. Default to **false**.
 
+* `public_network_access_control_status` - (Optional, String) Specifies the public network access control status.
+  Options are **Disable** and **Enable**. Default to **Disable**.
+
+* `public_network_access_white_ip_list` - (Optional, List) Specifies the public network access white IP list.
+  The [public_network_access_white_ip_list](#block--public_network_access_white_ip_list) structure is documented below.
+
+  -> It can be updated only when `public_network_access_control_status` is **Enable**.
+
 * `delete_dns` - (Optional, Bool) Specifies whether to delete DNS resources when deleting instance. Default to **false**.
 
 * `delete_obs` - (Optional, Bool) Specifies whether to delete OBS bucket when deleting instance. Default to **false**.
@@ -61,6 +69,13 @@ The following arguments are supported:
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the instance.
 
 * `description` - (Optional, String, NonUpdatable) Specifies the description.
+
+<a name="block--public_network_access_white_ip_list"></a>
+The `public_network_access_white_ip_list` block supports:
+
+* `ip` - (Required, String) Specifies the IP address or CIDR block.
+
+* `description` - (Optional, String) Specifies the description.
 
 ## Attribute Reference
 
@@ -97,6 +112,7 @@ In addition to all arguments above, the following attributes are exported:
 This resource provides the following timeouts configuration options:
 
 * `create` - Default is 40 minutes.
+* `update` - Default is 20 minutes.
 
 ## Import
 
