@@ -903,7 +903,9 @@ func setOpenGaussNodesAndRelatedNumbers(d *schema.ResourceData, instance interfa
 	}
 
 	if shardingNum > 0 && coordinatorNum > 0 {
-		*dnNum = shardingNum / d.Get("replica_num").(int)
+		// the default value is 3 for the original
+		replicaNum := utils.PathSearch("replica_num", instance, float64(3)).(float64)
+		*dnNum = shardingNum / int(replicaNum)
 		mErr := multierror.Append(
 			d.Set("nodes", nodesList),
 			d.Set("sharding_num", dnNum),
