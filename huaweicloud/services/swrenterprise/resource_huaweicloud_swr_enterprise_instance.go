@@ -32,6 +32,9 @@ var enterpriseInstanceNonUpdatableParams = []string{
 // @API SWR GET /v2/{project_id}/instances/{instance_id}/configurations
 // @API SWR PUT /v2/{project_id}/instances/{instance_id}/configurations
 // @API SWR GET /v2/{project_id}/instances/{instance_id}/statistics
+// @API SWR POST /v2/{project_id}/instances/{instance_id}/endpoint-policy
+// @API SWR PUT /v2/{project_id}/instances/{instance_id}/endpoint-policy
+// @API SWR GET /v2/{project_id}/instances/{instance_id}/endpoint-policy
 // @API SWR POST /v2/{project_id}/{resource_type}/{resource_id}/tags/create
 // @API SWR DELETE /v2/{project_id}/{resource_type}/{resource_id}/tags/delete
 // @API SWR GET /v2/{project_id}/{resource_type}/{resource_id}/tags
@@ -48,6 +51,7 @@ func ResourceSwrEnterpriseInstance() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(40 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		CustomizeDiff: config.FlexibleForceNew(enterpriseInstanceNonUpdatableParams),
@@ -109,6 +113,32 @@ func ResourceSwrEnterpriseInstance() *schema.Resource {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Description: `Specifies whether to enable anonymous access.`,
+			},
+			"public_network_access_control_status": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringInSlice([]string{"Enable", "Disable"}, false),
+				Description:  `Specifies the public network access control status.`,
+			},
+			"public_network_access_white_ip_list": {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Description: `Specifies the public network access white IP list.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"ip": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `Specifies the IP address or CIDR block.`,
+						},
+						"description": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: `Specifies the description.`,
+						},
+					},
+				},
 			},
 			"tags": common.TagsSchema(`Specifies the key/value pairs to associate with the instance.`),
 			"delete_obs": {
@@ -240,6 +270,18 @@ func resourceSwrEnterpriseInstanceCreate(ctx context.Context, d *schema.Resource
 		}
 	}
 
+	if d.Get("public_network_access_control_status").(string) == "Enable" {
+		if err := updateSwrEnterpriseInstancePublicNetworkAccessControl(ctx, client, d); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if _, ok := d.GetOk("public_network_access_white_ip_list"); ok {
+		if err := updateSwrEnterpriseInstancePublicNetworkAccessWhiteIpList(client, d); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceSwrEnterpriseInstanceRead(ctx, d, meta)
 }
 
@@ -367,12 +409,22 @@ func resourceSwrEnterpriseInstanceRead(_ context.Context, d *schema.ResourceData
 		d.Set("subnet_cidr", utils.PathSearch("subnet_cidr", getRespBody, nil)),
 	)
 
-	configuration, err := getSwrEnterpriseInstanceConfiguration(client, d, client.ProjectID)
+	configuration, err := getSwrEnterpriseInstanceConfiguration(client, d)
 	if err != nil {
 		log.Printf("error retrieving SWR instance configuration: %s", err)
 	} else {
 		mErr = multierror.Append(mErr,
 			d.Set("anonymous_access", utils.PathSearch("anonymous_access", configuration, nil)),
+		)
+	}
+
+	publicAccessControl, err := getSwrEnterpriseInstancepPublicAccessControl(client, d)
+	if err != nil {
+		log.Printf("error retrieving SWR instance public access control infos: %s", err)
+	} else {
+		mErr = multierror.Append(mErr,
+			d.Set("public_network_access_control_status", utils.PathSearch("status", publicAccessControl, nil)),
+			d.Set("public_network_access_white_ip_list", flattenSwrEnterpriseInstancepPublicAccessControlIpList(publicAccessControl)),
 		)
 	}
 
@@ -383,11 +435,10 @@ func resourceSwrEnterpriseInstanceRead(_ context.Context, d *schema.ResourceData
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func getSwrEnterpriseInstanceConfiguration(client *golangsdk.ServiceClient, d *schema.ResourceData,
-	projectId string) (interface{}, error) {
+func getSwrEnterpriseInstanceConfiguration(client *golangsdk.ServiceClient, d *schema.ResourceData) (interface{}, error) {
 	httpUrl := "v2/{project_id}/instances/{instance_id}/configurations"
 	getPath := client.Endpoint + httpUrl
-	getPath = strings.ReplaceAll(getPath, "{project_id}", projectId)
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
 	getPath = strings.ReplaceAll(getPath, "{instance_id}", d.Id())
 	getOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -403,6 +454,23 @@ func getSwrEnterpriseInstanceConfiguration(client *golangsdk.ServiceClient, d *s
 	}
 
 	return getRespBody, nil
+}
+
+func flattenSwrEnterpriseInstancepPublicAccessControlIpList(resp interface{}) []interface{} {
+	if rawParams, ok := utils.PathSearch("ip_list", resp, make([]interface{}, 0)).([]interface{}); ok && len(rawParams) > 0 {
+		result := make([]interface{}, 0, len(rawParams))
+		for _, params := range rawParams {
+			m := map[string]interface{}{
+				"description": utils.PathSearch("description", params, nil),
+				"ip":          utils.PathSearch("ip", params, nil),
+			}
+			result = append(result, m)
+		}
+
+		return result
+	}
+
+	return nil
 }
 
 func resourceSwrEnterpriseInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -437,6 +505,29 @@ func resourceSwrEnterpriseInstanceUpdate(ctx context.Context, d *schema.Resource
 			if err != nil {
 				return diag.FromErr(err)
 			}
+		}
+	}
+
+	if d.HasChange("public_network_access_control_status") {
+		n := d.Get("public_network_access_control_status")
+		if d.HasChange("public_network_access_white_ip_list") && n == "Disable" {
+			if err := updateSwrEnterpriseInstancePublicNetworkAccessWhiteIpList(client, d); err != nil {
+				return diag.FromErr(err)
+			}
+		}
+
+		if err := updateSwrEnterpriseInstancePublicNetworkAccessControl(ctx, client, d); err != nil {
+			return diag.FromErr(err)
+		}
+
+		if d.HasChange("public_network_access_white_ip_list") && n == "Enable" {
+			if err := updateSwrEnterpriseInstancePublicNetworkAccessWhiteIpList(client, d); err != nil {
+				return diag.FromErr(err)
+			}
+		}
+	} else if d.HasChange("public_network_access_white_ip_list") {
+		if err := updateSwrEnterpriseInstancePublicNetworkAccessWhiteIpList(client, d); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
@@ -516,6 +607,117 @@ func updateSwrEnterpriseInstanceAnonymousAccess(client *golangsdk.ServiceClient,
 	}
 
 	return nil
+}
+
+func updateSwrEnterpriseInstancePublicNetworkAccessControl(ctx context.Context, client *golangsdk.ServiceClient,
+	d *schema.ResourceData) error {
+	updateHttpUrl := "v2/{project_id}/instances/{instance_id}/endpoint-policy"
+	updatePath := client.Endpoint + updateHttpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Id())
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"enable": d.Get("public_network_access_control_status").(string) == "Enable",
+		},
+	}
+
+	_, err := client.Request("POST", updatePath, &updateOpt)
+	if err != nil {
+		return fmt.Errorf("error updating SWR instance public network access control status: %s", err)
+	}
+
+	stateConf := &resource.StateChangeConf{
+		Pending: []string{"PENDING"},
+		Target:  []string{"SUCCESS"},
+		Refresh: func() (interface{}, string, error) {
+			publicAccessControl, err := getSwrEnterpriseInstancepPublicAccessControl(client, d)
+			if err != nil {
+				return nil, "ERROR", err
+			}
+
+			status := utils.PathSearch("status", publicAccessControl, "")
+			if status == d.Get("public_network_access_control_status").(string) {
+				return publicAccessControl, "SUCCESS", nil
+			}
+			if status == "EnableFailed" || status == "DisableFailed" {
+				return publicAccessControl, "FAILED", nil
+			}
+
+			return publicAccessControl, "PENDING", nil
+		},
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		Delay:        5 * time.Second,
+		PollInterval: 5 * time.Second,
+	}
+
+	_, err = stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return fmt.Errorf("error waiting for updating SWR instance network access control status to be completed: %s", err)
+	}
+
+	return nil
+}
+
+func getSwrEnterpriseInstancepPublicAccessControl(client *golangsdk.ServiceClient, d *schema.ResourceData) (interface{}, error) {
+	httpUrl := "v2/{project_id}/instances/{instance_id}/endpoint-policy"
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{instance_id}", d.Id())
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return nil, err
+	}
+
+	return getRespBody, nil
+}
+
+func updateSwrEnterpriseInstancePublicNetworkAccessWhiteIpList(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	updateHttpUrl := "v2/{project_id}/instances/{instance_id}/endpoint-policy"
+	updatePath := client.Endpoint + updateHttpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Id())
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"ip_list": buildSwrEnterpriseInstancePublicNetworkAccessWhiteIpList(d),
+		},
+	}
+
+	_, err := client.Request("PUT", updatePath, &updateOpt)
+	if err != nil {
+		return fmt.Errorf("error updating SWR instance public network access white IP list: %s", err)
+	}
+
+	return nil
+}
+
+func buildSwrEnterpriseInstancePublicNetworkAccessWhiteIpList(d *schema.ResourceData) interface{} {
+	rawParams := d.Get("public_network_access_white_ip_list").(*schema.Set).List()
+	if len(rawParams) == 0 {
+		return []map[string]interface{}{}
+	}
+
+	rst := make([]map[string]interface{}, 0, len(rawParams))
+	for _, p := range rawParams {
+		if params, ok := p.(map[string]interface{}); ok {
+			m := map[string]interface{}{
+				"ip":          params["ip"],
+				"description": utils.ValueIgnoreEmpty(params["description"]),
+			}
+			rst = append(rst, m)
+		}
+	}
+
+	return rst
 }
 
 func resourceSwrEnterpriseInstanceDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
