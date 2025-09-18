@@ -120,7 +120,7 @@ func resourceCloudServiceAccessRead(_ context.Context, d *schema.ResourceData, m
 	// get eps_id for import
 	epsID := cfg.GetEnterpriseProjectID(d)
 	if epsID == "" {
-		instance, err := getPromInstance(client, d.Get("instance_id").(string))
+		instance, err := GetPrometheusInstanceById(client, d.Get("instance_id").(string))
 		if err != nil {
 			return diag.FromErr(err)
 		}
