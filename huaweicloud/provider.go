@@ -1711,9 +1711,10 @@ func Provider() *schema.Provider {
 			"huaweicloud_swr_domain_overviews":          swr.DataSourceSwrDomainOverviews(),
 			"huaweicloud_swr_domain_resource_reports":   swr.DataSourceSwrDomainReports(),
 
-			"huaweicloud_swr_enterprise_instances":             swrenterprise.DataSourceSwrEnterpriseInstances(),
-			"huaweicloud_swr_enterprise_namespaces":            swrenterprise.DataSourceSwrEnterpriseNamespaces(),
-			"huaweicloud_swr_enterprise_long_term_credentials": swrenterprise.DataSourceSwrEnterpriseLongTermCredentials(),
+			"huaweicloud_swr_enterprise_instances":                       swrenterprise.DataSourceSwrEnterpriseInstances(),
+			"huaweicloud_swr_enterprise_namespaces":                      swrenterprise.DataSourceSwrEnterpriseNamespaces(),
+			"huaweicloud_swr_enterprise_long_term_credentials":           swrenterprise.DataSourceSwrEnterpriseLongTermCredentials(),
+			"huaweicloud_swr_enterprise_private_network_access_controls": swrenterprise.DataSourceSwrEnterprisePrivateNetworkAccessControls(),
 
 			"huaweicloud_tms_resource_types":      tms.DataSourceResourceTypes(),
 			"huaweicloud_tms_resource_instances":  tms.DataSourceResourceInstances(),
