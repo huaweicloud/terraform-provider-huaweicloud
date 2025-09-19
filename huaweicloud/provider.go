@@ -2316,6 +2316,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_coc_diagnosis_task_retry":          coc.ResourceDiagnosisTaskRetry(),
 			"huaweicloud_coc_scheduled_task":                coc.ResourceScheduledTask(),
 			"huaweicloud_coc_issue":                         coc.ResourceIssue(),
+			"huaweicloud_coc_ticket_add":                    coc.ResourceTicketAdd(),
 
 			"huaweicloud_cph_server":         cph.ResourceCphServer(),
 			"huaweicloud_cph_adb_command":    cph.ResourceAdbCommand(),
