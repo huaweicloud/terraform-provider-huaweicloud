@@ -203,12 +203,14 @@ func resourceMysqlDatabaseRead(_ context.Context, d *schema.ResourceData, meta i
 		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
 	}
 
+	characterSet := utils.PathSearch("character_set", database, "").(string)
+	characterSet = strings.TrimSuffix(characterSet, "mb3")
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),
 		d.Set("instance_id", instanceId),
 		d.Set("name", utils.PathSearch("name", database, nil)),
-		d.Set("character_set", utils.PathSearch("character_set", database, nil)),
+		d.Set("character_set", characterSet),
 		d.Set("description", utils.PathSearch("comment", database, nil)),
 	)
 
