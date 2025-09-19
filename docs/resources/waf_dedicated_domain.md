@@ -145,6 +145,11 @@ The following arguments are supported:
 * `protect_status` - (Optional, Int) Specifies the protection status of domain, `0`: suspended, `1`: enabled.
   Defaults to `0`.
 
+* `access_status` - (Optional, Int) Specifies whether a domain name is connected to WAF. Valid values are:
+  + `0` - The domain name is not connected to WAF.
+  + `1` - The domain name is connected to WAF.
+  + `2` - DNS resolution exception.
+
 * `tls` - (Optional, String) Specifies the minimum required TLS version. The valid values are: **TLS v1.0**,
   **TLS v1.1** and **TLS v1.2**.
 
@@ -333,10 +338,6 @@ The following attributes are exported:
 * `id` - ID of the domain.
 
 * `certificate_name` - The name of the certificate used by the domain name.
-
-* `access_status` - Whether a domain name is connected to WAF. Valid values are:
-  + `0` - The domain name is not connected to WAF,
-  + `1` - The domain name is connected to WAF.
 
 * `protocol` - The protocol type of the client. The options are `HTTP` and `HTTPS`.
 
