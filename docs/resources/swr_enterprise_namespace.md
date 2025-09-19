@@ -41,6 +41,8 @@ The following arguments are supported:
 * `metadata` - (Required, List) Specifies the metadata.
   The [metadata](#block--metadata) structure is documented below.
 
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the instance namespace.
+
 <a name="block--metadata"></a>
 The `metadata` block supports:
 
