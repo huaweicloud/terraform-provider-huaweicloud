@@ -144,6 +144,9 @@ The following arguments are supported:
 
   Default value is `0`.
 
+* `access_status` - (Optional, Int) Specifies whether a domain name is connected to WAF.  
+  `0`: The domain name is not connected to WAF, `1`: The domain name is connected to WAF, `2`: Skip access.
+
 * `pci_3ds` - (Optional, Bool) Specifies the status of the PCI 3DS compliance certification check.
   This parameter must be used together with `tls` and `cipher`.
 
@@ -276,9 +279,6 @@ The `traffic_mark` block supports:
 The following attributes are exported:
 
 * `id` - ID of the domain.
-
-* `access_status` - Whether a domain name is connected to WAF. 0: The domain name is not connected to WAF, 1: The domain
-  name is connected to WAF.
 
 * `access_code` - The CNAME prefix. The CNAME suffix is `.vip1.huaweicloudwaf.com`.
 
