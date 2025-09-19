@@ -3,10 +3,12 @@ package swrenterprise
 import (
 	"context"
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -25,6 +27,9 @@ var enterpriseNamespaceNonUpdatableParams = []string{
 // @API SWR GET /v2/{project_id}/instances/{instance_id}/namespaces/{namespace_name}
 // @API SWR PUT /v2/{project_id}/instances/{instance_id}/namespaces/{namespace_name}
 // @API SWR DELETE /v2/{project_id}/instances/{instance_id}/namespaces/{namespace_name}
+// @API SWR POST /v2/{project_id}/{resource_type}/{resource_id}/{sub_resource_type}/{sub_resource_id}/tags/create
+// @API SWR DELETE /v2/{project_id}/{resource_type}/{resource_id}/{sub_resource_type}/{sub_resource_id}/tags/delete
+// @API SWR GET /v2/{project_id}/{resource_type}/{resource_id}/{sub_resource_type}/{sub_resource_id}/tags
 func ResourceSwrEnterpriseNamespace() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceSwrEnterpriseNamespaceCreate,
@@ -36,7 +41,10 @@ func ResourceSwrEnterpriseNamespace() *schema.Resource {
 			StateContext: resourceSwrEnterpriseNamespaceImportStateFunc,
 		},
 
-		CustomizeDiff: config.FlexibleForceNew(enterpriseNamespaceNonUpdatableParams),
+		CustomizeDiff: customdiff.All(
+			config.FlexibleForceNew(enterpriseNamespaceNonUpdatableParams),
+			config.MergeDefaultTags(),
+		),
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -71,6 +79,7 @@ func ResourceSwrEnterpriseNamespace() *schema.Resource {
 					},
 				},
 			},
+			"tags": common.TagsSchema(`Specifies the key/value pairs to associate with the namespace.`),
 			"enable_force_new": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -124,6 +133,13 @@ func resourceSwrEnterpriseNamespaceCreate(ctx context.Context, d *schema.Resourc
 	}
 
 	d.SetId(d.Get("instance_id").(string) + "/" + d.Get("name").(string))
+
+	if v, ok := d.GetOk("tags"); ok {
+		err := addSwrEnterpriseInstanceNamespaceTags(client, d, v.(map[string]interface{}))
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
 
 	return resourceSwrEnterpriseNamespaceRead(ctx, d, meta)
 }
@@ -184,6 +200,14 @@ func resourceSwrEnterpriseNamespaceRead(_ context.Context, d *schema.ResourceDat
 		d.Set("updated_at", utils.PathSearch("updated_at", getRespBody, nil)),
 	)
 
+	if resourceTags, err := getSwrEnterpriseNamespaceTags(client, d); err == nil {
+		mErr = multierror.Append(mErr,
+			d.Set("tags", utils.FlattenTagsToMap(utils.PathSearch("tags", resourceTags, make([]interface{}, 0)))),
+		)
+	} else {
+		log.Printf("[WARN] error fetching tags of namespace: %s", err)
+	}
+
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
@@ -198,6 +222,30 @@ func flattenSwrEnterpriseNamespaceMetadata(resp interface{}) []interface{} {
 	}
 
 	return []interface{}{rst}
+}
+
+func getSwrEnterpriseNamespaceTags(client *golangsdk.ServiceClient, d *schema.ResourceData) (interface{}, error) {
+	httpUrl := "v2/{project_id}/{resource_type}/{resource_id}/{sub_resource_type}/{sub_resource_id}/tags"
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{resource_type}", "instances")
+	getPath = strings.ReplaceAll(getPath, "{resource_id}", d.Get("instance_id").(string))
+	getPath = strings.ReplaceAll(getPath, "{sub_resource_type}", "namespaces")
+	getPath = strings.ReplaceAll(getPath, "{sub_resource_id}", d.Get("name").(string))
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return nil, err
+	}
+
+	return getRespBody, nil
 }
 
 func resourceSwrEnterpriseNamespaceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -225,6 +273,27 @@ func resourceSwrEnterpriseNamespaceUpdate(ctx context.Context, d *schema.Resourc
 		}
 	}
 
+	if d.HasChange("tags") {
+		oRaw, nRaw := d.GetChange("tags")
+		oMap := oRaw.(map[string]interface{})
+		nMap := nRaw.(map[string]interface{})
+		// remove old tags
+		if len(oMap) > 0 {
+			err := deleteSwrEnterpriseInstanceNamespaceTags(client, d, oMap)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		}
+
+		// add new tags
+		if len(nMap) > 0 {
+			err := addSwrEnterpriseInstanceNamespaceTags(client, d, nMap)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		}
+	}
+
 	return resourceSwrEnterpriseNamespaceRead(ctx, d, meta)
 }
 
@@ -233,6 +302,63 @@ func buildUpdateSwrEnterpriseNamespaceBodyParams(d *schema.ResourceData) map[str
 		"metadata": buildSwrEnterpriseNamespaceMetadataBodyParams(d),
 	}
 
+	return bodyParams
+}
+
+func addSwrEnterpriseInstanceNamespaceTags(client *golangsdk.ServiceClient, d *schema.ResourceData, tags map[string]interface{}) error {
+	httpUrl := "v2/{project_id}/{resource_type}/{resource_id}/{sub_resource_type}/{sub_resource_id}/tags/create"
+	addPath := client.Endpoint + httpUrl
+	addPath = strings.ReplaceAll(addPath, "{project_id}", client.ProjectID)
+	addPath = strings.ReplaceAll(addPath, "{resource_type}", "instances")
+	addPath = strings.ReplaceAll(addPath, "{resource_id}", d.Get("instance_id").(string))
+	addPath = strings.ReplaceAll(addPath, "{sub_resource_type}", "namespaces")
+	addPath = strings.ReplaceAll(addPath, "{sub_resource_id}", d.Get("name").(string))
+
+	addOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes: []int{
+			204,
+		},
+		JSONBody: buildUpdateSwrEnterpriseInstanceNamespaceTagsBodyParams(tags),
+	}
+
+	_, err := client.Request("POST", addPath, &addOpt)
+	if err != nil {
+		return fmt.Errorf("error adding SWR enterprise instance namespace tags: %s", err)
+	}
+
+	return nil
+}
+
+func deleteSwrEnterpriseInstanceNamespaceTags(client *golangsdk.ServiceClient, d *schema.ResourceData, tags map[string]interface{}) error {
+	httpUrl := "v2/{project_id}/{resource_type}/{resource_id}/{sub_resource_type}/{sub_resource_id}/tags/delete"
+	deletePath := client.Endpoint + httpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = strings.ReplaceAll(deletePath, "{resource_type}", "instances")
+	deletePath = strings.ReplaceAll(deletePath, "{resource_id}", d.Get("instance_id").(string))
+	deletePath = strings.ReplaceAll(deletePath, "{sub_resource_type}", "namespaces")
+	deletePath = strings.ReplaceAll(deletePath, "{sub_resource_id}", d.Get("name").(string))
+
+	deleteOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes: []int{
+			204,
+		},
+		JSONBody: buildUpdateSwrEnterpriseInstanceNamespaceTagsBodyParams(tags),
+	}
+
+	_, err := client.Request("DELETE", deletePath, &deleteOpt)
+	if err != nil {
+		return fmt.Errorf("error deleting SWR enterprise instance namespace tags: %s", err)
+	}
+
+	return nil
+}
+
+func buildUpdateSwrEnterpriseInstanceNamespaceTagsBodyParams(tags map[string]interface{}) interface{} {
+	bodyParams := map[string]interface{}{
+		"tags": utils.ExpandResourceTagsMap(tags),
+	}
 	return bodyParams
 }
 

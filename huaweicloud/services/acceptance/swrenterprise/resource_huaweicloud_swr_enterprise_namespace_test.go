@@ -64,6 +64,8 @@ func TestAccSwrEnterpriseNamespace_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "metadata.0.public", "true"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 				),
 			},
 			{
@@ -72,6 +74,8 @@ func TestAccSwrEnterpriseNamespace_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "metadata.0.public", "false"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value1"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar1"),
 				),
 			},
 			{
@@ -94,6 +98,11 @@ resource "huaweicloud_swr_enterprise_namespace" "test" {
   metadata {
     public = "true"
   }
+
+  tags = {
+    key = "value"
+    foo = "bar"
+  }
 }
 `, testAccSwrEnterpriseInstance_update(rName), rName)
 }
@@ -108,6 +117,11 @@ resource "huaweicloud_swr_enterprise_namespace" "test" {
 
   metadata {
     public = "false"
+  }
+
+  tags = {
+    key = "value1"
+    foo = "bar1"
   }
 }
 `, testAccSwrEnterpriseInstance_update(rName), rName)
