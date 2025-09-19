@@ -32,6 +32,7 @@ var nonUpdatableDedicatedDomainParams = []string{
 // @API WAF PATCH /v1/{project_id}/waf/policy/{policy_id}
 // @API WAF GET /v1/{project_id}/waf/certificate/{certificate_id}
 // @API WAF PUT /v1/{project_id}/premium-waf/host/{host_id}/protect-status
+// @API WAF PUT /v1/{project_id}/premium-waf/host/{host_id}/access-status
 // @API WAF GET /v1/{project_id}/premium-waf/host/{host_id}
 // @API WAF PUT /v1/{project_id}/premium-waf/host/{host_id}
 // @API WAF DELETE /v1/{project_id}/premium-waf/host/{host_id}
@@ -93,6 +94,13 @@ func ResourceWafDedicatedDomain() *schema.Resource {
 				Type:     schema.TypeInt,
 				Computed: true,
 				Optional: true,
+			},
+			// Due to environmental and permission restrictions, the API test for the `access_status` parameter has not
+			// been effective, and there is currently no testing in the test cases.
+			"access_status": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
 			},
 			"tls": {
 				Type:     schema.TypeString,
@@ -205,10 +213,6 @@ func ResourceWafDedicatedDomain() *schema.Resource {
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
 				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
-			},
-			"access_status": {
-				Type:     schema.TypeInt,
-				Computed: true,
 			},
 			"protocol": {
 				Type:     schema.TypeString,
@@ -873,6 +877,41 @@ func updateDedicatedDomainProtectStatus(client *golangsdk.ServiceClient, d *sche
 	return err
 }
 
+func updateDedicatedDomainAccessStatus(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	var (
+		httpUrl           = "v1/{project_id}/premium-waf/host/{host_id}/access-status"
+		inputAccessStatus = d.Get("access_status").(int)
+	)
+
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{host_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"access_status": inputAccessStatus,
+		},
+	}
+
+	requestResp, err := client.Request("PUT", requestPath, &requestOpt)
+	if err != nil {
+		return fmt.Errorf("error update WAF dedicated domain access status: %s", err)
+	}
+
+	respBody, err := utils.FlattenResponse(requestResp)
+	if err != nil {
+		return err
+	}
+
+	respAccessStatus := utils.PathSearch("access_status", respBody, float64(0)).(float64)
+	if int(respAccessStatus) != inputAccessStatus {
+		return fmt.Errorf("failed to update WAF dedicated domain access status: expected value: %v,"+
+			" actual value: %v", inputAccessStatus, respAccessStatus)
+	}
+
+	return nil
+}
+
 func resourceWafDedicatedDomainCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg     = meta.(*config.Config)
@@ -907,6 +946,13 @@ func resourceWafDedicatedDomainCreate(ctx context.Context, d *schema.ResourceDat
 	if d.Get("protect_status").(int) != 1 {
 		if err := updateDedicatedDomainProtectStatus(client, d, cfg); err != nil {
 			return diag.Errorf("error updating WAF dedicated domain protect status in create operation: %s", err)
+		}
+	}
+
+	if _, ok := d.GetOk("access_status"); ok {
+		if err := updateDedicatedDomainAccessStatus(client, d); err != nil {
+			return diag.Errorf("error update WAF dedicated domain `access_status` in creation operation: %s",
+				err)
 		}
 	}
 
@@ -1211,6 +1257,12 @@ func resourceWafDedicatedDomainUpdate(ctx context.Context, d *schema.ResourceDat
 	if d.HasChanges("protect_status") {
 		if err := updateDedicatedDomainProtectStatus(client, d, cfg); err != nil {
 			return diag.Errorf("error updating WAF dedicated domain protect status in update operation: %s", err)
+		}
+	}
+
+	if d.HasChanges("access_status") {
+		if err := updateDedicatedDomainAccessStatus(client, d); err != nil {
+			return diag.Errorf("error update WAF dedicated domain `access_status` in update operation: %s", err)
 		}
 	}
 
