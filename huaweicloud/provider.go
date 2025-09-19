@@ -572,6 +572,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_apig_application_associated_quota":       apig.DataSourceApplicationAssociatedQuota(),
 			"huaweicloud_apig_application_quotas":                 apig.DataSourceApigApplicationQuotas(),
 			"huaweicloud_apig_channels":                           apig.DataSourceChannels(),
+			"huaweicloud_apig_channel_member_groups":              apig.DataSourceChannelMemberGroups(),
 			"huaweicloud_apig_custom_authorizers":                 apig.DataSourceCustomAuthorizers(),
 			"huaweicloud_apig_endpoint_connections":               apig.DataSourceApigEndpointConnections(),
 			"huaweicloud_apig_environment_variables":              apig.DataSourceApigEnvironmentVariables(),
