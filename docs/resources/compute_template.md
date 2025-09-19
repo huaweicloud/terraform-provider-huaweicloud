@@ -121,6 +121,8 @@ The `block_device_mappings_attachment` block supports:
 
 * `boot_index` - (Optional, Int, NonUpdatable) Specifies the loading sequence. The value **0** indicates the system disk.
 
+* `delete_on_termination` - (Optional, Bool, NonUpdatable) Specifies whether the disk is released along with the instance.
+
 <a name="market_options_struct"></a>
 The `market_options` block supports:
 
@@ -154,6 +156,8 @@ The `publicip` block supports:
 
 * `bandwidth` - (Optional, List, NonUpdatable) Specifies the bandwidth.
   The [bandwidth](#bandwidth_struct) structure is documented below.
+
+* `delete_on_termination` - (Optional, Bool, NonUpdatable) Specifies whether the EIP is released along with the instance.
 
 <a name="bandwidth_struct"></a>
 The `bandwidth` block supports:
