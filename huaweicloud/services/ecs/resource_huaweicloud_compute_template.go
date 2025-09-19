@@ -31,8 +31,8 @@ var templateNonUpdatableParams = []string{"name", "description", "version_descri
 	"template_data.*.internet_access.*.publicip.*.bandwidth.*.share_type",
 	"template_data.*.internet_access.*.publicip.*.bandwidth.*.size",
 	"template_data.*.internet_access.*.publicip.*.bandwidth.*.charge_mode",
-	"template_data.*.internet_access.*.publicip.*.bandwidth.*.id", "template_data.*.metadata",
-	"template_data.*.tag_options"}
+	"template_data.*.internet_access.*.publicip.*.bandwidth.*.id",
+	"template_data.*.internet_access.*.publicip.*.delete_on_termination", "template_data.*.metadata", "template_data.*.tag_options"}
 
 // @API ECS POST /v3/{project_id}/launch-templates
 // @API ECS GET /v3/{project_id}/launch-templates
@@ -307,6 +307,11 @@ func templateTemplateDataBlockDeviceMappingsAttachmentSchema() *schema.Resource 
 				Optional: true,
 				Computed: true,
 			},
+			"delete_on_termination": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
 		},
 	}
 	return &sc
@@ -389,6 +394,11 @@ func templateTemplateDataInternetAccessPublicIpSchema() *schema.Resource {
 				Computed: true,
 				MaxItems: 1,
 				Elem:     templateTemplateDataInternetAccessPublicIpBandwidthSchema(),
+			},
+			"delete_on_termination": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
 			},
 		},
 	}
@@ -623,7 +633,8 @@ func buildCreateTemplateTemplateDataBlockDeviceMappingsAttachmentBodyParams(atta
 
 	if v, ok := attachment[0].(map[string]interface{}); ok {
 		rst := map[string]interface{}{
-			"boot_index": utils.ValueIgnoreEmpty(v["boot_index"]),
+			"boot_index":            utils.ValueIgnoreEmpty(v["boot_index"]),
+			"delete_on_termination": utils.ValueIgnoreEmpty(v["delete_on_termination"]),
 		}
 		return rst
 	}
@@ -690,9 +701,10 @@ func buildCreateTemplateTemplateDataInternetAccessPublicIpBodyParams(publicIpRaw
 
 	if v, ok := publicIp[0].(map[string]interface{}); ok {
 		rst := map[string]interface{}{
-			"publicip_type": utils.ValueIgnoreEmpty(v["publicip_type"]),
-			"charging_mode": utils.ValueIgnoreEmpty(v["charging_mode"]),
-			"bandwidth":     buildCreateTemplateTemplateDataInternetAccessPublicIpBandwidthBodyParams(v["bandwidth"]),
+			"publicip_type":         utils.ValueIgnoreEmpty(v["publicip_type"]),
+			"charging_mode":         utils.ValueIgnoreEmpty(v["charging_mode"]),
+			"bandwidth":             buildCreateTemplateTemplateDataInternetAccessPublicIpBandwidthBodyParams(v["bandwidth"]),
+			"delete_on_termination": utils.ValueIgnoreEmpty(v["delete_on_termination"]),
 		}
 		return rst
 	}
@@ -934,7 +946,8 @@ func flattenTemplateTemplateDataBlockDeviceMappingsAttachment(blockDeviceMapping
 
 	rst := []interface{}{
 		map[string]interface{}{
-			"boot_index": utils.PathSearch("boot_index", curJson, nil),
+			"boot_index":            utils.PathSearch("boot_index", curJson, nil),
+			"delete_on_termination": utils.PathSearch("delete_on_termination", curJson, nil),
 		},
 	}
 	return rst
@@ -993,9 +1006,10 @@ func flattenTemplateTemplateDataInternetAccessPublicIp(internetAccess interface{
 
 	rst := []interface{}{
 		map[string]interface{}{
-			"publicip_type": utils.PathSearch("publicip_type", curJson, nil),
-			"charging_mode": utils.PathSearch("charging_mode", curJson, nil),
-			"bandwidth":     flattenTemplateTemplateDataInternetAccessPublicIpBandwidth(curJson),
+			"publicip_type":         utils.PathSearch("publicip_type", curJson, nil),
+			"charging_mode":         utils.PathSearch("charging_mode", curJson, nil),
+			"bandwidth":             flattenTemplateTemplateDataInternetAccessPublicIpBandwidth(curJson),
+			"delete_on_termination": utils.PathSearch("delete_on_termination", curJson, nil),
 		},
 	}
 	return rst

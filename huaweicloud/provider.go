@@ -821,6 +821,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_compute_flavors":                 ecs.DataSourceEcsFlavors(),
 			"huaweicloud_compute_instance":                ecs.DataSourceComputeInstance(),
 			"huaweicloud_compute_templates":               ecs.DataSourceEcsComputeTemplates(),
+			"huaweicloud_compute_template_versions":       ecs.DataSourceEcsComputeTemplateVersions(),
 			"huaweicloud_compute_instances":               ecs.DataSourceComputeInstances(),
 			"huaweicloud_compute_servergroups":            ecs.DataSourceComputeServerGroups(),
 			"huaweicloud_compute_instance_remote_console": ecs.DataSourceComputeInstanceRemoteConsole(),

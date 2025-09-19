@@ -129,6 +129,10 @@ func TestAccComputeTemplate_Basic(t *testing.T) {
 						"SATA"),
 					resource.TestCheckResourceAttr(resourceName, "template_data.0.block_device_mappings.0.volume_size",
 						"100"),
+					resource.TestCheckResourceAttr(resourceName,
+						"template_data.0.block_device_mappings.0.attachment.0.boot_index", "1"),
+					resource.TestCheckResourceAttr(resourceName,
+						"template_data.0.block_device_mappings.0.attachment.0.delete_on_termination", "true"),
 					resource.TestCheckResourceAttr(resourceName, "template_data.0.market_options.0.market_type",
 						"postpaid"),
 					resource.TestCheckResourceAttr(resourceName,
@@ -137,8 +141,6 @@ func TestAccComputeTemplate_Basic(t *testing.T) {
 						"template_data.0.market_options.0.spot_options.0.block_duration_minutes", "2"),
 					resource.TestCheckResourceAttr(resourceName,
 						"template_data.0.market_options.0.spot_options.0.instance_interruption_behavior", "immediate"),
-					resource.TestCheckResourceAttr(resourceName,
-						"template_data.0.block_device_mappings.0.attachment.0.boot_index", "1"),
 					resource.TestCheckResourceAttr(resourceName,
 						"template_data.0.internet_access.0.publicip.0.publicip_type", "5_bgp"),
 					resource.TestCheckResourceAttr(resourceName,
@@ -151,6 +153,8 @@ func TestAccComputeTemplate_Basic(t *testing.T) {
 						"template_data.0.internet_access.0.publicip.0.bandwidth.0.charge_mode", "bandwidth"),
 					resource.TestCheckResourceAttr(resourceName,
 						"template_data.0.internet_access.0.publicip.0.bandwidth.0.id", "internet_access_publicip_bandwidth_id"),
+					resource.TestCheckResourceAttr(resourceName,
+						"template_data.0.internet_access.0.publicip.0.delete_on_termination", "true"),
 					resource.TestCheckResourceAttr(resourceName, "template_data.0.metadata.aaa", "bbb"),
 					resource.TestCheckResourceAttr(resourceName, "template_data.0.metadata.ccc", "ddd"),
 					resource.TestCheckResourceAttr(resourceName, "template_data.0.tag_options.0.tags.0.key", "aaa"),
@@ -212,7 +216,8 @@ resource "huaweicloud_compute_template" "test" {
       volume_size = 100
 
       attachment {
-        boot_index = 1
+        boot_index            = 1
+        delete_on_termination = true
       }
     }
 
@@ -228,8 +233,9 @@ resource "huaweicloud_compute_template" "test" {
 
     internet_access {
       publicip {
-        publicip_type = "5_bgp"
-        charging_mode = "postPaid"
+        publicip_type         = "5_bgp"
+        charging_mode         = "postPaid"
+        delete_on_termination = true
 
         bandwidth {
           share_type  = "PER"
