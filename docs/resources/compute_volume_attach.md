@@ -93,6 +93,11 @@ The following arguments are supported:
   update the device upon subsequent applying which will cause the volume to be detached and reattached indefinitely.
   Please use with caution.
 
+* `delete_on_termination` - (Optional, String) Specifies whether the disk attached to the ECS is deleted when the ECS is
+  deleted. Value options:
+  + **true**: The disk is deleted when the ECS is deleted.
+  + **false**: The disk is not deleted when the ECS is deleted.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:

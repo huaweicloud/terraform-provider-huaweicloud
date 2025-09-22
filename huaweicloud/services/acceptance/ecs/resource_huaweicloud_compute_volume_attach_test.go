@@ -55,7 +55,15 @@ func TestAccComputeVolumeAttach_basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(resourceName, "instance_id",
 						"huaweicloud_compute_instance.instance_1", "id"),
 					resource.TestCheckResourceAttrPair(resourceName, "volume_id", "huaweicloud_evs_volume.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "delete_on_termination", "true"),
 					resource.TestCheckResourceAttrSet(resourceName, "pci_address"),
+				),
+			},
+			{
+				Config: testAccComputeVolumeAttach_update(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "delete_on_termination", "false"),
 				),
 			},
 			{
@@ -129,7 +137,7 @@ func TestAccComputeVolumeAttach_multiple(t *testing.T) {
 	})
 }
 
-func testAccComputeVolumeAttach_basic(rName string) string {
+func testAccComputeVolumeAttach_base(rName string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -150,12 +158,31 @@ resource "huaweicloud_compute_instance" "instance_1" {
     uuid = data.huaweicloud_vpc_subnet.test.id
   }
 }
+`, testAccCompute_data, rName, rName)
+}
+
+func testAccComputeVolumeAttach_basic(rName string) string {
+	return fmt.Sprintf(`
+%s
 
 resource "huaweicloud_compute_volume_attach" "va_1" {
-  instance_id = huaweicloud_compute_instance.instance_1.id
-  volume_id   = huaweicloud_evs_volume.test.id
+  instance_id           = huaweicloud_compute_instance.instance_1.id
+  volume_id             = huaweicloud_evs_volume.test.id
+  delete_on_termination = "true"
 }
-`, testAccCompute_data, rName, rName)
+`, testAccComputeVolumeAttach_base(rName))
+}
+
+func testAccComputeVolumeAttach_update(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_compute_volume_attach" "va_1" {
+  instance_id           = huaweicloud_compute_instance.instance_1.id
+  volume_id             = huaweicloud_evs_volume.test.id
+  delete_on_termination = "false"
+}
+`, testAccComputeVolumeAttach_base(rName))
 }
 
 func testAccComputeVolumeAttach_device(rName string) string {
