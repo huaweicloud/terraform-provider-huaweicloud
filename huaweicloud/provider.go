@@ -3127,6 +3127,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_swr_enterprise_instance":                       swrenterprise.ResourceSwrEnterpriseInstance(),
 			"huaweicloud_swr_enterprise_namespace":                      swrenterprise.ResourceSwrEnterpriseNamespace(),
+			"huaweicloud_swr_enterprise_trigger":                        swrenterprise.ResourceSwrEnterpriseTrigger(),
 			"huaweicloud_swr_enterprise_long_term_credential":           swrenterprise.ResourceSwrEnterpriseLongTermCredential(),
 			"huaweicloud_swr_enterprise_temporary_credential":           swrenterprise.ResourceSwrEnterpriseTemporaryCredential(),
 			"huaweicloud_swr_enterprise_private_network_access_control": swrenterprise.ResourceSwrEnterprisePrivateNetworkAccessControl(),
