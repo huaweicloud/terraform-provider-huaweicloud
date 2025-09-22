@@ -253,6 +253,9 @@ resource "huaweicloud_cce_node_pool" "node_pool" {
 }
 ```
 
+~> Form version v1.78.5, `initial_node_count` became a one-time argument, and only takes effect when creating a node pool.
+  If you want to update `initial_node_count`, please set `ignore_initial_node_count` to **false**.
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -268,6 +271,9 @@ The following arguments are supported:
   This parameter can be also used to manually scale the node count afterwards.
 
 * `flavor_id` - (Required, String, NonUpdatable) Specifies the flavor ID.
+
+* `ignore_initial_node_count` - (Optional, Bool) Specifies whether to ignore the changes of `initial_node_count`,
+  defaults to **true**.
 
 * `type` - (Optional, String, NonUpdatable) Specifies the node pool type. Possible values are: **vm** and **ElasticBMS**.
 

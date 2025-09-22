@@ -84,7 +84,7 @@ func TestAccNodePool_basic(t *testing.T) {
 				ImportStateVerify: true,
 				ImportStateIdFunc: testAccNodePoolImportStateIdFunc(resourceName),
 				ImportStateVerifyIgnore: []string{
-					"initial_node_count", "extend_params", "enable_force_new",
+					"ignore_initial_node_count", "extend_params", "enable_force_new",
 				},
 			},
 		},
@@ -169,19 +169,20 @@ func testAccNodePool_basic_step2(name, baseConfig string) string {
 %[1]s
 
 resource "huaweicloud_cce_node_pool" "test" {
-  cluster_id               = huaweicloud_cce_cluster.test.id
-  name                     = "%[2]s"
-  os                       = "EulerOS 2.9"
-  flavor_id                = data.huaweicloud_compute_flavors.test.ids[0]
-  initial_node_count       = 2
-  availability_zone        = data.huaweicloud_availability_zones.test.names[0]
-  key_pair                 = huaweicloud_kps_keypair.test.name
-  scall_enable             = true
-  min_node_count           = 2
-  max_node_count           = 9
-  scale_down_cooldown_time = 100
-  priority                 = 1
-  type                     = "vm"
+  cluster_id                = huaweicloud_cce_cluster.test.id
+  name                      = "%[2]s"
+  os                        = "EulerOS 2.9"
+  flavor_id                 = data.huaweicloud_compute_flavors.test.ids[0]
+  initial_node_count        = 2
+  ignore_initial_node_count = false
+  availability_zone         = data.huaweicloud_availability_zones.test.names[0]
+  key_pair                  = huaweicloud_kps_keypair.test.name
+  scall_enable              = true
+  min_node_count            = 2
+  max_node_count            = 9
+  scale_down_cooldown_time  = 100
+  priority                  = 1
+  type                      = "vm"
 
   root_volume {
     size       = 40

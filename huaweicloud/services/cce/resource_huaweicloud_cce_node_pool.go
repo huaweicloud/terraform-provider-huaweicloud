@@ -92,6 +92,9 @@ func ResourceNodePool() *schema.Resource {
 			"initial_node_count": {
 				Type:     schema.TypeInt,
 				Required: true,
+				DiffSuppressFunc: func(_, oldVal, _ string, d *schema.ResourceData) bool {
+					return oldVal != "" && d.Get("ignore_initial_node_count").(bool)
+				},
 			},
 			"cluster_id": {
 				Type:     schema.TypeString,
@@ -100,6 +103,11 @@ func ResourceNodePool() *schema.Resource {
 			"flavor_id": {
 				Type:     schema.TypeString,
 				Required: true,
+			},
+			"ignore_initial_node_count": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
 			},
 			"type": {
 				Type:     schema.TypeString,
@@ -697,7 +705,7 @@ func resourceNodePoolRead(_ context.Context, d *schema.ResourceData, meta interf
 	}
 
 	// The following parameters are not returned:
-	// password, initial_node_count, pod_security_groups
+	// password, ignore_initial_node_count, pod_security_groups
 	// extension_scale_groups not save, because the order of groups will change and computed not working in TypeSet
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
@@ -710,6 +718,7 @@ func resourceNodePoolRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("scall_enable", s.Spec.Autoscaling.Enable),
 		d.Set("min_node_count", s.Spec.Autoscaling.MinNodeCount),
 		d.Set("max_node_count", s.Spec.Autoscaling.MaxNodeCount),
+		d.Set("initial_node_count", s.Spec.InitialNodeCount),
 		d.Set("current_node_count", s.Status.CurrentNode),
 		d.Set("scale_down_cooldown_time", s.Spec.Autoscaling.ScaleDownCooldownTime),
 		d.Set("priority", s.Spec.Autoscaling.Priority),
@@ -847,12 +856,17 @@ func flattenExtensionScaleGroupsSpecAutoscaling(spec interface{}) []map[string]i
 }
 
 func buildNodePoolUpdateOpts(d *schema.ResourceData, cfg *config.Config) (*nodepools.UpdateOpts, error) {
+	var initialNodeCount int
+	if !d.Get("ignore_initial_node_count").(bool) {
+		initialNodeCount = d.Get("initial_node_count").(int)
+	}
 	updateOpts := nodepools.UpdateOpts{
 		Metadata: nodepools.UpdateMetaData{
 			Name: d.Get("name").(string),
 		},
 		Spec: nodepools.UpdateSpec{
-			InitialNodeCount: utils.Int(d.Get("initial_node_count").(int)),
+			InitialNodeCount:       initialNodeCount,
+			IgnoreInitialNodeCount: d.Get("ignore_initial_node_count").(bool),
 			Autoscaling: nodepools.AutoscalingSpec{
 				Enable:                d.Get("scall_enable").(bool),
 				MinNodeCount:          d.Get("min_node_count").(int),
