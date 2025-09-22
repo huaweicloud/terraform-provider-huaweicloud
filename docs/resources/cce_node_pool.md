@@ -253,7 +253,7 @@ resource "huaweicloud_cce_node_pool" "node_pool" {
 }
 ```
 
-~> Form version v1.78.5, `initial_node_count` became a one-time argument, and only takes effect when creating a node pool.
+~> From version v1.78.5, `initial_node_count` became a one-time argument, and only takes effect when creating a node pool.
   If you want to update `initial_node_count`, please set `ignore_initial_node_count` to **false**.
 
 ## Argument Reference
@@ -642,7 +642,7 @@ $ terraform import huaweicloud_cce_node_pool.my_node_pool <cluster_id>/<id>
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include:
-`password`, `extend_params`, `taints`, `initial_node_count` and `pod_security_groups`.
+`password`, `extend_params`, `taints`, `ignore_initial_node_count` and `pod_security_groups`.
 It is generally recommended running `terraform plan` after importing a node pool.
 You can then decide if changes should be applied to the node pool, or the resource
 definition should be updated to align with the node pool. Also you can ignore changes as below.
