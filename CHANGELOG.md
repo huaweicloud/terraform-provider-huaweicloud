@@ -1,43 +1,5 @@
 # CHANGELOG
 
-## 1.78.5 (September 22, 2025)
-
-* **New Resource Source:**
-  + `huaweicloud_apig_api_batch_plugins_associate` [GH-7873]
-  + `huaweicloud_apig_certificate_batch_domains_associate` [GH-7873]
-  + `huaweicloud_apig_channel_member` [GH-7808]
-  + `huaweicloud_apig_domain_certificate_associate` [GH-7839]
-  + `huaweicloud_coc_change_delete` [GH-7917]
-  + `huaweicloud_coc_change_update` [GH-7916]
-  + `huaweicloud_coc_incident_action` [GH-7900]
-  + `huaweicloud_coc_issue` [GH-7890]
-  + `huaweicloud_coc_ticket_add` [GH-7914]
-  + `huaweicloud_compute_template` [GH-7908]
-  + `huaweicloud_swr_enterprise_long_term_credential` [GH-7905]
-  + `huaweicloud_swr_enterprise_private_network_access_control` [GH-7905]
-  + `huaweicloud_swr_enterprise_temporary_credential` [GH-7899]
-  + `huaweicloud_swr_enterprise_trigger` [GH-7925]
-
-* **New Data Source:**
-  + `huaweicloud_apig_application_associated_quota` [GH-7889]
-  + `huaweicloud_apig_certificate_associated_domains` [GH-7896]
-  + `huaweicloud_apig_channel_member_groups` [GH-7808]
-  + `huaweicloud_cbr_feature` [GH-7894]
-  + `huaweicloud_cbr_features` [GH-7894]
-  + `huaweicloud_coc_change_sub_tickets` [GH-7920]
-  + `huaweicloud_coc_incident_action_histories` [GH-7900]
-  + `huaweicloud_coc_scheduled_task_histories` [GH-7868]
-  + `huaweicloud_coc_ticket_operation_histories` [GH-7861]
-  + `huaweicloud_compute_template_versions` [GH-7911]
-  + `huaweicloud_compute_templates` [GH-7908]
-  + `huaweicloud_swr_enterprise_long_term_credentials` [GH-7905]
-  + `huaweicloud_swr_enterprise_private_network_access_controls` [GH-7905]
-  + `huaweicloud_waf_alarm_optional_event_types` [GH-7907]
-  + `huaweicloud_waf_overviews_attack_ip` [GH-7897]
-  + `huaweicloud_waf_overviews_attack_url` [GH-7895]
-  + `huaweicloud_waf_rules_threat_intelligence` [GH-7880]
-  + `huaweicloud_waf_tag_antileakage_map` [GH-7903]
-
 ## 1.78.4 (September 16, 2025)
 
 * **New Resource Source:**
