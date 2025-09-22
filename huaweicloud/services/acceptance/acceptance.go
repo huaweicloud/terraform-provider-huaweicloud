@@ -113,16 +113,18 @@ var (
 	HW_DEPRECATED_ENVIRONMENT = os.Getenv("HW_DEPRECATED_ENVIRONMENT")
 	HW_INTERNAL_USED          = os.Getenv("HW_INTERNAL_USED")
 
-	HW_WAF_ENABLE_FLAG         = os.Getenv("HW_WAF_ENABLE_FLAG")
-	HW_WAF_CERTIFICATE_ID      = os.Getenv("HW_WAF_CERTIFICATE_ID")
-	HW_WAF_DOMAIN_ID           = os.Getenv("HW_WAF_DOMAIN_ID")
-	HW_WAF_TYPE                = os.Getenv("HW_WAF_TYPE")
-	HW_WAF_CLOUD_INSTANCE_FLAG = os.Getenv("HW_WAF_CLOUD_INSTANCE_FLAG")
-	HW_WAF_INTERNATIONAL_FLAG  = os.Getenv("HW_WAF_INTERNATIONAL_FLAG")
-	HW_WAF_GROUP_FLAG          = os.Getenv("HW_WAF_GROUP_FLAG")
-	HW_WAF_POLICY_ID           = os.Getenv("HW_WAF_POLICY_ID")
-	HW_WAF_WEB_TAMPER_RULE_ID  = os.Getenv("HW_WAF_WEB_TAMPER_RULE_ID")
-	HW_WAF_ALERT_ID            = os.Getenv("HW_WAF_ALERT_ID")
+	HW_WAF_ENABLE_FLAG                          = os.Getenv("HW_WAF_ENABLE_FLAG")
+	HW_WAF_CERTIFICATE_ID                       = os.Getenv("HW_WAF_CERTIFICATE_ID")
+	HW_WAF_DOMAIN_ID                            = os.Getenv("HW_WAF_DOMAIN_ID")
+	HW_WAF_TYPE                                 = os.Getenv("HW_WAF_TYPE")
+	HW_WAF_CLOUD_INSTANCE_FLAG                  = os.Getenv("HW_WAF_CLOUD_INSTANCE_FLAG")
+	HW_WAF_INTERNATIONAL_FLAG                   = os.Getenv("HW_WAF_INTERNATIONAL_FLAG")
+	HW_WAF_GROUP_FLAG                           = os.Getenv("HW_WAF_GROUP_FLAG")
+	HW_WAF_POLICY_ID                            = os.Getenv("HW_WAF_POLICY_ID")
+	HW_WAF_WEB_TAMPER_RULE_ID                   = os.Getenv("HW_WAF_WEB_TAMPER_RULE_ID")
+	HW_WAF_ALERT_ID                             = os.Getenv("HW_WAF_ALERT_ID")
+	HW_WAF_DEDICATED_INSTANCE_ID                = os.Getenv("HW_WAF_DEDICATED_INSTANCE_ID")
+	HW_WAF_DEDICATED_INSTANCE_SECURITY_GROUP_ID = os.Getenv("HW_WAF_DEDICATED_INSTANCE_SECURITY_GROUP_ID")
 
 	HW_ELB_CERT_ID         = os.Getenv("HW_ELB_CERT_ID")
 	HW_ELB_LOADBALANCER_ID = os.Getenv("HW_ELB_LOADBALANCER_ID")
@@ -1197,6 +1199,13 @@ func TestAccPreCheckWafWebTamperRuleId(t *testing.T) {
 func TestAccPreCheckWafAlertId(t *testing.T) {
 	if HW_WAF_ALERT_ID == "" {
 		t.Skip("HW_WAF_ALERT_ID must be set for this acceptance test.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckWafDedicatedInstanceAction(t *testing.T) {
+	if HW_WAF_DEDICATED_INSTANCE_ID == "" || HW_WAF_DEDICATED_INSTANCE_SECURITY_GROUP_ID == "" {
+		t.Skip("HW_WAF_DEDICATED_INSTANCE_ID and HW_WAF_DEDICATED_INSTANCE_SECURITY_GROUP_ID must be set for this acceptance test.")
 	}
 }
 
