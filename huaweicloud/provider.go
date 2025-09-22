@@ -3198,6 +3198,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_waf_cloud_instance":                      waf.ResourceCloudInstance(),
 			"huaweicloud_waf_dedicated_domain":                    waf.ResourceWafDedicatedDomain(),
 			"huaweicloud_waf_dedicated_instance":                  waf.ResourceWafDedicatedInstance(),
+			"huaweicloud_waf_dedicated_instance_action":           waf.ResourceDedicatedInstanceAction(),
 			"huaweicloud_waf_domain_associate_certificate":        waf.ResourceDomainAssociateCertificate(),
 			"huaweicloud_waf_domain":                              waf.ResourceWafDomain(),
 			"huaweicloud_waf_modify_alarm_notification":           waf.ResourceModifyAlarmNotification(),
