@@ -2331,6 +2331,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_coc_scheduled_task":                coc.ResourceScheduledTask(),
 			"huaweicloud_coc_issue":                         coc.ResourceIssue(),
 			"huaweicloud_coc_ticket_add":                    coc.ResourceTicketAdd(),
+			"huaweicloud_coc_ticket_action":                 coc.ResourceTicketAction(),
 			"huaweicloud_coc_change_update":                 coc.ResourceChangeUpdate(),
 			"huaweicloud_coc_change_delete":                 coc.ResourceChangeDelete(),
 			"huaweicloud_coc_alarm_action":                  coc.ResourceAlarmAction(),
