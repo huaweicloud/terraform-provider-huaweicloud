@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_waf_alarm_optional_event_types
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: WAF
+paths:
+    /v1/{project_id}/waf/tag/threat/map:
+        GET:
+            tag: WAF

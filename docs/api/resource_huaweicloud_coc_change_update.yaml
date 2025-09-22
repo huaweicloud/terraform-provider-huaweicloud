@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_coc_change_update
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: COC
+paths:
+    /v2/changes/{change_id}:
+        PUT:
+            tag: COC

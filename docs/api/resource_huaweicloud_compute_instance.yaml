@@ -14,6 +14,9 @@ paths:
     /v1.1/{project_id}/cloudservers/{server_id}/resize:
         POST:
             tag: ECS
+    /v1.1/{project_id}/cloudservers/detail:
+        GET:
+            tag: ECS
     /v1/{project_id}/cloudservers/{server_id}:
         GET:
             tag: ECS
