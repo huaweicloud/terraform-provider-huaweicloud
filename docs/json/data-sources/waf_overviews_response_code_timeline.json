@@ -1,0 +1,85 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_waf_overviews_response_code_timeline": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "from": {
+                "type": "number",
+                "required": true
+              },
+              "group_by": {
+                "type": "string",
+                "optional": true
+              },
+              "hosts": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instances": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "response_codes": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "key": "string",
+                      "timeline": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "num": "number",
+                            "time": "number"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "response_source": {
+                "type": "string",
+                "optional": true
+              },
+              "to": {
+                "type": "number",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "WAF",
+            "name": "Web Application Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "Web应用防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

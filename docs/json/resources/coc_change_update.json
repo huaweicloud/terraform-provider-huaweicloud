@@ -1,0 +1,90 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_coc_change_update": {
+          "block": {
+            "attributes": {
+              "action": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "phase": {
+                "type": "string",
+                "optional": true
+              },
+              "ticket_id": {
+                "type": "string",
+                "required": true
+              },
+              "work_flow_status": {
+                "type": "string",
+                "optional": true
+              }
+            },
+            "block_types": {
+              "sub_tickets": {
+                "block": {
+                  "attributes": {
+                    "change_fail_type": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "change_result": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "comment": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "is_monitor_found": {
+                      "type": "bool",
+                      "optional": true
+                    },
+                    "is_rollback_success": {
+                      "type": "bool",
+                      "optional": true
+                    },
+                    "is_verified_in_change_time": {
+                      "type": "bool",
+                      "optional": true
+                    },
+                    "rollback_end_time": {
+                      "type": "number",
+                      "optional": true
+                    },
+                    "rollback_start_time": {
+                      "type": "number",
+                      "optional": true
+                    },
+                    "ticket_id": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "verified_docs": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "COC",
+            "name": "Cloud Operations Center",
+            "catalog": "Management & Governance",
+            "name_cn": "云运维中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,203 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_swr_enterprise_trigger": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "Indicates the creation time.",
+                "computed": true
+              },
+              "creator": {
+                "type": "string",
+                "description": "Indicates the creator",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description of trigger.",
+                "optional": true
+              },
+              "enabled": {
+                "type": "bool",
+                "description": "Specifies whether the trigger is enabled.",
+                "optional": true
+              },
+              "event_types": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the event types of trigger.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the enterprise instance ID.",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the trigger name.",
+                "required": true
+              },
+              "namespace_id": {
+                "type": "number",
+                "description": "Indicates the namespace ID",
+                "computed": true
+              },
+              "namespace_name": {
+                "type": "string",
+                "description": "Specifies the namespace name.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region in which to create the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "trigger_id": {
+                "type": "string",
+                "description": "Indicates the trigger ID.",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "Indicates the last update time.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "scope_rules": {
+                "block": {
+                  "attributes": {
+                    "repo_scope_mode": {
+                      "type": "string",
+                      "description": "Specifies the repository select method.",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "scope_selectors": {
+                      "block": {
+                        "attributes": {
+                          "key": {
+                            "type": "string",
+                            "description": "Specifies the repository selector key.",
+                            "required": true
+                          }
+                        },
+                        "block_types": {
+                          "value": {
+                            "block": {
+                              "attributes": {
+                                "decoration": {
+                                  "type": "string",
+                                  "description": "Specifies the selector matching type.",
+                                  "required": true
+                                },
+                                "kind": {
+                                  "type": "string",
+                                  "description": "Specifies the matching type.",
+                                  "required": true
+                                },
+                                "pattern": {
+                                  "type": "string",
+                                  "description": "Specifies the pattern.",
+                                  "required": true
+                                }
+                              },
+                              "description": "Specifies the repository selector value."
+                            },
+                            "nesting_mode": "list",
+                            "min_items": 1
+                          }
+                        },
+                        "description": "Specifies the repository selectors."
+                      },
+                      "nesting_mode": "list"
+                    },
+                    "tag_selectors": {
+                      "block": {
+                        "attributes": {
+                          "decoration": {
+                            "type": "string",
+                            "description": "Specifies the selector matching type.",
+                            "required": true
+                          },
+                          "kind": {
+                            "type": "string",
+                            "description": "Specifies the matching type.",
+                            "required": true
+                          },
+                          "pattern": {
+                            "type": "string",
+                            "description": "Specifies the pattern.",
+                            "required": true
+                          }
+                        },
+                        "description": "Specifies the repository version selector."
+                      },
+                      "nesting_mode": "list",
+                      "min_items": 1
+                    }
+                  },
+                  "description": "Specifies the scope rules"
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              },
+              "targets": {
+                "block": {
+                  "attributes": {
+                    "address": {
+                      "type": "string",
+                      "description": "Specifies the trigger address.",
+                      "required": true
+                    },
+                    "address_type": {
+                      "type": "string",
+                      "description": "Specifies the trigger address type.",
+                      "required": true
+                    },
+                    "auth_header": {
+                      "type": "string",
+                      "description": "Specifies the auth header.",
+                      "optional": true
+                    },
+                    "skip_cert_verify": {
+                      "type": "bool",
+                      "description": "Specifies whether to skip the verification of the certificate.",
+                      "optional": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Specifies the trigger type.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the target params."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "SWR",
+            "name": "Software Repository for Container",
+            "catalog": "Containers",
+            "name_cn": "容器镜像服务",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

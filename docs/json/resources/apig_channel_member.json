@@ -1,0 +1,103 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_apig_channel_member": {
+          "block": {
+            "attributes": {
+              "create_time": {
+                "type": "string",
+                "description": "The creation time of the channel member, in RFC3339 format.",
+                "computed": true
+              },
+              "ecs_id": {
+                "type": "string",
+                "description": "The ID of the ECS channel member.",
+                "optional": true,
+                "computed": true
+              },
+              "ecs_name": {
+                "type": "string",
+                "description": "The name of the ECS channel member.",
+                "optional": true,
+                "computed": true
+              },
+              "health_status": {
+                "type": "string",
+                "description": "The health status of the channel member.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the dedicated instance to which the channel member belongs.",
+                "required": true
+              },
+              "is_backup": {
+                "type": "bool",
+                "description": "Whether this member is the backup member.",
+                "optional": true,
+                "computed": true
+              },
+              "member_group_id": {
+                "type": "string",
+                "description": "The ID of the member group.",
+                "computed": true
+              },
+              "member_group_name": {
+                "type": "string",
+                "description": "The name of the channel member group.",
+                "optional": true,
+                "computed": true
+              },
+              "member_ip_address": {
+                "type": "string",
+                "description": "The IP address of channel member.",
+                "optional": true,
+                "computed": true
+              },
+              "port": {
+                "type": "number",
+                "description": "The port number of the channel member.",
+                "optional": true,
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the channel member is located.",
+                "computed": true
+              },
+              "status": {
+                "type": "number",
+                "description": "The status of the channel member.",
+                "optional": true,
+                "computed": true
+              },
+              "vpc_channel_id": {
+                "type": "string",
+                "description": "The ID of the VPC channel.",
+                "required": true
+              },
+              "weight": {
+                "type": "number",
+                "description": "The weight value of the channel member.",
+                "optional": true,
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

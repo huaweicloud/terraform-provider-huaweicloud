@@ -1,0 +1,132 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_coc_ticket_operation_histories": {
+          "block": {
+            "attributes": {
+              "data": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "action": "string",
+                      "action_id": "string",
+                      "action_name_en": "string",
+                      "action_name_zh": "string",
+                      "action_template_en": "string",
+                      "action_template_zh": "string",
+                      "comment": "string",
+                      "enum_data_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "biz_id": "string",
+                            "is_deleted": "bool",
+                            "match_type": "string",
+                            "model_id": "string",
+                            "name_en": "string",
+                            "name_zh": "string",
+                            "prop_id": "string",
+                            "real_ticket_id": "string",
+                            "ticket_id": "string",
+                            "user_name": "string"
+                          }
+                        ]
+                      ],
+                      "final_sub_action": "string",
+                      "id": "string",
+                      "is_deleted": "bool",
+                      "operator": "string",
+                      "start_time": "number",
+                      "status": "string",
+                      "stop_time": "number",
+                      "sub_action": "string",
+                      "target_type": "string",
+                      "target_value": "string",
+                      "ticket_id": "string",
+                      "update_time": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ticket_type": {
+                "type": "string",
+                "required": true
+              }
+            },
+            "block_types": {
+              "sort_filter": {
+                "block": {
+                  "attributes": {
+                    "field": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "operator": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "values": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "string_filters": {
+                "block": {
+                  "attributes": {
+                    "field": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "operator": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "values": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "COC",
+            "name": "Cloud Operations Center",
+            "catalog": "Management & Governance",
+            "name_cn": "云运维中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

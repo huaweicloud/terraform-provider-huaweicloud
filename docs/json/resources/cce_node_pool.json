@@ -49,6 +49,11 @@
                 "type": "string",
                 "computed": true
               },
+              "ignore_initial_node_count": {
+                "type": "bool",
+                "optional": true,
+                "default": true
+              },
               "initial_node_count": {
                 "type": "number",
                 "required": true

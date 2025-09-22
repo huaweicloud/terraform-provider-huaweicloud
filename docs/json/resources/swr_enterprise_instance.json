@@ -75,6 +75,12 @@
                 "description": "Specifies whether the OBS bucket is encrypted.",
                 "optional": true
               },
+              "public_network_access_control_status": {
+                "type": "string",
+                "description": "Specifies the public network access control status.",
+                "optional": true,
+                "computed": true
+              },
               "region": {
                 "type": "string",
                 "computed": true
@@ -142,6 +148,26 @@
                 "type": "string",
                 "description": "Indicates the VPC name.",
                 "computed": true
+              }
+            },
+            "block_types": {
+              "public_network_access_white_ip_list": {
+                "block": {
+                  "attributes": {
+                    "description": {
+                      "type": "string",
+                      "description": "Specifies the description.",
+                      "optional": true
+                    },
+                    "ip": {
+                      "type": "string",
+                      "description": "Specifies the IP address or CIDR block.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the public network access white IP list."
+                },
+                "nesting_mode": "set"
               }
             }
           },

@@ -1,0 +1,53 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_apig_api_batch_plugins_associate": {
+          "block": {
+            "attributes": {
+              "api_id": {
+                "type": "string",
+                "description": "The ID of the API to be bound with plugins.",
+                "required": true
+              },
+              "env_id": {
+                "type": "string",
+                "description": "The ID of the environment where the API is published.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the dedicated instance to which the API and plugins belong.",
+                "required": true
+              },
+              "plugin_ids": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "description": "The list of plugin IDs to be bound to the API.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the API and plugins are located.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

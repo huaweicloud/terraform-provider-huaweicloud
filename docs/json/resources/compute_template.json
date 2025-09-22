@@ -1,0 +1,352 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_compute_template": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "default_version": {
+                "type": "number",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "latest_version": {
+                "type": "number",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "version_description": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "version_id": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "template_data": {
+                "block": {
+                  "attributes": {
+                    "auto_recovery": {
+                      "type": "bool",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "availability_zone_id": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "description": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "enterprise_project_id": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "flavor_id": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "metadata": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "optional": true,
+                      "computed": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "security_group_ids": {
+                      "type": [
+                        "set",
+                        "string"
+                      ],
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "block_types": {
+                    "block_device_mappings": {
+                      "block": {
+                        "attributes": {
+                          "cmk_id": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "encrypted": {
+                            "type": "bool",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "source_id": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "source_type": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "volume_size": {
+                            "type": "number",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "volume_type": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          }
+                        },
+                        "block_types": {
+                          "attachment": {
+                            "block": {
+                              "attributes": {
+                                "boot_index": {
+                                  "type": "number",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "delete_on_termination": {
+                                  "type": "bool",
+                                  "optional": true,
+                                  "computed": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          }
+                        }
+                      },
+                      "nesting_mode": "set"
+                    },
+                    "internet_access": {
+                      "block": {
+                        "block_types": {
+                          "publicip": {
+                            "block": {
+                              "attributes": {
+                                "charging_mode": {
+                                  "type": "string",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "delete_on_termination": {
+                                  "type": "bool",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "publicip_type": {
+                                  "type": "string",
+                                  "optional": true,
+                                  "computed": true
+                                }
+                              },
+                              "block_types": {
+                                "bandwidth": {
+                                  "block": {
+                                    "attributes": {
+                                      "charge_mode": {
+                                        "type": "string",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "id": {
+                                        "type": "string",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "share_type": {
+                                        "type": "string",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "size": {
+                                        "type": "number",
+                                        "optional": true,
+                                        "computed": true
+                                      }
+                                    }
+                                  },
+                                  "nesting_mode": "list",
+                                  "max_items": 1
+                                }
+                              }
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "market_options": {
+                      "block": {
+                        "attributes": {
+                          "market_type": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          }
+                        },
+                        "block_types": {
+                          "spot_options": {
+                            "block": {
+                              "attributes": {
+                                "block_duration_minutes": {
+                                  "type": "number",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "instance_interruption_behavior": {
+                                  "type": "string",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "spot_price": {
+                                  "type": "number",
+                                  "optional": true,
+                                  "computed": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "network_interfaces": {
+                      "block": {
+                        "attributes": {
+                          "virsubnet_id": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          }
+                        },
+                        "block_types": {
+                          "attachment": {
+                            "block": {
+                              "attributes": {
+                                "device_index": {
+                                  "type": "number",
+                                  "optional": true,
+                                  "computed": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          }
+                        }
+                      },
+                      "nesting_mode": "set"
+                    },
+                    "os_profile": {
+                      "block": {
+                        "attributes": {
+                          "enable_monitoring_service": {
+                            "type": "bool",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "iam_agency_name": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "key_name": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "user_data": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "tag_options": {
+                      "block": {
+                        "block_types": {
+                          "tags": {
+                            "block": {
+                              "attributes": {
+                                "key": {
+                                  "type": "string",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "value": {
+                                  "type": "string",
+                                  "optional": true,
+                                  "computed": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "set"
+                          }
+                        }
+                      },
+                      "nesting_mode": "set"
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "ECS",
+            "name": "Elastic Cloud Server",
+            "catalog": "Compute",
+            "name_cn": "弹性云服务器",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

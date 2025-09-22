@@ -1,0 +1,210 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_compute_template_versions": {
+          "block": {
+            "attributes": {
+              "flavor_id": {
+                "type": "string",
+                "description": "Specifies the flavor ID of the template.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "launch_template_id": {
+                "type": "string",
+                "description": "Specifies the template ID.",
+                "optional": true
+              },
+              "launch_template_versions": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "launch_template_id": "string",
+                      "template_data": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "auto_recovery": "bool",
+                            "availability_zone_id": "string",
+                            "block_device_mappings": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "attachment": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "boot_index": "number",
+                                        "delete_on_termination": "bool"
+                                      }
+                                    ]
+                                  ],
+                                  "cmk_id": "string",
+                                  "encrypted": "bool",
+                                  "source_id": "string",
+                                  "source_type": "string",
+                                  "volume_size": "number",
+                                  "volume_type": "string"
+                                }
+                              ]
+                            ],
+                            "description": "string",
+                            "enterprise_project_id": "string",
+                            "flavor_id": "string",
+                            "internet_access": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "publicip": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "bandwidth": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "charge_mode": "string",
+                                              "id": "string",
+                                              "share_type": "string",
+                                              "size": "number"
+                                            }
+                                          ]
+                                        ],
+                                        "charging_mode": "string",
+                                        "delete_on_termination": "bool",
+                                        "publicip_type": "string"
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ],
+                            "market_options": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "market_type": "string",
+                                  "spot_options": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "block_duration_minutes": "number",
+                                        "instance_interruption_behavior": "string",
+                                        "spot_price": "number"
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ],
+                            "metadata": [
+                              "map",
+                              "string"
+                            ],
+                            "name": "string",
+                            "network_interfaces": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "attachment": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "device_index": "number"
+                                      }
+                                    ]
+                                  ],
+                                  "virsubnet_id": "string"
+                                }
+                              ]
+                            ],
+                            "os_profile": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "enable_monitoring_service": "bool",
+                                  "iam_agency_name": "string",
+                                  "key_name": "string",
+                                  "user_data": "string"
+                                }
+                              ]
+                            ],
+                            "security_group_ids": [
+                              "list",
+                              "string"
+                            ],
+                            "tag_options": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "tags": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "key": "string",
+                                        "value": "string"
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "version_description": "string",
+                      "version_id": "string",
+                      "version_number": "number"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of template versions.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "version": {
+                "type": [
+                  "list",
+                  "number"
+                ],
+                "description": "Specifies the template versions.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "ECS",
+            "name": "Elastic Cloud Server",
+            "catalog": "Compute",
+            "name_cn": "弹性云服务器",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

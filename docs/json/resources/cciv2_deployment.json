@@ -661,7 +661,7 @@
                                                       },
                                                       "description": "The custom headers to set in the request."
                                                     },
-                                                    "nesting_mode": "list"
+                                                    "nesting_mode": "set"
                                                   }
                                                 },
                                                 "description": "The lifecycle pre stop of the CCI Pod container."
@@ -743,7 +743,7 @@
                                                       },
                                                       "description": "The custom headers to set in the request."
                                                     },
-                                                    "nesting_mode": "list"
+                                                    "nesting_mode": "set"
                                                   }
                                                 },
                                                 "description": "The lifecycle pre stop of the CCI Pod container."
@@ -861,7 +861,7 @@
                                                 },
                                                 "description": "The custom headers to set in the request."
                                               },
-                                              "nesting_mode": "list"
+                                              "nesting_mode": "set"
                                             }
                                           },
                                           "description": "Specifies the HTTP get."
@@ -997,7 +997,7 @@
                                                 },
                                                 "description": "The custom headers to set in the request."
                                               },
-                                              "nesting_mode": "list"
+                                              "nesting_mode": "set"
                                             }
                                           },
                                           "description": "Specifies the HTTP get."
@@ -1200,7 +1200,7 @@
                                                 },
                                                 "description": "The custom headers to set in the request."
                                               },
-                                              "nesting_mode": "list"
+                                              "nesting_mode": "set"
                                             }
                                           },
                                           "description": "Specifies the HTTP get."

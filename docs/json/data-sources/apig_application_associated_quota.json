@@ -1,0 +1,85 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_apig_application_associated_quota": {
+          "block": {
+            "attributes": {
+              "app_id": {
+                "type": "string",
+                "description": "The ID of the application to be queried.",
+                "required": true
+              },
+              "app_quota_id": {
+                "type": "string",
+                "description": "The ID of the application quota.",
+                "computed": true
+              },
+              "bound_app_num": {
+                "type": "number",
+                "description": "The number of applications bound to the quota policy.",
+                "computed": true
+              },
+              "call_limits": {
+                "type": "number",
+                "description": "The maximum number of times the application quota can be called.",
+                "computed": true
+              },
+              "create_time": {
+                "type": "string",
+                "description": "The creation time of the application quota, in RFC3339 format.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the dedicated instance to which the application belongs.",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the application quota.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the application is located.",
+                "computed": true
+              },
+              "remark": {
+                "type": "string",
+                "description": "The description of the application quota.",
+                "computed": true
+              },
+              "reset_time": {
+                "type": "string",
+                "description": "The first quota reset time point, in RFC3339 format.",
+                "computed": true
+              },
+              "time_interval": {
+                "type": "number",
+                "description": "The time interval of the quota limit.",
+                "computed": true
+              },
+              "time_unit": {
+                "type": "string",
+                "description": "The time unit of the quota limit.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

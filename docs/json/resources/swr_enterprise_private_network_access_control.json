@@ -1,0 +1,105 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_swr_enterprise_private_network_access_control": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "Indicates the creation time of the private network access control.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description.",
+                "optional": true
+              },
+              "endpoint_ip": {
+                "type": "string",
+                "description": "Indicates the endpoint IP.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the enterprise instance ID.",
+                "required": true
+              },
+              "project_id": {
+                "type": "string",
+                "description": "Specifies the project ID to which the VPC belongs.",
+                "optional": true,
+                "computed": true
+              },
+              "project_name": {
+                "type": "string",
+                "description": "Indicates the project name to which the VPC belongs.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Indicates the endpoint status.",
+                "computed": true
+              },
+              "status_text": {
+                "type": "string",
+                "description": "Indicates the status text",
+                "computed": true
+              },
+              "subnet_cidr": {
+                "type": "string",
+                "description": "Indicates the subnet cidr.",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "description": "Specifies the subnet ID.",
+                "required": true
+              },
+              "subnet_name": {
+                "type": "string",
+                "description": "Indicates the subnet name.",
+                "computed": true
+              },
+              "vpc_cidr": {
+                "type": "string",
+                "description": "Indicates the VPC cidr.",
+                "computed": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "description": "Specifies the VPC ID.",
+                "required": true
+              },
+              "vpc_name": {
+                "type": "string",
+                "description": "Indicates the VPC name.",
+                "computed": true
+              },
+              "vpcep_endpoint_id": {
+                "type": "string",
+                "description": "Indicates the VPCEP endpoint ID.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "SWR",
+            "name": "Software Repository for Container",
+            "catalog": "Containers",
+            "name_cn": "容器镜像服务",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

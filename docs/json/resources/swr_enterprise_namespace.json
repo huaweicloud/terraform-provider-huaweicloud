@@ -38,6 +38,15 @@
                 "description": "Indicates the repo count of the namespace.",
                 "computed": true
               },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "Specifies the key/value pairs to associate with the namespace.",
+                "optional": true,
+                "computed": true
+              },
               "updated_at": {
                 "type": "string",
                 "description": "Indicates the last update time.",
