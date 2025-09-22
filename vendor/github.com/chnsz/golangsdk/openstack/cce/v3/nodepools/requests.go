@@ -277,7 +277,9 @@ type UpdateSpec struct {
 	// Node template
 	NodeTemplate UpdateNodeTemplate `json:"nodeTemplate"`
 	// Initial number of expected nodes
-	InitialNodeCount *int `json:"initialNodeCount" required:"true"`
+	InitialNodeCount int `json:"initialNodeCount,omitempty"`
+	// Whether to ignore the changes of IgnoreInitialNodeCount
+	IgnoreInitialNodeCount bool `json:"ignoreInitialNodeCount"`
 	// Auto scaling parameters
 	Autoscaling AutoscalingSpec `json:"autoscaling"`
 	// label (k8s tag) policy on existing nodes
