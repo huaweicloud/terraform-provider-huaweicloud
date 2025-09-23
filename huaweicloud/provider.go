@@ -3100,6 +3100,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_sfs_turbo_dir_quota":          sfsturbo.ResourceSfsTurboDirQuota(),
 			"huaweicloud_sfs_turbo_data_task":          sfsturbo.ResourceDataTask(),
 			"huaweicloud_sfs_turbo_du_task":            sfsturbo.ResourceDuTask(),
+			"huaweicloud_sfs_turbo_ldap_config":        sfsturbo.ResourceLdapConfig(),
 			"huaweicloud_sfs_turbo_obs_target":         sfsturbo.ResourceOBSTarget(),
 			"huaweicloud_sfs_turbo_perm_rule":          sfsturbo.ResourceSFSTurboPermRule(),
 			"huaweicloud_sfs_turbo_change_charge_mode": sfsturbo.ResourceSFSTurboChangeChargeMode(),
