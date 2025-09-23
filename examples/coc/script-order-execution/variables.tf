@@ -179,4 +179,3 @@ variable "script_order_operation_type" {
   type        = string
   default     = "CANCEL_ORDER"
 }
-
