@@ -7,14 +7,13 @@ package rds
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
@@ -22,6 +21,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
+
+var pgHbaNonUpdatableParams = []string{"instance_id"}
 
 // @API RDS POST /v3/{project_id}/instances/{instance_id}/hba-info
 // @API RDS GET /v3/{project_id}/instances/{instance_id}/hba-info
@@ -31,9 +32,12 @@ func ResourcePgHba() *schema.Resource {
 		UpdateContext: resourcePgHbaCreateOrUpdate,
 		ReadContext:   resourcePgHbaRead,
 		DeleteContext: resourcePgHbaDelete,
+
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+
+		CustomizeDiff: config.FlexibleForceNew(pgHbaNonUpdatableParams),
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -45,7 +49,6 @@ func ResourcePgHba() *schema.Resource {
 			"instance_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the ID of the RDS PostgreSQL instance.`,
 			},
 			"host_based_authentications": {
@@ -53,6 +56,12 @@ func ResourcePgHba() *schema.Resource {
 				Elem:        pgHbaHostBasedAuthenticationSchema(),
 				Required:    true,
 				Description: `Specifies the list of host based authentications.`,
+			},
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
 			},
 		},
 	}
@@ -159,7 +168,8 @@ func resourcePgHbaRead(_ context.Context, d *schema.ResourceData, meta interface
 
 	getPgHbaResp, err := getPgHbaClient.Request("GET", getPgHbaPath, &getPgHbaOpt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseRdsErrorToError404(err), "error retrieving RDS PostgreSQL hba")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code||errCode", "DBS.280343"),
+			"error retrieving RDS PostgreSQL hba")
 	}
 
 	getPgHbaRespBody, err := utils.FlattenResponse(getPgHbaResp)
@@ -194,23 +204,6 @@ func flattenPgHbaRequestBodyHostBasedAuthentication(resp interface{}) []interfac
 		})
 	}
 	return rst
-}
-
-func parseRdsErrorToError404(respErr error) error {
-	if errCode, ok := respErr.(golangsdk.ErrDefault400); ok {
-		var apiError interface{}
-		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
-			return fmt.Errorf("unmarshal the response body failed: %s", jsonErr)
-		}
-		errorCode, errorCodeErr := jmespath.Search("error_code||errCode", apiError)
-		if errorCodeErr != nil {
-			return fmt.Errorf("error parse errorCode from response body: %s", errorCodeErr)
-		}
-		if errorCode.(string) == "DBS.280343" {
-			return golangsdk.ErrDefault404(errCode)
-		}
-	}
-	return respErr
 }
 
 func resourcePgHbaDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

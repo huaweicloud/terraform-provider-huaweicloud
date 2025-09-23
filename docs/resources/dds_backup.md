@@ -2,7 +2,8 @@
 subcategory: "Document Database Service (DDS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_dds_backup"
-description: ""
+description: |-
+  Manages a DDS backup resource within HuaweiCloud.
 ---
 
 # huaweicloud_dds_backup
@@ -33,12 +34,12 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `name` - (Required, String, ForceNew) Specifies the manual backup name.
-  The value must be 4 to 64 characters in length and start with a letter (from A to Z or from a to z).
+  The value must be `4` to `64` characters in length and start with a letter (from A to Z or from a to z).
   It is case-sensitive and can contain only letters, digits (from 0 to 9), hyphens (-), and underscores (_).
 
   Changing this parameter will create a new resource.
 
-* `description` - (Optional, String, ForceNew) Specifies the manual backup description
+* `description` - (Optional, String, ForceNew) Specifies the manual backup description.
 
   Changing this parameter will create a new resource.
 
@@ -51,7 +52,7 @@ In addition to all arguments above, the following attributes are exported:
 * `instance_name` - Indicates the name of a DDS instance.
 
 * `datastore` - Indicates the database version.
-  The [GetBackupResponseBody_datastore](#DdsBackup_GetBackupResponseBody_datastore) structure is documented below.
+  The [datastore](#datastore_struct) structure is documented below.
 
 * `type` - Indicates the backup type. Valid value:
   + **Manual**: indicates manual full backup.
@@ -68,8 +69,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `size` - Indicates the backup size in KB.
 
-<a name="DdsBackup_GetBackupResponseBody_datastore"></a>
-The `GetBackupResponseBody_datastore` block supports:
+<a name="datastore_struct"></a>
+The `datastore` block supports:
 
 * `type` - Indicates the DB engine.
 
@@ -84,8 +85,8 @@ This resource provides the following timeouts configuration options:
 
 ## Import
 
-The DDS backup can be imported using the instance ID and the backup ID separated by a slash, e.g.:
+The DDS backup can be imported using the `instance_id` and the `id` separated by a slash, e.g.:
 
-```
-$ terraform import huaweicloud_dds_backup.test 6fb8b99944c7459da32f751f0edea756br02/0ce123456a00f2591fabc00385ff1234
+```bash
+$ terraform import huaweicloud_dds_backup.test <instance_id>/<id>
 ```

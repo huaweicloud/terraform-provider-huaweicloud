@@ -1,0 +1,65 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_swr_domain_overviews": {
+          "block": {
+            "attributes": {
+              "domain_id": {
+                "type": "string",
+                "description": "The domain ID.",
+                "computed": true
+              },
+              "domain_name": {
+                "type": "string",
+                "description": "The domain name.",
+                "computed": true
+              },
+              "downflow_size": {
+                "type": "number",
+                "description": "The download traffic of the tenant.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "image_num": {
+                "type": "number",
+                "description": "The number of images of the tenant.",
+                "computed": true
+              },
+              "namspace_num": {
+                "type": "number",
+                "description": "The number of namespaces of the tenant.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "repo_num": {
+                "type": "number",
+                "description": "The number of repositories of the tenant.",
+                "computed": true
+              },
+              "store_space": {
+                "type": "number",
+                "description": "The storage size of the tenant.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "SWR",
+            "name": "Software Repository for Container",
+            "catalog": "Containers",
+            "name_cn": "容器镜像服务",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

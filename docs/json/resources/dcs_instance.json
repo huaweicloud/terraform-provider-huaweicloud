@@ -44,6 +44,23 @@
                 ],
                 "computed": true
               },
+              "big_key_enable_auto_scan": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "big_key_schedule_at": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
+              "big_key_updated_at": {
+                "type": "string",
+                "computed": true
+              },
               "cache_mode": {
                 "type": "string",
                 "computed": true
@@ -97,9 +114,55 @@
                 "optional": true,
                 "computed": true
               },
+              "expire_key_enable_auto_scan": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "expire_key_first_scan_at": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "expire_key_interval": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "expire_key_scan_keys_count": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "expire_key_timeout": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "expire_key_updated_at": {
+                "type": "string",
+                "computed": true
+              },
               "flavor": {
                 "type": "string",
                 "required": true
+              },
+              "hot_key_enable_auto_scan": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "hot_key_schedule_at": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
+              "hot_key_updated_at": {
+                "type": "string",
+                "computed": true
               },
               "id": {
                 "type": "string",
@@ -226,7 +289,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "template_id": {
                 "type": "string",
@@ -235,6 +299,7 @@
               },
               "transparent_client_ip_enable": {
                 "type": "bool",
+                "optional": true,
                 "computed": true
               },
               "used_memory": {

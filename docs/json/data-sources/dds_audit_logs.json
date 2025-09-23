@@ -1,0 +1,68 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dds_audit_logs": {
+          "block": {
+            "attributes": {
+              "audit_logs": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "end_time": "string",
+                      "id": "string",
+                      "name": "string",
+                      "node_id": "string",
+                      "size": "number",
+                      "start_time": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the audit log details.",
+                "computed": true
+              },
+              "end_time": {
+                "type": "string",
+                "description": "Specifies the end time. The format of the end time is **yyyy-mm-ddThh:mm:ssZ**.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the instance ID.",
+                "required": true
+              },
+              "node_id": {
+                "type": "string",
+                "description": "Specifies the ID of the node whose audit logs are to be queried.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "start_time": {
+                "type": "string",
+                "description": "Specifies the start time. The format of the start time is **yyyy-MM-ddThh:mm:ssZ**.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "DDS",
+            "name": "Document Database Service",
+            "catalog": "Databases",
+            "name_cn": "文档数据库服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

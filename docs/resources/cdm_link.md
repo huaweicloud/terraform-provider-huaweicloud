@@ -36,7 +36,14 @@ resource "huaweicloud_cdm_link" "obsLink" {
     "storageType" = "OBS"
     "server"      = trimprefix(huaweicloud_obs_bucket.bucket.bucket_domain_name, "${huaweicloud_obs_bucket.bucket.bucket}.")
     "port"        = "443"
+    "properties"  = jsonencode(
+      {
+        connectionTimeout = "10000",
+        socketTimeout     = "20000"
+      }
+    )
   }
+  
   access_key   = var.access_key
   secret_key   = var.secret_key
 }

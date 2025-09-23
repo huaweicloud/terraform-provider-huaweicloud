@@ -3,12 +3,12 @@ subcategory: "Access Analyzer"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_access_analyzer_archive_rule"
 description: |-
-  Manages an Access Analyzer resource within HuaweiCloud.
+  Manages an Access Analyzer archive rule resource within HuaweiCloud.
 ---
 
 # huaweicloud_access_analyzer_archive_rule
 
-Manages an Access Analyzer resource within HuaweiCloud.
+Manages an Access Analyzer archive rule resource within HuaweiCloud.
 
 ## Example Usage
 
@@ -40,11 +40,14 @@ resource "huaweicloud_access_analyzer_archive_rule" "test" {
 
 The following arguments are supported:
 
-* `analyzer_id` - (Required, String, NonUpdatable) Specifies the ID of the analyzer to which the archice rule belongs.
+* `region` - (Optional, String, ForceNew) Specifies the region in which to create resource.
+  If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `name` - (Required, String, NonUpdatable) Specifies the name of the archice rule.
+* `analyzer_id` - (Required, String, NonUpdatable) Specifies the ID of the analyzer to which the archive rule belongs.
 
-* `filters` - (Required, List) Specifies the filters of the archice rule.
+* `name` - (Required, String, NonUpdatable) Specifies the name of the archive rule.
+
+* `filters` - (Required, List) Specifies the filters of the archive rule.
   The [filters](#filters) structure is documented below.
 
 <a name="filters"></a>

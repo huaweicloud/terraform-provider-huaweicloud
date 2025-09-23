@@ -9,6 +9,28 @@
                 "type": "string",
                 "computed": true
               },
+              "binary_collect": {
+                "type": "bool",
+                "description": "Whether to allow collection of binary log files.",
+                "optional": true,
+                "forcenew": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the host access, in RFC3339 format.",
+                "computed": true
+              },
+              "demo_log": {
+                "type": "string",
+                "description": "The example log of the ICAgent structuring parsing.",
+                "optional": true
+              },
+              "encoding_format": {
+                "type": "string",
+                "description": "The encoding format log file.",
+                "optional": true,
+                "computed": true
+              },
               "host_group_ids": {
                 "type": [
                   "list",
@@ -21,6 +43,12 @@
                 "type": "string",
                 "computed": true
               },
+              "incremental_collect": {
+                "type": "bool",
+                "description": "Whether to collect logs incrementally.",
+                "optional": true,
+                "default": true
+              },
               "log_group_id": {
                 "type": "string",
                 "required": true,
@@ -29,6 +57,11 @@
               "log_group_name": {
                 "type": "string",
                 "computed": true
+              },
+              "log_split": {
+                "type": "bool",
+                "description": "Whether to enable log splitting.",
+                "optional": true
               },
               "log_stream_id": {
                 "type": "string",
@@ -41,8 +74,12 @@
               },
               "name": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "required": true
+              },
+              "processor_type": {
+                "type": "string",
+                "description": "The type of the ICAgent structuring parsing.",
+                "optional": true
               },
               "region": {
                 "type": "string",
@@ -53,7 +90,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               }
             },
             "block_types": {
@@ -62,18 +100,43 @@
                   "attributes": {
                     "black_paths": {
                       "type": [
-                        "list",
+                        "set",
                         "string"
                       ],
                       "optional": true,
                       "computed": true
                     },
+                    "custom_key_value": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "description": "The custom key/value pairs of the host access.",
+                      "optional": true,
+                      "forcenew": true
+                    },
                     "paths": {
                       "type": [
-                        "list",
+                        "set",
                         "string"
                       ],
                       "required": true
+                    },
+                    "repeat_collect": {
+                      "type": "bool",
+                      "description": "Whether to allow repeated flie collection.",
+                      "optional": true,
+                      "default": true
+                    },
+                    "system_fields": {
+                      "type": [
+                        "set",
+                        "string"
+                      ],
+                      "description": "The list of system built-in fields of the host access.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
                     }
                   },
                   "block_types": {
@@ -145,6 +208,42 @@
                 "nesting_mode": "list",
                 "min_items": 1,
                 "max_items": 1
+              },
+              "demo_fields": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "description": "The name of the parsed field.",
+                      "required": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "description": "The value of the parsed field.",
+                      "optional": true
+                    }
+                  },
+                  "description": "The list of the parsed fields of the example log"
+                },
+                "nesting_mode": "set"
+              },
+              "processors": {
+                "block": {
+                  "attributes": {
+                    "detail": {
+                      "type": "string",
+                      "description": "The configuration of the parser, in JSON format.",
+                      "optional": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The type of the parser.",
+                      "optional": true
+                    }
+                  },
+                  "description": "The list of the ICAgent structuring parsing rules."
+                },
+                "nesting_mode": "list"
               }
             }
           },

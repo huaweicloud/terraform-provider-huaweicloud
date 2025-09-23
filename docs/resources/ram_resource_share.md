@@ -63,6 +63,12 @@ The following arguments are supported:
 
 * `description` - (Optional, String) Specifies the description of the resource share.
 
+* `allow_external_principals` - (Optional, Bool) Specifies whether resources can be shared with any accounts outside
+  the organization. Defaults to **true**.
+
+  -> Configuring `allow_external_principals` to **false** may cause failure when the resource share contains one or more
+  accounts outside the organization.
+
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the resource share.
 
 ## Attribute Reference

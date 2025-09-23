@@ -1,0 +1,50 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cbh_instance_ecs_quota": {
+          "block": {
+            "attributes": {
+              "availability_zone": {
+                "type": "string",
+                "description": "Specifies the availability zone name.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource.",
+                "computed": true
+              },
+              "resource_spec_code": {
+                "type": "string",
+                "description": "Specifies the specification code of the CBH instance to be created.",
+                "required": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the CBH instance specification resources.",
+                "computed": true
+              },
+              "status_v6": {
+                "type": "string",
+                "description": "The status of the CBH instance specification resources which support Ipv6.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CBH",
+            "name": "Cloud Bastion Host",
+            "catalog": "Security & Compliance",
+            "name_cn": "云堡垒机",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

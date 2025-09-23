@@ -14,7 +14,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -24,6 +23,7 @@ import (
 
 // @API IMS DELETE /v1/cloudimages/members
 // @API IMS POST /v1/cloudimages/members
+// @API IMS GET /v1/{project_id}/jobs/{job_id}
 func ResourceImsImageShare() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceImsImageShareCreate,
@@ -60,10 +60,11 @@ func ResourceImsImageShare() *schema.Resource {
 }
 
 func resourceImsImageShareCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-
-	projectIds := d.Get("target_project_ids")
-	sourceImageId := d.Get("source_image_id").(string)
+	var (
+		cfg           = meta.(*config.Config)
+		projectIds    = d.Get("target_project_ids")
+		sourceImageId = d.Get("source_image_id").(string)
+	)
 	err := dealImageMembers(ctx, d, cfg, "POST", sourceImageId, projectIds.(*schema.Set).List())
 	if err != nil {
 		return diag.FromErr(err)
@@ -116,8 +117,8 @@ func resourceImsImageShareDelete(ctx context.Context, d *schema.ResourceData, me
 
 func dealImageMembers(ctx context.Context, d *schema.ResourceData, cfg *config.Config, requestMethod,
 	imageId string, projectIds []interface{}) error {
-	region := cfg.GetRegion(d)
 	var (
+		region             = cfg.GetRegion(d)
 		imageMemberHttpUrl = "v1/cloudimages/members"
 		imageMemberProduct = "ims"
 	)
@@ -128,7 +129,6 @@ func dealImageMembers(ctx context.Context, d *schema.ResourceData, cfg *config.C
 	}
 
 	imageMemberPath := imageMemberClient.Endpoint + imageMemberHttpUrl
-
 	imageMemberOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		OkCodes: []int{
@@ -137,12 +137,16 @@ func dealImageMembers(ctx context.Context, d *schema.ResourceData, cfg *config.C
 	}
 	imageMemberOpt.JSONBody = utils.RemoveNil(buildImageMemberBodyParams(imageId, projectIds))
 	imageMemberResp, err := imageMemberClient.Request(requestMethod, imageMemberPath, &imageMemberOpt)
-	operateMethod := "creating"
-	timeout := schema.TimeoutCreate
+
+	var (
+		operateMethod = "creating"
+		timeout       = schema.TimeoutCreate
+	)
 	if requestMethod == "DELETE" {
 		operateMethod = "deleting"
 		timeout = schema.TimeoutDelete
 	}
+
 	if err != nil {
 		return fmt.Errorf("error %s IMS image share: %s", operateMethod, err)
 	}
@@ -152,16 +156,12 @@ func dealImageMembers(ctx context.Context, d *schema.ResourceData, cfg *config.C
 		return err
 	}
 
-	jobId, err := jmespath.Search("job_id", imageMemberRespBody)
-	if err != nil {
-		return fmt.Errorf("error %s IMS image share: job_id is not found in API response", operateMethod)
+	jobId := utils.PathSearch("job_id", imageMemberRespBody, "").(string)
+	if jobId == "" {
+		return fmt.Errorf("unable to find the job ID of the IMS image share from the API response")
 	}
 
-	err = waitForJobSuccess(ctx, d, imageMemberClient, jobId.(string), timeout)
-	if err != nil {
-		return err
-	}
-	return nil
+	return waitForImageShareOrAcceptJobSuccess(ctx, d, imageMemberClient, jobId, timeout)
 }
 
 func buildImageMemberBodyParams(imageId string, projectIds []interface{}) map[string]interface{} {
@@ -175,12 +175,12 @@ func buildImageMemberBodyParams(imageId string, projectIds []interface{}) map[st
 	return bodyParams
 }
 
-func waitForJobSuccess(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
+func waitForImageShareOrAcceptJobSuccess(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
 	jobId, timeout string) error {
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"INIT", "RUNNING"},
 		Target:     []string{"SUCCESS"},
-		Refresh:    imsJobStatusRefreshFunc(jobId, client),
+		Refresh:    imageShareOrAcceptJobStatusRefreshFunc(jobId, client),
 		Timeout:    d.Timeout(timeout),
 		Delay:      1 * time.Second,
 		MinTimeout: 1 * time.Second,
@@ -190,10 +190,11 @@ func waitForJobSuccess(ctx context.Context, d *schema.ResourceData, client *gola
 	if err != nil {
 		return fmt.Errorf("error waiting for job (%s) success: %s", jobId, err)
 	}
+
 	return nil
 }
 
-func imsJobStatusRefreshFunc(jobId string, client *golangsdk.ServiceClient) resource.StateRefreshFunc {
+func imageShareOrAcceptJobStatusRefreshFunc(jobId string, client *golangsdk.ServiceClient) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		var (
 			getJobStatusHttpUrl = "v1/{project_id}/jobs/{job_id}"
@@ -211,12 +212,12 @@ func imsJobStatusRefreshFunc(jobId string, client *golangsdk.ServiceClient) reso
 		}
 		getJobStatusResp, err := client.Request("GET", getJobStatusPath, &getJobStatusOpt)
 		if err != nil {
-			return getJobStatusResp, "FAIL", nil
+			return getJobStatusResp, "ERROR", nil
 		}
 
 		getJobStatusRespBody, err := utils.FlattenResponse(getJobStatusResp)
 		if err != nil {
-			return nil, "", err
+			return nil, "ERROR", err
 		}
 
 		status := utils.PathSearch("status", getJobStatusRespBody, "")

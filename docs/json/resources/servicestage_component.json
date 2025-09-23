@@ -151,9 +151,9 @@
           "product": {
             "short": "ServiceStage",
             "name": "ServiceStage",
-            "catalog": "CodeArts",
+            "catalog": "Middleware",
             "name_cn": "应用管理与运维平台",
-            "catalog_cn": "软件开发生产线"
+            "catalog_cn": "应用中间件"
           }
         }
       }

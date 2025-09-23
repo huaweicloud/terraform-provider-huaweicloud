@@ -28,8 +28,9 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the DLI database resource.
   If omitted, the provider-level region will be used. Changing this parameter will create a new database resource.
 
-* `name` - (Required, String, ForceNew) Specifies the database name. The name consists of 1 to 128 characters, starting
-  with a letter or digit. Only letters, digits and underscores (_) are allowed and the name cannot be all digits.
+* `name` - (Required, String, ForceNew) Specifies the database name.  
+  The name consists of `1` to `128` characters, starting with a letter or digit.
+  Only letters, digits and underscores (_) are allowed and the name cannot be all digits.  
   Changing this parameter will create a new database resource.
 
 * `description` - (Optional, String, ForceNew) Specifies the description of a queue.
@@ -63,7 +64,7 @@ This resource provides the following timeouts configuration options:
 
 DLI SQL databases can be imported by their `name`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_dli_database.test terraform_test
 ```
 

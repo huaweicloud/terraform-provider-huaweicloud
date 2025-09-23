@@ -14,7 +14,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -83,8 +82,143 @@ func ResourceIdentityCenterUser() *schema.Resource {
 				Required:    true,
 				Description: `Specifies the email of the user.`,
 			},
+			"phone_number": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the phone number of the user.`,
+			},
+			"user_type": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the type of the user.`,
+			},
+			"title": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the title of the user.`,
+			},
+			"addresses": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Specifies the addresses information of the user.`,
+				MaxItems:    1,
+				Elem:        identityCenterUserAddressesSchema(),
+			},
+			"enterprise": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Specifies the enterprise information of the user.`,
+				MaxItems:    1,
+				Elem:        identityCenterUserEnterpriseSchema(),
+			},
+			"created_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The creation time of the user.`,
+			},
+			"created_by": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The creator of the user.`,
+			},
+			"updated_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The update time of the user.`,
+			},
+			"updated_by": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The updater of the user.`,
+			},
+			"email_verified": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Whether the email is verified.`,
+			},
+			"enabled": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Whether the user is enabled.`,
+			},
 		},
 	}
+}
+
+func identityCenterUserAddressesSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"country": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the country of the user.`,
+			},
+			"formatted": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies a string containing a formatted version of the address to be displayed.`,
+			},
+			"locality": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the locality of the user.`,
+			},
+			"postal_code": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the postal code of the user.`,
+			},
+			"region": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the region of the user.`,
+			},
+			"street_address": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the street address of the user.`,
+			},
+		},
+	}
+	return &sc
+}
+
+func identityCenterUserEnterpriseSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"cost_center": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the cost center of the enterprise.`,
+			},
+			"department": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the department of the enterprise.`,
+			},
+			"division": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the division of the enterprise.`,
+			},
+			"employee_number": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the employee number of the enterprise.`,
+			},
+			"organization": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the organization of the enterprise.`,
+			},
+			"manager": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the manager of the enterprise.`,
+			},
+		},
+	}
+	return &sc
 }
 
 func resourceIdentityCenterUserCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -120,11 +254,11 @@ func resourceIdentityCenterUserCreate(ctx context.Context, d *schema.ResourceDat
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("user_id", createIdentityCenterUserRespBody)
-	if err != nil {
-		return diag.Errorf("error creating Identity Center User: ID is not found in API response")
+	userId := utils.PathSearch("user_id", createIdentityCenterUserRespBody, "").(string)
+	if userId == "" {
+		return diag.Errorf("unable to find the Identity Center user ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(userId)
 
 	return resourceIdentityCenterUserRead(ctx, d, meta)
 }
@@ -142,6 +276,33 @@ func buildCreateIdentityCenterUserBodyParams(d *schema.ResourceData) map[string]
 		"name": map[string]interface{}{
 			"family_name": utils.ValueIgnoreEmpty(d.Get("family_name")),
 			"given_name":  utils.ValueIgnoreEmpty(d.Get("given_name")),
+		},
+		"title":     utils.ValueIgnoreEmpty(d.Get("title")),
+		"user_type": utils.ValueIgnoreEmpty(d.Get("user_type")),
+		"phone_numbers": []map[string]interface{}{{
+			"primary": true,
+			"type":    "Work",
+			"value":   utils.ValueIgnoreEmpty(d.Get("phone_number")),
+		}},
+		"addresses": []map[string]interface{}{
+			{
+				"country":        utils.ValueIgnoreEmpty(d.Get("addresses.0.country")),
+				"formatted":      utils.ValueIgnoreEmpty(d.Get("addresses.0.formatted")),
+				"locality":       utils.ValueIgnoreEmpty(d.Get("addresses.0.locality")),
+				"postal_code":    utils.ValueIgnoreEmpty(d.Get("addresses.0.postal_code")),
+				"region":         utils.ValueIgnoreEmpty(d.Get("addresses.0.region")),
+				"street_address": utils.ValueIgnoreEmpty(d.Get("addresses.0.street_address")),
+			},
+		},
+		"enterprise": map[string]interface{}{
+			"cost_center":     utils.ValueIgnoreEmpty(d.Get("enterprise.0.cost_center")),
+			"department":      utils.ValueIgnoreEmpty(d.Get("enterprise.0.department")),
+			"division":        utils.ValueIgnoreEmpty(d.Get("enterprise.0.division")),
+			"employee_number": utils.ValueIgnoreEmpty(d.Get("enterprise.0.employee_number")),
+			"manager": map[string]interface{}{
+				"value": utils.ValueIgnoreEmpty(d.Get("enterprise.0.manager")),
+			},
+			"organization": utils.ValueIgnoreEmpty(d.Get("enterprise.0.organization")),
 		},
 	}
 	return bodyParams
@@ -191,9 +352,63 @@ func resourceIdentityCenterUserRead(_ context.Context, d *schema.ResourceData, m
 		d.Set("given_name", utils.PathSearch("name.given_name", getIdentityCenterUserRespBody, nil)),
 		d.Set("display_name", utils.PathSearch("display_name", getIdentityCenterUserRespBody, nil)),
 		d.Set("email", utils.PathSearch("emails|[0].value", getIdentityCenterUserRespBody, nil)),
+		d.Set("phone_number", utils.PathSearch("phone_numbers|[0].value", getIdentityCenterUserRespBody, nil)),
+		d.Set("title", utils.PathSearch("title", getIdentityCenterUserRespBody, nil)),
+		d.Set("user_type", utils.PathSearch("user_type", getIdentityCenterUserRespBody, nil)),
+		d.Set("created_by", utils.PathSearch("created_by", getIdentityCenterUserRespBody, nil)),
+		d.Set("updated_by", utils.PathSearch("updated_by", getIdentityCenterUserRespBody, nil)),
+		d.Set("email_verified", utils.PathSearch("email_verified", getIdentityCenterUserRespBody, false)),
+		d.Set("enabled", utils.PathSearch("enabled", getIdentityCenterUserRespBody, false)),
+		d.Set("created_at", utils.FormatTimeStampRFC3339(
+			int64(utils.PathSearch("created_at", getIdentityCenterUserRespBody, float64(0)).(float64))/1000, false)),
+		d.Set("updated_at", utils.FormatTimeStampRFC3339(
+			int64(utils.PathSearch("updated_at", getIdentityCenterUserRespBody, float64(0)).(float64))/1000, false)),
+		d.Set("addresses", flattenIdentityCenterUserAddresses(utils.PathSearch("addresses|[0]", getIdentityCenterUserRespBody, nil))),
+		d.Set("enterprise", flattenIdentityCenterUserEnterprise(utils.PathSearch("enterprise", getIdentityCenterUserRespBody, nil))),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func flattenIdentityCenterUserAddresses(address interface{}) []map[string]interface{} {
+	if address == nil || len(address.(map[string]interface{})) == 0 {
+		return nil
+	}
+
+	return []map[string]interface{}{
+		{
+			"country":        utils.PathSearch("country", address, nil),
+			"formatted":      utils.PathSearch("formatted", address, nil),
+			"locality":       utils.PathSearch("locality", address, nil),
+			"postal_code":    utils.PathSearch("postal_code", address, nil),
+			"region":         utils.PathSearch("region", address, nil),
+			"street_address": utils.PathSearch("street_address", address, nil),
+		},
+	}
+}
+
+func flattenIdentityCenterUserEnterprise(enterprise interface{}) []map[string]interface{} {
+	if enterprise == nil {
+		return nil
+	}
+
+	// enterprise format: {"enterprise":{"manager":{}}}
+	enterpriseMap := enterprise.(map[string]interface{})
+	manager := utils.PathSearch("manager.value", enterprise, nil)
+	if len(enterpriseMap) == 1 && manager == nil {
+		return nil
+	}
+
+	return []map[string]interface{}{
+		{
+			"cost_center":     utils.PathSearch("cost_center", enterprise, nil),
+			"department":      utils.PathSearch("department", enterprise, nil),
+			"division":        utils.PathSearch("division", enterprise, nil),
+			"employee_number": utils.PathSearch("employee_number", enterprise, nil),
+			"organization":    utils.PathSearch("organization", enterprise, nil),
+			"manager":         manager,
+		},
+	}
 }
 
 func resourceIdentityCenterUserUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -255,6 +470,67 @@ func buildUpdateIdentityCenterUserBodyParams(d *schema.ResourceData) map[string]
 		updateValueJson, _ := json.Marshal(updateValue)
 		operations = append(operations, map[string]interface{}{
 			"attribute_path":  "emails",
+			"attribute_value": string(updateValueJson),
+		})
+	}
+
+	if d.HasChange("phone_number") {
+		updateValue := []map[string]interface{}{{
+			"primary": true,
+			"type":    "Work",
+			"value":   utils.ValueIgnoreEmpty(d.Get("phone_number")),
+		}}
+		updateValueJson, _ := json.Marshal(updateValue)
+		operations = append(operations, map[string]interface{}{
+			"attribute_path":  "phone_numbers",
+			"attribute_value": string(updateValueJson),
+		})
+	}
+
+	if d.HasChange("addresses") {
+		updateValue := []map[string]interface{}{{
+			"country":        utils.ValueIgnoreEmpty(d.Get("addresses.0.country")),
+			"region":         utils.ValueIgnoreEmpty(d.Get("addresses.0.region")),
+			"locality":       utils.ValueIgnoreEmpty(d.Get("addresses.0.locality")),
+			"postal_code":    utils.ValueIgnoreEmpty(d.Get("addresses.0.postal_code")),
+			"street_address": utils.ValueIgnoreEmpty(d.Get("addresses.0.street_address")),
+			"formatted":      utils.ValueIgnoreEmpty(d.Get("addresses.0.formatted")),
+		}}
+		updateValueJson, _ := json.Marshal(updateValue)
+		operations = append(operations, map[string]interface{}{
+			"attribute_path":  "addresses",
+			"attribute_value": string(updateValueJson),
+		})
+	}
+
+	if d.HasChange("user_type") {
+		operations = append(operations, map[string]interface{}{
+			"attribute_path":  "user_type",
+			"attribute_value": utils.ValueIgnoreEmpty(d.Get("user_type")),
+		})
+	}
+
+	if d.HasChange("title") {
+		operations = append(operations, map[string]interface{}{
+			"attribute_path":  "title",
+			"attribute_value": utils.ValueIgnoreEmpty(d.Get("title")),
+		})
+	}
+
+	if d.HasChange("enterprise") {
+		updateValue := map[string]interface{}{
+			"cost_center":     utils.ValueIgnoreEmpty(d.Get("enterprise.0.cost_center")),
+			"department":      utils.ValueIgnoreEmpty(d.Get("enterprise.0.department")),
+			"division":        utils.ValueIgnoreEmpty(d.Get("enterprise.0.division")),
+			"employee_number": utils.ValueIgnoreEmpty(d.Get("enterprise.0.employee_number")),
+			"organization":    utils.ValueIgnoreEmpty(d.Get("enterprise.0.organization")),
+			"manager": map[string]interface{}{
+				"value": utils.ValueIgnoreEmpty(d.Get("enterprise.0.manager")),
+			},
+		}
+		updateValueJson, _ := json.Marshal(updateValue)
+		operations = append(operations, map[string]interface{}{
+			"attribute_path":  "enterprise",
 			"attribute_value": string(updateValueJson),
 		})
 	}

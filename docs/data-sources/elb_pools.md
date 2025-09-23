@@ -1,8 +1,9 @@
 ---
-subcategory: Dedicated Load Balance (Dedicated ELB)
+subcategory: "Dedicated Load Balance (Dedicated ELB)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_elb_pools"
-description: ""
+description: |-
+  Use this data source to get the list of ELB pools.
 ---
 
 # huaweicloud_elb_pools
@@ -31,6 +32,39 @@ The following arguments are supported:
 * `pool_id` - (Optional, String) Specifies the ID of the ELB pool.
 
 * `description` - (Optional, String) Specifies the description of the ELB pool.
+
+* `any_port_enable` - (Optional, String) Specifies whether forward to same port for a backend server group is enabled.
+  Value options:
+  + **false**: Disable this option.
+  + **true**: Enable this option.
+
+* `connection_drain` - (Optional, String) Specifies whether delayed logout is enabled. Value options:
+  + **false**: Disable this option.
+  + **true**: Enable this option.
+
+* `enterprise_project_id` - (Optional, String) Specifies the ID of the enterprise project.
+
+* `ip_version` - (Optional, String) Specifies the IP address version supported by the backend server group.
+
+* `member_address` - (Optional, String) Specifies the private IP address bound to the backend server.
+
+* `member_device_id` - (Optional, String) Specifies the ID of the cloud server that serves as a backend server.
+
+* `member_instance_id` - (Optional, String) Specifies the backend server ID.
+
+* `member_deletion_protection_enable` - (Optional, String) Specifies whether deletion protection is enabled. Value options:
+  + **false**: Disable this option.
+  + **true**: Enable this option.
+
+* `pool_health` - (Optional, String) Specifies whether pool health is enabled. Value options:
+  + **minimum_healthy_member_count=0**
+  + **minimum_healthy_member_count=1**
+
+* `public_border_group` - (Optional, String) Specifies the public border group.
+
+* `quic_cid_len` - (Optional, Int) Specifies the QUIC connection ID len.
+
+* `quic_cid_offset` - (Optional, Int) Specifies the QUIC connection ID offset.
 
 * `loadbalancer_id` - (Optional, String) Specifies the loadbalancer ID of the ELB pool.
 
@@ -81,6 +115,14 @@ The `pools` block supports:
 
 * `vpc_id` - The ID of the VPC where the backend server group works.
 
+* `any_port_enable` - Whether forward to same port for a backend server group is enabled
+
+* `enterprise_project_id` - The ID of the enterprise project.
+
+* `member_deletion_protection_enable` - Whether deletion protection is enabled
+
+* `public_border_group` - The public border group.
+
 * `protection_status` - The protection status for update.
 
 * `protection_reason` - The reason for update protection.
@@ -104,6 +146,13 @@ The `pools` block supports:
 * `persistence` - Indicates whether connections in the same session will be processed by the same pool member or not.
   The [object](#persistence_object) structure is documented below.
 
+* `quic_cid_hash_strategy` - The multi-path forwarding policy based on destination connection IDs.
+  The [quic_cid_hash_strategy](#quic_cid_hash_strategy_struct) structure is documented below.
+
+* `created_at` - The time when the backend server group was created
+
+* `updated_at` - The time when the backend server group was updated.
+
 <a name="elem_object"></a>
 The `listeners`,  `loadbalancers` or `members` block supports:
 
@@ -117,3 +166,10 @@ The `persistence` block supports:
 * `cookie_name` - The name of the cookie if persistence mode is set appropriately.
 
 * `timeout` - The stickiness duration, in minutes.
+
+<a name="quic_cid_hash_strategy_struct"></a>
+The `quic_cid_hash_strategy` block supports:
+
+* `len` - The length of the hash factor in the connection ID, in byte.
+
+* `offset` - The start position in the connection ID as the hash factor, in byte.

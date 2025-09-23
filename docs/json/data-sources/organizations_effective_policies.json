@@ -1,0 +1,50 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_organizations_effective_policies": {
+          "block": {
+            "attributes": {
+              "entity_id": {
+                "type": "string",
+                "description": "Specifies the unique ID of an account.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "last_updated_at": {
+                "type": "string",
+                "description": "Indicates the time when the effective policy is mostly updated.",
+                "computed": true
+              },
+              "policy_content": {
+                "type": "string",
+                "description": "Indicates the content of the effective policy.",
+                "computed": true
+              },
+              "policy_type": {
+                "type": "string",
+                "description": "Specifies the name of a policy type.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Organizations",
+            "name": "Organizations",
+            "catalog": "Management & Governance",
+            "name_cn": "组织",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

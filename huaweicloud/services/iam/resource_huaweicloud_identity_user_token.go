@@ -7,7 +7,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -98,8 +97,8 @@ func createToken(client *golangsdk.ServiceClient, d *schema.ResourceData) error 
 		return fmt.Errorf("error flattening IAM user token: %s", err)
 	}
 
-	expiresAt, err := jmespath.Search("token.expires_at", createTokenRespBody)
-	if err != nil {
+	expiresAt := utils.PathSearch("token.expires_at", createTokenRespBody, nil)
+	if expiresAt == nil {
 		return fmt.Errorf("error retrieving IAM user token: expires_at is not found in API response")
 	}
 	d.Set("expires_at", expiresAt)

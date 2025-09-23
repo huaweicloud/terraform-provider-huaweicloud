@@ -103,6 +103,85 @@ func TestAccCssCluster_basic(t *testing.T) {
 	})
 }
 
+func TestAccCssCluster_opensearchBasic(t *testing.T) {
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_css_cluster.test"
+
+	var obj cluster.ClusterDetailResponse
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getCssClusterFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCssCluster_opensearchBasic(rName, "Test@passw0rd", 7, "bar"),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "engine_version", "1.3.6"),
+					resource.TestCheckResourceAttr(resourceName, "engine_type", "opensearch"),
+					resource.TestCheckResourceAttr(resourceName, "security_mode", "true"),
+					resource.TestCheckResourceAttr(resourceName, "https_enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "ess_node_config.0.flavor", "ess.spec-4u8g"),
+					resource.TestCheckResourceAttr(resourceName, "ess_node_config.0.instance_number", "1"),
+					resource.TestCheckResourceAttr(resourceName, "ess_node_config.0.volume.0.size", "40"),
+					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "7"),
+					resource.TestCheckResourceAttrPair(resourceName, "availability_zone",
+						"data.huaweicloud_availability_zones.test", "names.0"),
+					resource.TestCheckResourceAttrPair(resourceName, "security_group_id",
+						"huaweicloud_networking_secgroup.test", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "subnet_id",
+						"huaweicloud_vpc_subnet.test", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "vpc_id",
+						"huaweicloud_vpc.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttrSet(resourceName, "updated_at"),
+					resource.TestCheckResourceAttr(resourceName, "is_period", "false"),
+					resource.TestCheckResourceAttr(resourceName, "backup_available", "true"),
+					resource.TestCheckResourceAttr(resourceName, "disk_encrypted", "false"),
+				),
+			},
+			{
+				Config: testAccCssCluster_opensearchBasic(rName, "Test@passw0rd.", 8, "bar_update"),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "backup_strategy.0.keep_days", "8"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar_update"),
+				),
+			},
+			{
+				Config: testAccCssCluster_opensearchBasicUpdate(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "security_mode", "false"),
+					resource.TestCheckResourceAttrPair(resourceName, "security_group_id",
+						"huaweicloud_networking_secgroup.test_update", "id"),
+				),
+			},
+			{
+				Config: testAccCssCluster_opensearchBasic(rName, "Test@passw0rd", 8, "bar_update"),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "security_mode", "true"),
+				),
+			},
+			{
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"password"},
+			},
+		},
+	})
+}
+
 func TestAccCssCluster_access(t *testing.T) {
 	rName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_css_cluster.test"
@@ -627,6 +706,12 @@ resource "huaweicloud_css_cluster" "test" {
     foo = "%[6]s"
     key = "value"
   }
+
+  lifecycle {
+    ignore_changes = [
+      ess_node_config.0.shrink_node_ids,
+    ]
+  }
 }
 `, testAccCssBase(rName), testAccSecGroupUpdate(rName), rName, pwd, keepDays, tag)
 }
@@ -1111,4 +1196,96 @@ resource "huaweicloud_css_cluster" "test" {
   vpc_id            = huaweicloud_vpc.test.id
 }
 `, testAccCssBase(rName), rName)
+}
+
+func testAccCssCluster_opensearchBasic(rName, pwd string, keepDays int, tag string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+%[2]s
+
+resource "huaweicloud_css_cluster" "test" {
+  name           = "%[3]s"
+  engine_version = "1.3.6"
+  engine_type    = "opensearch"
+  security_mode  = true
+  password       = "%[4]s"
+
+  ess_node_config {
+    flavor          = "ess.spec-4u8g"
+    instance_number = 1
+    volume {
+      volume_type = "HIGH"
+      size        = 40
+    }
+  }
+
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  vpc_id            = huaweicloud_vpc.test.id
+
+  backup_strategy {
+    keep_days   = %[5]d
+    start_time  = "00:00 GMT+08:00"
+    prefix      = "snapshot"
+    bucket      = huaweicloud_obs_bucket.cssObs.bucket
+    agency      = "css_obs_agency"
+    backup_path = "css_repository/acctest"
+  }
+
+  tags = {
+    foo = "%[6]s"
+    key = "value"
+  }
+
+  lifecycle {
+    ignore_changes = [
+      ess_node_config.0.shrink_node_ids,
+    ]
+  }
+}
+`, testAccCssBase(rName), testAccSecGroupUpdate(rName), rName, pwd, keepDays, tag)
+}
+
+func testAccCssCluster_opensearchBasicUpdate(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+%[2]s
+
+resource "huaweicloud_css_cluster" "test" {
+  name           = "%[3]s"
+  engine_version = "1.3.6"
+  engine_type    = "opensearch"
+
+  ess_node_config {
+    flavor          = "ess.spec-4u8g"
+    instance_number = 1
+    volume {
+      volume_type = "HIGH"
+      size        = 40
+    }
+  }
+
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  security_group_id = huaweicloud_networking_secgroup.test_update.id
+  subnet_id         = huaweicloud_vpc_subnet.test.id
+  vpc_id            = huaweicloud_vpc.test.id
+
+  backup_strategy {
+    keep_days   = 8
+    start_time  = "00:00 GMT+08:00"
+    prefix      = "snapshot"
+    bucket      = huaweicloud_obs_bucket.cssObs.bucket
+    agency      = "css_obs_agency"
+    backup_path = "css_repository/acctest"
+  }
+
+  tags = {
+    foo = "bar_update"
+    key = "value"
+  }
+}
+`, testAccCssBase(rName), testAccSecGroupUpdate(rName), rName)
 }

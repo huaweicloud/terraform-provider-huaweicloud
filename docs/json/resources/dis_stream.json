@@ -112,7 +112,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "writable_partition_count": {
                 "type": "number",

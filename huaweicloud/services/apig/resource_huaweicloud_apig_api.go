@@ -75,12 +75,6 @@ const (
 	EffectiveModeAll EffectiveMode = "ALL"
 	EffectiveModeAny EffectiveMode = "ANY"
 
-	ConditionSourceParam              ConditionSource = "param"
-	ConditionSourceSource             ConditionSource = "source"
-	ConditionSourceSystem             ConditionSource = "system"
-	ConditionSourceCookie             ConditionSource = "cookie"
-	ConditionSourceFrontendAuthorizer ConditionSource = "frontend_authorizer"
-
 	ConditionTypeEqual      ConditionType = "Equal"
 	ConditionTypeEnumerated ConditionType = "Enumerated"
 	ConditionTypeMatching   ConditionType = "Matching"
@@ -155,6 +149,7 @@ func ResourceApigAPIV2() *schema.Resource {
 			"group_id": {
 				Type:        schema.TypeString,
 				Required:    true,
+				ForceNew:    true,
 				Description: "The ID of the API group to which the API belongs.",
 			},
 			"type": {
@@ -231,6 +226,18 @@ func ResourceApigAPIV2() *schema.Resource {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: "The list of tags configuration.",
 			},
+			"content_type": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "The content type of the request body.",
+			},
+			"is_send_fg_body_base64": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     true,
+				Description: "Whether to perform Base64 encoding on the body for interaction with FunctionGraph.",
+			},
 			"request_params": {
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -239,14 +246,8 @@ func ResourceApigAPIV2() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:     schema.TypeString,
-							Required: true,
-							ValidateFunc: validation.All(
-								validation.StringMatch(regexp.MustCompile(`^[A-Za-z][\w-.]*$`),
-									"Only letters, digits, hyphens (-), underscores (_) and periods (.) are allowed, "+
-										"and must start with a letter."),
-								validation.StringLenBetween(1, 32),
-							),
+							Type:        schema.TypeString,
+							Required:    true,
 							Description: "The name of the request parameter.",
 						},
 						"required": {
@@ -301,36 +302,21 @@ func ResourceApigAPIV2() *schema.Resource {
 							Description: "The minimum value or length (string parameter) for parameter.",
 						},
 						"example": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-							ValidateFunc: validation.All(
-								validation.StringMatch(regexp.MustCompile(`^[^<>]*$`),
-									"The angle brackets (< and >) are not allowed."),
-								validation.StringLenBetween(0, 255),
-							),
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
 							Description: "The parameter example.",
 						},
 						"default": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-							ValidateFunc: validation.All(
-								validation.StringMatch(regexp.MustCompile(`^[^<>]*$`),
-									"The angle brackets (< and >) are not allowed."),
-								validation.StringLenBetween(0, 255),
-							),
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
 							Description: "The default value of the parameter.",
 						},
 						"description": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-							ValidateFunc: validation.All(
-								validation.StringMatch(regexp.MustCompile(`^[^<>]*$`),
-									"The angle brackets (< and >) are not allowed."),
-								validation.StringLenBetween(0, 255),
-							),
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
 							Description: "The parameter description.",
 						},
 						"valid_enable": {
@@ -338,6 +324,12 @@ func ResourceApigAPIV2() *schema.Resource {
 							Optional:    true,
 							Computed:    true,
 							Description: "Whether to enable the parameter validation.",
+						},
+						"orchestrations": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Description: "The list of orchestration rules that parameter used.",
 						},
 					},
 				},
@@ -352,9 +344,8 @@ func ResourceApigAPIV2() *schema.Resource {
 				Description: "The configurations of the backend parameters.",
 			},
 			"body_description": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringLenBetween(1, 20480),
+				Type:     schema.TypeString,
+				Optional: true,
 				Description: "The description of the API request body, which can be an example request body, media " +
 					"type or parameters.",
 			},
@@ -365,13 +356,8 @@ func ResourceApigAPIV2() *schema.Resource {
 				Description: "Whether CORS is supported.",
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[^<>]*$`),
-						"The angle brackets (< and >) are not allowed."),
-					validation.StringLenBetween(0, 255),
-				),
+				Type:        schema.TypeString,
+				Optional:    true,
 				Description: "The API description.",
 			},
 			"matching": {
@@ -390,16 +376,14 @@ func ResourceApigAPIV2() *schema.Resource {
 				Description: "The ID of the custom response that API used.",
 			},
 			"success_response": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringLenBetween(1, 20480),
-				Description:  "The example response for a successful request.",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The example response for a successful request.",
 			},
 			"failure_response": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringLenBetween(1, 20480),
-				Description:  "The example response for a failure request.",
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The example response for a failure request.",
 			},
 			"mock": {
 				Type:         schema.TypeList,
@@ -417,9 +401,8 @@ func ResourceApigAPIV2() *schema.Resource {
 							Description: "The custom status code of the mock response.",
 						},
 						"response": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							ValidateFunc: validation.StringLenBetween(0, 2048),
+							Type:     schema.TypeString,
+							Optional: true,
 							Description: utils.SchemaDesc(
 								"The response content of the mock.",
 								utils.SchemaDescInput{
@@ -470,11 +453,10 @@ func ResourceApigAPIV2() *schema.Resource {
 							Description: "The request protocol of the FunctionGraph function.",
 						},
 						"timeout": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							Default:      5000,
-							ValidateFunc: validation.IntBetween(1, 600000),
-							Description:  "The timeout for API requests to backend service.",
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Default:     5000,
+							Description: "The timeout for API requests to backend service.",
 						},
 						"invocation_type": {
 							Type:     schema.TypeString,
@@ -552,11 +534,10 @@ func ResourceApigAPIV2() *schema.Resource {
 							Description: "The web protocol type of the API request.",
 						},
 						"timeout": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							Default:      5000,
-							ValidateFunc: validation.IntBetween(1, 600000),
-							Description:  "The timeout for API requests to backend service.",
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Default:     5000,
+							Description: "The timeout for API requests to backend service.",
 						},
 						"retry_count": {
 							Type:        schema.TypeInt,
@@ -587,13 +568,8 @@ func ResourceApigAPIV2() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:     schema.TypeString,
-							Required: true,
-							ValidateFunc: validation.All(
-								validation.StringMatch(regexp.MustCompile(`^[A-Za-z]\w*$`),
-									"Only letters, digits and underscores (_) are allowed, and start with a letter."),
-								validation.StringLenBetween(3, 64),
-							),
+							Type:        schema.TypeString,
+							Required:    true,
 							Description: "The backend policy name.",
 						},
 						"conditions": {
@@ -610,10 +586,9 @@ func ResourceApigAPIV2() *schema.Resource {
 							Description: "The custom status code of the mock response.",
 						},
 						"response": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							ValidateFunc: validation.StringLenBetween(8, 2048),
-							Description:  "The response content of the mock.",
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The response content of the mock.",
 						},
 						"effective_mode": {
 							Type:     schema.TypeString,
@@ -649,13 +624,8 @@ func ResourceApigAPIV2() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:     schema.TypeString,
-							Required: true,
-							ValidateFunc: validation.All(
-								validation.StringMatch(regexp.MustCompile(`^[A-Za-z]\w*$`),
-									"Only letters, digits and underscores (_) are allowed, and must start with a letter."),
-								validation.StringLenBetween(3, 64),
-							),
+							Type:        schema.TypeString,
+							Required:    true,
 							Description: "The name of the backend policy.",
 						},
 						"function_urn": {
@@ -711,11 +681,10 @@ func ResourceApigAPIV2() *schema.Resource {
 							Description: "The effective mode of the backend policy.",
 						},
 						"timeout": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							Default:      5000,
-							ValidateFunc: validation.IntBetween(1, 600000),
-							Description:  "The timeout for API requests to backend service.",
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Default:     5000,
+							Description: "The timeout for API requests to backend service.",
 						},
 						"backend_params": {
 							Type:        schema.TypeSet,
@@ -757,13 +726,8 @@ func ResourceApigAPIV2() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
-							Type:     schema.TypeString,
-							Required: true,
-							ValidateFunc: validation.All(
-								validation.StringMatch(regexp.MustCompile(`^[A-Za-z]\w*$`),
-									"Only letters, digits and underscores (_) are allowed, and must start with a letter."),
-								validation.StringLenBetween(3, 64),
-							),
+							Type:        schema.TypeString,
+							Required:    true,
 							Description: "The name of the web policy.",
 						},
 						"path": {
@@ -828,11 +792,10 @@ func ResourceApigAPIV2() *schema.Resource {
 							Description: "The effective mode of the backend policy.",
 						},
 						"timeout": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							Default:      5000,
-							ValidateFunc: validation.IntBetween(1, 600000),
-							Description:  "The timeout for API requests to backend service.",
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Default:     5000,
+							Description: "The timeout for API requests to backend service.",
 						},
 						"retry_count": {
 							Type:        schema.TypeInt,
@@ -913,28 +876,26 @@ func policyConditionSchemaResource() *schema.Resource {
 				Description: "The frontend authentication parameter name.",
 			},
 			"source": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  string(ConditionSourceParam),
-				ValidateFunc: validation.StringInSlice([]string{
-					string(ConditionSourceParam),
-					string(ConditionSourceSource),
-					string(ConditionSourceSystem),
-					string(ConditionSourceCookie),
-					string(ConditionSourceFrontendAuthorizer),
-				}, false),
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "param",
 				Description: "The type of the backend policy.",
 			},
 			"type": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  string(ConditionTypeEqual),
-				ValidateFunc: validation.StringInSlice([]string{
-					string(ConditionTypeEqual),
-					string(ConditionTypeEnumerated),
-					string(ConditionTypeMatching),
-				}, false),
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     string(ConditionTypeEqual),
 				Description: "The condition type.",
+			},
+			"mapped_param_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The name of a parameter generated after orchestration.",
+			},
+			"mapped_param_location": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The location of a parameter generated after orchestration.",
 			},
 		},
 	}
@@ -954,14 +915,8 @@ func backendParamSchemaResource() *schema.Resource {
 				Description: "The parameter type.",
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[A-Za-z][\w-.]*$`),
-						"Only letters, digits, hyphens (-), underscores (_) and periods (.) are allowed, and must "+
-							"start with a letter."),
-					validation.StringLenBetween(1, 32),
-				),
+				Type:        schema.TypeString,
+				Required:    true,
 				Description: "The parameter name.",
 			},
 			"location": {
@@ -975,23 +930,13 @@ func backendParamSchemaResource() *schema.Resource {
 				Description: "Where the parameter is located.",
 			},
 			"value": {
-				Type:     schema.TypeString,
-				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile("^[^<>]*$"),
-						"The angle brackets (< and >) are not allowed."),
-					validation.StringLenBetween(0, 255),
-				),
+				Type:        schema.TypeString,
+				Required:    true,
 				Description: "The value of the parameter",
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile("^[^<>]*$"),
-						"The angle brackets (< and >) are not allowed."),
-					validation.StringLenBetween(0, 255),
-				),
+				Type:        schema.TypeString,
+				Optional:    true,
 				Description: "The description of the parameter.",
 			},
 			"system_param_type": {
@@ -1096,16 +1041,17 @@ func buildRequestParameters(requests *schema.Set) []apis.ReqParamBase {
 		paramMap := v.(map[string]interface{})
 		paramType := paramMap["type"].(string)
 		param := apis.ReqParamBase{
-			Type:         paramType,
-			Name:         paramMap["name"].(string),
-			Required:     isObjectEnabled(paramMap["required"].(bool)),
-			Location:     paramMap["location"].(string),
-			Description:  utils.String(paramMap["description"].(string)),
-			Enumerations: utils.String(paramMap["enumeration"].(string)),
-			PassThrough:  isObjectEnabled(paramMap["passthrough"].(bool)),
-			DefaultValue: utils.String(paramMap["default"].(string)),
-			SampleValue:  paramMap["example"].(string),
-			ValidEnable:  paramMap["valid_enable"].(int),
+			Type:           paramType,
+			Name:           paramMap["name"].(string),
+			Required:       isObjectEnabled(paramMap["required"].(bool)),
+			Location:       paramMap["location"].(string),
+			Description:    utils.String(paramMap["description"].(string)),
+			Enumerations:   utils.String(paramMap["enumeration"].(string)),
+			PassThrough:    isObjectEnabled(paramMap["passthrough"].(bool)),
+			DefaultValue:   utils.String(paramMap["default"].(string)),
+			SampleValue:    paramMap["example"].(string),
+			ValidEnable:    paramMap["valid_enable"].(int),
+			Orchestrations: utils.ExpandToStringList(paramMap["orchestrations"].([]interface{})),
 		}
 		switch paramType {
 		case string(ParamTypeNumber):
@@ -1171,21 +1117,26 @@ func buildPolicyConditions(conditions *schema.Set) []apis.APIConditionBase {
 
 	result := make([]apis.APIConditionBase, conditions.Len())
 	for i, v := range conditions.List() {
-		cm := v.(map[string]interface{})
+		source := utils.PathSearch("source", v, "param").(string)
+
 		condition := apis.APIConditionBase{
-			ReqParamName:                cm["param_name"].(string),
-			SysParamName:                cm["sys_name"].(string),
-			CookieParamName:             cm["cookie_name"].(string),
-			FrontendAuthorizerParamName: cm["frontend_authorizer_name"].(string),
-			ConditionOrigin:             cm["source"].(string),
-			ConditionValue:              cm["value"].(string),
+			ConditionValue:              utils.PathSearch("value", v, "").(string),
+			ReqParamName:                utils.PathSearch("param_name", v, "").(string),
+			SysParamName:                utils.PathSearch("sys_name", v, "").(string),
+			CookieParamName:             utils.PathSearch("cookie_name", v, "").(string),
+			FrontendAuthorizerParamName: utils.PathSearch("frontend_authorizer_name", v, "").(string),
+			ConditionOrigin:             source,
+			MappedParamName:             utils.PathSearch("mapped_param_name", v, "").(string),
+			MappedParamLocation:         utils.PathSearch("mapped_param_location", v, "").(string),
 		}
-		conType := cm["type"].(string)
+
+		conType := utils.PathSearch("type", v, string(ConditionTypeEqual)).(string)
 		// If the input of the condition type is invalid, keep the condition parameter omitted and the API will throw an
 		// error.
-		if v, ok := conditionType[conType]; ok {
-			condition.ConditionType = v
+		if vt, ok := conditionType[conType]; ok {
+			condition.ConditionType = vt
 		}
+
 		result[i] = condition
 	}
 	return result
@@ -1315,6 +1266,8 @@ func buildApiCreateOpts(d *schema.ResourceData) (apis.APIOpts, error) {
 		ResponseId:          d.Get("response_id").(string),
 		ReqParams:           buildRequestParameters(d.Get("request_params").(*schema.Set)),
 		Tags:                utils.ExpandToStringListBySet(d.Get("tags").((*schema.Set))),
+		ContentType:         d.Get("content_type").(string),
+		IsSendFgBodyBase64:  utils.Bool(d.Get("is_send_fg_body_base64").(bool)),
 	}
 	// build match mode
 	matchMode := d.Get("matching").(string)
@@ -1513,16 +1466,17 @@ func flattenApiRequestParams(reqParams []apis.ReqParamResp) []map[string]interfa
 	result := make([]map[string]interface{}, len(reqParams))
 	for i, v := range reqParams {
 		param := map[string]interface{}{
-			"name":         v.Name,
-			"location":     v.Location,
-			"type":         v.Type,
-			"required":     parseObjectEnabled(v.Required),
-			"passthrough":  parseObjectEnabled(v.PassThrough),
-			"enumeration":  v.Enumerations,
-			"example":      v.SampleValue,
-			"default":      v.DefaultValue,
-			"description":  v.Description,
-			"valid_enable": v.ValidEnable,
+			"name":           v.Name,
+			"location":       v.Location,
+			"type":           v.Type,
+			"required":       parseObjectEnabled(v.Required),
+			"passthrough":    parseObjectEnabled(v.PassThrough),
+			"enumeration":    v.Enumerations,
+			"example":        v.SampleValue,
+			"default":        v.DefaultValue,
+			"description":    v.Description,
+			"valid_enable":   v.ValidEnable,
+			"orchestrations": v.Orchestrations,
 		}
 		switch v.Type {
 		case string(ParamTypeNumber):
@@ -1611,6 +1565,8 @@ func flattenPolicyConditions(conditions []apis.APIConditionBase) []map[string]in
 			"frontend_authorizer_name": v.FrontendAuthorizerParamName,
 			"type":                     analyseConditionType(v.ConditionType),
 			"value":                    v.ConditionValue,
+			"mapped_param_name":        v.MappedParamName,
+			"mapped_param_location":    v.MappedParamLocation,
 		}
 	}
 	return result
@@ -1708,6 +1664,8 @@ func resourceApiRead(_ context.Context, d *schema.ResourceData, meta interface{}
 		d.Set("name", resp.Name),
 		d.Set("authorizer_id", resp.AuthorizerId),
 		d.Set("tags", resp.Tags),
+		d.Set("content_type", resp.ContentType),
+		d.Set("is_send_fg_body_base64", resp.IsSendFgBodyBase64),
 		d.Set("request_protocol", resp.ReqProtocol),
 		d.Set("request_method", resp.ReqMethod),
 		d.Set("request_path", resp.ReqURI),
@@ -1761,6 +1719,24 @@ func resourceApiUpdate(ctx context.Context, d *schema.ResourceData, meta interfa
 	return resourceApiRead(ctx, d, meta)
 }
 
+func deleteApi(client *golangsdk.ServiceClient, instanceId, apiId string) error {
+	httpUrl := "v2/{project_id}/apigw/instances/{instance_id}/apis/{api_id}"
+	unpublishPath := client.Endpoint + httpUrl
+	unpublishPath = strings.ReplaceAll(unpublishPath, "{project_id}", client.ProjectID)
+	unpublishPath = strings.ReplaceAll(unpublishPath, "{instance_id}", instanceId)
+	unpublishPath = strings.ReplaceAll(unpublishPath, "{api_id}", apiId)
+
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+	}
+
+	_, err := client.Request("DELETE", unpublishPath, &opt)
+	return err
+}
+
 func resourceApiDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
@@ -1772,7 +1748,7 @@ func resourceApiDelete(_ context.Context, d *schema.ResourceData, meta interface
 		instanceId = d.Get("instance_id").(string)
 		apiId      = d.Id()
 	)
-	if err = apis.Delete(client, instanceId, apiId).ExtractErr(); err != nil {
+	if err = deleteApi(client, instanceId, apiId); err != nil {
 		return diag.Errorf("unable to delete the API (%s): %s", apiId, err)
 	}
 
@@ -1782,17 +1758,22 @@ func resourceApiDelete(_ context.Context, d *schema.ResourceData, meta interface
 // GetApigAPIIdByName is a method to get a specifies API ID from a APIG instance by name.
 func GetApiIdByName(client *golangsdk.ServiceClient, instanceId, name string) (string, error) {
 	opt := apis.ListOpts{
-		Name: name,
+		Name: name, // Fuzzy search (reduce the time cost of the traversal)
 	}
 	pages, err := apis.List(client, instanceId, opt).AllPages()
 	if err != nil {
 		return "", fmt.Errorf("error retrieving APIs: %s", err)
 	}
-	resp, err := apis.ExtractApis(pages)
-	if len(resp) < 1 {
-		return "", fmt.Errorf("unable to find the API (%s) form server: %s", name, err)
+	apiRecords, err := apis.ExtractApis(pages)
+	if err != nil {
+		return "", err
 	}
-	return resp[0].ID, nil
+	for _, apiRecord := range apiRecords {
+		if apiRecord.Name == name {
+			return apiRecord.ID, nil
+		}
+	}
+	return "", fmt.Errorf("unable to find the API (%s) form APIG service", name)
 }
 
 func resourceApiImportState(_ context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData,

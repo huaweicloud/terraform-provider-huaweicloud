@@ -1,0 +1,51 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dms_rocketmq_availability_zones": {
+          "block": {
+            "attributes": {
+              "availability_zones": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "code": "string",
+                      "default_az": "bool",
+                      "id": "string",
+                      "ipv6_enable": "bool",
+                      "name": "string",
+                      "port": "string",
+                      "remain_time": "number",
+                      "resource_availability": "string",
+                      "sold_out": "bool"
+                    }
+                  ]
+                ],
+                "description": "The list of availability zones.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the availability zones are located.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "RocketMQ",
+            "name": "Distributed Message Service for RocketMQ",
+            "catalog": "Middleware",
+            "name_cn": "分布式消息服务 RocketMQ",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

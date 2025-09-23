@@ -49,8 +49,8 @@ The following arguments are supported:
 * `route_table_id` - (Optional, String) Specifies the route table ID used to query specified route table.
 
 * `name` - (Optional, String) Specifies the name used to filter the route tables.  
-  The name can contain 1 to 64 characters, only english and chinese letters, digits, underscore (_), hyphens (-) and
-  dots (.) allowed.
+  The name can contain `1` to `64` characters, only English letters, Chinese characters, digits, underscore (_),
+  hyphens (-) and dots (.) allowed.
 
 * `tags` - (Optional, Map) Specifies the key/value pairs used to filter the route tables.
 

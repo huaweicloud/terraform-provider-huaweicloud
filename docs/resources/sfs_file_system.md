@@ -1,11 +1,13 @@
 ---
-subcategory: "Scalable File Service (SFS)"
+subcategory: "Deprecated"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_sfs_file_system"
 description: ""
 ---
 
 # huaweicloud_sfs_file_system
+
+!> **WARNING:** It has been deprecated.
 
 Provides a Shared File System (SFS) resource within HuaweiCloud.
 
@@ -166,7 +168,7 @@ This resource provides the following timeouts configuration options:
 
 SFS can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_sfs_file_system 4779ab1c-7c1a-44b1-a02e-93dfc361b32d
 ```
 

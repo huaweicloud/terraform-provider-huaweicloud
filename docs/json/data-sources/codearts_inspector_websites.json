@@ -1,0 +1,62 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_codearts_inspector_websites": {
+          "block": {
+            "attributes": {
+              "auth_status": {
+                "type": "string",
+                "description": "Specifies the auth status of website.",
+                "optional": true
+              },
+              "domain_id": {
+                "type": "string",
+                "description": "Specifies the domain ID.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "top_level_domain_num": {
+                "type": "number",
+                "description": "Indicates the number of top level domain.",
+                "computed": true
+              },
+              "websites": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "auth_status": "string",
+                      "created_at": "string",
+                      "high": "number",
+                      "hint": "number",
+                      "id": "string",
+                      "low": "number",
+                      "middle": "number",
+                      "top_level_domain_id": "string",
+                      "website_address": "string",
+                      "website_name": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the websites list.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CodeArtsInspector",
+            "name": "CodeArts Inspector",
+            "catalog": "CodeArts",
+            "name_cn": "漏洞管理服务",
+            "catalog_cn": "软件开发生产线"
+          }
+        }
+      }
+    }
+  }
+}

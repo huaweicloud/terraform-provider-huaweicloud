@@ -13,12 +13,19 @@
               },
               "brokers": {
                 "type": [
-                  "list",
+                  "set",
                   "string"
                 ],
                 "description": "Specifies the list of associated brokers of the consumer group.",
-                "required": true,
+                "optional": true,
+                "computed": true,
                 "forcenew": true
+              },
+              "consume_orderly": {
+                "type": "bool",
+                "description": "Specifies whether to consume orderly.",
+                "optional": true,
+                "computed": true
               },
               "description": {
                 "type": "string",
@@ -29,7 +36,7 @@
                 "type": "bool",
                 "description": "Specifies the consumer group is enabled or not. Default to true.",
                 "optional": true,
-                "computed": true
+                "default": true
               },
               "id": {
                 "type": "string",

@@ -2,16 +2,18 @@ package as
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/policyexecutelogs"
+	"github.com/chnsz/golangsdk"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 // @API AS GET /autoscaling-api/v1/{project_id}/scaling_policy_execute_log/{scaling_policy_id}
@@ -165,34 +167,74 @@ func policyExecuteLogDataSourceJobRecordsSchema() *schema.Resource {
 	}
 }
 
-func buildDataSourcePolicyExecuteLogOpts(d *schema.ResourceData) policyexecutelogs.ListOpts {
-	return policyexecutelogs.ListOpts{
-		PolicyID:     d.Get("scaling_policy_id").(string),
-		LogID:        d.Get("log_id").(string),
-		ResourceID:   d.Get("scaling_resource_id").(string),
-		ResourceType: d.Get("scaling_resource_type").(string),
-		ExecuteType:  d.Get("execute_type").(string),
-		StartTime:    d.Get("start_time").(string),
-		EndTime:      d.Get("end_time").(string),
+func buildPolicyExecuteLogsQueryParams(d *schema.ResourceData) string {
+	queryParam := ""
+	if logID := d.Get("log_id").(string); logID != "" {
+		queryParam = fmt.Sprintf("%s&log_id=%s", queryParam, logID)
 	}
+
+	if scalingResourceID := d.Get("scaling_resource_id").(string); scalingResourceID != "" {
+		queryParam = fmt.Sprintf("%s&scaling_resource_id=%s", queryParam, scalingResourceID)
+	}
+
+	if scalingResourceType := d.Get("scaling_resource_type").(string); scalingResourceType != "" {
+		queryParam = fmt.Sprintf("%s&scaling_resource_type=%s", queryParam, scalingResourceType)
+	}
+
+	if executeType := d.Get("execute_type").(string); executeType != "" {
+		queryParam = fmt.Sprintf("%s&execute_type=%s", queryParam, executeType)
+	}
+
+	if startTime := d.Get("start_time").(string); startTime != "" {
+		queryParam = fmt.Sprintf("%s&start_time=%s", queryParam, startTime)
+	}
+
+	if endTime := d.Get("end_time").(string); endTime != "" {
+		queryParam = fmt.Sprintf("%s&end_time=%s", queryParam, endTime)
+	}
+
+	if queryParam == "" {
+		return ""
+	}
+
+	return fmt.Sprintf("?%s", queryParam[1:])
 }
 
+// There is currently a problem with openAPI paging, so paging query cannot be implemented.
 func dataSourcePolicyExecuteLogsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg    = meta.(*config.Config)
-		region = cfg.GetRegion(d)
-		opts   = buildDataSourcePolicyExecuteLogOpts(d)
+		cfg             = meta.(*config.Config)
+		region          = cfg.GetRegion(d)
+		product         = "autoscaling"
+		httpUrl         = "autoscaling-api/v1/{project_id}/scaling_policy_execute_log/{scaling_policy_id}"
+		scalingPolicyID = d.Get("scaling_policy_id").(string)
 	)
-	client, err := cfg.AutoscalingV1Client(region)
+
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating AS v1 client: %s", err)
+		return diag.Errorf("error creating AS client: %s", err)
 	}
 
-	executeLogList, err := policyexecutelogs.List(client, opts)
-	if err != nil {
-		return common.CheckDeletedDiag(d, err, "AS policy execute logs")
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{scaling_policy_id}", scalingPolicyID)
+	requestPath += buildPolicyExecuteLogsQueryParams(d)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
+	resp, err := client.Request("GET", requestPath, &requestOpt)
+	if err != nil {
+		return diag.Errorf("error retrieving AS policy execute logs: %s", err)
+	}
+
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	executeLogsResp := utils.PathSearch("scaling_policy_execute_log", respBody, make([]interface{}, 0)).([]interface{})
 	randUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
@@ -201,7 +243,7 @@ func dataSourcePolicyExecuteLogsRead(_ context.Context, d *schema.ResourceData, 
 	d.SetId(randUUID)
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("execute_logs", flattenDataSourcePolicyExecuteLogs(executeLogList, d)),
+		d.Set("execute_logs", flattenDataSourcePolicyExecuteLogs(executeLogsResp, d)),
 	)
 	if mErr.ErrorOrNil() != nil {
 		return diag.Errorf("error saving AS policy execute logs data source fields: %s", mErr)
@@ -209,34 +251,36 @@ func dataSourcePolicyExecuteLogsRead(_ context.Context, d *schema.ResourceData, 
 	return nil
 }
 
-func flattenDataSourcePolicyExecuteLogs(executeLogList []policyexecutelogs.ExecuteLog, d *schema.ResourceData) []map[string]interface{} {
-	executeLogs := make([]map[string]interface{}, 0, len(executeLogList))
-	for _, executeLog := range executeLogList {
-		if val, ok := d.GetOk("status"); ok && val.(string) != executeLog.Status {
+func flattenDataSourcePolicyExecuteLogs(executeLogsResp []interface{}, d *schema.ResourceData) []map[string]interface{} {
+	executeLogs := make([]map[string]interface{}, 0, len(executeLogsResp))
+	for _, executeLog := range executeLogsResp {
+		status := utils.PathSearch("status", executeLog, "").(string)
+		if val, ok := d.GetOk("status"); ok && val.(string) != status {
 			continue
 		}
+
 		executeLogMap := map[string]interface{}{
-			"id":                    executeLog.ID,
-			"status":                executeLog.Status,
-			"failed_reason":         executeLog.FailedReason,
-			"execute_type":          executeLog.ExecuteType,
-			"execute_time":          executeLog.ExecuteTime,
-			"scaling_policy_id":     executeLog.PolicyID,
-			"scaling_resource_id":   executeLog.ResourceID,
-			"scaling_resource_type": executeLog.ResourceType,
-			"type":                  executeLog.Type,
-			"old_value":             executeLog.OldValue,
-			"desire_value":          executeLog.DesireValue,
-			"limit_value":           executeLog.LimitValue,
-			"job_records":           flattenJobRecords(executeLog.JobRecords),
-			"metadata":              executeLog.MetaData,
+			"id":                    utils.PathSearch("id", executeLog, nil),
+			"status":                status,
+			"failed_reason":         utils.PathSearch("failed_reason", executeLog, nil),
+			"execute_type":          utils.PathSearch("execute_type", executeLog, nil),
+			"execute_time":          utils.PathSearch("execute_time", executeLog, nil),
+			"scaling_policy_id":     utils.PathSearch("scaling_policy_id", executeLog, nil),
+			"scaling_resource_id":   utils.PathSearch("scaling_resource_id", executeLog, nil),
+			"scaling_resource_type": utils.PathSearch("scaling_resource_type", executeLog, nil),
+			"type":                  utils.PathSearch("type", executeLog, nil),
+			"old_value":             utils.PathSearch("old_value", executeLog, nil),
+			"desire_value":          utils.PathSearch("desire_value", executeLog, nil),
+			"limit_value":           utils.PathSearch("limit_value", executeLog, nil),
+			"job_records":           flattenJobRecords(utils.PathSearch("job_records", executeLog, make([]interface{}, 0)).([]interface{})),
+			"metadata":              utils.PathSearch("meta_data", executeLog, nil),
 		}
 		executeLogs = append(executeLogs, executeLogMap)
 	}
 	return executeLogs
 }
 
-func flattenJobRecords(jobRecords []policyexecutelogs.JobRecord) []map[string]interface{} {
+func flattenJobRecords(jobRecords []interface{}) []map[string]interface{} {
 	if len(jobRecords) == 0 {
 		return nil
 	}
@@ -244,14 +288,14 @@ func flattenJobRecords(jobRecords []policyexecutelogs.JobRecord) []map[string]in
 	jobRecordList := make([]map[string]interface{}, 0, len(jobRecords))
 	for _, jobRecord := range jobRecords {
 		job := map[string]interface{}{
-			"job_name":    jobRecord.JobName,
-			"job_status":  jobRecord.JobStatus,
-			"record_type": jobRecord.RecordType,
-			"record_time": jobRecord.RecordTime,
-			"request":     jobRecord.Request,
-			"response":    jobRecord.Response,
-			"code":        jobRecord.Code,
-			"message":     jobRecord.Message,
+			"job_name":    utils.PathSearch("job_name", jobRecord, nil),
+			"job_status":  utils.PathSearch("job_status", jobRecord, nil),
+			"record_type": utils.PathSearch("record_type", jobRecord, nil),
+			"record_time": utils.PathSearch("record_time", jobRecord, nil),
+			"request":     utils.PathSearch("request", jobRecord, nil),
+			"response":    utils.PathSearch("response", jobRecord, nil),
+			"code":        utils.PathSearch("code", jobRecord, nil),
+			"message":     utils.PathSearch("message", jobRecord, nil),
 		}
 		jobRecordList = append(jobRecordList, job)
 	}

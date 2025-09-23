@@ -15,6 +15,12 @@
                 "description": "The description of the API request body, which can be an example request body, media type or parameters.",
                 "optional": true
               },
+              "content_type": {
+                "type": "string",
+                "description": "The content type of the request body.",
+                "optional": true,
+                "computed": true
+              },
               "cors": {
                 "type": "bool",
                 "description": "Whether CORS is supported.",
@@ -34,7 +40,8 @@
               "group_id": {
                 "type": "string",
                 "description": "The ID of the API group to which the API belongs.",
-                "required": true
+                "required": true,
+                "forcenew": true
               },
               "id": {
                 "type": "string",
@@ -45,6 +52,12 @@
                 "description": "The ID of the instance to which the API belongs.",
                 "required": true,
                 "forcenew": true
+              },
+              "is_send_fg_body_base64": {
+                "type": "bool",
+                "description": "Whether to perform Base64 encoding on the body for interaction with FunctionGraph.",
+                "optional": true,
+                "default": true
               },
               "matching": {
                 "type": "string",
@@ -322,6 +335,16 @@
                             "description": "The frontend authentication parameter name.",
                             "optional": true
                           },
+                          "mapped_param_location": {
+                            "type": "string",
+                            "description": "The location of a parameter generated after orchestration.",
+                            "optional": true
+                          },
+                          "mapped_param_name": {
+                            "type": "string",
+                            "description": "The name of a parameter generated after orchestration.",
+                            "optional": true
+                          },
                           "param_name": {
                             "type": "string",
                             "description": "The request parameter name.",
@@ -470,6 +493,16 @@
                             "description": "The frontend authentication parameter name.",
                             "optional": true
                           },
+                          "mapped_param_location": {
+                            "type": "string",
+                            "description": "The location of a parameter generated after orchestration.",
+                            "optional": true
+                          },
+                          "mapped_param_name": {
+                            "type": "string",
+                            "description": "The name of a parameter generated after orchestration.",
+                            "optional": true
+                          },
                           "param_name": {
                             "type": "string",
                             "description": "The request parameter name.",
@@ -559,6 +592,14 @@
                       "type": "string",
                       "description": "The name of the request parameter.",
                       "required": true
+                    },
+                    "orchestrations": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The list of orchestration rules that parameter used.",
+                      "optional": true
                     },
                     "passthrough": {
                       "type": "bool",
@@ -765,6 +806,16 @@
                           "frontend_authorizer_name": {
                             "type": "string",
                             "description": "The frontend authentication parameter name.",
+                            "optional": true
+                          },
+                          "mapped_param_location": {
+                            "type": "string",
+                            "description": "The location of a parameter generated after orchestration.",
+                            "optional": true
+                          },
+                          "mapped_param_name": {
+                            "type": "string",
+                            "description": "The name of a parameter generated after orchestration.",
                             "optional": true
                           },
                           "param_name": {

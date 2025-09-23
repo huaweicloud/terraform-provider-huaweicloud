@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_networking_secgroups_by_tags
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: VPC
+paths:
+    /v2.0/{project_id}/security-groups/resource_instances/action:
+        POST:
+            tag: VPC

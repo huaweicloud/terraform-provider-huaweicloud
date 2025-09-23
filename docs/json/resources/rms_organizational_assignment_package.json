@@ -17,8 +17,7 @@
                 ],
                 "description": "Specifies the excluded accounts for conformance package deployment.",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "id": {
                 "type": "string",
@@ -27,8 +26,7 @@
               "name": {
                 "type": "string",
                 "description": "Specifies the assignment package name.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "org_conformance_pack_urn": {
                 "type": "string",
@@ -92,8 +90,7 @@
                   },
                   "description": "Specifies the parameters of a conformance package."
                 },
-                "nesting_mode": "set",
-                "forcenew": true
+                "nesting_mode": "set"
               }
             }
           },

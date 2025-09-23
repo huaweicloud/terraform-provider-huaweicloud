@@ -14,6 +14,13 @@
                 "required": true,
                 "forcenew": true
               },
+              "message_type": {
+                "type": "string",
+                "description": "Specifies the message type of the topic.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "name": {
                 "type": "string",
                 "description": "Specifies the name of the topic.",
@@ -71,7 +78,26 @@
                       "computed": true
                     }
                   },
-                  "description": "schema: Required; Specifies the list of associated brokers of the topic."
+                  "description": "Specifies the list of associated brokers of the topic."
+                },
+                "nesting_mode": "list",
+                "forcenew": true
+              },
+              "queues": {
+                "block": {
+                  "attributes": {
+                    "broker": {
+                      "type": "string",
+                      "description": "Specifies the associated broker.",
+                      "optional": true
+                    },
+                    "queue_num": {
+                      "type": "number",
+                      "description": "Specifies the number of the queues.",
+                      "optional": true
+                    }
+                  },
+                  "description": "Specifies the queue info of the topic."
                 },
                 "nesting_mode": "list",
                 "forcenew": true

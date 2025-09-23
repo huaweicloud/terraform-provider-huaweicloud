@@ -11,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -142,9 +141,9 @@ func centralNetworkConnectionBandwidthAssociateWaitingForStateCompleted(ctx cont
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			status, err := jmespath.Search(`central_network_connections[0].state`, respBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse state from response body")
+			status := utils.PathSearch(`central_network_connections[0].state`, respBody, nil)
+			if status == nil {
+				return nil, "ERROR", fmt.Errorf("error parsing state from response body")
 			}
 
 			if utils.StrSliceContains([]string{"FAILED", "DELETED"}, status.(string)) {
@@ -253,7 +252,9 @@ func resourceCentralNetworkConnectionBandwidthAssociateDelete(ctx context.Contex
 
 	_, err = client.Request("PUT", path, &opt)
 	if err != nil {
-		return diag.Errorf("error deleting central network connection bandwidth associate: %s", err)
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error_code", "GCN.101505"),
+			"error deleting central network connection bandwidth associate")
 	}
 
 	err = centralNetworkConnectionBandwidthAssociateWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutDelete))

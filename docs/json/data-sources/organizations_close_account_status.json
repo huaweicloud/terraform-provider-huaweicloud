@@ -1,0 +1,51 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_organizations_close_account_status": {
+          "block": {
+            "attributes": {
+              "close_account_statuses": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "account_id": "string",
+                      "created_at": "string",
+                      "failure_reason": "string",
+                      "organization_id": "string",
+                      "state": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of close account statuses.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "states": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the list of one or more states that you want to include in the response.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "Organizations",
+            "name": "Organizations",
+            "catalog": "Management & Governance",
+            "name_cn": "组织",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

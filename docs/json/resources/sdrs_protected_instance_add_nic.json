@@ -1,0 +1,60 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_sdrs_protected_instance_add_nic": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ip_address": {
+                "type": "string",
+                "description": "Specifies the IP address to assign to the NIC. If not specified, an available IP will be automatically assigned.",
+                "optional": true
+              },
+              "protected_instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the protected instance to add the NIC to.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to create the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "description": "Specifies the ID of the subnet to which the NIC will be attached.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "security_groups": {
+                "block": {
+                  "attributes": {
+                    "id": {
+                      "type": "string",
+                      "description": "Specifies the ID of the security group.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the security groups to associate with the NIC."
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "SDRS",
+            "name": "Storage Disaster Recovery Service",
+            "catalog": "Storage",
+            "name_cn": "存储容灾服务",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}

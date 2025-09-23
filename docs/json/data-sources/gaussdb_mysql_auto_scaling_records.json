@@ -1,0 +1,55 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_mysql_auto_scaling_records": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the instance ID.",
+                "required": true
+              },
+              "records": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "create_at": "string",
+                      "id": "string",
+                      "instance_id": "string",
+                      "instance_name": "string",
+                      "original_value": "string",
+                      "result": "string",
+                      "scaling_type": "string",
+                      "target_value": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of records for auto scaling.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDBforMySQL",
+            "name": "GaussDB(for MySQL)",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB(for MySQL)",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

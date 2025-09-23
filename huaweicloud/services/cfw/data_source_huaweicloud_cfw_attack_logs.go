@@ -108,6 +108,26 @@ func DataSourceCfwAttackLogs() *schema.Resource {
 				Optional:    true,
 				Description: `Specifies the destination region name.`,
 			},
+			"src_province_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the source province name.`,
+			},
+			"dst_province_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the destination province name.`,
+			},
+			"src_city_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the source city name.`,
+			},
+			"dst_city_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the destination city name.`,
+			},
 			"records": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -224,6 +244,46 @@ func DataSourceCfwAttackLogs() *schema.Resource {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: `The destination region name.`,
+						},
+						"src_province_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The source province ID.`,
+						},
+						"src_province_name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The source province name.`,
+						},
+						"src_city_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The source city ID.`,
+						},
+						"src_city_name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The source city name.`,
+						},
+						"dst_province_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The distination province ID.`,
+						},
+						"dst_province_name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The distination province name.`,
+						},
+						"dst_city_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The distination city ID.`,
+						},
+						"dst_city_name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The distination city name.`,
 						},
 					},
 				},
@@ -367,6 +427,18 @@ func buildCfwAttackLogQueryParams(d *schema.ResourceData, cfg *config.Config) (s
 	if v, ok := d.GetOk("dst_region_name"); ok {
 		res = fmt.Sprintf("%s&dst_region_name=%v", res, v)
 	}
+	if v, ok := d.GetOk("src_province_name"); ok {
+		res = fmt.Sprintf("%s&src_province_name=%v", res, v)
+	}
+	if v, ok := d.GetOk("dst_province_name"); ok {
+		res = fmt.Sprintf("%s&dst_province_name=%v", res, v)
+	}
+	if v, ok := d.GetOk("src_city_name"); ok {
+		res = fmt.Sprintf("%s&src_city_name=%v", res, v)
+	}
+	if v, ok := d.GetOk("dst_city_name"); ok {
+		res = fmt.Sprintf("%s&dst_city_name=%v", res, v)
+	}
 
 	return res, nil
 }
@@ -380,28 +452,36 @@ func flattenListAttackLogs(resp []interface{}) []interface{} {
 	for _, v := range resp {
 		eventTime := int64(utils.PathSearch("event_time", v, float64(0)).(float64) / 1000)
 		rst = append(rst, map[string]interface{}{
-			"packet":          utils.PathSearch("packet", v, nil),
-			"source":          utils.PathSearch("source", v, nil),
-			"src_ip":          utils.PathSearch("src_ip", v, nil),
-			"src_port":        utils.PathSearch("src_port", v, nil),
-			"direction":       utils.PathSearch("direction", v, nil),
-			"dst_port":        utils.PathSearch("dst_port", v, nil),
-			"app":             utils.PathSearch("app", v, nil),
-			"attack_rule_id":  utils.PathSearch("attack_rule_id", v, nil),
-			"protocol":        utils.PathSearch("protocol", v, nil),
-			"action":          utils.PathSearch("action", v, nil),
-			"event_time":      utils.FormatTimeStampUTC(eventTime),
-			"attack_rule":     utils.PathSearch("attack_rule", v, nil),
-			"log_id":          utils.PathSearch("log_id", v, nil),
-			"dst_ip":          utils.PathSearch("dst_ip", v, nil),
-			"packet_messages": flattenPacketMessages(v),
-			"attack_type":     utils.PathSearch("attack_type", v, nil),
-			"level":           utils.PathSearch("level", v, nil),
-			"packet_length":   utils.PathSearch("packet_length", v, nil),
-			"src_region_id":   utils.PathSearch("src_region_id", v, nil),
-			"src_region_name": utils.PathSearch("src_region_name", v, nil),
-			"dst_region_id":   utils.PathSearch("dst_region_id", v, nil),
-			"dst_region_name": utils.PathSearch("dst_region_name", v, nil),
+			"packet":            utils.PathSearch("packet", v, nil),
+			"source":            utils.PathSearch("source", v, nil),
+			"src_ip":            utils.PathSearch("src_ip", v, nil),
+			"src_port":          utils.PathSearch("src_port", v, nil),
+			"direction":         utils.PathSearch("direction", v, nil),
+			"dst_port":          utils.PathSearch("dst_port", v, nil),
+			"app":               utils.PathSearch("app", v, nil),
+			"attack_rule_id":    utils.PathSearch("attack_rule_id", v, nil),
+			"protocol":          utils.PathSearch("protocol", v, nil),
+			"action":            utils.PathSearch("action", v, nil),
+			"event_time":        utils.FormatTimeStampUTC(eventTime),
+			"attack_rule":       utils.PathSearch("attack_rule", v, nil),
+			"log_id":            utils.PathSearch("log_id", v, nil),
+			"dst_ip":            utils.PathSearch("dst_ip", v, nil),
+			"packet_messages":   flattenPacketMessages(v),
+			"attack_type":       utils.PathSearch("attack_type", v, nil),
+			"level":             utils.PathSearch("level", v, nil),
+			"packet_length":     utils.PathSearch("packet_length", v, nil),
+			"src_region_id":     utils.PathSearch("src_region_id", v, nil),
+			"src_region_name":   utils.PathSearch("src_region_name", v, nil),
+			"dst_region_id":     utils.PathSearch("dst_region_id", v, nil),
+			"dst_region_name":   utils.PathSearch("dst_region_name", v, nil),
+			"src_province_id":   utils.PathSearch("src_province_id", v, nil),
+			"src_province_name": utils.PathSearch("src_province_name", v, nil),
+			"src_city_id":       utils.PathSearch("src_city_id", v, nil),
+			"src_city_name":     utils.PathSearch("src_city_name", v, nil),
+			"dst_province_id":   utils.PathSearch("dst_province_id", v, nil),
+			"dst_province_name": utils.PathSearch("dst_province_name", v, nil),
+			"dst_city_id":       utils.PathSearch("dst_city_id", v, nil),
+			"dst_city_name":     utils.PathSearch("dst_city_name", v, nil),
 		})
 	}
 

@@ -1,0 +1,194 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cciv2_persistent_volumes": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "persistent_volumes": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "access_modes": [
+                        "list",
+                        "string"
+                      ],
+                      "annotations": [
+                        "map",
+                        "string"
+                      ],
+                      "capacity": [
+                        "map",
+                        "string"
+                      ],
+                      "claim_ref": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "api_version": "string",
+                            "field_path": "string",
+                            "kind": "string",
+                            "name": "string",
+                            "namespace": "string",
+                            "resource_version": "string",
+                            "uid": "string"
+                          }
+                        ]
+                      ],
+                      "creation_timestamp": "string",
+                      "csi": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "controller_expand_secret_ref": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "name": "string",
+                                  "namespace": "string"
+                                }
+                              ]
+                            ],
+                            "controller_publish_secret_ref": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "name": "string",
+                                  "namespace": "string"
+                                }
+                              ]
+                            ],
+                            "driver": "string",
+                            "fs_type": "string",
+                            "node_expand_secret_ref": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "name": "string",
+                                  "namespace": "string"
+                                }
+                              ]
+                            ],
+                            "node_publish_secret_ref": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "name": "string",
+                                  "namespace": "string"
+                                }
+                              ]
+                            ],
+                            "node_stage_secret_ref": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "name": "string",
+                                  "namespace": "string"
+                                }
+                              ]
+                            ],
+                            "read_only": "bool",
+                            "volume_attributes": [
+                              "map",
+                              "string"
+                            ],
+                            "volume_handle": "string"
+                          }
+                        ]
+                      ],
+                      "finalizers": [
+                        "list",
+                        "string"
+                      ],
+                      "labels": [
+                        "map",
+                        "string"
+                      ],
+                      "mount_options": [
+                        "list",
+                        "string"
+                      ],
+                      "name": "string",
+                      "node_affinity": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "required": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "node_selector_terms": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "match_expressions": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "key": "string",
+                                              "operator": "string",
+                                              "values": [
+                                                "list",
+                                                "string"
+                                              ]
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "reclaim_policy": "string",
+                      "resource_version": "string",
+                      "status": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "message": "string",
+                            "phase": "string",
+                            "reason": "string"
+                          }
+                        ]
+                      ],
+                      "storage_class_name": "string",
+                      "uid": "string",
+                      "volume_mode": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

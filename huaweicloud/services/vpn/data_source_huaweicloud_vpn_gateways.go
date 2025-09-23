@@ -17,7 +17,6 @@ import (
 
 	"github.com/chnsz/golangsdk"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -280,16 +279,13 @@ func dataSourceGatewaysRead(_ context.Context, d *schema.ResourceData, meta inte
 
 	getGatewaysOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: map[string]string{"Content-Type": "application/json"},
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
 	getGatewaysResp, err := getGatewaysClient.Request("GET", getGatewaysPath, &getGatewaysOpt)
 
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving Gateway")
+		return diag.Errorf("error retrieving VPN gateway: %s", err)
 	}
 
 	getGatewaysRespBody, err := utils.FlattenResponse(getGatewaysResp)

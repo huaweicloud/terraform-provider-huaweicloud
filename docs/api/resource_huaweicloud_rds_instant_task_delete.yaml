@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_rds_instant_task_delete
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: RDS
+paths:
+    /v3/{project_id}/jobs:
+        DELETE:
+            tag: RDS

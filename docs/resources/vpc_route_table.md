@@ -71,10 +71,10 @@ The following arguments are supported:
   Changing this creates a new resource.
 
 * `name` - (Required, String) Specifies the route table name. The value is a string of no more than
-  64 characters that can contain letters, digits, underscores (_), hyphens (-), and periods (.).
+  `64` characters that can contain letters, digits, underscores (_), hyphens (-), and periods (.).
 
 * `description` - (Optional, String) Specifies the supplementary information about the route table.
-  The value is a string of no more than 255 characters and cannot contain angle brackets (< or >).
+  The value is a string of no more than `255` characters and cannot contain angle brackets (< or >).
 
 * `subnets` - (Optional, List) Specifies an array of one or more subnets associating with the route table.
 
@@ -98,7 +98,7 @@ The `route` block supports:
   + If the route type is **ecs**, the value is an ECS instance ID in the VPC.
   + If the route type is **eni**, the value is the extension NIC of an ECS in the VPC.
   + If the route type is **vip**, the value is a virtual IP address.
-  + If the route type is **nat**, the value is a VPN gateway ID.
+  + If the route type is **nat**, the value is a NAT gateway ID.
   + If the route type is **peering**, the value is a VPC peering connection ID.
   + If the route type is **vpn**, the value is a VPN gateway ID.
   + If the route type is **dc**, the value is a Direct Connect gateway ID.
@@ -126,6 +126,6 @@ This resource provides the following timeouts configuration options:
 
 vpc route tables can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_vpc_route_table.demo e1b3208a-544b-42a7-84e6-5d70371dd982
 ```

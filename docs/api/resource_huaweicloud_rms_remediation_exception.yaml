@@ -1,0 +1,19 @@
+info:
+    version: ""
+    title: resource_huaweicloud_rms_remediation_exception
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CONFIG
+paths:
+    /v1/resource-manager/domains/{domain_id}/policy-assignments/{policy_assignment_id}/remediation-exception:
+        GET:
+            tag: CONFIG
+    /v1/resource-manager/domains/{domain_id}/policy-assignments/{policy_assignment_id}/remediation-exception/create:
+        POST:
+            tag: CONFIG
+    /v1/resource-manager/domains/{domain_id}/policy-assignments/{policy_assignment_id}/remediation-exception/delete:
+        POST:
+            tag: CONFIG

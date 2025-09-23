@@ -1,0 +1,96 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_aad_domain": {
+          "block": {
+            "attributes": {
+              "cname": {
+                "type": "string",
+                "description": "The cname of domain.",
+                "computed": true
+              },
+              "domain_name": {
+                "type": "string",
+                "description": "Specifies the domain name to be protected by AAD instance.",
+                "required": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the list of AAD instance IDs.",
+                "optional": true,
+                "computed": true
+              },
+              "port_http": {
+                "type": [
+                  "list",
+                  "number"
+                ],
+                "description": "Specifies the port when forwarding protocol is HTTP.",
+                "optional": true
+              },
+              "port_https": {
+                "type": [
+                  "list",
+                  "number"
+                ],
+                "description": "Specifies the port when forwarding protocol is HTTPS.",
+                "optional": true
+              },
+              "protocol": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The protocol of the domain.",
+                "computed": true
+              },
+              "real_server": {
+                "type": "string",
+                "description": "Specifies the value of the origin server.",
+                "required": true
+              },
+              "real_server_type": {
+                "type": "number",
+                "description": "Specifies the origin server type.",
+                "required": true
+              },
+              "vips": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the list of AAD instance IP addresses.",
+                "optional": true
+              },
+              "waf_status": {
+                "type": "number",
+                "description": "The protect status of WAF server.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "AAD",
+            "name": "Advanced Anti-DDoS",
+            "catalog": "Security & Compliance",
+            "name_cn": "DDoS高防",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

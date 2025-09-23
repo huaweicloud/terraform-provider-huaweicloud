@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -111,12 +110,12 @@ func resourceSecurityDataSecrecyLevelCreate(ctx context.Context, d *schema.Resou
 		return diag.Errorf("error retrieving DataArts Security data secrecy level: %s", err)
 	}
 
-	id, err := jmespath.Search("secrecy_level_id", respBody)
-	if err != nil {
-		return diag.Errorf("error creating DataArts Security data secrecy level: ID is not found in API response")
+	levelId := utils.PathSearch("secrecy_level_id", respBody, "").(string)
+	if levelId == "" {
+		return diag.Errorf("unable to find the secrecy level ID of the DataArts Security from the API response")
 	}
 
-	d.SetId(id.(string))
+	d.SetId(levelId)
 	return resourceSecurityDataSecrecyLevelRead(ctx, d, meta)
 }
 
@@ -149,7 +148,7 @@ func resourceSecurityDataSecrecyLevelRead(_ context.Context, d *schema.ResourceD
 	}
 	resp, err := client.Request("GET", getPath, &getDataSecrecyLevelOpt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, ParseQueryError400(err, DataSecrecyLevelResourceNotFoundCodes),
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", DataSecrecyLevelResourceNotFoundCodes...),
 			"error retrieving DataArts Security data secrecy level")
 	}
 

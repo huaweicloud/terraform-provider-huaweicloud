@@ -1,0 +1,56 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cph_phone_restart": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "image_id": {
+                "type": "string",
+                "description": "Specifies the image ID of the CPH phone.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "phones": {
+                "block": {
+                  "attributes": {
+                    "phone_id": {
+                      "type": "string",
+                      "description": "Specifies the phone ID.",
+                      "required": true
+                    },
+                    "property": {
+                      "type": "string",
+                      "description": "Specifies the phone property.",
+                      "optional": true
+                    }
+                  },
+                  "description": "Specifies the CPH phones."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "CPH",
+            "name": "Cloud Phone",
+            "catalog": "Compute",
+            "name_cn": "云手机",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

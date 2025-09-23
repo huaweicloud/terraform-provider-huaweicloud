@@ -1,0 +1,21 @@
+info:
+    version: ""
+    title: resource_huaweicloud_ces_dashboard
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CES
+paths:
+    /v2/{project_id}/dashboards:
+        GET:
+            tag: CES
+        POST:
+            tag: CES
+    /v2/{project_id}/dashboards/{dashboard_id}:
+        PUT:
+            tag: CES
+    /v2/{project_id}/dashboards/batch-delete:
+        POST:
+            tag: CES

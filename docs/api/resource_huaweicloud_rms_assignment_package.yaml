@@ -16,3 +16,5 @@ paths:
             tag: Config
         GET:
             tag: Config
+        PUT:
+            tag: Config

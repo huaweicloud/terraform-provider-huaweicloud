@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -83,11 +82,10 @@ func ResourceOrganizationalPolicyAssignment() *schema.Resource {
 				Description: "The function URN used to create the custom policy.",
 			},
 			"period": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				Computed:      true,
-				Description:   "The period of the policy rule check.",
-				ConflictsWith: []string{"policy_filter"},
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "The period of the policy rule check.",
 			},
 			"policy_filter": {
 				Type:     schema.TypeList,
@@ -115,11 +113,10 @@ func ResourceOrganizationalPolicyAssignment() *schema.Resource {
 							Description: "The resource type of the filtered resources.",
 						},
 						"resource_id": {
-							Type:          schema.TypeString,
-							Optional:      true,
-							Computed:      true,
-							ConflictsWith: []string{"policy_filter.0.tag_key"},
-							Description:   "The resource ID used to filter a specified resources.",
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: "The resource ID used to filter a specified resources.",
 						},
 						"tag_key": {
 							Type:        schema.TypeString,
@@ -275,11 +272,11 @@ func resourceOrganizationalPolicyAssignmentCreateOrUpdate(ctx context.Context, d
 	waitTimeout := d.Timeout(schema.TimeoutUpdate)
 
 	if d.IsNewResource() {
-		id, err := jmespath.Search("organization_policy_assignment_id", createOrgPolicyAssignmentRespBody)
-		if err != nil {
+		id := utils.PathSearch("organization_policy_assignment_id", createOrgPolicyAssignmentRespBody, "").(string)
+		if id == "" {
 			return diag.Errorf("error creating RMS assignment package: ID is not found in API response")
 		}
-		d.SetId(id.(string))
+		d.SetId(id)
 
 		waitTimeout = d.Timeout(schema.TimeoutCreate)
 	}

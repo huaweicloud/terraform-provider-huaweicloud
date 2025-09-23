@@ -99,7 +99,7 @@ resource "huaweicloud_rms_policy_assignment" "test" {
 The following arguments are supported:
 
 * `name` - (Required, String, ForceNew) Specifies the name of the policy assignment.  
-  The valid length is limited from `1` to `64`, only letters, digits, hyphens (-) and underscores (_) are allowed.  
+  The valid length is limited from `1` to `64`.  
   Change this parameter will create a new resource.
 
 * `description` - (Optional, String) Specifies the description of the policy assignment, which contain maximum of
@@ -133,6 +133,8 @@ The following arguments are supported:
 
 * `status` - (Optional, String) Specifies the expect status of the policy.
   The valid values are **Enabled** and **Disabled**.
+
+* `tags` - (Optional, Map)  Specifies the key/value pairs to associate with the policy assignment.
 
 <a name="rms_policy_filter"></a>
 The `policy_filter` block supports:
@@ -186,6 +188,6 @@ This resource provides the following timeouts configuration options:
 
 Policy assignments can be imported using their `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_rms_policy_assignment.test 63f48e3762ce955981ab7e25
 ```

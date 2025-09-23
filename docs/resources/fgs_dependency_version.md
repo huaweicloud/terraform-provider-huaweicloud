@@ -2,7 +2,8 @@
 subcategory: "FunctionGraph"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_fgs_dependency_version"
-description: ""
+description: |-
+  Manages a custom dependency version within HuaweiCloud.
 ---
 
 # huaweicloud_fgs_dependency_version
@@ -14,11 +15,11 @@ packages. You can migrate smoothly because the parameter behavior of the two res
 
 ## Example Usage
 
-### Create a custom dependency version using a OBS bucket path where the ZIP file is located
+### Create a custom dependency version using an OBS bucket path where the ZIP file is located
 
 ```hcl
-variable "dependency_name"
-variable "custom_dependency_location"
+variable "dependency_name" {}
+variable "custom_dependency_location" {}
 
 resource "huaweicloud_fgs_dependency_version" "test" {
   name    = var.dependency_name
@@ -55,19 +56,20 @@ resource "huaweicloud_fgs_dependency_version" "test" {
 
   Changing this will create a new resource.
 
-* `name` - (Required, String, ForceNew) Specifies the name of the custom dependency package to which the version belongs.
-  The name can contain a maximum of `96` characters and must start with a letter and end with a letter or digit.
+* `name` - (Required, String, ForceNew) Specifies the name of the custom dependency package to which the version
+  belongs.  
+  The name can contain a maximum of `96` characters and must start with a letter and end with a letter or digit.  
   Only letters, digits, underscores (_), periods (.), and hyphens (-) are allowed.  
   Changing this will create a new resource.
 
-* `link` - (Required, String, ForceNew) Specifies the OBS bucket path where the dependency package is located.
+* `link` - (Required, String, ForceNew) Specifies the OBS bucket path where the dependency package is located.  
   The OBS object URL must be in ZIP format, such as
-  `https://obs-terraform.obs.cn-north-4.myhuaweicloud.com/huaweicloudsdkcore.zip`.
+  `https://obs-terraform.obs.cn-north-4.myhuaweicloud.com/huaweicloudsdkcore.zip`.  
   Changing this will create a new resource.
 
   -> A link can only be used to create at most one dependency package.
 
-* `description` - (Optional, String, ForceNew) Specifies the description of the custom dependency version.
+* `description` - (Optional, String, ForceNew) Specifies the description of the custom dependency version.  
   The description can contain a maximum of `512` characters.  
   Changing this will create a new resource.
 
@@ -75,19 +77,20 @@ resource "huaweicloud_fgs_dependency_version" "test" {
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - The resource ID, consists of dependency ID and version number, separated by a slash.
+* `id` - The resource ID, consists of dependency ID and version number, separated by a slash (/).  
+  The format is `<name>/<version>`.
 
 * `version` - The dependency package version.
 
 * `version_id` - The ID of the dependency package version.
 
-* `owner` - The dependency owner, public indicates a public dependency.
+* `owner` - The dependency owner, **public** indicates a public dependency.
 
 * `etag` - The unique ID of the dependency.
 
 * `size` - The dependency size, in bytes.
 
-* `dependency_id` - The ID of the dependency package.
+* `dependency_id` - The ID of the dependency package corresponding to the version.
 
 ## Import
 
@@ -101,4 +104,22 @@ Or using related dependency package `name` and the `version` number, separated b
 
 ```bash
 $ terraform import huaweicloud_fgs_dependency_version.test <name>/<version>
+```
+
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
+API response, security or some other reason. The missing attributes include: `link`.
+It is generally recommended running `terraform plan` after importing a dependency package.
+You can then decide if changes should be applied to the resource, or the resource definition should be updated to
+align with the dependency package. Also you can ignore changes as below.
+
+```hcl
+resource "huaweicloud_fgs_dependency_version" "test" {
+  ...
+
+  lifecycle {
+    ignore_changes = [
+      link,
+    ]
+  }
+}
 ```

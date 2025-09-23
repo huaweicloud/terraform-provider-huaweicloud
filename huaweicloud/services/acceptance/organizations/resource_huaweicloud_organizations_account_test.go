@@ -78,6 +78,7 @@ func TestAccAccount_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "description", "test_account_description"),
 					resource.TestCheckResourceAttr(rName, "tags.key1", "value1"),
 					resource.TestCheckResourceAttr(rName, "tags.key2", "value2"),
 					resource.TestCheckResourceAttrSet(rName, "urn"),
@@ -90,6 +91,7 @@ func TestAccAccount_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "description", ""),
 					resource.TestCheckResourceAttr(rName, "parent_id",
 						acceptance.HW_ORGANIZATIONS_ORGANIZATIONAL_UNIT_ID),
 					resource.TestCheckResourceAttr(rName, "tags.key3", "value3"),
@@ -100,7 +102,7 @@ func TestAccAccount_basic(t *testing.T) {
 				ResourceName:            rName,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"email", "phone", "agency_name"},
+				ImportStateVerifyIgnore: []string{"agency_name"},
 			},
 		},
 	})
@@ -109,9 +111,10 @@ func TestAccAccount_basic(t *testing.T) {
 func testAccount_basic(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_organizations_account" "test" {
-  name  = "%s"
-  email = "account_1@abc.com"
-  phone = "13987654321"
+  name        = "%s"
+  email       = "account_1@abc.com"
+  phone       = "13987654321"
+  description = "test_account_description"
 
   tags = {
     "key1" = "value1"
@@ -124,10 +127,11 @@ resource "huaweicloud_organizations_account" "test" {
 func testAccount_basic_update(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_organizations_account" "test" {
-  name      = "%s"
-  email     = "account_1@abc.com"
-  phone     = "13987654321"
-  parent_id = "%s"
+  name        = "%s"
+  email       = "account_1@abc.com"
+  phone       = "13987654321"
+  description = ""
+  parent_id   = "%s"
 
   tags = {
     "key3" = "value3"

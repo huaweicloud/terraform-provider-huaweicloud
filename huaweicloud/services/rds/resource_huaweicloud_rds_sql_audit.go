@@ -24,6 +24,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+var sqlAuditNonUpdatableParams = []string{"instance_id"}
+
 // @API RDS GET /v3/{project_id}/instances/{instance_id}/auditlog-policy
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/auditlog-policy
 func ResourceSQLAudit() *schema.Resource {
@@ -32,9 +34,12 @@ func ResourceSQLAudit() *schema.Resource {
 		UpdateContext: resourceSQLAuditUpdate,
 		ReadContext:   resourceSQLAuditRead,
 		DeleteContext: resourceSQLAuditDelete,
+
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+
+		CustomizeDiff: config.FlexibleForceNew(sqlAuditNonUpdatableParams),
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
@@ -52,7 +57,6 @@ func ResourceSQLAudit() *schema.Resource {
 			"instance_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the ID of the RDS instance.`,
 			},
 			"keep_days": {
@@ -73,6 +77,12 @@ func ResourceSQLAudit() *schema.Resource {
 				Optional: true,
 				Description: `Specifies whether the historical audit logs will be reserved for some time when SQL
 audit is disabled.`,
+			},
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
 			},
 		},
 	}
@@ -134,7 +144,8 @@ func resourceSQLAuditRead(_ context.Context, d *schema.ResourceData, meta interf
 	if err != nil {
 		return diag.Errorf("error getting RDS instance: %s", err)
 	}
-	if instance.Id == "" {
+	instanceId := utils.PathSearch("id", instance, "").(string)
+	if instanceId == "" {
 		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
 	}
 

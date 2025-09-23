@@ -1,0 +1,84 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_servicestagev3_components": {
+          "block": {
+            "attributes": {
+              "application_id": {
+                "type": "string",
+                "description": "The ID of the application to which the components belong.",
+                "optional": true
+              },
+              "components": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "environment_id": "string",
+                      "external_accesses": [
+                        "set",
+                        [
+                          "object",
+                          {
+                            "address": "string",
+                            "forward_port": "number",
+                            "protocol": "string"
+                          }
+                        ]
+                      ],
+                      "id": "string",
+                      "name": "string",
+                      "refer_resources": [
+                        "set",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "parameters": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "runtime_stack": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "deploy_mode": "string",
+                            "name": "string",
+                            "type": "string",
+                            "version": "string"
+                          }
+                        ]
+                      ],
+                      "source": "string",
+                      "status": "string",
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "version": "string"
+                    }
+                  ]
+                ],
+                "description": "All application details.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the components are located.",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

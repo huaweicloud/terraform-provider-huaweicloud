@@ -7,7 +7,6 @@ package dc
 
 import (
 	"context"
-	"fmt"
 	"strings"
 	"time"
 
@@ -15,7 +14,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -24,6 +22,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+// ResourceHostedConnect Due to insufficient test conditions, the current resource has not been tested and verified.
 // @API DC DELETE /v3/{project_id}/dcaas/hosted-connects/{id}
 // @API DC PUT /v3/{project_id}/dcaas/hosted-connects/{id}
 // @API DC GET /v3/{project_id}/dcaas/hosted-connects/{id}
@@ -134,11 +133,11 @@ func resourceHostedConnectCreate(ctx context.Context, d *schema.ResourceData, me
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("hosted_connect.id", createHostedConnectRespBody)
-	if err != nil {
-		return diag.Errorf("error creating hosted connect: ID is not found in API response")
+	connectId := utils.PathSearch("hosted_connect.id", createHostedConnectRespBody, "").(string)
+	if connectId == "" {
+		return diag.Errorf("unable to find the hosted connect ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(connectId)
 
 	err = hostedConnectWaitingForStateCompleted(ctx, createHostedConnectClient, d.Id(), d.Timeout(schema.TimeoutCreate))
 	if err != nil {
@@ -192,12 +191,7 @@ func hostedConnectWaitingForStateCompleted(ctx context.Context, client *golangsd
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`hosted_connect.status`, createHostedConnectWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `status`)
-			}
-
-			status := fmt.Sprintf("%v", statusRaw)
+			status := utils.PathSearch(`hosted_connect.status`, createHostedConnectWaitingRespBody, "").(string)
 
 			targetStatus := []string{
 				"BUILD",
@@ -407,12 +401,7 @@ func deleteHostedConnectWaitingForStateCompleted(ctx context.Context, client *go
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`hosted_connect.status`, deleteHostedConnectWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `status`)
-			}
-
-			status := fmt.Sprintf("%v", statusRaw)
+			status := utils.PathSearch(`hosted_connect.status`, deleteHostedConnectWaitingRespBody, "").(string)
 
 			pendingStatus := []string{
 				"PENDING_DELETE",

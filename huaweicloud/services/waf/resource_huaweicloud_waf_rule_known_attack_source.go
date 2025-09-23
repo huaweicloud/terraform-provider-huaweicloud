@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -76,21 +75,22 @@ func ResourceRuleKnownAttack() *schema.Resource {
 
 func resourceRuleKnownAttackCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg     = meta.(*config.Config)
-		region  = cfg.GetRegion(d)
-		httpUrl = "v1/{project_id}/waf/policy/{policy_id}/punishment"
-		product = "waf"
+		cfg      = meta.(*config.Config)
+		region   = cfg.GetRegion(d)
+		httpUrl  = "v1/{project_id}/waf/policy/{policy_id}/punishment"
+		product  = "waf"
+		policyID = d.Get("policy_id").(string)
 	)
 	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating WAF Client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
-	createPath := client.Endpoint + httpUrl
-	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
-	createPath = strings.ReplaceAll(createPath, "{policy_id}", d.Get("policy_id").(string))
-	createPath += buildQueryParams(d, cfg)
-	createOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{policy_id}", policyID)
+	requestPath += buildQueryParams(d, cfg)
+	requestOpt := golangsdk.RequestOpts{
 		MoreHeaders: map[string]string{
 			"Content-Type": "application/json;charset=utf8",
 		},
@@ -98,21 +98,21 @@ func resourceRuleKnownAttackCreate(ctx context.Context, d *schema.ResourceData, 
 		JSONBody:         buildRuleKnownAttackBodyParams(d),
 	}
 
-	createResp, err := client.Request("POST", createPath, &createOpt)
+	resp, err := client.Request("POST", requestPath, &requestOpt)
 	if err != nil {
 		return diag.Errorf("error creating WAF known attack source rule: %s", err)
 	}
 
-	createRespBody, err := utils.FlattenResponse(createResp)
+	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("id", createRespBody)
-	if err != nil {
+	ruleId := utils.PathSearch("id", respBody, "").(string)
+	if ruleId == "" {
 		return diag.Errorf("error creating WAF known attack source rule: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(ruleId)
 
 	return resourceRuleKnownAttackRead(ctx, d, meta)
 }
@@ -127,35 +127,37 @@ func buildRuleKnownAttackBodyParams(d *schema.ResourceData) map[string]interface
 
 func resourceRuleKnownAttackRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg     = meta.(*config.Config)
-		region  = cfg.GetRegion(d)
-		mErr    *multierror.Error
-		httpUrl = "v1/{project_id}/waf/policy/{policy_id}/punishment/{rule_id}"
-		product = "waf"
+		cfg      = meta.(*config.Config)
+		region   = cfg.GetRegion(d)
+		mErr     *multierror.Error
+		httpUrl  = "v1/{project_id}/waf/policy/{policy_id}/punishment/{rule_id}"
+		product  = "waf"
+		policyID = d.Get("policy_id").(string)
 	)
 	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating WAF Client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
-	getPath := client.Endpoint + httpUrl
-	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
-	getPath = strings.ReplaceAll(getPath, "{policy_id}", d.Get("policy_id").(string))
-	getPath = strings.ReplaceAll(getPath, "{rule_id}", d.Id())
-	getPath += buildQueryParams(d, cfg)
-	getOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{policy_id}", policyID)
+	requestPath = strings.ReplaceAll(requestPath, "{rule_id}", d.Id())
+	requestPath += buildQueryParams(d, cfg)
+	requestOpt := golangsdk.RequestOpts{
 		MoreHeaders: map[string]string{
 			"Content-Type": "application/json;charset=utf8",
 		},
 		KeepResponseBody: true,
 	}
 
-	getResp, err := client.Request("GET", getPath, &getOpt)
+	resp, err := client.Request("GET", requestPath, &requestOpt)
 	if err != nil {
+		// If the known attack source rule does not exist, the response HTTP status code of the details API is 404.
 		return common.CheckDeletedDiag(d, err, "error retrieving WAF known attack source rule")
 	}
 
-	getRespBody, err := utils.FlattenResponse(getResp)
+	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -163,10 +165,10 @@ func resourceRuleKnownAttackRead(_ context.Context, d *schema.ResourceData, meta
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),
-		d.Set("policy_id", utils.PathSearch("policyid", getRespBody, nil)),
-		d.Set("block_time", utils.PathSearch("block_time", getRespBody, nil)),
-		d.Set("block_type", utils.PathSearch("category", getRespBody, nil)),
-		d.Set("description", utils.PathSearch("description", getRespBody, nil)),
+		d.Set("policy_id", utils.PathSearch("policyid", respBody, nil)),
+		d.Set("block_time", utils.PathSearch("block_time", respBody, nil)),
+		d.Set("block_type", utils.PathSearch("category", respBody, nil)),
+		d.Set("description", utils.PathSearch("description", respBody, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -174,22 +176,23 @@ func resourceRuleKnownAttackRead(_ context.Context, d *schema.ResourceData, meta
 
 func resourceRuleKnownAttackUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg     = meta.(*config.Config)
-		region  = cfg.GetRegion(d)
-		httpUrl = "v1/{project_id}/waf/policy/{policy_id}/punishment/{rule_id}"
-		product = "waf"
+		cfg      = meta.(*config.Config)
+		region   = cfg.GetRegion(d)
+		httpUrl  = "v1/{project_id}/waf/policy/{policy_id}/punishment/{rule_id}"
+		product  = "waf"
+		policyID = d.Get("policy_id").(string)
 	)
 	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating WAF Client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
-	updatePath := client.Endpoint + httpUrl
-	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
-	updatePath = strings.ReplaceAll(updatePath, "{policy_id}", d.Get("policy_id").(string))
-	updatePath = strings.ReplaceAll(updatePath, "{rule_id}", d.Id())
-	updatePath += buildQueryParams(d, cfg)
-	updateOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{policy_id}", policyID)
+	requestPath = strings.ReplaceAll(requestPath, "{rule_id}", d.Id())
+	requestPath += buildQueryParams(d, cfg)
+	requestOpt := golangsdk.RequestOpts{
 		MoreHeaders: map[string]string{
 			"Content-Type": "application/json;charset=utf8",
 		},
@@ -197,7 +200,7 @@ func resourceRuleKnownAttackUpdate(ctx context.Context, d *schema.ResourceData, 
 		JSONBody:         buildRuleKnownAttackBodyParams(d),
 	}
 
-	_, err = client.Request("PUT", updatePath, &updateOpt)
+	_, err = client.Request("PUT", requestPath, &requestOpt)
 	if err != nil {
 		return diag.Errorf("error updating WAF known attack source rule: %s", err)
 	}
@@ -207,32 +210,33 @@ func resourceRuleKnownAttackUpdate(ctx context.Context, d *schema.ResourceData, 
 
 func resourceRuleKnownAttackDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg     = meta.(*config.Config)
-		region  = cfg.GetRegion(d)
-		httpUrl = "v1/{project_id}/waf/policy/{policy_id}/punishment/{rule_id}"
-		product = "waf"
+		cfg      = meta.(*config.Config)
+		region   = cfg.GetRegion(d)
+		httpUrl  = "v1/{project_id}/waf/policy/{policy_id}/punishment/{rule_id}"
+		product  = "waf"
+		policyID = d.Get("policy_id").(string)
 	)
 	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating WAF Client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
-	deletePath := client.Endpoint + httpUrl
-	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
-	deletePath = strings.ReplaceAll(deletePath, "{policy_id}", d.Get("policy_id").(string))
-	deletePath = strings.ReplaceAll(deletePath, "{rule_id}", d.Id())
-	deletePath += buildQueryParams(d, cfg)
-
-	deleteRuleKnownAttackOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{policy_id}", policyID)
+	requestPath = strings.ReplaceAll(requestPath, "{rule_id}", d.Id())
+	requestPath += buildQueryParams(d, cfg)
+	requestOpt := golangsdk.RequestOpts{
 		MoreHeaders: map[string]string{
 			"Content-Type": "application/json;charset=utf8",
 		},
 		KeepResponseBody: true,
 	}
 
-	_, err = client.Request("DELETE", deletePath, &deleteRuleKnownAttackOpt)
+	_, err = client.Request("DELETE", requestPath, &requestOpt)
 	if err != nil {
-		return diag.Errorf("error deleting WAF known attack source rule: %s", err)
+		// If the known attack source rule does not exist, the response HTTP status code of the deletion API is 404.
+		return common.CheckDeletedDiag(d, err, "error deleting WAF known attack source rule")
 	}
 
 	return nil

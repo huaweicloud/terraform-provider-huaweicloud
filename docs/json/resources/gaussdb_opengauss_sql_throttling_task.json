@@ -1,0 +1,132 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_gaussdb_opengauss_sql_throttling_task": {
+          "block": {
+            "attributes": {
+              "cpu_utilization": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "creator": {
+                "type": "string",
+                "computed": true
+              },
+              "databases": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "end_time": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "key_words": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "limit_type": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "limit_type_value": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "memory_utilization": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "modifier": {
+                "type": "string",
+                "computed": true
+              },
+              "parallel_size": {
+                "type": "number",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "rule_name": {
+                "type": "string",
+                "computed": true
+              },
+              "sql_model": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "start_time": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "task_name": {
+                "type": "string",
+                "required": true
+              },
+              "task_scope": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "updated_at": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "node_infos": {
+                "block": {
+                  "attributes": {
+                    "node_id": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "sql_id": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "set"
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDB",
+            "name": "GaussDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

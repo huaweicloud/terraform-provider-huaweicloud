@@ -3,29 +3,50 @@ package oms
 import (
 	"fmt"
 	"strconv"
+	"strings"
 	"testing"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	oms "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/oms/v2/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getMigrationSyncTaskResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	c, err := conf.HcOmsV2Client(acceptance.HW_REGION_NAME)
+func getMigrationSyncTaskResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	queryTime := strconv.FormatInt(time.Now().UnixMilli(), 10)
+
+	var (
+		getSyncTaskHttpUrl = "v2/{project_id}/sync-tasks/{sync_task_id}?query_time=" + queryTime
+		getSyncTaskProduct = "oms"
+	)
+	getSyncTaskClient, err := cfg.NewServiceClient(getSyncTaskProduct, acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating OMS client: %s", err)
 	}
 
-	queryTime := strconv.FormatInt(time.Now().UnixMilli(), 10)
-	return c.ShowSyncTask(&oms.ShowSyncTaskRequest{SyncTaskId: state.Primary.ID, QueryTime: queryTime})
+	getSyncTaskPath := getSyncTaskClient.Endpoint + getSyncTaskHttpUrl
+	getSyncTaskPath = strings.ReplaceAll(getSyncTaskPath, "{project_id}", getSyncTaskClient.ProjectID)
+	getSyncTaskPath = strings.ReplaceAll(getSyncTaskPath, "{sync_task_id}", state.Primary.ID)
+
+	getSyncTaskOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getSyncTaskResp, err := getSyncTaskClient.Request("GET", getSyncTaskPath, &getSyncTaskOpt)
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving OMS migration sync task: %s", err)
+	}
+
+	return utils.FlattenResponse(getSyncTaskResp)
 }
+
 func TestAccMigrationSyncTask_basic(t *testing.T) {
-	var syncTask oms.ShowSyncTaskResponse
+	var syncTask interface{}
 	rName := acceptance.RandomAccResourceNameWithDash()
 	sourceBucketName := rName + "-source"
 	destBucketName := rName + "-dest"
@@ -41,7 +62,8 @@ func TestAccMigrationSyncTask_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
-			{Config: testMigrationSyncTask_basic(testMigrationTask_base(sourceBucketName, destBucketName), "stop"),
+			{
+				Config: testMigrationSyncTask_basic(testMigrationTask_base(sourceBucketName, destBucketName), "stop"),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "src_cloud_type", "HuaweiCloud"),
@@ -52,7 +74,8 @@ func TestAccMigrationSyncTask_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "last_start_at"),
 				),
 			},
-			{Config: testMigrationSyncTask_basic(testMigrationTask_base(sourceBucketName, destBucketName), "start"),
+			{
+				Config: testMigrationSyncTask_basic(testMigrationTask_base(sourceBucketName, destBucketName), "start"),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "src_cloud_type", "HuaweiCloud"),

@@ -1,0 +1,704 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_servicestagev3_component": {
+          "block": {
+            "attributes": {
+              "application_id": {
+                "type": "string",
+                "description": "The application ID to which the component belongs.",
+                "required": true
+              },
+              "build": {
+                "type": "string",
+                "description": "The build configuration of the component, in JSON format.",
+                "optional": true
+              },
+              "command": {
+                "type": "string",
+                "description": "The start commands of the component, in JSON format.",
+                "optional": true,
+                "computed": true
+              },
+              "config_mode": {
+                "type": "string",
+                "description": "The configuration mode of the component.",
+                "optional": true,
+                "computed": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the component, in RFC3339 format.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the component.",
+                "optional": true,
+                "computed": true
+              },
+              "environment_id": {
+                "type": "string",
+                "description": "The environment ID where the component is deployed.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "jvm_opts": {
+                "type": "string",
+                "description": "The JVM parameters of the component.",
+                "optional": true,
+                "computed": true
+              },
+              "limit_cpu": {
+                "type": "number",
+                "description": "The maximum number of the CPU limit.",
+                "optional": true,
+                "computed": true
+              },
+              "limit_memory": {
+                "type": "number",
+                "description": "The maximum number of the memory limit.",
+                "optional": true,
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the component.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the component is located.",
+                "computed": true
+              },
+              "replica": {
+                "type": "number",
+                "description": "The replica number of the component.",
+                "optional": true,
+                "computed": true
+              },
+              "request_cpu": {
+                "type": "number",
+                "description": "The number of the CPU request resources.",
+                "optional": true,
+                "computed": true
+              },
+              "request_memory": {
+                "type": "number",
+                "description": "The number of the memory request resources.",
+                "optional": true,
+                "computed": true
+              },
+              "source": {
+                "type": "string",
+                "description": "The source configuration of the component, in JSON format.",
+                "required": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the component.",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "The key/value pairs to associate with the component.",
+                "optional": true,
+                "computed": true
+              },
+              "timezone": {
+                "type": "string",
+                "description": "The time zone in which the component runs.",
+                "optional": true,
+                "computed": true
+              },
+              "tomcat_opts": {
+                "type": "string",
+                "description": "The configuration of the tomcat server.",
+                "optional": true,
+                "computed": true
+              },
+              "update_strategy": {
+                "type": "string",
+                "description": "The configuration of the update strategy, in JSON format.",
+                "optional": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The latest update time of the component, in RFC3339 format.",
+                "computed": true
+              },
+              "version": {
+                "type": "string",
+                "description": "The version of the component.",
+                "required": true
+              },
+              "workload_content": {
+                "type": "string",
+                "description": "The workload content of the component, in JSON format.",
+                "optional": true,
+                "computed": true
+              }
+            },
+            "block_types": {
+              "affinity": {
+                "block": {
+                  "attributes": {
+                    "condition": {
+                      "type": "string",
+                      "description": "The condition type of the (anti) affinity rule.",
+                      "required": true
+                    },
+                    "kind": {
+                      "type": "string",
+                      "description": "The kind of the (anti) affinity rule.",
+                      "required": true
+                    },
+                    "weight": {
+                      "type": "number",
+                      "description": "The weight of the (anti) affinity rule.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "block_types": {
+                    "match_expressions": {
+                      "block": {
+                        "attributes": {
+                          "key": {
+                            "type": "string",
+                            "description": "The key of the match rule.",
+                            "required": true
+                          },
+                          "operation": {
+                            "type": "string",
+                            "description": "The operation of the match rule.",
+                            "required": true
+                          },
+                          "value": {
+                            "type": "string",
+                            "description": "The value of the match rule.",
+                            "optional": true
+                          }
+                        },
+                        "description": "The list of the match rules for (anti) affinity."
+                      },
+                      "nesting_mode": "set",
+                      "min_items": 1
+                    }
+                  },
+                  "description": "The affinity configuration of the component."
+                },
+                "nesting_mode": "set"
+              },
+              "anti_affinity": {
+                "block": {
+                  "attributes": {
+                    "condition": {
+                      "type": "string",
+                      "description": "The condition type of the (anti) affinity rule.",
+                      "required": true
+                    },
+                    "kind": {
+                      "type": "string",
+                      "description": "The kind of the (anti) affinity rule.",
+                      "required": true
+                    },
+                    "weight": {
+                      "type": "number",
+                      "description": "The weight of the (anti) affinity rule.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "block_types": {
+                    "match_expressions": {
+                      "block": {
+                        "attributes": {
+                          "key": {
+                            "type": "string",
+                            "description": "The key of the match rule.",
+                            "required": true
+                          },
+                          "operation": {
+                            "type": "string",
+                            "description": "The operation of the match rule.",
+                            "required": true
+                          },
+                          "value": {
+                            "type": "string",
+                            "description": "The value of the match rule.",
+                            "optional": true
+                          }
+                        },
+                        "description": "The list of the match rules for (anti) affinity."
+                      },
+                      "nesting_mode": "set",
+                      "min_items": 1
+                    }
+                  },
+                  "description": "The anti-affinity configuration of the component."
+                },
+                "nesting_mode": "set"
+              },
+              "custom_metric": {
+                "block": {
+                  "attributes": {
+                    "dimensions": {
+                      "type": "string",
+                      "description": "The monitoring dimension.",
+                      "required": true
+                    },
+                    "path": {
+                      "type": "string",
+                      "description": "The collection path.",
+                      "required": true
+                    },
+                    "port": {
+                      "type": "number",
+                      "description": "The collection port.",
+                      "required": true
+                    }
+                  },
+                  "description": "The configuration of the monitor metric."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "deploy_strategy": {
+                "block": {
+                  "attributes": {
+                    "gray_release": {
+                      "type": "string",
+                      "description": "The gray release parameters, in JSON format.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "rolling_release": {
+                      "type": "string",
+                      "description": "The rolling release parameters, in JSON format.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The deploy type.",
+                      "required": true
+                    }
+                  },
+                  "description": "The configuration of the deploy strategy."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "envs": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "description": "The name of the environment variable.",
+                      "required": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "description": "The value of the environment variable.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "The configuration of the environment variables."
+                },
+                "nesting_mode": "set"
+              },
+              "external_accesses": {
+                "block": {
+                  "attributes": {
+                    "address": {
+                      "type": "string",
+                      "description": "The address of the external access.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "forward_port": {
+                      "type": "number",
+                      "description": "The forward port of the external access.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "protocol": {
+                      "type": "string",
+                      "description": "The protocol of the external access.",
+                      "required": true
+                    }
+                  },
+                  "description": "The configuration of the external accesses."
+                },
+                "nesting_mode": "set"
+              },
+              "liveness_probe": {
+                "block": {
+                  "attributes": {
+                    "command": {
+                      "type": [
+                        "set",
+                        "string"
+                      ],
+                      "description": "The command list of the probe.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "delay": {
+                      "type": "number",
+                      "description": "The delay time of the probe.",
+                      "required": true
+                    },
+                    "host": {
+                      "type": "string",
+                      "description": "The host of the probe.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "path": {
+                      "type": "string",
+                      "description": "The path of the probe.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "port": {
+                      "type": "number",
+                      "description": "The port of the probe.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "scheme": {
+                      "type": "string",
+                      "description": "The scheme type of the probe.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "timeout": {
+                      "type": "number",
+                      "description": "The timeout of the probe.",
+                      "required": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The type of the probe.",
+                      "required": true
+                    }
+                  },
+                  "description": "The liveness probe configuration of the component."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "logs": {
+                "block": {
+                  "attributes": {
+                    "host_extend_path": {
+                      "type": "string",
+                      "description": "The extension path of the host.",
+                      "required": true
+                    },
+                    "host_path": {
+                      "type": "string",
+                      "description": "The mounted host path.",
+                      "required": true
+                    },
+                    "log_path": {
+                      "type": "string",
+                      "description": "The log path of the container.",
+                      "required": true
+                    },
+                    "rotate": {
+                      "type": "string",
+                      "description": "The interval for dumping logs.",
+                      "required": true
+                    }
+                  },
+                  "description": "The configuration of the logs collection."
+                },
+                "nesting_mode": "set"
+              },
+              "mesher": {
+                "block": {
+                  "attributes": {
+                    "port": {
+                      "type": "number",
+                      "description": "The process listening port.",
+                      "required": true
+                    }
+                  },
+                  "description": "The configuration of the access mesher."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "post_start": {
+                "block": {
+                  "attributes": {
+                    "command": {
+                      "type": [
+                        "set",
+                        "string"
+                      ],
+                      "description": "The command list of the lifecycle configuration.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "host": {
+                      "type": "string",
+                      "description": "The host (IP) of the lifecycle configuration.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "path": {
+                      "type": "string",
+                      "description": "The request path of the lifecycle configuration.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "port": {
+                      "type": "number",
+                      "description": "The port number of the lifecycle configuration.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "scheme": {
+                      "type": "string",
+                      "description": "The HTTP request type.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The processing method.",
+                      "required": true
+                    }
+                  },
+                  "description": "The post start configuration."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "pre_stop": {
+                "block": {
+                  "attributes": {
+                    "command": {
+                      "type": [
+                        "set",
+                        "string"
+                      ],
+                      "description": "The command list of the lifecycle configuration.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "host": {
+                      "type": "string",
+                      "description": "The host (IP) of the lifecycle configuration.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "path": {
+                      "type": "string",
+                      "description": "The request path of the lifecycle configuration.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "port": {
+                      "type": "number",
+                      "description": "The port number of the lifecycle configuration.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "scheme": {
+                      "type": "string",
+                      "description": "The HTTP request type.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The processing method.",
+                      "required": true
+                    }
+                  },
+                  "description": "The pre stop configuration."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "readiness_probe": {
+                "block": {
+                  "attributes": {
+                    "command": {
+                      "type": [
+                        "set",
+                        "string"
+                      ],
+                      "description": "The command list of the probe.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "delay": {
+                      "type": "number",
+                      "description": "The delay time of the probe.",
+                      "required": true
+                    },
+                    "host": {
+                      "type": "string",
+                      "description": "The host of the probe.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "path": {
+                      "type": "string",
+                      "description": "The path of the probe.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "port": {
+                      "type": "number",
+                      "description": "The port of the probe.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "scheme": {
+                      "type": "string",
+                      "description": "The scheme type of the probe.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "timeout": {
+                      "type": "number",
+                      "description": "The timeout of the probe.",
+                      "required": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The type of the probe.",
+                      "required": true
+                    }
+                  },
+                  "description": "The readiness probe configuration of the component."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "refer_resources": {
+                "block": {
+                  "attributes": {
+                    "id": {
+                      "type": "string",
+                      "description": "The resource ID.",
+                      "required": true
+                    },
+                    "parameters": {
+                      "type": "string",
+                      "description": "The resource parameters, in JSON format.",
+                      "optional": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The resource type.",
+                      "required": true
+                    }
+                  },
+                  "description": "The configuration of the reference resources."
+                },
+                "nesting_mode": "set",
+                "min_items": 1
+              },
+              "runtime_stack": {
+                "block": {
+                  "attributes": {
+                    "deploy_mode": {
+                      "type": "string",
+                      "description": "The deploy mode of the stack.",
+                      "required": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "The stack name.",
+                      "required": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The stack type.",
+                      "required": true
+                    },
+                    "version": {
+                      "type": "string",
+                      "description": "The stack version.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "The configuration of the runtime stack."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "storages": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "description": "The name of the disk where the data is stored.",
+                      "required": true
+                    },
+                    "parameters": {
+                      "type": "string",
+                      "description": "The information corresponding to the specific types of data storage, in JSON format.",
+                      "required": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The type of the data storage.",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "mounts": {
+                      "block": {
+                        "attributes": {
+                          "path": {
+                            "type": "string",
+                            "description": "The mount path.",
+                            "required": true
+                          },
+                          "read_only": {
+                            "type": "bool",
+                            "description": "Whether the disk mount is read-only.",
+                            "required": true
+                          },
+                          "sub_path": {
+                            "type": "string",
+                            "description": "The sub mount path.",
+                            "required": true
+                          }
+                        },
+                        "description": "The configuration of the disk mounts."
+                      },
+                      "nesting_mode": "set",
+                      "min_items": 1
+                    }
+                  },
+                  "description": "The storage configuration."
+                },
+                "nesting_mode": "set"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

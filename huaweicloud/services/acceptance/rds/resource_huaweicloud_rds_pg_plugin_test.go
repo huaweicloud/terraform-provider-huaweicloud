@@ -99,22 +99,22 @@ resource "huaweicloud_rds_instance" "test" {
   description       = "test_description"
   flavor            = "rds.pg.n1.large.2"
   availability_zone = [data.huaweicloud_availability_zones.test.names[0]]
-  security_group_id = huaweicloud_networking_secgroup.test.id
+  security_group_id = data.huaweicloud_networking_secgroup.test.id
   subnet_id         = data.huaweicloud_vpc_subnet.test.id
   vpc_id            = data.huaweicloud_vpc.test.id
   time_zone         = "UTC+08:00"
 
   db {
     type    = "PostgreSQL"
-    version = "12"
+    version = "16"
   }
 
   volume {
     type = "CLOUDSSD"
-    size = 50
+    size = 40
   }
 }
-`, testAccRdsInstance_base(name), name)
+`, testAccRdsInstance_base(), name)
 }
 
 func testPgPlugin_basic(randName string) string {

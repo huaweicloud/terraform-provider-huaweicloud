@@ -240,12 +240,9 @@ func resourceEipProtectionRead(_ context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error creating CFW Client: %s", err)
 	}
 
-	resp, err := QuerySyncedEips(client, queryHttpUrl, objectId)
+	resp, err := getEipProtection(client, queryHttpUrl, objectId)
 	if err != nil {
-		return diag.FromErr(err)
-	}
-	if !ProtectedEipExist(resp) {
-		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "No EIP is being protected")
+		return common.CheckDeletedDiag(d, err, "error retrieving EIP protection")
 	}
 
 	mErr := multierror.Append(nil,
@@ -256,6 +253,18 @@ func resourceEipProtectionRead(_ context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error saving EIP protection resource fields: %s", err)
 	}
 	return nil
+}
+
+func getEipProtection(client *golangsdk.ServiceClient, queryHttpUrl, objectId string) ([]interface{}, error) {
+	resp, err := QuerySyncedEips(client, queryHttpUrl, objectId)
+	if err != nil {
+		return nil, common.ConvertExpected400ErrInto404Err(err, "error_code", "CFW.00200005")
+	}
+	if !ProtectedEipExist(resp) {
+		return nil, golangsdk.ErrDefault404{}
+	}
+
+	return resp, nil
 }
 
 func resourceEipProtectionUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -302,8 +311,19 @@ func resourceEipProtectionDelete(ctx context.Context, d *schema.ResourceData, me
 		return diag.Errorf("error creating CFW Client: %s", err)
 	}
 
+	_, err = getEipProtection(client, queryHttpUrl, objectId)
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, "error retrieving EIP protection")
+	}
+
 	err = unprotectEips(ctx, client, objectId, unprotectSet, d.Timeout(schema.TimeoutDelete))
-	return diag.FromErr(err)
+	if err != nil {
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error_code", "CFW.00200005"),
+			"error deleting EIP protection",
+		)
+	}
+	return nil
 }
 
 func protectEips(ctx context.Context, client *golangsdk.ServiceClient, objectId string, protectedEipSet *schema.Set,

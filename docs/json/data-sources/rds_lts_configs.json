@@ -1,0 +1,95 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_rds_lts_configs": {
+          "block": {
+            "attributes": {
+              "engine": {
+                "type": "string",
+                "required": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "optional": true
+              },
+              "instance_lts_configs": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "instance": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "actions": [
+                              "list",
+                              "string"
+                            ],
+                            "engine_category": "string",
+                            "engine_name": "string",
+                            "engine_version": "string",
+                            "enterprise_project_id": "string",
+                            "id": "string",
+                            "name": "string",
+                            "status": "string"
+                          }
+                        ]
+                      ],
+                      "lts_configs": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "enabled": "bool",
+                            "log_type": "string",
+                            "lts_group_id": "string",
+                            "lts_stream_id": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "instance_name": {
+                "type": "string",
+                "optional": true
+              },
+              "instance_status": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "sort": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "RDS",
+            "name": "Relational Database Service",
+            "catalog": "Databases",
+            "name_cn": "云数据库",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

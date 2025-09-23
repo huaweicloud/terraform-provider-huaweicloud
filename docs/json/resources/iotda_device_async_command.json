@@ -1,0 +1,92 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_iotda_device_async_command": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "delivered_time": {
+                "type": "string",
+                "computed": true
+              },
+              "device_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "expire_time": {
+                "type": "number",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "paras": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "response_time": {
+                "type": "string",
+                "computed": true
+              },
+              "result": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "computed": true
+              },
+              "send_strategy": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "sent_time": {
+                "type": "string",
+                "computed": true
+              },
+              "service_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "IoTDA",
+            "name": "IoT Device Access",
+            "catalog": "Internet of Things",
+            "name_cn": "设备接入",
+            "catalog_cn": "IoT物联网"
+          }
+        }
+      }
+    }
+  }
+}

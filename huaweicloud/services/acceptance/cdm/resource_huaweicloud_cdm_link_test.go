@@ -102,6 +102,12 @@ resource "huaweicloud_cdm_link" "test" {
     "storageType" = "OBS"
     "server"      = trimprefix(huaweicloud_obs_bucket.test.bucket_domain_name, "${huaweicloud_obs_bucket.test.bucket}.")
     "port"        = "443"
+    "properties"  = jsonencode(
+      {
+        connectionTimeout = "10000",
+        socketTimeout     = "20000"
+      }
+    )
   }
 
   access_key = "%s"
@@ -132,6 +138,12 @@ resource "huaweicloud_cdm_link" "test" {
     "storageType" = "OBS"
     "server"      = trimprefix(huaweicloud_obs_bucket.test.bucket_domain_name, "${huaweicloud_obs_bucket.test.bucket}.")
     "port"        = "80"
+    "properties"  = jsonencode(
+      {
+        connectionTimeout = "5000",
+        socketTimeout     = "2000"
+      }
+    )
   }
 
   access_key = "%s"

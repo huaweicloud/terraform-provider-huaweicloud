@@ -1,0 +1,56 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cbr_vault_migrate_resources": {
+          "block": {
+            "attributes": {
+              "destination_vault_id": {
+                "type": "string",
+                "description": "Specifies the destination vault ID where resources will be migrated to.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "migrated_resources": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the list of resources that have been successfully migrated.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to create the resource. If omitted, the provider-level\nregion will be used.",
+                "computed": true
+              },
+              "resource_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the IDs of the resources to be migrated.",
+                "required": true
+              },
+              "vault_id": {
+                "type": "string",
+                "description": "Specifies the source vault ID from which resources will be migrated.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "CBR",
+            "name": "Cloud Backup and Recovery",
+            "catalog": "Storage",
+            "name_cn": "云备份",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}

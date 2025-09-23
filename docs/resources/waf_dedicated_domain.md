@@ -2,7 +2,8 @@
 subcategory: "Web Application Firewall (WAF)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_waf_dedicated_domain"
-description: ""
+description: |-
+  Manages a dedicated mode domain resource within HuaweiCloud.
 ---
 
 # huaweicloud_waf_dedicated_domain
@@ -10,16 +11,26 @@ description: ""
 Manages a dedicated mode domain resource within HuaweiCloud.
 
 -> **NOTE:** All WAF resources depend on WAF instances, and the WAF instances need to be purchased before they can be
-used. The dedicated mode domain name resource can be used in Dedicated Mode and ELB Mode.
+used. The dedicated mode domain name resource can be used in Dedicated Mode.
+
+-> You can use this resource to create a cloud-mode ELB domain name, but there are usage restrictions:
+<br/>1. To use cloud load balancer WAF, you need to submit a service ticket to enable it for you first.
+<br/>2. If you want to use the load balancer access mode, make sure you are using standard, professional, or enterprise
+cloud WAF.
+<br/>3. You have purchased a dedicated load balancer with Specifications set to Application load balancing (HTTP/HTTPS).
+<br/>For more usage restrictions, please refer to the documentation:
+[Cloud Mode - Load Balancer Access](https://support.huaweicloud.com/intl/en-us/usermanual-waf/waf_01_0287.html)
 
 ## Example Usage
+
+### Dedicated Mode domain
 
 ```hcl
 variable "certificated_id" {}
 variable "vpc_id" {}
 variable "enterprise_project_id" {}
 
-resource "huaweicloud_waf_dedicated_domain" "domain_1" {
+resource "huaweicloud_waf_dedicated_domain" "test" {
   domain                = "www.example.com"
   certificate_id        = var.certificated_id
   enterprise_project_id = var.enterprise_project_id
@@ -76,59 +87,88 @@ EOF
 }
 ```
 
+### Cloud ELB Mode domain
+
+```hcl
+variable "enterprise_project_id" {}
+variable "loadbalancer_id" {}
+
+resource "huaweicloud_waf_dedicated_domain" "test" {
+  loadbalancer_id       = var.loadbalancer_id
+  enterprise_project_id = var.enterprise_project_id
+  domain                = "119.8.5.14"
+  mode                  = "elb-shared"
+  description           = "test description"
+  protocol_port         = 0
+  website_name          = "test-web-tag"
+
+  lifecycle {
+    ignore_changes = [ proxy ]
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) The region in which to create the dedicated mode domain resource. If omitted,
-  the provider-level region will be used. Changing this setting will push a new domain.
+* `region` - (Optional, String, ForceNew) Specifies the region in which to create the dedicated mode domain resource.
+  If omitted, the provider-level region will be used. Changing this setting will push a new domain.
 
-* `domain` - (Required, String, ForceNew) Specifies the protected domain name or IP address (port allowed). For example,
-  `www.example.com` or `*.example.com` or `www.example.com:89`. Changing this creates a new domain.
+* `domain` - (Required, String, NonUpdatable) Specifies the protected domain name or IP address (port allowed). For example,
+  `www.example.com` or `*.example.com` or `www.example.com:89`.
 
-* `server` - (Required, List, ForceNew) The server configuration list of the domain. A maximum of 80 can be configured.
-  The object structure is documented below.
+* `server` - (Optional, List) Specifies the server configuration list of the domain.
+  A maximum of `80` can be configured. The [server](#DedicatedDomain_server) structure is documented below.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID of WAF dedicated domain.
-  Changing this parameter will create a new resource.
+  -> Field `server` is required only when creating dedicated domain. This field does not need to be configured when
+  creating a cloud mode ELB domain name.
+
+* `enterprise_project_id` - (Optional, String, NonUpdatable) Specifies the enterprise project ID of WAF dedicated domain.
+  For enterprise users, if omitted, default enterprise project will be used.
 
 * `certificate_id` - (Optional, String) Specifies the certificate ID. This parameter is mandatory when `client_protocol`
-  is set to HTTPS.
+  is set to **HTTPS**.
 
 * `policy_id` - (Optional, String) Specifies the policy ID associated with the domain. If not specified, a new policy
   will be created automatically.
 
-* `proxy` - (Optional, Bool) Specifies whether a proxy is configured. Default value is `false`.
+* `proxy` - (Optional, Bool) Specifies whether a proxy is configured. Defaults to **false**.
 
   -> **NOTE:** WAF forwards only HTTP/S traffic. So WAF cannot serve your non-HTTP/S traffic, such as UDP, SMTP, FTP,
   and basically all other non-HTTP/S traffic. If a proxy such as public network ELB (or Nginx) has been used, set
   proxy `true` to ensure that the WAF security policy takes effect for the real source IP address.
 
 * `keep_policy` - (Optional, Bool) Specifies whether to retain the policy when deleting a domain name.
-  Defaults to `true`.
+  Defaults to **true**.
 
-* `protect_status` - (Optional, Int) The protection status of domain, `0`: suspended, `1`: enabled.
-  Default value is `0`.
+* `protect_status` - (Optional, Int) Specifies the protection status of domain, `0`: suspended, `1`: enabled.
+  Defaults to `0`.
 
-* `tls` - (Optional, String) Specifies the minimum required TLS version. The options include `TLS v1.0`, `TLS v1.1`,
-  `TLS v1.2`.
+* `access_status` - (Optional, Int) Specifies whether a domain name is connected to WAF. Valid values are:
+  + `0` - The domain name is not connected to WAF.
+  + `1` - The domain name is connected to WAF.
+  + `2` - DNS resolution exception.
 
-* `cipher` - (Optional, String) Specifies the cipher suite of domain. The options include `cipher_1`, `cipher_2`,
-  `cipher_3`, `cipher_4`, `cipher_default`.
+* `tls` - (Optional, String) Specifies the minimum required TLS version. The valid values are: **TLS v1.0**,
+  **TLS v1.1** and **TLS v1.2**.
+
+* `cipher` - (Optional, String) Specifies the cipher suite of domain. The valid values are: **cipher_1**, **cipher_2**,
+  **cipher_3**, **cipher_4**, **cipher_5**, **cipher_6**, and **cipher_default**.
 
 * `pci_3ds` - (Optional, Bool) Specifies the status of the PCI 3DS compliance certification check. The options
-  include `true` and `false`. This parameter must be used together with tls and cipher.
+  include **true** and **false**. This parameter must be used together with `tls` and `cipher`.
 
-  -> **NOTE:** Tls must be set to TLS v1.2, and cipher must be set to cipher_2. The PCI 3DS compliance certification
+  -> **NOTE:** Tls must be set to **TLS v1.2**, and cipher must be set to **cipher_2**. The PCI 3DS compliance certification
   check cannot be disabled after being enabled.
 
 * `pci_dss` - (Optional, Bool) Specifies the status of the PCI DSS compliance certification check. The options
-  include `true` and `false`. This parameter must be used together with tls and cipher.
+  include **true** and **false**. This parameter must be used together with `tls` and `cipher`.
 
-  -> **NOTE:** Tls must be set to TLS v1.2, and cipher must be set to cipher_2.
+  -> **NOTE:** Tls must be set to **TLS v1.2**, and cipher must be set to **cipher_2**.
 
 * `website_name` - (Optional, String) Specifies the website name. This website name must start with a letter and only
-  letters, digits, underscores (_), hyphens (-), colons (:) and periods (.) are allowed. The value contains 1 to 128
+  letters, digits, underscores (_), hyphens (-), colons (:) and periods (.) are allowed. The value contains `1` to `128`
   characters. The website name must be unique within this account.
 
 * `custom_page` - (Optional, List) Specifies the custom page. Only supports one custom alarm page.
@@ -164,7 +204,7 @@ The following arguments are supported:
   + **$ssl_session_reused**
 
 * `connection_protection` - (Optional, List) Specifies the connection protection configuration to let WAF protect your
-  origin servers from being crashed when WAF detects a large number of 502/504 error codes or pending requests.
+  origin servers from being crashed when WAF detects a large number of `502`/`504` error codes or pending requests.
   Only supports one protection configuration.
   The [connection_protection](#DedicatedDomain_connection_protection) structure is documented below.
 
@@ -177,30 +217,54 @@ The following arguments are supported:
   Only supports one traffic identifier.
   The [traffic_mark](#DedicatedDomain_traffic_mark) structure is documented below.
 
+* `mode` - (Optional, String) Specifies the mode. If you use the cloud ELB access mode, enter enter **elb-shared**.
+  Otherwise, leave this parameter blank. This field is required only when creating cloud ELB mode domain.
+
+* `loadbalancer_id` - (Optional, String, NonUpdatable) Specifies the load balancer ID.
+  Available ELB IDs can be found through the datasource `huaweicloud_elb_loadbalancers`.
+  This field is required only when creating cloud ELB mode domain.
+
+* `listener_id` - (Optional, String, NonUpdatable) Specifies the listener ID.
+  Available listener IDs can be found through the datasource `huaweicloud_elb_listeners`.
+  All listeners configured and to be configured for the load balancer will be protected by WAF.
+  In cloud ELB access mode, you are advised to set this parameter.
+
+* `protocol_port` - (Optional, Int, NonUpdatable) Specifies the protocol port. Valid value ranges from `0` to `65,535`.
+  This field is required only when creating cloud ELB mode domain.
+
+* `pool_ids` - (Optional, List) Specifies the dedicated engine group the domain name was added to.
+  This field is valid only when creating cloud ELB mode domain.
+
+-> Fields `mode`, `loadbalancer_id`, `listener_id`, `protocol_port`, and `pool_ids` are only available when creating
+cloud ELB mode domain. Due to API restrictions, the configuration of many fields will be invalid when creating a cloud
+mode ELB domain name. This means that the cloud mode elb domain name does not support the configuration of these fields.
+Please use `lifecycle` to ignore these fields. For example, you need to ignore the `proxy` or configure
+the `proxy` to **true** before creating cloud ELB mode domain. Before using this resource, please refer to the example.
+
+<a name="DedicatedDomain_server"></a>
 The `server` block supports:
 
-* `client_protocol` - (Required, String, ForceNew) Protocol type of the client. The options include `HTTP` and `HTTPS`.
-  Changing this creates a new service.
+* `client_protocol` - (Required, String) Specifies the protocol type of the client. The options include **HTTP**
+  and **HTTPS**.
 
-* `server_protocol` - (Required, String, ForceNew) Protocol used by WAF to forward client requests to the server. The
-  options include `HTTP` and `HTTPS`. Changing this creates a new service.
+* `server_protocol` - (Required, String) Specifies the protocol used by WAF to forward client requests to the
+  server. The valid values are **HTTP** and **HTTPS**.
 
-* `vpc_id` - (Required, String, ForceNew) The id of the vpc used by the server. Changing this creates a service.
+* `vpc_id` - (Required, String) Specifies the ID of the VPC used by the server.
 
-* `type` - (Required, String, ForceNew) Server network type, IPv4 or IPv6. Valid values are: `ipv4` and `ipv6`. Changing
-  this creates a new service.
+* `type` - (Required, String) Specifies the server network type, IPv4 or IPv6.
+  Valid values are **ipv4** and **ipv6**.
 
-* `address` - (Required, String, ForceNew) IP address or domain name of the web server that the client accesses. For
-  example, `192.168.1.1` or `www.example.com`. Changing this creates a new service.
+* `address` - (Required, String) Specifies the IP address or domain name of the web server accessed by the
+  client. For example, `192.168.1.1` or `www.example.com`.
 
-* `port` - (Required, Int, ForceNew) Port number used by the web server. The value ranges from 0 to 65535. Changing this
-  creates a new service.
+* `port` - (Required, Int) Specifies the port number used by the web server. The value ranges from `0` to `65,535`.
 
 <a name="DedicatedDomain_custom_page"></a>
 The `custom_page` block supports:
 
 * `http_return_code` - (Required, String) Specifies the HTTP return code.
-  The value can be a positive integer in the range of 200-599 except 408, 444 and 499.
+  The value can be a positive integer in the range of `200`-`599` except `408`, `444` and `499`.
 
 * `block_page_type` - (Required, String) Specifies the content type of the custom alarm page.
   The value can be **text/html**, **text/xml** or **application/json**.
@@ -212,11 +276,11 @@ The `custom_page` block supports:
 <a name="DedicatedDomain_connection_protection"></a>
 The `connection_protection` block supports:
 
-* `error_threshold` - (Optional, Int) Specifies the 502/504 error threshold for every 30 seconds. Valid value ranges
+* `error_threshold` - (Optional, Int) Specifies the `502`/`504` error threshold for every 30 seconds. Valid value ranges
   from `0` to `2,147,483,647`.
 
-* `error_percentage` - (Optional, Float) Specifies the 502/504 error percentage. A breakdown protection is triggered
-  when the 502/504 error threshold and percentage threshold have been reached. Valid value ranges from `0` to `99`.
+* `error_percentage` - (Optional, Float) Specifies the `502`/`504` error percentage. A breakdown protection is triggered
+  when the `502`/`504` error threshold and percentage threshold have been reached. Valid value ranges from `0` to `99`.
 
 * `initial_downtime` - (Optional, Int) Specifies the breakdown duration (s) when the breakdown is triggered for the first
   time. Valid value ranges from `0` to `2,147,483,647`.
@@ -275,10 +339,6 @@ The following attributes are exported:
 
 * `certificate_name` - The name of the certificate used by the domain name.
 
-* `access_status` - Whether a domain name is connected to WAF. Valid values are:
-  + `0` - The domain name is not connected to WAF,
-  + `1` - The domain name is connected to WAF.
-
 * `protocol` - The protocol type of the client. The options are `HTTP` and `HTTPS`.
 
 * `compliance_certification` - The compliance certifications of the domain, values are:
@@ -293,6 +353,50 @@ The following attributes are exported:
   + `ip_tag` - The IP tag of traffic identifier.
   + `session_tag` - The session tag of traffic identifier.
   + `user_tag` - The user tag of traffic identifier.
+
+* `timestamp` - The time the domain name was added to WAF.
+
+* `extend` - The extended field, which is used to save some configuration information about the protected domain name.
+  The value is key-value pairs.
+
+* `flag` - The identifier, which is used on the console.
+  The [flag](#DedicatedDomain_flag) structure is documented below.
+
+* `block_page` - The alarm page configuration.
+  The [block_page](#DedicatedDomain_block_page) structure is documented below.
+
+<a name="DedicatedDomain_flag"></a>
+The `flag` block supports:
+
+* `pci_3ds` - Whether the website passes the PCI 3DS certification check. Valid values are **true** and **false**.
+
+* `pci_dss` - Whether the website passed the PCI DSS certification check. Valid values are **true** and **false**.
+
+* `cname` - The CNAME record being used. Valid values are **old** and **new**.
+
+* `is_dual_az` - Whether WAF support Multi-AZ DR. Valid values are **true** and **false**.
+
+* `ipv6` - Whether IPv6 protection is supported. Valid values are **true** and **false**.
+
+<a name="DedicatedDomain_block_page"></a>
+The `block_page` block supports:
+
+* `template` - Template name. Enter **default** for the default page. Enter **custom** for the customized alarm page.
+  Enter **redirect** for the redirection page.
+
+* `custom_page` - The custom alarm page.
+  The [custom_page](#DedicatedDomain_block_page_custom_page) structure is documented below.
+
+* `redirect_url` - The URL of the redirected page.
+
+<a name="DedicatedDomain_block_page_custom_page"></a>
+The `custom_page` block supports:
+
+* `status_code` - The status code.
+
+* `content_type` - The content type of the custom alarm page. The value can be **text/html**, **text/xml** or **application/json**.
+
+* `content` - The page content based on the selected page type.
 
 ## Import
 

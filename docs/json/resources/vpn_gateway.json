@@ -47,7 +47,7 @@
               },
               "availability_zones": {
                 "type": [
-                  "list",
+                  "set",
                   "string"
                 ],
                 "description": "The availability zone IDs.",
@@ -65,6 +65,12 @@
                 "type": "string",
                 "description": "The create time.",
                 "computed": true
+              },
+              "delete_eip_on_termination": {
+                "type": "bool",
+                "description": "Whether to delete the EIP when the VPN gateway is deleted.",
+                "optional": true,
+                "default": true
               },
               "enterprise_project_id": {
                 "type": "string",
@@ -88,8 +94,7 @@
                 "type": "string",
                 "description": "The flavor of the VPN gateway.",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "ha_mode": {
                 "type": "string",
@@ -137,7 +142,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "updated_at": {
                 "type": "string",

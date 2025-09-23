@@ -1,0 +1,69 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_waf_tag_antileakage_map": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "lang": {
+                "type": "string",
+                "required": true
+              },
+              "leakagemap": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "code": [
+                        "list",
+                        "string"
+                      ],
+                      "sensitive": [
+                        "list",
+                        "string"
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "locale": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "code": "string",
+                      "email": "string",
+                      "id_card": "string",
+                      "phone": "string",
+                      "responsecode": "string",
+                      "sensitive": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "WAF",
+            "name": "Web Application Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "Web应用防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

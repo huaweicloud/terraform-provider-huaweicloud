@@ -2,7 +2,8 @@
 subcategory: "Web Application Firewall (WAF)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_waf_address_group"
-description: ""
+description: |-
+  Manages a WAF address group resource within HuaweiCloud.
 ---
 
 # huaweicloud_waf_address_group
@@ -10,14 +11,14 @@ description: ""
 Manages a WAF address group resource within HuaweiCloud.
 
 -> **NOTE:** All WAF resources depend on WAF instances, and the WAF instances need to be purchased before they can be
-used. The address group resource can be used in Cloud Mode, Dedicated Mode and ELB Mode.
+used. The address group resource can be used in Cloud Mode and Dedicated Mode.
 
 ## Example Usage
 
 ```hcl
 variable enterprise_project_id {}
 
-resource "huaweicloud_waf_address_group" "example_group" {
+resource "huaweicloud_waf_address_group" "test" {
   name                  = "example_address_name"
   description           = "example_description"
   ip_addresses          = ["192.168.1.0/24"]
@@ -32,14 +33,15 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `name` - (Required, String) Specifies the name of the address group. The value consists of 1 to 128 characters.
+* `name` - (Required, String) Specifies the name of the address group. The value consists of `1` to `128` characters.
   Only letters, digits, hyphens (-), underscores (_), colons (:) and periods (.) are allowed.
   The name of each enterprise project by one account must be unique.
 
 * `ip_addresses` - (Required, List) Specifies the IP addresses or IP address ranges.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project ID of WAF address group.
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID of WAF address group.
   Changing this parameter will create a new resource.
+  For enterprise users, if omitted, default enterprise project will be used.
 
 * `description` - (Optional, String) Specifies the description of the address group.
 

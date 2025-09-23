@@ -86,16 +86,26 @@ The following arguments are supported:
 
 * `type` - (Optional, String, ForceNew) Specifies the certificate type. The default value is "server". The value can be
   one of the following:
-  + server: indicates the server certificate.
-  + client: indicates the CA certificate.
+  + **server**: indicates the server certificate.
+  + **client**: indicates the CA certificate.
 
 * `certificate` - (Required, String) The public encrypted key of the Certificate, PEM format.
 
 * `private_key` - (Optional, String) The private encrypted key of the Certificate, PEM format. This parameter is valid
-  and mandatory only when `type` is set to "server".
+  and mandatory only when `type` is set to **server**.
 
 * `domain` - (Optional, String) The domain of the Certificate. The value contains a maximum of 100 characters. This
-  parameter is valid only when `type` is set to "server".
+  parameter is valid only when `type` is set to **server**.
+
+* `source` - (Optional, String) Specifies the source of the certificate.
+
+* `protection_status` - (Optional, String) Specifies the protection status. Value options:
+  + **nonProtection**: The load balancer is not protected.
+  + **consoleProtection**: Modification protection is enabled to avoid that resources are modified by accident on the console.
+
+  Defaults to **nonProtection**.
+
+* `protection_reason` - (Optional, String) Specifies why the modification protection is enabled.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project ID of the certificate. Changing this
   creates a new certificate.
@@ -119,10 +129,10 @@ This resource provides the following timeouts configuration options:
 
 ## Import
 
-ELB certificate can be imported using the certificate ID, e.g.
+ELB certificate can be imported using the `id` e.g.
 
-```
-$ terraform import huaweicloud_lb_certificate.certificate_1 5c20fdad-7288-11eb-b817-0255ac10158b
+```bash
+$ terraform import huaweicloud_lb_certificate.test <id>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
@@ -131,13 +141,13 @@ It is generally recommended running `terraform plan` after importing a certifica
 You can then decide if changes should be applied to the certificate, or the resource
 definition should be updated to align with the certificate. Also you can ignore changes as below.
 
-```
-resource "huaweicloud_lb_certificate" "certificate_1" {
+```hcl
+resource "huaweicloud_lb_certificate" "test" {
     ...
 
   lifecycle {
     ignore_changes = [
-      enterprise_project_id,
+      enterprise_project_id, private_key,
     ]
   }
 }

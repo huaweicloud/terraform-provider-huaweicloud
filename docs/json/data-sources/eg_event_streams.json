@@ -1,0 +1,115 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_eg_event_streams": {
+          "block": {
+            "attributes": {
+              "event_streams": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_time": "string",
+                      "description": "string",
+                      "id": "string",
+                      "name": "string",
+                      "option": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "batch_window": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "count": "number",
+                                  "interval": "number",
+                                  "time": "number"
+                                }
+                              ]
+                            ],
+                            "thread_num": "number"
+                          }
+                        ]
+                      ],
+                      "rule_config": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "filter": [
+                              "map",
+                              "string"
+                            ],
+                            "transform": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "template": "string",
+                                  "type": "string",
+                                  "value": "string"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "sink": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "name": "string",
+                            "sink_fg": "string",
+                            "sink_kafka": "string",
+                            "sink_obs": "string"
+                          }
+                        ]
+                      ],
+                      "source": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "name": "string",
+                            "source_community_rocketmq": "string",
+                            "source_dms_rocketmq": "string",
+                            "source_kafka": "string",
+                            "source_mobile_rocketmq": "string"
+                          }
+                        ]
+                      ],
+                      "status": "string",
+                      "updated_time": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of event streams.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region in which to obtain the EG event streams resource."
+              }
+            }
+          },
+          "product": {
+            "short": "EG",
+            "name": "EventGrid",
+            "catalog": "Middleware",
+            "name_cn": "事件网格",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

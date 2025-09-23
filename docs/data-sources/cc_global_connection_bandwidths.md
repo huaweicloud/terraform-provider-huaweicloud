@@ -32,7 +32,7 @@ The following arguments are supported:
 * `gcb_id` - (Optional, String) Specifies the resource ID.
 
 * `size` - (Optional, Int) Specifies the bandwidth range.
-  Bandwidth range: **2** Mbit/s to **300** Mbit/s.
+  Bandwidth range: `2` Mbit/s to `300` Mbit/s.
 
 * `admin_state` - (Optional, String) Specifies the status of the global connection bandwidth.
   Value options are as follows:

@@ -1,0 +1,44 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_sfs_turbo_perm_rules": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "rules": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "string",
+                      "ip_cidr": "string",
+                      "rw_type": "string",
+                      "user_type": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the permission rules.",
+                "computed": true
+              },
+              "share_id": {
+                "type": "string",
+                "description": "Specifies the ID of the SFS Turbo file system to which the permission rules belong.",
+                "required": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

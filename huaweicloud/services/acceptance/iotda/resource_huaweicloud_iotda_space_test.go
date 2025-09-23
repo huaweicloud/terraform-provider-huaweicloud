@@ -2,69 +2,58 @@ package iotda
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iotda"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getSpaceResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := conf.HcIoTdaV5Client(acceptance.HW_REGION_NAME, WithDerivedAuth())
+func getSpaceResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	var (
+		region    = acceptance.HW_REGION_NAME
+		isDerived = iotda.WithDerivedAuth(cfg, region)
+		httpUrl   = "v5/iot/{project_id}/apps/{app_id}"
+	)
+
+	client, err := cfg.NewServiceClientWithDerivedAuth("iotda", region, isDerived)
 	if err != nil {
-		return nil, fmt.Errorf("error creating IoTDA v5 client: %s", err)
+		return nil, fmt.Errorf("error creating IoTDA client: %s", err)
 	}
 
-	return client.ShowApplication(&model.ShowApplicationRequest{AppId: state.Primary.ID})
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{app_id}", state.Primary.ID)
+	getOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpts)
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving IoTDA space: %s", err)
+	}
+
+	return utils.FlattenResponse(getResp)
 }
 
 func TestAccSpace_basic(t *testing.T) {
-	var obj model.ShowApplicationRequest
-
-	name := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_iotda_space.test"
-
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&obj,
-		getSpaceResourceFunc,
+	var (
+		spaceObj   interface{}
+		rName      = "huaweicloud_iotda_space.test"
+		name       = acceptance.RandomAccResourceName()
+		updateName = acceptance.RandomAccResourceName()
 	)
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testSpace_basic(name),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "is_default", "false"),
-				),
-			},
-			{
-				ResourceName:      rName,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
-func TestAccSpace_derived(t *testing.T) {
-	var obj model.ShowApplicationRequest
-
-	name := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_iotda_space.test"
-
 	rc := acceptance.InitResourceCheck(
 		rName,
-		&obj,
+		&spaceObj,
 		getSpaceResourceFunc,
 	)
 
@@ -82,6 +71,13 @@ func TestAccSpace_derived(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttr(rName, "is_default", "false"),
+				),
+			},
+			{
+				Config: testSpace_basic(updateName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", updateName),
 				),
 			},
 			{

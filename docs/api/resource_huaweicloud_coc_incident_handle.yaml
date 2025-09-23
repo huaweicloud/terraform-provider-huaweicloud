@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_coc_incident_handle
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: COC
+paths:
+    /v1/external/incident/handle:
+        POST:
+            tag: COC

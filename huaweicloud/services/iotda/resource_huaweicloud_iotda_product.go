@@ -2,25 +2,18 @@ package iotda
 
 import (
 	"context"
-	"log"
-	"regexp"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-)
-
-const (
-	stringRegxp     = `^[\x{4E00}-\x{9FFC}A-Za-z-_0-9?'#().,&%@!]*$`
-	stringFormatMsg = "Only letters, Chinese characters, digits, hyphens (-), underscores (_) and" +
-		" the following special characters are allowed: ?'#().,&%@!"
 )
 
 // @API IoTDA PUT /v5/iot/{project_id}/products/{product_id}
@@ -44,38 +37,25 @@ func ResourceProduct() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(1, 64),
-					validation.StringMatch(regexp.MustCompile(stringRegxp), stringFormatMsg),
-				),
 			},
-
 			"protocol": {
 				Type:     schema.TypeString,
 				Required: true,
 				ValidateFunc: validation.StringInSlice([]string{"MQTT", "CoAP", "HTTP", "HTTPS", "Modbus", "ONVIF",
 					"OPC-UA", "OPC-DA", "Other"}, false),
 			},
-
 			"data_type": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validation.StringInSlice([]string{"json", "binary"}, false),
 			},
-
 			"device_type": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(1, 32),
-					validation.StringMatch(regexp.MustCompile(stringRegxp), stringFormatMsg),
-				),
 			},
-
 			"services": {
 				Type:     schema.TypeList,
 				Required: true,
@@ -85,32 +65,22 @@ func ResourceProduct() *schema.Resource {
 						"id": {
 							Type:     schema.TypeString,
 							Required: true,
-							ValidateFunc: validation.All(
-								validation.StringLenBetween(1, 64),
-								validation.StringMatch(regexp.MustCompile(stringRegxp), stringFormatMsg),
-							),
 						},
-
 						"type": { // keep same with console
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
-							ValidateFunc: validation.All(
-								validation.StringLenBetween(0, 64),
-								validation.StringMatch(regexp.MustCompile(stringRegxp), stringFormatMsg),
-							),
 						},
-
 						"description": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
-							ValidateFunc: validation.All(
-								validation.StringLenBetween(0, 128),
-								validation.StringMatch(regexp.MustCompile(stringRegxp), stringFormatMsg),
-							),
 						},
-
+						"option": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
 						"properties": {
 							Type:     schema.TypeList,
 							Optional: true,
@@ -118,7 +88,6 @@ func ResourceProduct() *schema.Resource {
 							MaxItems: 500,
 							Elem:     propertySchema("services.properties"),
 						},
-
 						"commands": {
 							Type:     schema.TypeList,
 							Optional: true,
@@ -129,12 +98,7 @@ func ResourceProduct() *schema.Resource {
 									"name": {
 										Type:     schema.TypeString,
 										Required: true,
-										ValidateFunc: validation.All(
-											validation.StringLenBetween(1, 64),
-											validation.StringMatch(regexp.MustCompile(stringRegxp), stringFormatMsg),
-										),
 									},
-
 									"paras": {
 										Type:     schema.TypeList,
 										Optional: true,
@@ -142,7 +106,6 @@ func ResourceProduct() *schema.Resource {
 										MaxItems: 500,
 										Elem:     propertySchema("services.commands.paras"),
 									},
-
 									"responses": {
 										Type:     schema.TypeList,
 										Optional: true,
@@ -156,53 +119,31 @@ func ResourceProduct() *schema.Resource {
 					},
 				},
 			},
-
 			"manufacturer_name": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(0, 32),
-					validation.StringMatch(regexp.MustCompile(stringRegxp), stringFormatMsg),
-				),
 			},
-
 			"industry": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(0, 64),
-					validation.StringMatch(regexp.MustCompile(stringRegxp), stringFormatMsg),
-				),
 			},
-
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(0, 128),
-					validation.StringMatch(regexp.MustCompile(stringRegxp), stringFormatMsg),
-				),
 			},
-
 			"space_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
 			},
-
 			"product_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(0, 32),
-					validation.StringMatch(regexp.MustCompile(`^[A-Za-z-_0-9]*$`),
-						"Only letters, digits, underscores (_) and hyphens (-) are allowed."),
-				),
 			},
 		},
 	}
@@ -215,45 +156,39 @@ func propertySchema(category string) *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(1, 64),
-					validation.StringMatch(regexp.MustCompile(stringRegxp), stringFormatMsg),
-				),
 			},
-
 			"type": { // keep same with console
 				Type:     schema.TypeString,
 				Required: true,
 				ValidateFunc: validation.StringInSlice([]string{"int", "decimal", "string", "DateTime",
 					"jsonObject", "string list"}, false),
 			},
-
+			"required": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
 			"enum_list": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-
 			"min": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "0",
 			},
-
 			"max": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "65535",
 			},
-
 			"max_length": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Computed:     true,
-				ValidateFunc: validation.IntBetween(0, 2147483647),
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
 			},
-
 			"step": {
 				Type:     schema.TypeFloat,
 				Optional: true,
@@ -263,18 +198,16 @@ func propertySchema(category string) *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(0, 16),
-				),
 			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(0, 128),
-					validation.StringMatch(regexp.MustCompile(stringRegxp), stringFormatMsg),
-				),
+			},
+			"default_value": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 		},
 	}
@@ -289,74 +222,463 @@ func propertySchema(category string) *schema.Resource {
 	return &sc
 }
 
-func ResourceProductCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	region := c.GetRegion(d)
-	isDerived := WithDerivedAuth(c, region)
-	client, err := c.HcIoTdaV5Client(region, isDerived)
-	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+func buildServiceCapabilitiesPropertiesBodyParams(propertiesRaw interface{}) []map[string]interface{} {
+	properties := propertiesRaw.([]interface{})
+	rst := make([]map[string]interface{}, len(properties))
+	for i, v := range properties {
+		s := v.(map[string]interface{})
+		rst[i] = map[string]interface{}{
+			"property_name": s["name"],
+			"data_type":     s["type"],
+			"required":      s["required"],
+			"enum_list":     s["enum_list"],
+			"min":           s["min"],
+			"max":           s["max"],
+			"max_length":    s["max_length"],
+			"step":          s["step"],
+			"unit":          utils.ValueIgnoreEmpty(s["unit"]),
+			"description":   utils.ValueIgnoreEmpty(s["description"]),
+			"method":        s["method"],
+			"default_value": utils.StringToJson(s["default_value"].(string)),
+		}
 	}
 
-	createOpts := buildProductCreateParams(d)
-	log.Printf("[DEBUG] Create IoTDA product params: %#v", createOpts)
+	return rst
+}
 
-	resp, err := client.CreateProduct(createOpts)
+func buildCommandsParasBodyParams(rawParas interface{}) []map[string]interface{} {
+	paras := rawParas.([]interface{})
+	rst := make([]map[string]interface{}, len(paras))
+	for i, v := range paras {
+		s := v.(map[string]interface{})
+		rst[i] = map[string]interface{}{
+			"para_name":   s["name"],
+			"data_type":   s["type"],
+			"required":    s["required"],
+			"enum_list":   s["enum_list"],
+			"min":         s["min"],
+			"max":         s["max"],
+			"max_length":  s["max_length"],
+			"step":        s["step"],
+			"unit":        utils.ValueIgnoreEmpty(s["unit"]),
+			"description": utils.ValueIgnoreEmpty(s["description"]),
+		}
+	}
+
+	return rst
+}
+
+func buildCommandsResponsesParasBodyParams(rawParas interface{}) []map[string]interface{} {
+	paras := rawParas.([]interface{})
+	rst := make([]map[string]interface{}, len(paras))
+	for i, v := range paras {
+		s := v.(map[string]interface{})
+		rst[i] = map[string]interface{}{
+			"para_name":   s["name"],
+			"data_type":   s["type"],
+			"required":    s["required"],
+			"enum_list":   s["enum_list"],
+			"min":         s["min"],
+			"max":         s["max"],
+			"max_length":  s["max_length"],
+			"step":        s["step"],
+			"unit":        utils.ValueIgnoreEmpty(s["unit"]),
+			"description": utils.ValueIgnoreEmpty(s["description"]),
+		}
+	}
+
+	return rst
+}
+
+func buildCommandsResponsesBodyParams(responsesRaw interface{}) []map[string]interface{} {
+	rst := map[string]interface{}{
+		"response_name": "cmdResponses",
+		"paras":         buildCommandsResponsesParasBodyParams(responsesRaw),
+	}
+
+	return []map[string]interface{}{rst}
+}
+
+func buildServiceCapabilitiesCommandsBodyParams(commandsRaw interface{}) []map[string]interface{} {
+	commands := commandsRaw.([]interface{})
+	rst := make([]map[string]interface{}, len(commands))
+	for i, v := range commands {
+		s := v.(map[string]interface{})
+		rst[i] = map[string]interface{}{
+			"command_name": s["name"],
+			"paras":        buildCommandsParasBodyParams(s["paras"]),
+			"responses":    buildCommandsResponsesBodyParams(s["responses"]),
+		}
+	}
+
+	return rst
+}
+
+func buildProductServiceCapabilitiesBodyParams(raw []interface{}) []map[string]interface{} {
+	rst := make([]map[string]interface{}, len(raw))
+	for i, v := range raw {
+		service := v.(map[string]interface{})
+		rst[i] = map[string]interface{}{
+			"service_id":   service["id"],
+			"service_type": service["type"],
+			"description":  utils.ValueIgnoreEmpty(service["description"]),
+			"option":       utils.ValueIgnoreEmpty(service["option"]),
+			"properties":   buildServiceCapabilitiesPropertiesBodyParams(service["properties"]),
+			"commands":     buildServiceCapabilitiesCommandsBodyParams(service["commands"]),
+		}
+	}
+
+	return rst
+}
+
+func buildCreateProductBodyParams(d *schema.ResourceData) map[string]interface{} {
+	return map[string]interface{}{
+		"product_id":           utils.ValueIgnoreEmpty(d.Get("product_id")),
+		"name":                 d.Get("name"),
+		"device_type":          d.Get("device_type"),
+		"protocol_type":        d.Get("protocol"),
+		"data_format":          d.Get("data_type"),
+		"manufacturer_name":    utils.ValueIgnoreEmpty(d.Get("manufacturer_name")),
+		"industry":             utils.ValueIgnoreEmpty(d.Get("industry")),
+		"description":          utils.ValueIgnoreEmpty(d.Get("description")),
+		"app_id":               utils.ValueIgnoreEmpty(d.Get("space_id")),
+		"service_capabilities": buildProductServiceCapabilitiesBodyParams(d.Get("services").([]interface{})),
+	}
+}
+
+func ResourceProductCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v5/iot/{project_id}/products"
+		product = "iotda"
+	)
+
+	isDerived := WithDerivedAuth(cfg, region)
+	client, err := cfg.NewServiceClientWithDerivedAuth(product, region, isDerived)
+	if err != nil {
+		return diag.Errorf("error creating IoTDA client: %s", err)
+	}
+
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildCreateProductBodyParams(d)),
+	}
+
+	resp, err := client.Request("POST", requestPath, &requestOpt)
 	if err != nil {
 		return diag.Errorf("error creating IoTDA product: %s", err)
 	}
 
-	if resp.ProductId == nil {
-		return diag.Errorf("error creating IoTDA product: id is not found in API response")
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
-	d.SetId(*resp.ProductId)
+	productID := utils.PathSearch("product_id", respBody, "").(string)
+	if productID == "" {
+		return diag.Errorf("error creating IoTDA product: ID is not found in API response")
+	}
+
+	d.SetId(productID)
 	return ResourceProductRead(ctx, d, meta)
 }
 
-func ResourceProductRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	region := c.GetRegion(d)
-	isDerived := WithDerivedAuth(c, region)
-	client, err := c.HcIoTdaV5Client(region, isDerived)
-	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+func flattenServicesPropertiesAttribute(respBody interface{}) []interface{} {
+	properties := utils.PathSearch("properties", respBody, make([]interface{}, 0)).([]interface{})
+	rst := make([]interface{}, len(properties))
+	for i, v := range properties {
+		rst[i] = map[string]interface{}{
+			"name":          utils.PathSearch("property_name", v, nil),
+			"type":          utils.PathSearch("data_type", v, nil),
+			"required":      utils.PathSearch("required", v, nil),
+			"enum_list":     utils.PathSearch("enum_list", v, nil),
+			"min":           utils.PathSearch("min", v, nil),
+			"max":           utils.PathSearch("max", v, nil),
+			"max_length":    utils.PathSearch("max_length", v, nil),
+			"step":          utils.PathSearch("step", v, nil),
+			"unit":          utils.PathSearch("unit", v, nil),
+			"description":   utils.PathSearch("description", v, nil),
+			"method":        utils.PathSearch("method", v, nil),
+			"default_value": utils.JsonToString(utils.PathSearch("default_value", v, nil)),
+		}
 	}
 
-	response, err := client.ShowProduct(&model.ShowProductRequest{ProductId: d.Id()})
+	return rst
+}
+
+func flattenCommandsParasAttribute(respBody interface{}) []interface{} {
+	rawArray := utils.PathSearch("paras", respBody, make([]interface{}, 0)).([]interface{})
+	rst := make([]interface{}, len(rawArray))
+	for i, v := range rawArray {
+		rst[i] = map[string]interface{}{
+			"name":        utils.PathSearch("para_name", v, nil),
+			"type":        utils.PathSearch("data_type", v, nil),
+			"required":    utils.PathSearch("required", v, nil),
+			"enum_list":   utils.PathSearch("enum_list", v, nil),
+			"min":         utils.PathSearch("min", v, nil),
+			"max":         utils.PathSearch("max", v, nil),
+			"max_length":  utils.PathSearch("max_length", v, nil),
+			"step":        utils.PathSearch("step", v, nil),
+			"unit":        utils.PathSearch("unit", v, nil),
+			"description": utils.PathSearch("description", v, nil),
+		}
+	}
+
+	return rst
+}
+
+func flattenCommandsResponsesAttribute(respBody interface{}) []interface{} {
+	rawArray := utils.PathSearch("responses|[0].paras", respBody, make([]interface{}, 0)).([]interface{})
+	rst := make([]interface{}, len(rawArray))
+	for i, v := range rawArray {
+		rst[i] = map[string]interface{}{
+			"name":        utils.PathSearch("para_name", v, nil),
+			"type":        utils.PathSearch("data_type", v, nil),
+			"required":    utils.PathSearch("required", v, nil),
+			"enum_list":   utils.PathSearch("enum_list", v, nil),
+			"min":         utils.PathSearch("min", v, nil),
+			"max":         utils.PathSearch("max", v, nil),
+			"max_length":  utils.PathSearch("max_length", v, nil),
+			"step":        utils.PathSearch("step", v, nil),
+			"unit":        utils.PathSearch("unit", v, nil),
+			"description": utils.PathSearch("description", v, nil),
+		}
+	}
+
+	return rst
+}
+
+func flattenServicesCommandsAttribute(respBody interface{}) []interface{} {
+	rawArray := utils.PathSearch("commands", respBody, make([]interface{}, 0)).([]interface{})
+	rst := make([]interface{}, len(rawArray))
+	for i, v := range rawArray {
+		rst[i] = map[string]interface{}{
+			"name":      utils.PathSearch("command_name", v, nil),
+			"paras":     flattenCommandsParasAttribute(v),
+			"responses": flattenCommandsResponsesAttribute(v),
+		}
+	}
+
+	return rst
+}
+
+func flattenServicesAttribute(respBody interface{}) []interface{} {
+	rawArray := utils.PathSearch("service_capabilities", respBody, make([]interface{}, 0)).([]interface{})
+	rst := make([]interface{}, len(rawArray))
+	for i, v := range rawArray {
+		rst[i] = map[string]interface{}{
+			"id":          utils.PathSearch("service_id", v, nil),
+			"type":        utils.PathSearch("service_type", v, nil),
+			"description": utils.PathSearch("description", v, nil),
+			"option":      utils.PathSearch("option", v, nil),
+			"properties":  flattenServicesPropertiesAttribute(v),
+			"commands":    flattenServicesCommandsAttribute(v),
+		}
+	}
+
+	return rst
+}
+
+func ResourceProductRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v5/iot/{project_id}/products/{product_id}"
+		product = "iotda"
+	)
+
+	isDerived := WithDerivedAuth(cfg, region)
+	client, err := cfg.NewServiceClientWithDerivedAuth(product, region, isDerived)
 	if err != nil {
+		return diag.Errorf("error creating IoTDA client: %s", err)
+	}
+
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{product_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	resp, err := client.Request("GET", requestPath, &requestOpt)
+	if err != nil {
+		// When the resource does not exist, the query API will return a `404` status code.
 		return common.CheckDeletedDiag(d, err, "error retrieving IoTDA product")
+	}
+
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
 	mErr := multierror.Append(
 		d.Set("region", region),
-		d.Set("product_id", response.ProductId),
-		d.Set("name", response.Name),
-		d.Set("device_type", response.DeviceType),
-		d.Set("protocol", response.ProtocolType),
-		d.Set("data_type", response.DataFormat),
-		d.Set("manufacturer_name", response.ManufacturerName),
-		d.Set("industry", response.Industry),
-		d.Set("description", response.Description),
-		d.Set("space_id", response.AppId),
-		d.Set("services", flattenServices(response.ServiceCapabilities)),
+		d.Set("product_id", utils.PathSearch("product_id", respBody, nil)),
+		d.Set("name", utils.PathSearch("name", respBody, nil)),
+		d.Set("device_type", utils.PathSearch("device_type", respBody, nil)),
+		d.Set("protocol", utils.PathSearch("protocol_type", respBody, nil)),
+		d.Set("data_type", utils.PathSearch("data_format", respBody, nil)),
+		d.Set("manufacturer_name", utils.PathSearch("manufacturer_name", respBody, nil)),
+		d.Set("industry", utils.PathSearch("industry", respBody, nil)),
+		d.Set("description", utils.PathSearch("description", respBody, nil)),
+		d.Set("space_id", utils.PathSearch("app_id", respBody, nil)),
+		d.Set("services", flattenServicesAttribute(respBody)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func ResourceProductUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	region := c.GetRegion(d)
-	isDerived := WithDerivedAuth(c, region)
-	client, err := c.HcIoTdaV5Client(region, isDerived)
-	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+func buildUpdatePropertiesBodyParams(propertiesRaw interface{}) []interface{} {
+	properties := propertiesRaw.([]interface{})
+	rst := make([]interface{}, len(properties))
+	for i, v := range properties {
+		s := v.(map[string]interface{})
+		rst[i] = map[string]interface{}{
+			"property_name": s["name"],
+			"data_type":     s["type"],
+			"required":      s["required"],
+			"enum_list":     s["enum_list"],
+			"min":           s["min"],
+			"max":           s["max"],
+			"max_length":    s["max_length"],
+			"step":          s["step"],
+			"unit":          utils.ValueIgnoreEmpty(s["unit"]),
+			"description":   utils.ValueIgnoreEmpty(s["description"]),
+			"method":        s["method"],
+			"default_value": utils.StringToJson(s["default_value"].(string)),
+		}
 	}
 
-	updateOpts := buildProductUpdateParams(d)
-	_, err = client.UpdateProduct(updateOpts)
+	return rst
+}
 
+func buildUpdateCommandsParasBodyParams(rawParas interface{}) []interface{} {
+	paras := rawParas.([]interface{})
+	rst := make([]interface{}, len(paras))
+	for i, v := range paras {
+		s := v.(map[string]interface{})
+		rst[i] = map[string]interface{}{
+			"para_name":   s["name"],
+			"data_type":   s["type"],
+			"required":    s["required"],
+			"enum_list":   s["enum_list"],
+			"min":         s["min"],
+			"max":         s["max"],
+			"max_length":  s["max_length"],
+			"step":        s["step"],
+			"unit":        utils.ValueIgnoreEmpty(s["unit"]),
+			"description": utils.ValueIgnoreEmpty(s["description"]),
+		}
+	}
+
+	return rst
+}
+
+func buildUpdateCommandsResponsesParasBodyParams(rawResponses interface{}) []interface{} {
+	paras := rawResponses.([]interface{})
+	rst := make([]interface{}, len(paras))
+	for i, v := range paras {
+		s := v.(map[string]interface{})
+		rst[i] = map[string]interface{}{
+			"para_name":   s["name"],
+			"data_type":   s["type"],
+			"required":    s["required"],
+			"enum_list":   s["enum_list"],
+			"min":         s["min"],
+			"max":         s["max"],
+			"max_length":  s["max_length"],
+			"step":        s["step"],
+			"unit":        utils.ValueIgnoreEmpty(s["unit"]),
+			"description": utils.ValueIgnoreEmpty(s["description"]),
+		}
+	}
+
+	return rst
+}
+
+func buildUpdateCommandsResponsesBodyParams(rawResponses interface{}) []interface{} {
+	rst := map[string]interface{}{
+		"response_name": "cmdResponses",
+		"paras":         buildUpdateCommandsResponsesParasBodyParams(rawResponses),
+	}
+
+	return []interface{}{rst}
+}
+
+func buildUpdateCommandsBodyParams(commandsRaw interface{}) []interface{} {
+	commands := commandsRaw.([]interface{})
+	rst := make([]interface{}, len(commands))
+	for i, v := range commands {
+		s := v.(map[string]interface{})
+		rst[i] = map[string]interface{}{
+			"command_name": s["name"],
+			"paras":        buildUpdateCommandsParasBodyParams(s["paras"]),
+			"responses":    buildUpdateCommandsResponsesBodyParams(s["responses"]),
+		}
+	}
+
+	return rst
+}
+
+func buildUpdateServiceCapabilitiesBodyParams(servicesRaw []interface{}) []interface{} {
+	rst := make([]interface{}, len(servicesRaw))
+	for i, v := range servicesRaw {
+		service := v.(map[string]interface{})
+		rst[i] = map[string]interface{}{
+			"service_id":   service["id"],
+			"service_type": service["type"],
+			"description":  utils.ValueIgnoreEmpty(service["description"]),
+			"option":       utils.ValueIgnoreEmpty(service["option"]),
+			"properties":   buildUpdatePropertiesBodyParams(service["properties"]),
+			"commands":     buildUpdateCommandsBodyParams(service["commands"]),
+		}
+	}
+
+	return rst
+}
+
+func buildUpdateProductBodyParams(d *schema.ResourceData) map[string]interface{} {
+	rst := map[string]interface{}{
+		"name":                 d.Get("name"),
+		"device_type":          d.Get("device_type"),
+		"protocol_type":        d.Get("protocol"),
+		"data_format":          d.Get("data_type"),
+		"manufacturer_name":    utils.ValueIgnoreEmpty(d.Get("manufacturer_name")),
+		"industry":             utils.ValueIgnoreEmpty(d.Get("industry")),
+		"description":          utils.ValueIgnoreEmpty(d.Get("description")),
+		"app_id":               utils.ValueIgnoreEmpty(d.Get("space_id")),
+		"service_capabilities": buildUpdateServiceCapabilitiesBodyParams(d.Get("services").([]interface{})),
+	}
+
+	return rst
+}
+
+func ResourceProductUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v5/iot/{project_id}/products/{product_id}"
+		product = "iotda"
+	)
+
+	isDerived := WithDerivedAuth(cfg, region)
+	client, err := cfg.NewServiceClientWithDerivedAuth(product, region, isDerived)
+	if err != nil {
+		return diag.Errorf("error creating IoTDA client: %s", err)
+	}
+
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{product_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildUpdateProductBodyParams(d)),
+	}
+
+	_, err = client.Request("PUT", requestPath, &requestOpt)
 	if err != nil {
 		return diag.Errorf("error updating IoTDA product: %s", err)
 	}
@@ -365,230 +687,31 @@ func ResourceProductUpdate(ctx context.Context, d *schema.ResourceData, meta int
 }
 
 func ResourceProductDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	region := c.GetRegion(d)
-	isDerived := WithDerivedAuth(c, region)
-	client, err := c.HcIoTdaV5Client(region, isDerived)
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v5/iot/{project_id}/products/{product_id}"
+		product = "iotda"
+	)
+
+	isDerived := WithDerivedAuth(cfg, region)
+	client, err := cfg.NewServiceClientWithDerivedAuth(product, region, isDerived)
 	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+		return diag.Errorf("error creating IoTDA client: %s", err)
 	}
 
-	deleteOpts := &model.DeleteProductRequest{ProductId: d.Id()}
-	_, err = client.DeleteProduct(deleteOpts)
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{product_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	_, err = client.Request("DELETE", requestPath, &requestOpt)
 	if err != nil {
-		return diag.Errorf("error deleting IoTDA product: %s", err)
+		// When the resource does not exist, the deletion API will return a `404` status code.
+		return common.CheckDeletedDiag(d, err, "error deleting IoTDA product")
 	}
 
 	return nil
-}
-
-func buildProductCreateParams(d *schema.ResourceData) *model.CreateProductRequest {
-	req := model.CreateProductRequest{
-		Body: &model.AddProduct{
-			ProductId:           utils.StringIgnoreEmpty(d.Get("product_id").(string)),
-			Name:                d.Get("name").(string),
-			DeviceType:          d.Get("device_type").(string),
-			ProtocolType:        d.Get("protocol").(string),
-			DataFormat:          d.Get("data_type").(string),
-			ManufacturerName:    utils.StringIgnoreEmpty(d.Get("manufacturer_name").(string)),
-			Industry:            utils.StringIgnoreEmpty(d.Get("industry").(string)),
-			Description:         utils.StringIgnoreEmpty(d.Get("description").(string)),
-			AppId:               utils.StringIgnoreEmpty(d.Get("space_id").(string)),
-			ServiceCapabilities: *buildServices(d.Get("services").([]interface{})),
-		},
-	}
-	return &req
-}
-
-func buildProductUpdateParams(d *schema.ResourceData) *model.UpdateProductRequest {
-	req := model.UpdateProductRequest{
-		ProductId: d.Id(),
-		Body: &model.UpdateProduct{
-			Name:                utils.String(d.Get("name").(string)),
-			DeviceType:          utils.String(d.Get("device_type").(string)),
-			ProtocolType:        utils.String(d.Get("protocol").(string)),
-			DataFormat:          utils.String(d.Get("data_type").(string)),
-			ManufacturerName:    utils.StringIgnoreEmpty(d.Get("manufacturer_name").(string)),
-			Industry:            utils.StringIgnoreEmpty(d.Get("industry").(string)),
-			Description:         utils.StringIgnoreEmpty(d.Get("description").(string)),
-			AppId:               utils.StringIgnoreEmpty(d.Get("space_id").(string)),
-			ServiceCapabilities: buildServices(d.Get("services").([]interface{})),
-		},
-	}
-	return &req
-}
-
-func buildServices(raw []interface{}) *[]model.ServiceCapability {
-	rst := make([]model.ServiceCapability, len(raw))
-	for i, v := range raw {
-		service := v.(map[string]interface{})
-		rst[i] = model.ServiceCapability{
-			ServiceId:   service["id"].(string),
-			ServiceType: service["type"].(string),
-			Description: utils.StringIgnoreEmpty(service["description"].(string)),
-			Properties:  buildServiceProperties(service["properties"]),
-			Commands:    buildServiceCommands(service["commands"]),
-		}
-	}
-
-	return &rst
-}
-
-func buildServiceCommands(commandsRaw interface{}) *[]model.ServiceCommand {
-	properties := commandsRaw.([]interface{})
-	rst := make([]model.ServiceCommand, len(properties))
-	for i, v := range properties {
-		s := v.(map[string]interface{})
-		rst[i] = model.ServiceCommand{
-			CommandName: s["name"].(string),
-			Paras:       buildServiceCommandParas(s["paras"]),
-			Responses:   buildServiceCommandResponses(s["responses"]),
-		}
-	}
-
-	return &rst
-}
-
-func buildServiceCommandResponses(raw interface{}) *[]model.ServiceCommandResponse {
-	rst := model.ServiceCommandResponse{
-		ResponseName: "cmdResponses",
-		Paras:        buildServiceCommandParas(raw),
-	}
-	return &[]model.ServiceCommandResponse{rst}
-}
-
-func buildServiceCommandParas(raw interface{}) *[]model.ServiceCommandPara {
-	properties := raw.([]interface{})
-	rst := make([]model.ServiceCommandPara, len(properties))
-	for i, v := range properties {
-		s := v.(map[string]interface{})
-		rst[i] = model.ServiceCommandPara{
-			ParaName:    s["name"].(string),
-			DataType:    s["type"].(string),
-			EnumList:    utils.ExpandToStringListPointer(s["enum_list"].([]interface{})),
-			Min:         utils.String(s["min"].(string)),
-			Max:         utils.String(s["max"].(string)),
-			MaxLength:   utils.Int32(int32(s["max_length"].(int))),
-			Step:        utils.Float64(s["step"].(float64)),
-			Unit:        utils.StringIgnoreEmpty(s["unit"].(string)),
-			Description: utils.StringIgnoreEmpty(s["description"].(string)),
-		}
-	}
-
-	return &rst
-}
-
-func buildServiceProperties(propertiesRaw interface{}) *[]model.ServiceProperty {
-	properties := propertiesRaw.([]interface{})
-	rst := make([]model.ServiceProperty, len(properties))
-	for i, v := range properties {
-		s := v.(map[string]interface{})
-		rst[i] = model.ServiceProperty{
-			PropertyName: s["name"].(string),
-			DataType:     s["type"].(string),
-			EnumList:     utils.ExpandToStringListPointer(s["enum_list"].([]interface{})),
-			Min:          utils.String(s["min"].(string)),
-			Max:          utils.String(s["max"].(string)),
-			MaxLength:    utils.Int32(int32(s["max_length"].(int))),
-			Step:         utils.Float64(s["step"].(float64)),
-			Unit:         utils.StringIgnoreEmpty(s["unit"].(string)),
-			Description:  utils.StringIgnoreEmpty(s["description"].(string)),
-			Method:       s["method"].(string),
-		}
-	}
-
-	return &rst
-}
-
-func flattenServices(s *[]model.ServiceCapability) []interface{} {
-	if s != nil {
-		rst := make([]interface{}, len(*s))
-		for i, v := range *s {
-			rst[i] = map[string]interface{}{
-				"id":          v.ServiceId,
-				"type":        v.ServiceType,
-				"description": v.Description,
-				"properties":  flattenServiceProperties(v.Properties),
-				"commands":    flattenServiceCommands(v.Commands),
-			}
-		}
-
-		return rst
-	}
-
-	return make([]interface{}, 0)
-}
-
-func flattenServiceProperties(s *[]model.ServiceProperty) []interface{} {
-	if s != nil {
-		rst := make([]interface{}, len(*s))
-		for i, v := range *s {
-			rst[i] = map[string]interface{}{
-				"name":        v.PropertyName,
-				"type":        v.DataType,
-				"enum_list":   v.EnumList,
-				"min":         v.Min,
-				"max":         v.Max,
-				"max_length":  v.MaxLength,
-				"step":        v.Step,
-				"unit":        v.Unit,
-				"description": v.Description,
-				"method":      v.Method,
-			}
-		}
-
-		return rst
-	}
-
-	return make([]interface{}, 0)
-}
-
-func flattenServiceCommands(s *[]model.ServiceCommand) []interface{} {
-	if s != nil {
-		rst := make([]interface{}, len(*s))
-		for i, v := range *s {
-			rst[i] = map[string]interface{}{
-				"name":      v.CommandName,
-				"paras":     flattenServiceCommandParas(v.Paras),
-				"responses": flattenServiceCommandResponses(v.Responses),
-			}
-		}
-
-		return rst
-	}
-
-	return make([]interface{}, 0)
-}
-
-func flattenServiceCommandResponses(s *[]model.ServiceCommandResponse) []interface{} {
-	if s != nil {
-		responses := *s
-		if len(responses) > 0 {
-			return flattenServiceCommandParas(responses[0].Paras)
-		}
-	}
-
-	return make([]interface{}, 0)
-}
-
-func flattenServiceCommandParas(s *[]model.ServiceCommandPara) []interface{} {
-	if s != nil {
-		rst := make([]interface{}, len(*s))
-		for i, v := range *s {
-			rst[i] = map[string]interface{}{
-				"name":        v.ParaName,
-				"type":        v.DataType,
-				"enum_list":   v.EnumList,
-				"min":         v.Min,
-				"max":         v.Max,
-				"max_length":  v.MaxLength,
-				"step":        v.Step,
-				"unit":        v.Unit,
-				"description": v.Description,
-			}
-		}
-		return rst
-	}
-
-	return make([]interface{}, 0)
 }

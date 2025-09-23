@@ -31,8 +31,7 @@
               },
               "type": {
                 "type": "string",
-                "optional": true,
-                "default": "server"
+                "optional": true
               }
             }
           },

@@ -96,6 +96,11 @@ type ErrDefault408 struct {
 	ErrUnexpectedResponseCode
 }
 
+// ErrDefault409 is the default error type returned on a 409 HTTP response code.
+type ErrDefault409 struct {
+	ErrUnexpectedResponseCode
+}
+
 // ErrDefault429 is the default error type returned on a 429 HTTP response code.
 type ErrDefault429 struct {
 	ErrUnexpectedResponseCode
@@ -103,6 +108,11 @@ type ErrDefault429 struct {
 
 // ErrDefault500 is the default error type returned on a 500 HTTP response code.
 type ErrDefault500 struct {
+	ErrUnexpectedResponseCode
+}
+
+// ErrDefault502 is the default error type returned on a 502 HTTP response code.
+type ErrDefault502 struct {
 	ErrUnexpectedResponseCode
 }
 
@@ -153,6 +163,9 @@ func (e ErrDefault405) Error() string {
 func (e ErrDefault408) Error() string {
 	return "The server timed out waiting for the request"
 }
+func (e ErrDefault409) Error() string {
+	return "The request could not be processed due to conflict in the request"
+}
 func (e ErrDefault429) Error() string {
 	e.DefaultErrString = fmt.Sprintf(
 		"Too many requests: [%s %s], request_id: %s, error message: %s",
@@ -167,6 +180,15 @@ func (e ErrDefault500) Error() string {
 	)
 	return e.choseErrString()
 }
+
+// HTTP bad gateway.
+func (e ErrDefault502) Error() string {
+	e.DefaultErrString = "Bad Gateway. Unable to receive a valid response from the upstream server while access the " +
+		"website or proxy server. It may be caused by the upstream server being temporarily unavailable, timing out, " +
+		"or returning a malformed response."
+	return e.choseErrString()
+}
+
 func (e ErrDefault503) Error() string {
 	return "The service is currently unable to handle the request due to a temporary" +
 		" overloading or maintenance. This is a temporary condition. Try again later."
@@ -208,6 +230,12 @@ type Err408er interface {
 	Error408(ErrUnexpectedResponseCode) error
 }
 
+// Err409er is the interface resource error types implement to override the error message
+// from a 409 error.
+type Err409er interface {
+	Error409(ErrUnexpectedResponseCode) error
+}
+
 // Err429er is the interface resource error types implement to override the error message
 // from a 429 error.
 type Err429er interface {
@@ -218,6 +246,12 @@ type Err429er interface {
 // from a 500 error.
 type Err500er interface {
 	Error500(ErrUnexpectedResponseCode) error
+}
+
+// Err502er is the interface resource error types implement to override the error message
+// from a 502 error.
+type Err502er interface {
+	Error502(ErrUnexpectedResponseCode) error
 }
 
 // Err503er is the interface resource error types implement to override the error message

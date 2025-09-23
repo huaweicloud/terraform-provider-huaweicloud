@@ -1,0 +1,99 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_rfs_private_hook": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "The creation of the private hook, in RFC3339 format.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the private hook.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "keep_old_version": {
+                "type": "bool",
+                "description": "Whether keeping old version while updating hook version.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the private hook.",
+                "required": true,
+                "forcenew": true
+              },
+              "policy_body": {
+                "type": "string",
+                "description": "The policy content of the private hook.",
+                "optional": true
+              },
+              "policy_uri": {
+                "type": "string",
+                "description": "The OBS address of the policy file.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the private hook is located.",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The latest update of the private hook, in RFC3339 format.",
+                "computed": true
+              },
+              "version": {
+                "type": "string",
+                "description": "The version of the private hook.",
+                "required": true
+              },
+              "version_description": {
+                "type": "string",
+                "description": "The description of the private hook version.",
+                "optional": true
+              }
+            },
+            "block_types": {
+              "configuration": {
+                "block": {
+                  "attributes": {
+                    "failure_mode": {
+                      "type": "string",
+                      "description": "The behavior after private hook verification fails.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "target_stacks": {
+                      "type": "string",
+                      "description": "The target resource stack for the private hook to take effect.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "The configuration of the private hook."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "RFS",
+            "name": "Resource Formation",
+            "catalog": "Management & Governance",
+            "name_cn": "资源编排服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

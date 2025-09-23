@@ -18,6 +18,7 @@ import (
 // @API DC GET /v3/{project_id}/dcaas/virtual-gateways/{gatewayId}
 // @API DC PUT /v3/{project_id}/dcaas/virtual-gateways/{gatewayId}
 // @API DC POST /v3/{project_id}/dcaas/virtual-gateways
+// @API DC POST /v3/{project_id}/{resource_type}/{resource_id}/tags/action
 func ResourceVirtualGateway() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceVirtualGatewayCreate,
@@ -28,6 +29,8 @@ func ResourceVirtualGateway() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+
+		CustomizeDiff: config.MergeDefaultTags(),
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -92,7 +95,8 @@ func buildVirtualGatewayCreateOpts(d *schema.ResourceData, cfg *config.Config) g
 		Name:                d.Get("name").(string),
 		Description:         d.Get("description").(string),
 		BgpAsn:              d.Get("asn").(int),
-		EnterpriseProjectId: common.GetEnterpriseProjectID(d, cfg),
+		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
+		Tags:                utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 	}
 }
 
@@ -110,11 +114,6 @@ func resourceVirtualGatewayCreate(ctx context.Context, d *schema.ResourceData, m
 	}
 	d.SetId(resp.ID)
 
-	// create tags
-	if err := utils.CreateResourceTags(client, d, "dc-vgw", d.Id()); err != nil {
-		return diag.Errorf("error setting tags of DC virtual gateway %s: %s", d.Id(), err)
-	}
-
 	return resourceVirtualGatewayRead(ctx, d, meta)
 }
 
@@ -128,7 +127,8 @@ func resourceVirtualGatewayRead(_ context.Context, d *schema.ResourceData, meta 
 	gatewayId := d.Id()
 	resp, err := gateways.Get(client, gatewayId)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "virtual gateway")
+		// When the gateway does not exist, the response HTTP status code of the details API is 404.
+		return common.CheckDeletedDiag(d, err, "error retrieving DC virtual gateway")
 	}
 
 	mErr := multierror.Append(nil,
@@ -140,7 +140,7 @@ func resourceVirtualGatewayRead(_ context.Context, d *schema.ResourceData, meta 
 		d.Set("asn", resp.BgpAsn),
 		d.Set("enterprise_project_id", resp.EnterpriseProjectId),
 		d.Set("status", resp.Status),
-		utils.SetResourceTagsToState(d, client, "dc-vgw", d.Id()),
+		d.Set("tags", utils.TagsToMap(resp.Tags)),
 	)
 
 	if err = mErr.ErrorOrNil(); err != nil {
@@ -189,7 +189,8 @@ func resourceVirtualGatewayDelete(_ context.Context, d *schema.ResourceData, met
 	gatewayId := d.Id()
 	err = gateways.Delete(client, gatewayId)
 	if err != nil {
-		return diag.Errorf("error deleting virtual gateway (%s): %s", gatewayId, err)
+		// When the gateway does not exist, the response HTTP status code of the deletion API is 404.
+		return common.CheckDeletedDiag(d, err, "error deleting DC virtual gateway")
 	}
 
 	return nil

@@ -1,0 +1,78 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cciv2_storage_classes": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "storage_classes": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "allow_volume_expansion": "bool",
+                      "allowed_topologies": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "match_label_expressions": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "key": "string",
+                                  "values": [
+                                    "list",
+                                    "string"
+                                  ]
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "annotations": [
+                        "map",
+                        "string"
+                      ],
+                      "creation_timestamp": "string",
+                      "labels": [
+                        "map",
+                        "string"
+                      ],
+                      "mount_options": [
+                        "list",
+                        "string"
+                      ],
+                      "name": "string",
+                      "parameters": [
+                        "map",
+                        "string"
+                      ],
+                      "provisioner": "string",
+                      "reclaim_policy": "string",
+                      "resource_version": "string",
+                      "uid": "string",
+                      "volume_binding_mode": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

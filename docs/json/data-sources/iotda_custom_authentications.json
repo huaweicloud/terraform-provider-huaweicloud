@@ -1,0 +1,54 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_iotda_custom_authentications": {
+          "block": {
+            "attributes": {
+              "authorizer_name": {
+                "type": "string",
+                "optional": true
+              },
+              "authorizers": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "authorizer_id": "string",
+                      "authorizer_name": "string",
+                      "cache_enable": "bool",
+                      "create_time": "string",
+                      "default_authorizer": "bool",
+                      "func_name": "string",
+                      "func_urn": "string",
+                      "signing_enable": "bool",
+                      "status": "string",
+                      "update_time": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "IoTDA",
+            "name": "IoT Device Access",
+            "catalog": "Internet of Things",
+            "name_cn": "设备接入",
+            "catalog_cn": "IoT物联网"
+          }
+        }
+      }
+    }
+  }
+}

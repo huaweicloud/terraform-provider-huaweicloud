@@ -7,7 +7,8 @@
             "attributes": {
               "availability_zone": {
                 "type": "string",
-                "required": true,
+                "optional": true,
+                "computed": true,
                 "forcenew": true
               },
               "cidr": {
@@ -19,10 +20,19 @@
                 "type": "string",
                 "optional": true
               },
+              "dhcp_domain_name": {
+                "type": "string",
+                "optional": true
+              },
               "dhcp_enable": {
                 "type": "bool",
                 "optional": true,
                 "default": true
+              },
+              "dhcp_ipv6_lease_time": {
+                "type": "string",
+                "optional": true,
+                "computed": true
               },
               "dhcp_lease_time": {
                 "type": "string",
@@ -93,7 +103,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "vpc_id": {
                 "type": "string",

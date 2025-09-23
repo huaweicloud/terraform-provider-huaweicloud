@@ -18,7 +18,7 @@ import (
 func getKmsKeyResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := conf.KmsKeyV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating kms client: %s", err)
+		return nil, fmt.Errorf("error creating KMS client: %s", err)
 	}
 	key, err := keys.Get(client, state.Primary.ID).ExtractKeyInfo()
 
@@ -28,13 +28,14 @@ func getKmsKeyResourceFunc(conf *config.Config, state *terraform.ResourceState) 
 	return key, err
 }
 
-// Keystore_id scenario testing is currently not supported.
-func TestAccKmsKey_Basic(t *testing.T) {
-	var keyAlias = acceptance.RandomAccResourceName()
-	var keyAliasUpdate = acceptance.RandomAccResourceName()
-	var resourceName = "huaweicloud_kms_key.key_1"
-
-	var key keys.Key
+// keystore_id scenario testing is currently not supported.
+func TestAccKmsKey_basic(t *testing.T) {
+	var (
+		name         = acceptance.RandomAccResourceName()
+		updateName   = acceptance.RandomAccResourceName()
+		resourceName = "huaweicloud_kms_key.test"
+		key          keys.Key
+	)
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
@@ -43,17 +44,84 @@ func TestAccKmsKey_Basic(t *testing.T) {
 	)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheckKms(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheckKms(t)
+			acceptance.TestAccPreCheckEpsID(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccKmsKey_Basic(keyAlias),
+				Config: testAccKmsKey_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "key_alias", keyAlias),
-					resource.TestCheckResourceAttr(resourceName, "rotation_enabled", "false"),
-					resource.TestCheckResourceAttr(resourceName, "region", acceptance.HW_REGION_NAME),
+					resource.TestCheckResourceAttr(resourceName, "key_alias", name),
+					resource.TestCheckResourceAttr(resourceName, "key_algorithm", "AES_256"),
+					resource.TestCheckResourceAttr(resourceName, "key_usage", "ENCRYPT_DECRYPT"),
+					resource.TestCheckResourceAttr(resourceName, "key_description", "test acc"),
+					resource.TestCheckResourceAttr(resourceName, "origin", "kms"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
+					resource.TestCheckResourceAttr(resourceName, "tags.%", "2"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttrSet(resourceName, "key_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "domain_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "keystore_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "is_enabled"),
+					resource.TestCheckResourceAttrSet(resourceName, "rotation_enabled"),
+					resource.TestCheckResourceAttrSet(resourceName, "key_state"),
+					resource.TestCheckResourceAttrSet(resourceName, "default_key_flag"),
+					resource.TestCheckResourceAttrSet(resourceName, "creation_date"),
+				),
+			},
+			{
+				Config: testAccKmsKey_update1(updateName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "key_alias", updateName),
+					resource.TestCheckResourceAttr(resourceName, "key_description", "terraform"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
+					resource.TestCheckResourceAttr(resourceName, "tags.%", "2"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "newbar"),
+					resource.TestCheckResourceAttr(resourceName, "tags.acc", "test"),
+					resource.TestCheckResourceAttrSet(resourceName, "is_enabled"),
+					resource.TestCheckResourceAttrSet(resourceName, "rotation_enabled"),
+				),
+			},
+			{
+				Config: testAccKmsKey_update2(updateName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "key_alias", updateName),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
+					resource.TestCheckResourceAttr(resourceName, "rotation_enabled", "true"),
+					resource.TestCheckResourceAttrSet(resourceName, "rotation_interval"),
+				),
+			},
+			{
+				Config: testAccKmsKey_update3(updateName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "key_alias", updateName),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
+					resource.TestCheckResourceAttr(resourceName, "rotation_interval", "30"),
+				),
+			},
+			{
+				Config: testAccKmsKey_update4(updateName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "key_alias", updateName),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+				),
+			},
+			{
+				Config: testAccKmsKey_update5(updateName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "key_alias", updateName),
+					resource.TestCheckResourceAttr(resourceName, "is_enabled", "false"),
+					resource.TestCheckResourceAttrSet(resourceName, "key_state"),
 				),
 			},
 			{
@@ -64,25 +132,16 @@ func TestAccKmsKey_Basic(t *testing.T) {
 					"pending_days",
 				},
 			},
-			{
-				Config: testAccKmsKeyUpdate(keyAliasUpdate),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "key_alias", keyAliasUpdate),
-					resource.TestCheckResourceAttr(resourceName, "key_description", "key update description"),
-					resource.TestCheckResourceAttr(resourceName, "region", acceptance.HW_REGION_NAME),
-				),
-			},
 		},
 	})
 }
 
 func TestAccKmsKey_ExternalKey(t *testing.T) {
-	var keyAlias = acceptance.RandomAccResourceName()
-	var resourceName = "huaweicloud_kms_key.key_1"
-
-	var key keys.Key
-
+	var (
+		keyAlias     = acceptance.RandomAccResourceName()
+		resourceName = "huaweicloud_kms_key.test"
+		key          keys.Key
+	)
 	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&key,
@@ -90,7 +149,9 @@ func TestAccKmsKey_ExternalKey(t *testing.T) {
 	)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheckKms(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheckKms(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
@@ -101,7 +162,6 @@ func TestAccKmsKey_ExternalKey(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "key_alias", keyAlias),
 					resource.TestCheckResourceAttr(resourceName, "origin", "external"),
 					resource.TestCheckResourceAttr(resourceName, "key_usage", "ENCRYPT_DECRYPT"),
-					resource.TestCheckResourceAttr(resourceName, "region", acceptance.HW_REGION_NAME),
 					resource.TestCheckResourceAttr(resourceName, "key_state", "5"),
 				),
 			},
@@ -117,246 +177,115 @@ func TestAccKmsKey_ExternalKey(t *testing.T) {
 	})
 }
 
-func TestAccKmsKey_Enable(t *testing.T) {
-	var rName = acceptance.RandomAccResourceName()
-	var resourceName = "huaweicloud_kms_key.key_1"
-
-	var key keys.Key
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&key,
-		getKmsKeyResourceFunc,
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheckKms(t) },
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccKmsKey_enabled(rName),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "is_enabled", "true"),
-				),
-			},
-			{
-				Config: testAccKmsKey_disabled(rName),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "is_enabled", "false"),
-				),
-			},
-			{
-				Config: testAccKmsKey_enabled(rName),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "is_enabled", "true"),
-				),
-			},
-		},
-	})
-}
-
-func TestAccKmsKey_WithTags(t *testing.T) {
-	var keyAlias = acceptance.RandomAccResourceName()
-	var resourceName = "huaweicloud_kms_key.key_1"
-
-	var key keys.Key
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&key,
-		getKmsKeyResourceFunc,
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheckKms(t) },
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccKmsKey_WithTags(keyAlias),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "key_alias", keyAlias),
-					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
-					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
-				),
-			},
-		},
-	})
-}
-
-func TestAccKmsKey_WithEpsId(t *testing.T) {
-	var keyAlias = acceptance.RandomAccResourceName()
-	var resourceName = "huaweicloud_kms_key.key_1"
-
-	var key keys.Key
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&key,
-		getKmsKeyResourceFunc,
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheckKms(t); acceptance.TestAccPreCheckEpsID(t) },
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccKmsKey_epsId(keyAlias),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "key_alias", keyAlias),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id",
-						acceptance.HW_ENTERPRISE_PROJECT_ID),
-				),
-			},
-		},
-	})
-}
-
-func TestAccKmsKey_rotation(t *testing.T) {
-	var keyAlias = acceptance.RandomAccResourceName()
-	var resourceName = "huaweicloud_kms_key.key_1"
-
-	var key keys.Key
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&key,
-		getKmsKeyResourceFunc,
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheckKms(t); acceptance.TestAccPreCheckEpsID(t) },
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccKmsKey_Basic(keyAlias),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "key_alias", keyAlias),
-					resource.TestCheckResourceAttr(resourceName, "rotation_enabled", "false"),
-				),
-			},
-			{
-				Config: testAccKmsKey_rotation(keyAlias),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "key_alias", keyAlias),
-					resource.TestCheckResourceAttr(resourceName, "rotation_enabled", "true"),
-					resource.TestCheckResourceAttr(resourceName, "rotation_interval", "365"),
-				),
-			},
-			{
-				Config: testAccKmsKey_rotation_interval(keyAlias),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "key_alias", keyAlias),
-					resource.TestCheckResourceAttr(resourceName, "rotation_enabled", "true"),
-					resource.TestCheckResourceAttr(resourceName, "rotation_interval", "200"),
-				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{
-					"pending_days",
-				},
-			},
-		},
-	})
-}
-
-func testAccKmsKey_Basic(keyAlias string) string {
+func testAccKmsKey_basic(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_kms_key" "key_1" {
-  key_alias    = "%s"
-  pending_days = "7"
-  region       = "%s"
-}
-`, keyAlias, acceptance.HW_REGION_NAME)
-}
+resource "huaweicloud_kms_key" "test" {
+  key_alias             = "%s"
+  key_algorithm         = "AES_256"
+  key_usage             = "ENCRYPT_DECRYPT"
+  origin                = "kms"
+  key_description       = "test acc"
+  enterprise_project_id = "0"
+  pending_days          = "7"
 
-func testAccKmsKey_ExternalKey(keyAlias string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_kms_key" "key_1" {
-  key_alias    = "%s"
-  pending_days = "7"
-  region       = "%s"
-  origin       = "external"
-  key_usage    = "ENCRYPT_DECRYPT"
-}
-`, keyAlias, acceptance.HW_REGION_NAME)
-}
-
-func testAccKmsKey_WithTags(keyAlias string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_kms_key" "key_1" {
-  key_alias    = "%s"
-  pending_days = "7"
   tags = {
     foo = "bar"
     key = "value"
   }
 }
-`, keyAlias)
+`, name)
 }
 
-func testAccKmsKey_epsId(keyAlias string) string {
+func testAccKmsKey_update1(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_kms_key" "key_1" {
+resource "huaweicloud_kms_key" "test" {
+  key_alias             = "%s"
+  key_algorithm         = "AES_256"
+  key_usage             = "ENCRYPT_DECRYPT"
+  origin                = "kms"
+  key_description       = "terraform"
+  enterprise_project_id = "0"
+  pending_days          = "7"
+
+  tags = {
+    foo = "newbar"
+    acc = "test"
+  }
+}
+`, name)
+}
+
+func testAccKmsKey_update2(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_kms_key" "test" {
+  key_alias             = "%s"
+  key_algorithm         = "AES_256"
+  key_usage             = "ENCRYPT_DECRYPT"
+  origin                = "kms"
+  key_description       = "terraform"
+  enterprise_project_id = "0"
+  rotation_enabled      = true
+  pending_days          = "7"
+}
+`, name)
+}
+
+func testAccKmsKey_update3(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_kms_key" "test" {
+  key_alias             = "%s"
+  key_algorithm         = "AES_256"
+  key_usage             = "ENCRYPT_DECRYPT"
+  origin                = "kms"
+  key_description       = "terraform"
+  enterprise_project_id = "0"
+  rotation_enabled      = true
+  rotation_interval     = 30
+  pending_days          = "7"
+}
+`, name)
+}
+
+func testAccKmsKey_update4(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_kms_key" "test" {
+  key_alias             = "%[1]s"
+  key_algorithm         = "AES_256"
+  key_usage             = "ENCRYPT_DECRYPT"
+  origin                = "kms"
+  key_description       = "terraform"
+  enterprise_project_id = "%[2]s"
+  rotation_enabled      = true
+  rotation_interval     = 30
+  pending_days          = "7"
+}
+`, name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+}
+
+func testAccKmsKey_update5(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_kms_key" "test" {
+  key_alias             = "%[1]s"
+  key_algorithm         = "AES_256"
+  key_usage             = "ENCRYPT_DECRYPT"
+  origin                = "kms"
+  key_description       = "terraform"
+  enterprise_project_id = "%[2]s"
+  rotation_enabled      = true
+  rotation_interval     = 30
+  is_enabled            = false
+  pending_days          = "7"
+}
+`, name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+}
+
+func testAccKmsKey_ExternalKey(keyAlias string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_kms_key" "test" {
   key_alias    = "%s"
   pending_days = "7"
-  enterprise_project_id = "%s"
+  origin       = "external"
+  key_usage    = "ENCRYPT_DECRYPT"
 }
-`, keyAlias, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
-}
-
-func testAccKmsKeyUpdate(keyAliasUpdate string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_kms_key" "key_1" {
-  key_alias       = "%s"
-  key_description = "key update description"
-  pending_days    = "7"
-}
-`, keyAliasUpdate)
-}
-
-func testAccKmsKey_enabled(rName string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_kms_key" "key_1" {
-  key_description = "Terraform acc test is_enabled %s"
-  pending_days    = "7"
-  key_alias       = "%s"
-}`, rName, rName)
-}
-
-func testAccKmsKey_disabled(rName string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_kms_key" "key_1" {
-  key_description = "Terraform acc test is_enabled %s"
-  pending_days    = "7"
-  key_alias       = "%s"
-  is_enabled      = false
-}`, rName, rName)
-}
-
-func testAccKmsKey_rotation(rName string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_kms_key" "key_1" {
-  key_alias        = "%s"
-  pending_days     = "7"
-  rotation_enabled = true
-}`, rName)
-}
-
-func testAccKmsKey_rotation_interval(rName string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_kms_key" "key_1" {
-  key_alias         = "%s"
-  pending_days      = "7"
-  rotation_enabled  = true
-  rotation_interval = 200
-}`, rName)
+`, keyAlias)
 }

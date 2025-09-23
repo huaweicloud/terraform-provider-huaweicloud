@@ -11,14 +11,103 @@ Using this resource to manage an EG event subscription within Huaweicloud.
 
 ## Example Usage
 
+### Event subscription created based on official channel (OBS to FGS)
+
+```hcl
+variable "official_channel_id" {}
+variable "subscription_name" {}
+variable "custom_id_for_obs_source" {} # Custom ID that used to prevent ID change, in UUID format
+variable "source_obs_bucket_name" {}
+variable "custom_id_for_fgs_target" {} # Custom ID that used to prevent ID change, in UUID format
+variable "target_function_urn" {}
+
+resource "huaweicloud_eg_event_subscription" "test" {
+  channel_id = var.official_channel_id
+  name       = var.subscription_name
+
+  sources {
+    id            = var.custom_id_for_obs_source
+    name          = "HC.OBS.DWR"
+    provider_type = "OFFICIAL"
+    detail_name   = "detail"
+    detail        = jsonencode({
+      "bucket": var.source_obs_bucket_name,
+      "objectKeyEncode": true
+    })
+    filter_rule  = jsonencode({
+      "source": [{
+        "op": "StringIn",
+        "values": ["HC.OBS.DWR"]
+      }],
+      "subject": {
+        "and": [
+          {
+            "op": "StringStartsWith",
+            "values": [
+              "test"
+            ]
+          },
+          {
+            "op": "StringEndsWith",
+            "values": [
+              "jpg"
+            ]
+          }
+        ]
+      },
+      "type": [{
+        "op": "StringIn",
+        "values": [
+          "OBS:DWR:ObjectCreated:PUT",
+          "OBS:DWR:ObjectCreated:POST",
+          "OBS:DWR:ObjectCreated:COPY",
+          "OBS:DWR:ObjectCreated:CompleteMultipartUpload",
+          "OBS:DWR:ObjectRemoved:Delete",
+          "OBS:DWR:ObjectRemoved:DeleteMarkerCreated"
+        ]
+      }],
+      "data": {
+        "obs": {
+          "bucket": {
+            "name": [{
+              "op": "StringIn",
+              "values": [var.source_obs_bucket_name]
+            }]
+          }
+        }
+      }
+    })
+  }
+
+  targets {
+    id            = var.custom_id_for_fgs_target
+    name          = "HC.FunctionGraph"
+    provider_type = "OFFICIAL"
+    detail_name   = "detail"
+    detail        = jsonencode({
+      "urn": var.target_function_urn,
+      "invoke_type": "ASYNC",
+      "agency_name": "EG_TARGET_AGENCY"
+    })
+    transform     = jsonencode({
+      "type": "VARIABLE",
+      "value": "{\"name\":\"$.data.name\"}",
+      "template": "My name is $${name}."
+    })
+  }
+}
+```
+
+### Event subscription created based on custom channel (custom source to EG and SMN)
+
 ```hcl
 variable "subscription_name" {}
 variable "source_channel_id" {}
 variable "target_channel_id" {}
-variable "custom_event_source_id" {}
+variable "custom_id_for_custom_source" {} # Custom ID that used to prevent ID change, in UUID format
 variable "custom_event_source_name" {}
-variable "official_eg_event_target_id" {}
-variable "official_smn_event_target_id" {}
+variable "custom_id_for_eg_target" {}     # Custom ID that used to prevent ID change, in UUID format
+variable "custom_id_for_smn_target" {}    # Custom ID that used to prevent ID change, in UUID format
 variable "project_id" {}
 variable "region_name" {}
 variable "smn_topic_urn" {}
@@ -28,7 +117,7 @@ resource "huaweicloud_eg_event_subscription" "test" {
   name       = var.subscription_name
 
   sources {
-    id            = var.custom_event_source_id
+    id            = var.custom_id_for_custom_source
     provider_type = "CUSTOM"
     name          = var.custom_event_source_name
     filter_rule   = jsonencode({
@@ -40,7 +129,7 @@ resource "huaweicloud_eg_event_subscription" "test" {
   }
 
   targets {
-    id            = var.official_eg_event_target_id
+    id            = var.custom_id_for_eg_target
     provider_type = "OFFICIAL"
     name          = "HC.EG"
     detail_name   = "eg_detail"
@@ -59,7 +148,7 @@ resource "huaweicloud_eg_event_subscription" "test" {
   }
 
   targets {
-    id            = var.official_smn_event_target_id
+    id            = var.custom_id_for_smn_target
     provider_type = "OFFICIAL"
     name          = "HC.SMN"
     detail_name   = "smn_detail"
@@ -118,8 +207,19 @@ The `sources` block supports:
 * `name` - (Required, String) Specifies the name of the event source.
   The valid length is limited from `1` to `128`.
 
+* `detail_name` - (Optional, String) Specifies the name (key) of the target detail configuration.
+  The valid values are as follows:
+  + **detail**: Used by some official event sources, such as OBS.
+
+* `detail` - (Optional, String) Specifies the configuration detail of the event source, in JSON format.
+  The valid length is limited from `1` to `1,024`.
+
 * `filter_rule` - (Required, String) Specifies the filter rule of the event source, in JSON format.
-  The valid length is limited from `1` to `2048`.
+  The valid length is limited from `1` to `2,048`.
+
+-> The JSON result (`detail` and `filter_rule`) returned by the EG service may be different from the definition of the
+   resource created (especially the official event source). Changes can be handled by `lifecycle.ignore_changes` or
+   manual synchronization.
 
 <a name="subscription_targets"></a>
 The `targets` block supports:
@@ -142,13 +242,17 @@ The `targets` block supports:
   + **eg_detail**: EG event targets are used.
 
 * `detail` - (Required, String) Specifies the configuration detail of the event target, in JSON format.
-  The valid length is limited from `1` to `1024`.
+  The valid length is limited from `1` to `1,024`.
 
 * `transform` - (Required, String) Specifies the transform configuration of the event target, in JSON format.
 
 * `connection_id` - (Optional, String) Specifies the connection ID of the EG event target.
 
 * `dead_letter_queue` - (Optional, String) Specifies the specified queue to which failure events sent, in JSON format.
+
+-> The JSON result (`detail`, `transform`and `dead_letter_queue`) returned by the EG service may be different from the
+   definition of the resource created (especially the official event target). Changes can be handled by
+   `lifecycle.ignore_changes` or manual synchronization.
 
 ## Attribute Reference
 

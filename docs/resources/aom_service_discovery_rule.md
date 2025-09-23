@@ -55,7 +55,7 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which to create the service discovery rule resource. If omitted,
   the provider-level region will be used. Changing this creates a new resource.
 
-* `name` - (Required, String) Specifies the rule name, which contains 4 to 63 characters. It must start
+* `name` - (Required, String) Specifies the rule name, which contains `4` to `63` characters. It must start
   with a lowercase letter but cannot end with a hyphen (-). Only digits, lowercase letters, and hyphens are allowed.
 
 * `service_type` - (Required, String) Specifies the service type, which is used only for rule classification and UI display.
@@ -95,6 +95,8 @@ The following arguments are supported:
   + `args` - (Required, List) Specifies the command. This is a list of strings.
   + `value` - (Required, List) Specifies the log path. This is a list of strings.
 
+* `description` - (Optional, String) Specifies the rule description.
+
 <a name="name_rules_object"></a>
 The `name_rules` block supports:
 
@@ -121,9 +123,11 @@ The `service_name_rule` block and `application_name_rule` block support:
 
 * `name_type` - (Required, String) Specifies the value type. The value can be **cmdLineHash**, **cmdLine**, **env**
 and **str**.
+
 * `args` - (Required, List) Specifies the input value.
-* `value` - (Optional, List) Specifies the application name, which is mandatory only when the value of
-`name_type` is **cmdLineHash**.
+
+* `value` - (Optional, List) Specifies the application name, which is mandatory only when the value of `name_type` is
+  **cmdLineHash**.
 
 ## Attribute Reference
 
@@ -133,18 +137,12 @@ In addition to all arguments above, the following attributes are exported:
 
 * `rule_id` - The rule ID in uuid format.
 
-## Timeouts
-
-This resource provides the following timeouts configuration options:
-
-* `create` - Default is 5 minutes.
-* `update` - Default is 5 minutes.
-* `delete` - Default is 5 minutes.
+* `created_at` - The rule create time.
 
 ## Import
 
 AOM service discovery rules can be imported using the `name`, e.g.
 
-```
-$ terraform import huaweicloud_aom_service_discovery_rule.alarm_rule rule_name
+```bash
+$ terraform import huaweicloud_aom_service_discovery_rule.alarm_rule <name>
 ```

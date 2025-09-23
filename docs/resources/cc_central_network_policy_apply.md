@@ -52,8 +52,8 @@ This resource provides the following timeouts configuration options:
 
 ## Import
 
-The central network policy apply can be imported using `id`, separated by a slash, e.g.
+The central network policy apply can be imported using `central_network_id` and `policy_id`, separated by a slash, e.g.
 
 ```bash
-$ terraform import huaweicloud_cc_central_network_policy_apply.test 0ce123456a00f2591fabc00385ff1234
+$ terraform import huaweicloud_cc_central_network_policy_apply.test <central_network_id>/<policy_id>
 ```

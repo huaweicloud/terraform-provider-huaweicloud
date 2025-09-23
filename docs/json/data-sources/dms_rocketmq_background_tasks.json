@@ -1,0 +1,65 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dms_rocketmq_background_tasks": {
+          "block": {
+            "attributes": {
+              "begin_time": {
+                "type": "string",
+                "description": "The start time of the background task, in UTC format.",
+                "optional": true
+              },
+              "end_time": {
+                "type": "string",
+                "description": "The end time of the background task, in UTC format.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the RocketMQ instance.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the background tasks are located.",
+                "computed": true
+              },
+              "tasks": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "id": "string",
+                      "name": "string",
+                      "params": "string",
+                      "status": "string",
+                      "updated_at": "string",
+                      "user_id": "string",
+                      "user_name": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the background tasks under the specified RocketMQ instance.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "RocketMQ",
+            "name": "Distributed Message Service for RocketMQ",
+            "catalog": "Middleware",
+            "name_cn": "分布式消息服务 RocketMQ",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

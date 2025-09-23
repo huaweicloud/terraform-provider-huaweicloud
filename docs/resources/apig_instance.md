@@ -112,6 +112,23 @@ The following arguments are supported:
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the dedicated instance.
 
+* `custom_ingress_ports` - (Optional, List) Specified the list of the instance custom ingress ports.
+  The [custom_ingress_ports](#instance_custom_ingress_ports) structure is documented below.
+
+<a name="instance_custom_ingress_ports"></a>
+The `custom_ingress_ports` block supports:
+
+* `protocol` - (Required, String) Specified protocol of the custom ingress port.  
+  The valid values are as follows:
+  + **HTTP**
+  + **HTTPS**
+
+* `port` - (Required, Int) Specified port of the custom ingress port.
+  The valid value is range form `1,024` to `49,151`.
+
+  -> Currently, in the same dedicated instance, a maximum of `40` custom ingress ports can be created,
+     and one port can only support one protocol.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -132,6 +149,18 @@ In addition to all arguments above, the following attributes are exported:
   The valid value is as follows:
   + **elb**: Elastic load balance.
 
+* `custom_ingress_ports` - Specified the list of the instance custom ingress ports.
+  The [custom_ingress_ports](#attr_custom_ingress_ports) structure is documented below.
+
+<a name="attr_custom_ingress_ports"></a>
+The `custom_ingress_ports` block supports:
+
+* `id` - The ID of the custom ingress port.
+
+* `status` - The current status of the custom ingress port.
+  + **normal**
+  + **abnormal**
+
 ## Timeouts
 
 This resource provides the following timeouts configuration options:
@@ -144,6 +173,6 @@ This resource provides the following timeouts configuration options:
 
 Dedicated instances can be imported by their `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_apig_instance.test de379eed30aa4d31a84f426ea3c7ef4e
 ```

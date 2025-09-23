@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_aad_instance_domains
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: AAD
+paths:
+    /v2/aad/instances/{instance_id}/domains:
+        GET:
+            tag: AAD

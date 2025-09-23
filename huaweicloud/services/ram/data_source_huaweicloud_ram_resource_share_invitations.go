@@ -10,7 +10,6 @@ import (
 
 	"github.com/chnsz/golangsdk"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -20,7 +19,7 @@ const pageLimitCount = 200
 // @API RAM POST /v1/resource-share-invitations/search
 func DataSourceResourceShareInvitations() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceResourceShareInvitationssRead,
+		ReadContext: dataSourceResourceShareInvitationsRead,
 		Schema: map[string]*schema.Schema{
 			"resource_share_ids": {
 				Type:     schema.TypeList,
@@ -85,53 +84,50 @@ func resourceShareInvitationsSchema() *schema.Resource {
 	return &sc
 }
 
-func dataSourceResourceShareInvitationssRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceResourceShareInvitationsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg                                = meta.(*config.Config)
-		region                             = cfg.GetRegion(d)
-		mErr                               *multierror.Error
-		getResourceShareInvitationsHttpUrl = "v1/resource-share-invitations/search"
-		getResourceShareInvitationsProduct = "ram"
+		cfg                         = meta.(*config.Config)
+		region                      = cfg.GetRegion(d)
+		mErr                        *multierror.Error
+		httpUrl                     = "v1/resource-share-invitations/search"
+		product                     = "ram"
+		nextMarker                  string
+		expression                  = "resource_share_invitations"
+		allResourceShareInvitations []interface{}
+		requestBody                 = utils.RemoveNil(buildGetResourceShareInvitationsBodyParams(d))
 	)
-	getResourceShareInvitationsClient, err := cfg.NewServiceClient(getResourceShareInvitationsProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating RAM client: %s", err)
 	}
 
-	getResourceShareInvitationsPath := getResourceShareInvitationsClient.Endpoint + getResourceShareInvitationsHttpUrl
-	getResourceShareInvitationsOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 	}
 
-	var nextMarker string
-	allResourceShareInvitations := make([]interface{}, 0)
-	getResourceShareInvitationsJSONBody := utils.RemoveNil(buildGetResourceShareInvitationsBodyParams(d))
 	for {
-		getResourceShareInvitationsOpt.JSONBody = getResourceShareInvitationsJSONBody
-		getResourceShareInvitationsResp, err := getResourceShareInvitationsClient.Request("POST",
-			getResourceShareInvitationsPath, &getResourceShareInvitationsOpt)
-
+		requestOpt.JSONBody = requestBody
+		resp, err := client.Request("POST", requestPath, &requestOpt)
 		if err != nil {
-			return common.CheckDeletedDiag(d, err, "error retrieving RAM resource share invitations")
+			return diag.Errorf("error retrieving RAM resource share invitations: %s", err)
 		}
 
-		getResourceShareInvitationsRespBody, err := utils.FlattenResponse(getResourceShareInvitationsResp)
+		respBody, err := utils.FlattenResponse(resp)
 		if err != nil {
 			return diag.FromErr(err)
 		}
 
-		resourceShareInvitations := utils.PathSearch("resource_share_invitations", getResourceShareInvitationsRespBody,
-			make([]interface{}, 0)).([]interface{})
-
+		resourceShareInvitations := utils.PathSearch(expression, respBody, make([]interface{}, 0)).([]interface{})
 		if len(resourceShareInvitations) > 0 {
 			allResourceShareInvitations = append(allResourceShareInvitations, resourceShareInvitations...)
 		}
 
-		nextMarker = utils.PathSearch("page_info.next_marker", getResourceShareInvitationsRespBody, "").(string)
+		nextMarker = utils.PathSearch("page_info.next_marker", respBody, "").(string)
 		if nextMarker == "" {
 			break
 		}
-		getResourceShareInvitationsJSONBody["marker"] = nextMarker
+		requestBody["marker"] = nextMarker
 	}
 
 	generateUUID, err := uuid.GenerateUUID()
@@ -142,7 +138,7 @@ func dataSourceResourceShareInvitationssRead(_ context.Context, d *schema.Resour
 
 	mErr = multierror.Append(
 		mErr,
-		d.Set("resource_share_invitations", flattenGetResourceShareInvitationsResponseBody(allResourceShareInvitations)),
+		d.Set("resource_share_invitations", flattenGetResourceShareInvitations(allResourceShareInvitations)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -158,7 +154,7 @@ func buildGetResourceShareInvitationsBodyParams(d *schema.ResourceData) map[stri
 	return bodyParams
 }
 
-func flattenGetResourceShareInvitationsResponseBody(curArray []interface{}) []interface{} {
+func flattenGetResourceShareInvitations(curArray []interface{}) []interface{} {
 	rst := make([]interface{}, 0, len(curArray))
 	for _, v := range curArray {
 		rst = append(rst, map[string]interface{}{

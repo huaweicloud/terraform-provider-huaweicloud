@@ -47,10 +47,7 @@
                       "resume_checkpoint": "bool",
                       "resume_max_num": "number",
                       "run_mode": "string",
-                      "runtime_config": [
-                        "map",
-                        "string"
-                      ],
+                      "runtime_config": "string",
                       "smn_topic": "string",
                       "sql": "string",
                       "static_estimator_config": "string",
@@ -85,7 +82,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "tm_cu_num": {
                 "type": "number",

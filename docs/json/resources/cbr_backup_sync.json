@@ -1,0 +1,70 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cbr_backup_sync": {
+          "block": {
+            "attributes": {
+              "backup_id": {
+                "type": "string",
+                "description": "Specifies the backup ID to be synchronized.",
+                "required": true
+              },
+              "backup_name": {
+                "type": "string",
+                "description": "Specifies the name of the backup.",
+                "required": true
+              },
+              "bucket_name": {
+                "type": "string",
+                "description": "Specifies the name of the bucket where the backup is stored.",
+                "required": true
+              },
+              "created_at": {
+                "type": "number",
+                "description": "Specifies the timestamp when the backup was created.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "image_path": {
+                "type": "string",
+                "description": "Specifies the path of the backup image in the bucket.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to create the resource. If omitted, the provider-level\nregion will be used.",
+                "computed": true
+              },
+              "resource_id": {
+                "type": "string",
+                "description": "Specifies the ID of the resource to be backed up.",
+                "required": true
+              },
+              "resource_name": {
+                "type": "string",
+                "description": "Specifies the name of the resource to be backed up.",
+                "required": true
+              },
+              "resource_type": {
+                "type": "string",
+                "description": "Specifies the type of the resource to be backed up.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "CBR",
+            "name": "Cloud Backup and Recovery",
+            "catalog": "Storage",
+            "name_cn": "云备份",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}

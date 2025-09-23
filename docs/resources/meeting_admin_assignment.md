@@ -47,7 +47,7 @@ The following arguments are supported:
 -> Exactly one of account authorization and application authorization you must select.
 
 * `account` - (Required, String, ForceNew) Specifies the user account to be assigned the administrator role.
-  The value can contain **1** to **64** characters.
+  The value can contain `1` to `64` characters.
   Changing this parameter will create a new resource.
 
 ## Attribute Reference
@@ -62,14 +62,14 @@ The assignment relationships can be imported using their `id` and authorization 
 
 Import an administrator assignment and authenticated by account.
 
-```
-$ terraform import huaweicloud_meeting_admin_assignment.test &ltid&gt/&ltaccount_name&gt/&ltaccount_password&gt
+```bash
+$ terraform import huaweicloud_meeting_admin_assignment.test <id>/<account_name>/<account_password>
 ```
 
 Import an administrator assignment and authenticated by `APP ID`/`APP Key`.
 
-```
-$ terraform import huaweicloud_meeting_admin_assignment.test &ltid&gt/&ltapp_id&gt/&ltapp_key&gt/&ltcorp_id&gt/&ltuser_id&gt
+```bash
+$ terraform import huaweicloud_meeting_admin_assignment.test <id>/<app_id>/<app_key>/<corp_id>/<user_id>
 ```
 
 For this resource, the `corp_id` and `user_id` are never used, you can omit them but the slashes cannot be missing.

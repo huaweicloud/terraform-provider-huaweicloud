@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_iotda_device_binding_groups
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: IoTDA
+paths:
+    /v5/iot/{project_id}/devices/{device_id}/list-device-group:
+        POST:
+            tag: IoTDA

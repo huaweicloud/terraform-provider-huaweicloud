@@ -8,6 +8,9 @@ host: huaweicloud.com
 tags:
     - name: EIP
 paths:
+    /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrat:
+        POST:
+            tag: EPS
     /v1/{project_id}/bandwidths/{id}:
         GET:
             tag: EIP

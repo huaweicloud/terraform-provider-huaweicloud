@@ -1,0 +1,68 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_mysql_audit_log_download_links": {
+          "block": {
+            "attributes": {
+              "end_time": {
+                "type": "string",
+                "description": "Specifies the end time in the **yyyy-mm-ddThh:mm:ssZ** format.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the GaussDB MySQL instance.",
+                "required": true
+              },
+              "links": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "download_link": "string",
+                      "full_name": "string",
+                      "link_expired_time": "string",
+                      "name": "string",
+                      "size": "number",
+                      "updated_time": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of the full SQL file information.",
+                "computed": true
+              },
+              "node_id": {
+                "type": "string",
+                "description": "Specifies the ID of the GaussDB MySQL instance node.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource.",
+                "computed": true
+              },
+              "start_time": {
+                "type": "string",
+                "description": "Specifies the start time in the **yyyy-mm-ddThh:mm:ssZ** format.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDBforMySQL",
+            "name": "GaussDB(for MySQL)",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB(for MySQL)",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

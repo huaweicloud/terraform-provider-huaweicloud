@@ -2,12 +2,10 @@ package apig
 
 import (
 	"context"
-	"regexp"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/environments"
 
@@ -32,11 +30,6 @@ func DataSourceEnvironments() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[A-Za-z](\w+)?$`),
-						"The name can only consist of letters, digits and underscores (_), and must start with a letter."),
-					validation.StringLenBetween(3, 64),
-				),
 			},
 			"environments": {
 				Type:     schema.TypeList,

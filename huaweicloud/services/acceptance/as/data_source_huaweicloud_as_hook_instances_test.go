@@ -28,6 +28,8 @@ func TestAccDataSourceHookInstances_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			// Please prepare the AS group in the hooked state in advance and configure the AS group ID into the
+			// environment variable.
 			acceptance.TestAccPreCheckASScalingGroupID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,

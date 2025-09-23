@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_cciv2_namespaces
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CCI
+paths:
+    /apis/cci/v2/namespaces:
+        GET:
+            tag: CCI
+    /apis/cci/v2/namespaces/{name}:
+        GET:
+            tag: CCI

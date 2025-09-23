@@ -1,0 +1,91 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_rgc_account": {
+          "block": {
+            "attributes": {
+              "email": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "identity_store_email": {
+                "type": "string",
+                "required": true
+              },
+              "identity_store_user_name": {
+                "type": "string",
+                "required": true
+              },
+              "joined_at": {
+                "type": "string",
+                "computed": true
+              },
+              "joined_method": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "parent_organizational_unit_id": {
+                "type": "string",
+                "required": true
+              },
+              "parent_organizational_unit_name": {
+                "type": "string",
+                "required": true
+              },
+              "phone": {
+                "type": "string",
+                "optional": true
+              },
+              "urn": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "blueprint": {
+                "block": {
+                  "attributes": {
+                    "blueprint_product_id": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "blueprint_product_version": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "is_blueprint_has_multi_account_resource": {
+                      "type": "bool",
+                      "optional": true
+                    },
+                    "variables": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "RGC",
+            "name": "Resource Governance Center",
+            "catalog": "Management & Governance",
+            "name_cn": "资源治理中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

@@ -14,6 +14,10 @@
                 "required": true,
                 "forcenew": true
               },
+              "balance_status": {
+                "type": "bool",
+                "computed": true
+              },
               "charging_mode": {
                 "type": "string",
                 "optional": true,
@@ -22,17 +26,28 @@
               },
               "configuration_id": {
                 "type": "string",
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "coordinator_num": {
                 "type": "number",
                 "optional": true,
-                "default": 3
+                "computed": true
               },
               "db_user_name": {
                 "type": "string",
                 "computed": true
+              },
+              "disk_encryption_id": {
+                "type": "string",
+                "optional": true
+              },
+              "enable_force_switch": {
+                "type": "bool",
+                "optional": true
+              },
+              "enable_single_float_ip": {
+                "type": "bool",
+                "optional": true
               },
               "endpoints": {
                 "type": [
@@ -43,12 +58,16 @@
               },
               "enterprise_project_id": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
+              },
+              "error_log_switch_status": {
+                "type": "string",
+                "computed": true
               },
               "flavor": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "force_import": {
                 "type": "bool",
@@ -60,6 +79,11 @@
               },
               "maintenance_window": {
                 "type": "string",
+                "computed": true
+              },
+              "mysql_compatibility_port": {
+                "type": "string",
+                "optional": true,
                 "computed": true
               },
               "name": {
@@ -75,6 +99,8 @@
                       "availability_zone": "string",
                       "id": "string",
                       "name": "string",
+                      "private_ip": "string",
+                      "public_ip": "string",
                       "role": "string",
                       "status": "string"
                     }
@@ -124,18 +150,19 @@
               "replica_num": {
                 "type": "number",
                 "optional": true,
-                "forcenew": true,
-                "default": 3
+                "computed": true,
+                "forcenew": true
               },
               "security_group_id": {
                 "type": "string",
                 "optional": true,
+                "computed": true,
                 "forcenew": true
               },
               "sharding_num": {
                 "type": "number",
                 "optional": true,
-                "default": 3
+                "computed": true
               },
               "status": {
                 "type": "string",
@@ -150,11 +177,19 @@
                 "type": "string",
                 "computed": true
               },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
               "time_zone": {
                 "type": "string",
                 "optional": true,
-                "forcenew": true,
-                "default": "UTC+08:00"
+                "computed": true,
+                "forcenew": true
               },
               "type": {
                 "type": "string",
@@ -167,6 +202,21 @@
               }
             },
             "block_types": {
+              "advance_features": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "set"
+              },
               "backup_strategy": {
                 "block": {
                   "attributes": {
@@ -209,6 +259,13 @@
                     "consistency": {
                       "type": "string",
                       "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "instance_mode": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
                       "forcenew": true
                     },
                     "mode": {
@@ -227,6 +284,21 @@
                 "forcenew": true,
                 "min_items": 1,
                 "max_items": 1
+              },
+              "parameters": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "set"
               },
               "volume": {
                 "block": {

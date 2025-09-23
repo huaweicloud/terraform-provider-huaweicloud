@@ -48,17 +48,17 @@ The following arguments are supported:
   + If the protocol of the backend server is **TLS**, the value can only be **TCP**, **HTTP**, **HTTPS**, **TLS** or **GRPC**.
 
 * `interval` - (Required, Int) Specifies the interval between health checks, in seconds.
-  Value ranges from **1** to **50**.
+  Value ranges from `1` to `50`.
 
 * `timeout` - (Required, Int) Specifies the maximum time required for waiting for a response from the health check,
-  in seconds. Value ranges from **1** to **50**. It is recommended that you set the value less than that of
+  in seconds. Value ranges from `1` to `50`. It is recommended that you set the value less than that of
   parameter `interval`.
 
 * `max_retries` - (Required, Int) Specifies the number of consecutive health checks when the health check result of
-  a backend server changes from OFFLINE to ONLINE. Value ranges from **1** to **10**.
+  a backend server changes from OFFLINE to ONLINE. Value ranges from `1` to `10`.
 
 * `max_retries_down` - (Optional, Int) Specifies the number of consecutive health checks when the health check result of
-  a backend server changes from ONLINE to OFFLINE. The value ranges from **1** to **10**, and the default value is **3**.
+  a backend server changes from ONLINE to OFFLINE. The value ranges from `1` to `10`, and the default value is `3`.
 
 * `name` - (Optional, String) Specifies the health check name.
 
@@ -69,7 +69,8 @@ The following arguments are supported:
   is set to **HTTP** or **HTTPS**.
 
 * `port` - (Optional, Int) Specifies the port used for the health check. If this parameter is left blank, a port of
-  the backend server will be used by default.  Value ranges from **1** to **65535**.
+  the backend server will be used by default. It is mandatory when the `protocol` of the backend server group is **IP**.
+  Value ranges from `1` to `65,535`.
 
 * `url_path` - (Optional, String) Specifies the HTTP request path for the health check. The value must start with a
   slash (/), can contain letters, digits, hyphens (-), slash (/), periods (.), percent signs (%), hashes(#), and(&)

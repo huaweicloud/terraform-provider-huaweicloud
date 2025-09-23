@@ -7,14 +7,12 @@ package vpn
 
 import (
 	"context"
-	"regexp"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -28,7 +26,7 @@ import (
 // @API VPN GET /v5/{project_id}/customer-gateways/{id}
 // @API VPN PUT /v5/{project_id}/customer-gateways/{id}
 // @API VPN POST /v5/{project_id}/{resource_type}/{resource_id}/tags/create
-// @API VPN DELETE /v5/{project_id}/{resource_type}/{resource_id}/tags/delete
+// @API VPN POST /v5/{project_id}/{resource_type}/{resource_id}/tags/delete
 func ResourceCustomerGateway() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCustomerGatewayCreate,
@@ -38,6 +36,8 @@ func ResourceCustomerGateway() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+
+		CustomizeDiff: config.MergeDefaultTags(),
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -50,11 +50,6 @@ func ResourceCustomerGateway() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: `The customer gateway name.`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[\-_A-Za-z0-9]+$`),
-						"the input is invalid"),
-					validation.StringLenBetween(1, 64),
-				),
 			},
 			"id_value": {
 				Type:     schema.TypeString,
@@ -176,9 +171,6 @@ func resourceCustomerGatewayCreate(ctx context.Context, d *schema.ResourceData, 
 
 	createCustomerGatewayOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			201,
-		},
 	}
 	createCustomerGatewayOpt.JSONBody = utils.RemoveNil(buildCreateCustomerGatewayBodyParams(d))
 	createCustomerGatewayResp, err := createCustomerGatewayClient.Request("POST", createCustomerGatewayPath, &createCustomerGatewayOpt)
@@ -191,11 +183,11 @@ func resourceCustomerGatewayCreate(ctx context.Context, d *schema.ResourceData, 
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("customer_gateway.id", createCustomerGatewayRespBody)
-	if err != nil {
+	id := utils.PathSearch("customer_gateway.id", createCustomerGatewayRespBody, "").(string)
+	if id == "" {
 		return diag.Errorf("error creating VPN customer gateway: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	return resourceCustomerGatewayRead(ctx, d, meta)
 }
@@ -252,9 +244,6 @@ func resourceCustomerGatewayRead(_ context.Context, d *schema.ResourceData, meta
 
 	getCustomerGatewayOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
 	getCustomerGatewayResp, err := getCustomerGatewayClient.Request("GET", getCustomerGatewayPath, &getCustomerGatewayOpt)
 
@@ -318,9 +307,6 @@ func resourceCustomerGatewayUpdate(ctx context.Context, d *schema.ResourceData, 
 
 		updateCustomerGatewayOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
-			OkCodes: []int{
-				200,
-			},
 		}
 		updateCustomerGatewayOpt.JSONBody = utils.RemoveNil(buildUpdateCustomerGatewayBodyParams(d))
 		_, err = updateCustomerGatewayClient.Request("PUT", updateCustomerGatewayPath, &updateCustomerGatewayOpt)
@@ -378,13 +364,10 @@ func resourceCustomerGatewayDelete(_ context.Context, d *schema.ResourceData, me
 
 	deleteCustomerGatewayOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			204,
-		},
 	}
 	_, err = deleteCustomerGatewayClient.Request("DELETE", deleteCustomerGatewayPath, &deleteCustomerGatewayOpt)
 	if err != nil {
-		return diag.Errorf("error deleting VPN customer gateway: %s", err)
+		return common.CheckDeletedDiag(d, err, "error deleting VPN customer gateway")
 	}
 
 	return nil

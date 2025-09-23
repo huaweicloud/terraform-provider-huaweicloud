@@ -172,9 +172,9 @@ func filterAvailableSecGroupsV3(secGroups []v3groups.SecurityGroup, descKey stri
 }
 
 func dataSourceNetworkingSecGroupsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	v3Client, err := config.NetworkingV3Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	v3Client, err := cfg.NetworkingV3Client(region)
 	if err != nil {
 		return diag.Errorf("error creating networking v3 client: %s", err)
 	}
@@ -184,7 +184,7 @@ func dataSourceNetworkingSecGroupsRead(ctx context.Context, d *schema.ResourceDa
 	listOpts := v3groups.ListOpts{
 		ID:                  d.Get("id").(string),
 		Name:                d.Get("name").(string),
-		EnterpriseProjectId: config.DataGetEnterpriseProjectID(d),
+		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d, "all_granted_eps"),
 	}
 
 	var groupList []map[string]interface{}
@@ -203,7 +203,7 @@ func dataSourceNetworkingSecGroupsRead(ctx context.Context, d *schema.ResourceDa
 	d.SetId(hashcode.Strings(ids))
 
 	mErr := multierror.Append(nil,
-		d.Set("region", config.GetRegion(d)),
+		d.Set("region", cfg.GetRegion(d)),
 		d.Set("security_groups", groupList),
 	)
 
@@ -211,15 +211,15 @@ func dataSourceNetworkingSecGroupsRead(ctx context.Context, d *schema.ResourceDa
 }
 
 func dataSourceNetworkingSecGroupsReadV1(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	v1Client, err := config.NetworkingV1Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	v1Client, err := cfg.NetworkingV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating networking v1 client: %s", err)
 	}
 
 	listOpts := v1groups.ListOpts{
-		EnterpriseProjectId: config.DataGetEnterpriseProjectID(d),
+		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d, "all_granted_eps"),
 	}
 	pages, err := v1groups.List(v1Client, listOpts).AllPages()
 	if err != nil {
@@ -234,7 +234,7 @@ func dataSourceNetworkingSecGroupsReadV1(_ context.Context, d *schema.ResourceDa
 	groupList, ids := filterAvailableSecGroupsV1(allSecGroups, d.Get("name").(string), d.Get("description").(string))
 	d.SetId(hashcode.Strings(ids))
 	mErr := multierror.Append(nil,
-		d.Set("region", config.GetRegion(d)),
+		d.Set("region", cfg.GetRegion(d)),
 		d.Set("security_groups", groupList),
 	)
 	return diag.FromErr(mErr.ErrorOrNil())

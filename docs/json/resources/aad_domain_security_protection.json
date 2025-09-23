@@ -1,0 +1,40 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_aad_domain_security_protection": {
+          "block": {
+            "attributes": {
+              "cc_switch": {
+                "type": "number",
+                "description": "Specifies whether to enable CC protection.",
+                "required": true
+              },
+              "domain_id": {
+                "type": "string",
+                "description": "Specifies the domain ID.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "waf_switch": {
+                "type": "number",
+                "description": "Specifies whether to enable basic web protection.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "AAD",
+            "name": "Advanced Anti-DDoS",
+            "catalog": "Security & Compliance",
+            "name_cn": "DDoS高防",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

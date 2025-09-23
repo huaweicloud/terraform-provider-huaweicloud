@@ -1,0 +1,48 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_vpnv51_gateway_availability_zones": {
+          "block": {
+            "attributes": {
+              "availability_zones": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "available_specs": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "attachment_type": "string",
+                            "flavor": "string",
+                            "ip_version": "string"
+                          }
+                        ]
+                      ],
+                      "name": "string",
+                      "public_border_group": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the availability zones.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

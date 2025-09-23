@@ -7,15 +7,12 @@ package ges
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -180,11 +177,11 @@ func resourceGesMetadataCreate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("id", createMetadataRespBody)
-	if err != nil {
-		return diag.Errorf("error creating GES metadata: ID is not found in API response")
+	metadataId := utils.PathSearch("id", createMetadataRespBody, "").(string)
+	if metadataId == "" {
+		return diag.Errorf("unable to find the GES metadata ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(metadataId)
 
 	return resourceGesMetadataRead(ctx, d, meta)
 }
@@ -280,7 +277,8 @@ func resourceGesMetadataRead(_ context.Context, d *schema.ResourceData, meta int
 	getMetadataDetailResp, err := getMetadataDetailClient.Request("GET", getMetadataDetailPath, &getMetadataDetailOpt)
 
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseMetadataNotFoundError(err), "error retrieving GES metadata")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "errCode", "GES.2067"),
+			"error retrieving GES metadata")
 	}
 
 	getMetadataDetailRespBody, err := utils.FlattenResponse(getMetadataDetailResp)
@@ -358,9 +356,8 @@ func flattenGetMetadatasRespBodyEncryption(resp interface{}) []interface{} {
 
 func flattenGetMetadataRespBodyMetadata(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("gesMetadata", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing gesMetadata from response= %#v", resp)
+	curJson := utils.PathSearch("gesMetadata", resp, nil)
+	if curJson == nil {
 		return rst
 	}
 
@@ -473,23 +470,4 @@ func resourceGesMetadataDelete(_ context.Context, d *schema.ResourceData, meta i
 	}
 
 	return nil
-}
-
-func parseMetadataNotFoundError(respErr error) error {
-	var apiErr interface{}
-	if errCode, ok := respErr.(golangsdk.ErrDefault400); ok {
-		pErr := json.Unmarshal(errCode.Body, &apiErr)
-		if pErr != nil {
-			return pErr
-		}
-		errCode, err := jmespath.Search(`errCode`, apiErr)
-		if err != nil {
-			return fmt.Errorf("error parse errorCode from response body: %s", err.Error())
-		}
-
-		if errCode == `GES.2067` {
-			return golangsdk.ErrDefault404{}
-		}
-	}
-	return respErr
 }

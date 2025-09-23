@@ -1,8 +1,3 @@
-// ---------------------------------------------------------------
-// *** AUTO GENERATED CODE ***
-// @Product SecMaster
-// ---------------------------------------------------------------
-
 package secmaster
 
 import (
@@ -14,7 +9,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -58,7 +52,7 @@ func ResourcePlaybookRule() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `Specifies playbook version ID of the rule.`,
+				Description: `Specifies the playbook version ID of the rule.`,
 			},
 			"expression_type": {
 				Type:        schema.TypeString,
@@ -190,10 +184,7 @@ func resourcePlaybookRuleCreate(ctx context.Context, d *schema.ResourceData, met
 
 	createPlaybookRuleOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: map[string]string{"Content-Type": "application/json"},
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
 	ruleJson, err := json.Marshal(buildPlaybookRuleBodyParams(d))
@@ -205,7 +196,7 @@ func resourcePlaybookRuleCreate(ctx context.Context, d *schema.ResourceData, met
 	})
 	createPlaybookRuleResp, err := createPlaybookRuleClient.Request("POST", createPlaybookRulePath, &createPlaybookRuleOpt)
 	if err != nil {
-		return diag.Errorf("error creating PlaybookRule: %s", err)
+		return diag.Errorf("error creating SecMaster playbook rule: %s", err)
 	}
 
 	createPlaybookRuleRespBody, err := utils.FlattenResponse(createPlaybookRuleResp)
@@ -213,11 +204,11 @@ func resourcePlaybookRuleCreate(ctx context.Context, d *schema.ResourceData, met
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("data.id", createPlaybookRuleRespBody)
-	if err != nil {
-		return diag.Errorf("error creating PlaybookRule: ID is not found in API response")
+	id := utils.PathSearch("data.id", createPlaybookRuleRespBody, "").(string)
+	if id == "" {
+		return diag.Errorf("error creating SecMaster playbook rule: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	return resourcePlaybookRuleRead(ctx, d, meta)
 }
@@ -283,19 +274,16 @@ func resourcePlaybookRuleRead(_ context.Context, d *schema.ResourceData, meta in
 
 	getPlaybookRuleOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: map[string]string{"Content-Type": "application/json"},
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
 	getPlaybookRuleResp, err := getPlaybookRuleClient.Request("GET", getPlaybookRulePath, &getPlaybookRuleOpt)
-
 	if err != nil {
-		if hasErrorCode(err, PlaybookRuleNotExistsCode) {
-			err = golangsdk.ErrDefault404{}
-		}
-		return common.CheckDeletedDiag(d, err, "error retrieving PlaybookRule")
+		// SecMaster.20010001: the workspace ID not found
+		// SecMaster.20048004：the playbook rule ID not found
+		err = common.ConvertExpected403ErrInto404Err(err, "code", WorkspaceNotFound)
+		err = common.ConvertExpected400ErrInto404Err(err, "code", PlaybookRuleNotExistsCode)
+		return common.CheckDeletedDiag(d, err, "error retrieving SecMaster playbook rule")
 	}
 
 	getPlaybookRuleRespBody, err := utils.FlattenResponse(getPlaybookRuleResp)
@@ -385,10 +373,7 @@ func resourcePlaybookRuleUpdate(ctx context.Context, d *schema.ResourceData, met
 
 		updatePlaybookRuleOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
-			OkCodes: []int{
-				200,
-			},
-			MoreHeaders: map[string]string{"Content-Type": "application/json"},
+			MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 		}
 
 		ruleJson, err := json.Marshal(buildPlaybookRuleBodyParams(d))
@@ -400,7 +385,7 @@ func resourcePlaybookRuleUpdate(ctx context.Context, d *schema.ResourceData, met
 		})
 		_, err = updatePlaybookRuleClient.Request("PUT", updatePlaybookRulePath, &updatePlaybookRuleOpt)
 		if err != nil {
-			return diag.Errorf("error updating PlaybookRule: %s", err)
+			return diag.Errorf("error updating SecMaster playbook rule: %s", err)
 		}
 	}
 	return resourcePlaybookRuleRead(ctx, d, meta)
@@ -428,15 +413,16 @@ func resourcePlaybookRuleDelete(_ context.Context, d *schema.ResourceData, meta 
 
 	deletePlaybookRuleOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: map[string]string{"Content-Type": "application/json"},
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
 	_, err = deletePlaybookRuleClient.Request("DELETE", deletePlaybookRulePath, &deletePlaybookRuleOpt)
 	if err != nil {
-		return diag.Errorf("error deleting PlaybookRule: %s", err)
+		// SecMaster.20010001: the workspace ID not found
+		// SecMaster.20048004：the playbook rule ID not found
+		err = common.ConvertExpected403ErrInto404Err(err, "code", WorkspaceNotFound)
+		err = common.ConvertExpected400ErrInto404Err(err, "code", PlaybookRuleNotExistsCode)
+		return common.CheckDeletedDiag(d, err, "error deleting SecMaster playbook rule")
 	}
 
 	return nil
@@ -450,17 +436,10 @@ func resourcePlaybookRuleImportState(_ context.Context, d *schema.ResourceData, 
 
 	d.SetId(parts[2])
 
-	var mErr *multierror.Error
-	mErr = multierror.Append(
-		mErr,
+	mErr := multierror.Append(
 		d.Set("workspace_id", parts[0]),
 		d.Set("version_id", parts[1]),
 	)
 
-	err := mErr.ErrorOrNil()
-	if err != nil {
-		return nil, err
-	}
-
-	return []*schema.ResourceData{d}, nil
+	return []*schema.ResourceData{d}, mErr.ErrorOrNil()
 }

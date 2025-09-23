@@ -5,20 +5,17 @@ import (
 	"time"
 
 	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/waf_hw/v1/valuelists"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// DataSourceWafReferenceTablesV1 the function is used for data source 'huaweicloud_waf_reference_tables'.
 // @API WAF GET /v1/{project_id}/waf/valuelist
-func DataSourceWafReferenceTablesV1() *schema.Resource {
+func DataSourceWafReferenceTables() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceWafReferenceTablesRead,
 
@@ -75,7 +72,8 @@ func DataSourceWafReferenceTablesV1() *schema.Resource {
 
 func dataSourceWafReferenceTablesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
-	client, err := conf.WafV1Client(conf.GetRegion(d))
+	region := conf.GetRegion(d)
+	client, err := conf.WafV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating WAF client: %s", err)
 	}
@@ -83,25 +81,19 @@ func dataSourceWafReferenceTablesRead(_ context.Context, d *schema.ResourceData,
 	opts := valuelists.ListValueListOpts{
 		EnterpriseProjectId: conf.GetEnterpriseProjectID(d),
 	}
+
 	r, err := valuelists.List(client, opts)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "Error obtain WAF reference table information")
+		return diag.Errorf("error retrieving WAF reference tables %s", err)
 	}
 
-	if len(r.Items) == 0 {
-		return nil
-	}
-	// filter data by name
-	filterData, err := utils.FilterSliceWithField(r.Items, map[string]interface{}{
-		"Name": d.Get("name").(string),
-	})
-	if err != nil {
-		return diag.Errorf("error filtering WAF reference tables: %s", err)
-	}
-	tables := make([]map[string]interface{}, 0, len(filterData))
-	ids := make([]string, 0, len(r.Items))
-	for _, t := range filterData {
-		v := t.(valuelists.WafValueList)
+	tables := make([]map[string]interface{}, 0, len(r.Items))
+	name := d.Get("name").(string)
+	for _, v := range r.Items {
+		if name != "" && name != v.Name {
+			continue
+		}
+
 		tab := map[string]interface{}{
 			"id":            v.Id,
 			"name":          v.Name,
@@ -111,11 +103,18 @@ func dataSourceWafReferenceTablesRead(_ context.Context, d *schema.ResourceData,
 			"creation_time": time.Unix(v.CreationTime/1000, 0).Format("2006-01-02 15:04:05"),
 		}
 		tables = append(tables, tab)
-		ids = append(ids, v.Id)
 	}
 
-	d.SetId(hashcode.Strings(ids))
-	mErr := multierror.Append(nil, d.Set("tables", tables))
+	generateUUID, err := uuid.GenerateUUID()
+	if err != nil {
+		return diag.Errorf("unable to generate ID: %s", err)
+	}
+	d.SetId(generateUUID)
+
+	mErr := multierror.Append(nil,
+		d.Set("region", region),
+		d.Set("tables", tables),
+	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }

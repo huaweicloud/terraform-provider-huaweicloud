@@ -44,6 +44,8 @@ func ResourceDNSRecordSetV2() *schema.Resource {
 			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 
+		CustomizeDiff: config.MergeDefaultTags(),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
@@ -60,11 +62,13 @@ func ResourceDNSRecordSetV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				DiffSuppressFunc: func(_, oldVal, newVal string, _ *schema.ResourceData) bool {
+					return strings.TrimSuffix(oldVal, ".") == strings.TrimSuffix(newVal, ".")
+				},
 			},
 			"description": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringLenBetween(0, 255),
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"records": {
 				Type:     schema.TypeList,
@@ -73,10 +77,9 @@ func ResourceDNSRecordSetV2() *schema.Resource {
 				MinItems: 1,
 			},
 			"ttl": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Default:      300,
-				ValidateFunc: validation.IntBetween(1, 2147483647),
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  300,
 			},
 			"type": {
 				Type:     schema.TypeString,
@@ -167,7 +170,7 @@ func resourceDNSRecordSetV2Read(_ context.Context, d *schema.ResourceData, meta 
 
 	dnsClient, zoneType, err := chooseDNSClientbyZoneID(d, zoneID, meta)
 	if err != nil {
-		return diag.FromErr(err)
+		return common.CheckDeletedDiag(d, err, "error creating DNS client")
 	}
 
 	n, err := recordsets.Get(dnsClient, zoneID, recordsetID).Extract()
@@ -216,7 +219,7 @@ func resourceDNSRecordSetV2Update(ctx context.Context, d *schema.ResourceData, m
 
 	dnsClient, zoneType, err := chooseDNSClientbyZoneID(d, zoneID, meta)
 	if err != nil {
-		return diag.FromErr(err)
+		return common.CheckDeletedDiag(d, err, "error creating DNS client")
 	}
 
 	if d.HasChanges("description", "ttl", "records") {
@@ -285,7 +288,7 @@ func resourceDNSRecordSetV2Delete(ctx context.Context, d *schema.ResourceData, m
 
 	dnsClient, _, err := chooseDNSClientbyZoneID(d, zoneID, meta)
 	if err != nil {
-		return diag.FromErr(err)
+		return common.CheckDeletedDiag(d, err, "error creating DNS client")
 	}
 
 	err = recordsets.Delete(dnsClient, zoneID, recordsetID).ExtractErr()

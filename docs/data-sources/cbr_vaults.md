@@ -99,6 +99,10 @@ The `vaults` block supports:
 * `resources` - The array of one or more resources to attach to the vault.
   The [object](#cbr_vault_resources) structure is documented below.
 
+* `auto_bind` - Whether automatic association is enabled. Defaults to **false**.
+
+* `bind_rules` - The tags to filter resources for automatic association with **auto_bind**.
+
 <a name="cbr_vault_resources"></a>
 The `resources` block supports:
 

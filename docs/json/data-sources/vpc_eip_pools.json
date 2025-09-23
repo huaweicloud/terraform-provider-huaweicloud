@@ -1,0 +1,102 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_vpc_eip_pools": {
+          "block": {
+            "attributes": {
+              "description": {
+                "type": "string",
+                "description": "Specifies the pool description.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the pool name.",
+                "optional": true
+              },
+              "pools": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "allow_share_bandwidth_types": [
+                        "list",
+                        "string"
+                      ],
+                      "billing_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "order_id": "string",
+                            "product_id": "string"
+                          }
+                        ]
+                      ],
+                      "created_at": "string",
+                      "description": "string",
+                      "enterprise_project_id": "string",
+                      "id": "string",
+                      "name": "string",
+                      "public_border_group": "string",
+                      "shared": "bool",
+                      "size": "number",
+                      "status": "string",
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "type": "string",
+                      "updated_at": "string",
+                      "used": "number"
+                    }
+                  ]
+                ],
+                "description": "Indicates the public network pools.",
+                "computed": true
+              },
+              "public_border_group": {
+                "type": "string",
+                "description": "Specifies whether the pool is at the center or at the edge.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "size": {
+                "type": "number",
+                "description": "Specifies the pool size.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the pool status.",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the pool type.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "EIP",
+            "name": "Elastic IP",
+            "catalog": "Networking",
+            "name_cn": "弹性公网IP",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

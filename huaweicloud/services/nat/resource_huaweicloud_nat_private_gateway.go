@@ -2,26 +2,17 @@ package nat
 
 import (
 	"context"
-	"log"
-	"regexp"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	"github.com/chnsz/golangsdk/openstack/nat/v3/gateways"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-)
-
-const (
-	PrivateSpecTypeSmall      string = "Small"
-	PrivateSpecTypeMedium     string = "Medium"
-	PrivateSpecTypeLarge      string = "Large"
-	PrivateSpecTypeExtraLarge string = "Extra-Large"
 )
 
 // @API NAT POST /v3/{project_id}/private-nat/gateways
@@ -40,6 +31,8 @@ func ResourcePrivateGateway() *schema.Resource {
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 
+		CustomizeDiff: config.MergeDefaultTags(),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:        schema.TypeString,
@@ -55,23 +48,13 @@ func ResourcePrivateGateway() *schema.Resource {
 				Description: "The network ID of the subnet to which the private NAT gateway belongs.",
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[\x{4E00}-\x{9FFC}\w-]*$`),
-						"Only letters, chinese characters, digits, underscores (_) and hyphens (-) are allowed."),
-					validation.StringLenBetween(1, 64),
-				),
+				Type:        schema.TypeString,
+				Required:    true,
 				Description: "The name of the private NAT gateway.",
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(0, 255),
-					validation.StringMatch(regexp.MustCompile(`^[^<>]*$`),
-						"The angle brackets (< and >) are not allowed."),
-				),
+				Type:        schema.TypeString,
+				Optional:    true,
 				Description: "The description of the private NAT gateway.",
 			},
 			"spec": {
@@ -79,12 +62,6 @@ func ResourcePrivateGateway() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				Description: "The specification of the private NAT gateway.",
-				ValidateFunc: validation.StringInSlice([]string{
-					PrivateSpecTypeSmall,
-					PrivateSpecTypeMedium,
-					PrivateSpecTypeLarge,
-					PrivateSpecTypeExtraLarge,
-				}, false),
 			},
 			"enterprise_project_id": {
 				Type:        schema.TypeString,
@@ -118,100 +95,166 @@ func ResourcePrivateGateway() *schema.Resource {
 	}
 }
 
-func buildDownLinkVpcs(subnetId string) []gateways.DownLinkVpc {
-	return []gateways.DownLinkVpc{
+func buildDownLinkVpcs(d *schema.ResourceData) []map[string]interface{} {
+	return []map[string]interface{}{
 		{
-			SubnetId: subnetId,
+			"virsubnet_id": d.Get("subnet_id"),
 		},
 	}
 }
 
+func buildCreatePrivateGatewayBodyParams(d *schema.ResourceData, epsId string) map[string]interface{} {
+	gatewayBodyParams := map[string]interface{}{
+		"name":                  d.Get("name"),
+		"description":           utils.ValueIgnoreEmpty(d.Get("description")),
+		"downlink_vpcs":         buildDownLinkVpcs(d),
+		"spec":                  utils.ValueIgnoreEmpty(d.Get("spec")),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(epsId),
+		"tags":                  utils.ExpandResourceTagsMap(d.Get("tags").(map[string]interface{})),
+	}
+
+	return map[string]interface{}{
+		"gateway": gatewayBodyParams,
+	}
+}
+
 func resourcePrivateGatewayCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	client, err := cfg.NatV3Client(cfg.GetRegion(d))
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v3/{project_id}/private-nat/gateways"
+	)
+
+	client, err := cfg.NewServiceClient("nat", region)
 	if err != nil {
 		return diag.Errorf("error creating NAT v3 client: %s", err)
 	}
 
-	opts := gateways.CreateOpts{
-		Name:                d.Get("name").(string),
-		DownLinkVpcs:        buildDownLinkVpcs(d.Get("subnet_id").(string)),
-		Description:         d.Get("description").(string),
-		Spec:                d.Get("spec").(string),
-		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
-		Tags:                utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
+	createPath := client.Endpoint + httpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildCreatePrivateGatewayBodyParams(d, cfg.GetEnterpriseProjectID(d))),
 	}
 
-	log.Printf("[DEBUG] The create options of the private NAT gateway is: %#v", opts)
-	resp, err := gateways.Create(client, opts)
+	resp, err := client.Request("POST", createPath, &createOpt)
 	if err != nil {
 		return diag.Errorf("error creating private NAT gateway: %s", err)
 	}
-	d.SetId(resp.ID)
+
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	gatewayId := utils.PathSearch("gateway.id", respBody, "").(string)
+	if gatewayId == "" {
+		return diag.Errorf("error creating private NAT gateway: ID is not found in API response")
+	}
+
+	d.SetId(gatewayId)
 
 	return resourcePrivateGatewayRead(ctx, d, meta)
 }
 
+func GetPrivateGateway(client *golangsdk.ServiceClient, gatewayId string) (interface{}, error) {
+	httpUrl := "v3/{project_id}/private-nat/gateways/{gateway_id}"
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{gateway_id}", gatewayId)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(getResp)
+}
+
 func resourcePrivateGatewayRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	natClient, err := cfg.NatV3Client(region)
+	var (
+		cfg    = meta.(*config.Config)
+		region = cfg.GetRegion(d)
+	)
+
+	client, err := cfg.NewServiceClient("nat", region)
 	if err != nil {
 		return diag.Errorf("error creating NAT v3 client: %s", err)
 	}
 
-	resp, err := gateways.Get(natClient, d.Id())
+	respBody, err := GetPrivateGateway(client, d.Id())
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "Private NAT gateway")
+		// If the private NAT gateway does not exist, the response HTTP status code of the details API is 404.
+		return common.CheckDeletedDiag(d, err, "error retrieving private NAT gateway")
 	}
-	mErr := multierror.Append(nil,
+	mErr := multierror.Append(
 		d.Set("region", region),
-		d.Set("subnet_id", utils.PathSearch("[0].SubnetId", resp.DownLinkVpcs, nil)),
-		d.Set("name", resp.Name),
-		d.Set("description", resp.Description),
-		d.Set("spec", resp.Spec),
-		d.Set("enterprise_project_id", resp.EnterpriseProjectId),
-		d.Set("tags", utils.TagsToMap(resp.Tags)),
-		d.Set("created_at", resp.CreatedAt),
-		d.Set("updated_at", resp.UpdatedAt),
-		d.Set("status", resp.Status),
-		d.Set("vpc_id", utils.PathSearch("[0].VpcId", resp.DownLinkVpcs, nil)),
+		d.Set("subnet_id", utils.PathSearch("gateway.downlink_vpcs[0].virsubnet_id", respBody, nil)),
+		d.Set("name", utils.PathSearch("gateway.name", respBody, nil)),
+		d.Set("description", utils.PathSearch("gateway.description", respBody, nil)),
+		d.Set("spec", utils.PathSearch("gateway.spec", respBody, nil)),
+		d.Set("enterprise_project_id", utils.PathSearch("gateway.enterprise_project_id", respBody, nil)),
+		d.Set("tags", utils.FlattenTagsToMap(utils.PathSearch("gateway.tags", respBody, make([]interface{}, 0)))),
+		d.Set("created_at", utils.PathSearch("gateway.created_at", respBody, nil)),
+		d.Set("updated_at", utils.PathSearch("gateway.updated_at", respBody, nil)),
+		d.Set("status", utils.PathSearch("gateway.status", respBody, nil)),
+		d.Set("vpc_id", utils.PathSearch("gateway.downlink_vpcs[0].vpc_id", respBody, nil)),
 	)
-	if err = mErr.ErrorOrNil(); err != nil {
-		return diag.Errorf("error saving private NAT gateway fields: %s", err)
+
+	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func buildUpdatePrivateGatewayBodyParams(d *schema.ResourceData) map[string]interface{} {
+	gatewayBodyParams := map[string]interface{}{
+		"name":        utils.ValueIgnoreEmpty(d.Get("name")),
+		"description": d.Get("description"),
+		"spec":        utils.ValueIgnoreEmpty(d.Get("spec")),
 	}
-	return nil
+
+	return map[string]interface{}{
+		"gateway": gatewayBodyParams,
+	}
 }
 
 func resourcePrivateGatewayUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	natClient, err := cfg.NatV3Client(region)
+	var (
+		cfg    = meta.(*config.Config)
+		region = cfg.GetRegion(d)
+	)
+
+	client, err := cfg.NewServiceClient("nat", region)
 	if err != nil {
 		return diag.Errorf("error creating NAT v3 client: %s", err)
 	}
 
-	gatewayId := d.Id()
-	if d.HasChangeExcept("tags") {
-		opts := gateways.UpdateOpts{
-			Name:        d.Get("name").(string),
-			Description: utils.String(d.Get("description").(string)),
-		}
-		if d.HasChange("spec") {
-			opts.Spec = d.Get("spec").(string)
+	if d.HasChanges("name", "description", "spec") {
+		httpUrl := "v3/{project_id}/private-nat/gateways/{gateway_id}"
+		updatePath := client.Endpoint + httpUrl
+		updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+		updatePath = strings.ReplaceAll(updatePath, "{gateway_id}", d.Id())
+		updateOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			JSONBody:         buildUpdatePrivateGatewayBodyParams(d),
 		}
 
-		log.Printf("[DEBUG] The update options of the private NAT gateway is: %#v", opts)
-		_, err = gateways.Update(natClient, gatewayId, opts)
+		_, err = client.Request("PUT", updatePath, &updateOpt)
 		if err != nil {
 			return diag.Errorf("error updating private NAT gateway: %s", err)
 		}
 	}
 
 	if d.HasChange("tags") {
-		err = utils.UpdateResourceTags(natClient, d, "private-nat-gateways", gatewayId)
+		natClient, err := cfg.NatV3Client(region)
 		if err != nil {
-			return diag.Errorf("error updating tags of the private NAT gateway (%s): %s", gatewayId, err)
+			return diag.Errorf("error creating NAT v3 client: %s", err)
+		}
+
+		err = utils.UpdateResourceTags(natClient, d, "private-nat-gateways", d.Id())
+		if err != nil {
+			return diag.Errorf("error updating tags of the private NAT gateway: %s", err)
 		}
 	}
 
@@ -219,16 +262,28 @@ func resourcePrivateGatewayUpdate(ctx context.Context, d *schema.ResourceData, m
 }
 
 func resourcePrivateGatewayDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	client, err := cfg.NatV3Client(cfg.GetRegion(d))
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v3/{project_id}/private-nat/gateways/{gateway_id}"
+	)
+
+	client, err := cfg.NewServiceClient("nat", region)
 	if err != nil {
 		return diag.Errorf("error creating NAT v3 client: %s", err)
 	}
 
-	gatewayId := d.Id()
-	err = gateways.Delete(client, gatewayId)
+	deletePath := client.Endpoint + httpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = strings.ReplaceAll(deletePath, "{gateway_id}", d.Id())
+	deleteOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	_, err = client.Request("DELETE", deletePath, &deleteOpts)
 	if err != nil {
-		return diag.Errorf("error deleting private NAT gateway (%s): %s", gatewayId, err)
+		// If the private NAT gateway does not exist, the response HTTP status code of the details API is 404.
+		return common.CheckDeletedDiag(d, err, "error deleting private NAT gateway")
 	}
 
 	return nil

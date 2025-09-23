@@ -110,7 +110,7 @@ data "huaweicloud_rds_flavors" "test" {
 resource "huaweicloud_rds_instance" "test" {
   name                   = "%[2]s"
   flavor                 = data.huaweicloud_rds_flavors.test.flavors[0].name
-  security_group_id      = huaweicloud_networking_secgroup.test.id
+  security_group_id      = data.huaweicloud_networking_secgroup.test.id
   subnet_id              = data.huaweicloud_vpc_subnet.test.id
   vpc_id                 = data.huaweicloud_vpc.test.id
   availability_zone      = slice(sort(data.huaweicloud_rds_flavors.test.flavors[0].availability_zones), 0, 1)
@@ -131,7 +131,7 @@ resource "huaweicloud_rds_instance" "test" {
     ignore_changes = [binlog_retention_hours]
   }
 }
-`, testAccRdsInstance_base(name), name)
+`, testAccRdsInstance_base(), name)
 }
 
 func testMysqlBinlog_basic(name string) string {

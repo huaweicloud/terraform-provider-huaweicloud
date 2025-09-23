@@ -2,7 +2,8 @@
 subcategory: "Direct Connect (DC)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_dc_virtual_interface"
-description: ""
+description: |-
+  Manages a virtual interface resource within HuaweiCloud.
 ---
 
 # huaweicloud_dc_virtual_interface
@@ -11,19 +12,48 @@ Manages a virtual interface resource within HuaweiCloud.
 
 ## Example Usage
 
+### Create a DC virtual interface with VGW service type
+
 ```hcl
 variable "direct_connect_id" {}
-variable "gateway_id" {}
+variable "vgw_id" {}
 variable "interface_name" {}
 
 resource "huaweicloud_dc_virtual_interface" "test" {
   direct_connect_id = var.direct_connect_id
-  vgw_id            = var.gateway_id
+  vgw_id            = var.vgw_id
   name              = var.interface_name
   type              = "private"
   route_mode        = "static"
   vlan              = 522
   bandwidth         = 5
+
+  remote_ep_group = [
+    "1.1.1.0/30",
+  ]
+
+  address_family       = "ipv4"
+  local_gateway_v4_ip  = "1.1.1.1/30"
+  remote_gateway_v4_ip = "1.1.1.2/30"
+}
+```
+
+### Create a DC virtual interface with GDGW service type
+
+```hcl
+variable "direct_connect_id" {}
+variable "interface_name" {}
+variable "gateway_id" {}
+
+resource "huaweicloud_dc_virtual_interface" "test" {
+  direct_connect_id = var.direct_connect_id
+  name              = var.interface_name
+  type              = "private"
+  route_mode        = "static"
+  vlan              = 76
+  bandwidth         = 5
+  service_type      = "GDGW"
+  gateway_id        = var.gateway_id
 
   remote_ep_group = [
     "1.1.1.0/30",
@@ -44,10 +74,6 @@ The following arguments are supported:
 
 * `direct_connect_id` - (Required, String, ForceNew) Specifies the ID of the direct connection associated with the
   virtual interface.
-  Changing this will create a new resource.
-
-* `vgw_id` - (Required, String, ForceNew) Specifies the ID of the virtual gateway to which the virtual interface is
-  connected.
   Changing this will create a new resource.
 
 * `name` - (Required, String) Specifies the name of the virtual interface.
@@ -75,12 +101,30 @@ The following arguments are supported:
   `local_gateway_v6_ip`) and remote subnet (corresponding to the parameter `remote_gateway_v4_ip` or
   `remote_gateway_v6_ip`) must exist in the list.
 
+* `priority` - (Optional, String) The priority of a virtual interface. The value can be **normal** or **low**.
+  If the priorities are the same, the virtual interfaces work in load balancing mode.
+  If the priorities are different, the virtual interfaces work in active/standby pairs.
+  Outbound traffic is preferentially forwarded to the normal virtual interface with a higher priority.
+  This option is only supported by virtual interfaces that use BGP routing.
+
+* `service_ep_group` - (Optional, List) Specifies the subnets that access Internet services through a connection.
+  This field is required in public network connections.
+
 * `description` - (Optional, String) Specifies the description of the virtual interface.
   The description contain a maximum of `128` characters and the angle brackets (< and >) are not allowed.
   Chinese characters must be in **UTF-8** or **Unicode** format.
 
 * `service_type` - (Optional, String, ForceNew) Specifies the service type of the virtual interface.
   The valid values are **VGW**, **GDGW** and **LGW**. The default value is **VGW**.
+  Changing this will create a new resource.
+
+* `vgw_id` - (Optional, String, ForceNew) Specifies the ID of the virtual gateway to which the virtual interface is
+  connected.
+
+* `gateway_id` - (Optional, String, ForceNew) Specifies the ID of the gateway associated with the virtual
+  interface (the ID of the global DC gateway).
+  This field is required when `service_type` is set to **GDGW**.
+
   Changing this will create a new resource.
 
 * `local_gateway_v4_ip` - (Optional, String, ForceNew) Specifies the IPv4 address of the virtual interface in cloud
@@ -150,10 +194,27 @@ In addition to all arguments above, the following attributes are exported:
 
 * `status` - The current status of the virtual interface.
 
+* `bgp_route_limit` - The BGP route configuration.
+
+* `ies_id` - The edge site ID.
+
+* `lgw_id` - The ID of the local gateway, which is used in IES scenarios.
+
+* `rate_limit` - Whether rate limiting is enabled on a virtual interface.
+
+* `reason` - The error information if the status of a line is Error.
+
+* `route_limit` - The remote subnet route configurations of the virtual interface.
+
 * `created_at` - The creation time of the virtual interface.
+
+* `updated_at` - The latest update time of the virtual interface.
 
 * `vif_peers` - The peer information of the virtual interface.
   The [vif_peers](#DCVirtualInterface_vif_peers) structure is documented below.
+
+* `extend_attribute` - The extended parameter information.
+  The [extend_attribute](#DCVirtualInterface_extend_attribute) structure is documented below.
 
 <a name="DCVirtualInterface_vif_peers"></a>
 The `vif_peers` block supports:
@@ -195,6 +256,33 @@ The `vif_peers` block supports:
   this parameter is meaningless and the value is **-1**.
 
 * `remote_ep_group` - The remote subnet list, which records the CIDR blocks used in the on-premises data center.
+
+* `service_ep_group` - The list of public network addresses that can be accessed by the on-premises data center.
+
+<a name="DCVirtualInterface_extend_attribute"></a>
+The `extend_attribute` block supports:
+
+* `ha_type` - The availability detection type of the virtual interface.
+
+* `ha_mode` - The availability detection mode.
+
+* `detect_multiplier` - The number of detection retries.
+
+* `min_rx_interval` - The interval for receiving detection packets.
+
+* `min_tx_interval` - The interval for sending detection packets.
+
+* `remote_disclaim` - The remote identifier of the static BFD session.
+
+* `local_disclaim` - The local identifier of the static BFD session.
+
+## Timeouts
+
+This resource provides the following timeouts configuration options:
+
+* `create` - Default is 30 minutes.
+* `update` - Default is 30 minutes.
+* `delete` - Default is 30 minutes.
 
 ## Import
 

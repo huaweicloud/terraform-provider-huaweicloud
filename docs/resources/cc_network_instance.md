@@ -68,11 +68,11 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `name` - (Optional, String) The network instance name.  
-  The name can contain 1 to 64 characters, only letters, Chinese characters, digits, hyphens (-),
+  The name can contain `1` to `64` characters, only English letters, Chinese characters, digits, hyphens (-),
   underscores (_) and dots (.).
 
 * `description` - (Optional, String) The description about the network instance.  
-  The description can contain a maximum of 255 characters.
+  The description contain a maximum of `255` characters, and the angle brackets (< and >) are not allowed.
 
 * `instance_domain_id` - (Optional, String, ForceNew) Account ID of the VPC or virtual gateway.
 
@@ -94,6 +94,6 @@ In addition to all arguments above, the following attributes are exported:
 
 The network instance can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_cc_network_instance.test 0ce123456a00f2591fabc00385ff1234
 ```

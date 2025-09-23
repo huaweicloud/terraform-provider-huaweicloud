@@ -236,7 +236,9 @@ func resourceSwrImageAutoSyncDelete(_ context.Context, d *schema.ResourceData, m
 	_, err = deleteSwrImageAutoSyncClient.Request("DELETE", deleteSwrImageAutoSyncPath,
 		&deleteSwrImageAutoSyncOpt)
 	if err != nil {
-		return diag.Errorf("error deleting SWR image auto sync: %s", err)
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "errors|[0].errorCode", "SVCSTG.SWR.4001158"),
+			"error deleting SWR image auto sync")
 	}
 
 	return nil

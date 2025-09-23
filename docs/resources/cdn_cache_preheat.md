@@ -33,8 +33,8 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID to which the accelerated
-  domain name belongs. This parameter is mandatory when you use an IAM user to call this API.
-  For enterprise users, if omitted, default enterprise project will be used.
+  domain name belongs. This parameter is only valid for enterprise users and is required when using Sub-account.
+  The value **all** represents all enterprise projects.
 
   Changing this parameter will create a new resource.
 
@@ -61,3 +61,9 @@ In addition to all arguments above, the following attributes are exported:
 * `failed` - The number of URLs that failed to be processed.
 
 * `total` - The total number of URLs in historical tasks.
+
+## Timeouts
+
+This resource provides the following timeouts configuration options:
+
+* `create` - Default is 5 minutes.

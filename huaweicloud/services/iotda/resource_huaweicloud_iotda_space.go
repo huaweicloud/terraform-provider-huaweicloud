@@ -2,27 +2,28 @@ package iotda
 
 import (
 	"context"
-	"log"
-	"regexp"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 // @API IoTDA POST /v5/iot/{project_id}/apps
-// @API IoTDA DELETE /v5/iot/{project_id}/apps/{app_id}
 // @API IoTDA GET /v5/iot/{project_id}/apps/{app_id}
+// @API IoTDA PUT /v5/iot/{project_id}/apps/{app_id}
+// @API IoTDA DELETE /v5/iot/{project_id}/apps/{app_id}
 func ResourceSpace() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceSpaceCreate,
 		ReadContext:   resourceSpaceRead,
+		UpdateContext: resourceSpaceUpdate,
 		DeleteContext: resourceSpaceDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -35,16 +36,10 @@ func ResourceSpace() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
-				ValidateFunc: validation.StringMatch(regexp.MustCompile(`[A-Za-z-_0-9?'#().,&%@!]{1,64}`),
-					"The name contains a maximum of 64 characters. Only letters, digits, "+
-						"hyphens (-), underscore (_) and the following special characters are allowed: ?'#().,&%@!"),
 			},
-
 			"is_default": {
 				Type:     schema.TypeBool,
 				Computed: true,
@@ -54,72 +49,147 @@ func ResourceSpace() *schema.Resource {
 }
 
 func resourceSpaceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	region := c.GetRegion(d)
-	isDerived := WithDerivedAuth(c, region)
-	client, err := c.HcIoTdaV5Client(region, isDerived)
+	var (
+		cfg       = meta.(*config.Config)
+		region    = cfg.GetRegion(d)
+		isDerived = WithDerivedAuth(cfg, region)
+		httpUrl   = "v5/iot/{project_id}/apps"
+	)
+
+	client, err := cfg.NewServiceClientWithDerivedAuth("iotda", region, isDerived)
 	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+		return diag.Errorf("error creating IoTDA client: %s", err)
 	}
 
-	createOpts := model.AddApplicationRequest{
-		Body: &model.AddApplication{
-			AppName: d.Get("name").(string),
+	createPath := client.Endpoint + httpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"app_name": d.Get("name"),
 		},
 	}
-	log.Printf("[DEBUG] Create IoTDA space params: %#v", createOpts)
 
-	resp, err := client.AddApplication(&createOpts)
+	resp, err := client.Request("POST", createPath, &createOpt)
 	if err != nil {
 		return diag.Errorf("error creating IoTDA space: %s", err)
 	}
 
-	if resp.AppId == nil {
-		return diag.Errorf("error creating IoTDA space: id is not found in API response")
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
-	d.SetId(*resp.AppId)
+	appId := utils.PathSearch("app_id", respBody, "").(string)
+	if appId == "" {
+		return diag.Errorf("error creating IoTDA space: ID is not found in API response")
+	}
+
+	d.SetId(appId)
+
 	return resourceSpaceRead(ctx, d, meta)
 }
 
 func resourceSpaceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	region := c.GetRegion(d)
-	isDerived := WithDerivedAuth(c, region)
-	client, err := c.HcIoTdaV5Client(region, isDerived)
+	var (
+		cfg       = meta.(*config.Config)
+		region    = cfg.GetRegion(d)
+		isDerived = WithDerivedAuth(cfg, region)
+		httpUrl   = "v5/iot/{project_id}/apps/{app_id}"
+	)
+
+	client, err := cfg.NewServiceClientWithDerivedAuth("iotda", region, isDerived)
 	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+		return diag.Errorf("error creating IoTDA client: %s", err)
 	}
 
-	detail, err := client.ShowApplication(&model.ShowApplicationRequest{AppId: d.Id()})
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{app_id}", d.Id())
+	getOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpts)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving IoTDA space")
+		// When the resource does not exist, query API will return `403`, the error code is `IOTDA.001000`.
+		return common.CheckDeletedDiag(d, common.ConvertExpected403ErrInto404Err(err, "error_code", "IOTDA.001000"),
+			"error retrieving IoTDA space")
+	}
+
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
 	mErr := multierror.Append(
 		d.Set("region", region),
-		d.Set("name", detail.AppName),
-		d.Set("is_default", detail.DefaultApp),
+		d.Set("name", utils.PathSearch("app_name", getRespBody, nil)),
+		d.Set("is_default", utils.PathSearch("default_app", getRespBody, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func resourceSpaceDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	region := c.GetRegion(d)
-	isDerived := WithDerivedAuth(c, region)
-	client, err := c.HcIoTdaV5Client(region, isDerived)
+// The **basic** edition instance not support update.
+func resourceSpaceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg       = meta.(*config.Config)
+		region    = cfg.GetRegion(d)
+		isDerived = WithDerivedAuth(cfg, region)
+	)
+
+	client, err := cfg.NewServiceClientWithDerivedAuth("iotda", region, isDerived)
 	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+		return diag.Errorf("error creating IoTDA client: %s", err)
 	}
 
-	deleteOpts := &model.DeleteApplicationRequest{
-		AppId: d.Id(),
+	if d.HasChange("name") {
+		httpUrl := "v5/iot/{project_id}/apps/{app_id}"
+		updatePath := client.Endpoint + httpUrl
+		updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+		updatePath = strings.ReplaceAll(updatePath, "{app_id}", d.Id())
+		updateOpts := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			JSONBody: map[string]interface{}{
+				"app_name": d.Get("name"),
+			},
+		}
+
+		_, err = client.Request("PUT", updatePath, &updateOpts)
+		if err != nil {
+			return diag.Errorf("error updating IoTDA space: %s", err)
+		}
 	}
-	_, err = client.DeleteApplication(deleteOpts)
+
+	return resourceSpaceRead(ctx, d, meta)
+}
+
+func resourceSpaceDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg       = meta.(*config.Config)
+		region    = cfg.GetRegion(d)
+		isDerived = WithDerivedAuth(cfg, region)
+		httpUrl   = "v5/iot/{project_id}/apps/{app_id}"
+	)
+
+	client, err := cfg.NewServiceClientWithDerivedAuth("iotda", region, isDerived)
 	if err != nil {
-		return diag.Errorf("error deleting IoTDA space: %s", err)
+		return diag.Errorf("error creating IoTDA client: %s", err)
+	}
+
+	deletePath := client.Endpoint + httpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = strings.ReplaceAll(deletePath, "{app_id}", d.Id())
+	deleteOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	_, err = client.Request("DELETE", deletePath, &deleteOpts)
+	if err != nil {
+		// When the resource does not exist, delete API will return `403`, the error code is `IOTDA.001000`.
+		return common.CheckDeletedDiag(d, common.ConvertExpected403ErrInto404Err(err, "error_code", "IOTDA.001000"),
+			"error deleting IoTDA space")
 	}
 
 	return nil

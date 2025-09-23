@@ -3,7 +3,6 @@ package css
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
 	"time"
 
@@ -11,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -204,7 +202,9 @@ func resourceScanTaskRead(_ context.Context, d *schema.ResourceData, meta interf
 
 	scanTask, err := getScanTaskByName(d, region, conf)
 	if err != nil {
-		common.CheckDeletedDiag(d, err, "CSS cluster scan task")
+		// "CSS.0015": The cluster does not exist. Status code is 403.
+		err = common.ConvertExpected403ErrInto404Err(err, "errCode", "CSS.0015")
+		return common.CheckDeletedDiag(d, err, "error querying CSS cluster scan task")
 	}
 
 	createdAt := utils.PathSearch("create_time", scanTask, float64(0)).(float64) / 1000
@@ -251,7 +251,9 @@ func resourceScanTaskDelete(_ context.Context, d *schema.ResourceData, meta inte
 
 	_, err = deleteScanTaskClient.Request("DELETE", deleteScanTaskPath, &deleteScanTaskOpt)
 	if err != nil {
-		return diag.Errorf("error deleting CSS cluster scan task: %s", err)
+		// "CSS.0015": The cluster does not exist. Status code is 403.
+		err = common.ConvertExpected403ErrInto404Err(err, "errCode", "CSS.0015")
+		return common.CheckDeletedDiag(d, err, "error deleting CSS cluster scan task")
 	}
 
 	return nil
@@ -332,10 +334,7 @@ func getScanTaskByName(d *schema.ResourceData, region string, conf *config.Confi
 		}
 		scanTasks := utils.PathSearch("aiops_list", getScanTaskRespBody, make([]interface{}, 0)).([]interface{})
 		findAiopsList := fmt.Sprintf("aiops_list | [?name=='%s'] | [0]", d.Get("name"))
-		scanTask, err := jmespath.Search(findAiopsList, getScanTaskRespBody)
-		if err != nil {
-			return nil, err
-		}
+		scanTask := utils.PathSearch(findAiopsList, getScanTaskRespBody, nil)
 		if scanTask != nil {
 			return scanTask, nil
 		}
@@ -350,9 +349,8 @@ func getScanTaskByName(d *schema.ResourceData, region string, conf *config.Confi
 
 func flattenScanTaskSummaryResponse(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("summary", resp)
-	if err != nil {
-		log.Printf("[WARN] error parsing summary object from response: %v", err)
+	curJson := utils.PathSearch("summary", resp, nil)
+	if curJson == nil {
 		return rst
 	}
 

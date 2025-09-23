@@ -1,8 +1,3 @@
-// ---------------------------------------------------------------
-// *** AUTO GENERATED CODE ***
-// @Product NAT
-// ---------------------------------------------------------------
-
 package nat
 
 import (
@@ -18,7 +13,6 @@ import (
 
 	"github.com/chnsz/golangsdk/pagination"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -68,6 +62,12 @@ func DataSourcePrivateGateways() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "The ID of the enterprise project to which the private NAT gateways belong.",
+			},
+			"description": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: "The description of the private NAT gateway.",
 			},
 			"tags": {
 				Type:        schema.TypeMap,
@@ -133,6 +133,16 @@ func gatewayGatewaysSchema() *schema.Resource {
 				Computed:    true,
 				Description: "The ID of the subnet to which the private NAT gateway belongs.",
 			},
+			"ngport_ip_address": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The IP address of the NG port of the private NAT gateway.",
+			},
+			"rule_max": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "The maximum number of rules of the private NAT gateway.",
+			},
 			"enterprise_project_id": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -150,52 +160,47 @@ func gatewayGatewaysSchema() *schema.Resource {
 }
 
 func dataSourcePrivateGatewaysRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// listGateways: Query the list of NAT private gateways
 	var (
-		listGatewaysHttpUrl = "v3/{project_id}/private-nat/gateways"
-		listGatewaysProduct = "nat"
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v3/{project_id}/private-nat/gateways"
+		product = "nat"
 	)
-	listGatewaysClient, err := cfg.NewServiceClient(listGatewaysProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating NAT client: %s", err)
 	}
 
-	listGatewaysPath := listGatewaysClient.Endpoint + listGatewaysHttpUrl
-	listGatewaysPath = strings.ReplaceAll(listGatewaysPath, "{project_id}", listGatewaysClient.ProjectID)
-
-	listGatewaysqueryParams := buildListGatewaysQueryParams(d, cfg)
-	listGatewaysPath += listGatewaysqueryParams
-
-	listGatewaysResp, err := pagination.ListAllItems(
-		listGatewaysClient,
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath += buildListGatewaysQueryParams(d, cfg)
+	resp, err := pagination.ListAllItems(
+		client,
 		"marker",
-		listGatewaysPath,
+		requestPath,
 		&pagination.QueryOpts{MarkerField: ""})
 
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving private NAT Gateway")
+		return diag.Errorf("error retrieving private NAT gateways %s", err)
 	}
 
-	listGatewaysRespJson, err := json.Marshal(listGatewaysResp)
+	respJson, err := json.Marshal(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	var listGatewaysRespBody interface{}
-	err = json.Unmarshal(listGatewaysRespJson, &listGatewaysRespBody)
+	var respBody interface{}
+	err = json.Unmarshal(respJson, &respBody)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	generateUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(generateUUID)
 
-	curJson := utils.PathSearch("gateways", listGatewaysRespBody, make([]interface{}, 0))
+	curJson := utils.PathSearch("gateways", respBody, make([]interface{}, 0))
 	curArray := curJson.([]interface{})
 
 	var mErr *multierror.Error
@@ -225,6 +230,8 @@ func flattenListGatewaysResponseBodyGateways(resp []interface{}) []interface{} {
 			"updated_at":            utils.PathSearch("updated_at", v, nil),
 			"vpc_id":                utils.PathSearch("downlink_vpcs[0].vpc_id", v, nil),
 			"subnet_id":             utils.PathSearch("downlink_vpcs[0].virsubnet_id", v, nil),
+			"ngport_ip_address":     utils.PathSearch("downlink_vpcs[0].ngport_ip_address", v, nil),
+			"rule_max":              utils.PathSearch("rule_max", v, nil),
 			"enterprise_project_id": utils.PathSearch("enterprise_project_id", v, nil),
 			"tags":                  utils.FlattenTagsToMap(utils.PathSearch("tags", v, nil)),
 		})
@@ -233,16 +240,16 @@ func flattenListGatewaysResponseBodyGateways(resp []interface{}) []interface{} {
 }
 
 func filterListGatewaysResponseByTags(all []interface{}, d *schema.ResourceData) []interface{} {
-	rst := make([]interface{}, 0, len(all))
 	tagFilter := d.Get("tags").(map[string]interface{})
 	if len(tagFilter) == 0 {
 		return all
 	}
 
+	rst := make([]interface{}, 0, len(all))
 	for _, v := range all {
 		tags := utils.FlattenTagsToMap(utils.PathSearch("tags", v, nil))
-		tagmap := utils.ExpandToStringMap(tags)
-		if !utils.HasMapContains(tagmap, tagFilter) {
+		tagMap := utils.ExpandToStringMap(tags)
+		if !utils.HasMapContains(tagMap, tagFilter) {
 			continue
 		}
 
@@ -254,6 +261,7 @@ func filterListGatewaysResponseByTags(all []interface{}, d *schema.ResourceData)
 func buildListGatewaysQueryParams(d *schema.ResourceData, cfg *config.Config) string {
 	res := ""
 	epsID := cfg.GetEnterpriseProjectID(d)
+	descriptionList := d.Get("description").([]interface{})
 
 	if v, ok := d.GetOk("gateway_id"); ok {
 		res = fmt.Sprintf("%s&id=%v", res, v)
@@ -272,6 +280,11 @@ func buildListGatewaysQueryParams(d *schema.ResourceData, cfg *config.Config) st
 	}
 	if v, ok := d.GetOk("subnet_id"); ok {
 		res = fmt.Sprintf("%s&virsubnet_id=%v", res, v)
+	}
+	if len(descriptionList) > 0 {
+		for _, v := range descriptionList {
+			res = fmt.Sprintf("%s&description=%v", res, v)
+		}
 	}
 	if epsID != "" {
 		res = fmt.Sprintf("%s&enterprise_project_id=%s", res, epsID)

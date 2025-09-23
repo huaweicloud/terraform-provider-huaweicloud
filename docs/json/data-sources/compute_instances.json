@@ -44,7 +44,9 @@
                     "object",
                     {
                       "availability_zone": "string",
+                      "charging_mode": "string",
                       "enterprise_project_id": "string",
+                      "expired_time": "string",
                       "flavor_id": "string",
                       "flavor_name": "string",
                       "id": "string",
@@ -119,6 +121,14 @@
               "status": {
                 "type": "string",
                 "optional": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
               }
             }
           },

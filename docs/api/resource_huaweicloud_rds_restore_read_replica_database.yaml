@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_rds_restore_read_replica_database
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: RDS
+paths:
+    /v3/{project_id}/instances/{instance_id}/log-replay/database:
+        POST:
+            tag: RDS

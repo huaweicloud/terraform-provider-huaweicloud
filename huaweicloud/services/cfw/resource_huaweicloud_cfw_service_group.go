@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -99,11 +98,11 @@ func resourceServiceGroupCreate(ctx context.Context, d *schema.ResourceData, met
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("data.id", createServiceGroupRespBody)
-	if err != nil {
+	id := utils.PathSearch("data.id", createServiceGroupRespBody, "").(string)
+	if id == "" {
 		return diag.Errorf("error creating ServiceGroup: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	return resourceServiceGroupRead(ctx, d, meta)
 }
@@ -148,7 +147,10 @@ func resourceServiceGroupRead(_ context.Context, d *schema.ResourceData, meta in
 		&getServiceGroupOpt)
 
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving ServiceGroup")
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error_code", "CFW.00200005"),
+			"error retrieving ServiceGroup",
+		)
 	}
 
 	getServiceGroupRespBody, err := utils.FlattenResponse(getServiceGroupResp)
@@ -241,7 +243,10 @@ func resourceServiceGroupDelete(_ context.Context, d *schema.ResourceData, meta 
 	}
 	_, err = deleteServiceGroupClient.Request("DELETE", deleteServiceGroupPath, &deleteServiceGroupOpt)
 	if err != nil {
-		return diag.Errorf("error deleting ServiceGroup: %s", err)
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error_code", "CFW.00200005"),
+			"error deleting ServiceGroup",
+		)
 	}
 
 	return nil

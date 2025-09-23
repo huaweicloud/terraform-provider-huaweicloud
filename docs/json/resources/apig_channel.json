@@ -52,7 +52,7 @@
                 "computed": true
               },
               "type": {
-                "type": "number",
+                "type": "string",
                 "description": "The type of the channel.",
                 "optional": true,
                 "computed": true
@@ -220,6 +220,12 @@
                       "description": "The name of the member group.",
                       "required": true
                     },
+                    "reference_vpc_channel_id": {
+                      "type": "string",
+                      "description": "The ID of the reference load balance channel.",
+                      "optional": true,
+                      "computed": true
+                    },
                     "weight": {
                       "type": "number",
                       "description": "The weight of the current member group.",
@@ -229,7 +235,7 @@
                   },
                   "description": "The backend server groups of the channel."
                 },
-                "nesting_mode": "list"
+                "nesting_mode": "set"
               },
               "microservice": {
                 "block": {

@@ -2,7 +2,8 @@
 subcategory: "NAT Gateway (NAT)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_nat_private_transit_ips"
-description: ""
+description: |-
+  Use this data source to get the list of transit IPs.
 ---
 
 # huaweicloud_nat_private_transit_ips
@@ -41,6 +42,8 @@ The following arguments are supported:
 * `enterprise_project_id` - (Optional, String) Specifies the ID of the enterprise project to which the transit
   IPs belong.
 
+* `transit_subnet_id` - (Optional, List) Specifies the ID of the transit subnet.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -62,6 +65,8 @@ The `transit_ips` block supports:
 * `tags` - The key/value pairs to associate with the transit IP.
 
 * `gateway_id` - The ID of the private NAT gateway to which the transit IP belongs.
+
+* `status` - The status of the transit IP.
 
 * `created_at` - The creation time of the transit IP.
 

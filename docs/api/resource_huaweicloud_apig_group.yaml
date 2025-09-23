@@ -27,6 +27,12 @@ paths:
     /v2/{project_id}/apigw/instances/{instance_id}/api-groups/{group_id}/sl-domain-access-settings:
         PUT:
             tag: APIG
+    /v2/{project_id}/apigw/instances/{instance_id}/apis:
+        GET:
+            tag: APIG
+    /v2/{project_id}/apigw/instances/{instance_id}/apis/publish:
+        POST:
+            tag: APIG
     /v2/{project_id}/apigw/instances/{instance_id}/env-variables:
         GET:
             tag: APIG

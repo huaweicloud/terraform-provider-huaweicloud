@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -45,6 +46,8 @@ func ResourceListenerV3() *schema.Resource {
 			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 
+		CustomizeDiff: config.MergeDefaultTags(),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
@@ -52,21 +55,17 @@ func ResourceListenerV3() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-
 			"protocol": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-
 			"protocol_port": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				ForceNew:     true,
-				Computed:     true,
-				AtLeastOneOf: []string{"protocol_port", "port_ranges"},
+				Type:     schema.TypeInt,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
 			},
-
 			"port_ranges": {
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -86,219 +85,209 @@ func ResourceListenerV3() *schema.Resource {
 					},
 				},
 			},
-
 			"loadbalancer_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-
 			"default_pool_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-
 			"http2_enable": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Computed: true,
 			},
-
 			"forward_eip": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Computed: true,
 			},
-
 			"forward_port": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Computed: true,
 			},
-
 			"forward_request_port": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Computed: true,
 			},
-
 			"forward_host": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  true,
 			},
-
 			"forward_elb": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Computed: true,
 			},
-
 			"forward_proto": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Computed: true,
 			},
-
 			"real_ip": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Computed: true,
 			},
-
 			"forward_tls_certificate": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Computed: true,
 			},
-
 			"forward_tls_cipher": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Computed: true,
 			},
-
 			"forward_tls_protocol": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Computed: true,
 			},
-
 			"access_policy": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				RequiredWith: []string{"ip_group"},
-				ValidateFunc: validation.StringInSlice([]string{
-					"white", "black",
-				}, true),
 			},
-
 			"ip_group": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				RequiredWith: []string{"access_policy"},
 			},
-
+			"ip_group_enable": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				RequiredWith: []string{"access_policy"},
+				ValidateFunc: validation.StringInSlice([]string{
+					"true", "false",
+				}, false),
+			},
 			"server_certificate": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-
 			"sni_certificate": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-
 			"ca_certificate": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-
 			"tls_ciphers_policy": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-
 			"security_policy_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-
 			"idle_timeout": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Computed: true,
 			},
-
 			"request_timeout": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Computed: true,
 			},
-
 			"response_timeout": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Computed: true,
 			},
-
 			"advanced_forwarding_enabled": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Computed: true,
 			},
-
 			"protection_status": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-
 			"protection_reason": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-
 			"force_delete": {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
-
 			"gzip_enable": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Computed: true,
 			},
-
 			"enable_member_retry": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Computed: true,
 			},
-
 			"proxy_protocol_enable": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Computed: true,
 			},
-
 			"sni_match_algo": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-
 			"ssl_early_data_enable": {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
-
 			"quic_listener_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-
+			"enable_quic_upgrade": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				RequiredWith: []string{"quic_listener_id"},
+				ValidateFunc: validation.StringInSlice([]string{
+					"true", "false",
+				}, false),
+			},
+			"max_connection": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+			"cps": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
 			"tags": common.TagsSchema(),
-
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-
 			"updated_at": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -339,6 +328,14 @@ func resourceListenerV3Create(ctx context.Context, d *schema.ResourceData, meta 
 		ProtectionReason:       d.Get("protection_reason").(string),
 		SniMatchAlgo:           d.Get("sni_match_algo").(string),
 	}
+	if v, ok := d.GetOk("max_connection"); ok {
+		connection := v.(int)
+		createOpts.Connection = &connection
+	}
+	if v, ok := d.GetOk("cps"); ok {
+		cps := v.(int)
+		createOpts.Cps = &cps
+	}
 	if v, ok := d.GetOk("gzip_enable"); ok {
 		gzipEnable := v.(bool)
 		createOpts.GzipEnable = &gzipEnable
@@ -356,11 +353,15 @@ func resourceListenerV3Create(ctx context.Context, d *schema.ResourceData, meta 
 		createOpts.MemberTimeout = &responseTimeout
 	}
 	if v, ok := d.GetOk("access_policy"); ok {
-		createOpts.IpGroup = &listeners.IpGroup{
-			Enable:    true,
+		ipGroup := &listeners.IpGroup{
 			Type:      v.(string),
 			IpGroupId: d.Get("ip_group").(string),
 		}
+		if rawIpGroupEnable, ok := d.GetOk("ip_group_enable"); ok {
+			ipGroupEnable, _ := strconv.ParseBool(rawIpGroupEnable.(string))
+			ipGroup.Enable = &ipGroupEnable
+		}
+		createOpts.IpGroup = ipGroup
 	}
 
 	protocol := d.Get("protocol").(string)
@@ -418,9 +419,10 @@ func resourceListenerV3Create(ctx context.Context, d *schema.ResourceData, meta 
 		createOpts.SslEarlyDataEnable = &sslEarlyDataEnable
 	}
 	if v, ok := d.GetOk("quic_listener_id"); ok {
+		enableQuicUpgrade, _ := strconv.ParseBool(d.Get("enable_quic_upgrade").(string))
 		createOpts.QuicConfig = &listeners.QuicConfig{
 			QuicListenerId:    v.(string),
-			EnableQuicUpgrade: true,
+			EnableQuicUpgrade: &enableQuicUpgrade,
 		}
 	}
 
@@ -510,6 +512,8 @@ func resourceListenerV3Read(_ context.Context, d *schema.ResourceData, meta inte
 		d.Set("idle_timeout", listener.KeepaliveTimeout),
 		d.Set("request_timeout", listener.ClientTimeout),
 		d.Set("response_timeout", listener.MemberTimeout),
+		d.Set("max_connection", listener.Connection),
+		d.Set("cps", listener.Cps),
 		d.Set("loadbalancer_id", listener.Loadbalancers[0].ID),
 		d.Set("advanced_forwarding_enabled", listener.EnhanceL7policy),
 		d.Set("protection_status", listener.ProtectionStatus),
@@ -520,9 +524,14 @@ func resourceListenerV3Read(_ context.Context, d *schema.ResourceData, meta inte
 		d.Set("sni_match_algo", listener.SniMatchAlgo),
 		d.Set("ssl_early_data_enable", listener.SslEarlyDataEnable),
 		d.Set("quic_listener_id", listener.QuicConfig.QuicListenerId),
+		d.Set("enterprise_project_id", listener.EnterpriseProjectID),
 		d.Set("created_at", listener.CreatedAt),
 		d.Set("updated_at", listener.UpdatedAt),
 	)
+	enableQuicUpgrade := listener.QuicConfig.EnableQuicUpgrade
+	if enableQuicUpgrade != nil {
+		mErr = multierror.Append(mErr, d.Set("enable_quic_upgrade", strconv.FormatBool(*enableQuicUpgrade)))
+	}
 
 	var portRanges []map[string]interface{}
 	for _, v := range listener.PortRanges {
@@ -537,11 +546,13 @@ func resourceListenerV3Read(_ context.Context, d *schema.ResourceData, meta inte
 		mErr = multierror.Append(mErr,
 			d.Set("access_policy", listener.IpGroup.Type),
 			d.Set("ip_group", listener.IpGroup.IpGroupId),
+			d.Set("ip_group_enable", strconv.FormatBool(*listener.IpGroup.Enable)),
 		)
 	} else {
 		mErr = multierror.Append(mErr,
 			d.Set("access_policy", ""),
 			d.Set("ip_group", ""),
+			d.Set("ip_group_enable", ""),
 		)
 	}
 
@@ -568,12 +579,12 @@ func resourceListenerV3Update(ctx context.Context, d *schema.ResourceData, meta 
 	}
 
 	updateListenerChanges := []string{"name", "description", "ca_certificate", "default_pool_id", "idle_timeout",
-		"request_timeout", "response_timeout", "server_certificate", "access_policy", "ip_group", "forward_eip",
-		"forward_port", "forward_request_port", "forward_host", "tls_ciphers_policy", "sni_certificate",
+		"request_timeout", "response_timeout", "server_certificate", "access_policy", "ip_group", "ip_group_enable",
+		"forward_eip", "forward_port", "forward_request_port", "forward_host", "tls_ciphers_policy", "sni_certificate",
 		"http2_enable", "gzip_enable", "advanced_forwarding_enabled", "protection_status", "protection_reason",
 		"forward_elb", "forward_proto", "real_ip", "forward_tls_certificate", "forward_tls_cipher", "forward_tls_protocol",
 		"enable_member_retry", "proxy_protocol_enable", "sni_match_algo", "security_policy_id", "ssl_early_data_enable",
-		"quic_listener_id",
+		"quic_listener_id", "enable_quic_upgrade", "max_connection", "cps",
 	}
 	if d.HasChanges(updateListenerChanges...) {
 		err := updateListener(ctx, d, elbClient)
@@ -618,13 +629,23 @@ func updateListener(ctx context.Context, d *schema.ResourceData, elbClient *gola
 		responseTimeout := d.Get("response_timeout").(int)
 		updateOpts.MemberTimeout = &responseTimeout
 	}
+	if d.HasChange("max_connection") {
+		connection := d.Get("max_connection").(int)
+		updateOpts.Connection = &connection
+	}
+	if d.HasChange("cps") {
+		cps := d.Get("cps").(int)
+		updateOpts.Cps = &cps
+	}
 	if d.HasChange("default_pool_id") {
 		updateOpts.DefaultPoolID = d.Get("default_pool_id").(string)
 	}
 	if d.HasChanges("access_policy", "ip_group") {
+		ipGroupEnable, _ := strconv.ParseBool(d.Get("ip_group_enable").(string))
 		updateOpts.IpGroup = &listeners.IpGroupUpdate{
 			Type:      d.Get("access_policy").(string),
 			IpGroupId: d.Get("ip_group").(string),
+			Enable:    &ipGroupEnable,
 		}
 	}
 
@@ -726,8 +747,9 @@ func updateListener(ctx context.Context, d *schema.ResourceData, elbClient *gola
 	// if disable upgrading to QUIC listener, the quic_config must be null
 	var quicConfig listeners.QuicConfig
 	if v, ok := d.GetOk("quic_listener_id"); ok {
+		enableQuicUpgrade, _ := strconv.ParseBool(d.Get("enable_quic_upgrade").(string))
 		quicConfig.QuicListenerId = v.(string)
-		quicConfig.EnableQuicUpgrade = true
+		quicConfig.EnableQuicUpgrade = &enableQuicUpgrade
 		updateOpts.QuicConfig = &quicConfig
 	}
 

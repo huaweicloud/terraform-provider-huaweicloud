@@ -77,7 +77,7 @@ The format is: **yyyyMMdd'T'HHmmss'Z'**, e.g., **20151212T121212Z**.
 
 Device CA certificates can be imported by `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_iotda_device_certificate.test 62b3cec5558d4b703f064534
 ```
 
@@ -87,7 +87,7 @@ It is generally recommended running `terraform plan` after importing the resourc
 be applied to the resource, or the resource definition should be updated to align with the group. Also you can ignore
 changes as below.
 
-```
+```hcl
 resource "huaweicloud_iotda_device_certificate" "test" {
     ...
 

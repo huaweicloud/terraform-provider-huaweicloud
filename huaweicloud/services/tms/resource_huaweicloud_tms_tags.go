@@ -3,19 +3,17 @@ package tms
 import (
 	"context"
 	"fmt"
-	"regexp"
-	"time"
 
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/tms/v1/model"
+	"github.com/chnsz/golangsdk"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 // @API TMS POST /v1.0/predefine_tags/action
@@ -23,40 +21,23 @@ import (
 func ResourceTmsTag() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceTmsTagCreate,
-		DeleteContext: resourceTmsTagDelete,
 		ReadContext:   resourceTmsTagRead,
-
-		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(3 * time.Minute),
-			Delete: schema.DefaultTimeout(3 * time.Minute),
-		},
+		UpdateContext: resourceTmsTagUpdate,
+		DeleteContext: resourceTmsTagDelete,
 
 		Schema: map[string]*schema.Schema{
 			"tags": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Required: true,
-				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"key": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
-							ValidateFunc: validation.All(
-								validation.StringMatch(regexp.MustCompile("^[\u4e00-\u9fffA-Za-z0-9-_]+$"),
-									"The key can only consist of letters, digits, underscores (_) and hyphens (-)."),
-								validation.StringLenBetween(1, 36),
-							),
 						},
 						"value": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
-							ValidateFunc: validation.All(
-								validation.StringMatch(regexp.MustCompile("^[\u4e00-\u9fffA-Za-z0-9-_.]+$"),
-									"The key can only consist of letters, digits, periods (.)underscores (_) and hyphens (-)."),
-								validation.StringLenBetween(1, 43),
-							),
 						},
 					},
 				},
@@ -66,128 +47,213 @@ func ResourceTmsTag() *schema.Resource {
 }
 
 func resourceTmsTagCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	client, err := c.HcTmsV1Client(c.GetRegion(d))
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	var (
+		product = "tms"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating Huaweicloud TMS client: %s", err)
+		return diag.Errorf("error creating TMS client: %s", err)
 	}
 
-	var tagIds []string
-	var predefineTags []model.PredefineTagRequest
-	tagsRaw := d.Get("tags").([]interface{})
-	for _, v := range tagsRaw {
-		tag := v.(map[string]interface{})
-		predefineTag := model.PredefineTagRequest{
-			Key:   tag["key"].(string),
-			Value: tag["value"].(string),
-		}
-		predefineTags = append(predefineTags, predefineTag)
-		tagId := fmt.Sprintf("%s:%s", tag["key"], tag["value"])
-		tagIds = append(tagIds, tagId)
-	}
-
-	createOpts := &model.CreatePredefineTagsRequest{
-		Body: &model.ReqCreatePredefineTag{
-			Tags:   predefineTags,
-			Action: model.GetReqCreatePredefineTagActionEnum().CREATE,
-		},
-	}
-
-	logp.Printf("[DEBUG] Create TMS tag options: %#v", createOpts)
-	_, err = client.CreatePredefineTags(createOpts)
+	err = updateTmsTags(client, "create", d.Get("tags").(*schema.Set).List())
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating TMS tag: %s", err)
+		return diag.Errorf("error creating TMS tags: %s", err)
 	}
 
-	d.SetId(hashcode.Strings(tagIds))
+	resourceId, err := uuid.GenerateUUID()
+	if err != nil {
+		return diag.Errorf("unable to generate ID: %s", err)
+	}
+	d.SetId(resourceId)
+
 	return resourceTmsTagRead(ctx, d, meta)
 }
 
-func resourceTmsTagRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	client, err := c.HcTmsV1Client(c.GetRegion(d))
+func resourceTmsTagRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	var mErr *multierror.Error
+
+	var (
+		httpUrl = "v1.0/predefine_tags"
+		product = "tms"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating Huaweicloud TMS client: %s", err)
+		return diag.Errorf("error creating TMS client: %s", err)
 	}
 
-	var marker *string
-	var tags []model.PredefineTag
-	// List all predefine tags
+	getBasePath := client.Endpoint + httpUrl
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	rawTagsMap := buildRawTagsMap(d)
+
+	res := make([]interface{}, 0)
+	marker := ""
 	for {
-		request := &model.ListPredefineTagsRequest{
-			Marker: marker,
-		}
-
-		response, err := client.ListPredefineTags(request)
+		getPath := getBasePath + buildGetPath(marker)
+		getResp, err := client.Request("GET", getPath, &getOpt)
 		if err != nil {
-			return fmtp.DiagErrorf("Error listing TMS tags: %s", err)
+			return diag.Errorf("error retrieving TMS tags: %s", err)
 		}
-		tagsResp := *response.Tags
-		if len(tagsResp) == 0 {
+		getRespBody, err := utils.FlattenResponse(getResp)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		res = append(res, flattenGetTmsTagsResponseBody(getRespBody, rawTagsMap)...)
+		marker = utils.PathSearch("marker", getRespBody, "").(string)
+		if marker == "" {
 			break
-		} else {
-			marker = response.Marker
-			tags = append(tags, tagsResp...)
 		}
 	}
+	if len(res) == 0 {
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
+	}
 
-	// Check if the requested tag is missing on cloud side
-	var tagList []map[string]interface{}
-	tagsRaw := d.Get("tags").([]interface{})
-	for _, v := range tagsRaw {
-		tag := v.(map[string]interface{})
+	mErr = multierror.Append(nil,
+		d.Set("tags", res),
+	)
+
+	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func buildGetPath(marker string) string {
+	res := "?limit=100"
+	if marker != "" {
+		res = fmt.Sprintf("%s&marker=%s", res, marker)
+	}
+	return res
+}
+
+// for result: the key of the map is the tag key, the value of the first map is a map too, the key of this map is the
+// tag value, because there can be more than 1 tag values for a tag key
+func buildRawTagsMap(d *schema.ResourceData) map[string]map[string]bool {
+	rawTags := d.Get("tags").(*schema.Set).List()
+	res := make(map[string]map[string]bool)
+	for _, rawTag := range rawTags {
+		tag := rawTag.(map[string]interface{})
 		key := tag["key"].(string)
 		value := tag["value"].(string)
-
-		for _, t := range tags {
-			if key == t.Key && value == t.Value {
-				tagFound := map[string]interface{}{
-					"key":   key,
-					"value": value,
-				}
-				tagList = append(tagList, tagFound)
+		if v, ok := res[key]; ok {
+			v[value] = true
+		} else {
+			res[key] = map[string]bool{
+				value: true,
 			}
 		}
 	}
-	d.Set("tags", tagList)
+	return res
+}
+
+func flattenGetTmsTagsResponseBody(resp interface{}, rawTagsMap map[string]map[string]bool) []interface{} {
+	if resp == nil {
+		return nil
+	}
+	curJson := utils.PathSearch("tags", resp, make([]interface{}, 0))
+	curArray := curJson.([]interface{})
+	res := make([]interface{}, 0)
+	for _, v := range curArray {
+		key := utils.PathSearch("key", v, "").(string)
+		value := utils.PathSearch("value", v, "").(string)
+		if valuesMap, ok := rawTagsMap[key]; ok && valuesMap[value] {
+			res = append(res, map[string]string{
+				"key":   key,
+				"value": value,
+			})
+		}
+	}
+	return res
+}
+
+func resourceTmsTagUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	var (
+		product = "tms"
+	)
+	client, err := cfg.NewServiceClient(product, region)
+	if err != nil {
+		return diag.Errorf("error creating TMS client: %s", err)
+	}
+
+	oldRaw, newRaw := d.GetChange("tags")
+	addTags := newRaw.(*schema.Set).Difference(oldRaw.(*schema.Set))
+	deleteTags := oldRaw.(*schema.Set).Difference(newRaw.(*schema.Set))
+	if deleteTags.Len() > 0 {
+		err = updateTmsTags(client, "delete", deleteTags.List())
+		if err != nil {
+			return diag.Errorf("error updating TMS tags: %s", err)
+		}
+	}
+	if addTags.Len() > 0 {
+		err = updateTmsTags(client, "create", addTags.List())
+		if err != nil {
+			return diag.Errorf("error updating TMS tags: %s", err)
+		}
+	}
+
+	return resourceTmsTagRead(ctx, d, meta)
+}
+
+func resourceTmsTagDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	var (
+		product = "tms"
+	)
+	client, err := cfg.NewServiceClient(product, region)
+	if err != nil {
+		return diag.Errorf("error creating TMS client: %s", err)
+	}
+
+	err = updateTmsTags(client, "delete", d.Get("tags").(*schema.Set).List())
+	if err != nil {
+		return diag.Errorf("error deleting TMS tags: %s", err)
+	}
 
 	return nil
 }
 
-func resourceTmsTagDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	client, err := c.HcTmsV1Client(c.GetRegion(d))
-	if err != nil {
-		return fmtp.DiagErrorf("Error creating Huaweicloud TMS client: %s", err)
+func updateTmsTags(client *golangsdk.ServiceClient, action string, rawTags []interface{}) error {
+	var (
+		httpUrl = "v1.0/predefine_tags/action"
+	)
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes:          []int{204},
 	}
 
-	var predefineTags []model.PredefineTagRequest
-	tagsRaw := d.Get("tags").([]interface{})
-	if len(tagsRaw) == 0 {
-		logp.Printf("[DEBUG] TMS tags are empty, no need to issue delete request")
+	updatePath := client.Endpoint + httpUrl
+	updateOpt.JSONBody = utils.RemoveNil(buildTmsTagsBodyParams(action, rawTags))
+	_, err := client.Request("POST", updatePath, &updateOpt)
+	return err
+}
+
+func buildTmsTagsBodyParams(action string, rawTags []interface{}) map[string]interface{} {
+	if len(rawTags) == 0 {
 		return nil
 	}
-	for _, v := range tagsRaw {
-		tag := v.(map[string]interface{})
-		predefineTag := model.PredefineTagRequest{
-			Key:   tag["key"].(string),
-			Value: tag["value"].(string),
+	tags := make([]map[string]interface{}, 0)
+	for _, rawTag := range rawTags {
+		if tag, ok := rawTag.(map[string]interface{}); ok {
+			tags = append(tags, map[string]interface{}{
+				"key":   tag["key"],
+				"value": tag["value"],
+			})
 		}
-		predefineTags = append(predefineTags, predefineTag)
 	}
-
-	deleteOpts := &model.DeletePredefineTagsRequest{
-		Body: &model.ReqDeletePredefineTag{
-			Tags:   predefineTags,
-			Action: model.GetReqDeletePredefineTagActionEnum().DELETE,
-		},
+	bodyPrams := map[string]interface{}{
+		"action": action,
+		"tags":   tags,
 	}
-
-	logp.Printf("[DEBUG] Delete TMS tag options: %#v", deleteOpts)
-	_, err = client.DeletePredefineTags(deleteOpts)
-	if err != nil {
-		return fmtp.DiagErrorf("Error deleting TMS tag: %s", err)
-	}
-
-	return nil
+	return bodyPrams
 }

@@ -1,0 +1,92 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_metastudio_instance": {
+          "block": {
+            "attributes": {
+              "amount": {
+                "type": "number",
+                "description": "Total amount",
+                "computed": true
+              },
+              "business_type": {
+                "type": "string",
+                "description": "The business type of resource",
+                "computed": true
+              },
+              "charging_mode": {
+                "type": "string",
+                "description": "The billing mode",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_auto_renew": {
+                "type": "number",
+                "description": "Specifies whether to auto-renew the vault when it expires.",
+                "optional": true
+              },
+              "is_sub_resource": {
+                "type": "bool",
+                "description": "Indicates whether it is a sub-resource. A sub-resource describes the quantity and unit of a subsidiary resource.",
+                "computed": true
+              },
+              "order_id": {
+                "type": "string",
+                "description": "The order ID of resource",
+                "computed": true
+              },
+              "period_num": {
+                "type": "number",
+                "description": "Specifies the number of periods to purchase.",
+                "required": true
+              },
+              "period_type": {
+                "type": "number",
+                "description": "Specifies the charging period unit",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "resource_expire_time": {
+                "type": "string",
+                "description": "The resource expire time",
+                "computed": true
+              },
+              "resource_spec_code": {
+                "type": "string",
+                "description": "Specifies the resource specification code",
+                "required": true
+              },
+              "status": {
+                "type": "number",
+                "description": "Resource status. 0: Normal, 1: Frozen",
+                "computed": true
+              },
+              "sub_resource_type": {
+                "type": "string",
+                "description": "The sub-resource type of resource",
+                "computed": true
+              },
+              "unit": {
+                "type": "string",
+                "description": "The unit of amount",
+                "computed": true
+              },
+              "usage": {
+                "type": "number",
+                "description": "Usage amount",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

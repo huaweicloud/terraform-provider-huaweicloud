@@ -38,8 +38,24 @@
                 "type": "string",
                 "computed": true
               },
+              "enterprise_project_id": {
+                "type": "string",
+                "computed": true
+              },
               "flavor_id": {
                 "type": "string",
+                "computed": true
+              },
+              "hostname_config": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "type": "string"
+                    }
+                  ]
+                ],
                 "computed": true
               },
               "id": {

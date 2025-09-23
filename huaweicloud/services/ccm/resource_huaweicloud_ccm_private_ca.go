@@ -2,6 +2,7 @@ package ccm
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -10,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -27,8 +27,11 @@ import (
 // @API CCM GET /v1/private-certificate-authorities/{ca_id}
 // @API CCM GET /v1/private-certificate-authorities/{ca_id}/tags
 // @API CCM DELETE /v1/private-certificate-authorities/{ca_id}
+// @API CCM POST /v1/private-certificate-authorities/{ca_id}/enable
 // @API CCM POST /v1/private-certificate-authorities/{ca_id}/disable
 // @API CCM DELETE /v1/private-certificate-authorities/{ca_id}/tags/delete
+// @API CCM POST /v1/private-certificate-authorities/{ca_id}/crl/enable
+// @API CCM POST /v1/private-certificate-authorities/{ca_id}/crl/disable
 // @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
 func ResourcePrivateCertificateAuthority() *schema.Resource {
 	return &schema.Resource{
@@ -39,6 +42,8 @@ func ResourcePrivateCertificateAuthority() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+
+		CustomizeDiff: config.MergeDefaultTags(),
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -153,28 +158,32 @@ func ResourcePrivateCertificateAuthority() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"crl_name": {
-							Type:     schema.TypeString,
+						"enabled": {
+							Type:     schema.TypeBool,
 							Optional: true,
 							Computed: true,
-							ForceNew: true,
 						},
 						"obs_bucket_name": {
 							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
+							Optional: true,
+							Computed: true,
 						},
 						"valid_days": {
 							Type:     schema.TypeInt,
-							Required: true,
-							ForceNew: true,
+							Optional: true,
+							Computed: true,
 						},
 						"crl_dis_point": {
 							Type:     schema.TypeString,
 							Computed: true,
+						},
+						"crl_name": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: "schema: Computed",
 						},
 					},
 				},
@@ -184,6 +193,10 @@ func ResourcePrivateCertificateAuthority() *schema.Resource {
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
+			},
+			"action": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"charging_mode": common.SchemaChargingMode(nil),
 			"auto_renew":    common.SchemaAutoRenew(nil),
@@ -220,161 +233,134 @@ func ResourcePrivateCertificateAuthority() *schema.Resource {
 	}
 }
 
-func resourcePrivateCACreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	if d.Get("type").(string) == "SUBORDINATE" {
-		if _, ok := d.GetOk("issuer_id"); !ok {
-			return diag.Errorf("error: required parameter [%s] for creating subordinate CA is not set", "issuer_id")
-		}
-	}
-
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	var (
-		createPrivateCAHttpUrl = "v1/private-certificate-authorities"
-		createPrivateCAProduct = "ccm"
-	)
-	createPrivateCAClient, err := cfg.NewServiceClient(createPrivateCAProduct, region)
-	if err != nil {
-		return diag.Errorf("error creating CCM client: %s", err)
-	}
-	createPrivateCAPath := createPrivateCAClient.Endpoint + createPrivateCAHttpUrl
-	createPrivateCAOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-
-	// if charging mode is pre-paid, need to order private CA first and then activate it.
-	if v, ok := d.GetOk("charging_mode"); ok && v.(string) == "prePaid" {
-		// order private CA
-		orderPrivateCAPath := createPrivateCAPath + "/order"
-		orderPrivateCAOpt := createPrivateCAOpt
-		parms, err := buildOrderPrivateCABodyParams(d)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		orderPrivateCAOpt.JSONBody = utils.RemoveNil(parms)
-		orderPrivateCAResp, err := createPrivateCAClient.Request("POST", orderPrivateCAPath, &orderPrivateCAOpt)
-		if err != nil {
-			return diag.Errorf("error orderring CCM private CA: %s", err)
-		}
-		orderPrivateCARespBody, err := utils.FlattenResponse(orderPrivateCAResp)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		ids, err := jmespath.Search("ca_ids", orderPrivateCARespBody)
-		if err != nil {
-			return diag.Errorf("error orderring CCM private CA: ID is not found in API response")
-		}
-		id := ids.([]interface{})[0]
-		d.SetId(id.(string))
-		orderID, err := jmespath.Search("order_id", orderPrivateCARespBody)
-		if err != nil {
-			return diag.Errorf("error orderring CCM private CA: order ID is not found in API response")
-		}
-
-		// wait for order success
-		bssClient, err := cfg.BssV2Client(region)
-		if err != nil {
-			return diag.Errorf("error creating BSS v2 client: %s", err)
-		}
-		err = common.WaitOrderComplete(ctx, bssClient, orderID.(string), d.Timeout(schema.TimeoutCreate))
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		_, err = common.WaitOrderResourceComplete(ctx, bssClient, orderID.(string), d.Timeout(schema.TimeoutCreate))
-		if err != nil {
-			return diag.Errorf("error waiting for order resource %s complete: %s", orderID.(string), err)
-		}
-
-		// activate private CA
-		activePrivateCAPath := createPrivateCAPath + "/{ca_id}/activate"
-		activePrivateCAPath = strings.ReplaceAll(activePrivateCAPath, "{ca_id}", d.Id())
-		activePrivateCAOpt := golangsdk.RequestOpts{
-			KeepResponseBody: true,
-			OkCodes: []int{
-				204,
-			},
-		}
-		activePrivateCAOpt.JSONBody = utils.RemoveNil(buildCreatePrivateCABodyParams(d, cfg))
-		_, err = createPrivateCAClient.Request("POST", activePrivateCAPath, &activePrivateCAOpt)
-		if err != nil {
-			return diag.Errorf("error activating CCM private CA: %s", err)
-		}
-
-		createTagsHttpUrl := "v1/private-certificate-authorities/{ca_id}/tags/create"
-		tags := d.Get("tags").(map[string]interface{})
-		if err := createTags(id.(string), createPrivateCAClient, tags, createTagsHttpUrl, "{ca_id}"); err != nil {
-			return diag.FromErr(err)
-		}
-
-		return resourcePrivateCARead(ctx, d, meta)
-	}
-
-	// if charging mode is post-paid, then directly create
-	createPrivateCAOpt.JSONBody = utils.RemoveNil(buildCreatePrivateCABodyParams(d, cfg))
-	createPrivateCAResp, err := createPrivateCAClient.Request("POST", createPrivateCAPath, &createPrivateCAOpt)
-	if err != nil {
-		return diag.Errorf("error creating private CA: %s", err)
-	}
-	createPrivateCARespBody, err := utils.FlattenResponse(createPrivateCAResp)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	id, err := jmespath.Search("ca_id", createPrivateCARespBody)
-	if err != nil {
-		return diag.Errorf("error creating CCM private CA: ID is not found in API response")
-	}
-	d.SetId(id.(string))
-
-	createTagsHttpUrl := "v1/private-certificate-authorities/{ca_id}/tags/create"
-	tags := d.Get("tags").(map[string]interface{})
-	if err := createTags(id.(string), createPrivateCAClient, tags, createTagsHttpUrl, "{ca_id}"); err != nil {
-		return diag.FromErr(err)
-	}
-
-	return resourcePrivateCARead(ctx, d, meta)
-}
-
-func buildOrderPrivateCABodyParams(d *schema.ResourceData) (map[string]interface{}, error) {
-	rawArray := d.Get("validity").([]interface{})
-	raw := rawArray[0].(map[string]interface{})
-
-	// precheck period type
-	rawTyepe := raw["type"].(string)
-	if rawTyepe == "DAY" || rawTyepe == "HOUR" {
-		return nil, fmt.Errorf("error: required parameter [%s] for creating pre-paid CA is invalid",
-			"validity.period_type")
-	}
-
+func buildPrepaidPrivateCABodyParams(d *schema.ResourceData, raw map[string]interface{},
+	cfg *config.Config) map[string]interface{} {
 	periodType := 2
-	if rawTyepe == "YEAR" {
+	if raw["type"].(string) == "YEAR" {
 		periodType = 3
 	}
+
 	autoRenew := 0
 	if val, ok := d.GetOk("auto_renew"); ok && val == "true" {
 		autoRenew = 1
 	}
 
-	var prodecutInfos []map[string]interface{}
-	prodecutInfos = append(prodecutInfos, map[string]interface{}{
+	var productInfos []map[string]interface{}
+	productInfos = append(productInfos, map[string]interface{}{
 		"cloud_service_type": "hws.service.type.ccm",
 		"resource_type":      "hws.resource.type.pca.duration",
 		"resource_spec_code": "ca.duration",
 	})
+
 	bodyParams := map[string]interface{}{
-		"cloud_service_type": "hws.service.type.ccm",
-		"charging_mode":      0,
-		"period_type":        periodType,
-		"period_num":         raw["value"].(int),
-		"is_auto_renew":      autoRenew,
-		"is_auto_pay":        1,
-		"subscription_num":   1,
-		"product_infos":      prodecutInfos,
+		"cloud_service_type":    "hws.service.type.ccm",
+		"charging_mode":         0,
+		"period_type":           periodType,
+		"period_num":            raw["value"].(int),
+		"is_auto_renew":         autoRenew,
+		"is_auto_pay":           1,
+		"subscription_num":      1,
+		"enterprise_project_id": cfg.GetEnterpriseProjectID(d),
+		"product_infos":         productInfos,
 	}
-	return bodyParams, nil
+	return bodyParams
 }
 
-func buildCreatePrivateCABodyParams(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
+func createPrepaidPrivateCA(client *golangsdk.ServiceClient, d *schema.ResourceData, cfg *config.Config) (interface{}, error) {
+	var (
+		httpUrl  = "v1/private-certificate-authorities/order"
+		rawArray = d.Get("validity").([]interface{})
+		raw      = rawArray[0].(map[string]interface{})
+		rawType  = raw["type"].(string)
+	)
+
+	if rawType != "YEAR" && rawType != "MONTH" {
+		return nil, fmt.Errorf("the validity type value (%s) is invalid, only `YEAR` or `MONTH` is supported when"+
+			" creating a prepaid private CA", rawType)
+	}
+
+	createPath := client.Endpoint + httpUrl
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         buildPrepaidPrivateCABodyParams(d, raw, cfg),
+	}
+
+	createResp, err := client.Request("POST", createPath, &createOpt)
+	if err != nil {
+		return nil, fmt.Errorf("error creating CCM prepaid private CA: %s", err)
+	}
+	return utils.FlattenResponse(createResp)
+}
+
+func waitingForOrderComplete(ctx context.Context, bssClient *golangsdk.ServiceClient, orderID string, timeout time.Duration) error {
+	if err := common.WaitOrderComplete(ctx, bssClient, orderID, timeout); err != nil {
+		return err
+	}
+
+	if _, err := common.WaitOrderResourceComplete(ctx, bssClient, orderID, timeout); err != nil {
+		return fmt.Errorf("error waiting for order resource %s complete: %s", orderID, err)
+	}
+	return nil
+}
+
+func buildPrivateCARequestBodyDistinguishedName(rawParams interface{}) map[string]interface{} {
+	if rawArray, ok := rawParams.([]interface{}); ok && len(rawArray) > 0 {
+		raw := rawArray[0].(map[string]interface{})
+		return map[string]interface{}{
+			"common_name":         raw["common_name"],
+			"country":             raw["country"],
+			"state":               raw["state"],
+			"locality":            raw["locality"],
+			"organization":        raw["organization"],
+			"organizational_unit": raw["organizational_unit"],
+		}
+	}
+	return nil
+}
+
+func buildPrivateCARequestBodyValidity(rawParams interface{}) map[string]interface{} {
+	if rawArray, ok := rawParams.([]interface{}); ok && len(rawArray) > 0 {
+		raw := rawArray[0].(map[string]interface{})
+		return map[string]interface{}{
+			"type":       raw["type"],
+			"value":      raw["value"],
+			"start_from": utils.ValueIgnoreEmpty(raw["started_at"]),
+		}
+	}
+	return nil
+}
+
+func buildPrivateCARequestBodyKeyUsages(caType interface{}, rawParams interface{}) []interface{} {
+	rawArray, _ := rawParams.([]interface{})
+	if caType.(string) == "ROOT" || len(rawArray) == 0 {
+		return []interface{}{"digitalSignature", "keyCertSign", "cRLSign"}
+	}
+	return rawArray
+}
+
+func buildPrivateCARequestBodyCrlConfiguration(rawParams interface{}) map[string]interface{} {
+	rawArray, ok := rawParams.([]interface{})
+	if !ok {
+		return nil
+	}
+
+	if len(rawArray) == 0 {
+		return nil
+	}
+	rawMap := rawArray[0].(map[string]interface{})
+	if !rawMap["enabled"].(bool) {
+		return nil
+	}
+
+	return map[string]interface{}{
+		"enabled":         rawMap["enabled"],
+		"crl_name":        rawMap["crl_name"],
+		"obs_bucket_name": rawMap["obs_bucket_name"],
+		"valid_days":      rawMap["valid_days"],
+	}
+}
+
+func buildCreateOrActivatePrivateCABodyParams(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"type":                  d.Get("type"),
 		"distinguished_name":    buildPrivateCARequestBodyDistinguishedName(d.Get("distinguished_name")),
@@ -390,120 +376,207 @@ func buildCreatePrivateCABodyParams(d *schema.ResourceData, cfg *config.Config) 
 	return bodyParams
 }
 
-func buildPrivateCARequestBodyDistinguishedName(rawParams interface{}) map[string]interface{} {
-	rawArray, _ := rawParams.([]interface{})
-	raw := rawArray[0].(map[string]interface{})
-	params := map[string]interface{}{
-		"common_name":         raw["common_name"],
-		"country":             raw["country"],
-		"state":               raw["state"],
-		"locality":            raw["locality"],
-		"organization":        raw["organization"],
-		"organizational_unit": raw["organizational_unit"],
+func activatePrivateCA(client *golangsdk.ServiceClient, d *schema.ResourceData, cfg *config.Config) error {
+	activatePath := client.Endpoint + "v1/private-certificate-authorities/{ca_id}/activate"
+	activatePath = strings.ReplaceAll(activatePath, "{ca_id}", d.Id())
+	activateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes: []int{
+			204,
+		},
+		JSONBody: utils.RemoveNil(buildCreateOrActivatePrivateCABodyParams(d, cfg)),
 	}
-	return params
-}
 
-func buildPrivateCARequestBodyValidity(rawParams interface{}) map[string]interface{} {
-	rawArray, _ := rawParams.([]interface{})
-	raw := rawArray[0].(map[string]interface{})
-	params := map[string]interface{}{
-		"type":       raw["type"],
-		"value":      raw["value"],
-		"start_from": utils.ValueIgnoreEmpty(raw["started_at"]),
-	}
-	return params
-}
-
-func buildPrivateCARequestBodyKeyUsages(caType interface{}, rawParams interface{}) []interface{} {
-	rawArray, _ := rawParams.([]interface{})
-	if caType.(string) == "ROOT" || len(rawArray) == 0 {
-		return []interface{}{"digitalSignature", "keyCertSign", "cRLSign"}
-	}
-	return rawArray
-}
-
-func buildPrivateCARequestBodyCrlConfiguration(rawParams interface{}) map[string]interface{} {
-	if rawArray, ok := rawParams.([]interface{}); ok {
-		if len(rawArray) == 0 {
-			return nil
-		}
-		raw := rawArray[0].(map[string]interface{})
-		params := map[string]interface{}{
-			"enabled":         true,
-			"crl_name":        raw["crl_name"],
-			"obs_bucket_name": raw["obs_bucket_name"],
-			"valid_days":      raw["valid_days"],
-		}
-		return params
+	_, err := client.Request("POST", activatePath, &activateOpt)
+	if err != nil {
+		return fmt.Errorf("error activating CCM private CA: %s", err)
 	}
 	return nil
 }
 
-func resourcePrivateCARead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func createPostpaidPrivateCA(client *golangsdk.ServiceClient, d *schema.ResourceData, cfg *config.Config) (interface{}, error) {
+	createPath := client.Endpoint + "v1/private-certificate-authorities"
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildCreateOrActivatePrivateCABodyParams(d, cfg)),
+	}
+
+	createResp, err := client.Request("POST", createPath, &createOpt)
+	if err != nil {
+		return nil, fmt.Errorf("error creating CCM postpaid private CA: %s", err)
+	}
+	return utils.FlattenResponse(createResp)
+}
+
+func resourcePrivateCACreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	if _, ok := d.GetOk("issuer_id"); !ok && d.Get("type").(string) == "SUBORDINATE" {
+		return diag.Errorf("the parameter `issuer_id` is required when creating a subordinate private CA")
+	}
+
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-
-	var (
-		getPrivateCAHttpUrl = "v1/private-certificate-authorities/{ca_id}"
-		getPrivateCAProduct = "ccm"
-	)
-	getPrivateCAClient, err := cfg.NewServiceClient(getPrivateCAProduct, region)
+	client, err := cfg.NewServiceClient("ccm", region)
 	if err != nil {
-		return diag.Errorf("error getting CCM client: %s", err)
+		return diag.Errorf("error creating CCM client: %s", err)
 	}
 
-	getPrivateCAPath := getPrivateCAClient.Endpoint + getPrivateCAHttpUrl
-	getPrivateCAPath = strings.ReplaceAll(getPrivateCAPath, "{ca_id}", d.Id())
+	if v, ok := d.GetOk("charging_mode"); ok && v.(string) == "prePaid" {
+		createRespBody, err := createPrepaidPrivateCA(client, d, cfg)
+		if err != nil {
+			return diag.FromErr(err)
+		}
 
-	getPrivateCAOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
+		caId := utils.PathSearch("ca_ids|[0]", createRespBody, "").(string)
+		if caId == "" {
+			return diag.Errorf("unable to find the CCM prepaid private CA ID from the API response")
+		}
+		d.SetId(caId)
+
+		orderId := utils.PathSearch("order_id", createRespBody, "").(string)
+		if orderId == "" {
+			return diag.Errorf("unable to find the order ID of the CCM prepaid private CA from the API response")
+		}
+
+		// wait for order success
+		bssClient, err := cfg.BssV2Client(region)
+		if err != nil {
+			return diag.Errorf("error creating BSS v2 client: %s", err)
+		}
+		if err := waitingForOrderComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutCreate)); err != nil {
+			return diag.FromErr(err)
+		}
+
+		// activate private CA
+		if err := activatePrivateCA(client, d, cfg); err != nil {
+			return diag.FromErr(err)
+		}
+	} else {
+		createPrivateCARespBody, err := createPostpaidPrivateCA(client, d, cfg)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+
+		caId := utils.PathSearch("ca_id", createPrivateCARespBody, "").(string)
+		if caId == "" {
+			return diag.Errorf("unable to find the CCM postpaid private CA ID from the API response")
+		}
+		d.SetId(caId)
 	}
-	getPrivateCAResp, err := getPrivateCAClient.Request("GET", getPrivateCAPath, &getPrivateCAOpt)
-	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving private CA")
-	}
-	getPrivateCARespBody, err := utils.FlattenResponse(getPrivateCAResp)
-	if err != nil {
+
+	// create tags
+	createTagsHttpUrl := "v1/private-certificate-authorities/{ca_id}/tags/create"
+	tags := d.Get("tags").(map[string]interface{})
+	if err := createTags(d.Id(), client, tags, createTagsHttpUrl, "{ca_id}"); err != nil {
 		return diag.FromErr(err)
 	}
 
-	status := utils.PathSearch("status", getPrivateCARespBody, nil).(string)
+	// disable private CA
+	if d.Get("action").(string) == "disable" {
+		if err := disablePrivateCA(client, d); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	return resourcePrivateCARead(ctx, d, meta)
+}
+
+func enablePrivateCA(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	enableHttpUrl := "v1/private-certificate-authorities/{ca_id}/enable"
+	enablePath := client.Endpoint + enableHttpUrl
+	enablePath = strings.ReplaceAll(enablePath, "{ca_id}", d.Id())
+	enableOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes:          []int{204},
+	}
+
+	_, err := client.Request("POST", enablePath, &enableOpt)
+	if err != nil {
+		return fmt.Errorf("error enabling CCM private CA: %s", err)
+	}
+	return nil
+}
+
+func disablePrivateCA(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	disableHttpUrl := "v1/private-certificate-authorities/{ca_id}/disable"
+	disablePath := client.Endpoint + disableHttpUrl
+	disablePath = strings.ReplaceAll(disablePath, "{ca_id}", d.Id())
+	disableOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes:          []int{204},
+	}
+
+	_, err := client.Request("POST", disablePath, &disableOpt)
+	if err != nil {
+		return fmt.Errorf("error disabling CCM private CA: %s", err)
+	}
+	return nil
+}
+
+func readPrivateCA(client *golangsdk.ServiceClient, d *schema.ResourceData) (interface{}, error) {
+	getPrivateCAPath := client.Endpoint + "v1/private-certificate-authorities/{ca_id}"
+	getPrivateCAPath = strings.ReplaceAll(getPrivateCAPath, "{ca_id}", d.Id())
+	getPrivateCAOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getResp, err := client.Request("GET", getPrivateCAPath, &getPrivateCAOpt)
+	if err != nil {
+		return nil, err
+	}
+	return utils.FlattenResponse(getResp)
+}
+
+func resourcePrivateCARead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		product = "ccm"
+	)
+	client, err := cfg.NewServiceClient(product, region)
+	if err != nil {
+		return diag.Errorf("error creating CCM client: %s", err)
+	}
+
+	getRespBody, err := readPrivateCA(client, d)
+	if err != nil {
+		// When the resource does not exist, the response status code of the query API is 400. The response body example
+		// is: {"error_code": "PCA.10010002","error_msg": "XXX"}
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error_code", "PCA.10010002"),
+			"error retrieving CCM private CA")
+	}
+
+	status := utils.PathSearch("status", getRespBody, nil).(string)
 	if status == "DELETED" {
 		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "error retrieving private CA")
 	}
 
-	chargingMode := "prePaid"
-	if utils.PathSearch("charging_mode", getPrivateCARespBody, float64(0)).(float64) == 1 {
-		chargingMode = "postPaid"
-	}
-
 	getTagsHttpUrl := "v1/private-certificate-authorities/{ca_id}/tags"
-	tags, err := getTags(d.Id(), getPrivateCAClient, getTagsHttpUrl, "{ca_id}")
+	tags, err := getTags(d.Id(), client, getTagsHttpUrl, "{ca_id}")
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("type", utils.PathSearch("type", getPrivateCARespBody, nil)),
-		d.Set("distinguished_name", flattenDistinguishedName(getPrivateCARespBody)),
-		d.Set("key_algorithm", utils.PathSearch("key_algorithm", getPrivateCARespBody, nil)),
-		d.Set("signature_algorithm", utils.PathSearch("signature_algorithm", getPrivateCARespBody, nil)),
-		d.Set("crl_configuration", flattenCrlConfiguration(getPrivateCARespBody)),
-		d.Set("issuer_id", utils.PathSearch("issuer_id", getPrivateCARespBody, nil)),
-		d.Set("issuer_name", utils.PathSearch("issuer_name", getPrivateCARespBody, nil)),
-		d.Set("path_length", utils.PathSearch("path_length", getPrivateCARespBody, nil)),
-		d.Set("enterprise_project_id", utils.PathSearch("enterprise_project_id", getPrivateCARespBody, nil)),
-		d.Set("status", utils.PathSearch("status", getPrivateCARespBody, nil)),
-		d.Set("charging_mode", chargingMode),
-		d.Set("gen_mode", utils.PathSearch("gen_mode", getPrivateCARespBody, nil)),
-		d.Set("serial_number", utils.PathSearch("serial_number", getPrivateCARespBody, nil)),
+		d.Set("type", utils.PathSearch("type", getRespBody, nil)),
+		d.Set("distinguished_name", flattenDistinguishedName(getRespBody)),
+		d.Set("key_algorithm", utils.PathSearch("key_algorithm", getRespBody, nil)),
+		d.Set("signature_algorithm", utils.PathSearch("signature_algorithm", getRespBody, nil)),
+		d.Set("crl_configuration", flattenCrlConfiguration(getRespBody)),
+		d.Set("issuer_id", utils.PathSearch("issuer_id", getRespBody, nil)),
+		d.Set("issuer_name", utils.PathSearch("issuer_name", getRespBody, nil)),
+		d.Set("path_length", utils.PathSearch("path_length", getRespBody, nil)),
+		d.Set("enterprise_project_id", utils.PathSearch("enterprise_project_id", getRespBody, nil)),
+		d.Set("status", utils.PathSearch("status", getRespBody, nil)),
+		d.Set("charging_mode", flattenChargingMode(getRespBody)),
+		d.Set("gen_mode", utils.PathSearch("gen_mode", getRespBody, nil)),
+		d.Set("serial_number", utils.PathSearch("serial_number", getRespBody, nil)),
 		d.Set("created_at", utils.FormatTimeStampRFC3339(
-			int64(utils.PathSearch("create_time", getPrivateCARespBody, float64(0)).(float64))/1000, false)),
+			int64(utils.PathSearch("create_time", getRespBody, float64(0)).(float64))/1000, false)),
 		d.Set("expired_at", utils.FormatTimeStampRFC3339(
-			int64(utils.PathSearch("not_after", getPrivateCARespBody, float64(0)).(float64))/1000, false)),
-		d.Set("free_quota", utils.PathSearch("free_quota", getPrivateCARespBody, nil)),
+			int64(utils.PathSearch("not_after", getRespBody, float64(0)).(float64))/1000, false)),
+		d.Set("free_quota", utils.PathSearch("free_quota", getRespBody, nil)),
 		d.Set("tags", tags),
 	)
 
@@ -514,137 +587,149 @@ func resourcePrivateCARead(_ context.Context, d *schema.ResourceData, meta inter
 	return nil
 }
 
+func flattenChargingMode(getRespBody interface{}) string {
+	if utils.PathSearch("charging_mode", getRespBody, float64(0)).(float64) == 1 {
+		return "postPaid"
+	}
+	return "prePaid"
+}
+
 func flattenDistinguishedName(resp interface{}) []interface{} {
-	curJson := utils.PathSearch("distinguished_name", resp, make([]interface{}, 0))
-	curArray := curJson.(map[string]interface{})
+	curJson := utils.PathSearch("distinguished_name", resp, make(map[string]interface{}))
+	rawMap := curJson.(map[string]interface{})
 	rst := make([]interface{}, 0, 1)
 	rst = append(rst, map[string]interface{}{
-		"common_name":         curArray["common_name"],
-		"country":             curArray["country"],
-		"state":               curArray["state"],
-		"locality":            curArray["locality"],
-		"organization":        curArray["organization"],
-		"organizational_unit": curArray["organizational_unit"],
+		"common_name":         rawMap["common_name"],
+		"country":             rawMap["country"],
+		"state":               rawMap["state"],
+		"locality":            rawMap["locality"],
+		"organization":        rawMap["organization"],
+		"organizational_unit": rawMap["organizational_unit"],
 	})
 	return rst
 }
 
 func flattenCrlConfiguration(resp interface{}) []interface{} {
-	curJson := utils.PathSearch("crl_configuration", resp, make([]interface{}, 0))
-	curArray := curJson.(map[string]interface{})
+	curJson := utils.PathSearch("crl_configuration", resp, make(map[string]interface{}))
+	rawMap := curJson.(map[string]interface{})
 	rst := make([]interface{}, 0, 1)
 	rst = append(rst, map[string]interface{}{
-		"crl_name":        curArray["crl_name"],
-		"obs_bucket_name": curArray["obs_bucket_name"],
-		"valid_days":      curArray["valid_days"],
-		"crl_dis_point":   curArray["crl_dis_point"],
+		"enabled":         rawMap["enabled"],
+		"crl_name":        rawMap["crl_name"],
+		"obs_bucket_name": rawMap["obs_bucket_name"],
+		"valid_days":      rawMap["valid_days"],
+		"crl_dis_point":   rawMap["crl_dis_point"],
 	})
 	return rst
 }
 
-func resourcePrivateCADelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	var (
-		privateCAHttpUrl = "v1/private-certificate-authorities/{ca_id}"
-		privateCAProduct = "ccm"
-	)
-	privateCAClient, err := cfg.NewServiceClient(privateCAProduct, region)
-	if err != nil {
-		return diag.Errorf("error deleting CCM client: %s", err)
+func deletePrepaidPrivateCA(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, cfg *config.Config) diag.Diagnostics {
+	if err := common.UnsubscribePrePaidResource(d, cfg, []string{d.Id()}); err != nil {
+		// When the resource does not exist, the response status code of the query API is 400. The response body example
+		// is: {"error_code": "CBC.30000067","error_msg": "XXX"}
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error_code", "CBC.30000067"),
+			"error unsubscribing CCM private CA")
 	}
-	privateCAPath := privateCAClient.Endpoint + privateCAHttpUrl
-	privateCAPath = strings.ReplaceAll(privateCAPath, "{ca_id}", d.Id())
-	privateCAOpt := golangsdk.RequestOpts{
+
+	stateConf := &resource.StateChangeConf{
+		Pending: []string{"PENDING"},
+		Target:  []string{"COMPLETED"},
+		Refresh: func() (interface{}, string, error) {
+			getRespBody, err := readPrivateCA(client, d)
+			if err != nil {
+				convertErr := common.ConvertExpected400ErrInto404Err(err, "error_code", "PCA.10010002")
+				var err404 golangsdk.ErrDefault404
+				if errors.As(convertErr, &err404) {
+					return "deleted", "COMPLETED", nil
+				}
+				return getRespBody, "ERROR", err
+			}
+
+			status := utils.PathSearch("status", getRespBody, "").(string)
+			if status == "" {
+				return getRespBody, "ERROR", fmt.Errorf("attribute `status` is not found in API response")
+			}
+
+			if status == "DELETED" {
+				return "deleted", "COMPLETED", nil
+			}
+			return "continue", "PENDING", nil
+		},
+		Timeout:      d.Timeout(schema.TimeoutDelete),
+		Delay:        15 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+
+	_, err := stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return diag.Errorf("error waiting for CCM prepaid private CA (%s) to be deleted: %s", d.Id(), err)
+	}
+	return nil
+}
+
+func deletePostpaidPrivateCA(client *golangsdk.ServiceClient, d *schema.ResourceData) diag.Diagnostics {
+	getRespBody, err := readPrivateCA(client, d)
+	if err != nil {
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error_code", "PCA.10010002"),
+			"error retrieving CCM private CA")
+	}
+	status := utils.PathSearch("status", getRespBody, "").(string)
+	// Only CA in `PENDING` or `DISABLED` status can be deleted.
+	// When the CA is in `ACTIVED` or `EXPIRED` status, it needs to be disabled first and then deleted.
+	if status == "ACTIVED" || status == "EXPIRED" {
+		if err := disablePrivateCA(client, d); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if status == "DELETED" {
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "error retrieving CCM private CA")
+	}
+
+	deletePath := client.Endpoint + "v1/private-certificate-authorities/{ca_id}"
+	deletePath = strings.ReplaceAll(deletePath, "{ca_id}", d.Id())
+	deletePath += fmt.Sprintf("?pending_days=%v", d.Get("pending_days"))
+	deleteOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		OkCodes: []int{
 			200,
 			204,
 		},
 	}
-
-	// if charging mode is pre-paid, unsubscribe the order.
-	if v, ok := d.GetOk("charging_mode"); ok && v.(string) == "prePaid" {
-		if err := common.UnsubscribePrePaidResource(d, cfg, []string{d.Id()}); err != nil {
-			return diag.Errorf("error unsubscribing CCM private CA: %s", err)
-		}
-
-		stateConf := &resource.StateChangeConf{
-			Pending:      []string{"ACTIVED", "DISABLED", "EXPIRED"},
-			Target:       []string{"DELETED"},
-			Refresh:      privateCAStatusRefreshFunc(d.Id(), region, cfg),
-			Timeout:      d.Timeout(schema.TimeoutDelete),
-			Delay:        15 * time.Second,
-			PollInterval: 10 * time.Second,
-		}
-
-		_, err := stateConf.WaitForStateContext(ctx)
-		if err != nil {
-			return diag.Errorf("Error deleting private CA: %s", err)
-		}
-
-		return nil
-	}
-
-	// get and check CA status, if not expired or disable then disable it.
-	getPrivateCAResp, err := privateCAClient.Request("GET", privateCAPath, &privateCAOpt)
+	_, err = client.Request("DELETE", deletePath, &deleteOpt)
 	if err != nil {
-		return diag.Errorf("error getting private CA: %s", err)
-	}
-	getPrivateCARespBody, err := utils.FlattenResponse(getPrivateCAResp)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	status := utils.PathSearch("status", getPrivateCARespBody, nil).(string)
-	if !(status == "EXPIRED" || status == "DISABLE") {
-		disablePrivateCAPath := privateCAPath + "/disable"
-		_, err = privateCAClient.Request("POST", disablePrivateCAPath, &privateCAOpt)
-		if err != nil {
-			return diag.Errorf("error disabling private CA: %s", err)
-		}
-	}
-
-	pendingDays := d.Get("pending_days")
-	privateCAPath += fmt.Sprintf("?pending_days=%v", pendingDays)
-
-	_, err = privateCAClient.Request("DELETE", privateCAPath, &privateCAOpt)
-	if err != nil {
-		return diag.Errorf("error deleting private CA: %s", err)
+		return diag.Errorf("error deleting postpaid private CA: %s", err)
 	}
 	return nil
 }
 
-func privateCAStatusRefreshFunc(id, region string, cfg *config.Config) resource.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		getPrivateCAHttpUrl := "v1/private-certificate-authorities/{ca_id}"
-		getPrivateCAProduct := "ccm"
-		getPrivateCAClient, err := cfg.NewServiceClient(getPrivateCAProduct, region)
-		if err != nil {
-			return nil, "", fmt.Errorf("error creating CCM client: %s", err)
-		}
-
-		getPrivateCAPath := getPrivateCAClient.Endpoint + getPrivateCAHttpUrl
-		getPrivateCAPath = strings.ReplaceAll(getPrivateCAPath, "{ca_id}", id)
-		getPrivateCAOpt := golangsdk.RequestOpts{
-			KeepResponseBody: true,
-		}
-		getPrivateCAResp, err := getPrivateCAClient.Request("GET", getPrivateCAPath, &getPrivateCAOpt)
-		if err != nil && hasErrorCode(err, "PCA.10010002") {
-			return getPrivateCAResp, "DELETED", nil
-		}
-		getPrivateCARespBody, err := utils.FlattenResponse(getPrivateCAResp)
-		if err != nil {
-			return nil, "", err
-		}
-		status := utils.PathSearch("status", getPrivateCARespBody, "")
-		return getPrivateCARespBody, status.(string), nil
+func resourcePrivateCADelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		product = "ccm"
+	)
+	client, err := cfg.NewServiceClient(product, region)
+	if err != nil {
+		return diag.Errorf("error creating CCM client: %s", err)
 	}
+
+	// if charging mode is pre-paid, unsubscribe the order.
+	if v, ok := d.GetOk("charging_mode"); ok && v.(string) == "prePaid" {
+		return deletePrepaidPrivateCA(ctx, client, d, cfg)
+	}
+	return deletePostpaidPrivateCA(client, d)
 }
 
-func resourcePrivateCAUpdate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	privateCAClient, err := cfg.NewServiceClient("ccm", region)
+func resourcePrivateCAUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg    = meta.(*config.Config)
+		region = cfg.GetRegion(d)
+	)
+
+	client, err := cfg.NewServiceClient("ccm", region)
 	if err != nil {
 		return diag.Errorf("error creating CCM client: %s", err)
 	}
@@ -658,7 +743,7 @@ func resourcePrivateCAUpdate(_ context.Context, d *schema.ResourceData, meta int
 		// remove old tags
 		if len(oMap) > 0 {
 			deleteTagsHttpUrl := "v1/private-certificate-authorities/{ca_id}/tags/delete"
-			if err = deleteTags(d.Id(), privateCAClient, oMap, deleteTagsHttpUrl, "{ca_id}"); err != nil {
+			if err = deleteTags(d.Id(), client, oMap, deleteTagsHttpUrl, "{ca_id}"); err != nil {
 				return diag.FromErr(err)
 			}
 		}
@@ -666,12 +751,92 @@ func resourcePrivateCAUpdate(_ context.Context, d *schema.ResourceData, meta int
 		// set new tags
 		if len(nMap) > 0 {
 			createTagsHttpUrl := "v1/private-certificate-authorities/{ca_id}/tags/create"
-			if err := createTags(d.Id(), privateCAClient, nMap, createTagsHttpUrl, "{ca_id}"); err != nil {
+			if err := createTags(d.Id(), client, nMap, createTagsHttpUrl, "{ca_id}"); err != nil {
 				return diag.FromErr(err)
 			}
 		}
 	}
+
+	if d.HasChange("crl_configuration.0.enabled") {
+		if err := updateCRLConfiguration(client, d); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("action") {
+		var actionErr error
+		switch d.Get("action").(string) {
+		case "enable":
+			actionErr = enablePrivateCA(client, d)
+		case "disable":
+			actionErr = disablePrivateCA(client, d)
+		}
+
+		if actionErr != nil {
+			return diag.FromErr(actionErr)
+		}
+	}
+	return resourcePrivateCARead(ctx, d, meta)
+}
+
+func buildEnableConfigurationBodyParams(rawParams interface{}) map[string]interface{} {
+	rawArray, ok := rawParams.([]interface{})
+	if !ok {
+		return nil
+	}
+
+	if len(rawArray) == 0 {
+		return nil
+	}
+
+	rawMap := rawArray[0].(map[string]interface{})
+	return map[string]interface{}{
+		"crl_name":        utils.ValueIgnoreEmpty(rawMap["crl_name"]),
+		"obs_bucket_name": rawMap["obs_bucket_name"],
+		"valid_days":      rawMap["valid_days"],
+	}
+}
+
+func enableCRLConfiguration(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	enableHttpUrl := "v1/private-certificate-authorities/{ca_id}/crl/enable"
+	enablePath := client.Endpoint + enableHttpUrl
+	enablePath = strings.ReplaceAll(enablePath, "{ca_id}", d.Id())
+	enableOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes:          []int{204},
+		JSONBody:         utils.RemoveNil(buildEnableConfigurationBodyParams(d.Get("crl_configuration"))),
+	}
+
+	_, err := client.Request("POST", enablePath, &enableOpt)
+	if err != nil {
+		return fmt.Errorf("error enabling CRL configuration of CCM private CA (%s): %s", d.Id(), err)
+	}
 	return nil
+}
+
+func disableCRLConfiguration(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	disableHttpUrl := "v1/private-certificate-authorities/{ca_id}/crl/disable"
+	disablePath := client.Endpoint + disableHttpUrl
+	disablePath = strings.ReplaceAll(disablePath, "{ca_id}", d.Id())
+	disableOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes:          []int{204},
+	}
+
+	_, err := client.Request("POST", disablePath, &disableOpt)
+	if err != nil {
+		return fmt.Errorf("error disabling CRL configuration of CCM private CA (%s): %s", d.Id(), err)
+	}
+	return nil
+}
+
+func updateCRLConfiguration(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	enabled := d.Get("crl_configuration.0.enabled").(bool)
+	if enabled {
+		return enableCRLConfiguration(client, d)
+	}
+
+	return disableCRLConfiguration(client, d)
 }
 
 func createTags(id string, createTagsClient *golangsdk.ServiceClient, tags map[string]interface{},

@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_coc_ticket_add
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: COC
+paths:
+    /v1/{ticket_type}/tickets:
+        POST:
+            tag: COC

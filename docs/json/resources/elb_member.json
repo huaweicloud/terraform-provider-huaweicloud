@@ -10,13 +10,33 @@
                 "required": true,
                 "forcenew": true
               },
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
               "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "computed": true
+              },
+              "ip_version": {
+                "type": "string",
+                "computed": true
+              },
+              "member_type": {
                 "type": "string",
                 "computed": true
               },
               "name": {
                 "type": "string",
                 "optional": true
+              },
+              "operating_status": {
+                "type": "string",
+                "computed": true
               },
               "pool_id": {
                 "type": "string",
@@ -26,18 +46,58 @@
               "protocol_port": {
                 "type": "number",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
+              },
+              "reason": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "expected_response": "string",
+                      "healthcheck_response": "string",
+                      "reason_code": "string"
+                    }
+                  ]
+                ],
+                "computed": true
               },
               "region": {
                 "type": "string",
                 "computed": true
               },
+              "status": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "listener_id": "string",
+                      "operating_status": "string",
+                      "reason": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "expected_response": "string",
+                            "healthcheck_response": "string",
+                            "reason_code": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
               "subnet_id": {
                 "type": "string",
-                "description": "The IPv4 or IPv6 subnet ID of the subnet in which to access the member",
                 "optional": true,
                 "forcenew": true
+              },
+              "updated_at": {
+                "type": "string",
+                "computed": true
               },
               "weight": {
                 "type": "number",

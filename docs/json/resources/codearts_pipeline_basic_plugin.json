@@ -1,0 +1,74 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_codearts_pipeline_basic_plugin": {
+          "block": {
+            "attributes": {
+              "business_type": {
+                "type": "string",
+                "description": "Specifies the service type.",
+                "required": true
+              },
+              "business_type_display_name": {
+                "type": "string",
+                "description": "Specifies the display name of service type.",
+                "optional": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the basic plugin description.",
+                "optional": true
+              },
+              "display_name": {
+                "type": "string",
+                "description": "Specifies the display name.",
+                "required": true
+              },
+              "icon_url": {
+                "type": "string",
+                "description": "Specifies the icon URL.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "maintainers": {
+                "type": "string",
+                "description": "Indicates the maintenance engineer.",
+                "computed": true
+              },
+              "plugin_composition_type": {
+                "type": "string",
+                "description": "Specifies the combination extension type.",
+                "optional": true,
+                "computed": true
+              },
+              "plugin_name": {
+                "type": "string",
+                "description": "Specifies the basic plugin name.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "runtime_attribution": {
+                "type": "string",
+                "description": "Specifies the runtime attributes.",
+                "optional": true,
+                "computed": true
+              },
+              "unique_id": {
+                "type": "string",
+                "description": "Indicates the unique ID.",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cfw_capture_tasks": {
+          "block": {
+            "attributes": {
+              "fw_instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the firewall instance.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "records": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "capture_size": "string",
+                      "created_at": "string",
+                      "dest_address": "string",
+                      "dest_address_type": "number",
+                      "dest_port": "string",
+                      "duration": "number",
+                      "is_deleted": "number",
+                      "max_packets": "number",
+                      "name": "string",
+                      "protocol": "number",
+                      "remaining_days": "number",
+                      "source_address": "string",
+                      "source_address_type": "number",
+                      "source_port": "string",
+                      "status": "number",
+                      "task_id": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "List of capture task information.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CFW",
+            "name": "Cloud Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "云防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

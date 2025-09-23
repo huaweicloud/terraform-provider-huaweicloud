@@ -1,0 +1,79 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_codearts_deploy_application_group": {
+          "block": {
+            "attributes": {
+              "application_count": {
+                "type": "number",
+                "description": "Indicates the total number of applications in the group.",
+                "computed": true
+              },
+              "children": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Indicates the child group name list.",
+                "computed": true
+              },
+              "created_by": {
+                "type": "string",
+                "description": "Indicates the ID of the group creator.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the application group name.",
+                "required": true
+              },
+              "ordinal": {
+                "type": "number",
+                "description": "Indicates the group sorting field.",
+                "computed": true
+              },
+              "parent_id": {
+                "type": "string",
+                "description": "Specifies the parent application group ID.",
+                "optional": true,
+                "forcenew": true
+              },
+              "path": {
+                "type": "string",
+                "description": "Indicates the group path.",
+                "computed": true
+              },
+              "project_id": {
+                "type": "string",
+                "description": "Specifies the project ID for CodeArts service.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "updated_by": {
+                "type": "string",
+                "description": "Indicates the ID of the user who last updates the group.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CodeArtsDeploy",
+            "name": "CodeArts Deploy",
+            "catalog": "CodeArts",
+            "name_cn": "部署",
+            "catalog_cn": "软件开发生产线"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,5 +1,654 @@
 # CHANGELOG
 
+## 1.78.5 (September 22, 2025)
+
+* **New Resource Source:**
+  + `huaweicloud_apig_api_batch_plugins_associate` [GH-7873]
+  + `huaweicloud_apig_certificate_batch_domains_associate` [GH-7873]
+  + `huaweicloud_apig_channel_member` [GH-7808]
+  + `huaweicloud_apig_domain_certificate_associate` [GH-7839]
+  + `huaweicloud_coc_change_delete` [GH-7917]
+  + `huaweicloud_coc_change_update` [GH-7916]
+  + `huaweicloud_coc_incident_action` [GH-7900]
+  + `huaweicloud_coc_issue` [GH-7890]
+  + `huaweicloud_coc_ticket_add` [GH-7914]
+  + `huaweicloud_compute_template` [GH-7908]
+  + `huaweicloud_swr_enterprise_long_term_credential` [GH-7905]
+  + `huaweicloud_swr_enterprise_private_network_access_control` [GH-7905]
+  + `huaweicloud_swr_enterprise_temporary_credential` [GH-7899]
+  + `huaweicloud_swr_enterprise_trigger` [GH-7925]
+
+* **New Data Source:**
+  + `huaweicloud_apig_application_associated_quota` [GH-7889]
+  + `huaweicloud_apig_certificate_associated_domains` [GH-7896]
+  + `huaweicloud_apig_channel_member_groups` [GH-7808]
+  + `huaweicloud_cbr_feature` [GH-7894]
+  + `huaweicloud_cbr_features` [GH-7894]
+  + `huaweicloud_coc_change_sub_tickets` [GH-7920]
+  + `huaweicloud_coc_incident_action_histories` [GH-7900]
+  + `huaweicloud_coc_scheduled_task_histories` [GH-7868]
+  + `huaweicloud_coc_ticket_operation_histories` [GH-7861]
+  + `huaweicloud_compute_template_versions` [GH-7911]
+  + `huaweicloud_compute_templates` [GH-7908]
+  + `huaweicloud_swr_enterprise_long_term_credentials` [GH-7905]
+  + `huaweicloud_swr_enterprise_private_network_access_controls` [GH-7905]
+  + `huaweicloud_waf_alarm_optional_event_types` [GH-7907]
+  + `huaweicloud_waf_overviews_attack_ip` [GH-7897]
+  + `huaweicloud_waf_overviews_attack_url` [GH-7895]
+  + `huaweicloud_waf_rules_threat_intelligence` [GH-7880]
+  + `huaweicloud_waf_tag_antileakage_map` [GH-7903]
+
+## 1.78.4 (September 16, 2025)
+
+* **New Resource Source:**
+  + `huaweicloud_apig_channel_member_group` [GH-7801]
+  + `huaweicloud_apig_plugin_batch_apis_associate` [GH-7870]
+  + `huaweicloud_coc_diagnosis_task_retry` [GH-7824]
+  + `huaweicloud_coc_public_script_execute` [GH-7741]
+  + `huaweicloud_identitycenter_application_instance` [GH-7827]
+  + `huaweicloud_secmaster_asset` [GH-7815]
+  + `huaweicloud_swr_enterprise_namespace` [GH-7867]
+  + `huaweicloud_vpn_gateway_job_delete` [GH-7720]
+  + `huaweicloud_vpn_p2c_gateway_job_delete` [GH-7858]
+  + `huaweicloud_vpn_p2c_gateway_upgrade` [GH-7858]
+
+* **New Data Source:**
+  + `huaweicloud_apig_api_associable_plugins` [GH-7838]
+  + `huaweicloud_apig_plugin_associable_apis` [GH-7811]
+  + `huaweicloud_coc_diagnosis_task_node_detail` [GH-7834]
+  + `huaweicloud_coc_diagnosis_task_summary` [GH-7832]
+  + `huaweicloud_coc_diagnosis_tasks` [GH-7828]
+  + `huaweicloud_coc_scheduled_tasks` [GH-7853]
+  + `huaweicloud_identitycenter_application_templates` [GH-7827]
+  + `huaweicloud_identitycenter_catalog_applications` [GH-7829]
+  + `huaweicloud_kms_key_regions` [GH-7810]
+  + `huaweicloud_nat_gateways_by_tags` [GH-7822]
+  + `huaweicloud_nat_private_gateways_by_tags` [GH-7822]
+  + `huaweicloud_rgc_home_region` [GH-7813]
+  + `huaweicloud_swr_enterprise_instances` [GH-7869]
+  + `huaweicloud_swr_enterprise_namespaces` [GH-7867]
+  + `huaweicloud_vpcep_tags` [GH-7833]
+  + `huaweicloud_vpn_gateway_jobs` [GH-7720]
+  + `huaweicloud_vpn_p2c_gateway_jobs` [GH-7858]
+
+## 1.78.3 (September 11, 2025)
+
+* **New Resource:**
+  + `huaweicloud_apig_api_version_unpublish` [GH-7768]
+  + `huaweicloud_cciv2_pool_binding` [GH-7794]
+  + `huaweicloud_coc_diagnosis_task_cancel` [GH-7823]
+  + `huaweicloud_coc_diagnosis_task` [GH-7791]
+  + `huaweicloud_coc_scheduled_task` [GH-7750]
+  + `huaweicloud_kms_cancel_key_deletion` [GH-7753]
+  + `huaweicloud_kms_verify_sign` [GH-7765]
+  + `huaweicloud_secmaster_collector_channel_group` [GH-7789]
+  + `huaweicloud_swr_enterprise_instance` [GH-7816]
+  + `huaweicloud_swr_temporary_login_command` [GH-7788]
+
+* **New Data Source:**
+  + `huaweicloud_apig_api_history_versions` [GH-7771]
+  + `huaweicloud_apig_instance_tags` [GH-7756]
+  + `huaweicloud_cc_bandwidth_package_tags` [GH-7802]
+  + `huaweicloud_cc_central_networks_by_tags` [GH-7796]
+  + `huaweicloud_cc_global_connection_bandwidth_tags` [GH-7799]
+  + `huaweicloud_cc_site_network_quotas` [GH-7803]
+  + `huaweicloud_coc_document_execution_step_instances` [GH-7779]
+  + `huaweicloud_coc_incident_tasks` [GH-7821]
+  + `huaweicloud_coc_script_tags` [GH-7779]
+  + `huaweicloud_dms_rocketmq_brokers` [GH-7775]
+  + `huaweicloud_lts_context_logs` [GH-7748]
+  + `huaweicloud_secmaster_collector_channel_groups` [GH-7789]
+  + `huaweicloud_secmaster_collector_channel_instances` [GH-7782]
+  + `huaweicloud_secmaster_configuration_dictionaries` [GH-7762]
+  + `huaweicloud_secmaster_playbook_instance` [GH-7680]
+  + `huaweicloud_swr_image_auto_sync_jobs` [GH-7797]
+  + `huaweicloud_swrv3_repositories` [GH-7773]
+  + `huaweicloud_swrv3_shared_repositories` [GH-7777]
+  + `huaweicloud_vpc_subnet_cidr_reservations` [GH-7769]
+
+## 1.78.2 (September 8, 2025)
+
+BUG FIXES:
+
+* data/huaweicloud_dcs_flavors: fix configurations set issue [GH-7774]
+
+## 1.78.1 (September 6, 2025)
+
+* **New Resource:**
+  + `huaweicloud_apig_api_action` [GH-7710]
+  + `huaweicloud_apig_api_batch_action` [GH-7723]
+  + `huaweicloud_apig_api_debug` [GH-7746]
+  + `huaweicloud_coc_document_execution_operation` [GH-7737]
+  + `huaweicloud_coc_enterprise_project_collection` [GH-7732]
+  + `huaweicloud_coc_group_resource_relation` [GH-7732]
+  + `huaweicloud_coc_other_resource_uniagent_sync` [GH-7685]
+  + `huaweicloud_coc_resource_uniagent_sync` [GH-7675]
+  + `huaweicloud_coc_script_approval` [GH-7654]
+  + `huaweicloud_codearts_pipeline_plugin_version` [GH-7668]
+  + `huaweicloud_dms_rocketmq_instance_diagnosis` [GH-7700]
+  + `huaweicloud_kms_sign` [GH-7727]
+  + `huaweicloud_secmaster_delete_policies` [GH-7709]
+  + `huaweicloud_secmaster_workflow_version` [GH-7680]
+  + `huaweicloud_vpn_connection_reset` [GH-7714]
+  + `huaweicloud_vpn_gateway_upgrade` [GH-7697]
+
+* **New Data Source:**
+  + `huaweicloud_apig_instance_api_tags` [GH-7754]
+  + `huaweicloud_apig_quotas` [GH-7751]
+  + `huaweicloud_cc_across_area_bandwidth_package_flavors` [GH-7745]
+  + `huaweicloud_cc_across_regions_bandwidth_package_flavors` [GH-7744]
+  + `huaweicloud_cc_bandwidth_package_classes` [GH-7725]
+  + `huaweicloud_cc_bandwidth_package_lines` [GH-7729]
+  + `huaweicloud_cc_bandwidth_package_sites` [GH-7731]
+  + `huaweicloud_cc_cloud_connection_capabilities` [GH-7722]
+  + `huaweicloud_cc_cloud_connection_quotas` [GH-7759]
+  + `huaweicloud_cc_global_connection_bandwidth_configs` [GH-7742]
+  + `huaweicloud_cc_site_network_capabilities` [GH-7716]
+  + `huaweicloud_cc_supported_areas` [GH-7763]
+  + `huaweicloud_cc_supported_regions` [GH-7763]
+  + `huaweicloud_coc_application_capacities` [GH-7732]
+  + `huaweicloud_coc_application_capacity_orders` [GH-7732]
+  + `huaweicloud_coc_document_execution_steps` [GH-7733]
+  + `huaweicloud_coc_document_executions` [GH-7732]
+  + `huaweicloud_coc_enterprise_project_collections` [GH-7732]
+  + `huaweicloud_coc_group_resource_relations` [GH-7732]
+  + `huaweicloud_coc_instance_batches` [GH-7732]
+  + `huaweicloud_csms_secret_tags` [GH-7704]
+  + `huaweicloud_dms_rocketmq_consumer_group_topics` [GH-7703]
+  + `huaweicloud_dms_rocketmq_instance_diagnoses` [GH-7712]
+  + `huaweicloud_eg_event_subscriptions` [GH-7752]
+  + `huaweicloud_eg_traced_events` [GH-7620]
+  + `huaweicloud_fgs_async_invocations` [GH-7713]
+  + `huaweicloud_lts_logs` [GH-7738]
+  + `huaweicloud_lts_member_group_streams` [GH-7739]
+  + `huaweicloud_lts_stream_charts` [GH-7734]
+  + `huaweicloud_secmaster_alert_rule_template_detail` [GH-7680]
+  + `huaweicloud_secmaster_collector_logstash_parsers` [GH-7702]
+  + `huaweicloud_secmaster_component_running_nodes` [GH-7736]
+  + `huaweicloud_secmaster_components` [GH-7736]
+  + `huaweicloud_secmaster_mappings_functions` [GH-7717]
+  + `huaweicloud_secmaster_operation_connections` [GH-7717]
+  + `huaweicloud_secmaster_reports_emails` [GH-7743]
+  + `huaweicloud_secmaster_retrieve_scripts` [GH-7705]
+  + `huaweicloud_secmaster_siem_directories` [GH-7747]
+  + `huaweicloud_secmaster_table_consumption` [GH-7706]
+  + `huaweicloud_secmaster_table_histograms` [GH-7715]
+  + `huaweicloud_secmaster_tables` [GH-7705]
+  + `huaweicloud_secmaster_vulnerabilities` [GH-7740]
+  + `huaweicloud_secmasterv2_alert_rule_template_detail` [GH-7680]
+
+## 1.78.0 (Aug 30, 2025)
+
+* **New Resource:**
+  + `huaweicloud_metastudio_instance` [GH-7691]
+
+## 1.77.7 (Aug 29, 2025)
+
+ENHANCEMENTS:
+
+* add assume role with oidc support [GH-7683]
+
+## 1.77.6 (Aug 27, 2025)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_apig_application_authorization: support partial management [GH-7645]
+
+## 1.77.5 (Aug 22, 2025)
+
+ENHANCEMENTS:
+
+* refactor to use ErrDefault409 err check [GH-7595]
+
+## 1.77.4 (Aug 19, 2025)
+
+ENHANCEMENTS:
+
+* refactor GetRawConfigTags to allow empty value [GH-7560]
+
+## 1.77.3 (Aug 8, 2025)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_vpcep_endpoint: add policy_document support [GH-7466]
+
+## 1.77.2 (Aug 1, 2025)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_cce_node_pool: update min/max node count [GH-7409]
+
+## 1.77.1 (July 31, 2025)
+
+* **New Resource:**
+  + `huaweicloud_cce_nodes_remove` [GH-7388]
+
+ENHANCEMENTS:
+
+* add endpoints key and description on documentation [GH-7342]
+* add default_tags support on provider [GH-7334]
+
+## 1.76.5 (July 15, 2025)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_cce_cluster: add encryption_config support [GH-7257]
+
+## 1.76.4 (July 11, 2025)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_vpcep_endpoint: add condition support [GH-7237]
+
+## 1.76.3 (July 10, 2025)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_modelarts_resource_pool: add data_volumes sorting logic [GH-7222]
+
+## 1.76.2 (July 7, 2025)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_modelartsv2_node_batch_unsubscribe: use v2 resource name [GH-7116]
+
+## 1.76.1 (July 2, 2025)
+
+ENHANCEMENTS:
+
+* update docs for temporary security credentials and backend [GH-7170]
+
+## 1.76.0 (June 30, 2025)
+
+* **New Resource:**
+  + `huaweicloud_cbr_replicate_backup` [GH-7111]
+  + `huaweicloud_sdrs_protected_instance_delete_nic` [GH-7096]
+  + `huaweicloud_rds_restore_read_replica_database` [GH-7095]
+  + `huaweicloud_sdrs_protected_instance_add_nic` [GH-7091]
+
+* **New Data Source:**
+  + `huaweicloud_rds_backup_database` [GH-7110]
+  + `huaweicloud_cbr_backup_metadata` [GH-7088]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_workspace_desktop: suppress diff for name case changing [GH-7115]
+
+## 1.75.5 (June 20, 2025)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_vpc_route_table: update changing rule logic [GH-7057]
+
+## 1.75.4 (June 13, 2025)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_compute_interface_attach: add check deleted support [GH-7014]
+
+## 1.75.3 (June 12, 2025)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_vpc_subnet: enhance dhcp_domain_name update [GH-6939]
+* resource/huaweicloud_dms_kafkav2_smart_connect_task: add agency_name support [GH-6945]
+
+## 1.75.2 (June 4, 2025)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_dms_kafka_instance: add kms_encrypted_password support [GH-6929]
+
+## 1.75.1 (June 4, 2025)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_as_group: add pagination support [GH-6918]
+
+## 1.75.0 (May 29, 2025)
+
+* **New Data Source:**
+  + `huaweicloud_rds_diagnosis` [GH-6882]
+  + `huaweicloud_sms_migration_projects` [GH-6863]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_coc_script_execute: add is_sync parameter support [GH-6873]
+
+## 1.74.1 (May 15, 2025)
+
+* **New Source:**
+  + `huaweicloud_cbc_resources_unsubscribe` [GH-6790]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_vpc_eip: report the error if the whole bandwidth is sold out [GH-6771]
+* resource/huaweicloud_modelarts_resource_pool: disable the sorting logic for resources parameter [GH-6776]
+
+## 1.74.0 (April 30, 2025)
+
+* **New Data Source:**
+  + `huaweicloud_deh_instances` [GH-6728]
+
+## 1.73.9 (April 24, 2025)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_modelarts_resource_pool: add volume attaching support [GH-6718]
+
+## 1.73.8 (April 14, 2025)
+
+BUG FIXES:
+
+* resource/huaweicloud_cce_node_attach: fix attributes setting issue [GH-6659]
+
+## 1.73.7 (April 11, 2025)
+
+ENHANCEMENTS:
+
+* add waiting for logic for secmaster post_paid_order and workspace [GH-6647]
+
+## 1.73.6 (April 7, 2025)
+
+ENHANCEMENTS:
+
+* make v5 assume role duration configurable [GH-6616]
+
+## 1.73.5 (April 3, 2025)
+
+* **New Data Source:**
+  + `huaweicloud_networking_secgroup_tags` [GH-6611]
+
+BUG FIXES:
+
+* resource/huaweicloud_cfw_black_white_list: fix address issue [GH-6608]
+
+## 1.73.4 (April 2, 2025)
+
+* **New Resource:**
+  + `huaweicloud_secmaster_workflow_action` [GH-6595]
+
+## 1.73.3 (March 24, 2025)
+
+* **New Data Source:**
+  + `huaweicloud_ims_tags` [GH-6559]
+
+## 1.73.2 (March 21, 2025)
+
+* **New Data Source:**
+  + `huaweicloud_cce_addons` [GH-6540]
+
+## 1.73.1 (March 7, 2025)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_css_cluster: remove engine_type validate to support opensearch cluster [GH-6474]
+
+## 1.73.0 (February 28, 2025)
+
+* **New Resource:**
+  + `huaweicloud_ces_metric_data_add` [GH-6290]
+  + `huaweicloud_css_snapshot_restore` [GH-6403]
+
+* **New Data Source:**
+  + `huaweicloud_aom_access_codes` [GH-6411]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_compute_instance: add uuid and fixed_ip_v4 update support [GH-6410]
+
+## 1.72.3 (February 20, 2025)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_cce_cluster: add enable_distribute_management support [GH-6375]
+
+## 1.72.2 (February 19, 2025)
+
+* **New Resource:**
+  + `huaweicloud_cdn_domain_rule` [GH-6303]
+  + `huaweicloud_ces_metric_data_add` [GH-6290]
+
+* **New Data Source:**
+  + `huaweicloud_ces_metric_data` [GH-6308]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_gaussdb_opengauss_instance: add advance_features support [GH-6300]
+
+## 1.72.1 (January 15, 2025)
+
+* **New Resource:**
+  + `huaweicloud_cae_vpc_egress` [GH-6175]
+  + `huaweicloud_cae_environment` [GH-6134]
+  + `huaweicloud_cae_notification_rule` [GH-6132]
+
+* **New Data Source:**
+  + `huaweicloud_cae_notification_rules` [GH-6168]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_cce_autopilot_cluster: add version support [GH-6191]
+
+## 1.72.0 (December 31, 2024)
+
+* **New Resource:**
+  + `huaweicloud_live_stream_delay` [GH-6103]
+  + `huaweicloud_modelarts_devserver_action` [GH-6098]
+  + `huaweicloud_gaussdb_opengauss_restore` [GH-6093]
+  + `huaweicloud_modelarts_devserver` [GH-6088]
+  + `huaweicloud_gaussdb_opengauss_parameter_template` [GH-6059]
+
+* **New Data Source:**
+  + `huaweicloud_live_channels` [GH-6090]
+  + `huaweicloud_cce_autopilot_cluster_certificate` [GH-6074]
+  + `huaweicloud_cts_resources` [GH-6068]
+  + `huaweicloud_gaussdb_opengauss_backups` [GH-6063]
+  + `huaweicloud_cts_operations` [GH-6058]
+  + `huaweicloud_cce_autopilot_addon_templates` [GH-6056]
+
+ENHANCEMENTS:
+
+* add default value for shared config file [GH-6091]
+* resource/huaweicloud_opengauss_instance: add configuration id update support [GH-6110]
+* resource/huaweicloud_identitycenter_permission_set: add tags support [GH-6099]
+
+## 1.71.2 (December 13, 2024)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_dms_kafka_instance: add port protocols support [GH-6016]
+
+## 1.71.1 (December 9, 2024)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_cce_cluster_openid_jwks: add header for jwks [GH-5988]
+
+## 1.71.0 (November 30, 2024)
+
+* **New Resource:**
+  + `huaweicloud_cce_autopilot_addon` [GH-5949]
+  + `huaweicloud_hss_cce_protection` [GH-5939]
+  + `huaweicloud_rds_mysql_proxy_restart` [GH-5914]
+  + `huaweicloud_workspace_app_image_server` [GH-5908]
+  + `huaweicloud_workspace_app_personal_folders` [GH-5906]
+  + `huaweicloud_rds_mysql_proxy` [GH-5893]
+
+* **New Data Source:**
+  + `huaweicloud_live_domains` [GH-5950]
+  + `huaweicloud_smn_topic_subscriptions` [GH-5947]
+  + `huaweicloud_css_snapshots` [GH-5944]
+  + `huaweicloud_smn_logtanks` [GH-5912]
+  + `huaweicloud_smn_subscriptions` [GH-5901]
+  + `huaweicloud_rds_mysql_proxies` [GH-5900]
+  + `huaweicloud_cph_server_bandwidths` [GH-5883]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_cce_node_pool: change data_volumes to be optional [GH-5934]
+* resource/huaweicloud_cce_node_pool: add subnet_list support [GH-5934]
+* resource/huaweicloud_cce_autopilot_cluster: add cluster update support [GH-5872]
+
+## 1.70.3 (November 15, 2024)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_eg_event_subscription: add source.detail support [GH-5843]
+
+## 1.70.2 (November 8, 2024)
+
+BUG FIXES:
+
+* resource/huaweicloud_ddm_instance: fix pathSearch issue [GH-5832]
+
+## 1.70.1 (November 7, 2024)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_coc_script: handle more NotFound errors [GH-5825]
+
+## 1.70.0 (October 30, 2024)
+
+* **New Resource:**
+  + `huaweicloud_cph_phone_stop` [GH-5769]
+  + `huaweicloud_dds_primary_standby_switch` [GH-5768]
+  + `huaweicloud_gaussdb_mysql_lts_log` [GH-5756]
+  + `huaweicloud_dds_recycle_policy` [GH-5755]
+  + `huaweicloud_vpn_access_policy` [GH-5751]
+  + `huaweicloud_workspace_app_group` [GH-5747]
+
+* **New Data Source:**
+  + `huaweicloud_gaussdb_mysql_slow_logs` [GH-5777]
+  + `huaweicloud_dds_error_logs` [GH-5772]
+  + `huaweicloud_vpn_access_policies` [GH-5770]
+  + `huaweicloud_ram_resource_shares` [GH-5749]
+  + `huaweicloud_gaussdb_redis_flavors` [GH-5746]
+  + `huaweicloud_iotda_batchtasks` [GH-5745]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_vpc_address_group: add ip_extra_set support [GH-5767]
+* resource/huaweicloud_identity_policy: add policy_document updating support [GH-5757]
+
+## 1.69.1 (October 16, 2024)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_cce_node_pool: add updating os support [GH-5681]
+
+## 1.69.0 (September 29, 2024)
+
+* **New Resource:**
+  + `huaweicloud_servicestagev3_environment_associate` [GH-5634]
+  + `huaweicloud_ces_microservice_engine_configuration` [GH-5633]
+  + `huaweicloud_servicestagev3_application` [GH-5570]
+  + `huaweicloud_dws_snapshot_copy` [GH-5596]
+  + `huaweicloud_rgc_account` [GH-5571]
+  + `huaweicloud_ces_one_click_alarm` [GH-5613]
+  + `huaweicloud_dws_cluster_restart` [GH-5568]
+  + `huaweicloud_gaussdb_mysql_recycling_policy` [GH-5590]
+  + `huaweicloud_antiddos_default_protection_policy` [GH-5592]
+
+* **New Data Source:**
+  + `huaweicloud_vpn_p2c_gateways` [GH-5625]
+  + `huaweicloud_ces_one_click_alarm_rules` [GH-5617]
+  + `huaweicloud_gaussdb_influx_instances` [GH-5616]
+  + `huaweicloud_cse_microservice_engines` [GH-5619]
+  + `huaweicloud_gaussdb_mysql_incremental_backups` [GH-5600]
+  + `huaweicloud_dbss_audit_sql_injection_rules` [GH-5615]
+  + `huaweicloud_dbss_audit_data_masking_rules` [GH-5611]
+  + `huaweicloud_dbss_audit_risk_rules` [GH-5610]
+  + `huaweicloud_dbss_audit_rule_scopes` [GH-5603]
+  + `huaweicloud_secmaster_playbook_statistics` [GH-5579]
+  + `huaweicloud_dws_cluster_topo_rings` [GH-5604]
+  + `huaweicloud_dws_statistics` [GH-5555]
+  + `huaweicloud_gaussdb_mysql_auto_scaling_records` [GH-5601]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_cdn_domain: add user_agent_filter support [GH-5631]
+* datasource/huaweicloud_compute_flavors: add storage_type support [GH-5621]
+* resource/huaweicloud_cce_cluster: add upgrade version support [GH-5608]
+* resource/huaweicloud_vpc_eip: add update enterprise project id support [GH-5587]
+
+## 1.68.0 (August 30, 2024)
+
+* **New Resource:**
+  + `huaweicloud_ccm_private_ca_restore` [GH-5466]
+  + `huaweicloud_ces_dashboard_widget` [GH-5447]
+  + `huaweicloud_ims_cbr_whole_image` [GH-5440]
+  + `huaweicloud_gaussdb_mysql_instance_restart` [GH-5435]
+  + `huaweicloud_ims_ecs_whole_image` [GH-5430]
+  + `huaweicloud_ccm_private_certificate_revoke` [GH-5429]
+  + `huaweicloud_ccm_private_ca_revoke` [GH-5425]
+  + `huaweicloud_ims_ecs_system_image` [GH-5411]
+
+* **New Data Source:**
+  + `huaweicloud_ces_alarm_templates` [GH-5461]
+  + `huaweicloud_rms_advanced_query` [GH-5458]
+  + `huaweicloud_ces_dashboard_widgets` [GH-5456]
+  + `huaweicloud_rms_resource_aggregator_advanced_query` [GH-5453]
+  + `huaweicloud_secmaster_alert_rule_templates` [GH-5452]
+  + `huaweicloud_csms_secret_version_state` [GH-5450]
+  + `huaweicloud_rms_resource_aggregator_policy_assignments` [GH-5448]
+  + `huaweicloud_secmaster_alert_rules` [GH-5444]
+  + `huaweicloud_rms_resource_aggregator_policy_states` [GH-5441]
+  + `huaweicloud_rms_resource_aggregator_discovered_resources` [GH-5439]
+  + `huaweicloud_secmaster_indicators` [GH-5437]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_elb_loadbalancer: add gateway type support [GH-5463]
+* resource/huaweicloud_csms_secret: add epsId update support [GH-5434]
+* resource/huaweicloud_kms_key: add epsId update support [GH-5432]
+
+## 1.67.1 (August 9, 2024)
+
+BUG FIXES:
+
+* resource/huaweicloud_compute_instance: fix user_data problem while updating hostname [GH-5373]
+
+## 1.67.0 (July 30, 2024)
+
+* **New Resource:**
+  + `huaweicloud_dataarts_dataservice_api_debug` [GH-5306]
+  + `huaweicloud_dataarts_architecture_batch_publishment` [GH-5302]
+  + `huaweicloud_rds_pg_account_privileges` [GH-5293]
+  + `huaweicloud_evs_volume_transfer_accepter` [GH-5290]
+  + `huaweicloud_rds_pg_database_privilege` [GH-5284]
+  + `huaweicloud_evs_volume_transfer` [GH-5277]
+
+* **New Data Source:**
+  + `huaweicloud_dataarts_dataservice_instances` [GH-5297]
+  + `huaweicloud_organizations_trusted_services` [GH-5295]
+  + `huaweicloud_organizations_services` [GH-5294]
+  + `huaweicloud_kms_keys` [GH-5289]
+  + `huaweicloud_ccm_private_ca_export` [GH-5285]
+  + `huaweicloud_cfw_capture_task_results` [GH-5280]
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_gaussdb_mysql_proxy: add access control support [GH-5270]
+
+## 1.66.3 (July 19, 2024)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_cce_node: add spot support [GH-5245]
+
+## 1.66.2 (July 17, 2024)
+
+BUG FIXES:
+
+* resource/huaweicloud_cts_data_tracker: add nil check before set agency_name [GH-5219]
+
+## 1.66.1 (July 15, 2024)
+
+ENHANCEMENTS:
+
+* resource/huaweicloud_vpc_network_acl: add roll back for updating rules [GH-5201]
+
 ## 1.66.0 (June 29, 2024)
 
 * **New Resource:**

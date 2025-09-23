@@ -2,7 +2,8 @@
 subcategory: "Cloud Trace Service (CTS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_cts_notifications"
-description: ""
+description: |-
+  Use this data source to get the list of CTS key event notifications within HuaweiCloud.
 ---
 
 # huaweicloud_cts_notifications
@@ -73,6 +74,8 @@ The `notifications` block supports:
   The [filter](#Notifications_Filter) structure is documented below.
 
 * `created_at` - The creation time of the CTS key event notification.
+
+* `agency_name` - The cloud service agency name.
 
 <a name="Notifications_Operations"></a>
 The `operations` block supports:

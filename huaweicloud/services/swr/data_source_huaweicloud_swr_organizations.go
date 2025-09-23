@@ -10,7 +10,6 @@ import (
 
 	"github.com/chnsz/golangsdk"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -90,7 +89,7 @@ func dataSourceOrganizationsRead(_ context.Context, d *schema.ResourceData, meta
 
 	listOrganizationResp, err := listOrganizationClient.Request("GET", listOrganizationPath, &listOrganizationOpt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving SWR organizations")
+		return diag.Errorf("error querying SWR organizations: %s", err)
 	}
 
 	listOrganizationRespBody, err := utils.FlattenResponse(listOrganizationResp)

@@ -70,6 +70,7 @@ $ terraform import huaweicloud_dli_database_privilege.test <object>/<user_name>
 ## Appendix
 
 <a name="permissions_for_database_and_table"></a>
+
 | Number | Permissions for database | Permissions for data table |
 | ------ | ------------------------ | -------------------------- |
 | Non-inherited permissions | DISPLAY_ALL_TABLES<br>DISPLAY_DATABASE<br>DROP_DATABASE<br>CREATE_TABLE<br>CREATE_VIEW<br>EXPLAIN<br>CREATE_ROLE<br>DROP_ROLE<br>SHOW_ROLES<br>GRANT_ROLE<br>REVOKE_ROLE<br>SHOW_USERS<br>CREATE_FUNCTION<br>DROP_FUNCTION<br>SHOW_FUNCTIONS<br>DESCRIBE_FUNCTION<br> | DISPLAY_TABLE<br>SELECT<br>DESCRIBE_TABLE<br>SHOW_CREATE_TABLE<br>DROP_TABLE<br>TRUNCATE_TABLE<br>ALTER_TABLE_RENAME<br>INSERT_INTO_TABLE<br>INSERT_OVERWRITE_TABLE<br>ALTER_TABLE_ADD_COLUMNS<br>SPARK_APP_ACCESS_META<br>SHOW_PRIVILEGES<br>GRANT_PRIVILEGE<br>REVOKE_PRIVILEGE |

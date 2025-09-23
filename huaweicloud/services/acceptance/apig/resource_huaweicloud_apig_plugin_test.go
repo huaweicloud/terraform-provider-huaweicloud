@@ -959,3 +959,338 @@ resource "huaweicloud_apig_plugin" "breaker" {
 }
 `, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name)
 }
+
+func TestAccPlugin_thirdAuth(t *testing.T) {
+	var (
+		plugin plugins.Plugin
+
+		name       = acceptance.RandomAccResourceName()
+		updateName = acceptance.RandomAccResourceName()
+		baseConfig = testAccPlugin_thirdAuth_base(name)
+
+		rNameForThirdAuth = "huaweicloud_apig_plugin.third_auth"
+		rcForThirdAuth    = acceptance.InitResourceCheck(rNameForThirdAuth, &plugin, getPluginFunc)
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
+			acceptance.TestAccPreCheckApigChannelRelatedInfo(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rcForThirdAuth.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccPlugin_thirdAuth_step1(baseConfig, name),
+				Check: resource.ComposeTestCheckFunc(
+					rcForThirdAuth.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rNameForThirdAuth, "type", "third_auth"),
+					resource.TestCheckResourceAttr(rNameForThirdAuth, "name", name),
+					resource.TestCheckResourceAttr(rNameForThirdAuth, "description", "Created by terraform script"),
+					resource.TestCheckResourceAttrSet(rNameForThirdAuth, "created_at"),
+				),
+			},
+			{
+				Config: testAccPlugin_thirdAuth_step2(baseConfig, updateName),
+				Check: resource.ComposeTestCheckFunc(
+					rcForThirdAuth.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rNameForThirdAuth, "name", updateName),
+					resource.TestCheckResourceAttr(rNameForThirdAuth, "description", "Updated by terraform script"),
+					resource.TestCheckResourceAttrSet(rNameForThirdAuth, "updated_at"),
+				),
+			},
+			{
+				ResourceName:      rNameForThirdAuth,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccPluginImportStateFunc(rNameForThirdAuth),
+			},
+		},
+	})
+}
+
+func testAccPlugin_thirdAuth_base(name string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_apig_instances" "test" {
+  instance_id = "%[1]s"
+}
+
+data "huaweicloud_compute_flavors" "test" {
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  performance_type  = "normal"
+  cpu_core_count    = 2
+  memory_size       = 4
+}
+
+data "huaweicloud_images_image" "test" {
+  name        = "Ubuntu 18.04 server 64bit"
+  most_recent = true
+}
+
+resource "huaweicloud_networking_secgroup" "test" {
+  name                 = "%[2]s"
+  delete_default_rules = true
+}
+
+resource "huaweicloud_compute_instance" "test" {
+  count = 1
+
+  name               = format("%[2]s-%%d", count.index)
+  image_id           = data.huaweicloud_images_image.test.id
+  flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
+  security_group_ids = [huaweicloud_networking_secgroup.test.id]
+  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
+  system_disk_type   = "SSD"
+
+  network {
+    uuid = "%[3]s"
+  }
+}
+
+resource "huaweicloud_apig_channel" "test" {
+  instance_id        = try(data.huaweicloud_apig_instances.test.instances[0].id, "")
+  name               = "%[2]s"
+  port               = 80
+  balance_strategy   = 1
+  member_type        = "ecs"
+  type               = "builtin"
+
+  health_check {
+    protocol           = "TCP"
+    threshold_normal   = 1 # minimum value
+    threshold_abnormal = 1 # minimum value
+    interval           = 1 # minimum value
+    timeout            = 1 # minimum value
+  }
+
+  dynamic "member" {
+    for_each = huaweicloud_compute_instance.test[*]
+
+    content {
+      id   = member.value.id
+      name = member.value.name
+    }
+  }
+}
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID,
+		name,
+		acceptance.HW_APIG_DEDICATED_INSTANCE_USED_SUBNET_ID)
+}
+
+func testAccPlugin_thirdAuth_step1(baseConfig, name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_apig_plugin" "third_auth" {
+  instance_id = try(data.huaweicloud_apig_instances.test.instances[0].id, "")
+  name        = "%[2]s"
+  description = "Created by terraform script"
+  type        = "third_auth"
+  content     = jsonencode({
+    "auth_downgrade_enabled": true,
+    "auth_request": {
+      "method": "GET",
+      "path": "/test",
+      "protocol": "HTTPS",
+      "timeout": 5000,
+      "url_domain": "",
+      "vpc_channel_enabled": true,
+      "vpc_channel_info": {
+        "vpc_id": huaweicloud_apig_channel.test.id,
+        "vpc_proxy_host": "test"
+      }
+    },
+    "carry_body": {
+      "enabled": true,
+      "max_body_size": 1000
+    }
+    "carry_path_enabled": true,
+    "carry_resp_headers": [],
+    "custom_forbid_limit": 100,
+    "identities": {
+      "headers": [
+        {
+          "name": "X-Custom-Token"
+        }
+      ],
+      "queries": null
+    },
+    "match_auth": null,
+    "parameters": null,
+    "rules": null,
+    "return_resp_body_enabled": false,
+    "rule_enabled":  false,
+    "rule_type": "allow",
+    "simple_auth_mode_enabled": true
+  })
+}
+`, baseConfig, name)
+}
+
+func testAccPlugin_thirdAuth_step2(baseConfig, name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_apig_plugin" "third_auth" {
+  instance_id = try(data.huaweicloud_apig_instances.test.instances[0].id, "")
+  name        = "%[2]s"
+  description = "Updated by terraform script"
+  type        = "third_auth"
+  content     = jsonencode({
+    "auth_request": {
+      "method": "POST",
+      "protocol": "HTTPS",
+      "url_domain": "tftest.example.com",
+      "path": "/test",
+      "timeout": 5005,
+      "vpc_channel_enabled": false,
+      "vpc_channel_info": null
+    },
+    "identities": {
+      "headers": [{
+        "name": "X-Custom-Token"
+      }],
+      "queries": [{
+        "name": "user_name"
+      }]
+    },
+    "carry_body": {
+      "enabled": true,
+      "max_body_size": 1000
+    },
+    "carry_path_enabled": true,
+    "return_resp_body_enabled": false,
+    "carry_resp_headers": [],
+    "simple_auth_mode_enabled": true,
+    "match_auth": null,
+    "parameters": null,
+    "rules": null,
+    "rule_type": "allow",
+    "rule_enabled": false,
+    "custom_forbid_limit": 90,
+    "auth_downgrade_enabled": true
+  })
+}
+`, baseConfig, name)
+}
+
+func TestAccPlugin_proxyCache(t *testing.T) {
+	var (
+		plugin plugins.Plugin
+
+		name       = acceptance.RandomAccResourceName()
+		updateName = acceptance.RandomAccResourceName()
+
+		rNameForProxyCache = "huaweicloud_apig_plugin.proxy_cache"
+		rcForProxyCache    = acceptance.InitResourceCheck(rNameForProxyCache, &plugin, getPluginFunc)
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
+			acceptance.TestAccPreCheckApigChannelRelatedInfo(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rcForProxyCache.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccPlugin_proxyCache_step1(name),
+				Check: resource.ComposeTestCheckFunc(
+					rcForProxyCache.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rNameForProxyCache, "type", "proxy_cache"),
+					resource.TestCheckResourceAttr(rNameForProxyCache, "name", name),
+					resource.TestCheckResourceAttr(rNameForProxyCache, "description", "Created by terraform script"),
+					resource.TestCheckResourceAttrSet(rNameForProxyCache, "created_at"),
+				),
+			},
+			{
+				Config: testAccPlugin_proxyCache_step2(updateName),
+				Check: resource.ComposeTestCheckFunc(
+					rcForProxyCache.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rNameForProxyCache, "name", updateName),
+					resource.TestCheckResourceAttr(rNameForProxyCache, "description", "Updated by terraform script"),
+					resource.TestCheckResourceAttrSet(rNameForProxyCache, "updated_at"),
+				),
+			},
+			{
+				ResourceName:      rNameForProxyCache,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccPluginImportStateFunc(rNameForProxyCache),
+			},
+		},
+	})
+}
+
+func testAccPlugin_proxyCache_step1(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_apig_plugin" "proxy_cache" {
+  instance_id = "%[1]s"
+  name        = "%[2]s"
+  description = "Created by terraform script"
+  type        = "proxy_cache"
+  content     = jsonencode({
+    "cache_key": {
+      "system_params": [],
+       "parameters": [
+        "custom_param"
+      ],
+      "headers": []
+    },
+    "cache_http_status_and_ttl": [
+      {
+        "http_status": [
+          202,
+          203
+        ],
+        "ttl": 5
+      }
+    ],
+    "client_cache_control": {
+      "mode": "off",
+      "datas": []
+    },
+    "cacheable_headers": [
+      "X-Custom-Header"
+    ]
+  })
+}
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name)
+}
+
+func testAccPlugin_proxyCache_step2(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_apig_plugin" "proxy_cache" {
+  instance_id = "%[1]s"
+  name        = "%[2]s"
+  description = "Updated by terraform script"
+  type        = "proxy_cache"
+  content     = jsonencode({
+    "cache_key": {
+      "system_params": [],
+      "parameters": ["custom_param"],
+      "headers": ["X-Custom-Param"]
+    },
+    "cache_http_status_and_ttl": [{
+      "http_status": [
+        202,
+        203
+      ],
+      "ttl": 5
+    }, {
+      "http_status": [400],
+      "ttl": 1
+    }],
+    "client_cache_control": {
+      "mode": "all",
+      "datas": []
+    },
+    "cacheable_headers": ["X-Custom-Header"]
+  })
+}
+`, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name)
+}

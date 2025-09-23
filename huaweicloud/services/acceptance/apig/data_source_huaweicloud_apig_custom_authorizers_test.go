@@ -88,7 +88,7 @@ data "huaweicloud_apig_custom_authorizers" "test" {
 
 # Filter by ID
 locals {
-  authorizer_id = data.huaweicloud_apig_custom_authorizers.test.authorizers[0].id
+  authorizer_id = huaweicloud_apig_custom_authorizer.test.id
 }
 
 data "huaweicloud_apig_custom_authorizers" "filter_by_id" {
@@ -108,10 +108,14 @@ output "authorizer_id_filter_is_useful" {
 
 # Filter by name
 locals {
-  name = data.huaweicloud_apig_custom_authorizers.test.authorizers[0].name
+  name = huaweicloud_apig_custom_authorizer.test.name
 }
 
 data "huaweicloud_apig_custom_authorizers" "filter_by_name" {
+  depends_on = [
+    huaweicloud_apig_custom_authorizer.test
+  ]
+
   instance_id = local.instance_id
   name        = local.name
 }
@@ -128,10 +132,14 @@ output "name_filter_is_useful" {
 
 # Filter by type
 locals {
-  type = data.huaweicloud_apig_custom_authorizers.test.authorizers[0].type
+  type = huaweicloud_apig_custom_authorizer.test.type
 }
 
 data "huaweicloud_apig_custom_authorizers" "filter_by_type" {
+  depends_on = [
+    huaweicloud_apig_custom_authorizer.test
+  ]
+
   instance_id = local.instance_id
   type        = local.type
 }

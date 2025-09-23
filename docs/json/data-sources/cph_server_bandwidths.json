@@ -1,0 +1,49 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cph_server_bandwidths": {
+          "block": {
+            "attributes": {
+              "bandwidths": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "bandwidth_charge_mode": "number",
+                      "bandwidth_id": "string",
+                      "bandwidth_name": "string",
+                      "bandwidth_size": "number",
+                      "bandwidth_type": "number",
+                      "created_at": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "The bandwidth list of CPH server.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CPH",
+            "name": "Cloud Phone",
+            "catalog": "Compute",
+            "name_cn": "云手机",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

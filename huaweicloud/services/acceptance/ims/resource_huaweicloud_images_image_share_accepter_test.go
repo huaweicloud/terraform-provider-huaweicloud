@@ -16,9 +16,8 @@ import (
 )
 
 func getImsImageShareAccepterResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	region := acceptance.HW_REGION_NAME
-	// getImage: Query IMS image
 	var (
+		region          = acceptance.HW_REGION_NAME
 		getImageHttpUrl = "v2/cloudimages"
 		getImageProduct = "ims"
 	)
@@ -42,7 +41,7 @@ func getImsImageShareAccepterResourceFunc(cfg *config.Config, state *terraform.R
 	}
 	getImageResp, err := getImageClient.Request("GET", getImagePath, &getImageOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving IMS image: %s", err)
+		return nil, fmt.Errorf("error retrieving IMS shared images: %s", err)
 	}
 
 	getImageRespBody, err := utils.FlattenResponse(getImageResp)
@@ -52,16 +51,17 @@ func getImsImageShareAccepterResourceFunc(cfg *config.Config, state *terraform.R
 
 	images := utils.PathSearch("images", getImageRespBody, nil)
 	if images == nil || len(images.([]interface{})) == 0 {
-		return nil, fmt.Errorf("error get IMS share image")
+		return nil, golangsdk.ErrDefault404{}
 	}
 
-	return make(map[string]interface{}), nil
+	return images, nil
 }
 
 func TestAccImsImageShareAccepter_basic(t *testing.T) {
-	var obj interface{}
-
-	rName := "huaweicloud_images_image_share_accepter.test"
+	var (
+		obj   interface{}
+		rName = "huaweicloud_images_image_share_accepter.test"
+	)
 
 	rc := acceptance.InitResourceCheck(
 		rName,

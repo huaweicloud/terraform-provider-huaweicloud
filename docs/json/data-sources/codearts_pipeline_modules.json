@@ -1,0 +1,72 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_codearts_pipeline_modules": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "modules": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "base_url": "string",
+                      "description": "string",
+                      "id": "number",
+                      "location": "string",
+                      "manifest_version": "string",
+                      "module_id": "string",
+                      "name": "string",
+                      "properties": "string",
+                      "properties_list": [
+                        "list",
+                        "string"
+                      ],
+                      "publisher": "string",
+                      "tags": [
+                        "list",
+                        "string"
+                      ],
+                      "type": "string",
+                      "url_relative": "string",
+                      "version": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the module list.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the module name.",
+                "optional": true
+              },
+              "product_line": {
+                "type": "string",
+                "description": "Specifies the product line.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the tags.",
+                "optional": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -56,6 +56,16 @@
                       "description": "The creation time of the event source.",
                       "computed": true
                     },
+                    "detail": {
+                      "type": "string",
+                      "description": "The configuration source of the event target, in JSON format.",
+                      "optional": true
+                    },
+                    "detail_name": {
+                      "type": "string",
+                      "description": "The name (key) of the source configuration detail.",
+                      "optional": true
+                    },
                     "filter_rule": {
                       "type": "string",
                       "description": "The filter rule of the event source",

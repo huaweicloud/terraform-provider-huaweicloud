@@ -13,6 +13,10 @@
                 "type": "string",
                 "optional": true
               },
+              "http_method": {
+                "type": "string",
+                "optional": true
+              },
               "id": {
                 "type": "string",
                 "computed": true
@@ -39,7 +43,9 @@
                   [
                     "object",
                     {
+                      "created_at": "string",
                       "domain_name": "string",
+                      "http_method": "string",
                       "id": "string",
                       "interval": "number",
                       "max_retries": "number",
@@ -50,6 +56,7 @@
                       "protocol": "string",
                       "status_code": "string",
                       "timeout": "number",
+                      "updated_at": "string",
                       "url_path": "string"
                     }
                   ]

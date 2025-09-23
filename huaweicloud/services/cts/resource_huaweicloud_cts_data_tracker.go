@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"regexp"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -12,8 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	client "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cts/v3"
-	cts "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cts/v3/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -25,6 +24,8 @@ import (
 // @API CTS PUT /v3/{project_id}/tracker
 // @API CTS DELETE /v3/{project_id}/trackers
 // @API CTS GET /v3/{project_id}/trackers
+// @API CTS POST /v3/{project_id}/{resource_type}/{resource_id}/tags/create
+// @API CTS DELETE /v3/{project_id}/{resource_type}/{resource_id}/tags/delete
 func ResourceCTSDataTracker() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCTSDataTrackerCreate,
@@ -39,6 +40,8 @@ func ResourceCTSDataTracker() *schema.Resource {
 			Create: schema.DefaultTimeout(5 * time.Minute),
 			Delete: schema.DefaultTimeout(5 * time.Minute),
 		},
+
+		CustomizeDiff: config.MergeDefaultTags(),
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -76,11 +79,6 @@ func ResourceCTSDataTracker() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				RequiredWith: []string{"bucket_name"},
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(0, 64),
-					validation.StringMatch(regexp.MustCompile(`^[\.\-_A-Za-z0-9]+$`),
-						"only letters, numbers, hyphens (-), underscores (_), and periods (.) are allowed"),
-				),
 			},
 			"obs_retention_period": {
 				Type:         schema.TypeInt,
@@ -130,130 +128,106 @@ func ResourceCTSDataTracker() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"create_time": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"detail": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"domain_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"group_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"stream_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"log_group_name": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"log_topic_name": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"is_authorized_bucket": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
 		},
 	}
 }
 
-func buildCreateRequestBody(d *schema.ResourceData) *cts.CreateTrackerRequestBody {
-	trackerType := cts.GetCreateTrackerRequestBodyTrackerTypeEnum().DATA
-	agencyName := cts.GetCreateTrackerRequestBodyAgencyNameEnum().CTS_ADMIN_TRUST
-	reqBody := cts.CreateTrackerRequestBody{
-		TrackerType:       trackerType,
-		TrackerName:       d.Get("name").(string),
-		IsLtsEnabled:      utils.Bool(d.Get("lts_enabled").(bool)),
-		IsSupportValidate: utils.Bool(d.Get("validate_file").(bool)),
-		DataBucket:        buildDataBucketOpts(d),
-		ObsInfo:           buildTransferBucketOpts(d),
-		AgencyName:        &agencyName,
+func buildCreateRequestBody(d *schema.ResourceData) map[string]interface{} {
+	trackerType := "data"
+	agencyName := "cts_admin_trust"
+	reqBody := map[string]interface{}{
+		"tracker_type":        trackerType,
+		"tracker_name":        d.Get("name").(string),
+		"is_lts_enabled":      d.Get("lts_enabled").(bool),
+		"is_support_validate": d.Get("validate_file").(bool),
+		"data_bucket":         buildDataBucketOpts(d),
+		"obs_info":            buildTransferBucketOpts(d),
+		"agency_name":         agencyName,
 	}
 
 	log.Printf("[DEBUG] creating data CTS tracker options: %#v", reqBody)
-	return &reqBody
+	return reqBody
 }
 
-func expandResourceTags(tagmap map[string]interface{}) *[]cts.Tags {
-	taglist := make([]cts.Tags, 0, len(tagmap))
-
-	for k, v := range tagmap {
-		taglist = append(taglist, cts.Tags{
-			Key:   utils.String(k),
-			Value: utils.String(v.(string)),
-		})
+func buildDataBucketOpts(d *schema.ResourceData) map[string]interface{} {
+	dataBucketCfg := map[string]interface{}{
+		"data_bucket_name": d.Get("data_bucket").(string),
 	}
 
-	return &taglist
-}
-
-func buildCreateTagOpt(taglist *[]cts.Tags, id string) *cts.BatchCreateResourceTagsRequest {
-	reqBody := cts.BatchCreateResourceTagsRequestBody{
-		Tags: taglist,
-	}
-	tagOpt := cts.BatchCreateResourceTagsRequest{
-		ResourceId:   id,
-		ResourceType: cts.GetBatchCreateResourceTagsRequestResourceTypeEnum().CTS_TRACKER,
-		Body:         &reqBody,
-	}
-
-	return &tagOpt
-}
-
-func buildDeleteTagOpt(taglist *[]cts.Tags, id string) *cts.BatchDeleteResourceTagsRequest {
-	reqBody := cts.BatchDeleteResourceTagsRequestBody{
-		Tags: taglist,
-	}
-	tagOpt := cts.BatchDeleteResourceTagsRequest{
-		ResourceId:   id,
-		ResourceType: cts.GetBatchDeleteResourceTagsRequestResourceTypeEnum().CTS_TRACKER,
-		Body:         &reqBody,
-	}
-
-	return &tagOpt
-}
-
-func buildDataBucketOpts(d *schema.ResourceData) *cts.DataBucket {
-	dataBucketCfg := cts.DataBucket{
-		DataBucketName: utils.String(d.Get("data_bucket").(string)),
-	}
-
-	var rawOperations []interface{}
-	if v, ok := d.GetOk("data_operation"); ok {
-		rawOperations = v.([]interface{})
-	} else {
+	rawOperations, ok := d.GetOk("data_operation")
+	if !ok {
 		rawOperations = []interface{}{"READ", "WRITE"}
 	}
 
-	operations := make([]cts.DataBucketDataEvent, len(rawOperations))
-	dataEvents := cts.GetDataBucketDataEventEnum()
-	for i, raw := range rawOperations {
-		if op, ok := raw.(string); ok {
-			if op == "READ" {
-				operations[i] = dataEvents.READ
-			} else if op == "WRITE" {
-				operations[i] = dataEvents.WRITE
-			}
-		}
-	}
-	dataBucketCfg.DataEvent = &operations
-
-	return &dataBucketCfg
+	dataBucketCfg["data_event"] = utils.ExpandToStringList(rawOperations.([]interface{}))
+	return dataBucketCfg
 }
 
-func buildTransferBucketOpts(d *schema.ResourceData) *cts.TrackerObsInfo {
-	transferCfg := cts.TrackerObsInfo{
-		BucketName:      utils.String(d.Get("bucket_name").(string)),
-		FilePrefixName:  utils.String(d.Get("file_prefix").(string)),
-		IsSortByService: utils.Bool(d.Get("is_sort_by_service").(bool)),
+func buildTransferBucketOpts(d *schema.ResourceData) map[string]interface{} {
+	transferCfg := map[string]interface{}{
+		"bucket_name":        utils.ValueIgnoreEmpty(d.Get("bucket_name").(string)),
+		"file_prefix_name":   utils.ValueIgnoreEmpty(d.Get("file_prefix").(string)),
+		"is_sort_by_service": d.Get("is_sort_by_service").(bool),
 	}
-	if v, ok := d.GetOk("compress_type"); ok {
-		compressType := cts.GetTrackerObsInfoCompressTypeEnum().GZIP
-		if v.(string) != "gzip" {
-			compressType = cts.GetTrackerObsInfoCompressTypeEnum().JSON
+	if compressType, ok := d.GetOk("compress_type"); ok {
+		if compressType.(string) != "gzip" {
+			transferCfg["compress_type"] = "json"
+		} else {
+			transferCfg["compress_type"] = "gzip"
 		}
-		transferCfg.CompressType = &compressType
 	}
 	if v, ok := d.GetOk("obs_retention_period"); ok {
-		lifecycle := int32(v.(int))
-		transferCfg.BucketLifecycle = &lifecycle
+		transferCfg["bucket_lifecycle"] = v.(int)
 	}
 
-	return &transferCfg
+	return transferCfg
 }
 
-func updateResourceTags(ctsClient *client.CtsClient, d *schema.ResourceData) error {
+func updateTags(ctsClient *golangsdk.ServiceClient, d *schema.ResourceData) error {
 	oldRaw, newRaw := d.GetChange("tags")
 	id := d.Id()
 
 	if oldTags := oldRaw.(map[string]interface{}); len(oldTags) > 0 {
-		oldTagList := expandResourceTags(oldTags)
-		_, err := ctsClient.BatchDeleteResourceTags(buildDeleteTagOpt(oldTagList, id))
+		err := deleteTags(ctsClient, oldTags, id)
 		if err != nil {
 			return err
 		}
 	}
 
 	if newTags := newRaw.(map[string]interface{}); len(newTags) > 0 {
-		newTagsList := expandResourceTags(newTags)
-		_, err := ctsClient.BatchCreateResourceTags(buildCreateTagOpt(newTagsList, id))
+		err := createTags(ctsClient, newTags, id)
 		if err != nil {
 			return err
 		}
@@ -262,30 +236,85 @@ func updateResourceTags(ctsClient *client.CtsClient, d *schema.ResourceData) err
 	return nil
 }
 
+func createTags(ctsClient *golangsdk.ServiceClient, tags map[string]interface{}, id string) error {
+	if len(tags) == 0 {
+		return nil
+	}
+
+	createTagsHttpUrl := "v3/{project_id}/{resource_type}/{resource_id}/tags/create"
+	createTagsPath := ctsClient.Endpoint + createTagsHttpUrl
+	createTagsPath = strings.ReplaceAll(createTagsPath, "{project_id}", ctsClient.ProjectID)
+	createTagsPath = strings.ReplaceAll(createTagsPath, "{resource_type}", "cts-tracker")
+	createTagsPath = strings.ReplaceAll(createTagsPath, "{resource_id}", id)
+	createTagsOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"tags": utils.ExpandResourceTags(tags),
+		},
+	}
+
+	_, err := ctsClient.Request("POST", createTagsPath, &createTagsOpt)
+	return err
+}
+
+func deleteTags(ctsClient *golangsdk.ServiceClient, tags map[string]interface{}, id string) error {
+	if len(tags) == 0 {
+		return nil
+	}
+
+	deleteTagsHttpUrl := "v3/{project_id}/{resource_type}/{resource_id}/tags/delete"
+	deleteTagsPath := ctsClient.Endpoint + deleteTagsHttpUrl
+	deleteTagsPath = strings.ReplaceAll(deleteTagsPath, "{project_id}", ctsClient.ProjectID)
+	deleteTagsPath = strings.ReplaceAll(deleteTagsPath, "{resource_type}", "cts-tracker")
+	deleteTagsPath = strings.ReplaceAll(deleteTagsPath, "{resource_id}", id)
+	deleteTagsOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	deleteTagsOpt.JSONBody = map[string]interface{}{
+		"tags": utils.ExpandResourceTags(tags),
+	}
+
+	_, err := ctsClient.Request("DELETE", deleteTagsPath, &deleteTagsOpt)
+	return err
+}
+
 func resourceCTSDataTrackerCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	ctsClient, err := cfg.HcCtsV3Client(cfg.GetRegion(d))
+	region := cfg.GetRegion(d)
+	ctsClient, err := cfg.NewServiceClient("cts", region)
 	if err != nil {
 		return diag.Errorf("error creating CTS client: %s", err)
 	}
 
-	createOpts := cts.CreateTrackerRequest{
-		Body: buildCreateRequestBody(d),
+	createHttpUrl := "v3/{project_id}/tracker"
+	createOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json;charset=UTF-8",
+		},
 	}
+	createOpts.JSONBody = utils.RemoveNil(buildCreateRequestBody(d))
 
-	resp, err := ctsClient.CreateTracker(&createOpts)
+	createPath := ctsClient.Endpoint + createHttpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", ctsClient.ProjectID)
+	resp, err := ctsClient.Request("POST", createPath, &createOpts)
 	if err != nil {
 		return diag.Errorf("error creating CTS data tracker: %s", err)
 	}
 
-	if resp.Id == nil {
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	id := utils.PathSearch("id", respBody, "").(string)
+	if id == "" {
 		return diag.Errorf("error creating CTS data tracker: ID is not found in API response")
 	}
-	d.SetId(*resp.Id)
+	d.SetId(id)
 
 	if rawTag := d.Get("tags").(map[string]interface{}); len(rawTag) > 0 {
-		tagList := expandResourceTags(rawTag)
-		_, err = ctsClient.BatchCreateResourceTags(buildCreateTagOpt(tagList, *resp.Id))
+		err = createTags(ctsClient, rawTag, id)
 		if err != nil {
 			return diag.Errorf("error creating CTS tracker tags: %s", err)
 		}
@@ -304,7 +333,8 @@ func resourceCTSDataTrackerCreate(ctx context.Context, d *schema.ResourceData, m
 
 func resourceCTSDataTrackerUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	ctsClient, err := cfg.HcCtsV3Client(cfg.GetRegion(d))
+	region := cfg.GetRegion(d)
+	ctsClient, err := cfg.NewServiceClient("cts", region)
 	if err != nil {
 		return diag.Errorf("error creating CTS client: %s", err)
 	}
@@ -319,34 +349,37 @@ func resourceCTSDataTrackerUpdate(ctx context.Context, d *schema.ResourceData, m
 
 	// update other configurations
 	if d.HasChangeExcept("enabled") {
-		trackerType := cts.GetUpdateTrackerRequestBodyTrackerTypeEnum().DATA
-		agencyName := cts.GetUpdateTrackerRequestBodyAgencyNameEnum().CTS_ADMIN_TRUST
+		trackerType := "data"
+		agencyName := "cts_admin_trust"
 		trackerName := d.Get("name").(string)
-		updateReq := cts.UpdateTrackerRequestBody{
-			TrackerName:       trackerName,
-			TrackerType:       trackerType,
-			IsLtsEnabled:      utils.Bool(d.Get("lts_enabled").(bool)),
-			IsSupportValidate: utils.Bool(d.Get("validate_file").(bool)),
-			DataBucket:        buildDataBucketOpts(d),
-			AgencyName:        &agencyName,
+		updateOpts := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			MoreHeaders: map[string]string{
+				"Content-Type": "application/json;charset=UTF-8",
+			},
+		}
+		updateBody := map[string]interface{}{
+			"tracker_name":        trackerName,
+			"tracker_type":        trackerType,
+			"is_lts_enabled":      d.Get("lts_enabled").(bool),
+			"is_support_validate": d.Get("validate_file").(bool),
+			"data_bucket":         buildDataBucketOpts(d),
+			"aegncy_name":         agencyName,
 		}
 
 		if d.HasChanges("bucket_name", "file_prefix", "obs_retention_period", "compress_type", "is_sort_by_service") {
-			updateReq.ObsInfo = buildTransferBucketOpts(d)
+			updateBody["obs_info"] = buildTransferBucketOpts(d)
 		}
 
-		log.Printf("[DEBUG] updating CTS tracker options: %#v", updateReq)
-		updateOpts := cts.UpdateTrackerRequest{
-			Body: &updateReq,
-		}
-
-		_, err = ctsClient.UpdateTracker(&updateOpts)
+		log.Printf("[DEBUG] updating CTS tracker options: %#v", updateBody)
+		updateOpts.JSONBody = utils.RemoveNil(updateBody)
+		err = updateTracker(ctsClient, &updateOpts)
 		if err != nil {
 			return diag.Errorf("error updating CTS tracker: %s", err)
 		}
 
 		if d.HasChange("tags") {
-			err = updateResourceTags(ctsClient, d)
+			err = updateTags(ctsClient, d)
 			if err != nil {
 				return diag.Errorf("error updating CTS tracker tags: %s", err)
 			}
@@ -359,98 +392,82 @@ func resourceCTSDataTrackerUpdate(ctx context.Context, d *schema.ResourceData, m
 func resourceCTSDataTrackerRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-	ctsClient, err := cfg.HcCtsV3Client(region)
+	ctsClient, err := cfg.NewServiceClient("cts", region)
 	if err != nil {
 		return diag.Errorf("error creating CTS client: %s", err)
 	}
 
+	getTrackerHttpUrl := "v3/{project_id}/trackers?tracker_name={tracker_name}&tracker_type={tracker_type}"
 	trackerName := d.Get("name").(string)
-	trackerType := cts.GetListTrackersRequestTrackerTypeEnum().DATA
-	listOpts := &cts.ListTrackersRequest{
-		TrackerName: &trackerName,
-		TrackerType: &trackerType,
+	trackerType := "data"
+	getTrackerOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
 
-	response, err := ctsClient.ListTrackers(listOpts)
+	getTrackerPath := ctsClient.Endpoint + getTrackerHttpUrl
+	getTrackerPath = strings.ReplaceAll(getTrackerPath, "{project_id}", ctsClient.ProjectID)
+	getTrackerPath = strings.ReplaceAll(getTrackerPath, "{tracker_name}", trackerName)
+	getTrackerPath = strings.ReplaceAll(getTrackerPath, "{tracker_type}", trackerType)
+	response, err := ctsClient.Request("GET", getTrackerPath, &getTrackerOpts)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving CTS data tracker")
 	}
 
-	if response.Trackers == nil || len(*response.Trackers) == 0 {
-		d.SetId("")
-		return diag.Diagnostics{
-			diag.Diagnostic{
-				Severity: diag.Warning,
-				Summary:  "Resource not found",
-				Detail:   fmt.Sprintf("cannot retrieve CTS data tracker %s", trackerName),
-			},
-		}
+	respBody, err := utils.FlattenResponse(response)
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
-	allTrackers := *response.Trackers
-	ctsTracker := allTrackers[0]
+	tracker := utils.PathSearch("trackers|[0]", respBody, nil)
+	if tracker == nil {
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "error retrieving CTS data tracker")
+	}
 
-	if ctsTracker.Id == nil {
+	id := utils.PathSearch("id", tracker, "").(string)
+	if id == "" {
 		return diag.Errorf("error retrieve CTS data tracker: ID is not found in API response")
 	}
 
-	d.SetId(*ctsTracker.Id)
+	d.SetId(id)
 
-	mErr := multierror.Append(
-		nil,
+	var mErr *multierror.Error
+	bucketName := utils.PathSearch("obs_info.bucket_name", tracker, "").(string)
+	status := utils.PathSearch("status", tracker, "").(string)
+	mErr = multierror.Append(
+		mErr,
 		d.Set("region", region),
-		d.Set("name", ctsTracker.TrackerName),
-		d.Set("lts_enabled", ctsTracker.Lts.IsLtsEnabled),
-		d.Set("validate_file", ctsTracker.IsSupportValidate),
-		d.Set("agency_name", ctsTracker.AgencyName.Value()),
+		d.Set("name", utils.PathSearch("tracker_name", tracker, nil)),
+		d.Set("validate_file", utils.PathSearch("is_support_validate", tracker, nil)),
+		d.Set("lts_enabled", utils.PathSearch("lts.is_lts_enabled", tracker, nil)),
+		d.Set("agency_name", utils.PathSearch("agency_name", tracker, nil)),
+		d.Set("data_bucket", utils.PathSearch("data_bucket.data_bucket_name", tracker, nil)),
+		d.Set("data_operation", utils.PathSearch("data_bucket.data_event", tracker, nil)),
+		d.Set("bucket_name", bucketName),
+		d.Set("compress_type", utils.PathSearch("obs_info.compress_type", tracker, nil)),
+		d.Set("file_prefix", utils.PathSearch("obs_info.file_prefix_name", tracker, nil)),
+		d.Set("is_sort_by_service", utils.PathSearch("obs_info.is_sort_by_service", tracker, nil)),
+		d.Set("type", utils.PathSearch("tracker_type", tracker, nil)),
+		d.Set("status", status),
+		d.Set("enabled", status == "enabled"),
+		d.Set("create_time", utils.PathSearch("create_time", tracker, nil)),
+		d.Set("detail", utils.PathSearch("detail", tracker, nil)),
+		d.Set("domain_id", utils.PathSearch("domain_id", tracker, nil)),
+		d.Set("group_id", utils.PathSearch("group_id", tracker, nil)),
+		d.Set("stream_id", utils.PathSearch("stream_id", tracker, nil)),
+		d.Set("log_group_name", utils.PathSearch("lts.log_group_name", tracker, nil)),
+		d.Set("log_topic_name", utils.PathSearch("lts.log_topic_name", tracker, nil)),
+		d.Set("is_authorized_bucket", utils.PathSearch("obs_info.is_authorized_bucket", tracker, false)),
+		d.Set("tags", d.Get("tags")),
 	)
 
-	if ctsTracker.DataBucket != nil {
-		mErr = multierror.Append(mErr, d.Set("data_bucket", ctsTracker.DataBucket.DataBucketName))
-
-		if ctsTracker.DataBucket.DataEvent != nil {
-			operations := make([]string, len(*ctsTracker.DataBucket.DataEvent))
-			for i, event := range *ctsTracker.DataBucket.DataEvent {
-				operations[i] = formatValue(event)
-			}
-			mErr = multierror.Append(mErr, d.Set("data_operation", operations))
-		}
-	}
-
-	if ctsTracker.ObsInfo != nil {
-		bucketName := ctsTracker.ObsInfo.BucketName
+	if bucketName != "" {
 		mErr = multierror.Append(
 			mErr,
-			d.Set("bucket_name", bucketName),
-			d.Set("file_prefix", ctsTracker.ObsInfo.FilePrefixName),
-			d.Set("is_sort_by_service", ctsTracker.ObsInfo.IsSortByService),
+			d.Set("transfer_enabled", true),
+			d.Set("obs_retention_period", utils.PathSearch("obs_info.bucket_lifecycle", tracker, nil)),
 		)
-
-		if ctsTracker.ObsInfo.CompressType != nil {
-			mErr = multierror.Append(mErr, d.Set("compress_type", formatValue(ctsTracker.ObsInfo.CompressType)))
-		}
-
-		if *bucketName != "" {
-			mErr = multierror.Append(
-				mErr,
-				d.Set("transfer_enabled", true),
-				d.Set("obs_retention_period", ctsTracker.ObsInfo.BucketLifecycle),
-			)
-		} else {
-			mErr = multierror.Append(mErr, d.Set("transfer_enabled", false))
-		}
-	}
-
-	if ctsTracker.TrackerType != nil {
-		mErr = multierror.Append(mErr, d.Set("type", formatValue(ctsTracker.TrackerType)))
-	}
-	if ctsTracker.Status != nil {
-		status := formatValue(ctsTracker.Status)
-		mErr = multierror.Append(
-			mErr,
-			d.Set("status", status),
-			d.Set("enabled", status == "enabled"),
-		)
+	} else {
+		mErr = multierror.Append(mErr, d.Set("transfer_enabled", false))
 	}
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -458,51 +475,67 @@ func resourceCTSDataTrackerRead(_ context.Context, d *schema.ResourceData, meta 
 
 func resourceCTSDataTrackerDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	ctsClient, err := cfg.HcCtsV3Client(cfg.GetRegion(d))
+	region := cfg.GetRegion(d)
+	ctsClient, err := cfg.NewServiceClient("cts", region)
 	if err != nil {
 		return diag.Errorf("error creating CTS client: %s", err)
 	}
 
+	deleteHttpUrl := "v3/{project_id}/trackers?tracker_name={tracker_name}&tracker_type={tracker_type}"
 	trackerName := d.Get("name").(string)
-	trackerType := cts.GetDeleteTrackerRequestTrackerTypeEnum().DATA
-	deleteOpts := cts.DeleteTrackerRequest{
-		TrackerName: &trackerName,
-		TrackerType: &trackerType,
+	trackerType := "data"
+	deleteOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
 
-	_, err = ctsClient.DeleteTracker(&deleteOpts)
+	deletePath := ctsClient.Endpoint + deleteHttpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", ctsClient.ProjectID)
+	deletePath = strings.ReplaceAll(deletePath, "{tracker_name}", trackerName)
+	deletePath = strings.ReplaceAll(deletePath, "{tracker_type}", trackerType)
+	_, err = ctsClient.Request("DELETE", deletePath, &deleteOpts)
 	if err != nil {
-		return diag.Errorf("error deleting CTS data tracker %s: %s", trackerName, err)
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected403ErrInto404Err(err, "error_code", "CTS.0013"),
+			fmt.Sprintf("error deleting CTS data tracker %s", trackerName),
+		)
 	}
 
 	return nil
 }
 
-func updateDataTrackerStatus(c *client.CtsClient, d *schema.ResourceData) error {
+func updateDataTrackerStatus(ctsClient *golangsdk.ServiceClient, d *schema.ResourceData) error {
 	status := "enabled"
 	if enabled := d.Get("enabled").(bool); !enabled {
 		status = "disabled"
 	}
-	enabledStatus := new(cts.UpdateTrackerRequestBodyStatus)
-	if err := enabledStatus.UnmarshalJSON([]byte(status)); err != nil {
-		return fmt.Errorf("failed to parse status %s: %s", status, err)
-	}
 
-	trackerType := cts.GetUpdateTrackerRequestBodyTrackerTypeEnum().DATA
-	agencyName := cts.GetUpdateTrackerRequestBodyAgencyNameEnum().CTS_ADMIN_TRUST
+	trackerType := "data"
+	agencyName := "cts_admin_trust"
 	name := d.Get("name").(string)
-	statusOpts := cts.UpdateTrackerRequestBody{
-		TrackerName: name,
-		TrackerType: trackerType,
-		Status:      enabledStatus,
-		DataBucket:  buildDataBucketOpts(d),
-		AgencyName:  &agencyName,
+	statusOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json;charset=UTF-8",
+		},
 	}
-	statusReq := cts.UpdateTrackerRequest{
-		Body: &statusOpts,
+	statusOpts.JSONBody = map[string]interface{}{
+		"tracker_name": name,
+		"tracker_type": trackerType,
+		"status":       status,
+		"data_bucket":  buildDataBucketOpts(d),
+		"agency_name":  agencyName,
 	}
 
-	_, err := c.UpdateTracker(&statusReq)
+	err := updateTracker(ctsClient, &statusOpts)
+	return err
+}
+
+func updateTracker(ctsClient *golangsdk.ServiceClient, opt *golangsdk.RequestOpts) error {
+	updateHttpUrl := "v3/{project_id}/tracker"
+	updatePath := ctsClient.Endpoint + updateHttpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", ctsClient.ProjectID)
+
+	_, err := ctsClient.Request("PUT", updatePath, opt)
 	return err
 }
 

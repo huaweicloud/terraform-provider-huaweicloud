@@ -46,6 +46,9 @@ The following arguments are supported:
 * `dhcp_lease_time` - (Optional, String) Specifies the DHCP lease time. The value format of value is "Xh",
   the value of "X" is "-1" or from "1" to "30000". If the value is "-1", the DHCP lease time is infinite.
 
+* `tags` - (Optional, Map) Specifies the network interface tags in the format of key-value pairs.
+  This parameter can only be used in **cn-south-2** for now.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:

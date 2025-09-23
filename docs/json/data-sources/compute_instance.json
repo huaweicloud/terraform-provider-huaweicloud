@@ -9,9 +9,17 @@
                 "type": "string",
                 "computed": true
               },
+              "charging_mode": {
+                "type": "string",
+                "computed": true
+              },
               "enterprise_project_id": {
                 "type": "string",
                 "optional": true,
+                "computed": true
+              },
+              "expired_time": {
+                "type": "string",
                 "computed": true
               },
               "fixed_ip_v4": {
@@ -115,6 +123,7 @@
                   "map",
                   "string"
                 ],
+                "optional": true,
                 "computed": true
               },
               "user_data": {

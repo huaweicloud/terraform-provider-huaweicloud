@@ -1,0 +1,17 @@
+info:
+    version: ""
+    title: resource_huaweicloud_aad_policy_black_white_rule
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: AAD
+paths:
+    /v2/aad/policies/waf/blackwhite-list:
+        DELETE:
+            tag: AAD
+        GET:
+            tag: AAD
+        POST:
+            tag: AAD

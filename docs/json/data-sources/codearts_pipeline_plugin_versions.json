@@ -1,0 +1,60 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_codearts_pipeline_plugin_versions": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "plugin_name": {
+                "type": "string",
+                "description": "Specifies the plugin name.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "versions": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "active": "number",
+                      "business_type": "string",
+                      "business_type_display_name": "string",
+                      "description": "string",
+                      "display_name": "string",
+                      "icon_url": "string",
+                      "maintainers": "string",
+                      "op_time": "string",
+                      "op_user": "string",
+                      "plugin_attribution": "string",
+                      "plugin_composition_type": "string",
+                      "plugin_name": "string",
+                      "refer_count": "number",
+                      "runtime_attribution": "string",
+                      "unique_id": "string",
+                      "usage_count": "number",
+                      "version": "string",
+                      "version_attribution": "string",
+                      "version_description": "string",
+                      "workspace_id": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the version list.",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

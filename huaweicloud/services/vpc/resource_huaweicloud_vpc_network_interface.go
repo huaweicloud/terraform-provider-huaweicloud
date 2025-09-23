@@ -2,11 +2,15 @@ package vpc
 
 import (
 	"context"
+	"fmt"
+	"log"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/ports"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -20,6 +24,9 @@ const DhcpLeaseType = "51"
 // @API VPC POST /v1/{project_id}/ports
 // @API VPC GET /v1/{project_id}/ports/{port_id}
 // @API VPC DELETE /v1/{project_id}/ports/{port_id}
+// @API VPC POST /v3/{project_id}/ports/{port_id}/tags/create
+// @API VPC POST /v3/{project_id}/ports/{port_id}/tags/delete
+// @API VPC GET /v3/{project_id}/ports/{port_id}/tags
 func ResourceNetworkInterface() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceNetworkInterfaceCreate,
@@ -29,6 +36,8 @@ func ResourceNetworkInterface() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+
+		CustomizeDiff: config.MergeDefaultTags(),
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -69,6 +78,7 @@ func ResourceNetworkInterface() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"tags": common.TagsSchema(),
 
 			// Computed
 			"status": {
@@ -154,6 +164,14 @@ func resourceNetworkInterfaceCreate(ctx context.Context, d *schema.ResourceData,
 	}
 	d.SetId(networkinterface.ID)
 
+	// set tags of port
+	if v, ok := d.GetOk("tags"); ok {
+		err = networkInterfaceTagsAction(d, meta, "create", v.(map[string]interface{}))
+		if err != nil {
+			return diag.Errorf("error adding tags to VPC network interface (%s): %s", networkinterface.ID, err)
+		}
+	}
+
 	return resourceNetworkInterfaceRead(ctx, d, meta)
 }
 
@@ -207,11 +225,12 @@ func buildExtraDhcpOpts(d *schema.ResourceData) []ports.ExtraDhcpOpt {
 func resourceNetworkInterfaceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
+	id := d.Id()
 	client, err := conf.NetworkingV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating VPC network client: %s", err)
 	}
-	networkinterface, err := ports.Get(client, d.Id())
+	networkinterface, err := ports.Get(client, id)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving VPC network interface")
 	}
@@ -235,6 +254,13 @@ func resourceNetworkInterfaceRead(_ context.Context, d *schema.ResourceData, met
 		d.Set("enable_efi", networkinterface.EnableEfi),
 		d.Set("ipv6_bandwidth_id", networkinterface.Ipv6BandwidthId),
 	)
+
+	tags, err := getNetworkInterfaceTags(d, meta)
+	if err != nil {
+		log.Printf("[WARN] error retrieving tags of VPC network interface (%s): %s", id, err)
+	} else {
+		mErr = multierror.Append(mErr, d.Set("tags", tags))
+	}
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
@@ -263,10 +289,82 @@ func flattenExtraDhcpOpts(extraDhcpOpts []ports.ExtraDhcpOpt) string {
 	}
 	return ""
 }
+
+func getNetworkInterfaceTags(d *schema.ResourceData, meta interface{}) (map[string]interface{}, error) {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	var (
+		getNetworkInterfaceProduct     = "vpc"
+		getNetworkInterfaceTagsHttpUrl = "v3/{project_id}/ports/{port_id}/tags"
+	)
+
+	getNetworkInterfaceClient, err := cfg.NewServiceClient(getNetworkInterfaceProduct, region)
+	if err != nil {
+		return nil, fmt.Errorf("error creating VPC v3 Client: %s", err)
+	}
+
+	getNetworkInterfaceTagsPath := getNetworkInterfaceClient.Endpoint + getNetworkInterfaceTagsHttpUrl
+	getNetworkInterfaceTagsPath = strings.ReplaceAll(getNetworkInterfaceTagsPath, "{project_id}", getNetworkInterfaceClient.ProjectID)
+	getNetworkInterfaceTagsPath = strings.ReplaceAll(getNetworkInterfaceTagsPath, "{port_id}", d.Id())
+
+	getNetworkInterfaceTagsOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getNetworkInterfaceTagsResp, err := getNetworkInterfaceClient.Request("GET", getNetworkInterfaceTagsPath, &getNetworkInterfaceTagsOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	getNetworkInterfaceTagsRespBody, err := utils.FlattenResponse(getNetworkInterfaceTagsResp)
+	if err != nil {
+		return nil, err
+	}
+
+	tagList := utils.PathSearch("tags", getNetworkInterfaceTagsRespBody, nil)
+
+	return utils.FlattenTagsToMap(tagList), nil
+}
+
+func networkInterfaceTagsAction(d *schema.ResourceData, meta interface{}, action string, tags map[string]interface{}) error {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	var (
+		updateNetworkInterfaceProduct     = "vpc"
+		updateNetworkInterfaceTagsHttpUrl = "v3/{project_id}/ports/{port_id}/tags/{action}"
+	)
+
+	updateNetworkInterfaceClient, err := cfg.NewServiceClient(updateNetworkInterfaceProduct, region)
+	if err != nil {
+		return fmt.Errorf("error creating CCE Client: %s", err)
+	}
+
+	updateNetworkInterfaceTagsPath := updateNetworkInterfaceClient.Endpoint + updateNetworkInterfaceTagsHttpUrl
+	updateNetworkInterfaceTagsPath = strings.ReplaceAll(updateNetworkInterfaceTagsPath, "{project_id}", updateNetworkInterfaceClient.ProjectID)
+	updateNetworkInterfaceTagsPath = strings.ReplaceAll(updateNetworkInterfaceTagsPath, "{port_id}", d.Id())
+	updateNetworkInterfaceTagsPath = strings.ReplaceAll(updateNetworkInterfaceTagsPath, "{action}", action)
+
+	updateOpts := map[string]interface{}{
+		"tags": utils.ExpandResourceTagsMap(tags),
+	}
+	updateNetworkInterfaceOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(updateOpts),
+		OkCodes:          []int{204},
+	}
+
+	_, err = updateNetworkInterfaceClient.Request("POST", updateNetworkInterfaceTagsPath, &updateNetworkInterfaceOpt)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func resourceNetworkInterfaceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
 	client, err := conf.NetworkingV1Client(region)
+	id := d.Id()
 	if err != nil {
 		return diag.Errorf("error creating VPC network client: %s", err)
 	}
@@ -295,9 +393,26 @@ func resourceNetworkInterfaceUpdate(ctx context.Context, d *schema.ResourceData,
 		}
 	}
 
-	_, err = ports.Update(client, d.Id(), opts)
+	_, err = ports.Update(client, id, opts)
 	if err != nil {
 		return diag.Errorf("error updating VPC network interface: %s", err)
+	}
+
+	if d.HasChange("tags") {
+		oldTags, newTags := d.GetChange("tags")
+		if len(oldTags.(map[string]interface{})) > 0 {
+			err = networkInterfaceTagsAction(d, meta, "delete", oldTags.(map[string]interface{}))
+			if err != nil {
+				return diag.Errorf("error removing tags from VPC network interface (%s): %s", id, err)
+			}
+		}
+
+		if len(newTags.(map[string]interface{})) > 0 {
+			err = networkInterfaceTagsAction(d, meta, "create", newTags.(map[string]interface{}))
+			if err != nil {
+				return diag.Errorf("error adding tags to VPC network interface (%s): %s", id, err)
+			}
+		}
 	}
 
 	return resourceNetworkInterfaceRead(ctx, d, meta)

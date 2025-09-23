@@ -2,7 +2,8 @@
 subcategory: "NAT Gateway (NAT)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_nat_private_transit_ip"
-description: ""
+description: |-
+  Manages a transit IP resource of the **private** NAT within HuaweiCloud.
 ---
 
 # huaweicloud_nat_private_transit_ip
@@ -56,14 +57,16 @@ In addition to all arguments above, the following attributes are exported:
 
 * `gateway_id` - The ID of the private NAT gateway to which the transit IP belongs.
 
+* `status` - The status of the transit IP.
+
 * `created_at` - The creation time of the transit IP for private NAT.
 
 * `updated_at` - The latest update time of the transit IP for private NAT.
 
 ## Import
 
-Transit IPs can be imported using their `id`, e.g.
+The resource can be imported using the `id`, e.g.
 
 ```bash
-$ terraform import huaweicloud_nat_private_transit_ip.test 5a1d921c-1df5-477d-8481-317b3fb47b5d
+$ terraform import huaweicloud_nat_private_transit_ip.test <id>
 ```

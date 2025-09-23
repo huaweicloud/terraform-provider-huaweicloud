@@ -11,7 +11,7 @@ paths:
     /v2/{project_id}/instances/{instance_id}:
         GET:
             tag: Kafka
-    /v2/{project_id}/instances/{instance_id}/tasks:
+    /v2/{project_id}/instances/{instance_id}/tasks/{task_id}:
         GET:
             tag: Kafka
     /v2/kafka/{project_id}/instances/{instance_id}/kafka-user-client-quota:

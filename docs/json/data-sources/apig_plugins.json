@@ -1,0 +1,79 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_apig_plugins": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the dedicated instance to which the plugin belongs.",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the plugin. Fuzzy search is supported.",
+                "optional": true
+              },
+              "plugin_id": {
+                "type": "string",
+                "description": "The ID of the plugin.",
+                "optional": true
+              },
+              "plugin_scope": {
+                "type": "string",
+                "description": "The scope of the plugin.",
+                "optional": true
+              },
+              "plugins": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "content": "string",
+                      "created_at": "string",
+                      "description": "string",
+                      "id": "string",
+                      "name": "string",
+                      "plugin_scope": "string",
+                      "type": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "All plugins that match the filter parameters.",
+                "computed": true
+              },
+              "precise_search": {
+                "type": "string",
+                "description": "The name of the parameter to be matched exactly.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The type of the plugin.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

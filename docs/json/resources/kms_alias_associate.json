@@ -1,0 +1,54 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_kms_alias_associate": {
+          "block": {
+            "attributes": {
+              "alias": {
+                "type": "string",
+                "description": "Specifies the alias used to bind the key, it can only be prefixed with **alias/**.",
+                "required": true
+              },
+              "alias_urn": {
+                "type": "string",
+                "description": "The alias resource locator.",
+                "computed": true
+              },
+              "create_time": {
+                "type": "string",
+                "description": "The creation time of the alias. ",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "target_key_id": {
+                "type": "string",
+                "description": "Specifies the target key ID used to bind the alias.",
+                "required": true
+              },
+              "update_time": {
+                "type": "string",
+                "description": "The update time of the alias.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "KMS",
+            "name": "Data Encryption Workshop KMS",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据加密服务-密钥管理",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

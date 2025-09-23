@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -74,7 +73,6 @@ func ResourceDomainNameGroup() *schema.Resource {
 				Type:        schema.TypeList,
 				Elem:        domainNameGroupDomainNamesSchema(),
 				Optional:    true,
-				Computed:    true,
 				Description: `Specifies the list of domain names.`,
 			},
 			"description": {
@@ -146,13 +144,11 @@ func resourceDomainNameGroupCreate(ctx context.Context, d *schema.ResourceData, 
 
 	createDomainNameGroupPath := createDomainNameGroupClient.Endpoint + createDomainNameGroupHttpUrl
 	createDomainNameGroupPath = strings.ReplaceAll(createDomainNameGroupPath, "{project_id}", createDomainNameGroupClient.ProjectID)
+	createDomainNameGroupPath += fmt.Sprintf("?fw_instance_id=%v", d.Get("fw_instance_id"))
 
 	createDomainNameGroupOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: map[string]string{"Content-Type": "application/json"},
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
 	// domain_names is required in API but can be an empty list, so RemoveNil is not used here
@@ -167,11 +163,11 @@ func resourceDomainNameGroupCreate(ctx context.Context, d *schema.ResourceData, 
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("data.id", createDomainNameGroupRespBody)
-	if err != nil {
+	id := utils.PathSearch("data.id", createDomainNameGroupRespBody, "").(string)
+	if id == "" {
 		return diag.Errorf("error creating DomainNameGroup: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	return resourceDomainNameGroupRead(ctx, d, meta)
 }
@@ -206,50 +202,19 @@ func buildCreateDomainNameGroupRequestBodyDomainNames(rawParams interface{}) []m
 func resourceDomainNameGroupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-	id := d.Id()
 
 	var mErr *multierror.Error
 
 	// getDomainNameGroup: Query the CFW domain name group detail
-	var (
-		getDomainNameGroupHttpUrl = "v1/{project_id}/domain-sets"
-		getDomainNameListHttpUrl  = "v1/{project_id}/domain-set/domains/{id}"
-		getDomainNameGroupProduct = "cfw"
-	)
-	getDomainNameGroupClient, err := cfg.NewServiceClient(getDomainNameGroupProduct, region)
+	getDomainNameGroupProduct := "cfw"
+	client, err := cfg.NewServiceClient(getDomainNameGroupProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating CFW client: %s", err)
 	}
 
-	getDomainNameGroupPath := getDomainNameGroupClient.Endpoint + getDomainNameGroupHttpUrl
-	getDomainNameGroupPath = strings.ReplaceAll(getDomainNameGroupPath, "{project_id}", getDomainNameGroupClient.ProjectID)
-
-	getDomainNameGroupQueryParams := buildGetDomainNameGroupQueryParams(d)
-	getDomainNameGroupPath += getDomainNameGroupQueryParams
-
-	getDomainNameGroupOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: map[string]string{"Content-Type": "application/json"},
-	}
-
-	getDomainNameGroupResp, err := getDomainNameGroupClient.Request("GET", getDomainNameGroupPath, &getDomainNameGroupOpt)
-
+	getDomainNameGroupRespBody, err := getDomainNameGroup(client, d)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving DomainNameGroup")
-	}
-
-	getDomainNameGroupRespBody, err := utils.FlattenResponse(getDomainNameGroupResp)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	jsonPath := fmt.Sprintf("data.records[?set_id=='%s']|[0]", id)
-	getDomainNameGroupRespBody = utils.PathSearch(jsonPath, getDomainNameGroupRespBody, nil)
-	if getDomainNameGroupRespBody == nil {
-		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "no data found")
 	}
 
 	mErr = multierror.Append(
@@ -264,38 +229,9 @@ func resourceDomainNameGroupRead(_ context.Context, d *schema.ResourceData, meta
 	)
 
 	// getDomainNameList: Query the domain list of the CFW domain name group
-	getDomainNameListClient, err := cfg.NewServiceClient(getDomainNameGroupProduct, region)
-	if err != nil {
-		return diag.Errorf("error creating CFW client: %s", err)
-	}
-
-	getDomainNameListPath := getDomainNameListClient.Endpoint + getDomainNameListHttpUrl
-	getDomainNameListPath = strings.ReplaceAll(getDomainNameListPath, "{project_id}", getDomainNameListClient.ProjectID)
-	getDomainNameListPath = strings.ReplaceAll(getDomainNameListPath, "{id}", id)
-	getDomainNameListQueryParams := buildGetDomainNameListQueryParams(d)
-	getDomainNameListPath += getDomainNameListQueryParams
-
-	getDomainNameListOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: map[string]string{"Content-Type": "application/json"},
-	}
-
-	getDomainNameListResp, err := getDomainNameListClient.Request("GET", getDomainNameListPath, &getDomainNameListOpt)
-	if err != nil {
-		return diag.Errorf("error retrieving domain name list of domain group(%s): %s", id, err)
-	}
-
-	getDomainNameListRespBody, err := utils.FlattenResponse(getDomainNameListResp)
+	domainNameList, err := getDomainNames(client, d)
 	if err != nil {
 		return diag.FromErr(err)
-	}
-
-	domainNameList := utils.PathSearch("data.records", getDomainNameListRespBody, nil)
-	if domainNameList == nil {
-		return diag.Errorf("can not find records in response: %s", getDomainNameListRespBody)
 	}
 
 	mErr = multierror.Append(
@@ -304,6 +240,68 @@ func resourceDomainNameGroupRead(_ context.Context, d *schema.ResourceData, meta
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func getDomainNameGroup(client *golangsdk.ServiceClient, d *schema.ResourceData) (interface{}, error) {
+	getDomainNameGroupHttpUrl := "v1/{project_id}/domain-sets"
+	getDomainNameGroupPath := client.Endpoint + getDomainNameGroupHttpUrl
+	getDomainNameGroupPath = strings.ReplaceAll(getDomainNameGroupPath, "{project_id}", client.ProjectID)
+
+	getDomainNameGroupQueryParams := buildGetDomainNameGroupQueryParams(d)
+	getDomainNameGroupPath += getDomainNameGroupQueryParams
+
+	getDomainNameGroupOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	getDomainNameGroupResp, err := client.Request("GET", getDomainNameGroupPath, &getDomainNameGroupOpt)
+	if err != nil {
+		return nil, common.ConvertExpected400ErrInto404Err(err, "error_code", "CFW.00200005")
+	}
+
+	getDomainNameGroupRespBody, err := utils.FlattenResponse(getDomainNameGroupResp)
+	if err != nil {
+		return nil, err
+	}
+
+	jsonPath := fmt.Sprintf("data.records[?set_id=='%s']|[0]", d.Id())
+	getDomainNameGroupRespBody = utils.PathSearch(jsonPath, getDomainNameGroupRespBody, nil)
+	if getDomainNameGroupRespBody == nil {
+		return nil, golangsdk.ErrDefault404{}
+	}
+
+	return getDomainNameGroupRespBody, nil
+}
+
+func getDomainNames(client *golangsdk.ServiceClient, d *schema.ResourceData) (interface{}, error) {
+	getDomainNameListHttpUrl := "v1/{project_id}/domain-set/domains/{id}"
+	getDomainNameListPath := client.Endpoint + getDomainNameListHttpUrl
+	getDomainNameListPath = strings.ReplaceAll(getDomainNameListPath, "{project_id}", client.ProjectID)
+	getDomainNameListPath = strings.ReplaceAll(getDomainNameListPath, "{id}", d.Id())
+	getDomainNameListQueryParams := buildGetDomainNameListQueryParams(d)
+	getDomainNameListPath += getDomainNameListQueryParams
+
+	getDomainNameListOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	getDomainNameListResp, err := client.Request("GET", getDomainNameListPath, &getDomainNameListOpt)
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving domain name list of domain group(%s): %s", d.Id(), err)
+	}
+
+	getDomainNameListRespBody, err := utils.FlattenResponse(getDomainNameListResp)
+	if err != nil {
+		return nil, err
+	}
+
+	domainNameList := utils.PathSearch("data.records", getDomainNameListRespBody, nil)
+	if domainNameList == nil {
+		return nil, fmt.Errorf("can not find records in response: %s", getDomainNameListRespBody)
+	}
+	return domainNameList, nil
 }
 
 func buildGetDomainNameGroupQueryParams(d *schema.ResourceData) string {
@@ -361,10 +359,7 @@ func resourceDomainNameGroupUpdate(ctx context.Context, d *schema.ResourceData, 
 
 		updateDomainNameGroupOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
-			OkCodes: []int{
-				200,
-			},
-			MoreHeaders: map[string]string{"Content-Type": "application/json"},
+			MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 		}
 
 		updateDomainNameGroupOpt.JSONBody = utils.RemoveNil(buildUpdateDomainNameGroupBodyParams(d))
@@ -375,20 +370,58 @@ func resourceDomainNameGroupUpdate(ctx context.Context, d *schema.ResourceData, 
 	}
 
 	if d.HasChange("domain_names") {
+		// The interface requires that one domain name be retained during deletion.
+		// A placeholder domain name is introduced here to facilitate the update of the domain name group.
+		var placeholderDomainName interface{}
 		oldRaws, newRaws := d.GetChange("domain_names")
-		if len(oldRaws.([]interface{})) != 0 {
-			err := removeDomainNames(updateDomainNameGroupClient, d, oldRaws.([]interface{}))
+		oldDomainNames := oldRaws.([]interface{})
+		newDomainNames := newRaws.([]interface{})
+
+		// Retain the old value of the first domain name.
+		if len(oldDomainNames) > 1 {
+			err := removeDomainNames(updateDomainNameGroupClient, d, oldDomainNames[1:])
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		}
+		// Add a placeholder domain name to ensure the old value of the first domain name can be deleted.
+		if len(newDomainNames) != 0 && len(oldDomainNames) != 0 {
+			placeholderDomainName, err = addPlaceholderDomainName(updateDomainNameGroupClient, d)
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		}
+		// Delete the old value of the first domain name.
+		if len(oldDomainNames) != 0 {
+			err := removeDomainNames(updateDomainNameGroupClient, d, oldDomainNames[:1])
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		}
+		// Add a real domain name to ensure the placeholder domain name can be deleted.
+		if len(newDomainNames) != 0 {
+			err := addDomainNames(updateDomainNameGroupClient, d, newDomainNames[:1])
 			if err != nil {
 				return diag.FromErr(err)
 			}
 		}
 
-		if len(newRaws.([]interface{})) != 0 {
-			err := addDomainNames(updateDomainNameGroupClient, d, newRaws.([]interface{}))
+		// Delete the placeholder domain name.
+		if len(newDomainNames) != 0 && len(oldDomainNames) != 0 {
+			err := removeDomainNames(updateDomainNameGroupClient, d, []interface{}{placeholderDomainName})
 			if err != nil {
 				return diag.FromErr(err)
 			}
 		}
+
+		// Complete to add the rest of the domain names.
+		if len(newDomainNames) > 1 {
+			err := addDomainNames(updateDomainNameGroupClient, d, newDomainNames[1:])
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		}
+
 	}
 	return resourceDomainNameGroupRead(ctx, d, meta)
 }
@@ -415,10 +448,7 @@ func removeDomainNames(client *golangsdk.ServiceClient, d *schema.ResourceData, 
 
 	updateDomainNameGroupOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: map[string]string{"Content-Type": "application/json"},
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
 	updateDomainNameGroupOpt.JSONBody = utils.RemoveNil(buildDemoveDomainNamesBodyParams(d, domainNameList))
@@ -444,10 +474,7 @@ func addDomainNames(client *golangsdk.ServiceClient, d *schema.ResourceData, dom
 
 	updateDomainNameGroupOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: map[string]string{"Content-Type": "application/json"},
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
 	updateDomainNameGroupOpt.JSONBody = utils.RemoveNil(buildAddDomainNamesBodyParams(d, domainNameList))
@@ -457,6 +484,29 @@ func addDomainNames(client *golangsdk.ServiceClient, d *schema.ResourceData, dom
 	}
 
 	return nil
+}
+
+func addPlaceholderDomainName(client *golangsdk.ServiceClient, d *schema.ResourceData) (map[string]interface{}, error) {
+	placeholderDomainName := map[string]interface{}{
+		"domain_name": "placeholder.placeholder",
+	}
+	err := addDomainNames(client, d, []interface{}{placeholderDomainName})
+	if err != nil {
+		return nil, err
+	}
+
+	domainNameList, err := getDomainNames(client, d)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, v := range domainNameList.([]interface{}) {
+		raw := v.(map[string]interface{})
+		if raw["domain_name"] == "placeholder.placeholder" {
+			return raw, nil
+		}
+	}
+	return nil, fmt.Errorf("error adding placeholder domain name")
 }
 
 func buildDemoveDomainNamesBodyParams(d *schema.ResourceData, domainNameList []interface{}) map[string]interface{} {
@@ -518,18 +568,25 @@ func resourceDomainNameGroupDelete(_ context.Context, d *schema.ResourceData, me
 
 	deleteDomainNameGroupOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: map[string]string{"Content-Type": "application/json"},
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
 	_, err = deleteDomainNameGroupClient.Request("DELETE", deleteDomainNameGroupPath, &deleteDomainNameGroupOpt)
 	if err != nil {
-		return diag.Errorf("error deleting DomainNameGroup: %s", err)
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error_code", "CFW.00200005"),
+			"error deleting CFW domain name group",
+		)
 	}
 
-	return nil
+	// Successful deletion API call does not guarantee that the resource is successfully deleted.
+	// Call the details API to confirm that the resource has been successfully deleted.
+	_, err = getDomainNameGroup(deleteDomainNameGroupClient, d)
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, "error retrieving CFW domain name group")
+	}
+
+	return diag.Errorf("error deleting CFW domain name group")
 }
 
 func resourceDomainNameGroupImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {

@@ -353,6 +353,12 @@ func TestAccGroup_withDomainAccess(t *testing.T) {
 					resource.TestCheckResourceAttr(rNameWithDomainAccess, "domain_access_enabled", "true"),
 				),
 			},
+			{
+				ResourceName:      rNameWithDomainAccess,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccGroupImportStateFunc(rNameWithDomainAccess),
+			},
 		},
 	})
 }

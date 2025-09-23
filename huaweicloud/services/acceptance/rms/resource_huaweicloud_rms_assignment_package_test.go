@@ -80,6 +80,21 @@ func TestAccAssignmentPackage_basic(t *testing.T) {
 				),
 			},
 			{
+				Config: testAssignmentPackage_update(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name+"-update"),
+					resource.TestCheckTypeSetElemNestedAttrs(rName, "vars_structure.*", map[string]string{
+						"var_key":   "lastBackupAgeValue",
+						"var_value": "25",
+					}),
+					resource.TestCheckResourceAttrSet(rName, "stack_id"),
+					resource.TestCheckResourceAttrSet(rName, "stack_name"),
+					resource.TestCheckResourceAttrSet(rName, "deployment_id"),
+					resource.TestCheckResourceAttrSet(rName, "status"),
+				),
+			},
+			{
 				ResourceName:            rName,
 				ImportState:             true,
 				ImportStateVerify:       true,
@@ -91,7 +106,9 @@ func TestAccAssignmentPackage_basic(t *testing.T) {
 
 func testAssignmentPackage_basic(name string) string {
 	return fmt.Sprintf(`
-data "huaweicloud_rms_assignment_package_templates" "test" {}
+data "huaweicloud_rms_assignment_package_templates" "test" {
+  template_key = "Operational-Best-Practices-for-ECS.tf.json"
+}
 
 resource "huaweicloud_rms_assignment_package" "test" {
   name         = "%s"
@@ -100,8 +117,29 @@ resource "huaweicloud_rms_assignment_package" "test" {
   dynamic "vars_structure" {
     for_each = data.huaweicloud_rms_assignment_package_templates.test.templates.0.parameters
     content {
-      var_key = vars_structure.value["name"]
-      var_value = jsondecode(vars_structure.value["default_value"])
+      var_key   = vars_structure.value["name"]
+      var_value = vars_structure.value["default_value"]
+    }
+  }
+}
+`, name)
+}
+
+func testAssignmentPackage_update(name string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_rms_assignment_package_templates" "test" {
+  template_key = "Operational-Best-Practices-for-ECS.tf.json"
+}
+
+resource "huaweicloud_rms_assignment_package" "test" {
+  name         = "%s-update"
+  template_key = data.huaweicloud_rms_assignment_package_templates.test.templates.0.template_key
+
+  dynamic "vars_structure" {
+    for_each = data.huaweicloud_rms_assignment_package_templates.test.templates.0.parameters
+    content {
+      var_key   = vars_structure.value["name"]
+      var_value = vars_structure.value["name"] == "lastBackupAgeValue" ? 25 : vars_structure.value["default_value"]
     }
   }
 }

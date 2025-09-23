@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dataarts_architecture_batch_publishment
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DataArtsStudio
+paths:
+    /v2/{project_id}/design/approvals/batch-offline:
+        POST:
+            tag: DataArtsStudio
+    /v2/{project_id}/design/approvals/batch-publish:
+        POST:
+            tag: DataArtsStudio

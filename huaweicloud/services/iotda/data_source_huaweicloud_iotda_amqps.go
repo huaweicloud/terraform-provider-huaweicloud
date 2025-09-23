@@ -3,13 +3,14 @@ package iotda
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -62,65 +63,79 @@ func DataSourceAMQPQueues() *schema.Resource {
 	}
 }
 
-func dataSourceAMQPQueuesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	isDerived := WithDerivedAuth(cfg, region)
-	client, err := cfg.HcIoTdaV5Client(region, isDerived)
-	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+func buildAMQPQueuesQueryParams(d *schema.ResourceData) string {
+	queryParams := "?limit=50"
+	if v, ok := d.GetOk("name"); ok {
+		return fmt.Sprintf("%s&queue_name=%v", queryParams, v)
 	}
 
+	return queryParams
+}
+
+func dataSourceAMQPQueuesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		allQueues []model.QueryQueueBase
-		limit     = int32(50)
-		offset    int32
+		cfg       = meta.(*config.Config)
+		region    = cfg.GetRegion(d)
+		isDerived = WithDerivedAuth(cfg, region)
+		product   = "iotda"
+		httpUrl   = "v5/iot/{project_id}/amqp-queues"
+		offset    = 0
+		result    = make([]interface{}, 0)
 	)
 
+	client, err := cfg.NewServiceClientWithDerivedAuth(product, region, isDerived)
+	if err != nil {
+		return diag.Errorf("error creating IoTDA client: %s", err)
+	}
+
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath += buildAMQPQueuesQueryParams(d)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
 	for {
-		listOpts := model.BatchShowQueueRequest{
-			QueueName: utils.StringIgnoreEmpty(d.Get("name").(string)),
-			Limit:     utils.Int32(limit),
-			Offset:    &offset,
+		currentPath := fmt.Sprintf("%s&offset=%v", getPath, offset)
+		getResp, err := client.Request("GET", currentPath, &getOpt)
+		if err != nil {
+			return diag.Errorf("error retrieving IoTDA AMQP queues: %s", err)
 		}
 
-		listResp, listErr := client.BatchShowQueue(&listOpts)
-		if listErr != nil {
-			return diag.Errorf("error querying IoTDA AMQP queues: %s", listErr)
+		getRespBody, err := utils.FlattenResponse(getResp)
+		if err != nil {
+			return diag.FromErr(err)
 		}
 
-		if len(*listResp.Queues) == 0 {
+		queuesResp := utils.PathSearch("queues", getRespBody, make([]interface{}, 0)).([]interface{})
+		if len(queuesResp) == 0 {
 			break
 		}
 
-		allQueues = append(allQueues, *listResp.Queues...)
-		offset += limit
+		result = append(result, queuesResp...)
+		offset += len(queuesResp)
 	}
 
-	uuId, err := uuid.GenerateUUID()
+	generateUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuId)
 
-	targetQueues := filterListQueues(allQueues, d)
+	d.SetId(generateUUID)
+
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("queues", flattenAMQPQueues(targetQueues)),
+		d.Set("queues", flattenAMQPQueues(filterAMQPQueues(result, d))),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func filterListQueues(queues []model.QueryQueueBase, d *schema.ResourceData) []model.QueryQueueBase {
-	if len(queues) == 0 {
-		return nil
-	}
-
-	rst := make([]model.QueryQueueBase, 0, len(queues))
-	for _, v := range queues {
+func filterAMQPQueues(queuesResp []interface{}, d *schema.ResourceData) []interface{} {
+	rst := make([]interface{}, 0, len(queuesResp))
+	for _, v := range queuesResp {
 		if queueId, ok := d.GetOk("queue_id"); ok &&
-			fmt.Sprint(queueId) != utils.StringValue(v.QueueId) {
+			fmt.Sprint(queueId) != utils.PathSearch("queue_id", v, "").(string) {
 			continue
 		}
 
@@ -130,18 +145,14 @@ func filterListQueues(queues []model.QueryQueueBase, d *schema.ResourceData) []m
 	return rst
 }
 
-func flattenAMQPQueues(queues []model.QueryQueueBase) []interface{} {
-	if len(queues) == 0 {
-		return nil
-	}
-
-	rst := make([]interface{}, 0, len(queues))
-	for _, v := range queues {
+func flattenAMQPQueues(queuesResp []interface{}) []interface{} {
+	rst := make([]interface{}, 0, len(queuesResp))
+	for _, v := range queuesResp {
 		rst = append(rst, map[string]interface{}{
-			"id":         v.QueueId,
-			"name":       v.QueueName,
-			"created_at": v.CreateTime,
-			"updated_at": v.LastModifyTime,
+			"id":         utils.PathSearch("queue_id", v, nil),
+			"name":       utils.PathSearch("queue_name", v, nil),
+			"created_at": utils.PathSearch("create_time", v, nil),
+			"updated_at": utils.PathSearch("last_modify_time", v, nil),
 		})
 	}
 

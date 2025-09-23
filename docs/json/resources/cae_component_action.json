@@ -1,0 +1,84 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cae_component_action": {
+          "block": {
+            "attributes": {
+              "application_id": {
+                "type": "string",
+                "description": "The ID of the application where the component is located.",
+                "required": true,
+                "forcenew": true
+              },
+              "component_id": {
+                "type": "string",
+                "description": "The ID of the component to be operated.",
+                "required": true,
+                "forcenew": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The ID of the enterprise project to which the component to be operated belongs.",
+                "optional": true,
+                "forcenew": true
+              },
+              "environment_id": {
+                "type": "string",
+                "description": "The ID of the environment where the application is located.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the component to be operated is located.",
+                "computed": true
+              },
+              "spec": {
+                "type": "string",
+                "description": "The specification detail of the action, in JSON format.",
+                "optional": true
+              }
+            },
+            "block_types": {
+              "metadata": {
+                "block": {
+                  "attributes": {
+                    "annotations": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "description": "The key/value pairs parameters related to the component to be operated.",
+                      "optional": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "The action name.",
+                      "required": true
+                    }
+                  },
+                  "description": "The metadata of this action request."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "CAE",
+            "name": "Cloud Application Engine",
+            "catalog": "CodeArts",
+            "name_cn": "云应用引擎",
+            "catalog_cn": "软件开发生产线"
+          }
+        }
+      }
+    }
+  }
+}

@@ -7,10 +7,12 @@
             "attributes": {
               "created_at": {
                 "type": "string",
+                "description": "The creation time of the endpoint.",
                 "computed": true
               },
               "direction": {
                 "type": "string",
+                "description": "The direction of the endpoint.",
                 "required": true,
                 "forcenew": true
               },
@@ -20,6 +22,7 @@
               },
               "name": {
                 "type": "string",
+                "description": "The name of the endpoint.",
                 "required": true
               },
               "region": {
@@ -28,18 +31,22 @@
               },
               "resolver_rule_count": {
                 "type": "number",
+                "description": "The number of bound resolver rules.",
                 "computed": true
               },
               "status": {
                 "type": "string",
+                "description": "The status of endpoint.",
                 "computed": true
               },
               "updated_at": {
                 "type": "string",
+                "description": "The latest update time of the endpoint.",
                 "computed": true
               },
               "vpc_id": {
                 "type": "string",
+                "description": "The ID of the VPC to which the subnet belongs.",
                 "computed": true
               }
             },
@@ -49,30 +56,31 @@
                   "attributes": {
                     "created_at": {
                       "type": "string",
-                      "computed": true
-                    },
-                    "ip": {
-                      "type": "string",
-                      "optional": true,
+                      "description": "The creation time of the IP address.",
                       "computed": true
                     },
                     "ip_address_id": {
                       "type": "string",
+                      "description": "The ID of the IP address.",
                       "computed": true
                     },
                     "status": {
                       "type": "string",
+                      "description": "The status of IP address.",
                       "computed": true
                     },
                     "subnet_id": {
                       "type": "string",
+                      "description": "The subnet ID of the IP address.",
                       "required": true
                     },
                     "updated_at": {
                       "type": "string",
+                      "description": "The latest update time of the endpoint.",
                       "computed": true
                     }
-                  }
+                  },
+                  "description": "The list of the IP addresses of the endpoint."
                 },
                 "nesting_mode": "list",
                 "min_items": 2,
@@ -83,9 +91,9 @@
           "product": {
             "short": "DNS",
             "name": "Domain Name Service",
-            "catalog": "Business Applications",
+            "catalog": "Networking",
             "name_cn": "云解析服务",
-            "catalog_cn": "企业应用"
+            "catalog_cn": "网络"
           }
         }
       }

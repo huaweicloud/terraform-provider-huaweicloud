@@ -2,7 +2,8 @@
 subcategory: "Global Accelerator (GA)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_ga_endpoint_group"
-description: ""
+description: |-
+  Manages a GA endpoint group resource within HuaweiCloud.
 ---
 
 # huaweicloud_ga_endpoint_group
@@ -31,8 +32,8 @@ resource "huaweicloud_ga_endpoint_group" "test" {
 
 The following arguments are supported:
 
-* `name` - (Required, String) Specifies the endpoint group name. The name can contain 1 to 64 characters.
-  Only letters, digits, and hyphens (-) are allowed.
+* `name` - (Required, String) Specifies the endpoint group name.  
+  The name can contain `1` to `64` characters, only letters, digits, and hyphens (-) are allowed.
 
 * `region_id` - (Required, String, ForceNew) Specifies the region where the endpoint group belongs.
 
@@ -43,11 +44,11 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `description` - (Optional, String) Specifies the information about the endpoint group.
-  The value can contain 0 to 255 characters. The following characters are not allowed: <>
+* `description` - (Optional, String) Specifies the information about the endpoint group.  
+  The description contain a maximum of `255` characters, and the angle brackets (< and >) are not allowed.
 
 * `traffic_dial_percentage` - (Optional, Int) Specifies the percentage of traffic distributed to the endpoint group.
-  The value ranges from **0** to **100**. Defaults to **100**.
+  The value ranges from `0` to `100`. Defaults to `100`.
 
 <a name="EndpointGroup_Id"></a>
 The `Id` block supports:
@@ -69,6 +70,33 @@ In addition to all arguments above, the following attributes are exported:
 * `created_at` - Indicates when the endpoint group was created.
 
 * `updated_at` - Indicates when the endpoint group was updated.
+
+* `frozen_info` - The frozen details of cloud services or resources.
+  The [frozen_info](#endpoint_group_frozen_info) structure is documented below.
+
+<a name="endpoint_group_frozen_info"></a>
+The `frozen_info` block supports:
+
+* `status` - The status of a cloud service or resource.
+  The valid values are as follows:
+  + `0`: unfrozen/normal (The cloud service will recover after being unfrozen.)
+  + `1`: frozen (Resources and data will be retained, but the cloud service cannot be used.)
+  + `2`: deleted/terminated (Both resources and data will be cleared.)
+
+* `effect` - The status of the resource after being forzen.
+  The valid values are as follows:
+  + `1` (default): The resource is frozen and can be released.
+  + `2`: The resource is frozen and cannot be released.
+  + `3`: The resource is frozen and cannot be renewed.
+
+* `scene` - The service scenario.
+  The valid values are as follows:
+  + **ARREAR**: The cloud service is in arrears, including expiration of yearly/monthly resources and fee deduction
+    failure of pay-per-use resources.
+  + **POLICE**: The cloud service is frozen for public security.
+  + **ILLEGAL**: The cloud service is frozen due to violation of laws and regulations.
+  + **VERIFY**: The cloud service is frozen because the user fails to pass the real-name authentication.
+  + **PARTNER**: A partner freezes their customer's resources.
 
 ## Timeouts
 

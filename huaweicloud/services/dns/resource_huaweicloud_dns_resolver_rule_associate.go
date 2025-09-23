@@ -21,13 +21,13 @@ import (
 )
 
 // @API DNS POST /v2.1/resolverrules/{resolverrule_id}/associaterouter
-// @API DNS POST /v2.1/resolverrules/{resolverrule_id}/disassociaterouter
 // @API DNS GET /v2.1/resolverrules/{resolverrule_id}
-func ResourceDNSResolverRuleAssociate() *schema.Resource {
+// @API DNS POST /v2.1/resolverrules/{resolverrule_id}/disassociaterouter
+func ResourceResolverRuleAssociate() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceDNSResolverRuleAssociateCreate,
-		ReadContext:   resourceDNSResolverRuleAssociateRead,
-		DeleteContext: resourceDNSResolverRuleAssociateDelete,
+		CreateContext: resourceResolverRuleAssociateCreate,
+		ReadContext:   resourceResolverRuleAssociateRead,
+		DeleteContext: resourceResolverRuleAssociateDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -45,50 +45,51 @@ func ResourceDNSResolverRuleAssociate() *schema.Resource {
 				ForceNew: true,
 			},
 			"resolver_rule_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The DNS resolver rule ID.`,
 			},
 			"vpc_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The VPC ID to associate.`,
 			},
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The status of the resolver rule association.`,
 			},
 		},
 	}
 }
 
-func resourceDNSResolverRuleAssociateCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceResolverRuleAssociateCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	dnsClient, err := cfg.DNSV21Client(region)
+	dnsClient, err := cfg.DNSV21Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating DNS client: %s", err)
 	}
 
-	ruleID := d.Get("resolver_rule_id").(string)
-	vpcID := d.Get("vpc_id").(string)
+	resolverRuleId := d.Get("resolver_rule_id").(string)
+	vpcId := d.Get("vpc_id").(string)
 	opts := associate.RouterOpts{
-		RouterID: vpcID,
+		RouterID: vpcId,
 	}
 
-	body, err := associate.Associate(dnsClient, ruleID, opts).Extract()
+	_, err = associate.Associate(dnsClient, resolverRuleId, opts).Extract()
 	if err != nil {
-		return diag.Errorf("error creating DNS resolver rule associate: %s", err)
+		return diag.Errorf("error associating VPC (%s) to DNS resolver rule (%s): %s", vpcId, resolverRuleId, err)
 	}
 
-	id := fmt.Sprintf("%s/%s", ruleID, vpcID)
-	d.SetId(id)
+	d.SetId(fmt.Sprintf("%s/%s", resolverRuleId, vpcId))
 
-	log.Printf("[DEBUG] Waiting for DNS resolver rule associate (%s) to become available", d.Id())
+	log.Printf("[DEBUG] Waiting for DNS resolver rule (%s) associate VPC (%s) to complete", resolverRuleId, vpcId)
 	stateConf := &resource.StateChangeConf{
-		Target:       []string{"ACTIVE"},
 		Pending:      []string{"PENDING"},
-		Refresh:      waitForDNSResolverRuleAssociate(dnsClient, ruleID, body.RouterID),
+		Target:       []string{"COMPLETED"},
+		Refresh:      waitForResolverRuleAssociate(dnsClient, resolverRuleId, vpcId, false),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        5 * time.Second,
 		PollInterval: 5 * time.Second,
@@ -96,15 +97,24 @@ func resourceDNSResolverRuleAssociateCreate(ctx context.Context, d *schema.Resou
 
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return diag.Errorf(
-			"error waiting for DNS resolver rule associate (%s) to become ACTIVE for creation: %s",
-			d.Id(), err)
+		return diag.Errorf("error waiting for DNS resolver rule (%s) associate VPC (%s) to complete: %s",
+			resolverRuleId, vpcId, err)
 	}
 
-	return resourceDNSResolverRuleAssociateRead(ctx, d, meta)
+	return resourceResolverRuleAssociateRead(ctx, d, meta)
 }
 
-func resourceDNSResolverRuleAssociateRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func getResolverRuleAndVpcId(resourceId string) (resolverRuleId string, vpcId string, err error) {
+	parts := strings.Split(resourceId, "/")
+	if len(parts) != 2 {
+		return "", "", fmt.Errorf("invalid resource ID format (%s), want '<resolver_rule_id>/<vpc_id>'", resourceId)
+	}
+	resolverRuleId = parts[0]
+	vpcId = parts[1]
+	return
+}
+
+func resourceResolverRuleAssociateRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	dnsClient, err := cfg.DNSV21Client(region)
@@ -112,33 +122,40 @@ func resourceDNSResolverRuleAssociateRead(_ context.Context, d *schema.ResourceD
 		return diag.Errorf("error creating DNS client: %s", err)
 	}
 
-	arr := strings.Split(d.Id(), "/")
-	if len(arr) != 2 {
-		return diag.Errorf("error getting resolver rule ID and VPC ID, DNS resolver rule associate ID: %s", d.Id())
-	}
-	ruleID := arr[0]
-	vpcID := arr[1]
-
-	rule, err := resolverrule.Get(dnsClient, ruleID).Extract()
+	resolverRuleId, vpcId, err := getResolverRuleAndVpcId(d.Id())
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving DNS resolver rule")
+		return diag.FromErr(err)
 	}
 
-	for _, r := range rule.Routers {
-		if r.RouterID == vpcID {
-			mErr := multierror.Append(nil,
-				d.Set("vpc_id", vpcID),
-				d.Set("resolver_rule_id", ruleID),
-				d.Set("status", r.Status),
-			)
-			return diag.FromErr(mErr.ErrorOrNil())
+	associatedVpc, err := GetAssociatedVpcById(dnsClient, resolverRuleId, vpcId)
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, "error retrieving associated VPC from resolver rule")
+	}
+
+	mErr := multierror.Append(nil,
+		d.Set("region", region),
+		d.Set("vpc_id", associatedVpc.RouterID),
+		d.Set("resolver_rule_id", resolverRuleId),
+		d.Set("status", associatedVpc.Status),
+	)
+	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func GetAssociatedVpcById(client *golangsdk.ServiceClient, resolverRuleId, vpcId string) (*resolverrule.Router, error) {
+	rule, err := resolverrule.Get(client, resolverRuleId).Extract()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, router := range rule.Routers {
+		if router.RouterID == vpcId {
+			return &router, nil
 		}
 	}
-
-	return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
+	return nil, golangsdk.ErrDefault404{}
 }
 
-func resourceDNSResolverRuleAssociateDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceResolverRuleAssociateDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	dnsClient, err := cfg.DNSV21Client(region)
@@ -146,29 +163,22 @@ func resourceDNSResolverRuleAssociateDelete(ctx context.Context, d *schema.Resou
 		return diag.Errorf("error creating DNS client: %s", err)
 	}
 
-	arr := strings.Split(d.Id(), "/")
-	if len(arr) != 2 {
-		return diag.Errorf("error getting resolver rule ID and VPC ID, DNS resolver rule associate resource ID: %s", d.Id())
-	}
-	ruleID := arr[0]
-	vpcID := arr[1]
-
+	resolverRuleId := d.Get("resolver_rule_id").(string)
+	vpcId := d.Get("vpc_id").(string)
 	opts := associate.RouterOpts{
-		RouterID: vpcID,
+		RouterID: vpcId,
 	}
-	body, err := associate.DisAssociate(dnsClient, ruleID, opts).Extract()
-
+	_, err = associate.DisAssociate(dnsClient, resolverRuleId, opts).Extract()
 	if err != nil {
-		return diag.Errorf("error deleting DNS resolver rule associate: %s", err)
+		return diag.Errorf("error disassociating VPC (%s) from DNS resolver rule (%s): %s", vpcId, resolverRuleId, err)
 	}
-
-	log.Printf("[DEBUG] Waiting for DNS resolver rule associate (%s) to become DELETED", d.Id())
+	log.Printf("[DEBUG] Waiting for disassociating VPC (%s) from DNS resolver rule (%s) to complete", vpcId, resolverRuleId)
 
 	stateConf := &resource.StateChangeConf{
-		Target: []string{"DELETED"},
 		// we allow to try to delete ERROR resolver rule associate
-		Pending:      []string{"ACTIVE", "PENDING", "ERROR"},
-		Refresh:      waitForDNSResolverRuleAssociate(dnsClient, ruleID, body.RouterID),
+		Pending:      []string{"PENDING"},
+		Target:       []string{"DELETED"},
+		Refresh:      waitForResolverRuleAssociate(dnsClient, resolverRuleId, vpcId, true),
 		Timeout:      d.Timeout(schema.TimeoutDelete),
 		Delay:        5 * time.Second,
 		PollInterval: 5 * time.Second,
@@ -176,31 +186,33 @@ func resourceDNSResolverRuleAssociateDelete(ctx context.Context, d *schema.Resou
 
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return diag.Errorf(
-			"error waiting for DNS resolver rule associate (%s) to delete: %s",
-			d.Id(), err)
+		return diag.Errorf("error waiting for disassociating VPC (%s) from DNS resolver rule (%s) to complete: %s",
+			vpcId, resolverRuleId, err)
 	}
 
 	return nil
 }
 
-func waitForDNSResolverRuleAssociate(client *golangsdk.ServiceClient, resolverRuleID string, vpcID string) resource.StateRefreshFunc {
+func waitForResolverRuleAssociate(client *golangsdk.ServiceClient, resolverRuleId string, vpcId string, isDelete bool) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		rule, err := resolverrule.Get(client, resolverRuleID).Extract()
+		associatedVpc, err := GetAssociatedVpcById(client, resolverRuleId, vpcId)
 		if err != nil {
-			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				return nil, "DELETED", nil
+			if _, ok := err.(golangsdk.ErrDefault404); ok && isDelete {
+				return "Resource Not Found", "DELETED", nil
 			}
-			return nil, "", err
+			return nil, "ERROR", err
 		}
 
-		for _, router := range rule.Routers {
-			if router.RouterID == vpcID {
-				log.Printf("[DEBUG] DNS resolver rule associate (%s) current status: %s", resolverRuleID, router.Status)
-				return router, parseStatus(router.Status), nil
+		status := associatedVpc.Status
+		if !isDelete {
+			if status == "ACTIVE" {
+				return associatedVpc, "COMPLETED", nil
+			}
+
+			if status == "ERROR" {
+				return associatedVpc, "ERROR", fmt.Errorf("unexpect status (%s)", status)
 			}
 		}
-
-		return rule.Routers, "DELETED", nil
+		return associatedVpc, "PENDING", nil
 	}
 }

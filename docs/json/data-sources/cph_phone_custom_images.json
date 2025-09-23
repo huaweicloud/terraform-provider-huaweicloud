@@ -1,0 +1,88 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cph_phone_custom_images": {
+          "block": {
+            "attributes": {
+              "create_since": {
+                "type": "string",
+                "description": "Specifies the image creation since time.",
+                "optional": true
+              },
+              "create_until": {
+                "type": "string",
+                "description": "Specifies the image creation until time.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "image_id": {
+                "type": "string",
+                "description": "Specifies the image ID.",
+                "optional": true
+              },
+              "images": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "domain_id": "string",
+                      "id": "string",
+                      "name": "string",
+                      "project_id": "string",
+                      "size": "number",
+                      "src_project_id": "string",
+                      "status": "number",
+                      "type": "string",
+                      "updated_at": "string",
+                      "version": "string"
+                    }
+                  ]
+                ],
+                "description": "The image list.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the image name.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "src_project_id": {
+                "type": "string",
+                "description": "Specifies the project ID of the share image account.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the image status.",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the image type. The valid value can be **public**, **private** or **share**.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CPH",
+            "name": "Cloud Phone",
+            "catalog": "Compute",
+            "name_cn": "云手机",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

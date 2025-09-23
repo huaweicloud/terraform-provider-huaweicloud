@@ -1,0 +1,123 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_secmaster_alert_rules": {
+          "block": {
+            "attributes": {
+              "alert_rules": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "created_by": "string",
+                      "custom_properties": [
+                        "map",
+                        "string"
+                      ],
+                      "deleted_at": "string",
+                      "event_grouping": "bool",
+                      "id": "string",
+                      "name": "string",
+                      "pipeline_id": "string",
+                      "pipeline_name": "string",
+                      "query_plan": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "execution_delay": "number",
+                            "overtime_interval": "number",
+                            "query_interval": "number",
+                            "query_interval_unit": "string",
+                            "time_window": "number",
+                            "time_window_unit": "string"
+                          }
+                        ]
+                      ],
+                      "query_rule": "string",
+                      "query_type": "string",
+                      "severity": "string",
+                      "status": "string",
+                      "triggers": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "accumulated_times": "number",
+                            "expression": "string",
+                            "mode": "string",
+                            "operator": "string",
+                            "severity": "string"
+                          }
+                        ]
+                      ],
+                      "updated_at": "string",
+                      "updated_by": "string"
+                    }
+                  ]
+                ],
+                "description": "The alert rules.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the alert rule name. Fuzzy match is supported.",
+                "optional": true
+              },
+              "pipeline_id": {
+                "type": "string",
+                "description": "Specifies the pipeline ID.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "rule_id": {
+                "type": "string",
+                "description": "Specifies the alert rule ID.",
+                "optional": true
+              },
+              "severity": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the list of the severity.",
+                "optional": true
+              },
+              "status": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the list of the status. The value can be **ENABLED** and **DISABLED**.",
+                "optional": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "Specifies the workspace ID.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

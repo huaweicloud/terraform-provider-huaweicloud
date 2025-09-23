@@ -2,7 +2,8 @@
 subcategory: "NAT Gateway (NAT)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_nat_snat_rule"
-description: ""
+description: |-
+  Manages an SNAT rule resource of the **public** NAT within HuaweiCloud.
 ---
 
 # huaweicloud_nat_snat_rule
@@ -112,7 +113,7 @@ The following arguments are supported:
   This parameter and `subnet_id` are alternative. Changing this will create a new resource.
 
 * `source_type` - (Optional, Int, ForceNew) Specifies the resource scenario.  
-  The valid values are **0** (VPC scenario) and **1** (Direct Connect scenario), and the default value is `0`.
+  The valid values are `0` (VPC scenario) and `1` (Direct Connect scenario), and the default value is `0`.
   Only `cidr` can be specified over a Direct Connect connection. Changing this will create a new resource.
 
 * `description` - (Optional, String) Specifies the description of the SNAT rule.
@@ -130,6 +131,10 @@ In addition to all arguments above, the following attributes are exported:
 
 * `status` - The status of the SNAT rule.
 
+* `freezed_ip_address` - The frozen EIP associated with the SNAT rule.
+
+* `created_at` - The creation time of the SNAT rule.
+
 ## Timeouts
 
 This resource provides the following timeouts configuration options:
@@ -140,8 +145,8 @@ This resource provides the following timeouts configuration options:
 
 ## Import
 
-SNAT rules can be imported using their `id`, e.g.
+The SNAT rule can be imported using `id`, e.g.
 
 ```bash
-$ terraform import huaweicloud_nat_snat_rule.test 9e0713cb-0a2f-484e-8c7d-daecbb61dbe4
+$ terraform import huaweicloud_nat_snat_rule.test <id>
 ```

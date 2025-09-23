@@ -1,0 +1,83 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_codearts_pipeline_templates": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_system": {
+                "type": "bool",
+                "description": "Specifies whether the template is a system template.",
+                "optional": true
+              },
+              "language": {
+                "type": "string",
+                "description": "Specifies the template language.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the template name.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "sort_dir": {
+                "type": "string",
+                "description": "Specifies the sorting sequence.",
+                "optional": true
+              },
+              "sort_key": {
+                "type": "string",
+                "description": "Specifies the sorting attribute.",
+                "optional": true
+              },
+              "templates": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "create_time": "number",
+                      "creator_id": "string",
+                      "creator_name": "string",
+                      "description": "string",
+                      "icon": "string",
+                      "id": "string",
+                      "is_favorite": "bool",
+                      "is_show_source": "bool",
+                      "is_system": "bool",
+                      "language": "string",
+                      "manifest_version": "string",
+                      "name": "string",
+                      "stages": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "name": "string",
+                            "sequence": "number"
+                          }
+                        ]
+                      ],
+                      "update_time": "number",
+                      "updater_id": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the template list.",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

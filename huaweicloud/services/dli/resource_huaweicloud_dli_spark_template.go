@@ -7,13 +7,11 @@ package dli
 
 import (
 	"context"
-	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -288,11 +286,11 @@ func resourceSparkTemplateCreate(ctx context.Context, d *schema.ResourceData, me
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("id", createSparkTemplateRespBody)
-	if err != nil {
-		return diag.Errorf("error creating DLI spark template: ID is not found in API response")
+	templateId := utils.PathSearch("id", createSparkTemplateRespBody, "").(string)
+	if templateId == "" {
+		return diag.Errorf("unable to find the DLI spark template ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(templateId)
 
 	return resourceSparkTemplateRead(ctx, d, meta)
 }
@@ -431,9 +429,8 @@ func resourceSparkTemplateRead(_ context.Context, d *schema.ResourceData, meta i
 
 func flattenGetSparkTemplateResponseBody(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("body", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing body from response= %#v", resp)
+	curJson := utils.PathSearch("body", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return rst
 	}
 

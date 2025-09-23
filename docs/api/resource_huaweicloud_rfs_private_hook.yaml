@@ -1,0 +1,30 @@
+info:
+    version: ""
+    title: resource_huaweicloud_rfs_private_hook
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: RFS
+paths:
+    /v1/private-hooks:
+        POST:
+            tag: RFS
+    /v1/private-hooks/{hook_name}:
+        DELETE:
+            tag: RFS
+    /v1/private-hooks/{hook_name}/metadata:
+        GET:
+            tag: RFS
+        PATCH:
+            tag: RFS
+    /v1/private-hooks/{hook_name}/versions:
+        POST:
+            tag: RFS
+    /v1/private-hooks/{hook_name}/versions/{hook_version}:
+        DELETE:
+            tag: RFS
+    /v1/private-hooks/{hook_name}/versions/{hook_version}/metadata:
+        GET:
+            tag: RFS

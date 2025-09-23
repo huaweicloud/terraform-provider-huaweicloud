@@ -1,0 +1,47 @@
+info:
+    version: ""
+    title: resource_huaweicloud_codearts_pipeline_by_template
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CodeArtsPipeline
+paths:
+    /v5/{project_id}/api/pipeline-group/pipeline/move:
+        POST:
+            tag: CodeArtsPipeline
+    /v5/{project_id}/api/pipeline-permissions/{pipeline_id}/permission-switch:
+        GET:
+            tag: CodeArtsPipeline
+    /v5/{project_id}/api/pipeline-permissions/{pipeline_id}/role-permission:
+        GET:
+            tag: CodeArtsPipeline
+    /v5/{project_id}/api/pipeline-permissions/{pipeline_id}/update-permission-switch:
+        PUT:
+            tag: CodeArtsPipeline
+    /v5/{project_id}/api/pipeline-tag/set-tags:
+        POST:
+            tag: CodeArtsPipeline
+    /v5/{project_id}/api/pipeline-templates/{template_id}/create-pipeline:
+        POST:
+            tag: CodeArtsPipeline
+    /v5/{project_id}/api/pipeline/variable/group/pipeline:
+        GET:
+            tag: CodeArtsPipeline
+    /v5/{project_id}/api/pipeline/variable/group/relation:
+        POST:
+            tag: CodeArtsPipeline
+    /v5/{project_id}/api/pipelines/{pipeline_id}:
+        DELETE:
+            tag: CodeArtsPipeline
+        GET:
+            tag: CodeArtsPipeline
+        PUT:
+            tag: CodeArtsPipeline
+    /v5/{project_id}/api/pipelines/{pipeline_id}/ban:
+        PUT:
+            tag: CodeArtsPipeline
+    /v5/{project_id}/api/pipelines/{pipeline_id}/unban:
+        PUT:
+            tag: CodeArtsPipeline

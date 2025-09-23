@@ -30,14 +30,62 @@
                       "action": "string",
                       "created_at": "string",
                       "description": "string",
+                      "enterprise_project_id": "string",
                       "fixed_response_config": [
                         "list",
                         [
                           "object",
                           {
                             "content_type": "string",
+                            "insert_headers_config": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "configs": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "key": "string",
+                                        "value": "string",
+                                        "value_type": "string"
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ],
                             "message_body": "string",
-                            "status_code": "string"
+                            "remove_headers_config": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "configs": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "key": "string"
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ],
+                            "status_code": "string",
+                            "traffic_limit_config": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "burst": "number",
+                                  "per_source_ip_qps": "number",
+                                  "qps": "number"
+                                }
+                              ]
+                            ]
                           }
                         ]
                       ],
@@ -45,13 +93,60 @@
                       "listener_id": "string",
                       "name": "string",
                       "priority": "number",
+                      "provisioning_status": "string",
                       "redirect_listener_id": "string",
                       "redirect_pool_id": "string",
+                      "redirect_pools_config": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "pool_id": "string",
+                            "weight": "number"
+                          }
+                        ]
+                      ],
                       "redirect_pools_extend_config": [
                         "list",
                         [
                           "object",
                           {
+                            "insert_headers_config": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "configs": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "key": "string",
+                                        "value": "string",
+                                        "value_type": "string"
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ],
+                            "remove_headers_config": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "configs": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "key": "string"
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ],
                             "rewrite_url_config": [
                               "list",
                               [
@@ -63,7 +158,28 @@
                                 }
                               ]
                             ],
-                            "rewrite_url_enabled": "bool"
+                            "rewrite_url_enabled": "bool",
+                            "traffic_limit_config": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "burst": "number",
+                                  "per_source_ip_qps": "number",
+                                  "qps": "number"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "redirect_pools_sticky_session_config": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "enable": "bool",
+                            "timeout": "number"
                           }
                         ]
                       ],
@@ -73,10 +189,46 @@
                           "object",
                           {
                             "host": "string",
+                            "insert_headers_config": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "configs": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "key": "string",
+                                        "value": "string",
+                                        "value_type": "string"
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ],
                             "path": "string",
                             "port": "string",
                             "protocol": "string",
                             "query": "string",
+                            "remove_headers_config": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "configs": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "key": "string"
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ],
                             "status_code": "string"
                           }
                         ]
@@ -110,6 +262,10 @@
               },
               "priority": {
                 "type": "number",
+                "optional": true
+              },
+              "provisioning_status": {
+                "type": "string",
                 "optional": true
               },
               "redirect_listener_id": {

@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_gaussdb_mysql_proxy_restart
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: GaussDBforMySQL
+paths:
+    /v3/{project_id}/instances/{instance_id}/proxy/{proxy_id}/restart:
+        POST:
+            tag: GaussDBforMySQL
+    /v3/{project_id}/jobs:
+        GET:
+            tag: GaussDBforMySQL

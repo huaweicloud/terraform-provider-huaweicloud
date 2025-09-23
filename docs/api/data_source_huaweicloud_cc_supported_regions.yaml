@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_cc_supported_regions
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CC
+paths:
+    /v3/{domain_id}/ccaas/regions:
+        GET:
+            tag: CC

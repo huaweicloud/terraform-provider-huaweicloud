@@ -15,6 +15,24 @@
                 "description": "Specifies the information about the endpoint group.",
                 "optional": true
               },
+              "frozen_info": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "effect": "number",
+                      "scene": [
+                        "list",
+                        "string"
+                      ],
+                      "status": "number"
+                    }
+                  ]
+                ],
+                "description": "The frozen details of cloud services or resources.",
+                "computed": true
+              },
               "id": {
                 "type": "string",
                 "computed": true

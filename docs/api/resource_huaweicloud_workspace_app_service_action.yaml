@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_workspace_app_service_action
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: Workspace
+paths:
+    /v1/{project_id}/tenant/action/active:
+        POST:
+            tag: Workspace

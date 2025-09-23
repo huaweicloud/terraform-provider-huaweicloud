@@ -31,7 +31,7 @@
               },
               "service_area": {
                 "type": "string",
-                "description": "Specifies the service area",
+                "description": "Specifies the service area.",
                 "optional": true,
                 "computed": true
               },

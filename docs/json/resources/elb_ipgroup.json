@@ -57,7 +57,7 @@
                     }
                   }
                 },
-                "nesting_mode": "list",
+                "nesting_mode": "set",
                 "min_items": 1
               }
             }

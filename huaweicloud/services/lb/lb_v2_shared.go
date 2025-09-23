@@ -156,13 +156,13 @@ func waitForLBV2viaPool(ctx context.Context, networkingClient *golangsdk.Service
 		return err
 	}
 
-	if pool.Loadbalancers != nil {
+	if len(pool.Loadbalancers) > 0 {
 		// each pool has an LB in Octavia lbaasv2 API
 		lbID := pool.Loadbalancers[0].ID
 		return waitForLBV2LoadBalancer(ctx, networkingClient, lbID, target, nil, timeout)
 	}
 
-	if pool.Listeners != nil {
+	if len(pool.Listeners) > 0 {
 		// each pool has a listener in Neutron lbaasv2 API
 		listenerID := pool.Listeners[0].ID
 		listener, err := listeners.Get(networkingClient, listenerID).Extract()

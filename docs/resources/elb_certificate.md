@@ -2,7 +2,8 @@
 subcategory: "Dedicated Load Balance (Dedicated ELB)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_elb_certificate"
-description: ""
+description: |-
+  Manages an ELB certificate resource within HuaweiCloud.
 ---
 
 # huaweicloud_elb_certificate
@@ -84,18 +85,28 @@ The following arguments are supported:
 
 * `description` - (Optional, String) Human-readable description for the Certificate.
 
-* `type` - (Optional, String, ForceNew) Specifies the certificate type. The default value is "server". The value can be
-  one of the following:
-  + server: indicates the server certificate.
-  + client: indicates the CA certificate.
+* `type` - (Optional, String, ForceNew) Specifies the certificate type. Value options:
+  + **server**: indicates the server certificate.
+  + **client**: indicates the CA certificate.
+  + **server_sm**: indicates the server SM certificate.
 
 * `certificate` - (Required, String) The public encrypted key of the Certificate, PEM format.
 
 * `private_key` - (Optional, String) The private encrypted key of the Certificate, PEM format. This parameter is valid
-  and mandatory only when `type` is set to "server".
+  and mandatory only when `type` is set to **server**.
 
-* `domain` - (Optional, String) The domain of the Certificate. The value contains a maximum of 100 characters. This
-  parameter is valid only when `type` is set to "server".
+* `domain` - (Optional, String) The domain of the Certificate. The value contains a maximum of **100** characters. This
+  parameter is valid only when `type` is set to **server**.
+
+* `enc_certificate` - (Optional, String) Specifies the body of the SM encryption certificate required by HTTPS listeners.
+  The value must be PEM encoded. Maximum 65,536-character length is allowed, supports certificate chains with a maximum
+  of 11 layers (including certificates and certificate chains). It is mandatory only when `type` is set to **server_sm**.
+
+* `enc_private_key` - (Optional, String) Specifies the private key of the SM encryption certificate required by HTTPS listeners.
+  The value must be PEM encoded. Maximum 8,192-character length is allowed. It is mandatory only when `type` is set to
+  **server_sm.**.
+
+* `scm_certificate_id` - (Optional, String) Specifies the SM certificate ID.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the certificate.
 
@@ -103,31 +114,40 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - Specifies a resource ID in UUID format.
+* `id` - Indicates the resource ID.
+
+* `common_name` - Indicates the primary domain name of the certificate.
+
+* `fingerprint` - Indicates the fingerprint of the certificate.
+
+* `subject_alternative_names` - Indicates all the domain names of the certificate.
+
 * `update_time` - Indicates the update time.
+
 * `create_time` - Indicates the creation time.
+
 * `expire_time` - Indicates the expiration time.
 
 ## Import
 
-ELB certificate can be imported using the certificate ID, e.g.
+The ELB certificate can be imported using the `id`, e.g.
 
-```
-$ terraform import huaweicloud_elb_certificate.certificate_1 5c20fdad-7288-11eb-b817-0255ac10158b
+```bash
+$ terraform import huaweicloud_elb_certificate.test <id>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
-API response, security or some other reason. The missing attributes include: `enterprise_project_id`.
-It is generally recommended running `terraform plan` after importing a certificate.
-You can then decide if changes should be applied to the certificate, or the resource
-definition should be updated to align with the certificate. Also you can ignore changes as below.
+API response, security or some other reason. The missing attributes include: `private_key` and `enc_private_key`. It is
+generally recommended running `terraform plan` after importing a certificate. You can then decide if changes should be
+applied to the certificate, or the resource definition should be updated to align with the certificate. Also you can
+ignore changes as below.
 
-```
-resource "huaweicloud_elb_certificate" "certificate_1" {
+```hcl
+resource "huaweicloud_elb_certificate" "test" {
     ...
   lifecycle {
     ignore_changes = [
-      enterprise_project_id,
+      private_key, enc_private_key
     ]
   }
 }

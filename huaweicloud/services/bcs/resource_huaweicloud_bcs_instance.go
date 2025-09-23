@@ -17,12 +17,11 @@ import (
 	"github.com/chnsz/golangsdk/openstack/bcs/v2/blockchains"
 	"github.com/chnsz/golangsdk/openstack/cce/v3/clusters"
 	"github.com/chnsz/golangsdk/openstack/dms/v2/kafka/instances"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dms"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/kafka"
 )
 
 // @API BCS POST /v2/{project_id}/blockchains
@@ -523,13 +522,13 @@ func resourceBCSInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 	instanceId := d.Id()
 
 	if d.HasChange("enterprise_project_id") {
-		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+		migrateOpts := config.MigrateResourceOpts{
 			ResourceId:   instanceId,
 			ResourceType: "bcs",
 			RegionId:     region,
 			ProjectId:    cfg.GetProjectID(region),
 		}
-		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
+		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -576,7 +575,7 @@ func resourceBCSInstanceDelete(ctx context.Context, d *schema.ResourceData, meta
 		stateConf := &resource.StateChangeConf{
 			Pending:    []string{"DELETING", "RUNNING"},
 			Target:     []string{"DELETED"},
-			Refresh:    dms.KafkaInstanceStateRefreshFunc(dmsClient, kafkaID),
+			Refresh:    kafka.KafkaInstanceStateRefreshFunc(dmsClient, kafkaID),
 			Timeout:    d.Timeout(schema.TimeoutDelete),
 			Delay:      10 * time.Second,
 			MinTimeout: 3 * time.Second,

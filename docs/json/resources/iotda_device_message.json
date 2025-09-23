@@ -1,0 +1,150 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_iotda_device_message": {
+          "block": {
+            "attributes": {
+              "created_time": {
+                "type": "string",
+                "computed": true
+              },
+              "device_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "encoding": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "error_info": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "error_code": "string",
+                      "error_msg": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "finished_time": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "message": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "message_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "payload_format": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "topic": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "topic_full_name": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "ttl": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "properties": {
+                "block": {
+                  "attributes": {
+                    "correlation_data": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "response_topic": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    }
+                  },
+                  "block_types": {
+                    "user_properties": {
+                      "block": {
+                        "attributes": {
+                          "prop_key": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true,
+                            "forcenew": true
+                          },
+                          "prop_value": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true,
+                            "forcenew": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "IoTDA",
+            "name": "IoT Device Access",
+            "catalog": "Internet of Things",
+            "name_cn": "设备接入",
+            "catalog_cn": "IoT物联网"
+          }
+        }
+      }
+    }
+  }
+}

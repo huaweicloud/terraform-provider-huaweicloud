@@ -3,15 +3,13 @@ package iotda
 import (
 	"context"
 	"fmt"
-	"regexp"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	iotdav5 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5"
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -32,6 +30,7 @@ const (
 // @API IoTDA POST /v5/iot/{project_id}/devices/{device_id}/action
 // @API IoTDA POST /v5/iot/{project_id}/devices/{device_id}/freeze
 // @API IoTDA POST /v5/iot/{project_id}/devices/{device_id}/reset-fingerprint
+// @API IoTDA PUT /v5/iot/{project_id}/devices/{device_id}/shadow
 func ResourceDevice() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: ResourceDeviceCreate,
@@ -43,6 +42,8 @@ func ResourceDevice() *schema.Resource {
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 
+		CustomizeDiff: config.MergeDefaultTags(),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
@@ -50,51 +51,31 @@ func ResourceDevice() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(4, 256),
-					validation.StringMatch(regexp.MustCompile(stringRegxp), stringFormatMsg),
-				),
 			},
-
 			"node_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(4, 256),
-					validation.StringMatch(regexp.MustCompile(`^[A-Za-z-_0-9]*$`),
-						"Only letters, digits, underscores (_) and hyphens (-) are allowed."),
-				),
 			},
-
 			"space_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-
 			"product_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-
 			"device_id": { // keep same with console
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(4, 256),
-					validation.StringMatch(regexp.MustCompile(`^[A-Za-z-_0-9]*$`),
-						"Only letters, digits, underscores (_) and hyphens (-) are allowed."),
-				),
 			},
-
 			"secret": {
 				Type:          schema.TypeString,
 				Optional:      true,
@@ -130,40 +111,51 @@ func ResourceDevice() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
-
 			"gateway_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-
+			"extension_info": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			"shadow": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"service_id": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"desired": {
+							Type:     schema.TypeMap,
+							Required: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
+					},
+				},
+			},
 			"tags": common.TagsSchema(),
-
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(0, 2048),
-					validation.StringMatch(regexp.MustCompile(stringRegxp), stringFormatMsg),
-				),
 			},
-
 			"frozen": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Computed: true,
 			},
-
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-
 			"auth_type": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-
 			"node_type": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -172,133 +164,517 @@ func ResourceDevice() *schema.Resource {
 	}
 }
 
+func buildCreateDeviceAuthInfo(d *schema.ResourceData) map[string]interface{} {
+	if secret, ok := d.GetOk("secret"); ok {
+		return map[string]interface{}{
+			"auth_type":     "SECRET",
+			"secret":        secret,
+			"secure_access": d.Get("secure_access"),
+		}
+	}
+
+	if fingerprint, ok := d.GetOk("fingerprint"); ok {
+		return map[string]interface{}{
+			"auth_type":     "CERTIFICATES",
+			"fingerprint":   fingerprint,
+			"secure_access": d.Get("secure_access"),
+		}
+	}
+
+	return nil
+}
+
+func buildCreateDeviceBodyParams(d *schema.ResourceData) map[string]interface{} {
+	return map[string]interface{}{
+		"device_id":      utils.ValueIgnoreEmpty(d.Get("device_id")),
+		"node_id":        d.Get("node_id"),
+		"device_name":    utils.ValueIgnoreEmpty(d.Get("name")),
+		"product_id":     d.Get("product_id"),
+		"gateway_id":     utils.ValueIgnoreEmpty(d.Get("gateway_id")),
+		"description":    utils.ValueIgnoreEmpty(d.Get("description")),
+		"app_id":         utils.ValueIgnoreEmpty(d.Get("space_id")),
+		"auth_info":      buildCreateDeviceAuthInfo(d),
+		"extension_info": utils.ValueIgnoreEmpty(d.Get("extension_info")),
+	}
+}
+
+func createDevice(client *golangsdk.ServiceClient, d *schema.ResourceData) (interface{}, error) {
+	requestPath := client.Endpoint + "v5/iot/{project_id}/devices"
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildCreateDeviceBodyParams(d)),
+	}
+
+	resp, err := client.Request("POST", requestPath, &requestOpt)
+	if err != nil {
+		return nil, fmt.Errorf("error creating IoTDA device: %s", err)
+	}
+
+	return utils.FlattenResponse(resp)
+}
+
+func buildResetDeviceSecondarySecretBodyParams(d *schema.ResourceData) map[string]interface{} {
+	return map[string]interface{}{
+		"secret":           utils.ValueIgnoreEmpty(d.Get("secondary_secret")),
+		"force_disconnect": d.Get("force_disconnect"),
+		"secret_type":      "SECONDARY",
+	}
+}
+
+func resetDeviceSecondarySecret(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	requestPath := client.Endpoint + "v5/iot/{project_id}/devices/{device_id}/action?action_id=resetSecret"
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{device_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildResetDeviceSecondarySecretBodyParams(d)),
+	}
+
+	_, err := client.Request("POST", requestPath, &requestOpt)
+	if err != nil {
+		return fmt.Errorf("error updating the device secondary secret of IoTDA device: %s", err)
+	}
+
+	return nil
+}
+
+func buildResetSecondaryFingerprintBodyParams(d *schema.ResourceData) map[string]interface{} {
+	return map[string]interface{}{
+		"fingerprint":      utils.ValueIgnoreEmpty(d.Get("secondary_fingerprint")),
+		"force_disconnect": d.Get("force_disconnect"),
+		"fingerprint_type": "SECONDARY",
+	}
+}
+
+func resetSecondaryFingerprint(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	requestPath := client.Endpoint + "v5/iot/{project_id}/devices/{device_id}/reset-fingerprint"
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{device_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildResetSecondaryFingerprintBodyParams(d)),
+	}
+
+	_, err := client.Request("POST", requestPath, &requestOpt)
+	if err != nil {
+		return fmt.Errorf("error updating the secondary fingerprint of IoTDA device: %s", err)
+	}
+
+	return nil
+}
+
+func buildCreateTagsBodyParams(tagsRaw map[string]interface{}) []map[string]interface{} {
+	var tags []map[string]interface{}
+	for k, v := range tagsRaw {
+		tags = append(tags, map[string]interface{}{
+			"tag_key":   k,
+			"tag_value": utils.ValueIgnoreEmpty(v),
+		})
+	}
+
+	return tags
+}
+
+func buildBindingDeviceTagsBodyParams(d *schema.ResourceData, tags map[string]interface{}) map[string]interface{} {
+	return map[string]interface{}{
+		"resource_type": "device",
+		"resource_id":   d.Id(),
+		"tags":          buildCreateTagsBodyParams(tags),
+	}
+}
+
+func bindingDeviceTags(client *golangsdk.ServiceClient, d *schema.ResourceData, tags map[string]interface{}) error {
+	requestPath := client.Endpoint + "v5/iot/{project_id}/tags/bind-resource"
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildBindingDeviceTagsBodyParams(d, tags)),
+	}
+
+	_, err := client.Request("POST", requestPath, &requestOpt)
+	if err != nil {
+		return fmt.Errorf("error binding tags of IoTDA device: %s", err)
+	}
+
+	return nil
+}
+
+func freezeDevice(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	requestPath := client.Endpoint + "v5/iot/{project_id}/devices/{device_id}/freeze"
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{device_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes:          []int{200, 201, 204},
+	}
+
+	_, err := client.Request("POST", requestPath, &requestOpt)
+	if err != nil {
+		return fmt.Errorf("error freezing IoTDA device: %s", err)
+	}
+
+	return nil
+}
+
+func unfreezeDevice(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	requestPath := client.Endpoint + "v5/iot/{project_id}/devices/{device_id}/unfreeze"
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{device_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes:          []int{200, 201, 204},
+	}
+
+	_, err := client.Request("POST", requestPath, &requestOpt)
+	if err != nil {
+		return fmt.Errorf("error unfreezing IoTDA device: %s", err)
+	}
+
+	return nil
+}
+
+func updateFrozenStatus(client *golangsdk.ServiceClient, d *schema.ResourceData, status string) error {
+	isFrozen := d.Get("frozen").(bool)
+	if isFrozen && status != deviceStatusFrozen {
+		return freezeDevice(client, d)
+	}
+
+	if !isFrozen && status == deviceStatusFrozen {
+		return unfreezeDevice(client, d)
+	}
+
+	return nil
+}
+
+func buildDeviceShadowDesiredDataBodyParams(d *schema.ResourceData) map[string]interface{} {
+	rawArray := d.Get("shadow").([]interface{})
+	shadows := make([]map[string]interface{}, 0, len(rawArray))
+	for _, v := range rawArray {
+		shadows = append(shadows, map[string]interface{}{
+			"service_id": utils.PathSearch("service_id", v, nil),
+			"desired":    utils.PathSearch("desired", v, nil),
+		})
+	}
+
+	return map[string]interface{}{
+		"shadow": shadows,
+	}
+}
+
+func updateDeviceShadowDesiredData(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	requestPath := client.Endpoint + "v5/iot/{project_id}/devices/{device_id}/shadow"
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{device_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         buildDeviceShadowDesiredDataBodyParams(d),
+	}
+
+	_, err := client.Request("PUT", requestPath, &requestOpt)
+	if err != nil {
+		return fmt.Errorf("error setting device shadow data for the device: %s", err)
+	}
+
+	return nil
+}
+
 func ResourceDeviceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	region := c.GetRegion(d)
-	isDerived := WithDerivedAuth(c, region)
-	client, err := c.HcIoTdaV5Client(region, isDerived)
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		product = "iotda"
+	)
+
+	isDerived := WithDerivedAuth(cfg, region)
+	client, err := cfg.NewServiceClientWithDerivedAuth(product, region, isDerived)
 	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+		return diag.Errorf("error creating IoTDA client: %s", err)
 	}
 
-	createOpts := buildDeviceCreateParams(d)
-	resp, err := client.AddDevice(createOpts)
+	// Create new device.
+	respBody, err := createDevice(client, d)
 	if err != nil {
-		return diag.Errorf("error creating IoTDA device: %s", err)
+		return diag.FromErr(err)
 	}
 
-	if resp.DeviceId == nil {
-		return diag.Errorf("error creating IoTDA device: id is not found in API response")
+	deviceID := utils.PathSearch("device_id", respBody, "").(string)
+	if deviceID == "" {
+		return diag.Errorf("error creating IoTDA device: ID is not found in API response")
 	}
-
-	d.SetId(*resp.DeviceId)
+	d.SetId(deviceID)
 
 	// Set Secondary Secret.
-	if v, ok := d.Get("secondary_secret").(string); ok && v != "" {
-		err = resetDeviceSecondarySecret(client, d)
-		if err != nil {
+	if _, ok := d.GetOk("secondary_secret"); ok {
+		if err := resetDeviceSecondarySecret(client, d); err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
 	// Set Secondary Fingerprint.
-	if v, ok := d.Get("secondary_fingerprint").(string); ok && v != "" {
-		err = resetDeviceSecondaryFingerprint(client, d)
-		if err != nil {
+	if _, ok := d.GetOk("secondary_fingerprint"); ok {
+		if err := resetSecondaryFingerprint(client, d); err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
-	// bind tags
-	err = bindDeviceTags(client, d.Id(), nil, d.Get("tags").(map[string]interface{}))
-	if err != nil {
-		return diag.Errorf("error binding tags when creating IoTDA device: %s", err)
+	// Bind tags
+	if tagRaw := d.Get("tags").(map[string]interface{}); len(tagRaw) > 0 {
+		if err := bindingDeviceTags(client, d, tagRaw); err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
-	// freeze device
-	isFrozen := d.Get("frozen").(bool)
-	err = updateDeviceStatus(client, d.Id(), utils.StringValue(resp.Status), isFrozen)
-	if err != nil {
+	// Update device frozen status
+	status := utils.PathSearch("status", respBody, "").(string)
+	if err := updateFrozenStatus(client, d, status); err != nil {
 		return diag.FromErr(err)
+	}
+
+	// Set device shadow data
+	if shadowInfo := d.Get("shadow").([]interface{}); len(shadowInfo) > 0 {
+		if err := updateDeviceShadowDesiredData(client, d); err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
 	return ResourceDeviceRead(ctx, d, meta)
 }
 
-func ResourceDeviceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	region := c.GetRegion(d)
-	isDerived := WithDerivedAuth(c, region)
-	client, err := c.HcIoTdaV5Client(region, isDerived)
-	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+func flattenDeviceTags(tags []interface{}) map[string]interface{} {
+	if len(tags) == 0 {
+		return nil
 	}
 
-	response, err := client.ShowDevice(&model.ShowDeviceRequest{DeviceId: d.Id()})
+	rst := make(map[string]interface{})
+	for _, v := range tags {
+		tagKey := utils.PathSearch("tag_key", v, "").(string)
+		tagValue := utils.PathSearch("tag_value", v, nil)
+		rst[tagKey] = tagValue
+	}
+
+	return rst
+}
+
+func flattenFrozenAttribute(status string) bool {
+	return status == deviceStatusFrozen
+}
+
+func ResourceDeviceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v5/iot/{project_id}/devices/{device_id}"
+		product = "iotda"
+	)
+
+	isDerived := WithDerivedAuth(cfg, region)
+	client, err := cfg.NewServiceClientWithDerivedAuth(product, region, isDerived)
+	if err != nil {
+		return diag.Errorf("error creating IoTDA client: %s", err)
+	}
+
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{device_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	resp, err := client.Request("GET", requestPath, &requestOpt)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving IoTDA device")
 	}
 
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	mErr := multierror.Append(
 		d.Set("region", region),
-		d.Set("name", response.DeviceName),
-		d.Set("device_id", response.DeviceId),
-		d.Set("node_id", response.NodeId),
-		d.Set("product_id", response.ProductId),
-		d.Set("gateway_id", response.GatewayId),
-		d.Set("description", response.Description),
-		d.Set("space_id", response.AppId),
-		d.Set("status", response.Status),
-		d.Set("node_type", response.NodeType),
-		d.Set("tags", flattenTags(response.Tags)),
-		d.Set("frozen", utils.StringValue(response.Status) == deviceStatusFrozen),
+		d.Set("name", utils.PathSearch("device_name", respBody, nil)),
+		d.Set("device_id", utils.PathSearch("device_id", respBody, nil)),
+		d.Set("node_id", utils.PathSearch("node_id", respBody, nil)),
+		d.Set("product_id", utils.PathSearch("product_id", respBody, nil)),
+		d.Set("gateway_id", utils.PathSearch("gateway_id", respBody, nil)),
+		d.Set("description", utils.PathSearch("description", respBody, nil)),
+		d.Set("space_id", utils.PathSearch("app_id", respBody, nil)),
+		d.Set("status", utils.PathSearch("status", respBody, nil)),
+		d.Set("node_type", utils.PathSearch("node_type", respBody, nil)),
+		d.Set("tags", flattenDeviceTags(utils.PathSearch("tags", respBody, make([]interface{}, 0)).([]interface{}))),
+		d.Set("frozen", flattenFrozenAttribute(utils.PathSearch("status", respBody, "").(string))),
+		d.Set("secret", utils.PathSearch("auth_info.secret", respBody, nil)),
+		d.Set("secondary_secret", utils.PathSearch("auth_info.secondary_secret", respBody, nil)),
+		d.Set("fingerprint", utils.PathSearch("auth_info.fingerprint", respBody, nil)),
+		d.Set("secondary_fingerprint", utils.PathSearch("auth_info.secondary_fingerprint", respBody, nil)),
+		d.Set("secure_access", utils.PathSearch("auth_info.secure_access", respBody, nil)),
+		d.Set("auth_type", utils.PathSearch("auth_info.auth_type", respBody, nil)),
 	)
-
-	if response.AuthInfo != nil {
-		mErr = multierror.Append(mErr,
-			d.Set("secret", response.AuthInfo.Secret),
-			d.Set("secondary_secret", response.AuthInfo.SecondarySecret),
-			d.Set("fingerprint", response.AuthInfo.Fingerprint),
-			d.Set("secondary_fingerprint", response.AuthInfo.SecondaryFingerprint),
-			d.Set("secure_access", response.AuthInfo.SecureAccess),
-			d.Set("auth_type", response.AuthInfo.AuthType),
-		)
-	}
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func ResourceDeviceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	region := c.GetRegion(d)
-	isDerived := WithDerivedAuth(c, region)
-	client, err := c.HcIoTdaV5Client(region, isDerived)
+func buildUpdateDeviceAuthInfoBodyParams(d *schema.ResourceData) map[string]interface{} {
+	return map[string]interface{}{
+		"secure_access": d.Get("secure_access"),
+	}
+}
+
+func buildUpdateDeviceBodyParams(d *schema.ResourceData) map[string]interface{} {
+	return map[string]interface{}{
+		"device_name": utils.ValueIgnoreEmpty(d.Get("name")),
+		"description": utils.ValueIgnoreEmpty(d.Get("description")),
+		"auth_info":   buildUpdateDeviceAuthInfoBodyParams(d),
+	}
+}
+
+func updateDevice(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	requestPath := client.Endpoint + "v5/iot/{project_id}/devices/{device_id}"
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{device_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildUpdateDeviceBodyParams(d)),
+	}
+
+	_, err := client.Request("PUT", requestPath, &requestOpt)
 	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+		return fmt.Errorf("error updating IoTDA device: %s", err)
+	}
+
+	return nil
+}
+
+func buildResetDeviceSecretBodyParams(d *schema.ResourceData) map[string]interface{} {
+	return map[string]interface{}{
+		"secret":           utils.ValueIgnoreEmpty(d.Get("secret")),
+		"force_disconnect": d.Get("force_disconnect"),
+		"secret_type":      "PRIMARY",
+	}
+}
+
+func resetDeviceSecret(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	requestPath := client.Endpoint + "v5/iot/{project_id}/devices/{device_id}/action?action_id=resetSecret"
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{device_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildResetDeviceSecretBodyParams(d)),
+	}
+
+	_, err := client.Request("POST", requestPath, &requestOpt)
+	if err != nil {
+		return fmt.Errorf("error updating the primary secret of IoTDA device: %s", err)
+	}
+
+	return nil
+}
+
+func buildResetFingerprintBodyParams(d *schema.ResourceData) map[string]interface{} {
+	return map[string]interface{}{
+		"fingerprint":      utils.ValueIgnoreEmpty(d.Get("fingerprint")),
+		"force_disconnect": d.Get("force_disconnect"),
+		"fingerprint_type": "PRIMARY",
+	}
+}
+
+func resetFingerprint(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	requestPath := client.Endpoint + "v5/iot/{project_id}/devices/{device_id}/reset-fingerprint"
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{device_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildResetFingerprintBodyParams(d)),
+	}
+
+	_, err := client.Request("POST", requestPath, &requestOpt)
+	if err != nil {
+		return fmt.Errorf("error updating the primary fingerprint of IoTDA device: %s", err)
+	}
+
+	return nil
+}
+
+func buildDeleteTagsBodyParams(tags map[string]interface{}) []string {
+	var tagKeys []string
+	for k := range tags {
+		tagKeys = append(tagKeys, k)
+	}
+
+	return tagKeys
+}
+
+func buildUnbindingDeviceTagsBodyParams(d *schema.ResourceData, tags map[string]interface{}) map[string]interface{} {
+	return map[string]interface{}{
+		"resource_type": "device",
+		"resource_id":   d.Id(),
+		"tag_keys":      buildDeleteTagsBodyParams(tags),
+	}
+}
+
+func unbindingDeviceTags(client *golangsdk.ServiceClient, d *schema.ResourceData, tags map[string]interface{}) error {
+	requestPath := client.Endpoint + "v5/iot/{project_id}/tags/unbind-resource"
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         buildUnbindingDeviceTagsBodyParams(d, tags),
+	}
+
+	_, err := client.Request("POST", requestPath, &requestOpt)
+	if err != nil {
+		return fmt.Errorf("error unbinding tags of IoTDA device: %s", err)
+	}
+
+	return nil
+}
+
+func updateDeviceTags(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	o, n := d.GetChange("tags")
+	oMap := o.(map[string]interface{})
+	nMap := n.(map[string]interface{})
+
+	// remove old tags
+	if len(oMap) > 0 {
+		if err := unbindingDeviceTags(client, d, oMap); err != nil {
+			return err
+		}
+	}
+
+	// set new tags
+	if len(nMap) > 0 {
+		if err := bindingDeviceTags(client, d, nMap); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func ResourceDeviceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		product = "iotda"
+	)
+
+	isDerived := WithDerivedAuth(cfg, region)
+	client, err := cfg.NewServiceClientWithDerivedAuth(product, region, isDerived)
+	if err != nil {
+		return diag.Errorf("error creating IoTDA client: %s", err)
 	}
 
 	// Update name,desc,secure_access
-	if d.HasChanges("name", "description", "secure_access") {
-		updateOpts := buildDeviceUpdateParams(d)
-		_, err = client.UpdateDevice(updateOpts)
-		if err != nil {
-			return diag.Errorf("error updating IoTDA device: %s", err)
+	if d.HasChanges("name", "description", "secure_access", "extension_info") {
+		if err := updateDevice(client, d); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
 	// Reset Device Primary Secret.
 	if d.HasChange("secret") {
-		_, err = client.ResetDeviceSecret(&model.ResetDeviceSecretRequest{
-			DeviceId: d.Id(),
-			ActionId: "resetSecret",
-			Body: &model.ResetDeviceSecret{
-				Secret:          utils.StringIgnoreEmpty(d.Get("secret").(string)),
-				ForceDisconnect: utils.Bool(d.Get("force_disconnect").(bool)),
-				SecretType:      utils.String("PRIMARY"),
-			},
-		})
-		if err != nil {
-			return diag.Errorf("error updating the primary secret of IoTDA device: %s", err)
+		if err := resetDeviceSecret(client, d); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
@@ -312,22 +688,14 @@ func ResourceDeviceUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 
 	// Reset Primary Fingerprint.
 	if d.HasChange("fingerprint") {
-		_, err = client.ResetFingerprint(&model.ResetFingerprintRequest{
-			DeviceId: d.Id(),
-			Body: &model.ResetFingerprint{
-				Fingerprint:     utils.StringIgnoreEmpty(d.Get("fingerprint").(string)),
-				ForceDisconnect: utils.Bool(d.Get("force_disconnect").(bool)),
-				FingerprintType: utils.String("PRIMARY"),
-			},
-		})
-		if err != nil {
-			return diag.Errorf("error updating the primary fingerprint of IoTDA device: %s", err)
+		if err := resetFingerprint(client, d); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
 	// Reset Secondary Fingerprint.
 	if d.HasChange("secondary_fingerprint") {
-		err = resetDeviceSecondaryFingerprint(client, d)
+		err = resetSecondaryFingerprint(client, d)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -335,212 +703,53 @@ func ResourceDeviceUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 
 	// frozen
 	if d.HasChange("frozen") {
-		isFrozen := d.Get("frozen").(bool)
-		status := d.Get("status").(string)
-		err = updateDeviceStatus(client, d.Id(), status, isFrozen)
-		if err != nil {
+		if err := updateFrozenStatus(client, d, d.Get("status").(string)); err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
 	// tags
 	if d.HasChange("tags") {
-		o, n := d.GetChange("tags")
-		err = bindDeviceTags(client, d.Id(), o.(map[string]interface{}), n.(map[string]interface{}))
-		if err != nil {
-			return diag.Errorf("error updating the tags of IoTDA device: %s", err)
+		if err := updateDeviceTags(client, d); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	// Update device shadow data
+	if d.HasChange("shadow") {
+		if err := updateDeviceShadowDesiredData(client, d); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
 	return ResourceDeviceRead(ctx, d, meta)
 }
 
-func resetDeviceSecondarySecret(client *iotdav5.IoTDAClient, d *schema.ResourceData) error {
-	_, err := client.ResetDeviceSecret(&model.ResetDeviceSecretRequest{
-		DeviceId: d.Id(),
-		ActionId: "resetSecret",
-		Body: &model.ResetDeviceSecret{
-			Secret:          utils.StringIgnoreEmpty(d.Get("secondary_secret").(string)),
-			ForceDisconnect: utils.Bool(d.Get("force_disconnect").(bool)),
-			SecretType:      utils.String("SECONDARY"),
-		},
-	})
-	if err != nil {
-		return fmt.Errorf("error updating the secondary secret of IoTDA device: %s", err)
-	}
-
-	return nil
-}
-
-func resetDeviceSecondaryFingerprint(client *iotdav5.IoTDAClient, d *schema.ResourceData) error {
-	_, err := client.ResetFingerprint(&model.ResetFingerprintRequest{
-		DeviceId: d.Id(),
-		Body: &model.ResetFingerprint{
-			Fingerprint:     utils.StringIgnoreEmpty(d.Get("secondary_fingerprint").(string)),
-			ForceDisconnect: utils.Bool(d.Get("force_disconnect").(bool)),
-			FingerprintType: utils.String("SECONDARY"),
-		},
-	})
-	if err != nil {
-		return fmt.Errorf("error updating the secondary fingerprint of IoTDA device: %s", err)
-	}
-
-	return nil
-}
-
 func ResourceDeviceDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	region := c.GetRegion(d)
-	isDerived := WithDerivedAuth(c, region)
-	client, err := c.HcIoTdaV5Client(region, isDerived)
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v5/iot/{project_id}/devices/{device_id}"
+		product = "iotda"
+	)
+
+	isDerived := WithDerivedAuth(cfg, region)
+	client, err := cfg.NewServiceClientWithDerivedAuth(product, region, isDerived)
 	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+		return diag.Errorf("error creating IoTDA client: %s", err)
 	}
 
-	deleteOpts := &model.DeleteDeviceRequest{DeviceId: d.Id()}
-	_, err = client.DeleteDevice(deleteOpts)
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{device_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	_, err = client.Request("DELETE", requestPath, &requestOpt)
 	if err != nil {
-		return diag.Errorf("error deleting IoTDA device: %s", err)
+		return common.CheckDeletedDiag(d, err, "error deleting IoTDA device")
 	}
 
-	return nil
-}
-
-func bindDeviceTags(client *iotdav5.IoTDAClient, deviceId string, oMap, nMap map[string]interface{}) error {
-	// remove old tags
-	if len(oMap) > 0 {
-		keys := ExpandKeyOfTags(oMap)
-		_, err := client.UntagDevice(&model.UntagDeviceRequest{
-			Body: &model.UnbindTagsDto{
-				ResourceType: "device",
-				ResourceId:   deviceId,
-				TagKeys:      keys,
-			},
-		})
-		if err != nil {
-			return err
-		}
-	}
-
-	// set new tags
-	if len(nMap) > 0 {
-		taglist := ExpandResourceTags(nMap)
-		_, err := client.TagDevice(&model.TagDeviceRequest{
-			Body: &model.BindTagsDto{
-				ResourceType: "device",
-				ResourceId:   deviceId,
-				Tags:         taglist,
-			},
-		})
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func ExpandResourceTags(tagmap map[string]interface{}) []model.TagV5Dto {
-	var taglist []model.TagV5Dto
-
-	for k, v := range tagmap {
-		tag := model.TagV5Dto{
-			TagKey:   k,
-			TagValue: utils.StringIgnoreEmpty(v.(string)),
-		}
-		taglist = append(taglist, tag)
-	}
-	return taglist
-}
-
-func ExpandKeyOfTags(tagmap map[string]interface{}) []string {
-	var taglist []string
-	for k := range tagmap {
-		taglist = append(taglist, k)
-	}
-	return taglist
-}
-
-func buildDeviceCreateParams(d *schema.ResourceData) *model.AddDeviceRequest {
-	req := model.AddDeviceRequest{
-		Body: &model.AddDevice{
-			DeviceId:    utils.StringIgnoreEmpty(d.Get("device_id").(string)),
-			NodeId:      d.Get("node_id").(string),
-			DeviceName:  utils.StringIgnoreEmpty(d.Get("name").(string)),
-			ProductId:   d.Get("product_id").(string),
-			GatewayId:   utils.StringIgnoreEmpty(d.Get("gateway_id").(string)),
-			Description: utils.StringIgnoreEmpty(d.Get("description").(string)),
-			AppId:       utils.StringIgnoreEmpty(d.Get("space_id").(string)),
-			AuthInfo:    buildAuthInfo(d.Get("secret").(string), d.Get("fingerprint").(string), d.Get("secure_access").(bool)),
-		},
-	}
-	return &req
-}
-
-func buildDeviceUpdateParams(d *schema.ResourceData) *model.UpdateDeviceRequest {
-	req := model.UpdateDeviceRequest{
-		DeviceId: d.Id(),
-		Body: &model.UpdateDevice{
-			DeviceName:  utils.StringIgnoreEmpty(d.Get("name").(string)),
-			Description: utils.StringIgnoreEmpty(d.Get("description").(string)),
-			AuthInfo: &model.AuthInfoWithoutSecret{
-				SecureAccess: utils.Bool(d.Get("secure_access").(bool)),
-			},
-		},
-	}
-	return &req
-}
-
-func buildAuthInfo(secret, fingerprint string, secureAccess bool) *model.AuthInfo {
-	if len(secret) > 0 {
-		return &model.AuthInfo{
-			AuthType:     utils.String("SECRET"),
-			Secret:       &secret,
-			SecureAccess: &secureAccess,
-		}
-	}
-
-	if len(fingerprint) > 0 {
-		return &model.AuthInfo{
-			AuthType:     utils.String("CERTIFICATES"),
-			Fingerprint:  &fingerprint,
-			SecureAccess: &secureAccess,
-		}
-	}
-
-	return nil
-}
-
-func flattenTags(s *[]model.TagV5Dto) map[string]interface{} {
-	if s == nil {
-		return nil
-	}
-
-	rst := make(map[string]interface{})
-	for _, v := range *s {
-		rst[v.TagKey] = v.TagValue
-	}
-
-	return rst
-}
-
-func updateDeviceStatus(client *iotdav5.IoTDAClient, deviceId, status string, isFrozen bool) error {
-	if isFrozen && status != deviceStatusFrozen {
-		_, err := client.FreezeDevice(&model.FreezeDeviceRequest{
-			DeviceId: deviceId,
-		})
-		if err != nil {
-			return fmt.Errorf("error freezing IoTDA device: %s", err)
-		}
-	}
-
-	if !isFrozen && status == deviceStatusFrozen {
-		_, err := client.UnfreezeDevice(&model.UnfreezeDeviceRequest{
-			DeviceId: deviceId,
-		})
-		if err != nil {
-			return fmt.Errorf("error unfreezing IoTDA device: %s", err)
-		}
-	}
 	return nil
 }

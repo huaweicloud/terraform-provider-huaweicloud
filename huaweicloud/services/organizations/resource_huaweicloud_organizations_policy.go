@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -38,6 +37,8 @@ func ResourcePolicy() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+
+		CustomizeDiff: config.MergeDefaultTags(),
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -106,11 +107,11 @@ func resourcePolicyCreate(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("policy.policy_summary.id", createPolicyRespBody)
-	if err != nil {
-		return diag.Errorf("error creating Organizations policy: ID is not found in API response")
+	policyId := utils.PathSearch("policy.policy_summary.id", createPolicyRespBody, "").(string)
+	if policyId == "" {
+		return diag.Errorf("unable to find the Organizations policy ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(policyId)
 
 	return resourcePolicyRead(ctx, d, meta)
 }

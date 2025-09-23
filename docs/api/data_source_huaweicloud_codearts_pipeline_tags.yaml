@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_codearts_pipeline_tags
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CodeArtsPipeline
+paths:
+    /v5/{project_id}/api/pipeline-tag/list:
+        POST:
+            tag: CodeArtsPipeline

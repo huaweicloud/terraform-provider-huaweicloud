@@ -1,0 +1,70 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_workspace_desktop_connections": {
+          "block": {
+            "attributes": {
+              "connect_status": {
+                "type": "string",
+                "description": "The connection status of the desktop.",
+                "optional": true
+              },
+              "desktop_connections": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "attach_users": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "name": "string",
+                            "type": "string",
+                            "user_group": "string"
+                          }
+                        ]
+                      ],
+                      "connect_status": "string",
+                      "id": "string",
+                      "name": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of desktop connections that match the query parameters.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the desktop connections are located.",
+                "computed": true
+              },
+              "user_names": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The list of desktop users to be queried.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

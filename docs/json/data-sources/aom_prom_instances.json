@@ -1,0 +1,73 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_aom_prom_instances": {
+          "block": {
+            "attributes": {
+              "cce_cluster_enable": {
+                "type": "string",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instances": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "deleted_at": "string",
+                      "enterprise_project_id": "string",
+                      "id": "string",
+                      "is_deleted_tag": "string",
+                      "prom_http_api_endpoint": "string",
+                      "prom_name": "string",
+                      "prom_status": "string",
+                      "prom_type": "string",
+                      "prom_version": "string",
+                      "remote_read_url": "string",
+                      "remote_write_url": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "prom_id": {
+                "type": "string",
+                "optional": true
+              },
+              "prom_status": {
+                "type": "string",
+                "optional": true
+              },
+              "prom_type": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "AOM",
+            "name": "Application Operations Management",
+            "catalog": "Management & Governance",
+            "name_cn": "应用运维管理",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

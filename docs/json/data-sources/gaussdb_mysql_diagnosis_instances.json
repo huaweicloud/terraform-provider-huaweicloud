@@ -1,0 +1,48 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_mysql_diagnosis_instances": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_infos": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "instance_id": "string",
+                      "master_node_id": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the information about the abnormal instances.",
+                "computed": true
+              },
+              "metric_name": {
+                "type": "string",
+                "description": "Specifies the metric name.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDBforMySQL",
+            "name": "GaussDB(for MySQL)",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB(for MySQL)",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

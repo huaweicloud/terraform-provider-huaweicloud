@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_dms_rabbitmq_background_tasks
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: RabbitMQ
+paths:
+    /v2/{project_id}/instances/{instance_id}/tasks:
+        GET:
+            tag: RabbitMQ

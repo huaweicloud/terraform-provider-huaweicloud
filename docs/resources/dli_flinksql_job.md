@@ -31,7 +31,7 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which to create the DLI flink job resource. If omitted, the
   provider-level region will be used. Changing this parameter will create a new resource.
 
-* `name` - (Required, String) Specifies the name of the job. Length range: 1 to 57 characters.
+* `name` - (Required, String) Specifies the name of the job. Length range: `1` to `57` characters.
  which may consist of letters, digits, underscores (_) and hyphens (-).
 
 * `type` - (Optional, String, ForceNew) Specifies the type of the job. The valid values are `flink_sql_job`,
@@ -46,7 +46,7 @@ The following arguments are supported:
   
   The default value is `shared_cluster`.
 
-* `description` - (Optional, String) Specifies job description. Length range: 1 to 512 characters.
+* `description` - (Optional, String) Specifies job description. Length range: `1` to `512` characters.
 
 * `queue_name` - (Optional, String) Specifies name of a queue.
   If you want to use the parameters, the `run_mode` parameter must be set to `exclusive_cluster`.
@@ -160,7 +160,7 @@ This resource provides the following timeouts configuration options:
 
 Clusters can be imported by their `id`. For example,
 
-```
+```bash
 terraform import huaweicloud_dli_flinksql_job.test 12345
 ```
 

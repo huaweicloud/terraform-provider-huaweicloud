@@ -81,9 +81,10 @@ The following arguments are supported:
 * `namespace` - (Required, String, ForceNew) Specifies the namespace to logically divide your containers into different
   group. Changing this will create a new PVC resource.
 
-* `name` - (Required, String, ForceNew) Specifies the unique name of the PVC resource. This parameter can contain a
-  maximum of 63 characters, which may consist of lowercase letters, digits and hyphens (-), and must start and end with
-  lowercase letters and digits. Changing this will create a new PVC resource.
+* `name` - (Required, String, ForceNew) Specifies the unique name of the PVC resource.  
+  This parameter can contain a maximum of `63` characters, which may consist of lowercase letters, digits and
+  hyphens (-), and must start and end with lowercase letters and digits.  
+  Changing this will create a new PVC resource.
 
 * `annotations` - (Optional, Map, ForceNew) Specifies the unstructured key value map for external parameters.
   Changing this will create a new PVC resource.
@@ -129,7 +130,7 @@ This resource provides the following timeouts configuration options:
 
 CCE PVC can be imported using the cluster ID, namespace and ID separated by slashes, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_cce_pvc.test 5c20fdad-7288-11eb-b817-0255ac10158b/default/fa540f3b-12d9-40e5-8268-04bcfed95a46
 ```
 
@@ -139,7 +140,7 @@ It is generally recommended running `terraform plan` after importing a PVC.
 You can then decide if changes should be applied to the PVC, or the resource
 definition should be updated to align with the PVC. Also you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_cce_pvc" "test" {
     ...
 

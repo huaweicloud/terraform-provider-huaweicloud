@@ -1,0 +1,133 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_antivirus_virus_scan_tasks": {
+          "block": {
+            "attributes": {
+              "begin_time": {
+                "type": "string",
+                "optional": true
+              },
+              "data_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "action": "string",
+                      "cancel_host_num": "number",
+                      "fail_host_num": "number",
+                      "host_info_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "agent_id": "string",
+                            "agent_status": "string",
+                            "asset_value": "string",
+                            "deleted": "bool",
+                            "fail_reason": "string",
+                            "host_id": "string",
+                            "host_name": "string",
+                            "host_status": "string",
+                            "host_task_status": "string",
+                            "os_name": "string",
+                            "os_type": "string",
+                            "os_version": "string",
+                            "private_ip": "string",
+                            "protect_status": "string",
+                            "public_ip": "string",
+                            "run_duration": "number",
+                            "scan_file_num": "number",
+                            "scan_progress": "string",
+                            "start_time": "number",
+                            "virus_num": "number",
+                            "whether_using_quota": "number"
+                          }
+                        ]
+                      ],
+                      "host_num": "number",
+                      "rescan": "bool",
+                      "scan_type": "string",
+                      "start_time": "number",
+                      "start_type": "string",
+                      "success_host_num": "number",
+                      "task_id": "string",
+                      "task_name": "string",
+                      "task_status": "string",
+                      "whether_paid_task": "bool"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "end_time": {
+                "type": "string",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "host_name": {
+                "type": "string",
+                "optional": true
+              },
+              "host_task_status": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "last_days": {
+                "type": "number",
+                "optional": true
+              },
+              "private_ip": {
+                "type": "string",
+                "optional": true
+              },
+              "public_ip": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "task_name": {
+                "type": "string",
+                "optional": true
+              },
+              "task_status": {
+                "type": "string",
+                "optional": true
+              },
+              "total_num": {
+                "type": "number",
+                "computed": true
+              },
+              "whether_paid_task": {
+                "type": "bool",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

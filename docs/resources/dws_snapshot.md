@@ -2,23 +2,26 @@
 subcategory: "GaussDB(DWS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_dws_snapshot"
-description: ""
+description: |-
+  Manages a GaussDB(DWS) snapshot resource within HuaweiCloud.
 ---
 
 # huaweicloud_dws_snapshot
 
-Manages a GaussDB(DWS) snapshot resource within HuaweiCloud.  
+Manages a GaussDB(DWS) snapshot resource within HuaweiCloud.
 
 ## Example Usage
 
 ```hcl
-  variable "cluster_id" {}
-  
-  resource "huaweicloud_dws_snapshot" "test" {
-    name        = "demo"
-    cluster_id  = var.cluster_id
-    description = "This is a demo"
-  }
+variable "cluster_id" {}
+variable "snapshot_name" {}
+variable "description" {}
+
+resource "huaweicloud_dws_snapshot" "test" {
+  cluster_id  = var.cluster_id
+  name        = var.snapshot_name
+  description = var.description
+}
 ```
 
 ## Argument Reference
@@ -28,15 +31,14 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `name` - (Required, String, ForceNew) Snapshot name.
+* `name` - (Required, String, ForceNew) Specifies the name of the snapshot.
+  Changing this parameter will create a new resource.
+
+* `cluster_id` - (Required, String, ForceNew) Specifies the DWS cluster ID to which the snapshot belongs.
 
   Changing this parameter will create a new resource.
 
-* `cluster_id` - (Required, String, ForceNew) ID of the cluster for which you want to create a snapshot.
-
-  Changing this parameter will create a new resource.
-
-* `description` - (Optional, String, ForceNew) Snapshot description.
+* `description` - (Optional, String, ForceNew) Specifies the description of the snapshot.
 
   Changing this parameter will create a new resource.
 
@@ -71,5 +73,5 @@ This resource provides the following timeouts configuration options:
 The dws snapshot can be imported using the `id`, e.g.
 
 ```bash
-$ terraform import huaweicloud_dws_snapshot.test e87192d9-b592-4658-b23f-bdc0bb69ec2c
+$ terraform import huaweicloud_dws_snapshot.test <id>
 ```

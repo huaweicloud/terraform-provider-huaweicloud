@@ -3,13 +3,11 @@ package apig
 import (
 	"context"
 	"fmt"
-	"regexp"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/acls"
 
@@ -48,14 +46,8 @@ func ResourceAclPolicy() *schema.Resource {
 				Description: "The ID of the dedicated instance to which the ACL policy belongs.",
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[\x{4E00}-\x{9FFC}A-Za-z]([\x{4E00}-\x{9FFC}\w]*)?$`),
-						"Only English letters, Chinese characters, digits, underscores (_) are allowed, and must "+
-							"start with an English letter or Chinese character."),
-					validation.StringLenBetween(3, 64),
-				),
+				Type:        schema.TypeString,
+				Required:    true,
 				Description: "The name of the ACL policy.",
 			},
 			"type": {

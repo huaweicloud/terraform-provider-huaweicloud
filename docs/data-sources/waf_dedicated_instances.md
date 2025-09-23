@@ -2,7 +2,8 @@
 subcategory: "Web Application Firewall (WAF)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_waf_dedicated_instances"
-description: ""
+description: |-
+  Use this data source to get a list of WAF dedicated instances.
 ---
 
 # huaweicloud_waf_dedicated_instances
@@ -14,7 +15,7 @@ Use this data source to get a list of WAF dedicated instances.
 ```hcl
 variable instance_name {}
 
-data "huaweicloud_waf_dedicated_instances" "instances" {
+data "huaweicloud_waf_dedicated_instances" "test" {
   name = var.instance_name
 }
 ```
@@ -23,14 +24,15 @@ data "huaweicloud_waf_dedicated_instances" "instances" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String) The region in which to query the WAF dedicated instance.
+* `region` - (Optional, String) Specifies the region in which to query the WAF dedicated instance.
   If omitted, the provider-level region will be used.
 
-* `id` - (Optional, String) The id of WAF dedicated instance.
+* `id` - (Optional, String) Specifies the ID of WAF dedicated instance.
 
-* `name` - (Optional, String) The name of WAF dedicated instance.
+* `name` - (Optional, String) Specifies the name of WAF dedicated instance.
 
-* `enterprise_project_id` - (Optional, String) The enterprise project ID of WAF dedicated instance.
+* `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID of WAF dedicated instance.
+  For enterprise users, if omitted, default enterprise project will be used.
 
 ## Attribute Reference
 
@@ -38,7 +40,7 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The data source ID.
 
-* `instances` - An array of available WAF dedicated instances.
+* `instances` - The WAF dedicated instances list.
 
 The `instances` block supports:
 
@@ -46,36 +48,33 @@ The `instances` block supports:
 
 * `name` - The name of WAF dedicated instance.
 
-* `available_zone` - The available zone names for the WAF dedicated instances.
+* `available_zone` - The available zone name of the WAF dedicated instance.
 
-* `specification_code` - The specification code of instance.
-  Different specifications have different throughput. Values are:
-  + `waf.instance.professional` - The professional edition, throughput: 100 Mbit/s; QPS: 2,000 (Reference only).
-  +`waf.instance.enterprise` - The enterprise edition, throughput: 500 Mbit/s; QPS: 10,000 (Reference only).
-
-* `cpu_architecture` - The ECS cpu architecture of WAF dedicated instance.
+* `cpu_architecture` - The ECS CPU architecture of WAF dedicated instance.
 
 * `ecs_flavor` - The flavor of the ECS used by the WAF instance.
 
-* `vpc_id` - The VPC id of WAF dedicated instance.
+* `vpc_id` - The VPC ID of WAF dedicated instance.
 
-* `subnet_id` - The subnet id of WAF dedicated instance VPC.
+* `subnet_id` - The subnet ID of WAF dedicated instance VPC.
 
-* `security_group` - The security group of the instance. This is an array of security group ids.
+* `security_group` - The security group of the instance. This is an array of security group IDs.
 
-* `server_id` - The service of the instance.
+* `server_id` - The ID of the ECS hosting the dedicated engine.
 
-* `service_ip` - The service ip of the instance.
+* `service_ip` - The service plane IP address of the dedicated WAF instance.
 
 * `run_status` - The running status of the instance. Values are:
-  + `0` - Instance is creating.
-  + `1` - Instance has created.
-  + `2` - Instance is deleting.
-  + `3` - Instance has deleted.
-  + `4` - Instance create failed.
+  + `0` - Creating.
+  + `1` - Running.
+  + `2` - Deleting.
+  + `3` - Deleted.
+  + `4` - Creation failed.
+  + `5` - Frozen.
+  + `6` - Abnormal.
+  + `7` - Updating.
+  + `8` - Update failed.
 
 * `access_status` - The access status of the instance. `0`: inaccessible, `1`: accessible.
 
-* `upgradable` - The instance is to support upgrades. `0`: Cannot be upgraded, `1`: Can be upgraded.
-
-* `group_id` - The instance group ID used by the WAF dedicated instance in ELB mode.
+* `upgradable` - Whether the dedicated WAF instance can be upgraded. `0`: Cannot be upgraded; `1`: Can be upgraded.

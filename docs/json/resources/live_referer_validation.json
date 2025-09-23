@@ -1,0 +1,53 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_live_referer_validation": {
+          "block": {
+            "attributes": {
+              "domain_name": {
+                "type": "string",
+                "description": "Specifies the streaming domain name to which the referer validation belongs.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "referer_auth_list": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the domain name list.",
+                "required": true
+              },
+              "referer_config_empty": {
+                "type": "string",
+                "description": "Specifies whether the referer header is included.",
+                "required": true
+              },
+              "referer_white_list": {
+                "type": "string",
+                "description": "Specifies whether the referer is in the trustlist.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Live",
+            "name": "Live",
+            "catalog": "Media Services",
+            "name_cn": "视频直播",
+            "catalog_cn": "视频"
+          }
+        }
+      }
+    }
+  }
+}

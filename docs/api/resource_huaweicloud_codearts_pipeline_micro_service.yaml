@@ -1,0 +1,34 @@
+info:
+    version: ""
+    title: resource_huaweicloud_codearts_pipeline_micro_service
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CodeArtsPipeline
+paths:
+    /v2/{cloudProjectId}/component/{componentId}/delete:
+        DELETE:
+            tag: CodeArtsPipeline
+    /v2/{cloudProjectId}/component/{componentId}/follow:
+        PUT:
+            tag: CodeArtsPipeline
+    /v2/{cloudProjectId}/component/{componentId}/follow/query:
+        GET:
+            tag: CodeArtsPipeline
+    /v2/{cloudProjectId}/component/{componentId}/query:
+        GET:
+            tag: CodeArtsPipeline
+    /v2/{cloudProjectId}/component/{componentId}/repo/update:
+        PUT:
+            tag: CodeArtsPipeline
+    /v2/{cloudProjectId}/component/{componentId}/unfollow:
+        PUT:
+            tag: CodeArtsPipeline
+    /v2/{cloudProjectId}/component/{componentId}/update:
+        PUT:
+            tag: CodeArtsPipeline
+    /v2/{cloudProjectId}/component/create:
+        POST:
+            tag: CodeArtsPipeline

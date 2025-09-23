@@ -5,6 +5,11 @@
         "huaweicloud_apig_group": {
           "block": {
             "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the group, in RFC3339 format.",
+                "computed": true
+              },
               "description": {
                 "type": "string",
                 "description": "The group description.",
@@ -14,7 +19,13 @@
                 "type": "bool",
                 "description": "Specifies whether to use the debugging domain name to access the APIs within the group.",
                 "optional": true,
-                "default": true
+                "computed": true
+              },
+              "force_destroy": {
+                "type": "bool",
+                "description": "Whether to delete all sub-resources (for API) from this group.",
+                "optional": true,
+                "computed": true
               },
               "id": {
                 "type": "string",
@@ -36,14 +47,9 @@
                 "description": "The region where the dedicated instance is located.",
                 "computed": true
               },
-              "registration_time": {
-                "type": "string",
-                "description": "The registration time.",
-                "computed": true
-              },
               "updated_at": {
                 "type": "string",
-                "description": "The latest update time of the group.",
+                "description": "The latest update time of the group, in RFC3339 format.",
                 "computed": true
               }
             },
@@ -92,19 +98,21 @@
                   "attributes": {
                     "is_http_redirect_to_https": {
                       "type": "bool",
-                      "optional": true,
+                      "description": "Whether to enable redirection from HTTP to HTTPS.",
                       "computed": true
                     },
                     "min_ssl_version": {
                       "type": "string",
-                      "optional": true,
+                      "description": "The minimum SSL protocol version.",
                       "computed": true
                     },
                     "name": {
                       "type": "string",
-                      "required": true
+                      "description": "The associated domain name.",
+                      "computed": true
                     }
-                  }
+                  },
+                  "description": "schema:{\"Computed\":true};The associated domain information of the group."
                 },
                 "nesting_mode": "set",
                 "max_items": 5

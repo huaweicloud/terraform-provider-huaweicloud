@@ -1,0 +1,91 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_codearts_deploy_hosts": {
+          "block": {
+            "attributes": {
+              "as_proxy": {
+                "type": "string",
+                "description": "Specifies whether the host is proxy or not.",
+                "optional": true
+              },
+              "environment_id": {
+                "type": "string",
+                "description": "Specifies the environment ID.",
+                "optional": true
+              },
+              "group_id": {
+                "type": "string",
+                "description": "Specifies the group ID.",
+                "required": true
+              },
+              "hosts": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "as_proxy": "bool",
+                      "connection_status": "string",
+                      "created_at": "string",
+                      "env_count": "number",
+                      "id": "string",
+                      "import_status": "string",
+                      "ip_address": "string",
+                      "lastest_connection_at": "string",
+                      "name": "string",
+                      "os_type": "string",
+                      "owner_id": "string",
+                      "owner_name": "string",
+                      "permission": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "can_add_host": "bool",
+                            "can_copy": "bool",
+                            "can_delete": "bool",
+                            "can_edit": "bool",
+                            "can_view": "bool"
+                          }
+                        ]
+                      ],
+                      "port": "number",
+                      "proxy_host_id": "string",
+                      "trusted_type": "number",
+                      "username": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the host list.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of host.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CodeArtsDeploy",
+            "name": "CodeArts Deploy",
+            "catalog": "CodeArts",
+            "name_cn": "部署",
+            "catalog_cn": "软件开发生产线"
+          }
+        }
+      }
+    }
+  }
+}

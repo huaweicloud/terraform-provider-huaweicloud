@@ -1,0 +1,35 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_antiddos_default_protection_policy": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region in which to create the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "traffic_threshold": {
+                "type": "number",
+                "description": "The traffic cleaning threshold in Mbps.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "Anti-DDoS",
+            "name": "Anti-DDoS",
+            "catalog": "Security & Compliance",
+            "name_cn": "Anti-DDoS流量清洗",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

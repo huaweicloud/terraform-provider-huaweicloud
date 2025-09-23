@@ -1,0 +1,38 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_tms_resource_tag_keys": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "keys": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Indicates the tag keys.",
+                "computed": true
+              },
+              "region_id": {
+                "type": "string",
+                "description": "Specifies the region ID.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "TMS",
+            "name": "Tag Management Service",
+            "catalog": "Management & Governance",
+            "name_cn": "标签管理服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

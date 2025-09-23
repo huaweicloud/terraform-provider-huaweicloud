@@ -3,14 +3,16 @@ package eg
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/chnsz/golangsdk/openstack/eg/v1/source/custom"
+	"github.com/chnsz/golangsdk"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -98,37 +100,91 @@ func DataSourceCustomEventSources() *schema.Resource {
 	}
 }
 
-func filterEventSources(d *schema.ResourceData, eventSources []custom.Source) ([]interface{}, error) {
-	filter := map[string]interface{}{
-		"ID": d.Get("source_id"),
+func buildEventSourcesQueryParams(d *schema.ResourceData, providerTypeInput ...string) string {
+	res := ""
+	if sourceName, ok := d.GetOk("name"); ok {
+		res = fmt.Sprintf("%s&name=%v", res, sourceName)
+	}
+	if channelId, ok := d.GetOk("channel_id"); ok {
+		res = fmt.Sprintf("%s&channel_id=%v", res, channelId)
 	}
 
-	filterResult, err := utils.FilterSliceWithField(eventSources, filter)
-	if err != nil {
-		return nil, fmt.Errorf("error filting list of custom event sources: %s", err)
+	if len(providerTypeInput) > 0 {
+		res = fmt.Sprintf("%s&provider_type=%v", res, providerTypeInput[0])
+	} else if typeVal, ok := d.GetOk("provider_type"); ok {
+		res = fmt.Sprintf("%s&provider_type=%v", res, typeVal)
 	}
-	return filterResult, nil
+	return res
 }
 
-func flattenCustomEventSources(eventSources []interface{}) []map[string]interface{} {
-	if len(eventSources) < 1 {
-		return nil
+func queryEventSources(client *golangsdk.ServiceClient, d *schema.ResourceData, providerType ...string) ([]interface{}, error) {
+	var (
+		httpUrl = "v1/{project_id}/sources?limit=100"
+		offset  = 0
+		result  = make([]interface{}, 0)
+	)
+	listPath := client.Endpoint + httpUrl
+	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
+	listPath += buildEventSourcesQueryParams(d, providerType...)
+
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 	}
 
-	result := make([]map[string]interface{}, len(eventSources))
-	for i, val := range eventSources {
-		eventSource := val.(custom.Source)
-		result[i] = map[string]interface{}{
-			"id":           eventSource.ID,
-			"channel_id":   eventSource.ChannelId,
-			"channel_name": eventSource.ChannelName,
-			"name":         eventSource.Name,
-			"type":         eventSource.Type,
-			"description":  eventSource.Description,
-			"status":       eventSource.Status,
-			"created_at":   eventSource.CreatedTime,
-			"updated_at":   eventSource.UpdatedTime,
+	for {
+		listPathWithOffset := listPath + fmt.Sprintf("&offset=%d", offset)
+		requestResp, err := client.Request("GET", listPathWithOffset, &opt)
+		if err != nil {
+			// If the offset is greater than or equal to the total number, an error will be returned, not empey page (record list).
+			parsedErr := common.ConvertExpected400ErrInto404Err(err, "error_code", "APIGW.0106")
+			if _, ok := parsedErr.(golangsdk.ErrDefault404); ok {
+				break
+			}
+			return nil, err
 		}
+		respBody, err := utils.FlattenResponse(requestResp)
+		if err != nil {
+			return nil, err
+		}
+		eventSources := utils.PathSearch("items", respBody, make([]interface{}, 0)).([]interface{})
+		if len(eventSources) < 1 {
+			break
+		}
+		result = append(result, eventSources...)
+		offset += len(eventSources)
+	}
+
+	return result, nil
+}
+
+func flattenDataCustomEventSources(eventSources []interface{}) []interface{} {
+	result := make([]interface{}, 0, len(eventSources))
+
+	for _, eventSource := range eventSources {
+		result = append(result, map[string]interface{}{
+			"id":           utils.PathSearch("id", eventSource, nil),
+			"channel_id":   utils.PathSearch("channel_id", eventSource, nil),
+			"channel_name": utils.PathSearch("channel_name", eventSource, nil),
+			"name":         utils.PathSearch("name", eventSource, nil),
+			"type":         utils.PathSearch("type", eventSource, nil),
+			"description":  utils.PathSearch("description", eventSource, nil),
+			"status":       utils.PathSearch("status", eventSource, nil),
+			"created_at":   utils.PathSearch("created_at", eventSource, nil),
+			"updated_at":   utils.PathSearch("updated_at", eventSource, nil),
+		})
+	}
+
+	return result
+}
+
+func filterDataCustomEventSources(d *schema.ResourceData, eventSources []interface{}) []interface{} {
+	// Copy slice contents without having to worry about underlying reuse issues.
+	result := eventSources
+	if sourceId, ok := d.GetOk("source_id"); ok {
+		result = utils.PathSearch(fmt.Sprintf("[?id=='%s']", sourceId), result, make([]interface{}, 0)).([]interface{})
 	}
 	return result
 }
@@ -137,24 +193,15 @@ func dataSourceCustomEventSourcesRead(_ context.Context, d *schema.ResourceData,
 	var (
 		cfg    = meta.(*config.Config)
 		region = cfg.GetRegion(d)
-		opts   = custom.ListOpts{
-			ChannelId:    d.Get("channel_id").(string),
-			ProviderType: "CUSTOM",
-			Name:         d.Get("name").(string),
-		}
 	)
-	client, err := cfg.EgV1Client(region)
+	client, err := cfg.NewServiceClient("eg", region)
 	if err != nil {
-		return diag.Errorf("error creating EG v1 client: %s", err)
+		return diag.Errorf("error creating EG client: %s", err)
 	}
 
-	resp, err := custom.List(client, opts)
+	eventSources, err := queryEventSources(client, d, "CUSTOM")
 	if err != nil {
 		return diag.Errorf("error querying custom event sources: %s", err)
-	}
-	filterResult, err := filterEventSources(d, resp)
-	if err != nil {
-		return diag.FromErr(err)
 	}
 
 	uuid, err := uuid.GenerateUUID()
@@ -165,7 +212,7 @@ func dataSourceCustomEventSourcesRead(_ context.Context, d *schema.ResourceData,
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("sources", flattenCustomEventSources(filterResult)),
+		d.Set("sources", flattenDataCustomEventSources(filterDataCustomEventSources(d, eventSources))),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error saving data source fields of EG custom event sources: %s", err)

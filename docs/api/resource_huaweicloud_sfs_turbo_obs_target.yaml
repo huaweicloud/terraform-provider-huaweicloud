@@ -16,3 +16,9 @@ paths:
             tag: SFSTurbo
         GET:
             tag: SFSTurbo
+    /v1/{project_id}/sfs-turbo/shares/{share_id}/targets/{target_id}/attributes:
+        PUT:
+            tag: SFSTurbo
+    /v1/{project_id}/sfs-turbo/shares/{share_id}/targets/{target_id}/policy:
+        PUT:
+            tag: SFSTurbo

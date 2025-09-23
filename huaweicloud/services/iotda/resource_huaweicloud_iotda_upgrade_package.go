@@ -2,12 +2,13 @@ package iotda
 
 import (
 	"context"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -83,6 +84,12 @@ func ResourceUpgradePackage() *schema.Resource {
 										Required: true,
 										ForceNew: true,
 									},
+									"sign": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+										ForceNew: true,
+									},
 								},
 							},
 						},
@@ -113,150 +120,193 @@ func ResourceUpgradePackage() *schema.Resource {
 	}
 }
 
-func buildObsLocationParam(raw interface{}) *model.ObsLocation {
-	obsLocationMap := raw.([]interface{})[0].(map[string]interface{})
-	obsLocationParam := model.ObsLocation{
-		RegionName: obsLocationMap["region"].(string),
-		BucketName: obsLocationMap["bucket_name"].(string),
-		ObjectKey:  obsLocationMap["object_key"].(string),
-	}
-
-	return &obsLocationParam
-}
-
-func buildFileLocationParam(raw []interface{}) *model.FileLocation {
-	if raw[0] == nil {
+func buildObsLocationParams(rawParams interface{}) map[string]interface{} {
+	if rawParams == nil {
 		return nil
 	}
 
-	obsLocationParam := buildObsLocationParam(raw[0].(map[string]interface{})["obs_location"])
-	fileLocationParam := model.FileLocation{
-		ObsLocation: obsLocationParam,
+	rawObsLocation := rawParams.([]interface{})
+	if len(rawObsLocation) < 1 {
+		return nil
 	}
 
-	return &fileLocationParam
+	obsLocation := rawObsLocation[0].(map[string]interface{})
+	obsLocationParams := map[string]interface{}{
+		"region_name": obsLocation["region"],
+		"bucket_name": obsLocation["bucket_name"],
+		"object_key":  obsLocation["object_key"],
+		"sign":        utils.ValueIgnoreEmpty(obsLocation["sign"]),
+	}
+
+	return obsLocationParams
 }
 
-func buildUpgradePackageCreateParams(d *schema.ResourceData) *model.CreateOtaPackageRequest {
-	req := model.CreateOtaPackageRequest{
-		Body: &model.CreateOtaPackage{
-			AppId:                 d.Get("space_id").(string),
-			PackageType:           d.Get("type").(string),
-			ProductId:             d.Get("product_id").(string),
-			Version:               d.Get("version").(string),
-			FileLocation:          buildFileLocationParam(d.Get("file_location").([]interface{})),
-			SupportSourceVersions: utils.ExpandToStringListPointer(d.Get("support_source_versions").([]interface{})),
-			Description:           utils.StringIgnoreEmpty(d.Get("description").(string)),
-			CustomInfo:            utils.StringIgnoreEmpty(d.Get("custom_info").(string)),
-		},
+func buildFileLocationParam(rawFileLocation []interface{}) map[string]interface{} {
+	if len(rawFileLocation) == 0 {
+		return nil
 	}
 
-	return &req
+	obsLocation := rawFileLocation[0].(map[string]interface{})
+	fileLocationParam := map[string]interface{}{
+		"obs_location": buildObsLocationParams(obsLocation["obs_location"]),
+	}
+
+	return fileLocationParam
+}
+
+func buildUpgradePackageCreateParams(d *schema.ResourceData) map[string]interface{} {
+	packageParams := map[string]interface{}{
+		"app_id":                  d.Get("space_id"),
+		"package_type":            d.Get("type"),
+		"product_id":              d.Get("product_id"),
+		"version":                 d.Get("version"),
+		"file_location":           buildFileLocationParam(d.Get("file_location").([]interface{})),
+		"support_source_versions": utils.ExpandToStringList(d.Get("support_source_versions").([]interface{})),
+		"description":             utils.ValueIgnoreEmpty(d.Get("description")),
+		"custom_info":             utils.ValueIgnoreEmpty(d.Get("custom_info")),
+	}
+
+	return packageParams
 }
 
 func resourceUpgradePackageCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	isDerived := WithDerivedAuth(cfg, region)
-	client, err := cfg.HcIoTdaV5Client(region, isDerived)
+	var (
+		cfg       = meta.(*config.Config)
+		region    = cfg.GetRegion(d)
+		isDerived = WithDerivedAuth(cfg, region)
+		httpUrl   = "v5/iot/{project_id}/ota-upgrades/packages"
+	)
+
+	client, err := cfg.NewServiceClientWithDerivedAuth("iotda", region, isDerived)
 	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+		return diag.Errorf("error creating IoTDA client: %s", err)
 	}
 
-	createOpts := buildUpgradePackageCreateParams(d)
-	resp, err := client.CreateOtaPackage(createOpts)
+	createPath := client.Endpoint + httpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildUpgradePackageCreateParams(d)),
+	}
+
+	resp, err := client.Request("POST", createPath, &createOpt)
 	if err != nil {
 		return diag.Errorf("error creating IoTDA OTA upgrade package: %s", err)
 	}
 
-	if resp == nil || resp.PackageId == nil {
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	packageId := utils.PathSearch("package_id", respBody, "").(string)
+	if packageId == "" {
 		return diag.Errorf("error creating IoTDA OTA upgrade package: ID is not found in API response")
 	}
 
-	d.SetId(*resp.PackageId)
+	d.SetId(packageId)
 
 	return resourceUpgradePackageRead(ctx, d, meta)
 }
 
 func resourceUpgradePackageRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	isDerived := WithDerivedAuth(cfg, region)
-	client, err := cfg.HcIoTdaV5Client(region, isDerived)
+	var (
+		cfg       = meta.(*config.Config)
+		region    = cfg.GetRegion(d)
+		isDerived = WithDerivedAuth(cfg, region)
+		httpUrl   = "v5/iot/{project_id}/ota-upgrades/packages/{package_id}"
+	)
+
+	client, err := cfg.NewServiceClientWithDerivedAuth("iotda", region, isDerived)
 	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+		return diag.Errorf("error creating IoTDA client: %s", err)
 	}
 
-	getOpts := &model.ShowOtaPackageRequest{
-		PackageId: d.Id(),
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{package_id}", d.Id())
+	getOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
-	resp, err := client.ShowOtaPackage(getOpts)
+
+	getResp, err := client.Request("GET", getPath, &getOpts)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error querying IoTDA OTA upgrade package")
+		// When the resource does not exist, query API will return `404`.
+		return common.CheckDeletedDiag(d, err, "error retrieving IoTDA OTA upgrade package")
+	}
+
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("space_id", resp.AppId),
-		d.Set("type", resp.PackageType),
-		d.Set("product_id", resp.ProductId),
-		d.Set("version", resp.Version),
-		d.Set("file_location", flattenFileLocation(resp.FileLocation)),
-		d.Set("support_source_versions", resp.SupportSourceVersions),
-		d.Set("description", resp.Description),
-		d.Set("custom_info", resp.CustomInfo),
-		d.Set("created_at", resp.CreateTime),
+		d.Set("space_id", utils.PathSearch("app_id", getRespBody, nil)),
+		d.Set("type", utils.PathSearch("package_type", getRespBody, nil)),
+		d.Set("product_id", utils.PathSearch("product_id", getRespBody, nil)),
+		d.Set("version", utils.PathSearch("version", getRespBody, nil)),
+		d.Set("file_location", flattenFileLocation(utils.PathSearch("file_location", getRespBody, nil))),
+		d.Set("support_source_versions", utils.PathSearch("support_source_versions", getRespBody, make([]interface{}, 0))),
+		d.Set("description", utils.PathSearch("description", getRespBody, nil)),
+		d.Set("custom_info", utils.PathSearch("custom_info", getRespBody, nil)),
+		d.Set("created_at", utils.PathSearch("create_time", getRespBody, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func flattenFileLocation(resp *model.FileLocation) []interface{} {
+func flattenFileLocation(resp interface{}) []map[string]interface{} {
 	if resp == nil {
 		return nil
 	}
 
-	obsLocation := flattenObsLocation(resp.ObsLocation)
-	fileLocation := []interface{}{
-		map[string]interface{}{
-			"obs_location": obsLocation,
-		},
+	fileLocation := map[string]interface{}{
+		"obs_location": flattenObsLocation(utils.PathSearch("obs_location", resp, nil)),
 	}
 
-	return fileLocation
+	return []map[string]interface{}{fileLocation}
 }
 
-func flattenObsLocation(resp *model.ObsLocation) []interface{} {
+func flattenObsLocation(resp interface{}) []map[string]interface{} {
 	if resp == nil {
 		return nil
 	}
 
-	obsLocation := []interface{}{
-		map[string]interface{}{
-			"region":      resp.RegionName,
-			"bucket_name": resp.BucketName,
-			"object_key":  resp.ObjectKey,
-		},
+	obsLocation := map[string]interface{}{
+		"region":      utils.PathSearch("region_name", resp, nil),
+		"bucket_name": utils.PathSearch("bucket_name", resp, nil),
+		"object_key":  utils.PathSearch("object_key", resp, nil),
+		"sign":        utils.PathSearch("sign", resp, nil),
 	}
 
-	return obsLocation
+	return []map[string]interface{}{obsLocation}
 }
 
 func resourceUpgradePackageDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	isDerived := WithDerivedAuth(cfg, region)
-	client, err := cfg.HcIoTdaV5Client(region, isDerived)
+	var (
+		cfg       = meta.(*config.Config)
+		region    = cfg.GetRegion(d)
+		isDerived = WithDerivedAuth(cfg, region)
+		httpUrl   = "v5/iot/{project_id}/ota-upgrades/packages/{package_id}"
+	)
+
+	client, err := cfg.NewServiceClientWithDerivedAuth("iotda", region, isDerived)
 	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+		return diag.Errorf("error creating IoTDA client: %s", err)
 	}
 
-	deleteOpts := model.DeleteOtaPackageRequest{
-		PackageId: d.Id(),
+	deletePath := client.Endpoint + httpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = strings.ReplaceAll(deletePath, "{package_id}", d.Id())
+	deleteOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
-	_, err = client.DeleteOtaPackage(&deleteOpts)
+
+	_, err = client.Request("DELETE", deletePath, &deleteOpts)
 	if err != nil {
-		return diag.Errorf("error deleting IoTDA OTA upgrade package: %s", err)
+		// When the resource does not exist, delete API will return `404`.
+		return common.CheckDeletedDiag(d, err, "error deleting IoTDA OTA upgrade package")
 	}
 
 	return nil

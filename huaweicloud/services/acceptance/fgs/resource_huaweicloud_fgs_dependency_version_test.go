@@ -14,17 +14,13 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/fgs"
 )
 
-func getDependencyVersionFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := conf.FgsV2Client(acceptance.HW_REGION_NAME)
+func getDependencyVersionFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	client, err := cfg.NewServiceClient("fgs", acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating FunctionGraph v2 client: %s", err)
+		return nil, fmt.Errorf("error creating FunctionGraph client: %s", err)
 	}
 
-	dependId, version, err := fgs.ParseDependVersionResourceId(state.Primary.ID)
-	if err != nil {
-		return nil, err
-	}
-	return dependencies.GetVersion(client, dependId, version)
+	return fgs.GetDependencyVersionById(client, state.Primary.ID)
 }
 
 func TestAccDependencyVersion_basic(t *testing.T) {
@@ -34,27 +30,24 @@ func TestAccDependencyVersion_basic(t *testing.T) {
 		rName        = acceptance.RandomAccResourceName()
 		resourceName = "huaweicloud_fgs_dependency_version.test"
 		rc           = acceptance.InitResourceCheck(resourceName, &obj, getDependencyVersionFunc)
-
-		pkgLocation = fmt.Sprintf("https://%s.obs.cn-north-4.myhuaweicloud.com/FunctionGraph/dependencies/huaweicloudsdkcore.zip",
-			acceptance.HW_OBS_BUCKET_NAME)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckOBSBucket(t)
+			acceptance.TestAccPreCheckFgsDependencyLink(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDependencyVersion_basic(rName, pkgLocation),
+				Config: testAccDependencyVersion_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "description", "Created by terraform script"),
 					resource.TestCheckResourceAttr(resourceName, "runtime", "Python2.7"),
-					resource.TestCheckResourceAttr(resourceName, "link", pkgLocation),
+					resource.TestCheckResourceAttr(resourceName, "link", acceptance.HW_FGS_DEPENDENCY_OBS_LINK),
 					resource.TestCheckResourceAttrSet(resourceName, "dependency_id"),
 				),
 			},
@@ -62,6 +55,9 @@ func TestAccDependencyVersion_basic(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"link",
+				},
 			},
 			// Test the ID format: <depend_name>/<version>
 			{
@@ -69,6 +65,9 @@ func TestAccDependencyVersion_basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateIdFunc: testAccDependencyVersionImportStateFunc_withDependName(resourceName),
+				ImportStateVerifyIgnore: []string{
+					"link",
+				},
 			},
 			// Test the ID format: <depend_name>/<version_id>
 			{
@@ -76,6 +75,9 @@ func TestAccDependencyVersion_basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateIdFunc: testAccDependencyVersionImportStateFunc_withVersionId(resourceName),
+				ImportStateVerifyIgnore: []string{
+					"link",
+				},
 			},
 		},
 	})
@@ -117,7 +119,7 @@ func testAccDependencyVersionImportStateFunc_withVersionId(rName string) resourc
 	}
 }
 
-func testAccDependencyVersion_basic(rName, pkgLocation string) string {
+func testAccDependencyVersion_basic(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_fgs_dependency_version" "test" {
   name        = "%s"
@@ -125,5 +127,5 @@ resource "huaweicloud_fgs_dependency_version" "test" {
   runtime     = "Python2.7"
   link        = "%s"
 }
-`, rName, pkgLocation)
+`, rName, acceptance.HW_FGS_DEPENDENCY_OBS_LINK)
 }

@@ -5,14 +5,17 @@ type SecretRst struct {
 }
 
 type Secret struct {
-	ID                  string `json:"id"`
-	Name                string `json:"name"`
-	State               string `json:"state"`
-	KmsKeyID            string `json:"kms_key_id"`
-	Description         string `json:"description"`
-	CreateTime          int    `json:"create_time"`
-	UpdateTime          int    `json:"update_time"`
-	ScheduledDeleteTime int    `json:"scheduled_delete_time"`
+	ID                  string        `json:"id"`
+	Name                string        `json:"name"`
+	State               string        `json:"state"`
+	KmsKeyID            string        `json:"kms_key_id"`
+	Description         string        `json:"description"`
+	CreateTime          int           `json:"create_time"`
+	UpdateTime          int           `json:"update_time"`
+	ScheduledDeleteTime int           `json:"scheduled_delete_time"`
+	SecretType          string        `json:"secret_type"`
+	EnterpriseProjectID string        `json:"enterprise_project_id"`
+	EventSubscriptions  []interface{} `json:"event_subscriptions"`
 }
 
 type Version struct {

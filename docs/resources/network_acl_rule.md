@@ -1,11 +1,13 @@
 ---
-subcategory: "Network ACL"
+subcategory: "Deprecated"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_network_acl_rule"
 description: ""
 ---
 
 # huaweicloud_network_acl_rule
+
+!> **WARNING:** It has been deprecated, use `huaweicloud_vpc_network_acl` instead.
 
 Manages a network ACL rule resource within HuaweiCloud.
 
@@ -53,7 +55,7 @@ The following arguments are supported:
   65535. For a port number range, enter two port numbers connected by a colon(:). For example, 1:100.
 
 * `destination_port` - (Optional, String) Specifies the destination port number or port number range. The value ranges
-  from 1 to 65535. For a port number range, enter two port numbers connected by a colon(:). For example, 1:100.
+  from `1` to `65,535`. For a port number range, enter two port numbers connected by a colon(:). For example, 1:100.
 
 * `enabled` - (Optional, Bool) Enabled status for the network ACL rule. Defaults to true.
 
@@ -67,6 +69,6 @@ In addition to all arguments above, the following attributes are exported:
 
 network ACL rules can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_network_acl_rule.rule_1 89a84b28-4cc2-4859-9885-c67e802a46a3
 ```

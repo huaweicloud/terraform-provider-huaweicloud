@@ -11,22 +11,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/nat/v2/snats"
-	"github.com/chnsz/golangsdk/openstack/networking/v1/eips"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-)
-
-type SourceType int
-
-const (
-	SourceTypeVpc SourceType = 0
-	SourceTypeDc  SourceType = 1
 )
 
 // @API NAT POST /v2/{project_id}/snat_rules
@@ -80,11 +70,7 @@ func ResourcePublicSnatRule() *schema.Resource {
 				Description: "schema: Required; The ID of the gateway to which the SNAT rule belongs.",
 			},
 			"source_type": {
-				Type: schema.TypeInt,
-				ValidateFunc: validation.IntInSlice([]int{
-					int(SourceTypeVpc),
-					int(SourceTypeDc),
-				}),
+				Type:        schema.TypeInt,
 				Optional:    true,
 				ForceNew:    true,
 				Description: "The resource type of the SNAT rule.",
@@ -124,6 +110,16 @@ func ResourcePublicSnatRule() *schema.Resource {
 				Computed:    true,
 				Description: "The status of the SNAT rule.",
 			},
+			"freezed_ip_address": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The frozen EIP associated with the SNAT rule.",
+			},
+			"created_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The creation time of the SNAT rule.",
+			},
 
 			// deprecated
 			"network_id": {
@@ -136,132 +132,218 @@ func ResourcePublicSnatRule() *schema.Resource {
 	}
 }
 
-func buildPublicSnatRuleCreateOpts(d *schema.ResourceData) (snats.CreateOpts, error) {
-	result := snats.CreateOpts{
-		GatewayId:    d.Get("nat_gateway_id").(string),
-		FloatingIpId: d.Get("floating_ip_id").(string),
-		GlobalEipId:  d.Get("global_eip_id").(string),
-		Cidr:         d.Get("cidr").(string),
-		Description:  d.Get("description").(string),
+func buildCreateSnatRuleBodyParams(d *schema.ResourceData) map[string]interface{} {
+	snatRuleBodyParams := map[string]interface{}{
+		"nat_gateway_id": d.Get("nat_gateway_id"),
+		"floating_ip_id": utils.ValueIgnoreEmpty(d.Get("floating_ip_id")),
+		"global_eip_id":  utils.ValueIgnoreEmpty(d.Get("global_eip_id")),
+		"network_id":     utils.ValueIgnoreEmpty(buildSubnetId(d.Get("subnet_id").(string), d.Get("network_id").(string))),
+		"cidr":           utils.ValueIgnoreEmpty(d.Get("cidr")),
+		"description":    utils.ValueIgnoreEmpty(d.Get("description")),
 	}
-	var subnetId string
-	if v, ok := d.GetOk("subnet_id"); ok {
-		subnetId = v.(string)
-	} else {
-		subnetId = d.Get("network_id").(string)
-	}
-	result.NetworkId = subnetId
 
+	subnetId := d.Get("subnet_id").(string)
 	sourceType := d.Get("source_type").(int)
 	if sourceType == 1 && subnetId != "" {
-		return result, fmt.Errorf("In the DC (Direct Connect) scenario (source_type is 1), only the parameter 'cidr' " +
+		log.Printf("[WARN] in the DC (Direct Connect) scenario (source_type is 1), only the parameter 'cidr' " +
 			"is valid, and the parameter 'subnet_id' must be empty")
 	}
-	result.SourceType = sourceType
-	return result, nil
+
+	snatRuleBodyParams["source_type"] = utils.ValueIgnoreEmpty(sourceType)
+
+	return map[string]interface{}{
+		"snat_rule": snatRuleBodyParams,
+	}
 }
 
-func publicSnatRuleStateRefreshFunc(client *golangsdk.ServiceClient, ruleId string,
-	targets []string) resource.StateRefreshFunc {
+func buildSubnetId(subnetId, networkId string) string {
+	if subnetId != "" {
+		return subnetId
+	}
+
+	return networkId
+}
+
+func waitingForSnatRuleStateRefresh(client *golangsdk.ServiceClient, ruleId string, targets []string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		resp, err := snats.Get(client, ruleId)
+		resp, err := GetSnatRule(client, ruleId)
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				return resp, "COMPLETED", nil
+				return "Resource Not Found", "COMPLETED", nil
 			}
+
 			return resp, "", err
 		}
 
-		if utils.StrSliceContains([]string{"INACTIVE", "EIP_FREEZED"}, resp.Status) {
-			return resp, "", fmt.Errorf("unexpect status (%s)", resp.Status)
+		status := utils.PathSearch("snat_rule.status", resp, "").(string)
+
+		if utils.StrSliceContains([]string{"INACTIVE", "EIP_FREEZED"}, status) {
+			return resp, "", fmt.Errorf("unexpect status (%s)", status)
 		}
-		if utils.StrSliceContains(targets, resp.Status) {
+
+		if utils.StrSliceContains(targets, status) {
 			return resp, "COMPLETED", nil
 		}
+
 		return resp, "PENDING", nil
 	}
 }
 
 func resourcePublicSnatRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	client, err := cfg.NatGatewayClient(cfg.GetRegion(d))
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v2/{project_id}/snat_rules"
+	)
+
+	client, err := cfg.NewServiceClient("nat", region)
 	if err != nil {
 		return diag.Errorf("error creating NAT v2 client: %s", err)
 	}
 
-	opts, err := buildPublicSnatRuleCreateOpts(d)
-	if err != nil {
-		return diag.FromErr(err)
+	createPath := client.Endpoint + httpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildCreateSnatRuleBodyParams(d)),
 	}
-	log.Printf("[DEBUG] The create options of the public SNAT rule is: %#v", opts)
-	resp, err := snats.Create(client, opts)
-	if err != nil {
-		return diag.Errorf("error creating public SNAT rule: %s", err)
-	}
-	d.SetId(resp.ID)
 
-	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"PENDING"},
-		Target:       []string{"COMPLETED"},
-		Refresh:      publicSnatRuleStateRefreshFunc(client, d.Id(), []string{"ACTIVE"}),
-		Timeout:      d.Timeout(schema.TimeoutCreate),
-		Delay:        3 * time.Second,
-		PollInterval: 10 * time.Second,
+	resp, err := client.Request("POST", createPath, &createOpt)
+	if err != nil {
+		return diag.Errorf("error creating SNAT rule: %s", err)
 	}
-	_, err = stateConf.WaitForStateContext(ctx)
+
+	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
 		return diag.FromErr(err)
+	}
+
+	ruleId := utils.PathSearch("snat_rule.id", respBody, "").(string)
+	if ruleId == "" {
+		return diag.Errorf("error creating SNAT rule: ID is not found in API response")
+	}
+
+	d.SetId(ruleId)
+
+	err = waitingForSnatRuleStateCompleted(ctx, client, d.Timeout(schema.TimeoutCreate), d.Id(), []string{"ACTIVE"})
+	if err != nil {
+		return diag.Errorf("error waiting for the SNAT rule (%s) creation to complete: %s", d.Id(), err)
 	}
 
 	return resourcePublicSnatRuleRead(ctx, d, meta)
 }
 
+func GetSnatRule(client *golangsdk.ServiceClient, ruleId string) (interface{}, error) {
+	httpUrl := "v2/{project_id}/snat_rules/{snat_rule_id}"
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{snat_rule_id}", ruleId)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(getResp)
+}
+
 func resourcePublicSnatRuleRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	natClient, err := cfg.NatGatewayClient(region)
+	var (
+		cfg    = meta.(*config.Config)
+		region = cfg.GetRegion(d)
+	)
+
+	client, err := cfg.NewServiceClient("nat", region)
 	if err != nil {
 		return diag.Errorf("error creating NAT v2 client: %s", err)
 	}
 
-	resp, err := snats.Get(natClient, d.Id())
+	respBody, err := GetSnatRule(client, d.Id())
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "Public SNAT rule")
+		// If the SNAT rule does not exist, the response HTTP status code of the details API is 404.
+		return common.CheckDeletedDiag(d, err, "error retrieving SNAT rule")
 	}
-	mErr := multierror.Append(nil,
+
+	mErr := multierror.Append(
 		d.Set("region", region),
-		d.Set("nat_gateway_id", resp.GatewayId),
-		d.Set("floating_ip_id", resp.FloatingIpId),
-		d.Set("floating_ip_address", resp.FloatingIpAddress),
-		d.Set("global_eip_id", resp.GlobalEipId),
-		d.Set("global_eip_address", resp.GlobalEipAddress),
-		d.Set("source_type", resp.SourceType),
-		d.Set("subnet_id", resp.NetworkId),
-		d.Set("cidr", resp.Cidr),
-		d.Set("status", resp.Status),
-		d.Set("description", resp.Description),
+		d.Set("nat_gateway_id", utils.PathSearch("snat_rule.nat_gateway_id", respBody, nil)),
+		d.Set("floating_ip_id", utils.PathSearch("snat_rule.floating_ip_id", respBody, nil)),
+		d.Set("floating_ip_address", utils.PathSearch("snat_rule.floating_ip_address", respBody, nil)),
+		d.Set("global_eip_id", utils.PathSearch("snat_rule.global_eip_id", respBody, nil)),
+		d.Set("global_eip_address", utils.PathSearch("snat_rule.global_eip_address", respBody, nil)),
+		d.Set("source_type", utils.PathSearch("snat_rule.source_type", respBody, nil)),
+		d.Set("subnet_id", utils.PathSearch("snat_rule.network_id", respBody, nil)),
+		d.Set("cidr", utils.PathSearch("snat_rule.cidr", respBody, nil)),
+		d.Set("status", utils.PathSearch("snat_rule.status", respBody, nil)),
+		d.Set("description", utils.PathSearch("snat_rule.description", respBody, nil)),
+		d.Set("freezed_ip_address", utils.PathSearch("snat_rule.freezed_ip_address", respBody, nil)),
+		d.Set("created_at", utils.PathSearch("snat_rule.created_at", respBody, nil)),
 	)
-	if err = mErr.ErrorOrNil(); err != nil {
-		return diag.Errorf("error saving public SNAT rule fields: %s", err)
+
+	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func buildUpdateSnatRuleBodyParams(d *schema.ResourceData) map[string]interface{} {
+	dnatRuleBodyParams := map[string]interface{}{
+		"nat_gateway_id": d.Get("nat_gateway_id"),
+		"description":    d.Get("description"),
 	}
-	return nil
+
+	return dnatRuleBodyParams
+}
+
+func updateSnatRule(client *golangsdk.ServiceClient, ruleId string, snatRuleBodyParams map[string]interface{}) error {
+	httpUrl := "v2/{project_id}/snat_rules/{snat_rule_id}"
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{snat_rule_id}", ruleId)
+	opts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"snat_rule": snatRuleBodyParams,
+		},
+	}
+
+	_, err := client.Request("PUT", updatePath, &opts)
+	return err
+}
+
+func getEipAddress(client *golangsdk.ServiceClient, eipId string) (interface{}, error) {
+	httpUrl := "v1/{project_id}/publicips/{publicip_id}"
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{publicip_id}", eipId)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(getResp)
 }
 
 func resourcePublicSnatRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	natClient, err := cfg.NatGatewayClient(region)
+	var (
+		cfg    = meta.(*config.Config)
+		region = cfg.GetRegion(d)
+		ruleId = d.Id()
+	)
+
+	client, err := cfg.NewServiceClient("nat", region)
 	if err != nil {
 		return diag.Errorf("error creating NAT v2 client: %s", err)
 	}
 
-	ruleId := d.Id()
-	opts := snats.UpdateOpts{
-		GatewayId:   d.Get("nat_gateway_id").(string),
-		Description: utils.String(d.Get("description").(string)),
-	}
+	updateOpts := buildUpdateSnatRuleBodyParams(d)
+
 	if d.HasChange("floating_ip_id") {
-		eipClient, err := cfg.NetworkingV1Client(region)
+		eipClient, err := cfg.NewServiceClient("vpc", region)
 		if err != nil {
 			return diag.Errorf("error creating VPC v1 client: %s", err)
 		}
@@ -272,68 +354,80 @@ func resourcePublicSnatRuleUpdate(ctx context.Context, d *schema.ResourceData, m
 
 		// get EIP address from ID
 		for i, eipId := range eipList {
-			eIP, err := eips.Get(eipClient, eipId).Extract()
+			eipResp, err := getEipAddress(eipClient, eipId)
 			if err != nil {
 				return diag.Errorf("error fetching EIP (%s): %s", eipId, err)
 			}
-			eipAddrs[i] = eIP.PublicAddress
+
+			eipAddrs[i] = utils.PathSearch("publicip.public_ip_address", eipResp, "").(string)
 		}
 
-		opts.FloatingIpAddress = strings.Join(eipAddrs, ",")
+		updateOpts["public_ip_address"] = strings.Join(eipAddrs, ",")
 	}
 
 	if d.HasChange("global_eip_id") {
-		opts.GlobalEipId = d.Get("global_eip_id").(string)
+		updateOpts["global_eip_id"] = utils.ValueIgnoreEmpty(d.Get("global_eip_id"))
 	}
 
-	log.Printf("[DEBUG] The update options of the public SNAT rule is: %#v", opts)
-	_, err = snats.Update(natClient, ruleId, opts)
+	err = updateSnatRule(client, d.Id(), updateOpts)
 	if err != nil {
-		return diag.Errorf("error updating public SNAT rule: %s", err)
+		return diag.Errorf("error updating SNAT rule: %s", err)
 	}
 
-	log.Printf("[DEBUG] waiting for public SNAT rule (%s) to become available", ruleId)
-	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"PENDING"},
-		Target:       []string{"COMPLETED"},
-		Refresh:      publicSnatRuleStateRefreshFunc(natClient, ruleId, []string{"ACTIVE"}),
-		Timeout:      d.Timeout(schema.TimeoutUpdate),
-		Delay:        3 * time.Second,
-		PollInterval: 10 * time.Second,
-	}
-	_, err = stateConf.WaitForStateContext(ctx)
+	err = waitingForSnatRuleStateCompleted(ctx, client, d.Timeout(schema.TimeoutUpdate), ruleId, []string{"ACTIVE"})
 	if err != nil {
-		return diag.FromErr(err)
+		return diag.Errorf("error waiting for the SNAT rule (%s) update to complete: %s", ruleId, err)
 	}
 
 	return resourcePublicSnatRuleRead(ctx, d, meta)
 }
 
 func resourcePublicSnatRuleDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	client, err := cfg.NatGatewayClient(cfg.GetRegion(d))
+	var (
+		cfg       = meta.(*config.Config)
+		region    = cfg.GetRegion(d)
+		gatewayId = d.Get("nat_gateway_id").(string)
+		ruleId    = d.Id()
+		httpUrl   = "v2/{project_id}/nat_gateways/{nat_gateway_id}/snat_rules/{snat_rule_id}"
+	)
+
+	client, err := cfg.NewServiceClient("nat", region)
 	if err != nil {
 		return diag.Errorf("error creating NAT v2 client: %s", err)
 	}
 
-	ruleId := d.Id()
-	gatewayId := d.Get("nat_gateway_id").(string)
-	err = snats.Delete(client, gatewayId, ruleId)
-	if err != nil {
-		return diag.Errorf("error deleting public SNAT rule (%s): %s", ruleId, err)
+	deletePath := client.Endpoint + httpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = strings.ReplaceAll(deletePath, "{nat_gateway_id}", gatewayId)
+	deletePath = strings.ReplaceAll(deletePath, "{snat_rule_id}", ruleId)
+	deleteOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
-	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"PENDING"},
-		Target:       []string{"COMPLETED"},
-		Refresh:      publicSnatRuleStateRefreshFunc(client, ruleId, nil),
-		Timeout:      d.Timeout(schema.TimeoutDelete),
-		Delay:        3 * time.Second,
-		PollInterval: 10 * time.Second,
-	}
-	_, err = stateConf.WaitForStateContext(ctx)
+
+	_, err = client.Request("DELETE", deletePath, &deleteOpts)
 	if err != nil {
-		return diag.FromErr(err)
+		// If the SNAT rule does not exist, the response HTTP status code of the details API is 404.
+		return common.CheckDeletedDiag(d, err, "error deleting SNAT rule")
+	}
+
+	err = waitingForSnatRuleStateCompleted(ctx, client, d.Timeout(schema.TimeoutDelete), ruleId, nil)
+	if err != nil {
+		return diag.Errorf("error waiting for the SNAT rule (%s) deletion to complete: %s", ruleId, err)
 	}
 
 	return nil
+}
+
+func waitingForSnatRuleStateCompleted(ctx context.Context, client *golangsdk.ServiceClient, t time.Duration,
+	ruleId string, targets []string) error {
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      waitingForSnatRuleStateRefresh(client, ruleId, targets),
+		Timeout:      t,
+		Delay:        3 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+	_, err := stateConf.WaitForStateContext(ctx)
+	return err
 }

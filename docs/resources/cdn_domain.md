@@ -2,7 +2,8 @@
 subcategory: "Content Delivery Network (CDN)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_cdn_domain"
-description: ""
+description: |-
+  Manages a CDN domain resource within HuaweiCloud.
 ---
 
 # huaweicloud_cdn_domain
@@ -17,7 +18,7 @@ Manages a CDN domain resource within HuaweiCloud.
 variable "domain_name" {}
 variable "origin_server" {}
 
-resource "huaweicloud_cdn_domain" "domain_1" {
+resource "huaweicloud_cdn_domain" "test" {
   name         = var.domain_name
   type         = "web"
   service_area = "mainland_china"
@@ -41,7 +42,7 @@ resource "huaweicloud_cdn_domain" "domain_1" {
 variable "domain_name" {}
 variable "origin_server" {}
 
-resource "huaweicloud_cdn_domain" "domain_1" {
+resource "huaweicloud_cdn_domain" "test" {
   name         = var.domain_name
   type         = "web"
   service_area = "mainland_china"
@@ -70,8 +71,9 @@ resource "huaweicloud_cdn_domain" "domain_1" {
 variable "domain_name" {}
 variable "origin_server" {}
 variable "ip_or_domain" {}
+variable "ca_certificate_body" {}
 
-resource "huaweicloud_cdn_domain" "domain_1" {
+resource "huaweicloud_cdn_domain" "test" {
   name         = var.domain_name
   type         = "web"
   service_area = "mainland_china"
@@ -160,6 +162,48 @@ resource "huaweicloud_cdn_domain" "domain_1" {
       target_url = "/new/$1/$2.html"
     }
 
+    user_agent_filter {
+      type          = "black"
+      include_empty = "false"
+      ua_list = [
+        "t1*",
+      ]
+    }
+
+    sni {
+      enabled     = true
+      server_name = "backup.all.cn.com"
+    }
+
+    request_url_rewrite {
+      execution_mode = "break"
+      redirect_url   = "/test/index.html"
+
+      condition {
+        match_type  = "catalog"
+        match_value = "/test/folder/1"
+        priority    = 10
+      }
+    }
+
+    browser_cache_rules {
+      cache_type = "ttl"
+      ttl        = 30
+      ttl_unit   = "m"
+
+      condition {
+        match_type  = "file_extension"
+        match_value = ".jpg,.zip,.gz"
+        priority    = 2
+      }
+    }
+
+    client_cert {
+      enabled      = true
+      hosts        = "demo1.com.cn|demo2.com.cn|demo3.com.cn"
+      trusted_cert = var.ca_certificate_body
+    }
+    
     remote_auth {
       enabled = true
 
@@ -196,6 +240,38 @@ resource "huaweicloud_cdn_domain" "domain_1" {
       type          = "white"
       value         = "*.common.com,192.187.2.43,www.test.top:4990"
       include_empty = false
+    }
+  }
+}
+```
+
+### Create a CDN domain with SCM certificate HTTPS configs
+
+```hcl
+variable "domain_name" {}
+variable "origin_server" {}
+variable "certificate_name" {}
+variable "scm_certificate_id" {}
+
+resource "huaweicloud_cdn_domain" "test" {
+  name         = var.domain_name
+  type         = "web"
+  service_area = "mainland_china"
+
+  sources {
+    origin      = var.origin_server
+    origin_type = "ipaddr"
+    active      = 1
+  }
+
+  configs {
+    https_settings {
+      certificate_source = 2
+      certificate_name   = var.certificate_name
+      scm_certificate_id = var.scm_certificate_id
+      certificate_type   = "server"
+      http2_enabled      = true
+      https_enabled      = true
     }
   }
 }
@@ -259,16 +335,16 @@ The `sources` block supports:
   + **1**: Primary.
   + **0**: Standby.
 
-  Defaults to **1**.
+  Defaults to `1`.
 
 * `obs_web_hosting_enabled` - (Optional, Bool) Specifies whether to enable static website hosting for the OBS bucket.
   This parameter is valid only when the `origin_type` is set to **obs_bucket**. Defaults to **false**.
 
-* `http_port` - (Optional, Int) Specifies the HTTP port. The port number ranges from `1` to `65535`.
-  Defaults to **80**.
+* `http_port` - (Optional, Int) Specifies the HTTP port. The port number ranges from `1` to `65,535`.
+  Defaults to `80`.
 
-* `https_port` - (Optional, Int) Specifies the HTTPS port. The port number ranges from `1` to `65535`.
-  Default value: **443**.
+* `https_port` - (Optional, Int) Specifies the HTTPS port. The port number ranges from `1` to `65,535`.
+  Default value: `443`.
 
 -> Fields `http_port` and `https_port` are valid only when `origin_type` is set to **ipaddr** or **domain**.
 
@@ -276,7 +352,7 @@ The `sources` block supports:
   + If `origin_type` is set to **ipaddr** or **domain**, the acceleration domain name will be used by default.
   + If `origin_type` is set to **obs_bucket**, the bucket's domain name will be used by default.
 
-* `weight` - (Optional, Int) Specifies the weight. The value ranges from **1** to **100**. Defaults to **50**.
+* `weight` - (Optional, Int) Specifies the weight. The value ranges from `1` to `100`. Defaults to `50`.
   A larger value indicates a larger number of times that content is pulled from this IP address.
 
   -> If there are multiple origin servers with the same priority, the weight determines the proportion of content pulled
@@ -313,7 +389,7 @@ The `configs` block support:
   Defaults to **on**.
 
 * `origin_receive_timeout` - (Optional, Int) Specifies the origin response timeout.
-  The value ranges from **5** to **60**, in seconds. Defaults to **30**.
+  The value ranges from `5` to `60`, in seconds. Defaults to `30`.
 
 * `origin_follow302_status` - (Optional, String) Specifies whether to enable redirection from the origin.
   Valid values are as follows:
@@ -412,6 +488,33 @@ The `configs` block support:
 
   -> This field can only be used when the HTTPS certificate is enabled.
 
+* `sni` - (Optional, List) Specifies the origin SNI settings. If your origin server is bound to multiple domains and
+  CDN visits the origin server using HTTPS, set the Server Name Indication (SNI) to specify the domain to be accessed.
+  The [sni](#sni_object) structure is documented below.
+
+  -> 1. The origin method must be HTTPS or the protocol can be configured for origin SNI.
+  <br/>2. When the service type is whole site acceleration, source SNI configuration is not supported.
+  <br/>3. Domain names with special configurations in the backend do not support origin SNI configuration.
+  <br/>4. CDN node carries SNI information by default when a CDN node uses the HTTPS protocol to return to the source.
+  If you do not configure the origin SNI, the origin HOST will be used as the SNI address by default.
+
+* `request_url_rewrite` - (Optional, List) Specifies the request url rewrite settings. Set access URL rewrite rules to
+  redirect user requests to the URLs of cached resources.
+  The [request_url_rewrite](#request_url_rewrite_object) structure is documented below.
+
+* `browser_cache_rules` - (Optional, List) Specifies the browser cache expiration settings.
+  The [browser_cache_rules](#browser_cache_rules_object) structure is documented below.
+
+* `access_area_filter` - (Optional, List) Specifies the geographic access control rules.
+  The [access_area_filter](#access_area_filter_object) structure is documented below.
+
+  -> 1. Before using this field, you need to submit a work order to activate this function.
+  <br/>2. CDN periodically updates the IP address library. The locations of IP address that are not in the library
+  cannot be identified. CDN allows requests from such IP addresses and returns resources to the users.
+
+* `client_cert` - (Optional, List) Specifies the client certificate configuration.
+  The [client_cert](#client_cert_object) structure is documented below.
+
 <a name="https_settings_object"></a>
 The `https_settings` block support:
 
@@ -420,14 +523,22 @@ The `https_settings` block support:
 * `certificate_name` - (Optional, String) Specifies the certificate name. The value contains `3` to `32` characters.
   This parameter is mandatory when a certificate is configured.
 
+* `certificate_source` - (Optional, Int) Specifies the certificate source. Valid values are:
+  + `0`: Your own certificate.
+  + `2`: SCM certificate. Please enable SCM delegation authorization to access SCM service.
+
+  Defaults to `0`.
+
 * `certificate_body` - (Optional, String) Specifies the content of the certificate used by the HTTPS protocol.
   This parameter is mandatory when a certificate is configured. The value is in PEM format.
+  This field is required when `certificate_source` is set to `0`.
 
 * `private_key` - (Optional, String) Specifies the private key used by the HTTPS protocol. This parameter is mandatory
   when a certificate is configured. The value is in PEM format.
+  This field is required when `certificate_source` is set to `0`.
 
-* `certificate_source` - (Optional, Int) Specifies the certificate source. Currently, only **0** is supported, which means
-  your own certificate. Defaults to **0**.
+* `scm_certificate_id` - (Optional, String) Specifies the SCM certificate ID.
+  This field is required when `certificate_source` is set to `2`.
 
 * `certificate_type` - (Optional, String) Specifies the certificate type. Currently, only **server** is supported, which
   means international certificate. Defaults to **server**.
@@ -564,7 +675,7 @@ The `ip_frequency_limit` block support:
 
 * `enabled` - (Required, Bool) Specifies whether to enable IP access frequency.
 
-* `qps` - (Optional, Int) Specifies the access threshold, in times/second. The value ranges from **1** to **100,000**.
+* `qps` - (Optional, Int) Specifies the access threshold, in times/second. The value ranges from `1` to `100,000`.
   This field is required when enable IP access frequency.
 
 <a name="websocket_object"></a>
@@ -573,7 +684,7 @@ The `websocket` block support:
 * `enabled` - (Required, Bool) Specifies whether to enable websocket settings.
 
 * `timeout` - (Optional, Int) Specifies the duration for keeping a connection open, in seconds. The value ranges
-  from **1** to **300**. This field is required when enable websocket settings.
+  from `1` to `300`. This field is required when enable websocket settings.
 
 <a name="flexible_origin_object"></a>
 The `flexible_origin` block support:
@@ -583,8 +694,8 @@ The `flexible_origin` block support:
   + **file_extension**: File name extension.
   + **file_path**: Directory.
 
-* `priority` - (Required, Int) Specifies the priority. The value of this field must be unique. Value ranges from **1**
-  to **100**. A greater number indicates a higher priority.
+* `priority` - (Required, Int) Specifies the priority. The value of this field must be unique. Value ranges from `1`
+  to `100`. A greater number indicates a higher priority.
 
 * `back_sources` - (Required, List) Specifies the back source information. The length of this array field cannot exceed `1`.
   The [back_sources](#flexible_origin_back_sources_object) structure is documented below.
@@ -613,9 +724,9 @@ The `back_sources` block support:
 * `obs_bucket_type` - (Optional, String) Specifies the OBS bucket type. Valid values are **private** and **public**.
   This field is required when `sources_type` is set to **obs_bucket**.
 
-* `http_port` - (Optional, Int) Specifies the HTTP port, ranging from **1** to **65535**. Defaults to **80**.
+* `http_port` - (Optional, Int) Specifies the HTTP port, ranging from `1` to `65,535`. Defaults to **80**.
 
-* `https_port` - (Optional, Int) Specifies the HTTPS port, ranging from **1** to **65535**. Defaults to **443**.
+* `https_port` - (Optional, Int) Specifies the HTTPS port, ranging from `1` to `65,535`. Defaults to **443**.
 
 -> Fields `http_port` and `https_port` do not support editing when `sources_type` is set to **obs_bucket**.
 
@@ -663,8 +774,8 @@ The `remote_auth_rules` block support:
   is failed. Value range: **2xx**, **3xx**, **4xx**, and **5xx**.
 
 * `timeout` - (Required, Int) Specifies the duration from the time when a CDN node forwards an authentication request
-  to the time when the CDN node receives the result returned by the remote authentication server. Enter **0** or a value
-  ranging from **50** to **3000**. The unit is millisecond.
+  to the time when the CDN node receives the result returned by the remote authentication server. Enter `0` or a value
+  ranging from `50` to `3,000`. The unit is millisecond.
 
 * `timeout_action` - (Required, String) Specifies the action of the CDN nodes to process user requests after the
   authentication timeout. Valid values are as follows:
@@ -749,7 +860,7 @@ The `video_seek` block support:
 The `request_limit_rules` block support:
 
 * `priority` - (Required, Int) Specifies the unique priority. A larger value indicates a higher priority.
-  The value ranges from **1** to **100**.
+  The value ranges from `1` to `100`.
 
 * `match_type` - (Required, String) Specifies the match type. The options are **all** (all files) and **catalog** (directory).
 
@@ -757,10 +868,10 @@ The `request_limit_rules` block support:
   This parameter can only be set to **size**.
 
 * `limit_rate_after` - (Required, Int) Specifies the rate limiting condition. Unit: byte.
-  The value ranges from **0** to **1,073,741,824**.
+  The value ranges from `0` to `1,073,741,824`.
 
 * `limit_rate_value` - (Required, Int) Specifies the rate limiting value, in bit/s.
-  The value ranges from **0** to **104,857,600**.
+  The value ranges from `0` to `104,857,600`.
 
 -> The speed is limited to the value of `limit_rate_value` after `limit_rate_after` bytes are transmitted.
 
@@ -773,7 +884,7 @@ The `error_code_cache` block support:
 * `code` - (Required, Int) Specifies the error code. Valid values are: **301**, **302**, **400**, **403**, **404**,
   **405**, **414**, **500**, **501**, **502**, **503**, and **504**.
 
-* `ttl` - (Required, Int) Specifies the error code cache TTL, in seconds. The value ranges from **0** to **31,536,000**.
+* `ttl` - (Required, Int) Specifies the error code cache TTL, in seconds. The value ranges from `0` to `31,536,000`.
 
 <a name="ip_filter_object"></a>
 The `ip_filter` block support:
@@ -794,8 +905,8 @@ The `ip_filter` block support:
 The `origin_request_url_rewrite` block support:
 
 * `priority` - (Required, Int) Specifies the priority of a URL rewrite rule. The priority of a rule is mandatory and
-  must be unique. The rule with the highest priority will be used for matching first. The value ranges from **1** to
-  **100**. A greater number indicates a higher priority.
+  must be unique. The rule with the highest priority will be used for matching first. The value ranges from `1` to
+  `100`. A greater number indicates a higher priority.
 
 * `match_type` - (Required, String) Specifies the match type. Valid values are:
   + **all**: All files.
@@ -819,6 +930,12 @@ The `user_agent_filter` block support:
   + **black**: The User-Agent blacklist.
   + **white**: The User-Agent whitelist.
 
+* `include_empty` - (Optional, String) Specifies whether empty user agents are included.
+  A User-Agent blacklist including empty user agents indicates that requests without a user agent are rejected.
+  A User-Agent whitelist including empty user agents indicates that requests without a user agent are accepted.
+  Possible values: **true** (included) and **false** (excluded).
+  The default value is **false** for a blacklist and **true** for a whitelist.
+
 * `ua_list` - (Optional, List) Specifies the User-Agent blacklist or whitelist. This parameter is required when `type`
   is set to **black** or **white**. Up to `10` rules can be configured. A rule contains up to `100` characters.
 
@@ -839,11 +956,154 @@ The `hsts` block support:
 * `enabled` - (Required, Bool) Specifies whether to enable HSTS settings.
 
 * `max_age` - (Optional, Int) Specifies the expiration time, which means the TTL of the response header
-  `Strict-Transport-Security` on the client. The value ranges from **0** to **63,072,000**. The unit is second.
+  `Strict-Transport-Security` on the client. The value ranges from `0` to `63,072,000`. The unit is second.
   This field is required when enable HSTS settings.
 
 * `include_subdomains` - (Optional, String) Specifies whether subdomain names are included.
   The options are **on** (included) and **off** (not included). This field is required when enable HSTS settings.
+
+<a name="sni_object"></a>
+The `sni` block support:
+
+* `enabled` - (Required, Bool) Specifies whether to enable SNI settings.
+
+* `server_name` - (Optional, String) Specifies the origin server domain name that the CDN node needs to access when
+  returning to the source.
+
+  -> 1. This file is required when enable SNI settings. <br/>2. Wildcard domain names are not supported.
+  Only digital, "-", ".", and uppercase and lowercase English characters are supported.
+
+<a name="request_url_rewrite_object"></a>
+The `request_url_rewrite` block support:
+
+* `condition` - (Required, List) Specifies matching condition.
+  The [condition](#request_url_rewrite_condition_object) structure is documented below.
+
+* `redirect_url` - (Required, String) Specifies the redirect URL. The redirected URL starts with a forward slash (/)
+  and does not contain the http:// header or domain name. Example: **/test/index.html**.
+
+* `execution_mode` - (Required, String) Specifies the execution mode. Valid values are:
+  + **redirect**: If the requested URL matches the current rule, the request will be redirected to the target path.
+    After the current rule is executed, if there are other configured rules, the remaining rules will continue to be matched.
+  + **break**: If the requested URL matches the current rule, the request will be rewritten to the target path.
+    After the current rule is executed, if there are other configured rules, the remaining rules will no longer be matched.
+    The redirection host and redirection status code are not supported at this time, and the status code `200` is returned.
+
+* `redirect_status_code` - (Optional, Int) Specifies the redirect status code. Supports `301`, `302`, `303`, and `307`.
+
+* `redirect_host` - (Optional, String) Specifies the domain name to redirect client requests.
+
+  -> 1. The current domain name will be used by default.
+  <br/>2. This field supports a character length of `1`-`255` and must start with http:// or https://.
+
+<a name="request_url_rewrite_condition_object"></a>
+The `condition` block support:
+
+* `match_type` - (Required, String) Specifies the match type. Valid values are:
+  + **catalog**: The files in the specified directory need to execute the access URL rewriting rules.
+  + **full_path**: The file under a certain full path needs to execute the access URL rewriting rule.
+
+* `priority` - (Required, Int) Specifies the access URL rewrite rule priority. The value ranges from `1` to `100`.
+  The larger the value, the higher the priority.
+  The priority setting is unique. It does not support setting the same priority for multiple rules.
+
+* `match_value` - (Optional, String) Specifies the match value.
+  + The field value is directory path when `match_type` is set to **catalog**. The value requires "/" as the first
+    character and "," as the separator, such as **/test/folder01,/test/folder02**.
+    The total number of directory paths entered should not exceed `20`.
+  + The field value is full path when `match_type` is set to **full_path**. The value requires "/" as the first
+    character, and supports matching specific files in the specified directory, or files with wildcards "*".
+    A single full-path cache rule only supports configuring one full path, such as **/test/index.html** or ***/test/*.jpg**.
+
+<a name="browser_cache_rules_object"></a>
+The `browser_cache_rules` block support:
+
+* `condition` - (Required, List) Specifies matching condition.
+  The [condition](#browser_cache_rules_condition_object) structure is documented below.
+
+* `cache_type` - (Required, String) Specifies the cache validation type. Valid values are:
+  + **follow_origin**: Follow the origin site's cache policy, i.e. the Cache-Control header settings.
+  + **ttl**: The browser cache follows the expiration time set by the current rules.
+  + **never**: The browser does not cache resources.
+
+* `ttl` - (Optional, Int) Specifies the cache expiration time, maximum supported is `365` days.
+
+  -> This field is required when the `cache_type` is set to **ttl**.
+
+* `ttl_unit` - (Optional, String) Specifies the cache expiration time unit. Valid values are:
+  + **s**: seconds.
+  + **m**: minutes.
+  + **h**: hours.
+  + **d**: days.
+
+  -> This field is required when the `cache_type` is set to **ttl**.
+
+<a name="browser_cache_rules_condition_object"></a>
+The `condition` block support:
+
+* `match_type` - (Required, String) Specifies the match type. Valid values are:
+  + **all**: Match all files.
+  + **file_extension**: Match by file suffix.
+  + **catalog**: Match by directory.
+  + **full_path**: Full path matching.
+  + **home_page**: Match by homepage.
+
+* `priority` - (Required, Int) Specifies the priority of the browser cache. The value ranges from `1` to `100`.
+  The larger the value, the higher the priority.
+  The priority setting is unique and does not support setting the same priority for multiple rules.
+
+* `match_value` - (Optional, String) Specifies the cache match settings.
+  + When `match_type` is set to **all**, this field does not need to be configured.
+  + When `match_type` is set to **file_extension**, this field value is the file suffix. The first character of the
+    value is "." and separated by "," such as **.jpg,.zip,.exe**. The total number of file name suffixes entered should
+    not exceed `20`.
+  + When `match_type` is set to **catalog**, the value of this field is a directory. The value must start with "/" and
+    be separated by "," such as **/test/folder01,/test/folder02**. The total number of directory paths entered must not
+    exceed `20`.
+  + When `match_type` is set to **full_path**, the value of this field is a full path. The value must start with "/".
+    It supports matching specific files in the specified directory or files with a wildcard "*".
+    The position of "*" must be after the last "/" and cannot end with "*". Only one full path can be configured in a
+    single full path cache rule, such as **/test/index.html** or ***/test/*.jpg**.
+  + When `match_type` is set to **home_page**, this field does not need to be configured.
+
+<a name="access_area_filter_object"></a>
+The `access_area_filter` block support:
+
+* `type` - (Required, String) Specifies the blacklist and whitelist rule type. Valid values are:
+  + **black**: Blacklist. Users in regions specified in the blacklist cannot access resources and status code `403` is
+    returned.
+  + **white**: Whitelist. Only users in regions specified in the whitelist can access resources. Status code `403` is
+    returned for other users.
+
+* `content_type` - (Required, String) Specifies the content type. Valid values are:
+  + **all**: The rule takes effect for all files.
+  + **file_directory**: The rule takes effect for resources in the specified directory.
+  + **file_path**: The rule takes effect for resources corresponding to the path.
+
+* `area` - (Required, String) Specifies the areas, separated by commas.
+  Please refer to [Geographical Location Codes](https://support.huaweicloud.com/intl/en-us/api-cdn/cdn_02_0090.html).
+
+* `content_value` - (Optional, String) Specifies the content value. The use of this field has the following restrictions:
+  + When `content_type` is set to **all**, make this parameter is empty or not passed.
+  + When `content_type` is set to **file_directory**, the value must start with a slash (/) and multiple directories
+    are separated by commas (,), for example, **/test/folder01,/test/folder02**. Up to `100` directories can be entered.
+  + When `content_type` is set to **file_path**, the value must start with a slash (/) or wildcard (\*). Up to two
+    wildcards (\*) are allowed and they cannot be consecutive. Multiple paths are separated by commas (,),
+    for example, **/test/a.txt,/test/b.txt**. Up to `100` paths can be entered.
+
+* `exception_ip` - (Optional, String) Specifies the IP addresses exception in access control, separated by commas.
+
+<a name="client_cert_object"></a>
+The `client_cert` block support:
+
+* `enabled` - (Required, Bool) Specifies whether to enable client cert settings.
+
+* `trusted_cert` - (Optional, String) Specifies the client CA certificate content, only supports PEM format.
+
+* `hosts` - (Optional, String) Specifies the domain name specified in the client CA certificate.
+
+  -> 1. CDN will allow all client requests that hold the CA certificate by default.
+  <br/>2. A maximum of `100` domain names can be configured. Multiple domain names can be separated by “,” or “|”.
 
 <a name="cache_settings_object"></a>
 The `cache_settings` block support:
@@ -907,20 +1167,24 @@ In addition to all arguments above, the following attributes are exported:
 * `cname` - The CNAME of the acceleration domain name.
 
 * `domain_status` - The status of the acceleration domain name. The available values are
-  'online', 'offline', 'configuring', 'configure_failed', 'checking', 'check_failed' and 'deleting.'
+  **online**, **offline**, **configuring**, **configure_failed**, **checking**, **check_failed** and **deleting**.
 
-* `configs/https_settings/https_status` - The status of the https. The available values are 'on' and 'off'.
+* `configs/https_settings/https_status` - The status of the https. The available values are **on** and **off**.
 
-* `configs/https_settings/http2_status` - The status of the http 2.0. The available values are 'on' and 'off'.
+* `configs/https_settings/http2_status` - The status of the http 2.0. The available values are **on** and **off**.
 
-* `configs/url_signing/status` - The status of the url_signing. The available values are 'on' and 'off'.
+* `configs/sni/status` - The status of the SNI. The available values are **on** and **off**.
+
+* `configs/client_cert/status` - The status of the client cert. The available values are **on** and **off**.
+
+* `configs/url_signing/status` - The status of the url_signing. The available values are **on** and **off**.
 
 * `configs/url_signing/inherit_config/status` - The status of the authentication inheritance.
   The valid values are **on** and **off**.
 
-* `configs/force_redirect/status` - The status of the force redirect. The available values are 'on' and 'off'.
+* `configs/force_redirect/status` - The status of the force redirect. The available values are **on** and **off**.
 
-* `configs/compress/status` - The status of the compress. The available values are 'on' and 'off'.
+* `configs/compress/status` - The status of the compress. The available values are **on** and **off**.
 
 ## Timeouts
 

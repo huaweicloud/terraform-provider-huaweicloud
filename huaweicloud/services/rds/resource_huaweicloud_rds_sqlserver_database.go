@@ -9,12 +9,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/pagination"
@@ -24,18 +26,24 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+var sqlServerDatabaseNonUpdatableParams = []string{"instance_id", "name"}
+
 // @API RDS POST /v3/{project_id}/instances/{instance_id}/database
 // @API RDS GET /v3/{project_id}/instances
 // @API RDS GET /v3/{project_id}/instances/{instance_id}/database/detail
-// @API RDS DELETE /v3/{project_id}/instances/{instance_id}/database/{db_name}
+// @API RDS DELETE /v3.1/{project_id}/instances/{instance_id}/database/{db_name}
 func ResourceSQLServerDatabase() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceSQLServerDatabaseCreate,
 		ReadContext:   resourceSQLServerDatabaseRead,
+		UpdateContext: resourceSQLServerDatabaseUpdate,
 		DeleteContext: resourceSQLServerDatabaseDelete,
+
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+
+		CustomizeDiff: config.FlexibleForceNew(sqlServerDatabaseNonUpdatableParams),
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
@@ -53,13 +61,11 @@ func ResourceSQLServerDatabase() *schema.Resource {
 			"instance_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the ID of the RDS SQLServer instance.`,
 			},
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the database name.`,
 			},
 			"character_set": {
@@ -71,6 +77,12 @@ func ResourceSQLServerDatabase() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Indicates the database status.`,
+			},
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
 			},
 		},
 	}
@@ -199,13 +211,17 @@ func resourceSQLServerDatabaseRead(_ context.Context, d *schema.ResourceData, me
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
+func resourceSQLServerDatabaseUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+	return nil
+}
+
 func resourceSQLServerDatabaseDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
 	// deleteSQLServerDatabase: delete RDS SQLServer database
 	var (
-		deleteSQLServerDatabaseHttpUrl = "v3/{project_id}/instances/{instance_id}/database/{db_name}"
+		deleteSQLServerDatabaseHttpUrl = "v3.1/{project_id}/instances/{instance_id}/database/{db_name}"
 		deleteSQLServerDatabaseProduct = "rds"
 	)
 	deleteSQLServerDatabaseClient, err := cfg.NewServiceClient(deleteSQLServerDatabaseProduct, region)
@@ -226,11 +242,11 @@ func resourceSQLServerDatabaseDelete(ctx context.Context, d *schema.ResourceData
 	}
 
 	retryFunc := func() (interface{}, bool, error) {
-		_, err = deleteSQLServerDatabaseClient.Request("DELETE", deleteSQLServerDatabasePath, &deleteSQLServerDatabaseOpt)
+		res, err := deleteSQLServerDatabaseClient.Request("DELETE", deleteSQLServerDatabasePath, &deleteSQLServerDatabaseOpt)
 		retry, err := handleMultiOperationsError(err)
-		return nil, retry, err
+		return res, retry, err
 	}
-	_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+	deleteResp, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
 		WaitFunc:     rdsInstanceStateRefreshFunc(deleteSQLServerDatabaseClient, instanceId),
@@ -241,6 +257,20 @@ func resourceSQLServerDatabaseDelete(ctx context.Context, d *schema.ResourceData
 	})
 	if err != nil {
 		return diag.Errorf("error deleting RDS SQLServer database: %s", err)
+	}
+
+	deleteRespBody, err := utils.FlattenResponse(deleteResp.(*http.Response))
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	jobId := utils.PathSearch("job_id", deleteRespBody, nil)
+	if jobId == nil {
+		return diag.Errorf("error deleting RDS SQL server database: job_id is not found in API response")
+	}
+
+	err = checkRDSInstanceJobFinish(deleteSQLServerDatabaseClient, jobId.(string), d.Timeout(schema.TimeoutDelete))
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
 	return nil

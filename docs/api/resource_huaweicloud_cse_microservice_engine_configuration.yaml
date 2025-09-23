@@ -1,0 +1,22 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cse_microservice_engine_configuration
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CSE
+paths:
+    /v1/{project_id}/kie/kv:
+        GET:
+            tag: CSE
+        POST:
+            tag: CSE
+    /v1/{project_id}/kie/kv/{kv_id}:
+        DELETE:
+            tag: CSE
+        GET:
+            tag: CSE
+        PUT:
+            tag: CSE

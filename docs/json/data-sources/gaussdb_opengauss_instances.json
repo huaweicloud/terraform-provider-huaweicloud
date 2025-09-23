@@ -51,6 +51,7 @@
                       ],
                       "id": "string",
                       "maintenance_window": "string",
+                      "mysql_compatibility_port": "string",
                       "name": "string",
                       "nodes": [
                         "list",

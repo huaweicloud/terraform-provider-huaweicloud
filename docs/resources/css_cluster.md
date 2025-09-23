@@ -113,11 +113,11 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the cluster resource. If omitted, the
   provider-level region will be used. Changing this creates a new cluster resource.
 
-* `name` - (Required, String, ForceNew) Specifies the cluster name. It contains **4** to **32** characters.
+* `name` - (Required, String, ForceNew) Specifies the cluster name. It contains `4` to `32` characters.
   Only letters, digits, hyphens (-), and underscores (_) are allowed. The value must start with a letter.
   Changing this parameter will create a new resource.
 
-* `engine_type` - (Optional, String, ForceNew) Specifies the engine type. The valid value is **elasticsearch**.
+* `engine_type` - (Optional, String, ForceNew) Specifies the engine type. The valid value can be **elasticsearch** or **opensearch**.
   Defaults to **elasticsearch**. Changing this parameter will create a new resource.
 
 * `engine_version` - (Required, String, NonUpdatable) Specifies the engine version.
@@ -194,8 +194,8 @@ The following arguments are supported:
   Valid values are **month** and **year**.
 
 * `period` - (Optional, Int) Specifies the charging period of the instance.
-  If `period_unit` is set to **month**, the value ranges from **1** to **9**.
-  If `period_unit` is set to **year**, the value ranges from **1** to **3**.
+  If `period_unit` is set to **month**, the value ranges from `1` to `9`.
+  If `period_unit` is set to **year**, the value ranges from `1` to `9`.
 
   -> **NOTE:** `charging_mode`, `period_unit`, `period` can only be updated when changing
   from **postPaid** to **prePaid** billing mode.
@@ -209,8 +209,21 @@ The `ess_node_config` and `cold_node_config` block supports:
 * `flavor` - (Required, String) Specifies the flavor name.
 
 * `instance_number` - (Required, Int) Specifies the number of cluster instances.
-  + When it is `ess_node_config`, The value range is **1** to **200**.
-  + When it is `cold_node_config`, The value range is **1** to **32**.
+  + When it is `ess_node_config`, The value range is `1` to `200`.
+  + When it is `cold_node_config`, The value range is `1` to `32`.
+
+* `type` - (Optional, String) Specifies the instance type.
+  The valid values are as follows:
+  + **ess**
+  + **chinese**
+  + **english**
+  + **arabic**
+  + **tools**
+  + **thai**
+  + **turkish**
+  + **portuguese**
+  + **chinese-english**
+  + **spanish**
 
 * `volume` - (Optional, List, ForceNew) Specifies the information about the volume. This field should not be specified
   when `flavor` is set to a local dist flavor. But It is required when `flavor` is not a local disk flavor.
@@ -229,7 +242,7 @@ The `ess_node_config` and `cold_node_config` block supports:
 <a name="Css_volume"></a>
 The `volume` block supports:
 
-* `size` - (Required, Int) Specifies the volume size in **GB**, which must be a multiple of **10**.
+* `size` - (Required, Int) Specifies the volume size in **GB**, which must be a multiple of `10`.
 
 * `volume_type` - (Required, String, ForceNew) Specifies the volume type. Value options are as follows:
   + **COMMON:** Common I/O. The SATA disk is used.
@@ -244,8 +257,8 @@ The `master_node_config` and `client_node_config` block supports:
 * `flavor` - (Required, String) Specifies the flavor name.
 
 * `instance_number` - (Required, Int) Specifies the number of cluster instances.
-  + When it is `master_node_config`, The value range is **3** to **10**.
-  + When it is `client_node_config`, The value range is **1** to **32**.
+  + When it is `master_node_config`, The value range is `3` to `10`.
+  + When it is `client_node_config`, The value range is `1` to `32`.
 
 * `volume` - (Required, List) Specifies the information about the volume.
   The [volume](#Css_master_or_client_volume) structure is documented below.
@@ -255,7 +268,7 @@ The `master_node_config` and `client_node_config` block supports:
 <a name="Css_master_or_client_volume"></a>
 The `volume` block supports:
 
-* `size` - (Required, Int) Specifies the volume size in **GB**, which must be a multiple of **10**.
+* `size` - (Required, Int) Specifies the volume size in **GB**, which must be a multiple of `10`.
 
 * `volume_type` - (Required, String) Specifies the volume type. Value options are as follows:
   + **COMMON**: Common I/O. The SATA disk is used.
@@ -384,4 +397,23 @@ The CSS cluster can be imported by `id`, e.g.
 
 ```bash
 terraform import huaweicloud_css_cluster.test <id>
+```
+
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
+API response, security or some other reason.
+The missing attributes include: `ess_node_config.0.type`, `cold_node_config.0.type`.
+It is generally recommended running `terraform plan` after importing a cluster.
+You can then decide if changes should be applied to the cluster, or the resource definition should be updated to
+align with the cluster. Also you can ignore changes as below.
+
+```hcl
+resource "huaweicloud_css_cluster" "test" {
+  ...
+
+  lifecycle {
+    ignore_changes = [
+      ess_node_config.0.type, cold_node_config.0.type,
+    ]
+  }
+}
 ```

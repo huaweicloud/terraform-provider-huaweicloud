@@ -1,0 +1,50 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_workspace_app_server_action": {
+          "block": {
+            "attributes": {
+              "content": {
+                "type": "string",
+                "description": "The JSON string content for the operation (action) request.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "max_retries": {
+                "type": "number",
+                "description": "The maximum number of retries for the operation (action) when encountering 409 conflict errors.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the APP server to be operated is located.",
+                "computed": true
+              },
+              "server_id": {
+                "type": "string",
+                "description": "The ID of the server to be operated.",
+                "required": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The operation (action) type for the APP server.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

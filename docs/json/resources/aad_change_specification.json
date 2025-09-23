@@ -1,0 +1,67 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_aad_change_specification": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the AAD instance ID.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "upgrade_data": {
+                "block": {
+                  "attributes": {
+                    "basic_bandwidth": {
+                      "type": "string",
+                      "description": "Specifies the basic bandwidth (Gbps).",
+                      "optional": true
+                    },
+                    "bind_domain_num": {
+                      "type": "number",
+                      "description": "Specifies the bind domain number.",
+                      "optional": true
+                    },
+                    "elastic_bandwidth": {
+                      "type": "string",
+                      "description": "Specifies the elastic bandwidth (Gbps).",
+                      "optional": true
+                    },
+                    "port_num": {
+                      "type": "number",
+                      "description": "Specifies the port number.",
+                      "optional": true
+                    },
+                    "service_bandwidth": {
+                      "type": "number",
+                      "description": "Specifies the service bandwidth (Mbps).",
+                      "optional": true
+                    }
+                  },
+                  "description": "Specifies the upgrade data."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "AAD",
+            "name": "Advanced Anti-DDoS",
+            "catalog": "Security & Compliance",
+            "name_cn": "DDoS高防",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

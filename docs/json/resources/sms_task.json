@@ -9,6 +9,10 @@
                 "type": "string",
                 "optional": true
               },
+              "auto_start": {
+                "type": "bool",
+                "optional": true
+              },
               "enterprise_project_id": {
                 "type": "string",
                 "computed": true
@@ -17,8 +21,20 @@
                 "type": "string",
                 "computed": true
               },
+              "is_need_consistency_check": {
+                "type": "bool",
+                "optional": true
+              },
               "migrate_speed": {
                 "type": "number",
+                "computed": true
+              },
+              "migrate_speed_limit": {
+                "type": "number",
+                "optional": true
+              },
+              "migrate_type": {
+                "type": "string",
                 "computed": true
               },
               "migration_ip": {
@@ -26,10 +42,22 @@
                 "optional": true,
                 "forcenew": true
               },
+              "need_migration_test": {
+                "type": "bool",
+                "optional": true
+              },
               "os_type": {
                 "type": "string",
                 "required": true,
                 "forcenew": true
+              },
+              "over_speed_threshold": {
+                "type": "number",
+                "optional": true
+              },
+              "passphrase": {
+                "type": "string",
+                "computed": true
               },
               "project_id": {
                 "type": "string",
@@ -45,6 +73,10 @@
                 "type": "string",
                 "required": true,
                 "forcenew": true
+              },
+              "start_network_check": {
+                "type": "bool",
+                "optional": true
               },
               "start_target_server": {
                 "type": "bool",
@@ -76,6 +108,10 @@
                 "required": true,
                 "forcenew": true
               },
+              "use_ipv6": {
+                "type": "bool",
+                "optional": true
+              },
               "use_public_ip": {
                 "type": "bool",
                 "optional": true,
@@ -89,6 +125,48 @@
               }
             },
             "block_types": {
+              "configurations": {
+                "block": {
+                  "attributes": {
+                    "config_key": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "config_status": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "config_value": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "set"
+              },
+              "speed_limit": {
+                "block": {
+                  "attributes": {
+                    "end": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "over_speed_threshold": {
+                      "type": "number",
+                      "optional": true
+                    },
+                    "speed": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "start": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "set"
+              },
               "target_server_disks": {
                 "block": {
                   "attributes": {

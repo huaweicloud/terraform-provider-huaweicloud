@@ -17,7 +17,7 @@ variable "protocol" {}
 variable "source_port" {}
 variable "dest_port" {}
 
-resource "huaweicloud_cfw_service_group" "test" {
+resource "huaweicloud_cfw_service_group_member" "test" {
   group_id    = var.group_id
   protocol    = var.protocol
   source_port = var.source_port
@@ -46,7 +46,7 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `source_port` - (Required, String, ForceNew) Specifies the source port.source_port
+* `source_port` - (Required, String, ForceNew) Specifies the source port.
 
   Changing this parameter will create a new resource.
 
@@ -54,11 +54,7 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `name` - (Optional, String, ForceNew) Specifies the service member name
-
-  Changing this parameter will create a new resource.
-
-* `description` - (Optional, String, ForceNew) Specifies the service member description.
+* `description` - (Optional, String, ForceNew) Specifies the service group member description.
 
   Changing this parameter will create a new resource.
 

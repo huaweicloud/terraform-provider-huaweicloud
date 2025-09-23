@@ -2,9 +2,9 @@
 subcategory: "Host Security Service (HSS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_hss_host_protection"
-description: ""
+description: |-
+  Manages an HSS host protection resource within HuaweiCloud.
 ---
-
 # huaweicloud_hss_host_protection
 
 Manages an HSS host protection resource within HuaweiCloud.
@@ -51,6 +51,12 @@ The following arguments are supported:
   If omitted, randomly select quota for the corresponding version.
   This field is valid only when `charging_mode` is set to **prePaid**.
 
+* `is_wait_host_available` - (Optional, Bool) Specifies whether to wait for the host agent status to become **online**.
+  The value can be **true** or **false**. Defaults to **false**.
+
+  -> If this field is set to **true**, the program will wait for a maximum of `30` minutes until the host's agent status
+  becomes **online**, and then enable host protection.
+
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the ID of the enterprise project to which the host
   protection belongs. Changing this parameter will create a new resource.
 
@@ -82,6 +88,12 @@ In addition to all arguments above, the following attributes are exported:
 
 * `open_time` - The time to enable host protection.
 
+## Timeouts
+
+This resource provides the following timeouts configuration options:
+
+* `create` - Default is 30 minutes.
+
 ## Import
 
 The host protection can be imported using the `id`, e.g.
@@ -91,7 +103,7 @@ $ terraform import huaweicloud_hss_host_protection.test <id>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
-API response, security or some other reason. The missing attributes include: `quota_id`.
+API response, security or some other reason. The missing attributes include: `quota_id`, `is_wait_host_available`.
 It is generally recommended running `terraform plan` after importing a resource.
 You can then decide if changes should be applied to the resource, or the resource definition
 should be updated to align with the resource. Also, you can ignore changes as below.
@@ -102,7 +114,7 @@ resource "huaweicloud_hss_host_protection" "test" {
   
   lifecycle {
     ignore_changes = [
-      quota_id,
+      quota_id, is_wait_host_available,
     ]
   }
 }

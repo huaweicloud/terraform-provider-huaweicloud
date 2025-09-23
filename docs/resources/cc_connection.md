@@ -28,11 +28,11 @@ The following arguments are supported:
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
 * `name` - (Required, String) The cloud connection name.  
-  The name can contain 1 to 64 characters, only letters, Chinese characters, digits, hyphens (-),
-  underscores (_) and dots (.).
+  The name can contain `1` to `64` characters, only English letters, Chinese characters, digits, hyphens (-),
+  underscores (_) and dots (.) are allowed.
 
 * `description` - (Optional, String) The Description about the cloud connection.  
-  The description can contain a maximum of 255 characters.
+  The description contain a maximum of `255` characters, and the angle brackets (< and >) are not allowed.
 
 * `enterprise_project_id` - (Optional, String) The enterprise project id of the cloud connection.  
   Value 0 indicates the default enterprise project.
@@ -65,6 +65,6 @@ In addition to all arguments above, the following attributes are exported:
 
 The cloud connection can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_cc_connection.test 0ce123456a00f2591fabc00385ff1234
 ```

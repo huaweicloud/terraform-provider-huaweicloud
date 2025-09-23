@@ -76,6 +76,6 @@ The `ListenerRef` block supports:
 
 The elb security policies can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_elb_security_policy.test 0ce123456a00f2591fabc00385ff1234
 ```

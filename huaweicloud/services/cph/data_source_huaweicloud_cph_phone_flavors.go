@@ -156,7 +156,7 @@ func resourcePhoneFlavorsRead(_ context.Context, d *schema.ResourceData, meta in
 	)
 	listFlavorsClient, err := cfg.NewServiceClient(listFlavorsProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating CPH Client: %s", err)
+		return diag.Errorf("error creating CPH client: %s", err)
 	}
 
 	listFlavorsPath := listFlavorsClient.Endpoint + listFlavorsHttpUrl
@@ -167,14 +167,11 @@ func resourcePhoneFlavorsRead(_ context.Context, d *schema.ResourceData, meta in
 
 	listFlavorsOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
 	listFlavorsResp, err := listFlavorsClient.Request("GET", listFlavorsPath, &listFlavorsOpt)
 
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving PhoneFlavors")
+		return common.CheckDeletedDiag(d, err, "error retrieving phone flavors")
 	}
 
 	listFlavorsRespBody, err := utils.FlattenResponse(listFlavorsResp)

@@ -1,0 +1,64 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_workspace_app_available_volumes": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region in which to query the resource.",
+                "computed": true
+              },
+              "volume_types": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cloud_service_type": "string",
+                      "name": [
+                        "list",
+                        [
+                          "map",
+                          "string"
+                        ]
+                      ],
+                      "resource_spec_code": "string",
+                      "resource_type": "string",
+                      "volume_product_type": "string",
+                      "volume_type": "string",
+                      "volume_type_extra_specs": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "availability_zone": "string",
+                            "sold_out_availability_zone": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The list of available volume types.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

@@ -50,8 +50,8 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `name` - (Required, String, ForceNew) Name of a queue. Name of a newly created resource queue. The name can contain
-  only digits, letters, and underscores (\_), but cannot contain only digits or start with an underscore (_). Length
-  range: 1 to 128 characters. Changing this parameter will create a new resource.
+  only digits, lowercase letters, and underscores (\_), but cannot contain only digits or start with an underscore (_).
+  Length range: `1` to `128` characters. Changing this parameter will create a new resource.
 
 * `queue_type` - (Optional, String, ForceNew) Indicates the queue type. Changing this parameter will create a new
   resource. The options are as follows:
@@ -64,7 +64,7 @@ The following arguments are supported:
   resource.
 
 * `cu_count` - (Required, Int) Minimum number of CUs that are bound to a queue. Initial value can be `16`,
-  `64`, or `256`. When scale_out or scale_in, the number must be a multiple of 16
+  `64`, or `256`. When scale_out or scale_in, the number must be a multiple of `16`.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Enterprise project ID. The value 0 indicates the default
   enterprise project. Changing this parameter will create a new resource.
@@ -177,7 +177,7 @@ It is generally recommended running `terraform plan` after importing a DLI queue
 You can then decide if changes should be applied to the resource, or the resource definition should be updated to
 align with the resource. Also you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_dli_queue" "test" {
   ...
 

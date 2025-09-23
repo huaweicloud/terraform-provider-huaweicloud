@@ -1,0 +1,19 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dataarts_factory_job_action
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DataArtsStudio
+paths:
+    /v1/{project_id}/jobs:
+        GET:
+            tag: DataArtsStudio
+    /v1/{project_id}/jobs/{job_name}/start:
+        POST:
+            tag: DataArtsStudio
+    /v1/{project_id}/jobs/{job_name}/stop:
+        POST:
+            tag: DataArtsStudio

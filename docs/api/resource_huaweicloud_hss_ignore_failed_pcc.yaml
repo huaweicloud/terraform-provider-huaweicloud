@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_hss_ignore_failed_pcc
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: HSS
+paths:
+    /v5/{project_id}/baseline/password-complexity/action:
+        POST:
+            tag: HSS

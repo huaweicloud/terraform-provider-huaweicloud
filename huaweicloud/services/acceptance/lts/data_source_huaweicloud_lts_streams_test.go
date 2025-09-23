@@ -39,6 +39,7 @@ func TestAccDataSourceStreams_basic(t *testing.T) {
 					dcByName.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(byName, "streams.0.id", "huaweicloud_lts_stream.test", "id"),
 					resource.TestCheckResourceAttr(byName, "streams.0.name", rName),
+					resource.TestCheckResourceAttr(byName, "streams.0.ttl_in_days", "60"),
 					resource.TestCheckResourceAttr(byName, "streams.0.tags._sys_enterprise_project_id", "0"),
 					resource.TestCheckResourceAttr(byName, "streams.0.tags.terraform", "test"),
 					resource.TestCheckOutput("is_name_filter_useful", "true"),
@@ -70,6 +71,7 @@ resource "huaweicloud_lts_group" "test" {
 resource "huaweicloud_lts_stream" "test" {
   group_id              = huaweicloud_lts_group.test.id
   stream_name           = huaweicloud_lts_group.test.group_name
+  ttl_in_days           = 60
   enterprise_project_id = "0"
 
   tags = {
@@ -88,6 +90,7 @@ locals {
   stream_name = huaweicloud_lts_stream.test.stream_name
 }
 
+# The name is an exact match.
 data "huaweicloud_lts_streams" "filter_by_name" {
   depends_on = [
     huaweicloud_lts_stream.test

@@ -1,0 +1,25 @@
+info:
+    version: ""
+    title: resource_huaweicloud_workspace_app_server_batch_action
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: Workspace
+paths:
+    /v1/{project_id}/app-servers/actions/batch-change-image:
+        POST:
+            tag: Workspace
+    /v1/{project_id}/app-servers/actions/batch-maint:
+        PATCH:
+            tag: Workspace
+    /v1/{project_id}/app-servers/actions/batch-reinstall:
+        POST:
+            tag: Workspace
+    /v1/{project_id}/app-servers/actions/batch-rejoin-domain:
+        PATCH:
+            tag: Workspace
+    /v1/{project_id}/app-servers/actions/batch-update-tsvi:
+        PATCH:
+            tag: Workspace

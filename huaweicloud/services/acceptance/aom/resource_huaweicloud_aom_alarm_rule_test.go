@@ -7,33 +7,23 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	aom "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/aom/v2/model"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/aom"
 )
 
 func getAlarmRuleResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	c, err := conf.HcAomV2Client(acceptance.HW_REGION_NAME)
+	client, err := conf.NewServiceClient("aom", acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating AOM client: %s", err)
 	}
-	response, err := c.ShowAlarmRule(&aom.ShowAlarmRuleRequest{AlarmRuleId: state.Primary.ID})
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving AOM alarm rule: %s", state.Primary.ID)
-	}
 
-	allRules := *response.Thresholds
-	if len(allRules) != 1 {
-		return nil, fmt.Errorf("error retrieving AOM alarm rule %s", state.Primary.ID)
-	}
-	rule := allRules[0]
-	return rule, nil
+	return aom.GetV2AlarmRule(client, state.Primary.ID)
 }
 
 func TestAccAOMAlarmRule_basic(t *testing.T) {
-	var ar aom.QueryAlarmResult
+	var ar interface{}
 	rName := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_aom_alarm_rule.test"
 
@@ -73,7 +63,7 @@ func TestAccAOMAlarmRule_basic(t *testing.T) {
 				Config: testAOMAlarmRule_update(rName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "description", "test rule update"),
+					resource.TestCheckResourceAttr(resourceName, "description", ""),
 					resource.TestCheckResourceAttr(resourceName, "alarm_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "alarm_level", "3"),
 					resource.TestCheckResourceAttr(resourceName, "comparison_operator", ">="),
@@ -140,7 +130,7 @@ resource "huaweicloud_aom_alarm_rule" "test" {
   name                 = "%s"
   alarm_level          = 3
   alarm_action_enabled = false
-  description          = "test rule update"
+  description          = ""
 
   namespace   = "PAAS.NODE"
   metric_name = "cupUsage"

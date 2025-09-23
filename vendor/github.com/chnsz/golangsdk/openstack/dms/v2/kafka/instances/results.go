@@ -91,6 +91,7 @@ type Instance struct {
 	Ipv6ConnectAddresses       []string           `json:"ipv6_connect_addresses"`
 	ConnectorEnalbe            bool               `json:"connector_enable"`
 	ConnectorID                string             `json:"connector_id"`
+	ConnectorNodeNum           int                `json:"connector_node_num"`
 	RestEnable                 bool               `json:"rest_enable"`
 	RestConnectAddress         string             `json:"rest_connect_address"`
 	MessageQueryInstEnable     bool               `json:"message_query_inst_enable"`
@@ -104,12 +105,36 @@ type Instance struct {
 	CesVersion                 string             `json:"ces_version"`
 	AccessUser                 string             `json:"access_user"`
 	Tags                       []tags.ResourceTag `json:"tags"`
+	CertReplaced               bool               `json:"cert_replaced"`
+	SslTwoWayEnable            bool               `json:"ssl_two_way_enable"`
+	PortProtocols              PortProtocols      `json:"port_protocols"`
 }
 
 type Task struct {
 	Name      string `json:"name"`
 	Status    string `json:"status"`
 	CreatedAt string `json:"created_at"`
+}
+
+type PortProtocols struct {
+	PrivatePlainEnable             bool   `json:"private_plain_enable"`
+	PrivatePlainAddress            string `json:"private_plain_address"`
+	PrivatePlainDomainName         string `json:"private_plain_domain_name"`
+	PrivateSaslSslEnable           bool   `json:"private_sasl_ssl_enable"`
+	PrivateSaslSslAddress          string `json:"private_sasl_ssl_address"`
+	PrivateSaslSslDomainName       string `json:"private_sasl_ssl_domain_name"`
+	PrivateSaslPlaintextEnable     bool   `json:"private_sasl_plaintext_enable"`
+	PrivateSaslPlaintextAddress    string `json:"private_sasl_plaintext_address"`
+	PrivateSaslPlaintextDomainName string `json:"private_sasl_plaintext_domain_name"`
+	PublicPlainEnable              bool   `json:"public_plain_enable"`
+	PublicPlainAddress             string `json:"public_plain_address"`
+	PublicPlainDomainName          string `json:"public_plain_domain_name"`
+	PublicSaslSslEnable            bool   `json:"public_sasl_ssl_enable"`
+	PublicSaslSslAddress           string `json:"public_sasl_ssl_address"`
+	PublicSaslSslDomainName        string `json:"public_sasl_ssl_domain_name"`
+	PublicSaslPlaintextEnable      bool   `json:"public_sasl_plaintext_enable"`
+	PublicSaslPlaintextAddress     string `json:"public_sasl_plaintext_address"`
+	PublicSaslPlaintextDomainName  string `json:"public_sasl_plaintext_domain_name"`
 }
 
 // UpdateResult is a struct from which can get the result of update method

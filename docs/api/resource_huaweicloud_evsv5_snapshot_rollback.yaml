@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_evsv5_snapshot_rollback
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: EVS
+paths:
+    /v5/{project_id}/snapshots/{snapshot_id}/rollback:
+        POST:
+            tag: EVS

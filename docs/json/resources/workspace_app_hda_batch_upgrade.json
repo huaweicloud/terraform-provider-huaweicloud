@@ -1,0 +1,38 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_workspace_app_hda_batch_upgrade": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the servers to be upgraded are located.",
+                "computed": true
+              },
+              "server_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The list of server IDs to be upgraded HDA in batches.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

@@ -4,13 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk/pagination"
 
@@ -37,6 +38,21 @@ func DataSourceActiveStandbyPools() *schema.Resource {
 				Optional: true,
 			},
 			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"connection_drain": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"true", "false",
+				}, false),
+			},
+			"ip_version": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"lb_algorithm": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
@@ -108,6 +124,18 @@ func poolsActiveStandbyPoolsSchema() *schema.Resource {
 				Type:     schema.TypeBool,
 				Computed: true,
 			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"ip_version": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"lb_algorithm": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"connection_drain_enabled": {
 				Type:     schema.TypeBool,
 				Computed: true,
@@ -131,13 +159,26 @@ func poolsActiveStandbyPoolsSchema() *schema.Resource {
 				Computed: true,
 			},
 			"members": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
 				Elem:     poolsActiveStandbyPoolMembersSchema(),
 				Computed: true,
 			},
 			"healthmonitor": {
 				Type:     schema.TypeList,
 				Elem:     poolsActiveStandbyPoolHealthmonitorSchema(),
+				Computed: true,
+			},
+			"quic_cid_hash_strategy": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     poolsActiveStandbyPoolQuicCidHashStrategySchema(),
+			},
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"updated_at": {
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 		},
@@ -212,6 +253,52 @@ func poolsActiveStandbyPoolMembersSchema() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"reason": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     poolsActiveStandbyPoolMemberReasonSchema(),
+			},
+			"status": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     poolsActiveStandbyPoolMemberStatusSchema(),
+			},
+		},
+	}
+	return &sc
+}
+
+func poolsActiveStandbyPoolMemberReasonSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"reason_code": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"expected_response": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"healthcheck_response": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+		},
+	}
+	return &sc
+}
+
+func poolsActiveStandbyPoolMemberStatusSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"listener_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"operating_status": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 	return &sc
@@ -271,6 +358,21 @@ func poolsActiveStandbyPoolHealthmonitorSchema() *schema.Resource {
 		},
 	}
 	return &sc
+}
+
+func poolsActiveStandbyPoolQuicCidHashStrategySchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"len": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"offset": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+		},
+	}
 }
 
 func resourceActiveStandbyPoolsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -345,6 +447,9 @@ func flattenListActiveStandbyPoolsBodyPools(resp interface{}) []interface{} {
 			"protocol":                 utils.PathSearch("protocol", v, nil),
 			"type":                     utils.PathSearch("type", v, nil),
 			"any_port_enable":          utils.PathSearch("any_port_enable", v, nil),
+			"enterprise_project_id":    utils.PathSearch("enterprise_project_id", v, nil),
+			"ip_version":               utils.PathSearch("ip_version", v, nil),
+			"lb_algorithm":             utils.PathSearch("lb_algorithm", v, nil),
 			"vpc_id":                   utils.PathSearch("vpc_id", v, nil),
 			"connection_drain_enabled": utils.PathSearch("connection_drain.enable", v, nil),
 			"connection_drain_timeout": utils.PathSearch("connection_drain.timeout", v, nil),
@@ -352,6 +457,9 @@ func flattenListActiveStandbyPoolsBodyPools(resp interface{}) []interface{} {
 			"loadbalancers":            flattenActiveStandbyPoolLoadbalancers(v),
 			"members":                  flattenActiveStandbyPoolMember(v),
 			"healthmonitor":            flattenActiveStandbyPoolMonitor(v),
+			"quic_cid_hash_strategy":   flattenActiveStandbyPoolQuicCidHashStrategy(v),
+			"created_at":               utils.PathSearch("created_at", v, nil),
+			"updated_at":               utils.PathSearch("updated_at", v, nil),
 		})
 	}
 	return rst
@@ -415,6 +523,8 @@ func flattenActiveStandbyPoolMember(resp interface{}) []interface{} {
 			"instance_id":      utils.PathSearch("instance_id", v, nil),
 			"operating_status": utils.PathSearch("operating_status", v, nil),
 			"ip_version":       utils.PathSearch("ip_version", v, nil),
+			"reason":           flattenActiveStandbyPoolMemberReason(v),
+			"status":           flattenActiveStandbyPoolMemberStatus(v),
 		})
 	}
 	return rst
@@ -422,13 +532,11 @@ func flattenActiveStandbyPoolMember(resp interface{}) []interface{} {
 
 func flattenActiveStandbyPoolMonitor(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("healthmonitor", resp)
-	if err != nil {
-		return rst
-	}
-	if curJson == nil {
+	curJson := utils.PathSearch("healthmonitor", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return nil
 	}
+
 	rst = []interface{}{
 		map[string]interface{}{
 			"name":             utils.PathSearch("name", curJson, nil),
@@ -448,6 +556,21 @@ func flattenActiveStandbyPoolMonitor(resp interface{}) []interface{} {
 	return rst
 }
 
+func flattenActiveStandbyPoolQuicCidHashStrategy(resp interface{}) []interface{} {
+	curJson := utils.PathSearch("quic_cid_hash_strategy", resp, nil)
+	if curJson == nil {
+		return nil
+	}
+
+	rst := []interface{}{
+		map[string]interface{}{
+			"len":    utils.PathSearch("len", curJson, nil),
+			"offset": utils.PathSearch("offset", curJson, nil),
+		},
+	}
+	return rst
+}
+
 func buildListActiveStandbyPoolsQueryParams(d *schema.ResourceData) string {
 	res := ""
 	if v, ok := d.GetOk("pool_id"); ok {
@@ -458,6 +581,16 @@ func buildListActiveStandbyPoolsQueryParams(d *schema.ResourceData) string {
 	}
 	if v, ok := d.GetOk("description"); ok {
 		res = fmt.Sprintf("%s&description=%v", res, v)
+	}
+	if v, ok := d.GetOk("connection_drain"); ok {
+		connectionDrain, _ := strconv.ParseBool(v.(string))
+		res = fmt.Sprintf("%s&connection_drain=%v", res, connectionDrain)
+	}
+	if v, ok := d.GetOk("ip_version"); ok {
+		res = fmt.Sprintf("%s&ip_version=%v", res, v)
+	}
+	if v, ok := d.GetOk("lb_algorithm"); ok {
+		res = fmt.Sprintf("%s&lb_algorithm=%v", res, v)
 	}
 	if v, ok := d.GetOk("loadbalancer_id"); ok {
 		res = fmt.Sprintf("%s&loadbalancer_id=%v", res, v)

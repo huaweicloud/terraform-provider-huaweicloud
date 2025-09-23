@@ -94,7 +94,7 @@ data "huaweicloud_apig_application_quotas" "test" {
 
 # Filter by ID
 locals {
-  quota_id = data.huaweicloud_apig_application_quotas.test.quotas[0].id
+  quota_id = huaweicloud_apig_application_quota.test.id
 }
 
 data "huaweicloud_apig_application_quotas" "filter_by_id" {
@@ -114,10 +114,14 @@ output "is_id_filter_useful" {
 
 # Filter by name
 locals {
-  quota_name = data.huaweicloud_apig_application_quotas.test.quotas[0].name
+  quota_name = huaweicloud_apig_application_quota.test.name
 }
 
 data "huaweicloud_apig_application_quotas" "filter_by_name" {
+  depends_on = [
+    huaweicloud_apig_application_quota.test,
+  ]
+
   instance_id = local.instance_id
   name        = local.quota_name
 }
@@ -138,6 +142,10 @@ locals {
 }
 
 data "huaweicloud_apig_application_quotas" "filter_by_not_found_name" {
+  depends_on = [
+    huaweicloud_apig_application_quota.test,
+  ]
+
   instance_id = local.instance_id
   name        = local.not_found_name
 }

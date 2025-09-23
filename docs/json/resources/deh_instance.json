@@ -1,0 +1,136 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_deh_instance": {
+          "block": {
+            "attributes": {
+              "allocated_at": {
+                "type": "string",
+                "computed": true
+              },
+              "auto_placement": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "auto_renew": {
+                "type": "string",
+                "optional": true
+              },
+              "availability_zone": {
+                "type": "string",
+                "required": true
+              },
+              "available_memory": {
+                "type": "number",
+                "computed": true
+              },
+              "available_vcpus": {
+                "type": "number",
+                "computed": true
+              },
+              "charging_mode": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "host_properties": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "available_instance_capacities": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "flavor": "string"
+                          }
+                        ]
+                      ],
+                      "cores": "number",
+                      "host_type": "string",
+                      "host_type_name": "string",
+                      "memory": "number",
+                      "sockets": "number",
+                      "vcpus": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "host_type": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_total": {
+                "type": "number",
+                "computed": true
+              },
+              "instance_uuids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              },
+              "metadata": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "period": {
+                "type": "string",
+                "optional": true
+              },
+              "period_unit": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "state": {
+                "type": "string",
+                "computed": true
+              },
+              "sys_tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

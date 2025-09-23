@@ -2,7 +2,8 @@
 subcategory: "NAT Gateway (NAT)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_nat_private_gateway"
-description: ""
+description: |-
+  Manages a gateway resource of the **private** NAT within HuaweiCloud.
 ---
 
 # huaweicloud_nat_private_gateway
@@ -14,13 +15,12 @@ Manages a gateway resource of the **private** NAT within HuaweiCloud.
 ```hcl
 variable "subnet_id" {}
 variable "gateway_name" {}
+variable "gateway_spec" {}
 
 resource "huaweicloud_nat_private_gateway" "test" {
   subnet_id             = var.subnet_id
   name                  = var.gateway_name
-  spec                  = "Small"
-  description           = "Created by terraform script"
-  enterprise_project_id = "0"
+  spec                  = var.gateway_spec
 }
 ```
 
@@ -80,5 +80,5 @@ In addition to all arguments above, the following attributes are exported:
 The private NAT gateways can be imported using their `id`, e.g.
 
 ```bash
-$ terraform import huaweicloud_nat_private_gateway.test 13d9d015-9d6f-483d-882d-d996cdf2c1d0
+$ terraform import huaweicloud_nat_private_gateway.test <id>
 ```

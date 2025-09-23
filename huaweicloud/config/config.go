@@ -3,6 +3,7 @@ package config
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"math"
@@ -12,7 +13,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -22,6 +22,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/obs"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/mutexkv"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 const (
@@ -29,36 +30,49 @@ const (
 	InternationalSite string = "International"
 )
 
-// MutexKV is a global lock on all resources, it can lock the specified shared string (such as resource ID, resource
-// Name, port, etc.) to prevent other resources from using it, for concurrency control.
-// Usage: MutexKV.Lock({resource ID}) and MutexKV.Unlock({resource ID})
-var MutexKV = mutexkv.NewMutexKV()
+var (
+	// MutexKV is a global lock on all resources, it can lock the specified shared string (such as resource ID, resource
+	// Name, port, etc.) to prevent other resources from using it, for concurrency control.
+	// Usage: MutexKV.Lock({resource ID}) and MutexKV.Unlock({resource ID})
+	MutexKV = mutexkv.NewMutexKV()
+	// If an account sends a CBC request and it crosses websites, the CBC service will return a 403 error to indicate
+	// attention.
+	crossWebsiteErrs = []string{
+		"CBC.0150",
+		"CBC.0156",
+	}
+)
 
 type Config struct {
-	AccessKey           string
-	SecretKey           string
-	CACertFile          string
-	ClientCertFile      string
-	ClientKeyFile       string
-	DomainID            string
-	DomainName          string
-	IdentityEndpoint    string
-	Insecure            bool
-	Region              string
-	TenantID            string
-	TenantName          string
-	Token               string
-	SecurityToken       string
-	AssumeRoleAgency    string
-	AssumeRoleDomain    string
-	AssumeRoleDomainID  string
-	Cloud               string
-	MaxRetries          int
-	TerraformVersion    string
-	RegionClient        bool
-	EnterpriseProjectID string
-	SharedConfigFile    string
-	Profile             string
+	AccessKey             string
+	SecretKey             string
+	CACertFile            string
+	ClientCertFile        string
+	ClientKeyFile         string
+	DomainID              string
+	DomainName            string
+	IdentityEndpoint      string
+	Insecure              bool
+	Region                string
+	TenantID              string
+	TenantName            string
+	Token                 string
+	SecurityToken         string
+	AssumeRoleAgency      string
+	AssumeRoleDomain      string
+	AssumeRoleDomainID    string
+	AssumeRoleDuration    int
+	AssumeRoleList        []AssumeRole
+	AssumeRoleIdpID       string
+	AssumeRoleIdToken     string
+	AssumeRoleIdTokenFile string
+	Cloud                 string
+	MaxRetries            int
+	TerraformVersion      string
+	RegionClient          bool
+	EnterpriseProjectID   string
+	SharedConfigFile      string
+	Profile               string
 
 	// metadata security key expires at
 	SecurityKeyExpiresAt time.Time
@@ -96,11 +110,48 @@ type Config struct {
 	Metadata any
 
 	EnableForceNew bool
+
+	// SigningAlgorithm is used to select encryption algorithm
+	SigningAlgorithm string
+	DefaultTags      map[string]interface{}
+}
+
+type AssumeRole struct {
+	RoleAgency   string
+	RoleDomain   string
+	RoleDomainID string
+	RoleDuration int
 }
 
 func (c *Config) LoadAndValidate() error {
 	if c.MaxRetries < 0 {
 		return fmt.Errorf("max_retries should be a positive value")
+	}
+
+	// Assume role OIDC
+	if c.AssumeRoleIdpID != "" {
+		if c.Region == "" {
+			return errors.New("region should be provided")
+		}
+
+		// Get token from file if not specified
+		if c.AssumeRoleIdToken == "" && c.AssumeRoleIdTokenFile != "" {
+			token, err := os.ReadFile(c.AssumeRoleIdTokenFile)
+			if err != nil {
+				return fmt.Errorf("Error reading id_token_file: %s", err)
+			}
+			tokenStr := string(token)
+			c.AssumeRoleIdToken = strings.Trim(tokenStr, "\n")
+		}
+
+		subjectToken, err := getSubjectTokenByIdp(c)
+		if err != nil {
+			return err
+		}
+		err = getSecurityTokenByIdp(c, subjectToken)
+		if err != nil {
+			return err
+		}
 	}
 
 	err := buildClient(c)
@@ -122,6 +173,11 @@ func (c *Config) LoadAndValidate() error {
 		if err != nil {
 			return err
 		}
+	}
+
+	// Assume role list
+	if len(c.AssumeRoleList) != 0 {
+		return buildClientByAgencyChain(c)
 	}
 
 	if c.HwClient != nil && c.HwClient.ProjectID != "" {
@@ -151,6 +207,11 @@ func (c *Config) LoadAndValidate() error {
 		}
 	}
 
+	if c.SigningAlgorithm != "" {
+		c.HwClient.AKSKAuthOptions.SigningAlgorithm = c.SigningAlgorithm
+		c.DomainClient.AKSKAuthOptions.SigningAlgorithm = c.SigningAlgorithm
+	}
+
 	return nil
 }
 
@@ -162,6 +223,7 @@ func (c *Config) LoadAndValidate() error {
 //	  "error_msg": "Access denied. The customer does not belong to the website you are now at."
 //	}
 //
+// In addition to the error code 'CBC.0150', some regions also return error code 'CBC.0156'.
 // we can call the probe API and parse the response body to decide whether the account belongs to International website or not.
 // we select https://support.huaweicloud.com/intl/zh-cn/api-oce/zh-cn_topic_0000001256679455.html as the probe API.
 func (c *Config) SetWebsiteType() error {
@@ -186,7 +248,7 @@ func (c *Config) SetWebsiteType() error {
 				log.Printf("[WARN] failed to unmarshal the response body: %s", decodeErr)
 			}
 
-			if resp.ErrorCode == "CBC.0150" {
+			if utils.IsStrContainsSliceElement(resp.ErrorCode, crossWebsiteErrs, false, true) {
 				log.Printf("[DEBUG] the current account belongs to %s website", InternationalSite)
 				c.websiteType = InternationalSite
 				return nil
@@ -307,6 +369,30 @@ func buildObsUserAgent() string {
 	return agent
 }
 
+// When performing derivative calculations, the derivative service name must exist.
+// Currently only iotda service supports derivative algorithms.
+// When a new service requires derivative algorithm calculation, please maintain this configuration.
+var derivedAuthServiceNameMap = map[string]string{
+	"iotda": "iotdm",
+}
+
+// NewServiceClientWithDerivedAuth create a ServiceClient that performs derivative algorithm authentication.
+// Please confirm that the `derivedAuthServiceNameMap` configuration contains the derived service name of the service.
+func (c *Config) NewServiceClientWithDerivedAuth(srv, region string, isDerived bool) (*golangsdk.ServiceClient, error) {
+	client, err := c.NewServiceClient(srv, region)
+	if err != nil {
+		return nil, err
+	}
+
+	// Used to enable derivative calculations of AK/SK.
+	if isDerived {
+		client.AKSKAuthOptions.IsDerived = true
+		client.AKSKAuthOptions.DerivedAuthServiceName = derivedAuthServiceNameMap[srv]
+	}
+
+	return client, nil
+}
+
 // NewServiceClient create a ServiceClient which was assembled from ServiceCatalog.
 // If you want to add new ServiceClient, please make sure the catalog was already in allServiceCatalog.
 // the endpoint likes https://{Name}.{Region}.myhuaweicloud.com/{Version}/{project_id}/{ResourceBase}
@@ -409,8 +495,11 @@ func (c *Config) newServiceClientByEndpoint(client *golangsdk.ProviderClient, sr
 		return nil, fmt.Errorf("service type %s is invalid or not supportted", srv)
 	}
 
+	// Copy the client to prevent interference with the original data.
+	clone := new(golangsdk.ProviderClient)
+	*clone = *client
 	sc := &golangsdk.ServiceClient{
-		ProviderClient: client,
+		ProviderClient: clone,
 		Endpoint:       endpoint,
 	}
 
@@ -552,26 +641,19 @@ func (c *Config) GetRegion(d *schema.ResourceData) string {
 // GetEnterpriseProjectID returns the enterprise_project_id that was specified in the resource.
 // If it was not set, the provider-level value is checked. The provider-level value can
 // either be set by the `enterprise_project_id` argument or by HW_ENTERPRISE_PROJECT_ID.
-func (c *Config) GetEnterpriseProjectID(d *schema.ResourceData) string {
+// If the provider-level value
+func (c *Config) GetEnterpriseProjectID(d *schema.ResourceData, defaultEps ...string) string {
 	if v, ok := d.GetOk("enterprise_project_id"); ok {
 		return v.(string)
 	}
 
-	return c.EnterpriseProjectID
-}
-
-// DataGetEnterpriseProjectID returns the enterprise_project_id that was specified in the data source.
-// If it was not set, the provider-level value is checked. The provider-level value can
-// either be set by the `enterprise_project_id` argument or by HW_ENTERPRISE_PROJECT_ID.
-// If the provider-level value is also not set, `all_granted_eps` will be returned.
-func (c *Config) DataGetEnterpriseProjectID(d *schema.ResourceData) string {
-	if v, ok := d.GetOk("enterprise_project_id"); ok {
-		return v.(string)
-	}
 	if c.EnterpriseProjectID != "" {
 		return c.EnterpriseProjectID
 	}
-	return "all_granted_eps"
+	if len(defaultEps) > 0 {
+		return defaultEps[0]
+	}
+	return ""
 }
 
 // CheckValueInterchange checks if the new value of key1 is equal to the old value of key2,
@@ -699,23 +781,6 @@ func (c *Config) SwrV2Client(region string) (*golangsdk.ServiceClient, error) {
 
 func (c *Config) BmsV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("bms", region)
-}
-
-func (c *Config) AosV1Client(region string) (*golangsdk.ServiceClient, error) {
-	client, err := c.NewServiceClient("aos", region)
-	if err != nil {
-		return nil, err
-	}
-	u, err := uuid.GenerateUUID()
-	if err != nil {
-		return nil, err
-	}
-	client.MoreHeaders = map[string]string{
-		"Content-Type":      "application/json",
-		"X-Language":        "en-us",
-		"Client-Request-Id": u,
-	}
-	return client, nil
 }
 
 // ********** client for Storage **********
@@ -932,6 +997,10 @@ func (c *Config) CssV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("css", region)
 }
 
+func (c *Config) CssV2Client(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("cssv2", region)
+}
+
 func (c *Config) CloudStreamV1Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("cs", region)
 }
@@ -1071,6 +1140,9 @@ func (c *Config) MaasV1Client(region string) (*golangsdk.ServiceClient, error) {
 }
 
 func (c *Config) SmsV3Client(region string) (*golangsdk.ServiceClient, error) {
+	if c.GetWebsiteType() == InternationalSite {
+		return c.NewServiceClient("sms-intl", region)
+	}
 	return c.NewServiceClient("sms", region)
 }
 
@@ -1097,4 +1169,8 @@ func (c *Config) KooGalleryV1Client(region string) (*golangsdk.ServiceClient, er
 
 func (c *Config) VpnV5Client(region string) (*golangsdk.ServiceClient, error) {
 	return c.NewServiceClient("vpn", region)
+}
+
+func (c *Config) StsClient(region string) (*golangsdk.ServiceClient, error) {
+	return c.NewServiceClient("sts", region)
 }

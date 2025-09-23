@@ -1,66 +1,26 @@
 package secmaster
 
 import (
-	"encoding/json"
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/pagination"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/secmaster"
 )
 
 func getPlaybookResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	region := acceptance.HW_REGION_NAME
-	// getPlaybook: Query the SecMaster playbook detail
-	var (
-		getPlaybookHttpUrl = "v1/{project_id}/workspaces/{workspace_id}/soc/playbooks"
-		getPlaybookProduct = "secmaster"
-	)
-	getPlaybookClient, err := cfg.NewServiceClient(getPlaybookProduct, region)
+	workspaceID := state.Primary.Attributes["workspace_id"]
+	client, err := cfg.NewServiceClient("secmaster", region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating SecMaster client: %s", err)
 	}
 
-	getPlaybookPath := getPlaybookClient.Endpoint + getPlaybookHttpUrl
-	getPlaybookPath = strings.ReplaceAll(getPlaybookPath, "{project_id}", getPlaybookClient.ProjectID)
-	getPlaybookPath = strings.ReplaceAll(getPlaybookPath, "{workspace_id}", state.Primary.Attributes["workspace_id"])
-
-	getPlaybookqueryParams := buildGetPlaybookQueryParams(state.Primary.Attributes["name"])
-	getPlaybookPath += getPlaybookqueryParams
-
-	getPlaybookResp, err := pagination.ListAllItems(
-		getPlaybookClient,
-		"offset",
-		getPlaybookPath,
-		&pagination.QueryOpts{MarkerField: ""})
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving Playbook: %s", err)
-	}
-
-	getPlaybookRespJson, err := json.Marshal(getPlaybookResp)
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving Playbook: %s", err)
-	}
-	var getPlaybookRespBody interface{}
-	err = json.Unmarshal(getPlaybookRespJson, &getPlaybookRespBody)
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving Playbook: %s", err)
-	}
-
-	jsonPath := fmt.Sprintf("data[?id=='%s']|[0]", state.Primary.ID)
-	getPlaybookRespBody = utils.PathSearch(jsonPath, getPlaybookRespBody, nil)
-	if getPlaybookRespBody == nil {
-		return nil, golangsdk.ErrDefault404{}
-	}
-	return getPlaybookRespBody, nil
+	return secmaster.GetPlaybook(client, workspaceID, state.Primary.ID)
 }
 
 func TestAccPlaybook_basic(t *testing.T) {
@@ -120,8 +80,8 @@ func TestAccPlaybook_basic(t *testing.T) {
 func testPlaybook_basic(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_secmaster_playbook" "test" {
-  workspace_id = "%s"
-  name         = "%s"
+  workspace_id = "%[1]s"
+  name         = "%[2]s"
   description  = "created by terraform"
 }
 `, acceptance.HW_SECMASTER_WORKSPACE_ID, name)
@@ -130,19 +90,11 @@ resource "huaweicloud_secmaster_playbook" "test" {
 func testPlaybook_basic_update(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_secmaster_playbook" "test" {
-  workspace_id = "%s"
-  name         = "%s_update"
+  workspace_id = "%[1]s"
+  name         = "%[2]s_update"
   description  = ""
 }
 `, acceptance.HW_SECMASTER_WORKSPACE_ID, name)
-}
-
-func buildGetPlaybookQueryParams(name string) string {
-	if name != "" {
-		return fmt.Sprintf("?name=%v", name)
-	}
-
-	return ""
 }
 
 func testPlaybookImportState(name string) resource.ImportStateIdFunc {

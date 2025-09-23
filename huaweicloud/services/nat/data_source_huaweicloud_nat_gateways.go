@@ -1,8 +1,3 @@
-// ---------------------------------------------------------------
-// *** AUTO GENERATED CODE ***
-// @Product NAT
-// ---------------------------------------------------------------
-
 package nat
 
 import (
@@ -17,7 +12,6 @@ import (
 
 	"github.com/chnsz/golangsdk"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -68,6 +62,16 @@ func DataSourcePublicGateways() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "The ID of the enterprise project to which the NAT gateways belong.",
+			},
+			"description": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The description of the NAT gateway.",
+			},
+			"created_at": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The creation time of the NAT gateway.",
 			},
 			"gateways": {
 				Type:        schema.TypeList,
@@ -128,62 +132,111 @@ func gatewayPublicGatewaysSchema() *schema.Resource {
 				Computed:    true,
 				Description: "The ID of the enterprise project to which the NAT gateway belongs.",
 			},
+			"session_conf": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The session configuration of the NAT gateway.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"tcp_session_expire_time": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "The TCP session expiration time, in seconds.",
+						},
+						"udp_session_expire_time": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "The UDP session expiration time, in seconds.",
+						},
+						"icmp_session_expire_time": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "The ICMP session expiration time, in seconds.",
+						},
+						"tcp_time_wait_time": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "The duration of TIME_WAIT state when TCP connection is closed, in seconds.",
+						},
+					},
+				},
+			},
+			"ngport_ip_address": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The private IP address of the NAT gateway.",
+			},
+			"billing_info": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The order information of the NAT gateway.",
+			},
+			"dnat_rules_limit": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "The maximum number of DNAT rules on the NAT gateway.",
+			},
+			"snat_rule_public_ip_limit": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "The maximum number of SNAT rules on the NAT gateway.",
+			},
+			"pps_max": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "The number of packets that the NAT gateway can receive or send per second.",
+			},
+			"bps_max": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "The bandwidth that the NAT gateway can receive or send per second.",
+			},
 		},
 	}
 	return &sc
 }
 
 func dataSourcePublicGatewaysRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	var mErr *multierror.Error
-
-	// listGateways: Query the list of NAT gateways
 	var (
-		listGatewaysHttpUrl = "v2/{project_id}/nat_gateways"
-		listGatewaysProduct = "nat"
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		mErr    *multierror.Error
+		httpUrl = "v2/{project_id}/nat_gateways"
+		product = "nat"
 	)
-	listGatewaysClient, err := cfg.NewServiceClient(listGatewaysProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating NAT client: %s", err)
 	}
 
-	listGatewaysPath := listGatewaysClient.Endpoint + listGatewaysHttpUrl
-	listGatewaysPath = strings.ReplaceAll(listGatewaysPath, "{project_id}", listGatewaysClient.ProjectID)
-
-	listGatewaysqueryParams := buildListPublicGatewaysQueryParams(d, cfg)
-	listGatewaysPath += listGatewaysqueryParams
-
-	listGatewaysOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath += buildListPublicGatewaysQueryParams(d, cfg)
+	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: map[string]string{"Content-Type": "application/json"},
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
-	listGatewaysResp, err := listGatewaysClient.Request("GET", listGatewaysPath, &listGatewaysOpt)
-
+	resp, err := client.Request("GET", requestPath, &requestOpt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving NAT Gateway")
+		return diag.Errorf("error retrieving NAT gateways %s", err)
 	}
 
-	listGatewaysRespBody, err := utils.FlattenResponse(listGatewaysResp)
+	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	generateUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(generateUUID)
 
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),
-		d.Set("gateways", flattenListGatewaysResponseBodyPublicGateways(listGatewaysRespBody)),
+		d.Set("gateways", flattenListGatewaysResponseBodyPublicGateways(respBody)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -199,18 +252,40 @@ func flattenListGatewaysResponseBodyPublicGateways(resp interface{}) []interface
 	rst := make([]interface{}, 0, len(curArray))
 	for _, v := range curArray {
 		rst = append(rst, map[string]interface{}{
-			"id":                    utils.PathSearch("id", v, nil),
-			"name":                  utils.PathSearch("name", v, nil),
-			"spec":                  utils.PathSearch("spec", v, nil),
-			"status":                utils.PathSearch("status", v, nil),
-			"description":           utils.PathSearch("description", v, nil),
-			"created_at":            utils.PathSearch("created_at", v, nil),
-			"vpc_id":                utils.PathSearch("router_id", v, nil),
-			"subnet_id":             utils.PathSearch("internal_network_id", v, nil),
-			"enterprise_project_id": utils.PathSearch("enterprise_project_id", v, nil),
+			"id":                        utils.PathSearch("id", v, nil),
+			"name":                      utils.PathSearch("name", v, nil),
+			"spec":                      utils.PathSearch("spec", v, nil),
+			"status":                    utils.PathSearch("status", v, nil),
+			"description":               utils.PathSearch("description", v, nil),
+			"created_at":                utils.PathSearch("created_at", v, nil),
+			"vpc_id":                    utils.PathSearch("router_id", v, nil),
+			"subnet_id":                 utils.PathSearch("internal_network_id", v, nil),
+			"enterprise_project_id":     utils.PathSearch("enterprise_project_id", v, nil),
+			"ngport_ip_address":         utils.PathSearch("ngport_ip_address", v, nil),
+			"billing_info":              utils.PathSearch("billing_info", v, nil),
+			"dnat_rules_limit":          utils.PathSearch("dnat_rules_limit", v, nil),
+			"snat_rule_public_ip_limit": utils.PathSearch("snat_rule_public_ip_limit", v, nil),
+			"pps_max":                   utils.PathSearch("pps_max", v, nil),
+			"bps_max":                   utils.PathSearch("bps_max", v, nil),
+			"session_conf":              flattenSessionConfig(utils.PathSearch("session_conf", v, nil)),
 		})
 	}
 	return rst
+}
+
+func flattenSessionConfig(sessionConfig interface{}) []map[string]interface{} {
+	if sessionConfig == nil {
+		return nil
+	}
+
+	return []map[string]interface{}{
+		{
+			"tcp_session_expire_time":  utils.PathSearch("tcp_session_expire_time", sessionConfig, nil),
+			"udp_session_expire_time":  utils.PathSearch("udp_session_expire_time", sessionConfig, nil),
+			"icmp_session_expire_time": utils.PathSearch("icmp_session_expire_time", sessionConfig, nil),
+			"tcp_time_wait_time":       utils.PathSearch("tcp_time_wait_time", sessionConfig, nil),
+		},
+	}
 }
 
 func buildListPublicGatewaysQueryParams(d *schema.ResourceData, cfg *config.Config) string {
@@ -237,6 +312,12 @@ func buildListPublicGatewaysQueryParams(d *schema.ResourceData, cfg *config.Conf
 	}
 	if enterpriseProjectID != "" {
 		res = fmt.Sprintf("%s&enterprise_project_id=%s", res, enterpriseProjectID)
+	}
+	if v, ok := d.GetOk("description"); ok {
+		res = fmt.Sprintf("%s&description=%v", res, v)
+	}
+	if v, ok := d.GetOk("created_at"); ok {
+		res = fmt.Sprintf("%s&created_at=%v", res, v)
 	}
 	if res != "" {
 		res = "?" + res[1:]

@@ -7,7 +7,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -50,21 +49,12 @@ func getBlackWhiteListResourceFunc(cfg *config.Config, state *terraform.Resource
 		return nil, err
 	}
 
-	lists, err := jmespath.Search("data.records", getBlackWhiteListRespBody)
-	if err != nil {
-		return nil, fmt.Errorf("error parsing data.records from response= %#v", getBlackWhiteListRespBody)
-	}
-
-	val, ok := lists.([]interface{})
-	if !ok {
-		return nil, fmt.Errorf("data.records is not a list, data.records= %#v", lists)
-	}
-
-	if len(val) != 1 {
+	list := utils.PathSearch("data.records", getBlackWhiteListRespBody, make([]interface{}, 0)).([]interface{})
+	if len(list) != 1 {
 		return nil, golangsdk.ErrDefault404{}
 	}
 
-	return val[0], nil
+	return list[0], nil
 }
 
 func TestAccBlackWhiteList_basic(t *testing.T) {
@@ -108,7 +98,7 @@ func TestAccBlackWhiteList_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "protocol", "-1"),
 					resource.TestCheckResourceAttr(rName, "port", ""),
 					resource.TestCheckResourceAttr(rName, "address_type", "0"),
-					resource.TestCheckResourceAttr(rName, "address", "2.2.2.2"),
+					resource.TestCheckResourceAttr(rName, "address", "2.2.2.0/24"),
 					resource.TestCheckResourceAttr(rName, "description", ""),
 				),
 			},
@@ -149,7 +139,7 @@ resource "huaweicloud_cfw_black_white_list" "test" {
   direction    = 1
   protocol     = -1
   address_type = 0
-  address      = "2.2.2.2"
+  address      = "2.2.2.0/24"
   description  = ""
 }
 `, testAccDatasourceFirewalls_basic())
@@ -159,7 +149,7 @@ func buildGetBlackWhiteListQueryParams(state *terraform.ResourceState) string {
 	res := "?offset=0&limit=10"
 	res = fmt.Sprintf("%s&object_id=%v", res, state.Primary.Attributes["object_id"])
 	res = fmt.Sprintf("%s&list_type=%v", res, state.Primary.Attributes["list_type"])
-	res = fmt.Sprintf("%s&address=%v", res, state.Primary.Attributes["address"])
+	res = fmt.Sprintf("%s&address=%v", res, strings.Split(state.Primary.Attributes["address"], "/")[0])
 
 	return res
 }

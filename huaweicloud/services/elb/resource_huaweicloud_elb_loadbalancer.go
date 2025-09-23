@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
@@ -35,6 +34,7 @@ import (
 // @API ELB DELETE /v3/{project_id}/elb/loadbalancers/{loadbalancer_id}
 // @API EIP DELETE /v1/{project_id}/publicips/{publicip_id}
 // @API ELB POST /v3/{project_id}/elb/loadbalancers/change-charge-mode
+// @API EPS POST /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrat
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
 // @API BSS POST /v2/orders/suscriptions/resources/query
 // @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
@@ -78,6 +78,7 @@ func ResourceLoadBalancerV3() *schema.Resource {
 				}
 				return nil
 			}),
+			config.MergeDefaultTags(),
 		),
 
 		Schema: map[string]*schema.Schema{
@@ -87,7 +88,6 @@ func ResourceLoadBalancerV3() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-
 			"availability_zone": {
 				Type:     schema.TypeSet,
 				Required: true,
@@ -96,20 +96,23 @@ func ResourceLoadBalancerV3() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
-
+			"loadbalancer_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
 			"cross_vpc_backend": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Computed: true,
 			},
-
 			"vpc_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
-
 			"ipv4_subnet_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -126,19 +129,16 @@ func ResourceLoadBalancerV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-
 			"ipv4_address": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-
 			"ipv6_address": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-
 			"ipv4_eip_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -148,7 +148,6 @@ func ResourceLoadBalancerV3() *schema.Resource {
 					"iptype", "bandwidth_charge_mode", "bandwidth_size", "sharetype", "bandwidth_id",
 				},
 			},
-
 			"iptype": {
 				Type:          schema.TypeString,
 				Optional:      true,
@@ -156,7 +155,6 @@ func ResourceLoadBalancerV3() *schema.Resource {
 				ForceNew:      true,
 				ConflictsWith: []string{"ipv4_eip_id"},
 			},
-
 			"bandwidth_charge_mode": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -167,7 +165,6 @@ func ResourceLoadBalancerV3() *schema.Resource {
 				},
 				ConflictsWith: []string{"ipv4_eip_id", "bandwidth_id"},
 			},
-
 			"sharetype": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -178,7 +175,6 @@ func ResourceLoadBalancerV3() *schema.Resource {
 				},
 				ConflictsWith: []string{"ipv4_eip_id"},
 			},
-
 			"bandwidth_size": {
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -189,7 +185,6 @@ func ResourceLoadBalancerV3() *schema.Resource {
 				},
 				ConflictsWith: []string{"ipv4_eip_id", "bandwidth_id"},
 			},
-
 			"bandwidth_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -200,83 +195,65 @@ func ResourceLoadBalancerV3() *schema.Resource {
 				},
 				ConflictsWith: []string{"ipv4_eip_id", "bandwidth_size", "bandwidth_charge_mode"},
 			},
-
 			"l4_flavor_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-
 			"l7_flavor_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-
 			"backend_subnets": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-
 			"protection_status": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-
 			"protection_reason": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-
 			"force_delete": {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
-
 			"tags": common.TagsSchema(),
-
 			// charge info: charging_mode, period_unit, period, auto_renew, auto_pay
 			"charging_mode": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"prePaid", "postPaid",
-				}, false),
 			},
 			"period_unit": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				RequiredWith: []string{"period"},
-				ValidateFunc: validation.StringInSlice([]string{
-					"month", "year",
-				}, false),
 			},
 			"period": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				RequiredWith: []string{"period_unit"},
-				ValidateFunc: validation.IntBetween(1, 9),
 			},
 			"auto_renew": common.SchemaAutoRenewUpdatable(nil),
 			"auto_pay":   common.SchemaAutoPay(nil),
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Computed: true,
 			},
 			"deletion_protection_enable": {
@@ -308,18 +285,35 @@ func ResourceLoadBalancerV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-
 			"ipv4_eip": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-
 			"ipv6_eip": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-
 			"ipv6_eip_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"elb_virsubnet_type": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"frozen_scene": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"operating_status": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"public_border_group": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"gw_flavor_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -368,9 +362,10 @@ func resourceLoadBalancerV3Create(ctx context.Context, d *schema.ResourceData, m
 		L7Flavor:                 d.Get("l7_flavor_id").(string),
 		ProtectionStatus:         d.Get("protection_status").(string),
 		ProtectionReason:         d.Get("protection_reason").(string),
+		LoadBalancerType:         d.Get("loadbalancer_type").(string),
 		Name:                     d.Get("name").(string),
 		Description:              d.Get("description").(string),
-		EnterpriseProjectID:      common.GetEnterpriseProjectID(d, cfg),
+		EnterpriseProjectID:      cfg.GetEnterpriseProjectID(d),
 		DeletionProtectionEnable: &deleteProtectionEnable,
 		WafFailureAction:         d.Get("waf_failure_action").(string),
 	}
@@ -500,6 +495,7 @@ func resourceLoadBalancerV3Read(_ context.Context, d *schema.ResourceData, meta 
 
 	mErr := multierror.Append(nil,
 		d.Set("name", lb.Name),
+		d.Set("loadbalancer_type", lb.LoadBalancerType),
 		d.Set("description", lb.Description),
 		d.Set("availability_zone", lb.AvailabilityZoneList),
 		d.Set("cross_vpc_backend", lb.IpTargetEnable),
@@ -511,6 +507,7 @@ func resourceLoadBalancerV3Read(_ context.Context, d *schema.ResourceData, meta 
 		d.Set("ipv6_address", lb.Ipv6VipAddress),
 		d.Set("l4_flavor_id", lb.L4FlavorID),
 		d.Set("l7_flavor_id", lb.L7FlavorID),
+		d.Set("gw_flavor_id", lb.GwFlavorId),
 		d.Set("region", cfg.GetRegion(d)),
 		d.Set("enterprise_project_id", lb.EnterpriseProjectID),
 		d.Set("autoscaling_enabled", lb.AutoScaling.Enable),
@@ -519,6 +516,10 @@ func resourceLoadBalancerV3Read(_ context.Context, d *schema.ResourceData, meta 
 		d.Set("protection_status", lb.ProtectionStatus),
 		d.Set("protection_reason", lb.ProtectionReason),
 		d.Set("charge_mode", lb.ChargeMode),
+		d.Set("elb_virsubnet_type", lb.ElbVirsubnetType),
+		d.Set("frozen_scene", lb.FrozenScene),
+		d.Set("operating_status", lb.OperatingStatus),
+		d.Set("public_border_group", lb.PublicBorderGroup),
 		d.Set("guaranteed", lb.Guaranteed),
 		d.Set("created_at", lb.CreatedAt),
 		d.Set("updated_at", lb.UpdatedAt),
@@ -567,11 +568,12 @@ func resourceLoadBalancerV3Read(_ context.Context, d *schema.ResourceData, meta 
 
 func resourceLoadBalancerV3Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
+	region := cfg.GetRegion(d)
+	elbClient, err := cfg.ElbV3Client(region)
 	if err != nil {
 		return diag.Errorf("error creating ELB client: %s", err)
 	}
-	bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
+	bssClient, err := cfg.BssV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating BSS V2 client: %s", err)
 	}
@@ -644,7 +646,7 @@ func resourceLoadBalancerV3Update(ctx context.Context, d *schema.ResourceData, m
 
 	// update tags
 	if d.HasChange("tags") {
-		elbV2Client, err := cfg.ElbV2Client(cfg.GetRegion(d))
+		elbV2Client, err := cfg.ElbV2Client(region)
 		if err != nil {
 			return diag.Errorf("error creating ELB 2.0 client: %s", err)
 		}
@@ -658,6 +660,18 @@ func resourceLoadBalancerV3Update(ctx context.Context, d *schema.ResourceData, m
 	if d.HasChange("availability_zone") {
 		if err = updateAvailabilityZone(ctx, cfg, elbClient, d); err != nil {
 			return diag.Errorf("error updating availability zone of LoadBalancer:%s, err:%s", d.Id(), err)
+		}
+	}
+
+	if d.HasChange("enterprise_project_id") {
+		migrateOpts := config.MigrateResourceOpts{
+			ResourceId:   d.Id(),
+			ResourceType: "loadbalancers",
+			RegionId:     region,
+			ProjectId:    cfg.GetProjectID(region),
+		}
+		if err = cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
@@ -791,6 +805,11 @@ func buildUpdateLoadBalancerBodyParams(d *schema.ResourceData) loadbalancers.Upd
 	if v, ok := d.GetOk("ipv6_network_id"); ok {
 		v6SubnetID := v.(string)
 		updateOpts.IpV6VipSubnetID = &v6SubnetID
+	}
+	// if loadbalancer type is gateway, then if ipv4_subnet_id has not been changed, the value should be nil
+	// set loadbalancer_type to gateway, so that ipv4_subnet_id can be removed from the request body
+	if d.Get("loadbalancer_type").(string) == "gateway" && !d.HasChange("ipv4_subnet_id") {
+		updateOpts.LoadBalancerType = d.Get("loadbalancer_type").(string)
 	}
 
 	if d.HasChange("autoscaling_enabled") {

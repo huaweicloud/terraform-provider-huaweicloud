@@ -102,7 +102,7 @@ data "huaweicloud_apig_api_associated_acl_policies" "test" {
 
 # Filter by ID
 locals {
-  policy_id = data.huaweicloud_apig_api_associated_acl_policies.test.policies[0].id
+  policy_id = huaweicloud_apig_acl_policy.test.id
 }
 
 data "huaweicloud_apig_api_associated_acl_policies" "filter_by_id" {
@@ -128,7 +128,7 @@ output "is_id_filter_useful" {
 
 # Filter by name
 locals {
-  policy_name = data.huaweicloud_apig_api_associated_acl_policies.test.policies[0].name
+  policy_name = huaweicloud_apig_acl_policy.test.name
 }
 
 data "huaweicloud_apig_api_associated_acl_policies" "filter_by_name" {
@@ -180,7 +180,7 @@ output "is_name_not_found_filter_useful" {
 
 # Filter by type
 locals {
-  policy_type = data.huaweicloud_apig_api_associated_acl_policies.test.policies[0].type
+  policy_type = huaweicloud_apig_acl_policy.test.type
 }
 
 data "huaweicloud_apig_api_associated_acl_policies" "filter_by_type" {
@@ -206,7 +206,7 @@ output "is_type_filter_useful" {
 
 # Filter by env ID
 locals {
-  env_id = data.huaweicloud_apig_api_associated_acl_policies.test.policies[0].env_id
+  env_id = huaweicloud_apig_environment.test[0].id
 }
 
 data "huaweicloud_apig_api_associated_acl_policies" "filter_by_env_id" {
@@ -232,7 +232,7 @@ output "is_env_id_filter_useful" {
 
 # Filter by env name
 locals {
-  env_name = data.huaweicloud_apig_api_associated_acl_policies.test.policies[0].env_name
+  env_name = huaweicloud_apig_environment.test[0].name
 }
 
 data "huaweicloud_apig_api_associated_acl_policies" "filter_by_env_name" {
@@ -258,7 +258,7 @@ output "is_env_name_filter_useful" {
 
 # Filter by entity type
 locals {
-  entity_type = data.huaweicloud_apig_api_associated_acl_policies.test.policies[0].entity_type
+  entity_type = huaweicloud_apig_acl_policy.test.entity_type
 }
 
 data "huaweicloud_apig_api_associated_acl_policies" "filter_by_entity_type" {

@@ -1,0 +1,61 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_secmaster_baseline_check_results": {
+          "block": {
+            "attributes": {
+              "baseline_check_results": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The list of baseline check result.",
+                "computed": true
+              },
+              "condition": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "Specifies the condition expression.",
+                "optional": true
+              },
+              "from_date": {
+                "type": "string",
+                "description": "Specifies the start time of the baseline check.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "to_date": {
+                "type": "string",
+                "description": "Specifies the end time of the baseline check.",
+                "optional": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "Specifies the workspace ID.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

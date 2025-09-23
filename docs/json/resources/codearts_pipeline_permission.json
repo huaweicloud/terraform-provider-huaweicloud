@@ -1,0 +1,77 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_codearts_pipeline_permission": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "operation_authorize": {
+                "type": "bool",
+                "description": "Specifies whether the role has the permission to authorize.",
+                "optional": true
+              },
+              "operation_delete": {
+                "type": "bool",
+                "description": "Specifies whether the role has the permission to delete.",
+                "optional": true
+              },
+              "operation_execute": {
+                "type": "bool",
+                "description": "Specifies whether the role has the permission to execute.",
+                "optional": true
+              },
+              "operation_query": {
+                "type": "bool",
+                "description": "Specifies whether the role has the permission to query.",
+                "optional": true
+              },
+              "operation_update": {
+                "type": "bool",
+                "description": "Specifies whether the role has the permission to update.",
+                "optional": true
+              },
+              "pipeline_id": {
+                "type": "string",
+                "description": "Specifies the pipeline ID.",
+                "required": true
+              },
+              "project_id": {
+                "type": "string",
+                "description": "Specifies the CodeArts project ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "role_id": {
+                "type": "number",
+                "description": "Specifies the role ID.",
+                "optional": true
+              },
+              "role_name": {
+                "type": "string",
+                "description": "Indicates the role name.",
+                "computed": true
+              },
+              "user_id": {
+                "type": "string",
+                "description": "Specifies the user ID.",
+                "optional": true
+              },
+              "user_name": {
+                "type": "string",
+                "description": "Indicates the user name.",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

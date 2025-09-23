@@ -7,67 +7,61 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/live/v1/model"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/live"
 )
 
-func getDomainResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := conf.HcLiveV1Client(acceptance.HW_REGION_NAME)
+func getResourceDomainFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	region := acceptance.HW_REGION_NAME
+	client, err := cfg.NewServiceClient("live", region)
 	if err != nil {
-		return nil, fmt.Errorf("error creating Live v1 client: %s", err)
+		return nil, fmt.Errorf("error creating Live client: %s", err)
 	}
 
-	return client.ShowDomain(&model.ShowDomainRequest{Domain: &state.Primary.ID})
+	return live.GetDomain(client, state.Primary.ID)
 }
 
-func TestAccDomain_basic(t *testing.T) {
-	var obj model.CreateDomainMappingResponse
-
-	pushDomainName := fmt.Sprintf("%s.huaweicloud.com", acceptance.RandomAccResourceNameWithDash())
-	pullDomainName := fmt.Sprintf("%s.huaweicloud.com", acceptance.RandomAccResourceNameWithDash())
-	pushResourceName := "huaweicloud_live_domain.ingestDomain"
-	pullResourceName := "huaweicloud_live_domain.streamingDomain"
+func TestAccResourceDomain_basic(t *testing.T) {
+	var (
+		domainInfo         interface{}
+		ingestDomainName   = fmt.Sprintf("%s.huaweicloud.com", acceptance.RandomAccResourceNameWithDash())
+		ingestResourceName = "huaweicloud_live_domain.ingestDomain"
+	)
 
 	rc := acceptance.InitResourceCheck(
-		pushResourceName,
-		&obj,
-		getDomainResourceFunc,
+		ingestResourceName,
+		&domainInfo,
+		getResourceDomainFunc,
 	)
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testDomain_basic(pushDomainName, pullDomainName),
+				Config: testAccIngestDomain_basic(ingestDomainName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(pushResourceName, "name", pushDomainName),
-					resource.TestCheckResourceAttr(pushResourceName, "type", "push"),
-					resource.TestCheckResourceAttr(pushResourceName, "status", "on"),
-					resource.TestCheckResourceAttr(pullResourceName, "name", pullDomainName),
-					resource.TestCheckResourceAttr(pullResourceName, "type", "pull"),
-					resource.TestCheckResourceAttr(pullResourceName, "status", "on"),
-					resource.TestCheckResourceAttr(pullResourceName, "ingest_domain_name", pushDomainName),
+					resource.TestCheckResourceAttr(ingestResourceName, "name", ingestDomainName),
+					resource.TestCheckResourceAttr(ingestResourceName, "type", "push"),
+					resource.TestCheckResourceAttr(ingestResourceName, "status", "on"),
+					resource.TestCheckResourceAttr(ingestResourceName, "service_area", "mainland_china"),
+					resource.TestCheckResourceAttr(ingestResourceName, "is_ipv6", "true"),
+					resource.TestCheckResourceAttr(ingestResourceName, "enterprise_project_id", "0"),
 				),
 			},
 			{
-				Config: testDomain_basic_update(pushDomainName, pullDomainName),
+				Config: testAccIngestDomain_update(ingestDomainName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(pushResourceName, "name", pushDomainName),
-					resource.TestCheckResourceAttr(pushResourceName, "type", "push"),
-					resource.TestCheckResourceAttr(pushResourceName, "status", "on"),
-					resource.TestCheckResourceAttr(pullResourceName, "name", pullDomainName),
-					resource.TestCheckResourceAttr(pullResourceName, "type", "pull"),
-					resource.TestCheckResourceAttr(pullResourceName, "status", "off"),
-					resource.TestCheckResourceAttr(pullResourceName, "ingest_domain_name", ""),
+					resource.TestCheckResourceAttr(ingestResourceName, "is_ipv6", "false"),
 				),
 			},
 			{
-				ResourceName:      pullResourceName,
+				ResourceName:      ingestResourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -75,32 +69,120 @@ func TestAccDomain_basic(t *testing.T) {
 	})
 }
 
-func testDomain_basic(pushDomain, pullDomain string) string {
+func TestAccResourceDomain_streamDomain(t *testing.T) {
+	var (
+		domainInfo            interface{}
+		streamingDomainName   = fmt.Sprintf("%s.huaweicloud.com", acceptance.RandomAccResourceNameWithDash())
+		streamingResourceName = "huaweicloud_live_domain.streamingDomain"
+	)
+
+	rc := acceptance.InitResourceCheck(
+		streamingResourceName,
+		&domainInfo,
+		getResourceDomainFunc,
+	)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckLiveIngestDomainName(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStreamDomain_basic(streamingDomainName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(streamingResourceName, "name", streamingDomainName),
+					resource.TestCheckResourceAttr(streamingResourceName, "type", "pull"),
+					resource.TestCheckResourceAttr(streamingResourceName, "status", "on"),
+					resource.TestCheckResourceAttr(streamingResourceName, "is_ipv6", "true"),
+					resource.TestCheckResourceAttr(streamingResourceName, "service_area", "outside_mainland_china"),
+					resource.TestCheckResourceAttr(streamingResourceName, "enterprise_project_id", "0"),
+					resource.TestCheckResourceAttr(streamingResourceName, "ingest_domain_name", acceptance.HW_LIVE_INGEST_DOMAIN_NAME),
+				),
+			},
+			{
+				Config: testAccStreamDomain_update_1(streamingDomainName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(streamingResourceName, "is_ipv6", "false"),
+					resource.TestCheckResourceAttr(streamingResourceName, "ingest_domain_name", ""),
+				),
+			},
+			{
+				Config: testAccStreamDomain_update_2(streamingDomainName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(streamingResourceName, "status", "off"),
+				),
+			},
+			{
+				ResourceName:      streamingResourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccIngestDomain_basic(pushDomain string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_live_domain" "ingestDomain" {
-  name = "%s"
-  type = "push"
+  name                  = "%s"
+  type                  = "push"
+  service_area          = "mainland_china"
+  enterprise_project_id = "0"
+  is_ipv6               = true
+}
+`, pushDomain)
 }
 
-resource "huaweicloud_live_domain" "streamingDomain" {
-  name               = "%s"
-  type               = "pull"
-  ingest_domain_name = huaweicloud_live_domain.ingestDomain.name
-}
-`, pushDomain, pullDomain)
-}
-
-func testDomain_basic_update(pushDomain, pullDomain string) string {
+func testAccIngestDomain_update(pushDomain string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_live_domain" "ingestDomain" {
-  name = "%s"
-  type = "push"
+  name                  = "%s"
+  type                  = "push"
+  service_area          = "mainland_china"
+  enterprise_project_id = "0"
+  is_ipv6               = false
+}
+`, pushDomain)
 }
 
+func testAccStreamDomain_basic(streamDomain string) string {
+	return fmt.Sprintf(`
 resource "huaweicloud_live_domain" "streamingDomain" {
-  name   = "%s"
-  type   = "pull"
-  status = "off"
+  name                  = "%[1]s"
+  type                  = "pull"
+  ingest_domain_name    = "%[2]s"
+  service_area          = "outside_mainland_china"
+  enterprise_project_id = "0"
+  is_ipv6               = true
 }
-`, pushDomain, pullDomain)
+`, streamDomain, acceptance.HW_LIVE_INGEST_DOMAIN_NAME)
+}
+
+func testAccStreamDomain_update_1(streamDomain string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_live_domain" "streamingDomain" {
+  name                  = "%s"
+  type                  = "pull"
+  service_area          = "outside_mainland_china"
+  enterprise_project_id = "0"
+  is_ipv6               = false
+}
+`, streamDomain)
+}
+
+func testAccStreamDomain_update_2(streamDomain string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_live_domain" "streamingDomain" {
+  name                  = "%s"
+  type                  = "pull"
+  status                = "off"
+  service_area          = "outside_mainland_china"
+  enterprise_project_id = "0"
+  is_ipv6               = false
+}
+`, streamDomain)
 }

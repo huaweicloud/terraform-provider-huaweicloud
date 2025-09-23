@@ -1,0 +1,301 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cce_autopilot_cluster": {
+          "block": {
+            "attributes": {
+              "alias": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "annotations": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
+              "az": {
+                "type": "string",
+                "computed": true
+              },
+              "category": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "custom_san": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
+              "delete_efs": {
+                "type": "string",
+                "optional": true
+              },
+              "delete_eni": {
+                "type": "string",
+                "optional": true
+              },
+              "delete_net": {
+                "type": "string",
+                "optional": true
+              },
+              "delete_obs": {
+                "type": "string",
+                "optional": true
+              },
+              "delete_sfs30": {
+                "type": "string",
+                "optional": true
+              },
+              "deletion_protection": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "eip_id": {
+                "type": "string",
+                "optional": true
+              },
+              "enable_autopilot": {
+                "type": "bool",
+                "optional": true,
+                "default": true
+              },
+              "enable_snat": {
+                "type": "bool",
+                "optional": true
+              },
+              "enable_swr_image_access": {
+                "type": "bool",
+                "optional": true
+              },
+              "flavor": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ipv6_enable": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "kube_proxy_mode": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "lts_reclaim_policy": {
+                "type": "string",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "platform_version": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "endpoints": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "type": "string",
+                            "url": "string"
+                          }
+                        ]
+                      ],
+                      "phase": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "computed": true
+              },
+              "version": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              }
+            },
+            "block_types": {
+              "authentication": {
+                "block": {
+                  "attributes": {
+                    "mode": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "configurations_override": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "block_types": {
+                    "configurations": {
+                      "block": {
+                        "attributes": {
+                          "name": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "value": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list"
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              },
+              "container_network": {
+                "block": {
+                  "attributes": {
+                    "mode": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "eni_network": {
+                "block": {
+                  "block_types": {
+                    "subnets": {
+                      "block": {
+                        "attributes": {
+                          "subnet_id": {
+                            "type": "string",
+                            "required": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "min_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "extend_param": {
+                "block": {
+                  "attributes": {
+                    "enterprise_project_id": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "host_network": {
+                "block": {
+                  "attributes": {
+                    "subnet": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "vpc": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "service_network": {
+                "block": {
+                  "attributes": {
+                    "ipv4_cidr": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "CCE",
+            "name": "Cloud Container Engine",
+            "catalog": "Containers",
+            "name_cn": "云容器引擎",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

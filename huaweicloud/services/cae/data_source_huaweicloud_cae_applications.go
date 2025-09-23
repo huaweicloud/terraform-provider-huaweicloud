@@ -39,7 +39,11 @@ func DataSourceApplications() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-
+			"enterprise_project_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The ID of the enterprise project to which the applications belong.",
+			},
 			// attributes
 			"applications": {
 				Type:     schema.TypeList,
@@ -94,7 +98,7 @@ func dataSourceApplicationRead(_ context.Context, d *schema.ResourceData, meta i
 	listApplicationsPath = strings.ReplaceAll(listApplicationsPath, "{project_id}", listApplicationsClient.ProjectID)
 	listApplicationOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders:      map[string]string{"X-Environment-ID": d.Get("environment_id").(string)},
+		MoreHeaders:      buildRequestMoreHeaders(d.Get("environment_id").(string), cfg.GetEnterpriseProjectID(d)),
 	}
 
 	listApplicationsResp, err := listApplicationsClient.Request("GET", listApplicationsPath, &listApplicationOpt)

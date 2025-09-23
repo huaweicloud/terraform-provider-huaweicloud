@@ -324,10 +324,8 @@ func waitForVBSPolicyDelete(policyClient *golangsdk.ServiceClient, policyID stri
 				logp.Printf("[INFO] Successfully deleted Backup Policy %s", policyID)
 				return r, "deleted", nil
 			}
-			if errCode, ok := err.(golangsdk.ErrUnexpectedResponseCode); ok {
-				if errCode.Actual == 409 {
-					return r, "available", nil
-				}
+			if _, ok := err.(golangsdk.ErrDefault409); ok {
+				return r, "available", nil
 			}
 			return r, "available", err
 		}

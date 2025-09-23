@@ -1,0 +1,104 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cciv2_persistent_volume_claims": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "namespace": {
+                "type": "string",
+                "required": true
+              },
+              "pvcs": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "access_modes": [
+                        "list",
+                        "string"
+                      ],
+                      "annotations": [
+                        "map",
+                        "string"
+                      ],
+                      "creation_timestamp": "string",
+                      "finalizers": [
+                        "list",
+                        "string"
+                      ],
+                      "labels": [
+                        "map",
+                        "string"
+                      ],
+                      "name": "string",
+                      "namespace": "string",
+                      "resource_version": "string",
+                      "resources": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "limits": [
+                              "map",
+                              "string"
+                            ],
+                            "requests": [
+                              "map",
+                              "string"
+                            ]
+                          }
+                        ]
+                      ],
+                      "selector": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "match_expressions": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "key": "string",
+                                  "operator": "string",
+                                  "values": [
+                                    "list",
+                                    "string"
+                                  ]
+                                }
+                              ]
+                            ],
+                            "match_labels": [
+                              "map",
+                              "string"
+                            ]
+                          }
+                        ]
+                      ],
+                      "status": "string",
+                      "storage_class_name": "string",
+                      "uid": "string",
+                      "valume_name": "string",
+                      "volume_mode": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

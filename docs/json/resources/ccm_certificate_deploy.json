@@ -1,0 +1,84 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_ccm_certificate_deploy": {
+          "block": {
+            "attributes": {
+              "certificate_id": {
+                "type": "string",
+                "description": "The CCM SSL certificate ID to be deployed.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "project_name": {
+                "type": "string",
+                "description": "The name of the project where the deployed resources are located.",
+                "optional": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region in which to create the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "service_name": {
+                "type": "string",
+                "description": "The target service to which the certificate is pushed.",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "resources": {
+                "block": {
+                  "attributes": {
+                    "domain_name": {
+                      "type": "string",
+                      "description": "The domain name to be deployed.",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "enterprise_project_id": {
+                      "type": "string",
+                      "description": "The enterprise project ID to which the resources to be deployed.",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "description": "The resource ID.",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The resource type.",
+                      "optional": true,
+                      "forcenew": true
+                    }
+                  },
+                  "description": "The list of resources to be deployed."
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "CCM",
+            "name": "Cloud Certificate & Manager",
+            "catalog": "Security & Compliance",
+            "name_cn": "云证书与管理服务",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,15 @@
+info:
+    version: ""
+    title: resource_huaweicloud_fgs_function_tracing_configuration
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: FunctionGraph
+paths:
+    /v2/{project_id}/fgs/functions/{function_urn}/tracing:
+        GET:
+            tag: FunctionGraph
+        PUT:
+            tag: FunctionGraph

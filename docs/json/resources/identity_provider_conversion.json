@@ -28,7 +28,7 @@
                           },
                           "username": {
                             "type": "string",
-                            "required": true
+                            "optional": true
                           }
                         }
                       },
@@ -56,14 +56,12 @@
                         }
                       },
                       "nesting_mode": "list",
-                      "min_items": 1,
-                      "max_items": 10
+                      "min_items": 1
                     }
                   }
                 },
                 "nesting_mode": "list",
-                "min_items": 1,
-                "max_items": 10
+                "min_items": 1
               }
             }
           },

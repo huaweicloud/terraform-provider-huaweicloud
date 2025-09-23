@@ -36,6 +36,17 @@ func TestAccDatasourceAccelerators_basic(t *testing.T) {
 				Config: testAccDataSourceAccelerators_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
+					resource.TestCheckResourceAttrSet(dataSourceName, "accelerators.#"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "accelerators.0.created_at"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "accelerators.0.description"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "accelerators.0.enterprise_project_id"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "accelerators.0.id"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "accelerators.0.ip_sets.#"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "accelerators.0.name"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "accelerators.0.status"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "accelerators.0.tags.%"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "accelerators.0.updated_at"),
+
 					dcByName.CheckResourceExists(),
 					resource.TestCheckOutput("name_filter_is_useful", "true"),
 
@@ -81,6 +92,7 @@ data "huaweicloud_ga_accelerators" "test" {
   ]  
 }
 
+# Filter by name
 locals {
   name = data.huaweicloud_ga_accelerators.test.accelerators[0].name
 }
@@ -99,6 +111,7 @@ output "name_filter_is_useful" {
   value = alltrue(local.name_filter_result) && length(local.name_filter_result) > 0
 }
 
+# Filter by accelerator_id
 locals {
   accelerator_id = data.huaweicloud_ga_accelerators.test.accelerators[0].id
 }
@@ -117,6 +130,7 @@ output "accelerator_id_filter_is_useful" {
   value = alltrue(local.accelerator_id_filter_result) && length(local.accelerator_id_filter_result) > 0
 }
 
+# Filter by status
 locals {
   status = data.huaweicloud_ga_accelerators.test.accelerators[0].status
 }
@@ -135,6 +149,7 @@ output "status_filter_is_useful" {
   value = alltrue(local.status_filter_result) && length(local.status_filter_result) > 0
 }
 
+# Filter by enterprise_project_id
 locals {
   enterprise_project_id = data.huaweicloud_ga_accelerators.test.accelerators[0].enterprise_project_id
 }

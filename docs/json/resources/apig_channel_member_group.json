@@ -1,0 +1,100 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_apig_channel_member_group": {
+          "block": {
+            "attributes": {
+              "create_time": {
+                "type": "string",
+                "description": "The creation time of the member group, in RFC3339 format.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the member group.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the dedicated instance to which the member group belongs.",
+                "required": true
+              },
+              "microservice_port": {
+                "type": "number",
+                "description": "The port number of the member group.",
+                "optional": true
+              },
+              "microservice_version": {
+                "type": "string",
+                "description": "The version of the member group.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the member group.",
+                "required": true
+              },
+              "reference_vpc_channel_id": {
+                "type": "string",
+                "description": "The ID of the reference load balance channel.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the member group is located.",
+                "computed": true
+              },
+              "update_time": {
+                "type": "string",
+                "description": "The update time of the member group, in RFC3339 format.",
+                "computed": true
+              },
+              "vpc_channel_id": {
+                "type": "string",
+                "description": "The ID of the VPC channel.",
+                "required": true
+              },
+              "weight": {
+                "type": "number",
+                "description": "The weight value of the member group.",
+                "optional": true
+              }
+            },
+            "block_types": {
+              "microservice_labels": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "description": "The name of the microservice label.",
+                      "required": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "description": "The value of the microservice label.",
+                      "required": true
+                    }
+                  },
+                  "description": "The microservice labels of the member group."
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

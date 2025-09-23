@@ -3,16 +3,18 @@ package iotda
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"regexp"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -43,9 +45,8 @@ func ResourceDeviceLinkageRule() *schema.Resource {
 			},
 
 			"name": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: validation.StringLenBetween(1, 128),
+				Type:     schema.TypeString,
+				Required: true,
 			},
 
 			"space_id": {
@@ -63,11 +64,6 @@ func ResourceDeviceLinkageRule() *schema.Resource {
 						"type": {
 							Type:     schema.TypeString,
 							Required: true,
-							ValidateFunc: validation.StringInSlice([]string{
-								"DEVICE_DATA",
-								"SIMPLE_TIMER",
-								"DAILY_TIMER",
-							}, false),
 						},
 
 						"device_data_condition": {
@@ -95,15 +91,17 @@ func ResourceDeviceLinkageRule() *schema.Resource {
 									"operator": {
 										Type:     schema.TypeString,
 										Required: true,
-										ValidateFunc: validation.StringInSlice(
-											[]string{">", "<", ">=", "<=", "=", "between"}, false),
 									},
 
 									"value": {
 										Type:     schema.TypeString,
-										Required: true,
+										Optional: true,
 									},
-
+									"in_values": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Elem:     &schema.Schema{Type: schema.TypeString},
+									},
 									"trigger_strategy": {
 										Type:         schema.TypeString,
 										Optional:     true,
@@ -168,6 +166,38 @@ func ResourceDeviceLinkageRule() *schema.Resource {
 								},
 							},
 						},
+						"device_linkage_status_condition": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Computed: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"device_id": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
+									// When both `device_id` and `product_id` are set simultaneously, the API does not
+									// return the `product_id` field, so there is no need to add the Computed attribute.
+									"product_id": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
+									"status_list": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Computed: true,
+										Elem:     &schema.Schema{Type: schema.TypeString},
+									},
+									"duration": {
+										Type:     schema.TypeInt,
+										Optional: true,
+										Computed: true,
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -214,6 +244,18 @@ func ResourceDeviceLinkageRule() *schema.Resource {
 										Type:     schema.TypeString,
 										Required: true,
 									},
+									"buffer_timeout": {
+										Type:     schema.TypeInt,
+										Optional: true,
+									},
+									"response_timeout": {
+										Type:     schema.TypeInt,
+										Optional: true,
+									},
+									"mode": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
 								},
 							},
 						},
@@ -246,11 +288,15 @@ func ResourceDeviceLinkageRule() *schema.Resource {
 									},
 
 									"message_content": {
-										Type:         schema.TypeString,
-										Required:     true,
-										ValidateFunc: validation.StringLenBetween(0, 256),
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
 									},
-
+									"message_template_name": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Computed: true,
+									},
 									"project_id": {
 										Type:     schema.TypeString,
 										Optional: true,
@@ -291,11 +337,13 @@ func ResourceDeviceLinkageRule() *schema.Resource {
 											"critical",
 										}, false),
 									},
-
+									"dimension": {
+										Type:     schema.TypeString,
+										Optional: true,
+									},
 									"description": {
-										Type:         schema.TypeString,
-										Optional:     true,
-										ValidateFunc: validation.StringLenBetween(0, 256),
+										Type:     schema.TypeString,
+										Optional: true,
 									},
 								},
 							},
@@ -312,9 +360,8 @@ func ResourceDeviceLinkageRule() *schema.Resource {
 			},
 
 			"description": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringLenBetween(0, 256),
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 
 			"enabled": {
@@ -355,100 +402,570 @@ func ResourceDeviceLinkageRule() *schema.Resource {
 	}
 }
 
-func ResourceDeviceLinkageRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	region := c.GetRegion(d)
-	isDerived := WithDerivedAuth(c, region)
-	client, err := c.HcIoTdaV5Client(region, isDerived)
-	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+func buildTriggerDeviceDataBodyParams(triggerMap map[string]interface{}, triggerType string) map[string]interface{} {
+	return map[string]interface{}{
+		"type": triggerType,
+		"device_property_condition": map[string]interface{}{
+			"device_id":  utils.ValueIgnoreEmpty(triggerMap["device_id"]),
+			"product_id": utils.ValueIgnoreEmpty(triggerMap["product_id"]),
+			"filters": []map[string]interface{}{
+				{
+					"path":      triggerMap["path"],
+					"operator":  triggerMap["operator"],
+					"value":     utils.ValueIgnoreEmpty(triggerMap["value"]),
+					"in_values": triggerMap["in_values"],
+					"strategy": map[string]interface{}{
+						"trigger":          utils.ValueIgnoreEmpty(triggerMap["trigger_strategy"]),
+						"event_valid_time": triggerMap["data_validatiy_period"],
+					},
+				},
+			},
+		},
+	}
+}
+
+func buildTriggerSimpleTimerBodyParams(triggerMap map[string]interface{}, triggerType string) map[string]interface{} {
+	return map[string]interface{}{
+		"type": triggerType,
+		"simple_timer_condition": map[string]interface{}{
+			"start_time":      triggerMap["start_time"],
+			"repeat_interval": triggerMap["repeat_interval"].(int) * 60,
+			"repeat_count":    triggerMap["repeat_count"],
+		},
+	}
+}
+
+func buildTriggerDailyTimerBodyParams(triggerMap map[string]interface{}, triggerType string) map[string]interface{} {
+	return map[string]interface{}{
+		"type": triggerType,
+		"daily_timer_condition": map[string]interface{}{
+			"time":         triggerMap["start_time"],
+			"days_of_week": utils.ValueIgnoreEmpty(triggerMap["days_of_week"]),
+		},
+	}
+}
+
+func buildTriggerDeviceLinkageStatusBodyParams(triggerMap map[string]interface{}, triggerType string) map[string]interface{} {
+	return map[string]interface{}{
+		"type": triggerType,
+		"device_linkage_status_condition": map[string]interface{}{
+			"device_id":   utils.ValueIgnoreEmpty(triggerMap["device_id"]),
+			"product_id":  utils.ValueIgnoreEmpty(triggerMap["product_id"]),
+			"status_list": triggerMap["status_list"],
+			"duration":    utils.ValueIgnoreEmpty(triggerMap["duration"]),
+		},
+	}
+}
+
+func buildLinkageRuleTriggersParams(d *schema.ResourceData) ([]map[string]interface{}, error) {
+	rawArray := d.Get("triggers").(*schema.Set).List()
+	rst := make([]map[string]interface{}, 0, len(rawArray))
+	for _, v := range rawArray {
+		rawMap := v.(map[string]interface{})
+		triggerType := rawMap["type"].(string)
+
+		switch triggerType {
+		case "DEVICE_DATA":
+			triggerArray := rawMap["device_data_condition"].([]interface{})
+			if len(triggerArray) == 0 {
+				return nil, errors.New("device_data_condition is Required when the trigger type is DEVICE_DATA")
+			}
+			rst = append(rst, buildTriggerDeviceDataBodyParams(triggerArray[0].(map[string]interface{}), triggerType))
+		case "SIMPLE_TIMER":
+			triggerArray := rawMap["simple_timer_condition"].([]interface{})
+			if len(triggerArray) == 0 {
+				return nil, errors.New("simple_timer_condition is Required when the target type is SIMPLE_TIMER")
+			}
+			rst = append(rst, buildTriggerSimpleTimerBodyParams(triggerArray[0].(map[string]interface{}), triggerType))
+		case "DAILY_TIMER":
+			triggerArray := rawMap["daily_timer_condition"].([]interface{})
+			if len(triggerArray) == 0 {
+				return nil, errors.New("daily_timer_condition is Required when the target type is DAILY_TIMER")
+			}
+			rst = append(rst, buildTriggerDailyTimerBodyParams(triggerArray[0].(map[string]interface{}), triggerType))
+		case "DEVICE_LINKAGE_STATUS":
+			triggerArray := rawMap["device_linkage_status_condition"].([]interface{})
+			if len(triggerArray) == 0 {
+				return nil, errors.New("device_linkage_status_condition is Required when the target type is DEVICE_LINKAGE_STATUS")
+			}
+			rst = append(rst, buildTriggerDeviceLinkageStatusBodyParams(triggerArray[0].(map[string]interface{}), triggerType))
+		default:
+			return nil, fmt.Errorf("the trigger type (%s) is not support", triggerType)
+		}
 	}
 
-	projectId := c.RegionProjectIDMap[region]
-	rule, err := buildDeviceLinkageRuleParams(d, projectId)
+	return rst, nil
+}
+
+func buildActionDeviceCmdBodyParams(actionMap map[string]interface{}, actionType string) map[string]interface{} {
+	return map[string]interface{}{
+		"type": actionType,
+		"device_command": map[string]interface{}{
+			"device_id": actionMap["device_id"],
+			"cmd": map[string]interface{}{
+				"command_name":     actionMap["command_name"],
+				"service_id":       actionMap["service_id"],
+				"command_body":     actionMap["command_body"],
+				"buffer_timeout":   utils.ValueIgnoreEmpty(actionMap["buffer_timeout"]),
+				"response_timeout": utils.ValueIgnoreEmpty(actionMap["response_timeout"]),
+				"mode":             utils.ValueIgnoreEmpty(actionMap["mode"]),
+			},
+		},
+	}
+}
+
+func buildActionSmnForwardingProjectIDParam(actionMap map[string]interface{}, projectID string) string {
+	rawProjectID := actionMap["project_id"].(string)
+	if rawProjectID == "" {
+		rawProjectID = projectID
+	}
+
+	return rawProjectID
+}
+
+func buildActionSmnForwardingBodyParams(actionMap map[string]interface{}, actionType, projectID string) map[string]interface{} {
+	return map[string]interface{}{
+		"type": actionType,
+		"smn_forwarding": map[string]interface{}{
+			"region_name":           actionMap["region"],
+			"project_id":            buildActionSmnForwardingProjectIDParam(actionMap, projectID),
+			"theme_name":            actionMap["topic_name"],
+			"topic_urn":             actionMap["topic_urn"],
+			"message_title":         actionMap["message_title"],
+			"message_content":       utils.ValueIgnoreEmpty(actionMap["message_content"]),
+			"message_template_name": utils.ValueIgnoreEmpty(actionMap["message_template_name"]),
+		},
+	}
+}
+
+func buildActionDeviceAlarmBodyParams(actionMap map[string]interface{}, actionType string) map[string]interface{} {
+	return map[string]interface{}{
+		"type": actionType,
+		"device_alarm": map[string]interface{}{
+			"name":         actionMap["name"],
+			"alarm_status": actionMap["type"],
+			"severity":     actionMap["severity"],
+			"dimension":    utils.ValueIgnoreEmpty(actionMap["dimension"]),
+			"description":  utils.ValueIgnoreEmpty(actionMap["description"]),
+		},
+	}
+}
+
+func buildLinkageRuleActionsParams(d *schema.ResourceData, projectID string) ([]map[string]interface{}, error) {
+	rawArray := d.Get("actions").(*schema.Set).List()
+	rst := make([]map[string]interface{}, 0, len(rawArray))
+	for _, v := range rawArray {
+		rawMap := v.(map[string]interface{})
+		actionType := rawMap["type"].(string)
+		switch actionType {
+		case "DEVICE_CMD":
+			actionArray := rawMap["device_command"].([]interface{})
+			if len(actionArray) == 0 {
+				return nil, errors.New("device_command is Required when the trigger type is DEVICE_CMD")
+			}
+			rst = append(rst, buildActionDeviceCmdBodyParams(actionArray[0].(map[string]interface{}), actionType))
+		case "SMN_FORWARDING":
+			actionArray := rawMap["smn_forwarding"].([]interface{})
+			if len(actionArray) == 0 {
+				return nil, errors.New("smn_forwarding is Required when the target type is SMN_FORWARDING")
+			}
+			rst = append(rst, buildActionSmnForwardingBodyParams(actionArray[0].(map[string]interface{}), actionType, projectID))
+		case "DEVICE_ALARM":
+			actionArray := rawMap["device_alarm"].([]interface{})
+			if len(actionArray) == 0 {
+				return nil, errors.New("device_alarm is Required when the target type is DEVICE_ALARM")
+			}
+			rst = append(rst, buildActionDeviceAlarmBodyParams(actionArray[0].(map[string]interface{}), actionType))
+		default:
+			return nil, fmt.Errorf("the action type= %s is not support", actionType)
+		}
+	}
+	return rst, nil
+}
+
+func buildLinkageRuleStatusParam(d *schema.ResourceData) string {
+	if d.Get("enabled").(bool) {
+		return "active"
+	}
+
+	return "inactive"
+}
+
+func buildLinkageRuleConditionTimeRangeParams(d *schema.ResourceData) map[string]interface{} {
+	rawArray := d.Get("effective_period").([]interface{})
+	if len(rawArray) != 1 {
+		return nil
+	}
+
+	rawMap := rawArray[0].(map[string]interface{})
+	return map[string]interface{}{
+		"start_time":   rawMap["start_time"],
+		"end_time":     rawMap["end_time"],
+		"days_of_week": utils.ValueIgnoreEmpty(rawMap["days_of_week"]),
+	}
+}
+
+func buildLinkageRuleBodyParams(d *schema.ResourceData, conditions, actions []map[string]interface{}) map[string]interface{} {
+	return map[string]interface{}{
+		"name":        d.Get("name"),
+		"description": utils.ValueIgnoreEmpty(d.Get("description")),
+		"rule_type":   "DEVICE_LINKAGE",
+		"status":      buildLinkageRuleStatusParam(d),
+		"app_id":      utils.ValueIgnoreEmpty(d.Get("space_id")),
+		"condition_group": map[string]interface{}{
+			"logic":      d.Get("trigger_logic"),
+			"time_range": buildLinkageRuleConditionTimeRangeParams(d),
+			"conditions": conditions,
+		},
+		"actions": actions,
+	}
+}
+
+func ResourceDeviceLinkageRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v5/iot/{project_id}/rules"
+		product = "iotda"
+	)
+
+	isDerived := WithDerivedAuth(cfg, region)
+	client, err := cfg.NewServiceClientWithDerivedAuth(product, region, isDerived)
+	if err != nil {
+		return diag.Errorf("error creating IoTDA client: %s", err)
+	}
+
+	conditions, err := buildLinkageRuleTriggersParams(d)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	log.Printf("[DEBUG] Create IoTDA device linkage rule params: %#v", rule)
 
-	resp, err := client.CreateRule(&model.CreateRuleRequest{Body: rule})
+	actions, err := buildLinkageRuleActionsParams(d, client.ProjectID)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildLinkageRuleBodyParams(d, conditions, actions)),
+	}
+
+	resp, err := client.Request("POST", requestPath, &requestOpt)
 	if err != nil {
 		return diag.Errorf("error creating IoTDA device linkage rule: %s", err)
 	}
 
-	if resp.RuleId == nil {
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	ruleID := utils.PathSearch("rule_id", respBody, "").(string)
+	if ruleID == "" {
 		return diag.Errorf("error creating IoTDA device linkage rule: ID is not found in API response")
 	}
 
-	d.SetId(*resp.RuleId)
+	d.SetId(ruleID)
 	return ResourceDeviceLinkageRuleRead(ctx, d, meta)
 }
 
-func ResourceDeviceLinkageRuleRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	region := c.GetRegion(d)
-	isDerived := WithDerivedAuth(c, region)
-	client, err := c.HcIoTdaV5Client(region, isDerived)
-	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+func flattenDeviceDataAttribute(respBody interface{}, conditionType string, filters []interface{}) map[string]interface{} {
+	return map[string]interface{}{
+		"type": conditionType,
+		"device_data_condition": []interface{}{
+			map[string]interface{}{
+				"device_id":             utils.PathSearch("device_property_condition.device_id", respBody, nil),
+				"product_id":            utils.PathSearch("device_property_condition.product_id", respBody, nil),
+				"path":                  utils.PathSearch("[0]|path", filters, nil),
+				"operator":              utils.PathSearch("[0]|operator", filters, nil),
+				"value":                 utils.PathSearch("[0]|value", filters, nil),
+				"in_values":             utils.PathSearch("[0]|in_values", filters, nil),
+				"trigger_strategy":      utils.PathSearch("[0]|strategy.trigger", filters, nil),
+				"data_validatiy_period": utils.PathSearch("[0]|strategy.event_valid_time", filters, nil),
+			},
+		},
+	}
+}
+
+func flattenSimpleTimerAttribute(condition interface{}, conditionType string) map[string]interface{} {
+	return map[string]interface{}{
+		"type": conditionType,
+		"simple_timer_condition": []interface{}{
+			map[string]interface{}{
+				"start_time":      utils.PathSearch("start_time", condition, nil),
+				"repeat_interval": utils.PathSearch("repeat_interval", condition, float64(0)).(float64) / 60,
+				"repeat_count":    utils.PathSearch("repeat_count", condition, nil),
+			},
+		},
+	}
+}
+
+func flattenDailyTimerAttribute(condition interface{}, conditionType string) map[string]interface{} {
+	return map[string]interface{}{
+		"type": conditionType,
+		"daily_timer_condition": []interface{}{
+			map[string]interface{}{
+				"start_time":   utils.PathSearch("time", condition, nil),
+				"days_of_week": utils.PathSearch("days_of_week", condition, nil),
+			},
+		},
+	}
+}
+
+func flattenDeviceLinkageStatusAttribute(condition interface{}, conditionType string) map[string]interface{} {
+	return map[string]interface{}{
+		"type": conditionType,
+		"device_linkage_status_condition": []interface{}{
+			map[string]interface{}{
+				"device_id":   utils.PathSearch("device_id", condition, nil),
+				"product_id":  utils.PathSearch("product_id", condition, nil),
+				"status_list": utils.PathSearch("status_list", condition, nil),
+				"duration":    utils.PathSearch("duration", condition, nil),
+			},
+		},
+	}
+}
+
+func flattenTriggerAttributes(respBody interface{}) []interface{} {
+	conditions := utils.PathSearch("condition_group.conditions", respBody, make([]interface{}, 0)).([]interface{})
+	rst := make([]interface{}, 0, len(conditions))
+	for _, v := range conditions {
+		conditionType := utils.PathSearch("type", v, "").(string)
+		switch conditionType {
+		case "DEVICE_DATA":
+			filters := utils.PathSearch("device_property_condition.filters", v, make([]interface{}, 0)).([]interface{})
+			if len(filters) == 0 {
+				continue
+			}
+			rst = append(rst, flattenDeviceDataAttribute(v, conditionType, filters))
+		case "SIMPLE_TIMER":
+			condition := utils.PathSearch("simple_timer_condition", v, nil)
+			if condition == nil {
+				continue
+			}
+			rst = append(rst, flattenSimpleTimerAttribute(condition, conditionType))
+		case "DAILY_TIMER":
+			condition := utils.PathSearch("daily_timer_condition", v, nil)
+			if condition == nil {
+				continue
+			}
+			rst = append(rst, flattenDailyTimerAttribute(condition, conditionType))
+		case "DEVICE_LINKAGE_STATUS":
+			condition := utils.PathSearch("device_linkage_status_condition", v, nil)
+			if condition == nil {
+				continue
+			}
+			rst = append(rst, flattenDeviceLinkageStatusAttribute(condition, conditionType))
+		default:
+			log.Printf("[ERROR] API returned unknown trigger type= %s", conditionType)
+		}
 	}
 
-	response, err := client.ShowRule(&model.ShowRuleRequest{RuleId: d.Id()})
+	return rst
+}
+
+func flattenDeviceCommandAttribute(cmd interface{}, actionType string, actionResp interface{}) map[string]interface{} {
+	jsonStr, err := json.Marshal(utils.PathSearch("command_body", cmd, nil))
+	if err != nil {
+		log.Printf("[ERROR] Convert the command_body to string failed: %s", err)
+	}
+
+	return map[string]interface{}{
+		"type": actionType,
+		"device_command": []interface{}{
+			map[string]interface{}{
+				"service_id":       utils.PathSearch("service_id", cmd, nil),
+				"command_name":     utils.PathSearch("command_name", cmd, nil),
+				"command_body":     string(jsonStr),
+				"buffer_timeout":   utils.PathSearch("buffer_timeout", cmd, nil),
+				"response_timeout": utils.PathSearch("response_timeout", cmd, nil),
+				"mode":             utils.PathSearch("mode", cmd, nil),
+				"device_id":        utils.PathSearch("device_command.device_id", actionResp, nil),
+			},
+		},
+	}
+}
+
+func flattenSmnForwardingAttribute(smnForwarding interface{}, actionType string) map[string]interface{} {
+	return map[string]interface{}{
+		"type": actionType,
+		"smn_forwarding": []interface{}{
+			map[string]interface{}{
+				"region":                utils.PathSearch("region_name", smnForwarding, nil),
+				"project_id":            utils.PathSearch("project_id", smnForwarding, nil),
+				"topic_name":            utils.PathSearch("theme_name", smnForwarding, nil),
+				"topic_urn":             utils.PathSearch("topic_urn", smnForwarding, nil),
+				"message_content":       utils.PathSearch("message_content", smnForwarding, nil),
+				"message_template_name": utils.PathSearch("message_template_name", smnForwarding, nil),
+				"message_title":         utils.PathSearch("message_title", smnForwarding, nil),
+			},
+		},
+	}
+}
+
+func flattenDeviceAlarmAttribute(deviceAlarm interface{}, actionType string) map[string]interface{} {
+	return map[string]interface{}{
+		"type": actionType,
+		"device_alarm": []interface{}{
+			map[string]interface{}{
+				"name":        utils.PathSearch("name", deviceAlarm, nil),
+				"type":        utils.PathSearch("alarm_status", deviceAlarm, nil),
+				"severity":    utils.PathSearch("severity", deviceAlarm, nil),
+				"dimension":   utils.PathSearch("dimension", deviceAlarm, nil),
+				"description": utils.PathSearch("description", deviceAlarm, nil),
+			},
+		},
+	}
+}
+
+func flattenActionsAttributes(respBody interface{}) []interface{} {
+	actions := utils.PathSearch("actions", respBody, make([]interface{}, 0)).([]interface{})
+	rst := make([]interface{}, 0, len(actions))
+	for _, v := range actions {
+		actionType := utils.PathSearch("type", v, "").(string)
+		switch actionType {
+		case "DEVICE_CMD":
+			cmd := utils.PathSearch("device_command.cmd", v, nil)
+			if cmd == nil {
+				continue
+			}
+
+			rst = append(rst, flattenDeviceCommandAttribute(cmd, actionType, v))
+		case "SMN_FORWARDING":
+			smnForwarding := utils.PathSearch("smn_forwarding", v, nil)
+			if smnForwarding == nil {
+				continue
+			}
+			rst = append(rst, flattenSmnForwardingAttribute(smnForwarding, actionType))
+		case "DEVICE_ALARM":
+			deviceAlarm := utils.PathSearch("device_alarm", v, nil)
+			if deviceAlarm == nil {
+				continue
+			}
+			rst = append(rst, flattenDeviceAlarmAttribute(deviceAlarm, actionType))
+		default:
+			log.Printf("[ERROR] API returned unknown action type= %s", actionType)
+		}
+	}
+
+	return rst
+}
+
+func flattenEffectivePeriodAttribute(respBody interface{}) []interface{} {
+	timeRange := utils.PathSearch("condition_group.time_range", respBody, nil)
+	if timeRange == nil {
+		return nil
+	}
+
+	return []interface{}{
+		map[string]interface{}{
+			"start_time":   utils.PathSearch("start_time", timeRange, nil),
+			"end_time":     utils.PathSearch("end_time", timeRange, nil),
+			"days_of_week": utils.PathSearch("days_of_week", timeRange, nil),
+		},
+	}
+}
+
+func ResourceDeviceLinkageRuleRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v5/iot/{project_id}/rules/{rule_id}"
+		product = "iotda"
+	)
+
+	isDerived := WithDerivedAuth(cfg, region)
+	client, err := cfg.NewServiceClientWithDerivedAuth(product, region, isDerived)
+	if err != nil {
+		return diag.Errorf("error creating IoTDA client: %s", err)
+	}
+
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{rule_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	resp, err := client.Request("GET", requestPath, &requestOpt)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving IoTDA device linkage rule")
 	}
 
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	mErr := multierror.Append(
 		d.Set("region", region),
-		d.Set("name", response.Name),
-		d.Set("triggers", flattenLinkageTriggers(response.ConditionGroup)),
-		d.Set("actions", flattenLinkageActions(response.Actions)),
-		d.Set("trigger_logic", flattenLinkageLogic(response.ConditionGroup)),
-		d.Set("enabled", utils.StringValue(response.Status) == "active"),
-		d.Set("description", response.Description),
-		d.Set("space_id", response.AppId),
-		d.Set("effective_period", flattenLinkageEffectivePeriod(response.ConditionGroup)),
+		d.Set("name", utils.PathSearch("name", respBody, nil)),
+		d.Set("triggers", flattenTriggerAttributes(respBody)),
+		d.Set("actions", flattenActionsAttributes(respBody)),
+		d.Set("trigger_logic", utils.PathSearch("condition_group.logic", respBody, nil)),
+		d.Set("enabled", utils.PathSearch("status", respBody, "").(string) == "active"),
+		d.Set("description", utils.PathSearch("description", respBody, nil)),
+		d.Set("space_id", utils.PathSearch("app_id", respBody, nil)),
+		d.Set("effective_period", flattenEffectivePeriodAttribute(respBody)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func ResourceDeviceLinkageRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	region := c.GetRegion(d)
-	isDerived := WithDerivedAuth(c, region)
-	client, err := c.HcIoTdaV5Client(region, isDerived)
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		product = "iotda"
+	)
+
+	isDerived := WithDerivedAuth(cfg, region)
+	client, err := cfg.NewServiceClientWithDerivedAuth(product, region, isDerived)
 	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+		return diag.Errorf("error creating IoTDA client: %s", err)
 	}
 
-	projectId := c.RegionProjectIDMap[region]
-	status := buildLinkageStatus(d.Get("enabled").(bool))
 	if d.HasChangeExcept("enabled") {
-		// not only change enabled, use update API
-		rule, err := buildDeviceLinkageRuleParams(d, projectId)
+		conditions, err := buildLinkageRuleTriggersParams(d)
 		if err != nil {
 			return diag.FromErr(err)
 		}
 
-		_, err = client.UpdateRule(&model.UpdateRuleRequest{
-			RuleId: d.Id(),
-			Body:   rule,
-		})
+		actions, err := buildLinkageRuleActionsParams(d, client.ProjectID)
+		if err != nil {
+			return diag.FromErr(err)
+		}
 
+		requestPath := client.Endpoint + "v5/iot/{project_id}/rules/{rule_id}"
+		requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+		requestPath = strings.ReplaceAll(requestPath, "{rule_id}", d.Id())
+		requestOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			JSONBody:         utils.RemoveNil(buildLinkageRuleBodyParams(d, conditions, actions)),
+		}
+
+		_, err = client.Request("PUT", requestPath, &requestOpt)
 		if err != nil {
 			return diag.Errorf("error updating IoTDA device linkage rule: %s", err)
 		}
-	} else {
-		// only change enabled, use changeStatus API
-		_, err = client.ChangeRuleStatus(&model.ChangeRuleStatusRequest{
-			RuleId: d.Id(),
-			Body: &model.RuleStatus{
-				Status: *status,
+	}
+
+	if d.HasChange("enabled") {
+		requestPath := client.Endpoint + "v5/iot/{project_id}/rules/{rule_id}/status"
+		requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+		requestPath = strings.ReplaceAll(requestPath, "{rule_id}", d.Id())
+		requestOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			JSONBody: map[string]interface{}{
+				"status": buildLinkageRuleStatusParam(d),
 			},
-		})
+		}
+
+		_, err = client.Request("PUT", requestPath, &requestOpt)
 		if err != nil {
-			return diag.Errorf("error updating the IoTDA device linkage status to %s: %s", *status, err)
+			return diag.Errorf("error updating the IoTDA device linkage rule status : %s", err)
 		}
 	}
 
@@ -456,380 +973,30 @@ func ResourceDeviceLinkageRuleUpdate(ctx context.Context, d *schema.ResourceData
 }
 
 func ResourceDeviceLinkageRuleDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	region := c.GetRegion(d)
-	isDerived := WithDerivedAuth(c, region)
-	client, err := c.HcIoTdaV5Client(region, isDerived)
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v5/iot/{project_id}/rules/{rule_id}"
+		product = "iotda"
+	)
+
+	isDerived := WithDerivedAuth(cfg, region)
+	client, err := cfg.NewServiceClientWithDerivedAuth(product, region, isDerived)
 	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+		return diag.Errorf("error creating IoTDA client: %s", err)
 	}
 
-	deleteOpts := &model.DeleteRuleRequest{RuleId: d.Id()}
-	_, err = client.DeleteRule(deleteOpts)
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{rule_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	_, err = client.Request("DELETE", requestPath, &requestOpt)
 	if err != nil {
 		return diag.Errorf("error deleting IoTDA device linkage rule: %s", err)
 	}
 
 	return nil
-}
-
-func buildDeviceLinkageRuleParams(d *schema.ResourceData, projectId string) (*model.Rule, error) {
-	conditions, err := buildLinkageTriggers(d.Get("triggers").(*schema.Set).List())
-	if err != nil {
-		return nil, err
-	}
-
-	actions, err := buildLinkageActions(d.Get("actions").(*schema.Set).List(), projectId)
-	if err != nil {
-		return nil, err
-	}
-
-	req := model.Rule{
-		Name:        d.Get("name").(string),
-		Description: utils.StringIgnoreEmpty(d.Get("description").(string)),
-		RuleType:    "DEVICE_LINKAGE",
-		Status:      buildLinkageStatus(d.Get("enabled").(bool)),
-		AppId:       utils.StringIgnoreEmpty(d.Get("space_id").(string)),
-		ConditionGroup: &model.ConditionGroup{
-			Logic:      utils.String(d.Get("trigger_logic").(string)),
-			TimeRange:  buildLinkageTimaRange(d.Get("effective_period").([]interface{})),
-			Conditions: &conditions,
-		},
-		Actions: actions,
-	}
-	return &req, nil
-}
-
-func buildLinkageTimaRange(raw []interface{}) *model.TimeRange {
-	if len(raw) != 1 {
-		return nil
-	}
-	target := raw[0].(map[string]interface{})
-	rst := model.TimeRange{
-		StartTime:  target["start_time"].(string),
-		EndTime:    target["end_time"].(string),
-		DaysOfWeek: utils.StringIgnoreEmpty(target["days_of_week"].(string)),
-	}
-
-	return &rst
-}
-
-func buildLinkageTriggers(raw []interface{}) ([]model.RuleCondition, error) {
-	rst := make([]model.RuleCondition, len(raw))
-	for i, v := range raw {
-		target := v.(map[string]interface{})
-		triggerType := target["type"].(string)
-		ruleCondition, err := buildlinkageTrigger(target, triggerType)
-		if err != nil {
-			return nil, err
-		}
-		rst[i] = *ruleCondition
-	}
-
-	return rst, nil
-}
-
-func buildlinkageTrigger(raw map[string]interface{}, triggerType string) (*model.RuleCondition, error) {
-	switch triggerType {
-	case "DEVICE_DATA":
-		trigger := raw["device_data_condition"].([]interface{})
-		if len(trigger) == 0 {
-			return nil, fmt.Errorf("device_data_condition is Required when the trigger type is DEVICE_DATA")
-		}
-		f := trigger[0].(map[string]interface{})
-		d := model.RuleCondition{
-			Type: triggerType,
-			DevicePropertyCondition: &model.DeviceDataCondition{
-				DeviceId:  utils.StringIgnoreEmpty(f["device_id"].(string)),
-				ProductId: utils.StringIgnoreEmpty(f["product_id"].(string)),
-				Filters: &[]model.PropertyFilter{
-					{
-						Path:     f["path"].(string),
-						Operator: f["operator"].(string),
-						Value:    utils.String(f["value"].(string)),
-						Strategy: &model.Strategy{
-							Trigger:        utils.StringIgnoreEmpty(f["trigger_strategy"].(string)),
-							EventValidTime: utils.Int32(int32(f["data_validatiy_period"].(int))),
-						},
-					},
-				},
-			},
-		}
-		return &d, nil
-
-	case "SIMPLE_TIMER":
-		trigger := raw["simple_timer_condition"].([]interface{})
-		if len(trigger) == 0 {
-			return nil, fmt.Errorf("simple_timer_condition is Required when the target type is SIMPLE_TIMER")
-		}
-		f := trigger[0].(map[string]interface{})
-		d := model.RuleCondition{
-			Type: triggerType,
-			SimpleTimerCondition: &model.SimpleTimerType{
-				StartTime:      f["start_time"].(string),
-				RepeatInterval: int32(f["repeat_interval"].(int) * 60),
-				RepeatCount:    int32(f["repeat_count"].(int)),
-			},
-		}
-		return &d, nil
-
-	case "DAILY_TIMER":
-		trigger := raw["daily_timer_condition"].([]interface{})
-		if len(trigger) == 0 {
-			return nil, fmt.Errorf("daily_timer_condition is Required when the target type is DAILY_TIMER")
-		}
-		f := trigger[0].(map[string]interface{})
-		d := model.RuleCondition{
-			Type: triggerType,
-			DailyTimerCondition: &model.DailyTimerType{
-				Time:       f["start_time"].(string),
-				DaysOfWeek: utils.StringIgnoreEmpty(f["days_of_week"].(string)),
-			},
-		}
-		return &d, nil
-
-	default:
-		return nil, fmt.Errorf("the trigger type= %q is not support", triggerType)
-	}
-}
-
-func buildLinkageActions(raw []interface{}, projectId string) ([]model.RuleAction, error) {
-	rst := make([]model.RuleAction, len(raw))
-	for i, v := range raw {
-		target := v.(map[string]interface{})
-		action, err := buildlinkageAction(target, projectId)
-		if err != nil {
-			return nil, err
-		}
-		rst[i] = *action
-	}
-
-	return rst, nil
-}
-
-func buildlinkageAction(raw map[string]interface{}, projectId string) (*model.RuleAction, error) {
-	actionType := raw["type"].(string)
-	switch actionType {
-	case "DEVICE_CMD":
-		action := raw["device_command"].([]interface{})
-		if len(action) == 0 {
-			return nil, fmt.Errorf("device_command is Required when the trigger type is DEVICE_CMD")
-		}
-		f := action[0].(map[string]interface{})
-
-		var commandBody interface{} = f["command_body"]
-		d := model.RuleAction{
-			Type: actionType,
-			DeviceCommand: &model.ActionDeviceCommand{
-				DeviceId: utils.String(f["device_id"].(string)),
-				Cmd: &model.Cmd{
-					CommandName: f["command_name"].(string),
-					ServiceId:   f["service_id"].(string),
-					CommandBody: &commandBody, // Json string and Map, all support.
-				},
-			},
-		}
-		return &d, nil
-
-	case "SMN_FORWARDING":
-		trigger := raw["smn_forwarding"].([]interface{})
-		if len(trigger) == 0 {
-			return nil, fmt.Errorf("smn_forwarding is Required when the target type is SMN_FORWARDING")
-		}
-		f := trigger[0].(map[string]interface{})
-
-		projectIdStr := f["project_id"].(string)
-		if projectIdStr == "" {
-			projectIdStr = projectId
-		}
-		d := model.RuleAction{
-			Type: actionType,
-			SmnForwarding: &model.ActionSmnForwarding{
-				RegionName:     f["region"].(string),
-				ProjectId:      projectIdStr,
-				ThemeName:      f["topic_name"].(string),
-				TopicUrn:       f["topic_urn"].(string),
-				MessageTitle:   f["message_title"].(string),
-				MessageContent: utils.String(f["message_content"].(string)),
-			},
-		}
-		return &d, nil
-
-	case "DEVICE_ALARM":
-		trigger := raw["device_alarm"].([]interface{})
-		if len(trigger) == 0 {
-			return nil, fmt.Errorf("device_alarm is Required when the target type is DEVICE_ALARM")
-		}
-		f := trigger[0].(map[string]interface{})
-		d := model.RuleAction{
-			Type: actionType,
-			DeviceAlarm: &model.ActionDeviceAlarm{
-				Name:        f["name"].(string),
-				AlarmStatus: f["type"].(string),
-				Severity:    f["severity"].(string),
-				Description: utils.StringIgnoreEmpty(f["description"].(string)),
-			},
-		}
-		return &d, nil
-
-	default:
-		return nil, fmt.Errorf("the action type= %q is not support", actionType)
-	}
-}
-
-func buildLinkageStatus(enabled bool) *string {
-	status := "active"
-	if !enabled {
-		status = "inactive"
-	}
-	return &status
-}
-
-func flattenLinkageTriggers(conditionGroup *model.ConditionGroup) []interface{} {
-	var rst []interface{}
-	if conditionGroup == nil || conditionGroup.Conditions == nil {
-		return rst
-	}
-
-	rst = make([]interface{}, 0, len(*conditionGroup.Conditions))
-	for _, v := range *conditionGroup.Conditions {
-		switch v.Type {
-		case "DEVICE_DATA":
-			if v.DevicePropertyCondition != nil && v.DevicePropertyCondition.Filters != nil &&
-				len(*v.DevicePropertyCondition.Filters) != 0 {
-				filter := *v.DevicePropertyCondition.Filters
-				rst = append(rst, map[string]interface{}{
-					"type": v.Type,
-					"device_data_condition": []interface{}{
-						map[string]interface{}{
-							"device_id":             v.DevicePropertyCondition.DeviceId,
-							"product_id":            v.DevicePropertyCondition.ProductId,
-							"path":                  filter[0].Path,
-							"operator":              filter[0].Operator,
-							"value":                 filter[0].Value,
-							"trigger_strategy":      filter[0].Strategy.Trigger,
-							"data_validatiy_period": filter[0].Strategy.EventValidTime,
-						},
-					},
-				})
-			}
-		case "SIMPLE_TIMER":
-			if v.SimpleTimerCondition != nil {
-				rst = append(rst, map[string]interface{}{
-					"type": v.Type,
-					"simple_timer_condition": []interface{}{
-						map[string]interface{}{
-							"start_time":      v.SimpleTimerCondition.StartTime,
-							"repeat_interval": v.SimpleTimerCondition.RepeatInterval / 60,
-							"repeat_count":    v.SimpleTimerCondition.RepeatCount,
-						},
-					},
-				})
-			}
-		case "DAILY_TIMER":
-			if v.DailyTimerCondition != nil {
-				rst = append(rst, map[string]interface{}{
-					"type": v.Type,
-					"daily_timer_condition": []interface{}{
-						map[string]interface{}{
-							"start_time":   v.DailyTimerCondition.Time,
-							"days_of_week": v.DailyTimerCondition.DaysOfWeek,
-						},
-					},
-				})
-			}
-		default:
-			log.Printf("[ERROR] API returned unknown trigger type= %s", v.Type)
-		}
-	}
-
-	return rst
-}
-
-func flattenLinkageActions(actions *[]model.RuleAction) []interface{} {
-	var rst []interface{}
-	if actions == nil || len(*actions) == 0 {
-		return rst
-	}
-
-	rst = make([]interface{}, 0, len(*actions))
-	for _, v := range *actions {
-		switch v.Type {
-		case "DEVICE_CMD":
-			if v.DeviceCommand != nil && v.DeviceCommand.Cmd != nil {
-				jsonStr, err := json.Marshal(v.DeviceCommand.Cmd.CommandBody)
-				if err != nil {
-					log.Printf("[ERROR] Convert the command_body to string failed: %s", err)
-				}
-
-				rst = append(rst, map[string]interface{}{
-					"type": v.Type,
-					"device_command": []interface{}{
-						map[string]interface{}{
-							"service_id":   v.DeviceCommand.Cmd.ServiceId,
-							"command_name": v.DeviceCommand.Cmd.CommandName,
-							"command_body": string(jsonStr),
-							"device_id":    v.DeviceCommand.DeviceId,
-						},
-					},
-				})
-			}
-		case "SMN_FORWARDING":
-			if v.SmnForwarding != nil {
-				rst = append(rst, map[string]interface{}{
-					"type": v.Type,
-					"smn_forwarding": []interface{}{
-						map[string]interface{}{
-							"region":          v.SmnForwarding.RegionName,
-							"project_id":      v.SmnForwarding.ProjectId,
-							"topic_name":      v.SmnForwarding.ThemeName,
-							"topic_urn":       v.SmnForwarding.TopicUrn,
-							"message_content": v.SmnForwarding.MessageContent,
-							"message_title":   v.SmnForwarding.MessageTitle,
-						},
-					},
-				})
-			}
-		case "DEVICE_ALARM":
-			if v.DeviceAlarm != nil {
-				rst = append(rst, map[string]interface{}{
-					"type": v.Type,
-					"device_alarm": []interface{}{
-						map[string]interface{}{
-							"name":        v.DeviceAlarm.Name,
-							"type":        v.DeviceAlarm.AlarmStatus,
-							"severity":    v.DeviceAlarm.Severity,
-							"description": v.DeviceAlarm.Description,
-						},
-					},
-				})
-			}
-		default:
-			log.Printf("[ERROR] API returned unknown action type= %s", v.Type)
-		}
-	}
-
-	return rst
-}
-
-func flattenLinkageEffectivePeriod(conditionGroup *model.ConditionGroup) []interface{} {
-	var rst []interface{}
-	if conditionGroup == nil || conditionGroup.TimeRange == nil {
-		return rst
-	}
-	rst = []interface{}{
-		map[string]interface{}{
-			"start_time":   conditionGroup.TimeRange.StartTime,
-			"end_time":     conditionGroup.TimeRange.EndTime,
-			"days_of_week": conditionGroup.TimeRange.DaysOfWeek,
-		},
-	}
-	return rst
-}
-
-func flattenLinkageLogic(v *model.ConditionGroup) *string {
-	if v == nil {
-		return nil
-	}
-	return v.Logic
 }

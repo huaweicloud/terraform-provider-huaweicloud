@@ -9,8 +9,14 @@
                 "type": "string",
                 "computed": true
               },
+              "is_versions_query_allowed": {
+                "type": "bool",
+                "description": "Whether to query the versions of each dependency package.",
+                "optional": true
+              },
               "name": {
                 "type": "string",
+                "description": "The name of the dependency package.",
                 "optional": true
               },
               "packages": {
@@ -40,18 +46,22 @@
                     }
                   ]
                 ],
+                "description": "All dependency packages that match the filter parameters.",
                 "computed": true
               },
               "region": {
                 "type": "string",
+                "description": "The region where the dependency packages are located.",
                 "computed": true
               },
               "runtime": {
                 "type": "string",
+                "description": "The runtime of the dependency package.",
                 "optional": true
               },
               "type": {
                 "type": "string",
+                "description": "The type of the dependency package.",
                 "optional": true
               }
             }

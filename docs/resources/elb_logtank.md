@@ -47,6 +47,6 @@ In addition to all arguments above, the following attributes are exported:
 
 ELB logtank can be imported using the logtank ID, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_elb_logtank.test 2f148a75-acd3-4ce7-8f63-d5c9fadab3a0
 ```

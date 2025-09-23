@@ -17,16 +17,16 @@ import (
 
 func getRuleCCProtectionResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	var (
-		getRuleCCProtectionHttpUrl = "v1/{project_id}/waf/policy/{policy_id}/cc/{rule_id}"
-		getRuleCCProtectionProduct = "waf"
+		httpUrl = "v1/{project_id}/waf/policy/{policy_id}/cc/{rule_id}"
+		product = "waf"
 	)
-	getRuleCCProtectionClient, err := cfg.NewServiceClient(getRuleCCProtectionProduct, acceptance.HW_REGION_NAME)
+	client, err := cfg.NewServiceClient(product, acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating WAF Client: %s", err)
+		return nil, fmt.Errorf("error creating WAF client: %s", err)
 	}
 
-	getPath := getRuleCCProtectionClient.Endpoint + getRuleCCProtectionHttpUrl
-	getPath = strings.ReplaceAll(getPath, "{project_id}", getRuleCCProtectionClient.ProjectID)
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
 	getPath = strings.ReplaceAll(getPath, "{policy_id}", state.Primary.Attributes["policy_id"])
 	getPath = strings.ReplaceAll(getPath, "{rule_id}", state.Primary.ID)
 
@@ -36,22 +36,20 @@ func getRuleCCProtectionResourceFunc(cfg *config.Config, state *terraform.Resour
 	}
 	getPath += queryParam
 
-	getRuleCCProtectionOpt := golangsdk.RequestOpts{
+	getOpt := golangsdk.RequestOpts{
 		MoreHeaders: map[string]string{
 			"Content-Type": "application/json;charset=utf8",
 		},
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
-	getRuleCCProtectionResp, err := getRuleCCProtectionClient.Request("GET", getPath, &getRuleCCProtectionOpt)
+	resp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving RuleCCProtection: %s", err)
+		return nil, fmt.Errorf("error retrieving WAF CC protection rule: %s", err)
 	}
-	return utils.FlattenResponse(getRuleCCProtectionResp)
+	return utils.FlattenResponse(resp)
 }
 
+// Before running the test case, please ensure that there is at least one WAF instance in the current region.
 func TestAccRuleCCProtection_basic(t *testing.T) {
 	var obj interface{}
 
@@ -68,15 +66,17 @@ func TestAccRuleCCProtection_basic(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPrecheckWafInstance(t)
+			acceptance.TestAccPreCheckEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testRuleCCProtection_basic(name),
+				Config: testDataSourceRuleCCProtection_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(rName, "policy_id", "huaweicloud_waf_policy.policy_1", "id"),
+					resource.TestCheckResourceAttrPair(rName, "policy_id",
+						"huaweicloud_waf_policy.test", "id"),
 					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttr(rName, "protective_action", "block"),
 					resource.TestCheckResourceAttr(rName, "rate_limit_mode", "cookie"),
@@ -100,10 +100,11 @@ func TestAccRuleCCProtection_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testRuleCCProtection_basic_update(name),
+				Config: testDataSourceRuleCCProtection_basic_update(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(rName, "policy_id", "huaweicloud_waf_policy.policy_1", "id"),
+					resource.TestCheckResourceAttrPair(rName, "policy_id",
+						"huaweicloud_waf_policy.test", "id"),
 					resource.TestCheckResourceAttr(rName, "name", fmt.Sprintf("%s_update", name)),
 					resource.TestCheckResourceAttr(rName, "protective_action", "dynamic_block"),
 					resource.TestCheckResourceAttr(rName, "rate_limit_mode", "policy"),
@@ -119,7 +120,8 @@ func TestAccRuleCCProtection_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "conditions.1.field", "header"),
 					resource.TestCheckResourceAttr(rName, "conditions.1.logic", "equal_any"),
 					resource.TestCheckResourceAttr(rName, "conditions.1.subfield", "test_subfield"),
-					resource.TestCheckResourceAttrPair(rName, "conditions.1.reference_table_id", "huaweicloud_waf_reference_table.ref_table", "id"),
+					resource.TestCheckResourceAttrPair(rName, "conditions.1.reference_table_id",
+						"huaweicloud_waf_reference_table.test", "id"),
 				),
 			},
 			{
@@ -132,76 +134,26 @@ func TestAccRuleCCProtection_basic(t *testing.T) {
 	})
 }
 
-func TestAccRuleCCProtection_withEpsID(t *testing.T) {
-	var obj interface{}
-
-	name := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_waf_rule_cc_protection.test"
-
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&obj,
-		getRuleCCProtectionResourceFunc,
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPrecheckWafInstance(t)
-			acceptance.TestAccPreCheckEpsID(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testRuleCCProtection_basicWithEpsID(name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(rName, "policy_id", "huaweicloud_waf_policy.policy_1", "id"),
-					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
-					resource.TestCheckResourceAttr(rName, "protective_action", "log"),
-					resource.TestCheckResourceAttr(rName, "rate_limit_mode", "other"),
-					resource.TestCheckResourceAttr(rName, "other_user_identifier", "test_referer"),
-					resource.TestCheckResourceAttr(rName, "limit_num", "20"),
-					resource.TestCheckResourceAttr(rName, "limit_period", "70"),
-					resource.TestCheckResourceAttr(rName, "request_aggregation", "true"),
-					resource.TestCheckResourceAttr(rName, "all_waf_instances", "true"),
-					resource.TestCheckResourceAttr(rName, "description", "test description"),
-					resource.TestCheckResourceAttr(rName, "conditions.0.field", "url"),
-					resource.TestCheckResourceAttr(rName, "conditions.0.logic", "contain"),
-					resource.TestCheckResourceAttr(rName, "conditions.0.content", "test_url"),
-				),
-			},
-			{
-				ResourceName:      rName,
-				ImportState:       true,
-				ImportStateVerify: true,
-				ImportStateIdFunc: testWAFRuleImportState(rName),
-			},
-		},
-	})
-}
-
-func testRuleCCProtection_basic(name string) string {
+func testDataSourceRuleCCProtection_basic(name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_waf_rule_cc_protection" "test" {
-  policy_id           = huaweicloud_waf_policy.policy_1.id
-  name                = "%s"
-  protective_action   = "block"
-  rate_limit_mode     = "cookie"
-  block_page_type     = "application/json"
-  page_content        = "test page content"
-  user_identifier     = "test_identifier"
-  limit_num           = 10
-  limit_period        = 60
-  lock_time           = 5
-  request_aggregation = true
-  all_waf_instances   = true
-  description         = "test description"
-  status              = 0
+  policy_id             = huaweicloud_waf_policy.test.id
+  name                  = "%[2]s"
+  protective_action     = "block"
+  rate_limit_mode       = "cookie"
+  block_page_type       = "application/json"
+  page_content          = "test page content"
+  user_identifier       = "test_identifier"
+  limit_num             = 10
+  limit_period          = 60
+  lock_time             = 5
+  request_aggregation   = true
+  all_waf_instances     = true
+  description           = "test description"
+  status                = 0
+  enterprise_project_id = "%[3]s"
 
   conditions {
     field    = "params"
@@ -216,37 +168,35 @@ resource "huaweicloud_waf_rule_cc_protection" "test" {
     content = "192.168.0.1"
   }
 }
-`, testAccWafPolicyV1_basic(name), name)
+`, testAccWafPolicy_basic(name), name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
-func testRuleCCProtection_basic_update(name string) string {
+func testDataSourceRuleCCProtection_basic_update(name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
-resource "huaweicloud_waf_reference_table" "ref_table" {
-  name        = "%s"
-  type        = "header"
-  description = "tf acc"
+resource "huaweicloud_waf_reference_table" "test" {
+  name                  = "%[2]s"
+  type                  = "header"
+  description           = "tf acc"
+  enterprise_project_id = "%[3]s"
 
   conditions = [
     "test_table"
   ]
-
-  depends_on = [
-    huaweicloud_waf_dedicated_instance.instance_1
-  ]
 }
 
 resource "huaweicloud_waf_rule_cc_protection" "test" {
-  policy_id         = huaweicloud_waf_policy.policy_1.id
-  name              = "%s_update"
-  protective_action = "dynamic_block"
-  rate_limit_mode   = "policy"
-  limit_num         = 20
-  limit_period      = 100
-  unlock_num        = 15
-  all_waf_instances = false
-  status            = 1
+  policy_id             = huaweicloud_waf_policy.test.id
+  name                  = "%[2]s_update"
+  protective_action     = "dynamic_block"
+  rate_limit_mode       = "policy"
+  limit_num             = 20
+  limit_period          = 100
+  unlock_num            = 15
+  all_waf_instances     = false
+  status                = 1
+  enterprise_project_id = "%[3]s"
 
   conditions {
     field    = "response_code"
@@ -258,34 +208,8 @@ resource "huaweicloud_waf_rule_cc_protection" "test" {
     field              = "header"
     logic              = "equal_any"
     subfield           = "test_subfield"
-    reference_table_id = huaweicloud_waf_reference_table.ref_table.id
+    reference_table_id = huaweicloud_waf_reference_table.test.id
   }
 }
-`, testAccWafPolicyV1_basic(name), name, name)
-}
-
-func testRuleCCProtection_basicWithEpsID(name, epsID string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_waf_rule_cc_protection" "test" {
-  policy_id             = huaweicloud_waf_policy.policy_1.id
-  name                  = "%s"
-  enterprise_project_id = "%s"
-  protective_action     = "log"
-  rate_limit_mode       = "other"
-  other_user_identifier = "test_referer"
-  limit_num             = 20
-  limit_period          = 70
-  request_aggregation   = true
-  all_waf_instances     = true
-  description           = "test description"
-
-  conditions {
-    field    = "url"
-    logic    = "contain"
-    content  = "test_url"
-  }
-}
-`, testAccWafPolicyV1_basic_withEpsID(name, epsID), name, epsID)
+`, testAccWafPolicy_basic(name), name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }

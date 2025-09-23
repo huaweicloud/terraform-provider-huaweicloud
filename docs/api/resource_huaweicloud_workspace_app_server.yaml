@@ -1,0 +1,23 @@
+info:
+    version: ""
+    title: resource_huaweicloud_workspace_app_server
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: Workspace
+paths:
+    /v1/{project_id}/app-servers/{server_id}:
+        DELETE:
+            tag: Workspace
+        GET:
+            tag: Workspace
+        PATCH:
+            tag: Workspace
+    /v1/{project_id}/app-servers/actions/create:
+        POST:
+            tag: Workspace
+    /v2/{project_id}/job/{job_id}:
+        GET:
+            tag: Workspace

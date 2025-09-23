@@ -66,6 +66,7 @@ func TestAccOrgAssignmentPackage_basic(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckOrganizationsOpen(t)
+			acceptance.TestAccPreCheckRMSExcludedAccounts(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -79,6 +80,23 @@ func TestAccOrgAssignmentPackage_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttrPair(rName, "vars_structure",
 						"data.huaweicloud_rms_assignment_package_templates.test", "templates.0.parameters"),
+					resource.TestCheckResourceAttrSet(rName, "owner_id"),
+					resource.TestCheckResourceAttrSet(rName, "org_conformance_pack_urn"),
+					resource.TestCheckResourceAttrSet(rName, "created_at"),
+					resource.TestCheckResourceAttrSet(rName, "updated_at"),
+				),
+			},
+			{
+				Config: testOrgAssignmentPackage_update(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(rName, "organization_id",
+						"data.huaweicloud_organizations_organization.test", "id"),
+					resource.TestCheckResourceAttr(rName, "name", name+"-update"),
+					resource.TestCheckTypeSetElemNestedAttrs(rName, "vars_structure.*", map[string]string{
+						"var_key":   "lastBackupAgeValue",
+						"var_value": "25",
+					}),
 					resource.TestCheckResourceAttrSet(rName, "owner_id"),
 					resource.TestCheckResourceAttrSet(rName, "org_conformance_pack_urn"),
 					resource.TestCheckResourceAttrSet(rName, "created_at"),
@@ -100,22 +118,58 @@ func testOrgAssignmentPackage_basic(name string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_organizations_organization" "test" {}
 
-data "huaweicloud_rms_assignment_package_templates" "test" {}
+data "huaweicloud_rms_assignment_package_templates" "test" {
+  template_key = "Operational-Best-Practices-for-ECS.tf.json"
+}
 
 resource "huaweicloud_rms_organizational_assignment_package" "test" {
   organization_id = data.huaweicloud_organizations_organization.test.id
-  name            = "%s"
+  name            = "%[1]s"
   template_key    = data.huaweicloud_rms_assignment_package_templates.test.templates.0.template_key
+
+  excluded_accounts = [
+    "%[2]s",
+    "%[3]s",
+  ]
 
   dynamic "vars_structure" {
     for_each = data.huaweicloud_rms_assignment_package_templates.test.templates.0.parameters
     content {
       var_key   = vars_structure.value["name"]
-      var_value = jsondecode(vars_structure.value["default_value"])
+      var_value = vars_structure.value["default_value"]
     }
   }
 }
-`, name)
+`, name, acceptance.HW_RMS_EXCLUDED_ACCOUNT_1, acceptance.HW_RMS_EXCLUDED_ACCOUNT_2)
+}
+
+func testOrgAssignmentPackage_update(name string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_organizations_organization" "test" {}
+
+data "huaweicloud_rms_assignment_package_templates" "test" {
+  template_key = "Operational-Best-Practices-for-ECS.tf.json"
+}
+
+resource "huaweicloud_rms_organizational_assignment_package" "test" {
+  organization_id = data.huaweicloud_organizations_organization.test.id
+  name            = "%[1]s-update"
+  template_key    = data.huaweicloud_rms_assignment_package_templates.test.templates.0.template_key
+
+  excluded_accounts = [
+    "%[2]s",
+    "%[3]s",
+  ]
+
+  dynamic "vars_structure" {
+    for_each = data.huaweicloud_rms_assignment_package_templates.test.templates.0.parameters
+    content {
+      var_key   = vars_structure.value["name"]
+      var_value = vars_structure.value["name"] == "lastBackupAgeValue" ? 25 : vars_structure.value["default_value"]
+    }
+  }
+}
+`, name, acceptance.HW_RMS_EXCLUDED_ACCOUNT_1, acceptance.HW_RMS_EXCLUDED_ACCOUNT_2)
 }
 
 func testOrgAssignmentPackageImportState(name string) resource.ImportStateIdFunc {

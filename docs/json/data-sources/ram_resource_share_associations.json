@@ -1,0 +1,87 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_ram_resource_share_associations": {
+          "block": {
+            "attributes": {
+              "association_type": {
+                "type": "string",
+                "description": "Specifies the association type.",
+                "required": true
+              },
+              "associations": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "associated_entity": "string",
+                      "association_type": "string",
+                      "created_at": "string",
+                      "external": "bool",
+                      "resource_share_id": "string",
+                      "resource_share_name": "string",
+                      "status": "string",
+                      "status_message": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of association details.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "principal": {
+                "type": "string",
+                "description": "Specifies the principal associated with the resource share.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "resource_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the list of resource IDs.",
+                "optional": true
+              },
+              "resource_share_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the list of resource share IDs.",
+                "optional": true
+              },
+              "resource_urn": {
+                "type": "string",
+                "description": "Specifies the URN of the resource associated with the resource share.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the status of the association.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "RAM",
+            "name": "Resource Access Manager",
+            "catalog": "Management & Governance",
+            "name_cn": "资源访问管理",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

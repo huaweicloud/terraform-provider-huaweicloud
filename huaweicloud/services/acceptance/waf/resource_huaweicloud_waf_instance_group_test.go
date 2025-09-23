@@ -36,6 +36,8 @@ func TestAccWafInstanceGroup_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			// WAF group is an internal feature that does not require running test cases on a daily basis.
+			acceptance.TestAccPreCheckWafGroup(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),

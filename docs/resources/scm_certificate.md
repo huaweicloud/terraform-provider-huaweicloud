@@ -1,11 +1,13 @@
 ---
-subcategory: "Cloud Certificate Manager (CCM)"
+subcategory: "Deprecated"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_scm_certificate"
 description: ""
 ---
 
 # huaweicloud_scm_certificate
+
+!> **WARNING:** It has been deprecated.
 
 SSL Certificate Manager (SCM) allows you to purchase Secure Sockets Layer (SSL) certificates from the world's leading
 digital certificate authorities (CAs), upload existing SSL certificates, and centrally manage all your SSL certificates
@@ -97,6 +99,23 @@ The following arguments are supported:
 * `certificate_chain` - (Optional, String, ForceNew) Specifies the chain of the certificate.
   It can passed by `certificate`. It can be extracted from the *server.crt* file in the Nginx directory,
   usually after the second paragraph is the certificate chain.
+  Changing this parameter will create a new resource.
+
+* `enc_certificate` - (Optional, String, ForceNew) Specifies the encrypted content of the state secret certificate.
+  Using the escape character `\n` or `\r\n` to replace carriage return and line feed characters.
+
+  Changing this parameter will create a new resource.
+
+* `enc_private_key` - (Optional, String, ForceNew) Specifies the encrypted private key of the state secret certificate.
+  Password-protected private keys cannot be uploaded, and using the escape character `\n` or `\r\n` to replace carriage
+  return and line feed characters.
+
+  Changing this parameter will create a new resource.
+
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID. This parameter is only
+  valid for enterprise users. Resources under all authorized enterprise projects of the tenant will be queried by default
+  if this parameter is not specified for enterprise users.
+
   Changing this parameter will create a new resource.
 
 * `target` - (Optional, List) Specifies the service to which the certificate needs to be pushed.

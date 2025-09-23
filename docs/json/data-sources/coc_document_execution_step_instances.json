@@ -1,0 +1,53 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_coc_document_execution_step_instances": {
+          "block": {
+            "attributes": {
+              "data": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "end_time": "number",
+                      "execution_instance_id": "string",
+                      "execution_step_id": "string",
+                      "id": "number",
+                      "message": "string",
+                      "properties": [
+                        "map",
+                        "string"
+                      ],
+                      "start_time": "number",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of batch instances.",
+                "computed": true
+              },
+              "execution_step_id": {
+                "type": "string",
+                "description": "Specifies the work order step ID.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "COC",
+            "name": "Cloud Operations Center",
+            "catalog": "Management & Governance",
+            "name_cn": "云运维中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

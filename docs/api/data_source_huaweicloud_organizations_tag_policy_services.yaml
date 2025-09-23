@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_organizations_tag_policy_services
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: Organizations
+paths:
+    /v1/organizations/tag-policy-services:
+        GET:
+            tag: Organizations

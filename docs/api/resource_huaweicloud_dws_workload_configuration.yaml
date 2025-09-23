@@ -1,0 +1,15 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dws_workload_configuration
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DWS
+paths:
+    /v2/{project_id}/clusters/{cluster_id}/workload:
+        GET:
+            tag: DWS
+        POST:
+            tag: DWS

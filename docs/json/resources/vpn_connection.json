@@ -81,7 +81,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "tunnel_local_address": {
                 "type": "string",

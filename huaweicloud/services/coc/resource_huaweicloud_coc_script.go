@@ -7,14 +7,13 @@ package coc
 
 import (
 	"context"
-	"encoding/json"
-	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
@@ -25,10 +24,21 @@ import (
 
 const defaultSensitiveValue = "*****************"
 
+var scriptResourceNotFoundErrCodes = []string{
+	"COC.00040601", // Invalid script uuid
+	"COC.00040603", // Script not exist
+	"COC.00040604", // Script not exist
+}
+
+var scriptNonUpdatableParams = []string{
+	"type", "name", "enterprise_project_id",
+}
+
 // @API COC POST /v1/job/scripts
 // @API COC GET /v1/job/scripts/{script_uuid}
 // @API COC PUT /v1/job/scripts/{script_uuid}
 // @API COC DELETE /v1/job/scripts/{script_uuid}
+// @API COC POST /v1/script/{resource_type}/{resource_id}/tags/update
 func ResourceScript() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceScriptCreate,
@@ -39,11 +49,15 @@ func ResourceScript() *schema.Resource {
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 
+		CustomizeDiff: customdiff.All(
+			config.FlexibleForceNew(scriptNonUpdatableParams),
+			config.MergeDefaultTags(),
+		),
+
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -60,12 +74,35 @@ func ResourceScript() *schema.Resource {
 			"type": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"content": {
 				Type:             schema.TypeString,
 				Required:         true,
 				DiffSuppressFunc: suppressDosOrUnix,
+			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"reviewers": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"reviewer_name": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"reviewer_id": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
+			},
+			"protocol": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"parameters": {
 				Type:     schema.TypeList,
@@ -93,6 +130,13 @@ func ResourceScript() *schema.Resource {
 						},
 					},
 				},
+			},
+			"tags": common.TagsSchema(),
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
 			},
 
 			// attributes
@@ -137,17 +181,40 @@ func buildScriptParamsBody(rawParams interface{}) []map[string]interface{} {
 
 func buildCreateScriptBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":          d.Get("name"),
-		"description":   d.Get("description"),
-		"type":          d.Get("type"),
-		"content":       d.Get("content"),
-		"script_params": buildScriptParamsBody(d.Get("parameters")),
+		"name":                  d.Get("name"),
+		"description":           d.Get("description"),
+		"type":                  d.Get("type"),
+		"content":               d.Get("content"),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(d.Get("enterprise_project_id")),
+		"script_params":         buildScriptParamsBody(d.Get("parameters")),
 		"properties": map[string]interface{}{
 			"risk_level": d.Get("risk_level"),
 			"version":    d.Get("version"),
+			"protocol":   utils.ValueIgnoreEmpty(d.Get("protocol")),
+			"reviewers":  buildCreateScriptReviewersBodyParams(d.Get("reviewers")),
 		},
 	}
 	return bodyParams
+}
+
+func buildCreateScriptReviewersBodyParams(rawParams interface{}) []map[string]interface{} {
+	if rawArray, ok := rawParams.([]interface{}); ok {
+		if len(rawArray) == 0 {
+			return nil
+		}
+
+		params := make([]map[string]interface{}, len(rawArray))
+		for i, v := range rawArray {
+			raw := v.(map[string]interface{})
+			params[i] = map[string]interface{}{
+				"reviewer_name": raw["reviewer_name"],
+				"reviewer_id":   raw["reviewer_id"],
+			}
+		}
+		return params
+	}
+
+	return nil
 }
 
 func resourceScriptCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -177,13 +244,36 @@ func resourceScriptCreate(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("data", createScriptRespBody)
-	if err != nil {
-		return diag.Errorf("error creating COC script: ID is not found in API response")
+	scriptId := utils.PathSearch("data", createScriptRespBody, "").(string)
+	if scriptId == "" {
+		return diag.Errorf("unable to find the COC script ID from the API response")
 	}
 
-	d.SetId(id.(string))
+	d.SetId(scriptId)
+
+	if v, ok := d.GetOk("tags"); ok {
+		tags := utils.ExpandResourceTagsMap(v.(map[string]interface{}))
+		err = updateScriptTags(client, scriptId, tags)
+		if err != nil {
+			return diag.Errorf("error updating COC script tags: %s", err)
+		}
+	}
 	return resourceScriptRead(ctx, d, meta)
+}
+
+func updateScriptTags(client *golangsdk.ServiceClient, scriptId string, tags []map[string]interface{}) error {
+	updateHttpUrl := "v1/script/coc:script/{resource_id}/tags/update"
+	updatePath := client.Endpoint + updateHttpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{resource_id}", scriptId)
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"tags": tags,
+		},
+	}
+
+	_, err := client.Request("POST", updatePath, &updateOpt)
+	return err
 }
 
 func resourceScriptRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -206,12 +296,8 @@ func resourceScriptRead(_ context.Context, d *schema.ResourceData, meta interfac
 
 	getScriptResp, err := client.Request("GET", getScriptPath, &getScriptOpt)
 	if err != nil {
-		// error_msg: invalid script uuid.
-		if hasErrorCode(err, "COC.00040601") {
-			err = golangsdk.ErrDefault404{}
-		}
-
-		return common.CheckDeletedDiag(d, err, "error retrieving COC script")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code",
+			scriptResourceNotFoundErrCodes...), "COC script")
 	}
 
 	getScriptRespBody, err := utils.FlattenResponse(getScriptResp)
@@ -227,13 +313,38 @@ func resourceScriptRead(_ context.Context, d *schema.ResourceData, meta interfac
 		d.Set("status", utils.PathSearch("data.status", getScriptRespBody, nil)),
 		d.Set("risk_level", utils.PathSearch("data.properties.risk_level", getScriptRespBody, nil)),
 		d.Set("version", utils.PathSearch("data.properties.version", getScriptRespBody, nil)),
+		d.Set("reviewers", flattenScriptReviewers(
+			utils.PathSearch("data.properties.reviewers", getScriptRespBody, nil))),
+		d.Set("enterprise_project_id", utils.PathSearch("data.enterprise_project_id", getScriptRespBody, nil)),
 		d.Set("parameters", flattenScriptParams(getScriptRespBody)),
 		d.Set("created_at", flattenScriptTimeStamp(getScriptRespBody, "data.gmt_created")),
 		d.Set("updated_at", flattenScriptTimeStamp(getScriptRespBody, "data.gmt_modified")),
+		d.Set("tags", utils.FlattenTagsToMap(utils.PathSearch("data.resource_tags", getScriptRespBody, nil))),
 	)
 
 	if err := mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error setting COC script fields: %s", err)
+	}
+
+	return nil
+}
+
+func flattenScriptReviewers(rawParams interface{}) []interface{} {
+	if paramsList, ok := rawParams.([]interface{}); ok {
+		if len(paramsList) == 0 {
+			return nil
+		}
+		rst := make([]interface{}, 0, len(paramsList))
+		for _, params := range paramsList {
+			raw := params.(map[string]interface{})
+			m := map[string]interface{}{
+				"reviewer_name": utils.PathSearch("reviewer_name", raw, nil),
+				"reviewer_id":   utils.PathSearch("reviewer_id", raw, nil),
+			}
+			rst = append(rst, m)
+		}
+
+		return rst
 	}
 
 	return nil
@@ -276,6 +387,8 @@ func buildUpdateScriptBodyParams(d *schema.ResourceData) map[string]interface{} 
 		"properties": map[string]interface{}{
 			"risk_level": d.Get("risk_level"),
 			"version":    d.Get("version"),
+			"protocol":   utils.ValueIgnoreEmpty(d.Get("protocol")),
+			"reviewers":  buildCreateScriptReviewersBodyParams(d.Get("reviewers")),
 		},
 	}
 	return bodyParams
@@ -305,6 +418,14 @@ func resourceScriptUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.Errorf("error updating COC script: %s", err)
 	}
 
+	if d.HasChange("tags") {
+		tags := utils.ExpandResourceTagsMap(d.Get("tags").(map[string]interface{}))
+		err = updateScriptTags(client, d.Id(), tags)
+		if err != nil {
+			return diag.Errorf("error updating COC script tags: %s", err)
+		}
+	}
+
 	return resourceScriptRead(ctx, d, meta)
 }
 
@@ -328,7 +449,8 @@ func resourceScriptDelete(_ context.Context, d *schema.ResourceData, meta interf
 
 	_, err = client.Request("DELETE", deleteScriptPath, &deleteScriptOpt)
 	if err != nil {
-		return diag.Errorf("error deleting COC script: %s", err)
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code",
+			scriptResourceNotFoundErrCodes...), "error deleting COC script")
 	}
 
 	return nil
@@ -336,22 +458,4 @@ func resourceScriptDelete(_ context.Context, d *schema.ResourceData, meta interf
 
 func suppressDosOrUnix(_, old, new string, _ *schema.ResourceData) bool {
 	return strings.ReplaceAll(old, "\r\n", "\n") == strings.ReplaceAll(new, "\r\n", "\n")
-}
-
-func hasErrorCode(err error, expectCode string) bool {
-	if errCode, ok := err.(golangsdk.ErrDefault500); ok {
-		var response interface{}
-		if jsonErr := json.Unmarshal(errCode.Body, &response); jsonErr == nil {
-			errorCode, parseErr := jmespath.Search("error_code", response)
-			if parseErr != nil {
-				log.Printf("[WARN] failed to parse error_code from response body: %s", parseErr)
-			}
-
-			if errorCode == expectCode {
-				return true
-			}
-		}
-	}
-
-	return false
 }

@@ -19,10 +19,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 	"github.com/chnsz/golangsdk/pagination"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -264,40 +262,39 @@ func resourceDdmInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("id", createInstanceRespBody)
-	if err != nil {
-		return diag.Errorf("error creating DDM instance: ID is not found in API response")
-	}
-
-	orderId, err := jmespath.Search("order_id", createInstanceRespBody)
-	if err != nil {
-		return diag.Errorf("error creating DDM instance: order_id is not found in API response")
-	}
-
+	var instanceId string
 	var delayTime time.Duration = 200
-	if orderId != nil {
+	if v, ok := d.GetOk("charging_mode"); ok && v.(string) == "prePaid" {
+		orderId := utils.PathSearch("order_id", createInstanceRespBody, "").(string)
+		if orderId == "" {
+			return diag.Errorf("unable to find order_id of the DDM instance from the API response")
+		}
 		bssClient, err := cfg.BssV2Client(region)
 		if err != nil {
 			return diag.Errorf("error creating BSS v2 client: %s", err)
 		}
 		// wait for order success
-		err = common.WaitOrderComplete(ctx, bssClient, orderId.(string), d.Timeout(schema.TimeoutCreate))
+		err = common.WaitOrderComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
 			return diag.FromErr(err)
 		}
-		resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, orderId.(string),
-			d.Timeout(schema.TimeoutCreate))
+		resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
-			return diag.Errorf("error waiting for replica order resource %s complete: %s", orderId.(string), err)
+			return diag.Errorf("error waiting for replica order resource %s complete: %s", orderId, err)
 		}
-		id = resourceId
+		instanceId = resourceId
 		delayTime = 20
+	} else {
+		instanceId = utils.PathSearch("id", createInstanceRespBody, "").(string)
+	}
+	if instanceId == "" {
+		return diag.Errorf("unable to find the DDM instance ID from the API response")
 	}
 
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"RUNNING"},
-		Refresh:      ddmInstanceStatusRefreshFunc(id.(string), createInstanceClient),
+		Refresh:      ddmInstanceStatusRefreshFunc(instanceId, createInstanceClient),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        delayTime * time.Second,
 		PollInterval: 10 * time.Second,
@@ -305,10 +302,10 @@ func resourceDdmInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return diag.Errorf("error waiting for instance (%s) to running: %s", id.(string), err)
+		return diag.Errorf("error waiting for instance (%s) to running: %s", instanceId, err)
 	}
 
-	d.SetId(id.(string))
+	d.SetId(instanceId)
 
 	if _, ok := d.GetOk("parameters"); ok {
 		err = initializeParameters(ctx, d, createInstanceClient)
@@ -334,7 +331,7 @@ func buildCreateInstanceInstanceChildBody(d *schema.ResourceData, cfg *config.Co
 		"flavor_id":             utils.ValueIgnoreEmpty(d.Get("flavor_id")),
 		"node_num":              utils.ValueIgnoreEmpty(d.Get("node_num")),
 		"engine_id":             utils.ValueIgnoreEmpty(d.Get("engine_id")),
-		"enterprise_project_id": utils.ValueIgnoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
 		"available_zones":       d.Get("availability_zones").(*schema.Set).List(), // The ordering of the AZ list returned by the API is unknown.
 		"vpc_id":                utils.ValueIgnoreEmpty(d.Get("vpc_id")),
 		"security_group_id":     utils.ValueIgnoreEmpty(d.Get("security_group_id")),
@@ -426,13 +423,13 @@ func resourceDdmInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	if d.HasChange("enterprise_project_id") {
-		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+		migrateOpts := config.MigrateResourceOpts{
 			ResourceId:   instanceId,
 			ResourceType: "ddm",
 			RegionId:     region,
 			ProjectId:    cfg.GetProjectID(region),
 		}
-		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
+		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -810,12 +807,7 @@ func modifyParameters(ctx context.Context, d *schema.ResourceData, client *golan
 		return false, err
 	}
 
-	needRestart, err := jmespath.Search("needRestart", updateRespBody)
-	if err != nil {
-		return false, fmt.Errorf("error updating DDM instance parameters: needRestart is not found in API response")
-	}
-
-	return needRestart.(bool), nil
+	return utils.PathSearch("needRestart", updateRespBody, false).(bool), nil
 }
 
 func buildUpdateInstanceNameBodyParams(d *schema.ResourceData) map[string]interface{} {

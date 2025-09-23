@@ -2,15 +2,12 @@ package smn
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/smn/v2/logtank"
@@ -134,10 +131,9 @@ func ResourceSmnLogtankRead(_ context.Context, d *schema.ResourceData, meta inte
 	topicUrn := d.Id()
 	logtanks, err := logtank.List(client, topicUrn).Extract()
 	if err != nil {
-		if hasTopicURNNotExistsCode(err) {
-			err = golangsdk.ErrDefault404{}
-		}
-		return common.CheckDeletedDiag(d, err, "error retrieving SMN logtank")
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error_code", TopicURNNotExistsCode),
+			"error retrieving SMN logtank")
 	}
 	logtankID := d.Get("logtank_id").(string)
 	logtankGet := GetLogtankById(logtanks, logtankID)
@@ -188,9 +184,8 @@ func resourceSmnLogtankDelete(_ context.Context, d *schema.ResourceData, meta in
 	logtankID := d.Get("logtank_id").(string)
 
 	if err = logtank.Delete(client, topicUrn, logtankID).ExtractErr(); err != nil {
-		return diag.Errorf("error deleting SMN logtank: %s", err)
+		return common.CheckDeletedDiag(d, err, "error deleting SMN logtank")
 	}
-	d.SetId("")
 
 	return nil
 }
@@ -207,21 +202,4 @@ func resourceSmnLogtankImportState(_ context.Context, d *schema.ResourceData, _ 
 		mErr = multierror.Append(d.Set("logtank_id", parts[1]))
 	}
 	return []*schema.ResourceData{d}, mErr.ErrorOrNil()
-}
-
-func hasTopicURNNotExistsCode(err error) bool {
-	if errCode, ok := err.(golangsdk.ErrDefault400); ok {
-		var response interface{}
-		if jsonErr := json.Unmarshal(errCode.Body, &response); jsonErr == nil {
-			errorCode, parseErr := jmespath.Search("error_code", response)
-			if parseErr != nil {
-				log.Printf("[WARN] failed to parse error_code from response body: %s", parseErr)
-			}
-
-			if errorCode == TopicURNNotExistsCode {
-				return true
-			}
-		}
-	}
-	return false
 }

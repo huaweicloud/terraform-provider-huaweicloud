@@ -1,0 +1,15 @@
+info:
+    version: ""
+    title: resource_huaweicloud_codearts_deploy_group_permission
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CodeArtsDeploy
+paths:
+    /v2/host-groups/{group_id}/permissions:
+        GET:
+            tag: CodeArtsDeploy
+        PUT:
+            tag: CodeArtsDeploy

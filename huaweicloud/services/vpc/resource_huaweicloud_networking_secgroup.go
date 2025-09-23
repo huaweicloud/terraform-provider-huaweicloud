@@ -116,6 +116,8 @@ func ResourceNetworkingSecGroup() *schema.Resource {
 			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 
+		CustomizeDiff: config.MergeDefaultTags(),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
@@ -309,7 +311,9 @@ func resourceNetworkingSecGroupRead(_ context.Context, d *schema.ResourceData, m
 		}
 
 		mErr = multierror.Append(mErr,
-			d.Set("rules", rules), // Override the configuration of the rules list.
+			d.Set("rules", rules),                    // Override the configuration of the rules list.
+			d.Set("name", v3Resp.Name),               // Override the name
+			d.Set("description", v3Resp.Description), // Override the description
 			d.Set("created_at", v3Resp.CreatedAt),
 			d.Set("updated_at", v3Resp.UpdatedAt),
 		)
@@ -502,10 +506,8 @@ func waitForSecGroupDelete(client *golangsdk.ServiceClient, secGroupId string) r
 				log.Printf("[DEBUG] Successfully deleted Security Group %s", secGroupId)
 				return r, "DELETED", nil
 			}
-			if errCode, ok := err.(golangsdk.ErrUnexpectedResponseCode); ok {
-				if errCode.Actual == 409 {
-					return r, "ACTIVE", nil
-				}
+			if _, ok := err.(golangsdk.ErrDefault409); ok {
+				return r, "ACTIVE", nil
 			}
 			return r, "ACTIVE", err
 		}

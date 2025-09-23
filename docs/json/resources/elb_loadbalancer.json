@@ -68,18 +68,29 @@
                 "type": "string",
                 "optional": true
               },
+              "elb_virsubnet_type": {
+                "type": "string",
+                "computed": true
+              },
               "enterprise_project_id": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "force_delete": {
                 "type": "bool",
                 "optional": true
               },
+              "frozen_scene": {
+                "type": "string",
+                "computed": true
+              },
               "guaranteed": {
                 "type": "bool",
+                "computed": true
+              },
+              "gw_flavor_id": {
+                "type": "string",
                 "computed": true
               },
               "id": {
@@ -148,9 +159,19 @@
                 "optional": true,
                 "computed": true
               },
+              "loadbalancer_type": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "name": {
                 "type": "string",
                 "required": true
+              },
+              "operating_status": {
+                "type": "string",
+                "computed": true
               },
               "period": {
                 "type": "number",
@@ -169,6 +190,10 @@
                 "optional": true,
                 "computed": true
               },
+              "public_border_group": {
+                "type": "string",
+                "computed": true
+              },
               "region": {
                 "type": "string",
                 "computed": true
@@ -184,7 +209,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "updated_at": {
                 "type": "string",

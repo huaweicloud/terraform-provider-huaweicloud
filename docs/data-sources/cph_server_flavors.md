@@ -2,7 +2,8 @@
 subcategory: "Cloud Phone (CPH)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_cph_server_flavors"
-description: ""
+description: |-
+  Use this data source to get available flavors of CPH server.
 ---
 
 # huaweicloud_cph_server_flavors
@@ -11,9 +12,9 @@ Use this data source to get available flavors of CPH server.
 
 ## Example Usage
 
-```
+```hcl
 data "huaweicloud_cph_server_flavors" "flavor" {
-  type = 0
+  type = "0"
 }
 ```
 
@@ -26,9 +27,9 @@ The following arguments are supported:
 
 * `type` - (Optional, String) The type of the CPH server flavor.  
   The options are as follows:
-    - **0**: Cloud phone servers are designed for app hosting and multi-platform live streaming.
-    - **1**: Cloud mobile gaming servers, GPU hardware acceleration and graphics interfaces
-      allow you to run mobile games on the cloud.
+  + **0**: Cloud phone servers are designed for app hosting and multi-platform live streaming.
+  + **1**: Cloud mobile gaming servers, GPU hardware acceleration and graphics interfaces
+    allow you to run mobile games on the cloud.
 
 * `vcpus` - (Optional, Int) The vcpus of the CPH server.
 
@@ -54,9 +55,9 @@ The `Flavors` block supports:
 
 * `type` - The type of the CPH server flavor.  
   The options are as follows:
-    - **0**: Cloud phone servers are designed for app hosting and multi-platform live streaming.
-    - **1**: Cloud mobile gaming servers, GPU hardware acceleration and graphics interfaces
-      allow you to run mobile games on the cloud.
+  + **0**: Cloud phone servers are designed for app hosting and multi-platform live streaming.
+  + **1**: Cloud mobile gaming servers, GPU hardware acceleration and graphics interfaces
+    allow you to run mobile games on the cloud.
 
 * `extend_spec` - The extended attribute description.
   The [ExtendSpec](#serverFlavors_FlavorsExtendSpec) structure is documented below.

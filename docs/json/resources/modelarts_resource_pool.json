@@ -71,6 +71,14 @@
                 "description": "List of job types supported by the resource pool.",
                 "required": true
               },
+              "server_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The list of service IDs corresponding to the latest expanded nodes.",
+                "computed": true
+              },
               "status": {
                 "type": "string",
                 "description": "The status of the resource pool.",
@@ -119,6 +127,20 @@
                 "nesting_mode": "list",
                 "forcenew": true
               },
+              "metadata": {
+                "block": {
+                  "attributes": {
+                    "annotations": {
+                      "type": "string",
+                      "description": "The annotations of the resource pool, in JSON format.",
+                      "optional": true
+                    }
+                  },
+                  "description": "The metadata of the resource pool."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
               "resources": {
                 "block": {
                   "attributes": {
@@ -126,6 +148,12 @@
                       "type": "number",
                       "description": "Number of resources of the corresponding flavors.",
                       "required": true
+                    },
+                    "extend_params": {
+                      "type": "string",
+                      "description": "The extend parameters of the resource pool.",
+                      "optional": true,
+                      "computed": true
                     },
                     "flavor_id": {
                       "type": "string",
@@ -138,7 +166,8 @@
                         "string"
                       ],
                       "description": "The labels of resource pool.",
-                      "optional": true
+                      "optional": true,
+                      "computed": true
                     },
                     "max_count": {
                       "type": "number",
@@ -152,14 +181,9 @@
                       "optional": true,
                       "computed": true
                     },
-                    "post_install": {
-                      "type": "string",
-                      "description": "The script to be executed after security.",
-                      "optional": true
-                    },
                     "security_group_ids": {
                       "type": [
-                        "list",
+                        "set",
                         "string"
                       ],
                       "description": "The security group IDs.",
@@ -177,7 +201,8 @@
                         "map",
                         "string"
                       ],
-                      "optional": true
+                      "optional": true,
+                      "computed": true
                     },
                     "vpc_id": {
                       "type": "string",
@@ -205,7 +230,122 @@
                         },
                         "description": "AZs for resource pool nodes."
                       },
-                      "nesting_mode": "list"
+                      "nesting_mode": "set"
+                    },
+                    "creating_step": {
+                      "block": {
+                        "attributes": {
+                          "step": {
+                            "type": "number",
+                            "description": "The creation step of the resource pool nodes.",
+                            "required": true
+                          },
+                          "type": {
+                            "type": "string",
+                            "description": "The type of the resource pool nodes.",
+                            "required": true
+                          }
+                        },
+                        "description": "The creation step configuration of the resource pool nodes."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "data_volumes": {
+                      "block": {
+                        "attributes": {
+                          "count": {
+                            "type": "number",
+                            "description": "The count of the current data volume configuration.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "extend_params": {
+                            "type": "string",
+                            "description": "The extend parameters of the data volume.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "size": {
+                            "type": "string",
+                            "description": "The size of the data volume.",
+                            "required": true
+                          },
+                          "volume_type": {
+                            "type": "string",
+                            "description": "The type of the data volume.",
+                            "required": true
+                          }
+                        },
+                        "description": "The data volumes of the resource pool nodes."
+                      },
+                      "nesting_mode": "set"
+                    },
+                    "driver": {
+                      "block": {
+                        "attributes": {
+                          "version": {
+                            "type": "string",
+                            "description": "The driver version.",
+                            "optional": true,
+                            "computed": true
+                          }
+                        },
+                        "description": "The driver information."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "os": {
+                      "block": {
+                        "attributes": {
+                          "image_id": {
+                            "type": "string",
+                            "description": "The image ID.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "image_type": {
+                            "type": "string",
+                            "description": "The image type.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "The OS name of the image.",
+                            "optional": true,
+                            "computed": true
+                          }
+                        },
+                        "description": "The image information for the specified OS."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "root_volume": {
+                      "block": {
+                        "attributes": {
+                          "extend_params": {
+                            "type": "string",
+                            "description": "The extend parameters of the root volume, in JSON format.",
+                            "computed": true
+                          },
+                          "size": {
+                            "type": "string",
+                            "description": "The size of the root volume.",
+                            "required": true
+                          },
+                          "volume_type": {
+                            "type": "string",
+                            "description": "The type of the root volume.",
+                            "required": true
+                          }
+                        },
+                        "description": "The root volume of the resource pool nodes."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
                     },
                     "taints": {
                       "block": {
@@ -229,7 +369,57 @@
                         },
                         "description": "The taints added to nodes."
                       },
-                      "nesting_mode": "list"
+                      "nesting_mode": "set"
+                    },
+                    "volume_group_configs": {
+                      "block": {
+                        "attributes": {
+                          "docker_thin_pool": {
+                            "type": "number",
+                            "description": "The percentage of container volumes to data volumes on resource pool nodes.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "types": {
+                            "type": [
+                              "list",
+                              "string"
+                            ],
+                            "description": "The storage types of the volume group.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "volume_group": {
+                            "type": "string",
+                            "description": "The name of the volume group.",
+                            "required": true
+                          }
+                        },
+                        "block_types": {
+                          "lvm_config": {
+                            "block": {
+                              "attributes": {
+                                "lv_type": {
+                                  "type": "string",
+                                  "description": "The LVM write mode.",
+                                  "required": true
+                                },
+                                "path": {
+                                  "type": "string",
+                                  "description": "The volume mount path.",
+                                  "optional": true,
+                                  "computed": true
+                                }
+                              },
+                              "description": "The configuration of the LVM management."
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          }
+                        },
+                        "description": "The extend configurations of the volume groups."
+                      },
+                      "nesting_mode": "set"
                     }
                   },
                   "description": "List of resource specifications in the resource pool."

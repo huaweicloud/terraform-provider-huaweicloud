@@ -1,0 +1,212 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cciv2_image_snapshot": {
+          "block": {
+            "attributes": {
+              "annotations": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
+              "api_version": {
+                "type": "string",
+                "computed": true
+              },
+              "creation_timestamp": {
+                "type": "string",
+                "computed": true
+              },
+              "enable_force_new": {
+                "type": "string",
+                "optional": true
+              },
+              "finalizers": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "image_snapshot_size": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "kind": {
+                "type": "string",
+                "computed": true
+              },
+              "labels": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "resource_version": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "expire_date_time": "string",
+                      "images": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "digest": "string",
+                            "image": "string",
+                            "size_bytes": "number"
+                          }
+                        ]
+                      ],
+                      "last_updated_time": "string",
+                      "message": "string",
+                      "phase": "string",
+                      "reason": "string",
+                      "snapshot_id": "string",
+                      "snapshot_name": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "ttl_days_after_created": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "uid": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "building_config": {
+                "block": {
+                  "attributes": {
+                    "auto_create_eip": {
+                      "type": "bool",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "eip_id": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "namespace": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "block_types": {
+                    "auto_create_eip_attribute": {
+                      "block": {
+                        "attributes": {
+                          "bandwidth_charge_mode": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "bandwidth_id": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "bandwidth_size": {
+                            "type": "number",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "ip_version": {
+                            "type": "number",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "type": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "images": {
+                "block": {
+                  "attributes": {
+                    "image": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              },
+              "registries": {
+                "block": {
+                  "attributes": {
+                    "image_pull_secret": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "insecure_skip_verify": {
+                      "type": "bool",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "plain_http": {
+                      "type": "bool",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "server": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -105,50 +104,43 @@ func rulesSchema() *schema.Resource {
 }
 
 func resourceAddressGroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// createWAFAddressGroup: create WAF address group.
 	var (
-		createWAFAddressGroupHttpUrl = "v1/{project_id}/waf/ip-groups"
-		createWAFAddressGroupProduct = "waf"
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1/{project_id}/waf/ip-groups"
+		product = "waf"
 	)
-	createWAFAddressGroupClient, err := cfg.NewServiceClient(createWAFAddressGroupProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating WAF Client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
-	createWAFAddressGroupPath := createWAFAddressGroupClient.Endpoint + createWAFAddressGroupHttpUrl
-	createWAFAddressGroupPath = strings.ReplaceAll(createWAFAddressGroupPath, "{project_id}",
-		createWAFAddressGroupClient.ProjectID)
-	createWAFAddressGroupPath += buildWAFAddressGroupQueryParams(d, cfg)
-
-	createWAFAddressGroupOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath += buildWAFAddressGroupQueryParams(d, cfg)
+	requestOpt := golangsdk.RequestOpts{
 		MoreHeaders: map[string]string{
 			"Content-Type": "application/json;charset=utf8",
 		},
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-	}
-	createWAFAddressGroupOpt.JSONBody = utils.RemoveNil(buildWAFAddressGroupBodyParams(d))
-	createWAFAddressGroupResp, err := createWAFAddressGroupClient.Request("POST", createWAFAddressGroupPath,
-		&createWAFAddressGroupOpt)
-	if err != nil {
-		return diag.Errorf("error creating address group: %s", err)
+		JSONBody:         utils.RemoveNil(buildWAFAddressGroupBodyParams(d)),
 	}
 
-	createWAFAddressGroupRespBody, err := utils.FlattenResponse(createWAFAddressGroupResp)
+	resp, err := client.Request("POST", requestPath, &requestOpt)
+	if err != nil {
+		return diag.Errorf("error creating WAF address group: %s", err)
+	}
+
+	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("id", createWAFAddressGroupRespBody)
-	if err != nil {
-		return diag.Errorf("error creating address group: ID is not found in API response")
+	groupId := utils.PathSearch("id", respBody, "").(string)
+	if groupId == "" {
+		return diag.Errorf("error creating WAF address group: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(groupId)
 
 	return resourceAddressGroupRead(ctx, d, meta)
 }
@@ -168,8 +160,8 @@ func buildWAFAddressGroupBodyParams(d *schema.ResourceData) map[string]interface
 	return bodyParams
 }
 
-func buildWAFAddressGroupQueryParams(d *schema.ResourceData, conf *config.Config) string {
-	epsId := common.GetEnterpriseProjectID(d, conf)
+func buildWAFAddressGroupQueryParams(d *schema.ResourceData, cfg *config.Config) string {
+	epsId := cfg.GetEnterpriseProjectID(d)
 	if epsId == "" {
 		return ""
 	}
@@ -177,43 +169,36 @@ func buildWAFAddressGroupQueryParams(d *schema.ResourceData, conf *config.Config
 }
 
 func resourceAddressGroupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	var mErr *multierror.Error
-
-	// getWAFAddressGroup: Query WAF address group
 	var (
-		getWAFAddressGroupHttpUrl = "v1/{project_id}/waf/ip-group/{id}"
-		getWAFAddressGroupProduct = "waf"
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		mErr    *multierror.Error
+		httpUrl = "v1/{project_id}/waf/ip-group/{id}"
+		product = "waf"
 	)
-	getWAFAddressGroupClient, err := cfg.NewServiceClient(getWAFAddressGroupProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating WAF Client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
-	getWAFAddressGroupPath := getWAFAddressGroupClient.Endpoint + getWAFAddressGroupHttpUrl
-	getWAFAddressGroupPath = strings.ReplaceAll(getWAFAddressGroupPath, "{project_id}",
-		getWAFAddressGroupClient.ProjectID)
-	getWAFAddressGroupPath = strings.ReplaceAll(getWAFAddressGroupPath, "{id}", d.Id())
-	getWAFAddressGroupPath += buildWAFAddressGroupQueryParams(d, cfg)
-
-	getWAFAddressGroupOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{id}", d.Id())
+	requestPath += buildWAFAddressGroupQueryParams(d, cfg)
+	requestOpt := golangsdk.RequestOpts{
 		MoreHeaders: map[string]string{
 			"Content-Type": "application/json;charset=utf8",
 		},
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-	}
-	getWAFAddressGroupResp, err := getWAFAddressGroupClient.Request("GET", getWAFAddressGroupPath,
-		&getWAFAddressGroupOpt)
-	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving address group")
 	}
 
-	getWAFAddressGroupRespBody, err := utils.FlattenResponse(getWAFAddressGroupResp)
+	resp, err := client.Request("GET", requestPath, &requestOpt)
+	if err != nil {
+		// If the address group does not exist, the response HTTP status code of the details API is 404.
+		return common.CheckDeletedDiag(d, err, "error retrieving WAF address group")
+	}
+
+	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -221,10 +206,10 @@ func resourceAddressGroupRead(_ context.Context, d *schema.ResourceData, meta in
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),
-		d.Set("name", utils.PathSearch("name", getWAFAddressGroupRespBody, nil)),
-		d.Set("ip_addresses", flattenAddressGroupResponseBodyIpAddresses(getWAFAddressGroupRespBody)),
-		d.Set("description", utils.PathSearch("description", getWAFAddressGroupRespBody, nil)),
-		d.Set("rules", flattenAddressGroupResponseBodyRules(getWAFAddressGroupRespBody)),
+		d.Set("name", utils.PathSearch("name", respBody, nil)),
+		d.Set("ip_addresses", flattenAddressGroupResponseBodyIpAddresses(respBody)),
+		d.Set("description", utils.PathSearch("description", respBody, nil)),
+		d.Set("rules", flattenAddressGroupResponseBodyRules(respBody)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -267,73 +252,62 @@ func resourceAddressGroupUpdate(ctx context.Context, d *schema.ResourceData, met
 	}
 
 	if d.HasChanges(updateWAFAddressGroupChanges...) {
-		// updateWAFAddressGroup: Update WAF address group
 		var (
-			updateWAFAddressGroupHttpUrl = "v1/{project_id}/waf/ip-group/{id}"
-			updateWAFAddressGroupProduct = "waf"
+			httpUrl = "v1/{project_id}/waf/ip-group/{id}"
+			product = "waf"
 		)
-		updateWAFAddressGroupClient, err := cfg.NewServiceClient(updateWAFAddressGroupProduct, region)
+		client, err := cfg.NewServiceClient(product, region)
 		if err != nil {
-			return diag.Errorf("error creating WAF Client: %s", err)
+			return diag.Errorf("error creating WAF client: %s", err)
 		}
 
-		updateWAFAddressGroupPath := updateWAFAddressGroupClient.Endpoint + updateWAFAddressGroupHttpUrl
-		updateWAFAddressGroupPath = strings.ReplaceAll(updateWAFAddressGroupPath, "{project_id}",
-			updateWAFAddressGroupClient.ProjectID)
-		updateWAFAddressGroupPath = strings.ReplaceAll(updateWAFAddressGroupPath, "{id}", d.Id())
-		updateWAFAddressGroupPath += buildWAFAddressGroupQueryParams(d, cfg)
-
-		updateWAFAddressGroupOpt := golangsdk.RequestOpts{
+		requestPath := client.Endpoint + httpUrl
+		requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+		requestPath = strings.ReplaceAll(requestPath, "{id}", d.Id())
+		requestPath += buildWAFAddressGroupQueryParams(d, cfg)
+		requestOpt := golangsdk.RequestOpts{
 			MoreHeaders: map[string]string{
 				"Content-Type": "application/json;charset=utf8",
 			},
 			KeepResponseBody: true,
-			OkCodes: []int{
-				200,
-			},
+			JSONBody:         utils.RemoveNil(buildWAFAddressGroupBodyParams(d)),
 		}
-		updateWAFAddressGroupOpt.JSONBody = utils.RemoveNil(buildWAFAddressGroupBodyParams(d))
-		_, err = updateWAFAddressGroupClient.Request("PUT", updateWAFAddressGroupPath,
-			&updateWAFAddressGroupOpt)
+
+		_, err = client.Request("PUT", requestPath, &requestOpt)
 		if err != nil {
-			return diag.Errorf("error updating address group: %s", err)
+			return diag.Errorf("error updating WAF address group: %s", err)
 		}
 	}
 	return resourceAddressGroupRead(ctx, d, meta)
 }
 
 func resourceAddressGroupDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// deleteWAFAddressGroup: Delete WAF address group
 	var (
-		deleteWAFAddressGroupHttpUrl = "v1/{project_id}/waf/ip-group/{id}"
-		deleteWAFAddressGroupProduct = "waf"
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1/{project_id}/waf/ip-group/{id}"
+		product = "waf"
 	)
-	deleteWAFAddressGroupClient, err := cfg.NewServiceClient(deleteWAFAddressGroupProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating WAF Client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
-	deleteWAFAddressGroupPath := deleteWAFAddressGroupClient.Endpoint + deleteWAFAddressGroupHttpUrl
-	deleteWAFAddressGroupPath = strings.ReplaceAll(deleteWAFAddressGroupPath, "{project_id}",
-		deleteWAFAddressGroupClient.ProjectID)
-	deleteWAFAddressGroupPath = strings.ReplaceAll(deleteWAFAddressGroupPath, "{id}", d.Id())
-	deleteWAFAddressGroupPath += buildWAFAddressGroupQueryParams(d, cfg)
-
-	deleteWAFAddressGroupOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{id}", d.Id())
+	requestPath += buildWAFAddressGroupQueryParams(d, cfg)
+	requestOpt := golangsdk.RequestOpts{
 		MoreHeaders: map[string]string{
 			"Content-Type": "application/json;charset=utf8",
 		},
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
-	_, err = deleteWAFAddressGroupClient.Request("DELETE", deleteWAFAddressGroupPath, &deleteWAFAddressGroupOpt)
+
+	_, err = client.Request("DELETE", requestPath, &requestOpt)
 	if err != nil {
-		return diag.Errorf("error deleting address group: %s", err)
+		// If the address group does not exist, the response HTTP status code of the deletion API is 404.
+		return common.CheckDeletedDiag(d, err, "error deleting WAF address group")
 	}
 
 	return nil
@@ -347,12 +321,8 @@ func resourceWAFImportState(_ context.Context, d *schema.ResourceData, _ interfa
 
 	parts := strings.SplitN(d.Id(), "/", 2)
 	if len(parts) != 2 {
-		return nil, fmt.Errorf("invalid format specified for import id, must be <id>/<enterprise_project_id>")
+		return nil, fmt.Errorf("invalid format specified for import ID, must be <id>/<enterprise_project_id>")
 	}
 	d.SetId(parts[0])
-	mErr := multierror.Append(nil, d.Set("enterprise_project_id", parts[1]))
-	if err := mErr.ErrorOrNil(); err != nil {
-		return nil, fmt.Errorf("failed to set value to state when import with epsid, %s", err)
-	}
-	return []*schema.ResourceData{d}, nil
+	return []*schema.ResourceData{d}, d.Set("enterprise_project_id", parts[1])
 }

@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"regexp"
 	"strings"
 	"time"
 
@@ -12,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/cci/v1/networks"
@@ -62,12 +60,6 @@ func ResourceCciNetworkV1() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[a-z0-9]([-a-z0-9.]*[a-z0-9])?$`),
-						"The name can only contains lowercase characters, hyphens (-) and dots (.), and must start "+
-							"and end with a character or digit."),
-					validation.StringLenBetween(1, 200),
-				),
 			},
 			"security_group_id": {
 				Type:     schema.TypeString,

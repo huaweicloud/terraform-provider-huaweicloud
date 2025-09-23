@@ -1,0 +1,37 @@
+info:
+    version: ""
+    title: resource_huaweicloud_codearts_pipeline_plugin_version
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CodeArtsPipeline
+paths:
+    /v1/{domain_id}/agent-plugin/create:
+        POST:
+            tag: CodeArtsPipeline
+    /v1/{domain_id}/agent-plugin/create-draft:
+        POST:
+            tag: CodeArtsPipeline
+    /v1/{domain_id}/agent-plugin/delete-draft:
+        DELETE:
+            tag: CodeArtsPipeline
+    /v1/{domain_id}/agent-plugin/detail:
+        GET:
+            tag: CodeArtsPipeline
+    /v1/{domain_id}/agent-plugin/edit-draft:
+        POST:
+            tag: CodeArtsPipeline
+    /v1/{domain_id}/agent-plugin/publish-draft:
+        POST:
+            tag: CodeArtsPipeline
+    /v1/{domain_id}/agent-plugin/query-all:
+        GET:
+            tag: CodeArtsPipeline
+    /v1/{domain_id}/agent-plugin/update-info:
+        POST:
+            tag: CodeArtsPipeline
+    /v3/{domain_id}/extension/info/delete:
+        DELETE:
+            tag: CodeArtsPipeline

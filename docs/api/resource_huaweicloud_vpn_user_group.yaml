@@ -1,0 +1,29 @@
+info:
+    version: ""
+    title: resource_huaweicloud_vpn_user_group
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: VPN
+paths:
+    /v5/{project_id}/p2c-vpn-gateways/vpn-servers/{vpn_server_id}/groups:
+        POST:
+            tag: VPN
+    /v5/{project_id}/p2c-vpn-gateways/vpn-servers/{vpn_server_id}/groups/{group_id}:
+        DELETE:
+            tag: VPN
+        GET:
+            tag: VPN
+        PUT:
+            tag: VPN
+    /v5/{project_id}/p2c-vpn-gateways/vpn-servers/{vpn_server_id}/groups/{group_id}/add-users:
+        POST:
+            tag: VPN
+    /v5/{project_id}/p2c-vpn-gateways/vpn-servers/{vpn_server_id}/groups/{group_id}/remove-users:
+        POST:
+            tag: VPN
+    /v5/{project_id}/p2c-vpn-gateways/vpn-servers/{vpn_server_id}/groups/{group_id}/users:
+        GET:
+            tag: VPN

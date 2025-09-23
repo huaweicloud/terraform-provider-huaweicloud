@@ -250,7 +250,7 @@ The following arguments are supported:
 <a name="fgs_trigger_timer"></a>
 The `timer` block supports:
 
-* `name` - (Required, String, ForceNew) Specifies the trigger name, which can contains of 1 to 64 characters.
+* `name` - (Required, String, ForceNew) Specifies the trigger name, which can contains of `1` to `64` characters.
   The name must start with a letter, only letters, digits, hyphens (-) and underscores (_) are allowed.
   Changing this will create a new trigger resource.
 

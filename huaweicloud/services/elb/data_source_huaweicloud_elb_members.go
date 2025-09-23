@@ -61,6 +61,18 @@ func DataSourceElbMembers() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"instance_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"ip_version": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"operating_status": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"member_type": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -105,9 +117,78 @@ func membersSchema() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"instance_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"ip_version": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"operating_status": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"reason": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     memberReasonSchema(),
+			},
+			"status": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     memberStatusSchema(),
+			},
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"updated_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 	return &sc
+}
+
+func memberReasonSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"expected_response": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"healthcheck_response": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"reason_code": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+		},
+	}
+}
+
+func memberStatusSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"listener_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"operating_status": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"reason": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     memberReasonSchema(),
+			},
+		},
+	}
 }
 
 func dataSourceElbMembersRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -171,9 +252,6 @@ func buildListMembersQueryParams(d *schema.ResourceData, enterpriseProjectId str
 	if v, ok := d.GetOk("protocol_port"); ok {
 		res = fmt.Sprintf("%s&protocol_port=%v", res, v)
 	}
-	if v, ok := d.GetOk("pool_id"); ok {
-		res = fmt.Sprintf("%s&pool_id=%v", res, v)
-	}
 	if v, ok := d.GetOk("weight"); ok {
 		res = fmt.Sprintf("%s&weight=%v", res, v)
 	}
@@ -188,6 +266,15 @@ func buildListMembersQueryParams(d *schema.ResourceData, enterpriseProjectId str
 	}
 	if v, ok := d.GetOk("member_type"); ok {
 		res = fmt.Sprintf("%s&member_type=%v", res, v)
+	}
+	if v, ok := d.GetOk("instance_id"); ok {
+		res = fmt.Sprintf("%s&instance_id=%v", res, v)
+	}
+	if v, ok := d.GetOk("ip_version"); ok {
+		res = fmt.Sprintf("%s&ip_version=%v", res, v)
+	}
+	if v, ok := d.GetOk("operating_status"); ok {
+		res = fmt.Sprintf("%s&operating_status=%v", res, v)
 	}
 	if res != "" {
 		res = "?" + res[1:]
@@ -207,13 +294,20 @@ func flattenListMembersBody(resp interface{}) []interface{} {
 	rst := make([]interface{}, 0, len(curArray))
 	for _, v := range curArray {
 		rst = append(rst, map[string]interface{}{
-			"id":            utils.PathSearch("id", v, nil),
-			"name":          utils.PathSearch("name", v, nil),
-			"weight":        utils.PathSearch("weight", v, nil),
-			"subnet_id":     utils.PathSearch("subnet_cidr_id", v, nil),
-			"address":       utils.PathSearch("address", v, nil),
-			"protocol_port": utils.PathSearch("protocol_port", v, nil),
-			"member_type":   utils.PathSearch("member_type", v, nil),
+			"id":               utils.PathSearch("id", v, nil),
+			"name":             utils.PathSearch("name", v, nil),
+			"weight":           utils.PathSearch("weight", v, nil),
+			"subnet_id":        utils.PathSearch("subnet_cidr_id", v, nil),
+			"address":          utils.PathSearch("address", v, nil),
+			"protocol_port":    utils.PathSearch("protocol_port", v, nil),
+			"member_type":      utils.PathSearch("member_type", v, nil),
+			"instance_id":      utils.PathSearch("instance_id", v, nil),
+			"ip_version":       utils.PathSearch("ip_version", v, nil),
+			"operating_status": utils.PathSearch("operating_status", v, nil),
+			"reason":           flattenMemberReason(utils.PathSearch("reason", v, nil)),
+			"status":           flattenMemberStatus(utils.PathSearch("status", v, nil)),
+			"created_at":       utils.PathSearch("created_at", v, nil),
+			"updated_at":       utils.PathSearch("updated_at", v, nil),
 		})
 	}
 	return rst

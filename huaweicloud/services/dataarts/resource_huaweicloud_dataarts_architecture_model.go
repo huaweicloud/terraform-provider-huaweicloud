@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -16,6 +15,12 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
+
+var modelErrCodes = []string{
+	"DLG.0818", // Workspace does not exist.
+	"DLG.6026", // Resource does not exist.
+	"DLG.3902", // Resource ID value is incorrect.
+}
 
 // @API DataArtsStudio POST /v2/{project_id}/design/workspaces
 // @API DataArtsStudio GET /v2/{project_id}/design/workspaces
@@ -129,12 +134,11 @@ func resourceArchitectureModelCreate(ctx context.Context, d *schema.ResourceData
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	model := utils.PathSearch("data.value", createModelBody, nil)
-	id, err := jmespath.Search("id", model)
-	if err != nil {
-		return diag.Errorf("error creating DataArts Studio architecture model: %s is not found in API response", "id")
+	modelId := utils.PathSearch("data.value.id", createModelBody, "").(string)
+	if modelId == "" {
+		return diag.Errorf("unable to find the DataArts Studio architecture model ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(modelId)
 
 	return resourceArchitectureModelRead(ctx, d, meta)
 }
@@ -191,7 +195,8 @@ func getModelByName(modelClient *golangsdk.ServiceClient, d *schema.ResourceData
 	for {
 		readModelResp, err := modelClient.Request("GET", readModelPath, &readModelOpt)
 		if err != nil {
-			return nil, err
+			// Only one scenario where the workspace ID does not exist, the error code is "DLG.0818".
+			return nil, common.ConvertExpected400ErrInto404Err(err, "errors|[0].error_code")
 		}
 		readModelBody, err := utils.FlattenResponse(readModelResp)
 		if err != nil {
@@ -233,10 +238,7 @@ func getModelById(modelClient *golangsdk.ServiceClient, d *schema.ResourceData) 
 	}
 	readModelResp, err := modelClient.Request("GET", readModelPath, &readModelOpt)
 	if err != nil {
-		if hasErrorCode(err, "DLG.6026") || hasErrorCode(err, "DLG.3902") {
-			err = golangsdk.ErrDefault404{}
-		}
-		return nil, err
+		return nil, common.ConvertExpected400ErrInto404Err(err, "errors|[0].error_code", modelErrCodes...)
 	}
 	readModelBody, err := utils.FlattenResponse(readModelResp)
 	if err != nil {

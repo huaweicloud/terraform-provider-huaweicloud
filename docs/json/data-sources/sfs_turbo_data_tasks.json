@@ -1,0 +1,60 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_sfs_turbo_data_tasks": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "share_id": {
+                "type": "string",
+                "description": "Specifies the ID of the SFS Turbo file system to which the data tasks belong.",
+                "required": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the status of the data task.",
+                "optional": true
+              },
+              "tasks": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "dest_prefix": "string",
+                      "dest_target": "string",
+                      "end_time": "string",
+                      "id": "string",
+                      "message": "string",
+                      "src_prefix": "string",
+                      "src_target": "string",
+                      "start_time": "string",
+                      "status": "string",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the data task.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the type of the data task.",
+                "optional": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

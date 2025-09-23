@@ -95,8 +95,9 @@ func TestAccFlinkTemplate_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "sql", "select * from source_table2"),
 					resource.TestCheckResourceAttr(rName, "description", "This is a demo2"),
 					resource.TestCheckResourceAttr(rName, "type", "flink_sql_job"),
+					// The tags is ForceNew.
 					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
-					resource.TestCheckResourceAttr(rName, "tags.key", "value2"),
+					resource.TestCheckResourceAttr(rName, "tags.key", "value"),
 				),
 			},
 			{
@@ -135,7 +136,7 @@ resource "huaweicloud_dli_flink_template" "test" {
 
   tags = {
     foo = "bar"
-    key = "value2"
+    key = "value"
   }
 }
 `, name)

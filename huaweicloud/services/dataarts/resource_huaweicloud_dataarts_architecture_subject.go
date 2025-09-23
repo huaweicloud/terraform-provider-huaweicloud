@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -134,12 +133,12 @@ func resourceArchitectureSubjectCreate(ctx context.Context, d *schema.ResourceDa
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("data.value.id", createSubjectRespBody)
-	if err != nil || id == nil {
-		return diag.Errorf("error creating DataArts Architecture subject: %s is not found in API response", "id")
+	subjectId := utils.PathSearch("data.value.id", createSubjectRespBody, "").(string)
+	if subjectId == "" {
+		return diag.Errorf("unable to find the DataArts Architecture subject ID from the API response")
 	}
 
-	d.SetId(id.(string))
+	d.SetId(subjectId)
 
 	return resourceArchitectureSubjectRead(ctx, d, meta)
 }
@@ -190,7 +189,8 @@ func resourceArchitectureSubjectRead(_ context.Context, d *schema.ResourceData, 
 		path := fmt.Sprintf("%s&offset=%v", getSubjectPath, currentTotal)
 		getSubjectResp, err := getSubjectClient.Request("GET", path, &getSubjectOpt)
 		if err != nil {
-			return common.CheckDeletedDiag(d, err, "error retrieving DataArts Architecture subject")
+			return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "errors|[0].error_code", workspaceIdNotFound),
+				"error retrieving DataArts Architecture subject")
 		}
 		getSubjectRespBody, err := utils.FlattenResponse(getSubjectResp)
 		if err != nil {

@@ -61,8 +61,11 @@ func TestAccApi_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(webBackend, "request_protocol", "HTTP"),
 					resource.TestCheckResourceAttr(webBackend, "request_method", "GET"),
 					resource.TestCheckResourceAttr(webBackend, "request_path", "/web/test"),
-					resource.TestCheckResourceAttr(webBackend, "security_authentication", "APP"),
-					resource.TestCheckResourceAttr(webBackend, "simple_authentication", "true"),
+					resource.TestCheckResourceAttr(webBackend, "security_authentication", "AUTHORIZER"),
+					resource.TestCheckResourceAttrPair(webBackend, "authorizer_id", "huaweicloud_apig_custom_authorizer.front", "id"),
+					resource.TestCheckResourceAttr(webBackend, "simple_authentication", "false"),
+					resource.TestCheckResourceAttr(webBackend, "content_type", ""),
+					resource.TestCheckResourceAttr(webBackend, "is_send_fg_body_base64", "true"),
 					resource.TestCheckResourceAttr(webBackend, "matching", "Exact"),
 					resource.TestCheckResourceAttr(webBackend, "success_response", "Success response"),
 					resource.TestCheckResourceAttr(webBackend, "failure_response", "Failed response"),
@@ -90,7 +93,7 @@ func TestAccApi_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(webBackend, "web.0.request_protocol", "HTTP"),
 					resource.TestCheckResourceAttr(webBackend, "web.0.timeout", "30000"),
 					resource.TestCheckResourceAttr(webBackend, "web.0.retry_count", "1"),
-					resource.TestCheckResourceAttrPair(webBackend, "web.0.authorizer_id", "huaweicloud_apig_custom_authorizer.test", "id"),
+					resource.TestCheckResourceAttrPair(webBackend, "web.0.authorizer_id", "huaweicloud_apig_custom_authorizer.backend", "id"),
 					resource.TestCheckResourceAttr(webBackend, "web_policy.#", "1"),
 					resource.TestCheckResourceAttr(webBackend, "web_policy.0.name", name+"_web_policy"),
 					resource.TestCheckResourceAttr(webBackend, "web_policy.0.request_protocol", "HTTP"),
@@ -100,7 +103,7 @@ func TestAccApi_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(webBackend, "web_policy.0.timeout", "30000"),
 					resource.TestCheckResourceAttr(webBackend, "web_policy.0.retry_count", "1"),
 					resource.TestCheckResourceAttrPair(webBackend, "web_policy.0.vpc_channel_id", "huaweicloud_apig_channel.test", "id"),
-					resource.TestCheckResourceAttrPair(webBackend, "web_policy.0.authorizer_id", "huaweicloud_apig_custom_authorizer.test", "id"),
+					resource.TestCheckResourceAttrPair(webBackend, "web_policy.0.authorizer_id", "huaweicloud_apig_custom_authorizer.backend", "id"),
 					resource.TestCheckResourceAttr(webBackend, "web_policy.0.backend_params.#", "1"),
 					resource.TestCheckResourceAttr(webBackend, "web_policy.0.backend_params.0.type", "SYSTEM"),
 					resource.TestCheckResourceAttr(webBackend, "web_policy.0.backend_params.0.name", "SerivceNum"),
@@ -137,7 +140,7 @@ func TestAccApi_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(fgsBackend, "func_graph.0.request_protocol", "GRPCS"),
 					resource.TestCheckResourceAttr(fgsBackend, "func_graph.0.timeout", "5000"),
 					resource.TestCheckResourceAttr(fgsBackend, "func_graph.0.invocation_type", "sync"),
-					resource.TestCheckResourceAttrPair(fgsBackend, "func_graph.0.authorizer_id", "huaweicloud_apig_custom_authorizer.test", "id"),
+					resource.TestCheckResourceAttrPair(fgsBackend, "func_graph.0.authorizer_id", "huaweicloud_apig_custom_authorizer.backend", "id"),
 					resource.TestCheckResourceAttr(fgsBackend, "func_graph_policy.#", "1"),
 					resource.TestCheckResourceAttr(fgsBackend, "func_graph_policy.0.name", name+"_fgs_policy"),
 					resource.TestCheckResourceAttrPair(fgsBackend, "func_graph_policy.0.function_urn", "huaweicloud_fgs_function.test.1", "urn"),
@@ -149,7 +152,7 @@ func TestAccApi_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(fgsBackend, "func_graph_policy.0.invocation_type", "sync"),
 					resource.TestCheckResourceAttr(fgsBackend, "func_graph_policy.0.effective_mode", "ANY"),
 					resource.TestCheckResourceAttrPair(fgsBackend, "func_graph_policy.0.authorizer_id",
-						"huaweicloud_apig_custom_authorizer.test", "id"),
+						"huaweicloud_apig_custom_authorizer.backend", "id"),
 					resource.TestCheckResourceAttr(fgsBackend, "func_graph_policy.0.conditions.#", "1"),
 					resource.TestCheckResourceAttr(fgsBackend, "func_graph_policy.0.conditions.0.source", "cookie"),
 					resource.TestCheckResourceAttr(fgsBackend, "func_graph_policy.0.conditions.0.cookie_name", "regex_test"),
@@ -176,12 +179,13 @@ func TestAccApi_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(mockBackend, "mock.#", "1"),
 					resource.TestCheckResourceAttr(mockBackend, "mock.0.status_code", "201"),
 					resource.TestCheckResourceAttr(mockBackend, "mock.0.response", "{'message':'hello world'}"),
-					resource.TestCheckResourceAttrPair(mockBackend, "mock.0.authorizer_id", "huaweicloud_apig_custom_authorizer.test", "id"),
+					resource.TestCheckResourceAttrPair(mockBackend, "mock.0.authorizer_id", "huaweicloud_apig_custom_authorizer.backend", "id"),
 					resource.TestCheckResourceAttr(mockBackend, "mock_policy.#", "1"),
 					resource.TestCheckResourceAttr(mockBackend, "mock_policy.0.name", name+"_mock_policy"),
 					resource.TestCheckResourceAttr(mockBackend, "mock_policy.0.status_code", "201"),
 					resource.TestCheckResourceAttr(mockBackend, "mock_policy.0.response", "{'message':'hello world'}"),
-					resource.TestCheckResourceAttrPair(mockBackend, "mock_policy.0.authorizer_id", "huaweicloud_apig_custom_authorizer.test", "id"),
+					resource.TestCheckResourceAttrPair(mockBackend, "mock_policy.0.authorizer_id",
+						"huaweicloud_apig_custom_authorizer.backend", "id"),
 					resource.TestCheckResourceAttr(mockBackend, "mock_policy.0.effective_mode", "ANY"),
 					resource.TestCheckResourceAttr(mockBackend, "mock_policy.0.conditions.#", "1"),
 					resource.TestCheckResourceAttr(mockBackend, "mock_policy.0.conditions.0.source", "system"),
@@ -206,8 +210,11 @@ func TestAccApi_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(webBackend, "request_protocol", "HTTP"),
 					resource.TestCheckResourceAttr(webBackend, "request_method", "GET"),
 					resource.TestCheckResourceAttr(webBackend, "request_path", "/web/new/test"),
-					resource.TestCheckResourceAttr(webBackend, "security_authentication", "APP"),
+					resource.TestCheckResourceAttr(webBackend, "security_authentication", "AUTHORIZER"),
+					resource.TestCheckResourceAttrPair(webBackend, "authorizer_id", "huaweicloud_apig_custom_authorizer.front", "id"),
 					resource.TestCheckResourceAttr(webBackend, "simple_authentication", "false"),
+					resource.TestCheckResourceAttr(webBackend, "content_type", "application/json"),
+					resource.TestCheckResourceAttr(webBackend, "is_send_fg_body_base64", "false"),
 					resource.TestCheckResourceAttr(webBackend, "matching", "Exact"),
 					resource.TestCheckResourceAttr(webBackend, "success_response", "Updated success response"),
 					resource.TestCheckResourceAttr(webBackend, "failure_response", "Updated failed response"),
@@ -237,7 +244,7 @@ func TestAccApi_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(webBackend, "web.0.request_protocol", "HTTP"),
 					resource.TestCheckResourceAttr(webBackend, "web.0.timeout", "40000"),
 					resource.TestCheckResourceAttr(webBackend, "web.0.retry_count", "2"),
-					resource.TestCheckResourceAttrPair(webBackend, "web.0.authorizer_id", "huaweicloud_apig_custom_authorizer.test", "id"),
+					resource.TestCheckResourceAttrPair(webBackend, "web.0.authorizer_id", "huaweicloud_apig_custom_authorizer.backend", "id"),
 					resource.TestCheckResourceAttr(webBackend, "web_policy.#", "1"),
 					resource.TestCheckResourceAttr(webBackend, "web_policy.0.name", updateName+"_web_policy"),
 					resource.TestCheckResourceAttr(webBackend, "web_policy.0.request_protocol", "HTTP"),
@@ -247,7 +254,7 @@ func TestAccApi_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(webBackend, "web_policy.0.timeout", "40000"),
 					resource.TestCheckResourceAttr(webBackend, "web_policy.0.retry_count", "2"),
 					resource.TestCheckResourceAttrPair(webBackend, "web_policy.0.vpc_channel_id", "huaweicloud_apig_channel.test", "id"),
-					resource.TestCheckResourceAttrPair(webBackend, "web_policy.0.authorizer_id", "huaweicloud_apig_custom_authorizer.test", "id"),
+					resource.TestCheckResourceAttrPair(webBackend, "web_policy.0.authorizer_id", "huaweicloud_apig_custom_authorizer.backend", "id"),
 					resource.TestCheckResourceAttr(webBackend, "web_policy.0.backend_params.#", "1"),
 					resource.TestCheckResourceAttr(webBackend, "web_policy.0.backend_params.0.type", "SYSTEM"),
 					resource.TestCheckResourceAttr(webBackend, "web_policy.0.backend_params.0.name", "ServiceName"),
@@ -274,8 +281,8 @@ func TestAccApi_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(fgsBackend, "request_path", "/fgs/new/test"),
 					resource.TestCheckResourceAttr(fgsBackend, "security_authentication", "APP"),
 					resource.TestCheckResourceAttr(fgsBackend, "simple_authentication", "false"),
-					resource.TestCheckResourceAttr(fgsBackend, "description", ""),
 					resource.TestCheckResourceAttr(fgsBackend, "matching", "Exact"),
+					resource.TestCheckResourceAttr(fgsBackend, "description", ""),
 					resource.TestCheckResourceAttr(fgsBackend, "request_params.#", "0"),
 					resource.TestCheckResourceAttr(fgsBackend, "backend_params.#", "0"),
 					resource.TestCheckResourceAttr(fgsBackend, "func_graph.#", "1"),
@@ -285,7 +292,7 @@ func TestAccApi_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(fgsBackend, "func_graph.0.request_protocol", "GRPCS"),
 					resource.TestCheckResourceAttr(fgsBackend, "func_graph.0.timeout", "6000"),
 					resource.TestCheckResourceAttr(fgsBackend, "func_graph.0.invocation_type", "sync"),
-					resource.TestCheckResourceAttrPair(fgsBackend, "func_graph.0.authorizer_id", "huaweicloud_apig_custom_authorizer.test", "id"),
+					resource.TestCheckResourceAttrPair(fgsBackend, "func_graph.0.authorizer_id", "huaweicloud_apig_custom_authorizer.backend", "id"),
 					resource.TestCheckResourceAttr(fgsBackend, "func_graph_policy.#", "1"),
 					resource.TestCheckResourceAttr(fgsBackend, "func_graph_policy.0.name", updateName+"_fgs_policy"),
 					resource.TestCheckResourceAttrPair(fgsBackend, "func_graph_policy.0.function_urn", "huaweicloud_fgs_function.test.1", "urn"),
@@ -296,7 +303,7 @@ func TestAccApi_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(fgsBackend, "func_graph_policy.0.invocation_type", "sync"),
 					resource.TestCheckResourceAttr(fgsBackend, "func_graph_policy.0.effective_mode", "ALL"),
 					resource.TestCheckResourceAttrPair(fgsBackend, "func_graph_policy.0.authorizer_id",
-						"huaweicloud_apig_custom_authorizer.test", "id"),
+						"huaweicloud_apig_custom_authorizer.backend", "id"),
 					resource.TestCheckResourceAttr(fgsBackend, "func_graph_policy.0.conditions.#", "1"),
 					resource.TestCheckResourceAttr(fgsBackend, "func_graph_policy.0.conditions.0.source", "cookie"),
 					resource.TestCheckResourceAttr(fgsBackend, "func_graph_policy.0.conditions.0.cookie_name", "regex_test"),
@@ -326,12 +333,13 @@ func TestAccApi_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(mockBackend, "mock.#", "1"),
 					resource.TestCheckResourceAttr(mockBackend, "mock.0.status_code", "202"),
 					resource.TestCheckResourceAttr(mockBackend, "mock.0.response", "{'message':'hello world!'}"),
-					resource.TestCheckResourceAttrPair(mockBackend, "mock.0.authorizer_id", "huaweicloud_apig_custom_authorizer.test", "id"),
+					resource.TestCheckResourceAttrPair(mockBackend, "mock.0.authorizer_id", "huaweicloud_apig_custom_authorizer.backend", "id"),
 					resource.TestCheckResourceAttr(mockBackend, "mock_policy.#", "1"),
 					resource.TestCheckResourceAttr(mockBackend, "mock_policy.0.name", updateName+"_mock_policy"),
 					resource.TestCheckResourceAttr(mockBackend, "mock_policy.0.status_code", "202"),
 					resource.TestCheckResourceAttr(mockBackend, "mock_policy.0.response", "{'message':'hello world!'}"),
-					resource.TestCheckResourceAttrPair(mockBackend, "mock_policy.0.authorizer_id", "huaweicloud_apig_custom_authorizer.test", "id"),
+					resource.TestCheckResourceAttrPair(mockBackend, "mock_policy.0.authorizer_id",
+						"huaweicloud_apig_custom_authorizer.backend", "id"),
 					resource.TestCheckResourceAttr(mockBackend, "mock_policy.0.effective_mode", "ALL"),
 					resource.TestCheckResourceAttr(mockBackend, "mock_policy.0.conditions.#", "1"),
 					resource.TestCheckResourceAttr(mockBackend, "mock_policy.0.conditions.0.source", "system"),
@@ -463,11 +471,30 @@ resource "huaweicloud_apig_channel" "test" {
   }
 }
 
-resource "huaweicloud_apig_custom_authorizer" "test" {
+resource "huaweicloud_apig_custom_authorizer" "front" {
   instance_id        = local.instance_id
-  name               = "%[2]s"
+  name               = "%[2]s_front"
   function_urn       = huaweicloud_fgs_function.test[0].urn
-  function_alias_uri = format("%%s:!%%s", huaweicloud_fgs_function.test[0].urn, tolist(huaweicloud_fgs_function.test[0].versions)[0].aliases[0].name)
+  function_alias_uri = format("%%s:!%%s", huaweicloud_fgs_function.test[0].urn,
+    tolist(huaweicloud_fgs_function.test[0].versions)[0].aliases[0].name)
+  network_type       = "V2"
+  type               = "FRONTEND"
+  is_body_send       = true
+  user_data          = "Demo"
+  cache_age          = 15
+
+  identity {
+    name     = "X-Service-Num"
+    location = "HEADER"
+  }
+}
+
+resource "huaweicloud_apig_custom_authorizer" "backend" {
+  instance_id        = local.instance_id
+  name               = "%[2]s_backend"
+  function_urn       = huaweicloud_fgs_function.test[0].urn
+  function_alias_uri = format("%%s:!%%s", huaweicloud_fgs_function.test[0].urn,
+    tolist(huaweicloud_fgs_function.test[0].versions)[0].aliases[0].name)
   network_type       = "V2"
   type               = "BACKEND"
   is_body_send       = true
@@ -491,8 +518,8 @@ resource "huaweicloud_apig_api" "web" {
   request_protocol        = "HTTP"
   request_method          = "GET"
   request_path            = "/web/test"
-  security_authentication = "APP"
-  simple_authentication   = true
+  security_authentication = "AUTHORIZER"
+  authorizer_id           = huaweicloud_apig_custom_authorizer.front.id
   matching                = "Exact"
   success_response        = "Success response"
   failure_response        = "Failed response"
@@ -524,7 +551,7 @@ resource "huaweicloud_apig_api" "web" {
     request_protocol = "HTTP"
     timeout          = 30000
     retry_count      = 1
-    authorizer_id    = huaweicloud_apig_custom_authorizer.test.id
+    authorizer_id    = huaweicloud_apig_custom_authorizer.backend.id
   }
 
   web_policy {
@@ -536,7 +563,7 @@ resource "huaweicloud_apig_api" "web" {
     timeout          = 30000
     retry_count      = 1
     vpc_channel_id   = huaweicloud_apig_channel.test.id
-    authorizer_id    = huaweicloud_apig_custom_authorizer.test.id
+    authorizer_id    = huaweicloud_apig_custom_authorizer.backend.id
 
     backend_params {
       type              = "SYSTEM"
@@ -575,7 +602,7 @@ resource "huaweicloud_apig_api" "func_graph" {
     request_protocol = "GRPCS"
     timeout          = 5000
     invocation_type  = "sync"
-    authorizer_id    = huaweicloud_apig_custom_authorizer.test.id
+    authorizer_id    = huaweicloud_apig_custom_authorizer.backend.id
   }
 
   func_graph_policy {
@@ -587,7 +614,7 @@ resource "huaweicloud_apig_api" "func_graph" {
     timeout          = 5000
     invocation_type  = "sync"
     effective_mode   = "ANY"
-    authorizer_id    = huaweicloud_apig_custom_authorizer.test.id
+    authorizer_id    = huaweicloud_apig_custom_authorizer.backend.id
 
     conditions {
       source      = "cookie"
@@ -616,14 +643,14 @@ resource "huaweicloud_apig_api" "mock" {
   mock {
     status_code   = 201
     response      = "{'message':'hello world'}"
-    authorizer_id = huaweicloud_apig_custom_authorizer.test.id
+    authorizer_id = huaweicloud_apig_custom_authorizer.backend.id
   }
 
   mock_policy {
     name           = "%[2]s_mock_policy"
     status_code    = 201
     response       = "{'message':'hello world'}"
-    authorizer_id  = huaweicloud_apig_custom_authorizer.test.id
+    authorizer_id  = huaweicloud_apig_custom_authorizer.backend.id
     effective_mode = "ANY"
 
     conditions {
@@ -649,12 +676,14 @@ resource "huaweicloud_apig_api" "web" {
   request_protocol        = "HTTP"
   request_method          = "GET"
   request_path            = "/web/new/test"
-  security_authentication = "APP"
-  simple_authentication   = false
+  security_authentication = "AUTHORIZER"
+  authorizer_id           = huaweicloud_apig_custom_authorizer.front.id
   matching                = "Exact"
   success_response        = "Updated success response"
   failure_response        = "Updated failed response"
   tags                    = ["key"]
+  content_type            = "application/json"
+  is_send_fg_body_base64  = false
 
   request_params {
     name         = "X-Service-Name"
@@ -683,7 +712,7 @@ resource "huaweicloud_apig_api" "web" {
     request_protocol = "HTTP"
     timeout          = 40000
     retry_count      = 2
-    authorizer_id    = huaweicloud_apig_custom_authorizer.test.id
+    authorizer_id    = huaweicloud_apig_custom_authorizer.backend.id
   }
 
   web_policy {
@@ -695,7 +724,7 @@ resource "huaweicloud_apig_api" "web" {
     timeout          = 40000
     retry_count      = 2
     vpc_channel_id   = huaweicloud_apig_channel.test.id
-    authorizer_id    = huaweicloud_apig_custom_authorizer.test.id
+    authorizer_id    = huaweicloud_apig_custom_authorizer.backend.id
 
     backend_params {
       type              = "SYSTEM"
@@ -734,7 +763,7 @@ resource "huaweicloud_apig_api" "func_graph" {
     request_protocol   = "GRPCS"
     timeout            = 6000
     invocation_type    = "sync"
-    authorizer_id      = huaweicloud_apig_custom_authorizer.test.id
+    authorizer_id      = huaweicloud_apig_custom_authorizer.backend.id
   }
 
   func_graph_policy {
@@ -747,7 +776,7 @@ resource "huaweicloud_apig_api" "func_graph" {
     timeout            = 6000
     invocation_type    = "sync"
     effective_mode     = "ALL"
-    authorizer_id      = huaweicloud_apig_custom_authorizer.test.id
+    authorizer_id      = huaweicloud_apig_custom_authorizer.backend.id
 
     conditions {
       source      = "cookie"
@@ -775,14 +804,14 @@ resource "huaweicloud_apig_api" "mock" {
   mock {
     status_code   = 202
     response      = "{'message':'hello world!'}"
-    authorizer_id = huaweicloud_apig_custom_authorizer.test.id
+    authorizer_id = huaweicloud_apig_custom_authorizer.backend.id
   }
 
   mock_policy {
     name           = "%[2]s_mock_policy"
     status_code    = 202
     response       = "{'message':'hello world!'}"
-    authorizer_id  = huaweicloud_apig_custom_authorizer.test.id
+    authorizer_id  = huaweicloud_apig_custom_authorizer.backend.id
     effective_mode = "ALL"
 
     conditions {
@@ -790,6 +819,331 @@ resource "huaweicloud_apig_api" "mock" {
       type     = "Equal"
       value    = "GET"
       sys_name = "reqMethod"
+    }
+  }
+}
+`, baseConfig, name)
+}
+
+func TestAccApi_orchestration(t *testing.T) {
+	var (
+		api apis.APIResp
+
+		resourceName = "huaweicloud_apig_api.test"
+		rc           = acceptance.InitResourceCheck(resourceName, &api, getApiFunc)
+
+		name        = acceptance.RandomAccResourceName()
+		basicConfig = testAccApi_orchestration_base(name)
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			// Before running acceptance test for each kind of APIs, please make sure the agency already assign the FGS service.
+			acceptance.TestAccPreCheckFgsAgency(t)
+			acceptance.TestAccPreCheckApigSubResourcesRelatedInfo(t)
+			acceptance.TestAccPreCheckApigChannelRelatedInfo(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccApi_orchestration_step1(basicConfig, name),
+				Check: resource.ComposeTestCheckFunc(
+					// Web backend
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(resourceName, "instance_id", "data.huaweicloud_apig_instances.test", "instances.0.id"),
+					resource.TestCheckResourceAttrPair(resourceName, "group_id", "huaweicloud_apig_group.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "type", "Private"),
+					resource.TestCheckResourceAttr(resourceName, "request_protocol", "HTTP"),
+					resource.TestCheckResourceAttr(resourceName, "request_method", "GET"),
+					resource.TestCheckResourceAttr(resourceName, "request_path", "/orchestration/test"),
+					resource.TestCheckResourceAttr(resourceName, "security_authentication", "APP"),
+					resource.TestCheckResourceAttr(resourceName, "request_params.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "request_params.0.name", "X-Service-Name"),
+					resource.TestCheckResourceAttr(resourceName, "request_params.0.type", "STRING"),
+					resource.TestCheckResourceAttr(resourceName, "request_params.0.location", "HEADER"),
+					resource.TestCheckResourceAttr(resourceName, "request_params.0.maximum", "30"),
+					resource.TestCheckResourceAttr(resourceName, "request_params.0.minimum", "5"),
+					resource.TestCheckResourceAttr(resourceName, "request_params.0.orchestrations.#", "2"),
+					resource.TestCheckResourceAttrPair(resourceName, "request_params.0.orchestrations.0",
+						"huaweicloud_apig_orchestration_rule.type_none_value", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "request_params.0.orchestrations.1",
+						"huaweicloud_apig_orchestration_rule.type_list", "id"),
+					resource.TestCheckResourceAttr(resourceName, "backend_params.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "backend_params.0.type", "REQUEST"),
+					resource.TestCheckResourceAttr(resourceName, "backend_params.0.name", "ServiceName"),
+					resource.TestCheckResourceAttr(resourceName, "backend_params.0.location", "HEADER"),
+					resource.TestCheckResourceAttr(resourceName, "backend_params.0.value", "X-Service-Name"),
+					resource.TestCheckResourceAttr(resourceName, "backend_params.0.system_param_type", "backend"),
+					resource.TestCheckResourceAttr(resourceName, "web.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "web.0.path", "/orchestration/test/backend"),
+					resource.TestCheckResourceAttrPair(resourceName, "web.0.vpc_channel_id", "huaweicloud_apig_channel.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "web.0.request_method", "GET"),
+					resource.TestCheckResourceAttr(resourceName, "web.0.request_protocol", "HTTP"),
+					resource.TestCheckResourceAttr(resourceName, "web.0.timeout", "40000"),
+					resource.TestCheckResourceAttr(resourceName, "web.0.retry_count", "2"),
+					resource.TestCheckResourceAttrPair(resourceName, "web.0.authorizer_id", "huaweicloud_apig_custom_authorizer.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "web_policy.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "web_policy.0.name", name+"_orchestration_policy"),
+					resource.TestCheckResourceAttr(resourceName, "web_policy.0.request_protocol", "HTTP"),
+					resource.TestCheckResourceAttr(resourceName, "web_policy.0.request_method", "GET"),
+					resource.TestCheckResourceAttr(resourceName, "web_policy.0.effective_mode", "ALL"),
+					resource.TestCheckResourceAttr(resourceName, "web_policy.0.path", "/orchestration/test/backend/list"),
+					resource.TestCheckResourceAttr(resourceName, "web_policy.0.timeout", "40000"),
+					resource.TestCheckResourceAttr(resourceName, "web_policy.0.retry_count", "2"),
+					resource.TestCheckResourceAttrPair(resourceName, "web_policy.0.vpc_channel_id", "huaweicloud_apig_channel.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "web_policy.0.backend_params.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "web_policy.0.backend_params.0.type", "SYSTEM"),
+					resource.TestCheckResourceAttr(resourceName, "web_policy.0.backend_params.0.name", "ServiceName"),
+					resource.TestCheckResourceAttr(resourceName, "web_policy.0.backend_params.0.location", "HEADER"),
+					resource.TestCheckResourceAttr(resourceName, "web_policy.0.backend_params.0.value", "X-Service-Name"),
+					resource.TestCheckResourceAttr(resourceName, "web_policy.0.backend_params.0.system_param_type", "backend"),
+					resource.TestCheckResourceAttr(resourceName, "web_policy.0.conditions.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "web_policy.0.conditions.0.source", "orchestration"),
+					resource.TestCheckResourceAttr(resourceName, "web_policy.0.conditions.0.mapped_param_name", "ServiceName"),
+					resource.TestCheckResourceAttr(resourceName, "web_policy.0.conditions.0.mapped_param_location", "header"),
+					resource.TestCheckResourceAttr(resourceName, "web_policy.0.conditions.0.value", "ValueAA"),
+					resource.TestCheckResourceAttr(resourceName, "mock.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "func_graph.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "mock_policy.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "func_graph_policy.#", "0"),
+				),
+			},
+			{
+				Config: testAccApi_orchestration_step2(basicConfig, name),
+				Check: resource.ComposeTestCheckFunc(
+					// Web backend
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "request_params.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "request_params.0.orchestrations.#", "2"),
+					resource.TestCheckResourceAttrPair(resourceName, "request_params.0.orchestrations.0",
+						"huaweicloud_apig_orchestration_rule.type_none_value", "id"),
+					resource.TestCheckResourceAttrPair(resourceName, "request_params.0.orchestrations.1",
+						"huaweicloud_apig_orchestration_rule.type_hash", "id"),
+					resource.TestCheckResourceAttr(resourceName, "web_policy.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "web_policy.0.path", "/orchestration/test/backend/hash"),
+					resource.TestCheckResourceAttr(resourceName, "web_policy.0.conditions.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "web_policy.0.conditions.0.source", "orchestration"),
+					resource.TestCheckResourceAttr(resourceName, "web_policy.0.conditions.0.mapped_param_name", "ServiceName"),
+					resource.TestCheckResourceAttr(resourceName, "web_policy.0.conditions.0.mapped_param_location", "header"),
+					resource.TestCheckResourceAttr(resourceName, "web_policy.0.conditions.0.value", "HashValue"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccApiResourceImportStateFunc(resourceName),
+			},
+		},
+	})
+}
+
+func testAccApi_orchestration_base(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_apig_orchestration_rule" "type_list" {
+  instance_id = "%[2]s"
+  name        = "%[3]s_type_list"
+  strategy    = "list"
+
+  mapped_param = jsonencode({
+    "mapped_param_name": "ServiceName",
+    "mapped_param_type": "string",
+    "mapped_param_location": "header"
+  })
+  
+  map = [
+    jsonencode({
+      "mapped_param_value": "ValueAA",
+      "map_param_list": ["ValueA"]
+    })
+  ]
+}
+
+resource "huaweicloud_apig_orchestration_rule" "type_hash" {
+  instance_id = "%[2]s"
+  name        = "%[3]s_type_hash"
+  strategy    = "hash"
+
+  mapped_param = jsonencode({
+    "mapped_param_name": "ServiceName",
+    "mapped_param_type": "string",
+    "mapped_param_location": "header"
+  })
+}
+
+resource "huaweicloud_apig_orchestration_rule" "type_none_value" {
+  instance_id = "%[2]s"
+  name        = "%[3]s_type_none_value"
+  strategy    = "none_value"
+  
+  mapped_param = jsonencode({
+    "mapped_param_name": "ServiceName",
+    "mapped_param_type": "string",
+    "mapped_param_location": "header"
+  })
+  
+  map = [
+    jsonencode({
+      "mapped_param_value": "NoneValue"
+    })
+  ]
+}
+`, testAccApi_base(name),
+		acceptance.HW_APIG_DEDICATED_INSTANCE_ID,
+		name)
+}
+
+func testAccApi_orchestration_step1(baseConfig, name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_apig_api" "test" {
+  instance_id             = local.instance_id
+  group_id                = huaweicloud_apig_group.test.id
+  name                    = "%[2]s"
+  type                    = "Private"
+  request_protocol        = "HTTP"
+  request_method          = "GET"
+  request_path            = "/orchestration/test"
+  security_authentication = "APP"
+
+  request_params {
+    name     = "X-Service-Name"
+    type     = "STRING"
+    location = "HEADER"
+    maximum  = 30
+    minimum  = 5
+
+    orchestrations = [
+      # None value type has the highest priority.
+      huaweicloud_apig_orchestration_rule.type_none_value.id,
+      huaweicloud_apig_orchestration_rule.type_list.id,
+    ]
+  }
+
+  backend_params {
+    type              = "REQUEST"
+    name              = "ServiceName"
+    location          = "HEADER"
+    value             = "X-Service-Name"
+    system_param_type = "backend"
+  }
+
+  web {
+    path             = "/orchestration/test/backend"
+    vpc_channel_id   = huaweicloud_apig_channel.test.id
+    request_method   = "GET"
+    request_protocol = "HTTP"
+    timeout          = 40000
+    retry_count      = 2
+    authorizer_id    = huaweicloud_apig_custom_authorizer.backend.id
+  }
+
+  web_policy {
+    name             = "%[2]s_orchestration_policy"
+    request_protocol = "HTTP"
+    request_method   = "GET"
+    effective_mode   = "ALL"
+    path             = "/orchestration/test/backend/list"
+    timeout          = 40000
+    retry_count      = 2
+    vpc_channel_id   = huaweicloud_apig_channel.test.id
+    authorizer_id    = huaweicloud_apig_custom_authorizer.backend.id
+
+    backend_params {
+      type              = "SYSTEM"
+      name              = "ServiceName"
+      location          = "HEADER"
+      value             = "X-Service-Name"
+      system_param_type = "backend"
+    }
+
+    conditions {
+      source                = "orchestration"
+      mapped_param_name     = "ServiceName"
+      mapped_param_location = "header"
+      value                 = "ValueAA"
+    }
+  }
+}
+`, baseConfig, name)
+}
+
+func testAccApi_orchestration_step2(baseConfig, name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_apig_api" "test" {
+  instance_id             = local.instance_id
+  group_id                = huaweicloud_apig_group.test.id
+  name                    = "%[2]s"
+  type                    = "Private"
+  request_protocol        = "HTTP"
+  request_method          = "GET"
+  request_path            = "/orchestration/test"
+  security_authentication = "APP"
+
+  request_params {
+    name     = "X-Service-Name"
+    type     = "STRING"
+    location = "HEADER"
+    maximum  = 30
+    minimum  = 5
+
+    orchestrations = [
+      # None value type has the highest priority.
+      huaweicloud_apig_orchestration_rule.type_none_value.id,
+      huaweicloud_apig_orchestration_rule.type_hash.id,
+    ]
+  }
+
+  backend_params {
+    type              = "REQUEST"
+    name              = "ServiceName"
+    location          = "HEADER"
+    value             = "X-Service-Name"
+    system_param_type = "backend"
+  }
+
+  web {
+    path             = "/orchestration/test/backend"
+    vpc_channel_id   = huaweicloud_apig_channel.test.id
+    request_method   = "GET"
+    request_protocol = "HTTP"
+    timeout          = 40000
+    retry_count      = 2
+    authorizer_id    = huaweicloud_apig_custom_authorizer.backend.id
+  }
+
+  web_policy {
+    name             = "%[2]s_orchestration_policy"
+    request_protocol = "HTTP"
+    request_method   = "GET"
+    effective_mode   = "ALL"
+    path             = "/orchestration/test/backend/hash"
+    timeout          = 40000
+    retry_count      = 2
+    vpc_channel_id   = huaweicloud_apig_channel.test.id
+    authorizer_id    = huaweicloud_apig_custom_authorizer.backend.id
+
+    backend_params {
+      type              = "SYSTEM"
+      name              = "ServiceName"
+      location          = "HEADER"
+      value             = "X-Service-Name"
+      system_param_type = "backend"
+    }
+
+    conditions {
+      source                = "orchestration"
+      mapped_param_name     = "ServiceName"
+      mapped_param_location = "header"
+      value                 = "HashValue"
     }
   }
 }

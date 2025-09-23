@@ -7,15 +7,12 @@ package dataarts
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -831,7 +828,7 @@ func buildCronDependJobs(rawParams interface{}) map[string]interface{} {
 		}
 
 		params := map[string]interface{}{
-			"jobs":             utils.ValueIgnoreEmpty(raw["jobs"]),
+			"jobs":             raw["jobs"],
 			"dependPeriod":     utils.ValueIgnoreEmpty(raw["depend_period"]),
 			"dependFailPolicy": utils.ValueIgnoreEmpty(raw["depend_fail_policy"]),
 		}
@@ -938,7 +935,8 @@ func resourceFactoryJobRead(_ context.Context, d *schema.ResourceData, meta inte
 	getJobResp, err := getJobClient.Request("GET", getJobPath, &getJobOpt)
 
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseFactoryJobNotFoundError(err), "error retrieving Job")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", "DLF.0100"),
+			"error retrieving Job")
 	}
 
 	getJobRespBody, err := utils.FlattenResponse(getJobResp)
@@ -991,9 +989,8 @@ func flattenGetJobResponseBodyNode(resp interface{}) []interface{} {
 
 func flattenNodeLocation(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("location", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing location from response= %#v", resp)
+	curJson := utils.PathSearch("location", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return rst
 	}
 
@@ -1040,9 +1037,8 @@ func flattenNodeProperties(resp interface{}) []interface{} {
 
 func flattenNodeEventTrigger(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("eventTrigger", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing eventTrigger from response= %#v", resp)
+	curJson := utils.PathSearch("eventTrigger", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return rst
 	}
 
@@ -1060,9 +1056,8 @@ func flattenNodeEventTrigger(resp interface{}) []interface{} {
 
 func flattenNodeCronTrigger(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("cron_trigger", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing cron_trigger from response= %#v", resp)
+	curJson := utils.PathSearch("cron_trigger", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return rst
 	}
 
@@ -1083,9 +1078,8 @@ func flattenNodeCronTrigger(resp interface{}) []interface{} {
 
 func flattenCronTriggerDependJobs(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("dependJobs", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing dependJobs from response= %#v", resp)
+	curJson := utils.PathSearch("dependJobs", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return rst
 	}
 
@@ -1101,9 +1095,8 @@ func flattenCronTriggerDependJobs(resp interface{}) []interface{} {
 
 func flattenGetJobResponseBodySchedule(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("schedule", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing schedule from response= %#v", resp)
+	curJson := utils.PathSearch("schedule", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return rst
 	}
 
@@ -1119,9 +1112,8 @@ func flattenGetJobResponseBodySchedule(resp interface{}) []interface{} {
 
 func flattenScheduleCron(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("cron", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing cron from response= %#v", resp)
+	curJson := utils.PathSearch("cron", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return rst
 	}
 
@@ -1140,9 +1132,8 @@ func flattenScheduleCron(resp interface{}) []interface{} {
 
 func flattenCronDependJobs(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("dependJobs", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing dependJobs from response= %#v", resp)
+	curJson := utils.PathSearch("dependJobs", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return rst
 	}
 
@@ -1158,9 +1149,8 @@ func flattenCronDependJobs(resp interface{}) []interface{} {
 
 func flattenScheduleEvent(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("event", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing event from response= %#v", resp)
+	curJson := utils.PathSearch("event", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return rst
 	}
 
@@ -1195,9 +1185,8 @@ func flattenGetJobResponseBodyParam(resp interface{}) []interface{} {
 
 func flattenGetJobResponseBodyBasicConfig(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("basicConfig", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing basicConfig from response= %#v", resp)
+	curJson := utils.PathSearch("basicConfig", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return rst
 	}
 
@@ -1326,23 +1315,4 @@ func resourceFactoryJobImportState(_ context.Context, d *schema.ResourceData, _ 
 	d.SetId(parts[1])
 
 	return []*schema.ResourceData{d}, nil
-}
-
-func parseFactoryJobNotFoundError(respErr error) error {
-	var apiErr interface{}
-	if errCode, ok := respErr.(golangsdk.ErrDefault400); ok {
-		pErr := json.Unmarshal(errCode.Body, &apiErr)
-		if pErr != nil {
-			return pErr
-		}
-		errCode, err := jmespath.Search(`error_code`, apiErr)
-		if err != nil {
-			return fmt.Errorf("error parse error_code from response body: %s", err.Error())
-		}
-
-		if errCode == `DLF.0100` {
-			return golangsdk.ErrDefault404{}
-		}
-	}
-	return respErr
 }

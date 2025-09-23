@@ -7,7 +7,7 @@
             "attributes": {
               "description": {
                 "type": "string",
-                "description": "Specifies the description of the record set.",
+                "description": "The description of the record set.",
                 "optional": true,
                 "computed": true
               },
@@ -17,22 +17,22 @@
               },
               "line_id": {
                 "type": "string",
-                "description": "Specifies the resolution line ID.",
+                "description": "The resolution line ID.",
                 "optional": true,
                 "computed": true,
                 "forcenew": true
               },
               "name": {
                 "type": "string",
-                "description": "Specifies the name of the record set. The name suffixed with a zone name, which is a\ncomplete host name ended with a dot.",
+                "description": "The name of the record set.",
                 "required": true
               },
               "records": {
                 "type": [
-                  "list",
+                  "set",
                   "string"
                 ],
-                "description": "Specifies an array of DNS records. The value rules vary depending on the record set type.",
+                "description": "The list of the records of the record set.",
                 "required": true
               },
               "region": {
@@ -41,7 +41,7 @@
               },
               "status": {
                 "type": "string",
-                "description": "Specifies the status of the record set.",
+                "description": "The status of the record set.",
                 "optional": true,
                 "default": "ENABLE"
               },
@@ -50,39 +50,40 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "ttl": {
                 "type": "number",
-                "description": "Specifies the time to live (TTL) of the record set (in seconds).",
+                "description": "The time to live (TTL) of the record set (in seconds).",
                 "optional": true,
                 "default": 300
               },
               "type": {
                 "type": "string",
-                "description": "Specifies the type of the record set.",
+                "description": "The type of the record set.",
                 "required": true
               },
               "weight": {
                 "type": "number",
-                "description": "Specifies the weight of the record set.",
+                "description": "The weight of the record set.",
                 "optional": true,
                 "computed": true
               },
               "zone_id": {
                 "type": "string",
-                "description": "Specifies the zone ID.",
+                "description": "The ID of the zone to which the record set belongs.",
                 "required": true,
                 "forcenew": true
               },
               "zone_name": {
                 "type": "string",
-                "description": "The zone name of the record set.",
+                "description": "The name of the zone to which the record set belongs.",
                 "computed": true
               },
               "zone_type": {
                 "type": "string",
-                "description": "The zone type. The value can be public or private",
+                "description": "The type of the zone to which the record set belongs.",
                 "computed": true
               }
             }
@@ -90,9 +91,9 @@
           "product": {
             "short": "DNS",
             "name": "Domain Name Service",
-            "catalog": "Business Applications",
+            "catalog": "Networking",
             "name_cn": "云解析服务",
-            "catalog_cn": "企业应用"
+            "catalog_cn": "网络"
           }
         }
       }

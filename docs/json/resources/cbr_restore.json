@@ -1,0 +1,89 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cbr_restore": {
+          "block": {
+            "attributes": {
+              "backup_id": {
+                "type": "string",
+                "description": "Specifies the backup ID.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "power_on": {
+                "type": "bool",
+                "description": "Whether the server is powered on after restoration.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to create the resource. If omitted, the provider-level\nregion will be used.",
+                "computed": true
+              },
+              "resource_id": {
+                "type": "string",
+                "description": "Specifies the ID of the resource to be restored.",
+                "optional": true
+              },
+              "server_id": {
+                "type": "string",
+                "description": "Specifies the ID of the target VM to be restored.",
+                "optional": true
+              },
+              "volume_id": {
+                "type": "string",
+                "description": "Specifies the ID of the target disk to be restored.",
+                "optional": true
+              }
+            },
+            "block_types": {
+              "details": {
+                "block": {
+                  "attributes": {
+                    "destination_path": {
+                      "type": "string",
+                      "description": "Specifies the destination path.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the restoration details."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "mappings": {
+                "block": {
+                  "attributes": {
+                    "backup_id": {
+                      "type": "string",
+                      "description": "Specifies the disk backup ID.",
+                      "required": true
+                    },
+                    "volume_id": {
+                      "type": "string",
+                      "description": "Specifies the ID of the disk to which data is restored.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the restored mapping relationship."
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "CBR",
+            "name": "Cloud Backup and Recovery",
+            "catalog": "Storage",
+            "name_cn": "云备份",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}

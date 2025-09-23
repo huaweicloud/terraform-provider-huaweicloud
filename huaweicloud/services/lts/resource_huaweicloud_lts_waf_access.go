@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -60,6 +59,7 @@ func ResourceWAFAccess() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
+				Computed:    true,
 				Description: `Specifies the enterprise project ID.`,
 			},
 		},
@@ -82,20 +82,15 @@ func resourceWAFAccessCreate(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error creating LTS access WAF logs configuration (failed to query detail): %s", err)
 	}
 
-	id, err := jmespath.Search("id", detailRespBody)
-	if err != nil || id == nil {
-		return diag.Errorf("error creating LTS access WAF logs configuration: ID is not found in detail API response")
+	configId := utils.PathSearch("id", detailRespBody, "").(string)
+	if configId == "" {
+		return diag.Errorf("unable to find the configuration ID of the LTS access WAF logs from the API response")
 	}
 
-	idString, isString := id.(string)
-	if !isString {
-		return diag.Errorf("error creating LTS access WAF logs configuration: ID is not string in detail API response")
-	}
-
-	if err := modifyWAFAccessConfiguration(client, d, cfg, idString); err != nil {
+	if err := modifyWAFAccessConfiguration(client, d, cfg, configId); err != nil {
 		return diag.Errorf("error creating LTS access WAF logs configuration: %s", err)
 	}
-	d.SetId(idString)
+	d.SetId(configId)
 
 	return resourceWAFAccessRead(ctx, d, meta)
 }
@@ -255,9 +250,14 @@ func buildDeleteWAFAccessBodyParams() map[string]interface{} {
 
 func resourceWAFAccessImportState(_ context.Context, d *schema.ResourceData, _ interface{}) (
 	[]*schema.ResourceData, error) {
+	var mErr *multierror.Error
+	importId := d.Id()
 	// `0` means default enterprise project.
-	if d.Id() == "0" {
-		return []*schema.ResourceData{d}, nil
+	// The non-default enterprise project ID format is a 32-bit UUID with hyphens.
+	// The resource ID format is a 32-bit UUID without hyphens.
+	if utils.IsUUIDWithHyphens(importId) || importId == "0" {
+		mErr = multierror.Append(d.Set("enterprise_project_id", d.Id()))
 	}
-	return []*schema.ResourceData{d}, d.Set("enterprise_project_id", d.Id())
+
+	return []*schema.ResourceData{d}, mErr.ErrorOrNil()
 }

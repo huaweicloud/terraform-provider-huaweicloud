@@ -15,6 +15,12 @@ Manages an APIG (API) custom response resource within HuaweiCloud.
 variable "instance_id" {}
 variable "group_id" {}
 variable "response_name" {}
+variable "response_headers" {
+  type = list(object({
+    key   = string
+    value = string
+  }))
+}
 
 resource "huaweicloud_apig_response" "test" {
   instance_id = var.instance_id
@@ -25,6 +31,15 @@ resource "huaweicloud_apig_response" "test" {
     error_type  = "AUTHORIZER_FAILURE"
     body        = "{\"code\":\"$context.authorizer.frontend.code\",\"message\":\"$context.authorizer.frontend.message\"}"
     status_code = 401
+  
+    dynamic "headers" {
+      for_each = var.response_headers
+
+      content {
+        key   = headers.value["key"]
+        value = headers.value["value"]
+      }
+    }
   }
 }
 ```
@@ -48,7 +63,7 @@ The following arguments are supported:
   The valid length is limited from `1` to `64`, letters, digits, hyphens (-) and underscores (_) are allowed.
 
 * `rule` - (Optional, List) Specifies the API custom response rules definition.  
-  The [object](#custom_response_rule) structure is documented below.
+  The [rule](#custom_response_rule) structure is documented below.
 
 <a name="custom_response_rule"></a>
 The `rule` block supports:
@@ -77,6 +92,19 @@ The `rule` block supports:
   `{\"code\":\"$context.authorizer.frontend.code\",\"message\":\"$context.authorizer.frontend.message\"}`
 
 * `status_code` - (Optional, Int) Specifies the HTTP status code of the API response rule.
+  The valid value is range from `200` to `599`.
+
+* `headers` - (Optional, List) Specifies the configuration of the custom response headers.  
+  The [headers](#custom_response_rule_headers) structure is documented below.
+
+<a name="custom_response_rule_headers"></a>
+The `headers` block supports:
+
+* `key` - (Required, String) Specifies the key name of the response header.
+   The valid length is limited from `1` to `128`, only English letters, digits and hyphens (-) are allowed.
+
+* `value` - (Required, String) Specifies the value for the specified response header key.
+  The valid length is limited from `1` to `1,024`.
 
 ## Attribute Reference
 

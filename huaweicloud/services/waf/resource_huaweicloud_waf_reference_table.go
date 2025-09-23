@@ -1,33 +1,30 @@
 package waf
 
 import (
-	"regexp"
+	"context"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk/openstack/waf_hw/v1/valuelists"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
-// ResourceWafReferenceTableV1 the resource of managing a reference table within HuaweiCloud.
 // @API WAF DELETE /v1/{project_id}/waf/valuelist/{valuelistid}
 // @API WAF GET /v1/{project_id}/waf/valuelist/{valuelistid}
 // @API WAF PUT /v1/{project_id}/waf/valuelist/{valuelistid}
 // @API WAF POST /v1/{project_id}/waf/valuelist
-func ResourceWafReferenceTableV1() *schema.Resource {
+func ResourceWafReferenceTable() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceWafReferenceTableCreate,
-		Read:   resourceWafReferenceTableRead,
-		Update: resourceWafReferenceTableUpdate,
-		Delete: resourceWafReferenceTableDelete,
+		CreateContext: resourceWafReferenceTableCreate,
+		ReadContext:   resourceWafReferenceTableRead,
+		UpdateContext: resourceWafReferenceTableUpdate,
+		DeleteContext: resourceWafReferenceTableDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceWAFImportState,
 		},
@@ -42,25 +39,18 @@ func ResourceWafReferenceTableV1() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.StringMatch(regexp.MustCompile("^([\\w]{1,64})$"),
-					"The name can contains of 1 to 64 characters."+
-						"Only letters, digits and underscores (_) are allowed."),
 			},
 			"type": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"url", "user-agent", "ip", "params", "cookie", "referer", "header",
-				}, false),
 			},
 			"conditions": {
 				Type:     schema.TypeList,
 				Optional: true,
 				MaxItems: 30,
 				Elem: &schema.Schema{
-					Type:         schema.TypeString,
-					ValidateFunc: validation.StringLenBetween(1, 2048),
+					Type: schema.TypeString,
 				},
 				Description: "schema: Required",
 			},
@@ -70,9 +60,8 @@ func ResourceWafReferenceTableV1() *schema.Resource {
 				ForceNew: true,
 			},
 			"description": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringLenBetween(0, 128),
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"creation_time": {
 				Type:     schema.TypeString,
@@ -82,12 +71,11 @@ func ResourceWafReferenceTableV1() *schema.Resource {
 	}
 }
 
-// resourceWafReferenceTableCreate create a record of reference table.
-func resourceWafReferenceTableCreate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	client, err := config.WafV1Client(config.GetRegion(d))
+func resourceWafReferenceTableCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	client, err := cfg.WafV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud WAF client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
 	opt := valuelists.CreateOpts{
@@ -95,35 +83,34 @@ func resourceWafReferenceTableCreate(d *schema.ResourceData, meta interface{}) e
 		Type:                d.Get("type").(string),
 		Values:              utils.ExpandToStringList(d.Get("conditions").([]interface{})),
 		Description:         d.Get("description").(string),
-		EnterpriseProjectId: config.GetEnterpriseProjectID(d),
+		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 	}
-	logp.Printf("[DEBUG] Create WAF reference table options: %#v", opt)
 
 	r, err := valuelists.Create(client, opt)
 	if err != nil {
-		return fmtp.Errorf("error creating WAF reference table: %s", err)
+		return diag.Errorf("error creating WAF reference table: %s", err)
 	}
-	logp.Printf("[DEBUG] Waf reference table created: %#v", r)
 	d.SetId(r.Id)
 
-	return resourceWafReferenceTableRead(d, meta)
+	return resourceWafReferenceTableRead(ctx, d, meta)
 }
 
-// resourceWafReferenceTableRead read a record of reference table by id.
-func resourceWafReferenceTableRead(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	client, err := config.WafV1Client(config.GetRegion(d))
+func resourceWafReferenceTableRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.WafV1Client(region)
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud WAF client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
-	r, err := valuelists.GetWithEpsID(client, d.Id(), config.GetEnterpriseProjectID(d))
+	r, err := valuelists.GetWithEpsID(client, d.Id(), cfg.GetEnterpriseProjectID(d))
 	if err != nil {
-		return common.CheckDeleted(d, err, "Error obtain WAF reference table information")
+		// If the reference table does not exist, the response HTTP status code of the details API is 404.
+		return common.CheckDeletedDiag(d, err, "error retrieving WAF reference table")
 	}
 
 	mErr := multierror.Append(nil,
-		d.Set("region", config.GetRegion(d)),
+		d.Set("region", region),
 		d.Set("name", r.Name),
 		d.Set("type", r.Type),
 		d.Set("conditions", r.Values),
@@ -131,19 +118,14 @@ func resourceWafReferenceTableRead(d *schema.ResourceData, meta interface{}) err
 		d.Set("creation_time", time.Unix(r.CreationTime/1000, 0).Format("2006-01-02 15:04:05")),
 	)
 
-	if mErr.ErrorOrNil() != nil {
-		return fmtp.Errorf("error setting WAF reference table fields: %s", err)
-	}
-
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-// resourceWafReferenceTableUpdate update record of reference table by id.
-func resourceWafReferenceTableUpdate(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	client, err := config.WafV1Client(config.GetRegion(d))
+func resourceWafReferenceTableUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	client, err := cfg.WafV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud WAF client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
 	desc := d.Get("description").(string)
@@ -153,31 +135,29 @@ func resourceWafReferenceTableUpdate(d *schema.ResourceData, meta interface{}) e
 		Type:                d.Get("type").(string),
 		Values:              utils.ExpandToStringList(d.Get("conditions").([]interface{})),
 		Description:         &desc,
-		EnterpriseProjectId: config.GetEnterpriseProjectID(d),
+		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 	}
-	logp.Printf("[DEBUG] Update WAF reference table options: %#v", opt)
 
 	_, err = valuelists.Update(client, d.Id(), opt)
 	if err != nil {
-		return fmtp.Errorf("error updating WAF reference table: %s", err)
+		return diag.Errorf("error updating WAF reference table: %s", err)
 	}
 
-	return resourceWafReferenceTableRead(d, meta)
+	return resourceWafReferenceTableRead(ctx, d, meta)
 }
 
-// resourceWafReferenceTableDelete delete the reference table record by id.
-func resourceWafReferenceTableDelete(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	client, err := config.WafV1Client(config.GetRegion(d))
+func resourceWafReferenceTableDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	client, err := cfg.WafV1Client(cfg.GetRegion(d))
 	if err != nil {
-		return fmtp.Errorf("error creating HuaweiCloud WAF client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
-	_, err = valuelists.DeleteWithEpsID(client, d.Id(), config.GetEnterpriseProjectID(d))
+	_, err = valuelists.DeleteWithEpsID(client, d.Id(), cfg.GetEnterpriseProjectID(d))
 	if err != nil {
-		return fmtp.Errorf("error deleting WAF reference table: %s", err)
+		// If the reference table does not exist, the response HTTP status code of the details API is 404.
+		return common.CheckDeletedDiag(d, err, "error deleting WAF reference table")
 	}
 
-	d.SetId("")
 	return nil
 }

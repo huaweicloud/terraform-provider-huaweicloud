@@ -1,0 +1,81 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cciv2_namespace": {
+          "block": {
+            "attributes": {
+              "annotations": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "The annotations of the namespace.",
+                "computed": true
+              },
+              "api_version": {
+                "type": "string",
+                "description": "The API version of the namespace.",
+                "computed": true
+              },
+              "creation_timestamp": {
+                "type": "string",
+                "description": "The creation timestamp of the namespace.",
+                "computed": true
+              },
+              "finalizers": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The finalizers of the namespace.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "kind": {
+                "type": "string",
+                "description": "The kind of the namespace.",
+                "computed": true
+              },
+              "labels": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "The labels of the namespace.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the namespace.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "resource_version": {
+                "type": "string",
+                "description": "The resource version of the namespace.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the namespace.",
+                "computed": true
+              },
+              "uid": {
+                "type": "string",
+                "description": "The uid of the namespace.",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

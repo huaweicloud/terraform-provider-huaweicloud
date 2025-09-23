@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_kms_verify_sign
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DEW
+paths:
+    /v1.0/{project_id}/kms/verify:
+        POST:
+            tag: DEW

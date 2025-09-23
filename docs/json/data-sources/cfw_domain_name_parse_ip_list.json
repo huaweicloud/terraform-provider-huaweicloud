@@ -1,0 +1,68 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cfw_domain_name_parse_ip_list": {
+          "block": {
+            "attributes": {
+              "address_type": {
+                "type": "string",
+                "description": "Specifies the address type.",
+                "optional": true
+              },
+              "data": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The IP address list for domain name resolution.",
+                "computed": true
+              },
+              "domain_address_id": {
+                "type": "string",
+                "description": "Specifies the domain name ID.",
+                "optional": true
+              },
+              "domain_name": {
+                "type": "string",
+                "description": "Specifies the domain name.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID.",
+                "optional": true
+              },
+              "fw_instance_id": {
+                "type": "string",
+                "description": "Specifies the firewall ID.",
+                "optional": true
+              },
+              "group_id": {
+                "type": "string",
+                "description": "Specifies the domain name group ID.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CFW",
+            "name": "Cloud Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "云防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

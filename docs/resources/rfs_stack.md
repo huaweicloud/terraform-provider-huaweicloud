@@ -29,6 +29,9 @@ resource "huaweicloud_rfs_stack" "test" {
 
   template_uri = var.template_obs_uri
   vars_uri     = var.variable_obs_uri
+
+  retain_all_resources = true
+}
 ```
 
 ### Create an RFS resource stack with VPC deployment (using template and variable files)
@@ -61,7 +64,7 @@ The content of the template file (in JSON format) is as follows:
       {
         "huaweicloud": {
           "source": "huawei.com/provider/huaweicloud",
-          "version": "&gt= 1.41.0"
+          "version": ">= 1.41.0"
         }
       }
     ]
@@ -117,12 +120,12 @@ The following arguments are supported:
   If omitted, the provider-level region will be used. Change this parameter will create a new resource.
 
 * `name` - (Required, String, ForceNew) Specifies the name of the resource stack.  
-  The valid length is limited from can contain `1` to `64`, only letters, digits and hyphens (-) are allowed.
+  The valid length is limited from `1` to `64`, only letters, digits and hyphens (-) are allowed.
   The name must start with a lowercase letter and end with a lowercase letter or digit.
   Change this parameter will create a new resource.
 
 * `description` - (Optional, String, ForceNew) Specifies the description of the resource stack, which contain maximum of
-  255 characters.  
+  `255` characters.  
   Change this parameter will create a new resource.
 
 * `agency` - (Optional, List, ForceNew) Specifies the configuration of the agencies authorized to IAC.  
@@ -150,6 +153,9 @@ The following arguments are supported:
 * `enable_deletion_protection` - (Optional, Bool, ForceNew) Specifies whether to enable delete protection.  
   The default value is **false**.
   Change this parameter will create a new resource.
+
+* `retain_all_resources` - (Optional, Bool) Specifies whether to reserve resources when deleting the resource stack.  
+  The default value is **false**.
 
 <a name="stack_agency"></a>
 The `agency` block supports:
@@ -198,14 +204,15 @@ resource "huaweicloud_rfs_stack" "test" {
 
 Stacks can be imported using their `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_rfs_stack.test edd2f099-e1ac-4bd0-be32-8b2185620a90
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response. The missing attributes include: `agency`, `template_body`, `vars_body`, `template_uri`, `vars_uri`,
-`enable_auto_rollback` and `enable_deletion_protection`. It is generally recommended running `terraform plan` after
-importing a stack. You can keep the resource the same with its definition bo choosing any of them to update.
+`enable_auto_rollback`, `enable_deletion_protection` and `retain_all_resources`.
+It is generally recommended running `terraform plan` after importing a stack.
+You can keep the resource the same with its definition bo choosing any of them to update.
 Also you can ignore changes as below.
 
 ```hcl

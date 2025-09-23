@@ -2,7 +2,8 @@
 subcategory: "Cloud Firewall (CFW)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_cfw_address_group_member"
-description: ""
+description: |-
+  Manages a CFW IP address group member resource within HuaweiCloud.
 ---
 
 # huaweicloud_cfw_address_group_member
@@ -13,12 +14,10 @@ Manages a CFW IP address group member resource within HuaweiCloud.
 
 ```hcl
 variable "group_id" {}
-variable "name" {}
 variable "address" {}
 
 resource "huaweicloud_cfw_address_group_member" "test" {
   group_id = var.group_id
-  name     = var.name
   address  = var.address
 }
 ```

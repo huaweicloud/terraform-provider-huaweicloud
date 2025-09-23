@@ -15,6 +15,7 @@
                       "description": "string",
                       "domain_id": "string",
                       "endpoint_id": "string",
+                      "marker_id": "number",
                       "status": "string",
                       "updated_at": "string"
                     }
@@ -29,6 +30,10 @@
               "id": {
                 "type": "string",
                 "computed": true
+              },
+              "marker_id": {
+                "type": "string",
+                "optional": true
               },
               "region": {
                 "type": "string",

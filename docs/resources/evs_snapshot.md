@@ -12,7 +12,7 @@ Provides an EVS snapshot resource.
 ## Example Usage
 
 ```hcl
-resource "huaweicloud_evs_volume" "myvolume" {
+resource "huaweicloud_evs_volume" "test" {
   name        = "volume"
   description = "my volume"
   volume_type = "SATA"
@@ -26,10 +26,10 @@ resource "huaweicloud_evs_volume" "myvolume" {
   }
 }
 
-resource "huaweicloud_evs_snapshot" "snapshot_1" {
+resource "huaweicloud_evs_snapshot" "test" {
   name        = "snapshot-001"
   description = "Daily backup"
-  volume_id   = huaweicloud_evs_volume.myvolume.id
+  volume_id   = huaweicloud_evs_volume.test.id
 }
 ```
 
@@ -62,13 +62,9 @@ In addition to all arguments above, the following attributes are exported:
 
 * `size` - The size of the snapshot in GB.
 
-## Import
+* `created_at` - The time when the snapshot was created.
 
-EVS snapshot can be imported using the `snapshot id`, e.g.
-
-```
- $ terraform import huaweicloud_evs_snapshot.snapshot_1 3a11b255-3bb6-46f3-91e4-3338baa92dd6
-```
+* `updated_at` - The time when the snapshot was updated.
 
 ## Timeouts
 
@@ -76,3 +72,29 @@ This resource provides the following timeouts configuration options:
 
 * `create` - Default is 10 minutes.
 * `delete` - Default is 3 minutes.
+
+## Import
+
+EVS snapshot can be imported using the `id`, e.g.
+
+```bash
+$ terraform import huaweicloud_evs_snapshot.test <id>
+```
+
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
+API response, security or some other reason. The missing attributes include: `metadata`, `force`.
+It is generally recommended running `terraform plan` after importing the resource. You can then decide if changes should
+be applied to the resource, or the resource definition should be updated to align with the snapshot. Also, you can
+ignore changes as below.
+
+```hcl
+resource "huaweicloud_evs_snapshot" "test" {
+    ...
+
+  lifecycle {
+    ignore_changes = [
+      metadata, force,
+    ]
+  }
+}
+```

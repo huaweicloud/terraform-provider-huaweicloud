@@ -8,6 +8,12 @@ host: huaweicloud.com
 tags:
     - name: LTS
 paths:
+    /v1.0/{project_id}/lts/favorite:
+        POST:
+            tag: LTS
+    /v1.0/{project_id}/lts/favorite/{fav_res_id}:
+        DELETE:
+            tag: LTS
     /v1/{project_id}/{resource_type}/{resource_id}/tags/action:
         POST:
             tag: LTS
@@ -15,6 +21,9 @@ paths:
         GET:
             tag: LTS
         POST:
+            tag: LTS
+    /v2/{project_id}/groups/{log_group_id}/streams-ttl/{log_stream_id}:
+        PUT:
             tag: LTS
     /v2/{project_id}/groups/{log_group_id}/streams/{log_stream_id}:
         DELETE:

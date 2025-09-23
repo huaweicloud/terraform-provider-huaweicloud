@@ -107,11 +107,31 @@ func TestAccSQLServerDatabase_basic(t *testing.T) {
 
 func testSQLServerDatabase_basic(name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
+
+resource "huaweicloud_rds_instance" "test" {
+  name              = "%[2]s"
+  flavor            = "rds.mssql.spec.se.s3.large.2"
+  availability_zone = [data.huaweicloud_availability_zones.test.names[0]]
+  security_group_id = data.huaweicloud_networking_secgroup.test.id
+  subnet_id         = data.huaweicloud_vpc_subnet.test.id
+  vpc_id            = data.huaweicloud_vpc.test.id
+
+  db {
+    password = "Terraform145@"
+    type     = "SQLServer"
+    version  = "2022_SE"
+  }
+
+  volume {
+    type = "ULTRAHIGH"
+    size = 40
+  }
+}
 
 resource "huaweicloud_rds_sqlserver_database" "test" {
   instance_id = huaweicloud_rds_instance.test.id
-  name        = "%s"
+  name        = "%[2]s"
 }
-`, testAccRdsInstance_sqlserver(name), name)
+`, testAccRdsInstance_base(), name)
 }

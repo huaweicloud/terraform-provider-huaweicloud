@@ -1,0 +1,76 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_opengauss_instance_nodes": {
+          "block": {
+            "attributes": {
+              "availability_zone_id": {
+                "type": "string",
+                "description": "Specifies the ID of the AZ where the primary component is located.",
+                "optional": true
+              },
+              "component_type": {
+                "type": "string",
+                "description": "Specifies the component type.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the instance ID.",
+                "required": true
+              },
+              "nodes": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "availability_zone_id": "string",
+                      "components": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "detail": "string",
+                            "distributed_id": "string",
+                            "id": "string",
+                            "role": "string",
+                            "status": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "description": "string",
+                      "id": "string",
+                      "name": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of nodes.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDB",
+            "name": "GaussDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

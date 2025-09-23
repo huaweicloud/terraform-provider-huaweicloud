@@ -1,0 +1,83 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_rms_resource_aggregator_resource_detail": {
+          "block": {
+            "attributes": {
+              "aggregator_domain_id": {
+                "type": "string",
+                "computed": true
+              },
+              "aggregator_id": {
+                "type": "string",
+                "required": true
+              },
+              "created": {
+                "type": "string",
+                "computed": true
+              },
+              "ep_id": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "properties": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "computed": true
+              },
+              "region_id": {
+                "type": "string",
+                "required": true
+              },
+              "resource_id": {
+                "type": "string",
+                "required": true
+              },
+              "resource_name": {
+                "type": "string",
+                "optional": true
+              },
+              "service_type": {
+                "type": "string",
+                "required": true
+              },
+              "source_account_id": {
+                "type": "string",
+                "required": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "required": true
+              },
+              "updated": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Config",
+            "name": "Config",
+            "catalog": "Management & Governance",
+            "name_cn": "配置审计",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

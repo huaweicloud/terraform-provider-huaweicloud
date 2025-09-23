@@ -35,20 +35,17 @@ func getPlaybookActionResourceFunc(cfg *config.Config, state *terraform.Resource
 
 	getPlaybookActionOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: map[string]string{"Content-Type": "application/json"},
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
 	getPlaybookActionResp, err := getPlaybookActionClient.Request("GET", getPlaybookActionPath, &getPlaybookActionOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving PlaybookAction: %s", err)
+		return nil, err
 	}
 
 	getPlaybookActionRespBody, err := utils.FlattenResponse(getPlaybookActionResp)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving PlaybookAction: %s", err)
+		return nil, err
 	}
 
 	jsonPath := fmt.Sprintf("data[?id=='%s']|[0]", state.Primary.ID)
@@ -79,16 +76,14 @@ func TestAccPlaybookAction_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
-			// due to service problem, action_id is fixed to "c1d3fd3d-c1ec-4e62-b8cc-c6b0d96b309b"
 			{
 				Config: testPlaybookAction_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "workspace_id", acceptance.HW_SECMASTER_WORKSPACE_ID),
-					resource.TestCheckResourceAttrPair(rName, "version_id",
-						"huaweicloud_secmaster_playbook_version.test", "id"),
-					resource.TestCheckResourceAttr(rName, "action_id", "c1d3fd3d-c1ec-4e62-b8cc-c6b0d96b309b"),
-					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttrPair(rName, "version_id", "huaweicloud_secmaster_playbook_version.test", "id"),
+					resource.TestCheckResourceAttrPair(rName, "action_id", "data.huaweicloud_secmaster_workflows.test", "workflows.0.id"),
+					resource.TestCheckResourceAttrPair(rName, "name", "data.huaweicloud_secmaster_workflows.test", "workflows.0.name"),
 					resource.TestCheckResourceAttr(rName, "description", "created by terraform"),
 					resource.TestCheckResourceAttrSet(rName, "created_at"),
 					resource.TestCheckResourceAttrSet(rName, "updated_at"),
@@ -99,10 +94,7 @@ func TestAccPlaybookAction_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "workspace_id", acceptance.HW_SECMASTER_WORKSPACE_ID),
-					resource.TestCheckResourceAttrPair(rName, "version_id",
-						"huaweicloud_secmaster_playbook_version.test", "id"),
-					resource.TestCheckResourceAttr(rName, "action_id", "c1d3fd3d-c1ec-4e62-b8cc-c6b0d96b309b"),
-					resource.TestCheckResourceAttr(rName, "name", name+"_update"),
+					resource.TestCheckResourceAttrPair(rName, "version_id", "huaweicloud_secmaster_playbook_version.test", "id"),
 					resource.TestCheckResourceAttr(rName, "description", ""),
 					resource.TestCheckResourceAttrSet(rName, "created_at"),
 					resource.TestCheckResourceAttrSet(rName, "updated_at"),
@@ -120,30 +112,62 @@ func TestAccPlaybookAction_basic(t *testing.T) {
 
 func testPlaybookAction_basic(name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
-resource "huaweicloud_secmaster_playbook_action" "test" {
-  workspace_id = "%s"
-  version_id   = huaweicloud_secmaster_playbook_version.test.id
-  action_id    = "c1d3fd3d-c1ec-4e62-b8cc-c6b0d96b309b"
-  name         = "%s"
+data "huaweicloud_secmaster_data_classes" "test" {
+  workspace_id = "%[2]s"
+}
+
+resource "huaweicloud_secmaster_playbook_version" "test" {
+  workspace_id = "%[2]s"
+  playbook_id  = huaweicloud_secmaster_playbook.test.id
+  dataclass_id = data.huaweicloud_secmaster_data_classes.test.data_classes[0].id
   description  = "created by terraform"
 }
-`, testPlaybookVersion_basic(name), acceptance.HW_SECMASTER_WORKSPACE_ID, name)
+
+data "huaweicloud_secmaster_workflows" "test" {
+  workspace_id  = "%[2]s"
+  data_class_id = data.huaweicloud_secmaster_data_classes.test.data_classes[0].id
+}
+
+resource "huaweicloud_secmaster_playbook_action" "test" {
+  workspace_id = "%[2]s"
+  version_id   = huaweicloud_secmaster_playbook_version.test.id
+  action_id    = data.huaweicloud_secmaster_workflows.test.workflows[0].id
+  name         = data.huaweicloud_secmaster_workflows.test.workflows[0].name
+  description  = "created by terraform"
+}
+`, testPlaybook_basic(name), acceptance.HW_SECMASTER_WORKSPACE_ID)
 }
 
 func testPlaybookAction_basic_update(name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
+
+data "huaweicloud_secmaster_data_classes" "test" {
+  workspace_id = "%[2]s"
+}
+
+resource "huaweicloud_secmaster_playbook_version" "test" {
+  workspace_id = "%[2]s"
+  playbook_id  = huaweicloud_secmaster_playbook.test.id
+  dataclass_id = data.huaweicloud_secmaster_data_classes.test.data_classes[0].id
+  description  = "created by terraform"
+}
+
+data "huaweicloud_secmaster_workflows" "test" {
+  workspace_id  = "%[2]s"
+  data_class_id = data.huaweicloud_secmaster_data_classes.test.data_classes[0].id
+}
 
 resource "huaweicloud_secmaster_playbook_action" "test" {
-  workspace_id = "%s"
+  workspace_id = "%[2]s"
   version_id   = huaweicloud_secmaster_playbook_version.test.id
-  action_id    = "c1d3fd3d-c1ec-4e62-b8cc-c6b0d96b309b"
-  name         = "%s_update"
+  action_id    = data.huaweicloud_secmaster_workflows.test.workflows[0].id
+  name         = data.huaweicloud_secmaster_workflows.test.workflows[0].name
   description  = ""
 }
-`, testPlaybookVersion_basic(name), acceptance.HW_SECMASTER_WORKSPACE_ID, name)
+`, testPlaybook_basic(name), acceptance.HW_SECMASTER_WORKSPACE_ID)
 }
 
 func testPlaybookActionImportState(name string) resource.ImportStateIdFunc {

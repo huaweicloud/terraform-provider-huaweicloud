@@ -7,16 +7,14 @@ package dataarts
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -152,18 +150,18 @@ func resourceArchitectureProcessCreate(ctx context.Context, d *schema.ResourceDa
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	id, err := jmespath.Search("data.value.id", createRespBody)
-
-	if err != nil || id == nil {
-		return diag.Errorf("error creating DataArts Architecture process: ID is not found in API response")
+	processID := utils.PathSearch("data.value.id", createRespBody, "").(string)
+	if processID == "" {
+		return diag.Errorf("unable to find the DataArts Architecture process ID from the API response")
 	}
 
 	// need to set qualified ID to filter result in READ.
-	qualifiedID, err := jmespath.Search("data.value.qualified_id", createRespBody)
-	if err != nil {
-		return diag.Errorf("error creating DataArts Architecture process: qualifiedID is not found in API response")
+	qualifiedID := utils.PathSearch("data.value.qualified_id", createRespBody, "").(string)
+	if qualifiedID == "" {
+		return diag.Errorf("unable to find the qualified ID of the DataArts Architecture process from the API response")
 	}
-	d.SetId(id.(string))
+
+	d.SetId(processID)
 	d.Set("qualified_id", qualifiedID)
 
 	return resourceArchitectureProcessRead(ctx, d, meta)
@@ -250,6 +248,8 @@ func resourceArchitectureProcessUpdate(ctx context.Context, d *schema.ResourceDa
 		httpUrl     = "v2/{project_id}/design/biz/catalogs"
 		product     = "dataarts"
 		workspaceID = d.Get("workspace_id").(string)
+		qualifiedID string
+		processID   = d.Id()
 	)
 
 	client, err := cfg.NewServiceClient(product, region)
@@ -279,17 +279,12 @@ func resourceArchitectureProcessUpdate(ctx context.Context, d *schema.ResourceDa
 
 	// After calling the update API, qualified ID always returns null.
 	// Therefore, it is necessary to recombine the values of this field to filter the result in READ.
-	parentID, err := jmespath.Search("data.value.parent_id", updateRespBody)
-	if err != nil {
-		return diag.Errorf("error updating DataArts Architecture process: parent ID is not found in API response")
-	}
-
-	var qualifiedID string
-	processID := d.Id()
-	if parentID != nil {
-		getResp, err := readArchitectureProcess(client, parentID.(string), workspaceID)
+	parentID := utils.PathSearch("data.value.parent_id", updateRespBody, "").(string)
+	if parentID != "" {
+		getResp, err := readArchitectureProcess(client, parentID, workspaceID)
 		if err != nil {
-			return common.CheckDeletedDiag(d, parseArchitectureProcessError(err), "error retrieving DataArts Architecture process")
+			return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "errors|[0].error_code", "DLG.3903"),
+				"error retrieving DataArts Architecture process")
 		}
 
 		getRespBody, err := utils.FlattenResponse(getResp)
@@ -297,14 +292,11 @@ func resourceArchitectureProcessUpdate(ctx context.Context, d *schema.ResourceDa
 			return diag.FromErr(err)
 		}
 
-		parentProcessParentID, err := jmespath.Search("data.value.parent_id", getRespBody)
-		if err != nil {
-			return diag.Errorf("error retrieving DataArts Architecture process: parent ID is not found in API response")
-		}
-
-		if parentProcessParentID != nil {
+		parentProcessParentID := utils.PathSearch("data.value.parent_id", getRespBody, "").(string)
+		if parentProcessParentID != "" {
 			qualifiedID = fmt.Sprintf("%v.%v.%v", parentProcessParentID, parentID, processID)
 		} else {
+			log.Printf("[DEBUG] unable to find the parent ID of the DataArts Architecture parent process from the API response")
 			qualifiedID = fmt.Sprintf("%v.%v", parentID, processID)
 		}
 	} else {
@@ -349,7 +341,8 @@ func resourceArchitectureProcessDelete(_ context.Context, d *schema.ResourceData
 		return diag.Errorf("error deleting DataArts Architecture process: the process still exists")
 	}
 
-	return common.CheckDeletedDiag(d, parseArchitectureProcessError(err), "error deleting DataArts Architecture process")
+	return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "errors|[0].error_code", "DLG.3903"),
+		"error deleting DataArts Architecture process")
 }
 
 func buildDeleteArchitectureProcessBodyParams(d *schema.ResourceData) map[string]interface{} {
@@ -369,26 +362,6 @@ func readArchitectureProcess(client *golangsdk.ServiceClient, catalogID, workspa
 	}
 
 	return client.Request("GET", getPath, &getOpt)
-}
-
-// The example of error message is: {"errors": [{"error_code": "DLG.3903","error_msg": "Definition [XXX] does not exist"}]}
-func parseArchitectureProcessError(err error) error {
-	var errCode golangsdk.ErrDefault400
-	if errors.As(err, &errCode) {
-		var apiError interface{}
-		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
-			return err
-		}
-		errorCode, errorCodeErr := jmespath.Search("errors|[0].error_code", apiError)
-		if errorCodeErr != nil {
-			return err
-		}
-
-		if errorCode == "DLG.3903" {
-			return golangsdk.ErrDefault404(errCode)
-		}
-	}
-	return err
 }
 
 func resourceArchitectureProcessImportState(_ context.Context, d *schema.ResourceData, meta interface{}) (

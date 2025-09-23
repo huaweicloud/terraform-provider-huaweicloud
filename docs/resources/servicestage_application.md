@@ -80,6 +80,6 @@ In addition to all arguments above, the following attributes are exported:
 
 Applications can be imported using their `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_servicestage_application.test eeea08e7-c838-4794-926c-abc12f3e10e8
 ```

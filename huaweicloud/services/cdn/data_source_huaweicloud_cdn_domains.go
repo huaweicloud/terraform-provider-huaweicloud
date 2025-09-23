@@ -171,61 +171,68 @@ func sourceSchema() *schema.Resource {
 	return sc
 }
 
+func buildDomainsQueryParams(cfg *config.Config, d *schema.ResourceData) string {
+	rst := "?page_size=10"
+	if epsId := cfg.GetEnterpriseProjectID(d); epsId != "" {
+		rst += fmt.Sprintf("&enterprise_project_id=%v", epsId)
+	}
+	if v, ok := d.GetOk("name"); ok {
+		rst += fmt.Sprintf("&domain_name=%v", v)
+	}
+	if v, ok := d.GetOk("type"); ok {
+		rst += fmt.Sprintf("&business_type=%v", v)
+	}
+	if v, ok := d.GetOk("domain_status"); ok {
+		rst += fmt.Sprintf("&domain_status=%v", v)
+	}
+	if v, ok := d.GetOk("service_area"); ok {
+		rst += fmt.Sprintf("&service_area=%v", v)
+	}
+	return rst
+}
+
 func datasourceDomainsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	var mErr *multierror.Error
-
 	var (
-		getCDNDomainsHttpUrl = "v1.0/cdn/domains"
-		getCDNDomainsProduct = "cdn"
+		cfg          = meta.(*config.Config)
+		region       = cfg.GetRegion(d)
+		mErr         *multierror.Error
+		httpUrl      = "v1.0/cdn/domains"
+		product      = "cdn"
+		currentTotal = 1
+		rst          = make([]interface{}, 0)
 	)
-	getCDNDomainsClient, err := cfg.NewServiceClient(getCDNDomainsProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating CDN client: %s", err)
 	}
 
-	getCDNDomainsPath := getCDNDomainsClient.Endpoint + getCDNDomainsHttpUrl + "?page_size=10"
-	epsId := cfg.GetEnterpriseProjectID(d)
-	if epsId != "" {
-		getCDNDomainsPath += fmt.Sprintf("&enterprise_project_id=%v", epsId)
-	}
-	if v, ok := d.GetOk("name"); ok {
-		getCDNDomainsPath += fmt.Sprintf("&domain_name=%v", v)
-	}
-	if v, ok := d.GetOk("type"); ok {
-		getCDNDomainsPath += fmt.Sprintf("&business_type=%v", v)
-	}
-	if v, ok := d.GetOk("domain_status"); ok {
-		getCDNDomainsPath += fmt.Sprintf("&domain_status=%v", v)
-	}
-	if v, ok := d.GetOk("service_area"); ok {
-		getCDNDomainsPath += fmt.Sprintf("&service_area=%v", v)
-	}
-	getCDNDomainsOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath += buildDomainsQueryParams(cfg, d)
+	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 	}
 
-	currentTotal := 1
-	rst := make([]interface{}, 0)
 	for {
-		currentPath := fmt.Sprintf("%s&page_number=%v", getCDNDomainsPath, currentTotal)
-		getCDNDomainsResp, err := getCDNDomainsClient.Request("GET", currentPath, &getCDNDomainsOpt)
+		currentPath := fmt.Sprintf("%s&page_number=%v", requestPath, currentTotal)
+		resp, err := client.Request("GET", currentPath, &requestOpt)
 		if err != nil {
 			return diag.FromErr(err)
 		}
-		getCDNDomainsRespBody, err := utils.FlattenResponse(getCDNDomainsResp)
+
+		respBody, err := utils.FlattenResponse(resp)
 		if err != nil {
 			return diag.FromErr(err)
 		}
-		domains := utils.PathSearch("domains", getCDNDomainsRespBody, make([]interface{}, 0)).([]interface{})
+
+		domains := utils.PathSearch("domains", respBody, make([]interface{}, 0)).([]interface{})
 		if len(domains) == 0 {
 			break
 		}
+
 		rst = append(rst, domains...)
 		currentTotal++
 	}
+
 	dataSourceId, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
@@ -241,7 +248,7 @@ func datasourceDomainsRead(_ context.Context, d *schema.ResourceData, meta inter
 }
 
 func flattenListDomainsBody(domains []interface{}) []interface{} {
-	rst := make([]interface{}, 0)
+	rst := make([]interface{}, 0, len(domains))
 	for _, v := range domains {
 		createTime := utils.PathSearch("create_time", v, 0)
 		updateTime := utils.PathSearch("modify_time", v, 0)
@@ -281,10 +288,13 @@ func converseOBSWebHostStatusToBool(status interface{}) bool {
 }
 
 func filterListDomainsBody(all []interface{}, d *schema.ResourceData) []interface{} {
-	rst := make([]interface{}, 0, len(all))
+	var (
+		domainID = d.Get("domain_id").(string)
+		rst      = make([]interface{}, 0, len(all))
+	)
+
 	for _, v := range all {
-		if param, ok := d.GetOk("domain_id"); ok &&
-			fmt.Sprint(param) != fmt.Sprint(utils.PathSearch("id", v, nil)) {
+		if domainID != "" && domainID != fmt.Sprint(utils.PathSearch("id", v, nil)) {
 			continue
 		}
 		rst = append(rst, v)

@@ -195,11 +195,9 @@ func waitForRouterInterfaceDelete(networkingClient *golangsdk.ServiceClient, d *
 				logp.Printf("[DEBUG] Successfully deleted HuaweiCloud Router Interface %s.", routerInterfaceId)
 				return r, "DELETED", nil
 			}
-			if errCode, ok := err.(golangsdk.ErrUnexpectedResponseCode); ok {
-				if errCode.Actual == 409 {
-					logp.Printf("[DEBUG] Router Interface %s is still in use.", routerInterfaceId)
-					return r, "ACTIVE", nil
-				}
+			if _, ok := err.(golangsdk.ErrDefault409); ok {
+				logp.Printf("[DEBUG] Router Interface %s is still in use.", routerInterfaceId)
+				return r, "ACTIVE", nil
 			}
 
 			return r, "ACTIVE", err

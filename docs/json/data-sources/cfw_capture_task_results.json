@@ -1,0 +1,96 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cfw_capture_task_results": {
+          "block": {
+            "attributes": {
+              "captcha": {
+                "type": "string",
+                "description": "The captcha.",
+                "computed": true
+              },
+              "expires": {
+                "type": "number",
+                "description": "The expiration time of the download link.",
+                "computed": true
+              },
+              "file_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "file_name": "string",
+                      "file_path": "string",
+                      "url": "string"
+                    }
+                  ]
+                ],
+                "description": "The capture file list.",
+                "computed": true
+              },
+              "fw_instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the firewall instance.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ip": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the public IP address ranges.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "request_header": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "host": "string"
+                    }
+                  ]
+                ],
+                "description": "The request header.",
+                "computed": true
+              },
+              "task_id": {
+                "type": "string",
+                "description": "Specifies the capture task ID.",
+                "required": true
+              },
+              "type": {
+                "type": "number",
+                "description": "Specifies whether to set a public IP address for downloading.",
+                "optional": true
+              },
+              "url": {
+                "type": "string",
+                "description": "The download link.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CFW",
+            "name": "Cloud Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "云防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

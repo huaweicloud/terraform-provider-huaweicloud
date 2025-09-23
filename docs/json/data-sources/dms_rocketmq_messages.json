@@ -1,0 +1,93 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dms_rocketmq_messages": {
+          "block": {
+            "attributes": {
+              "end_time": {
+                "type": "string",
+                "description": "Specifies the end time, a Unix timestamp in millisecond.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the instance ID.",
+                "required": true
+              },
+              "key": {
+                "type": "string",
+                "description": "Specifies the message key.",
+                "optional": true
+              },
+              "message_id": {
+                "type": "string",
+                "description": "Specifies the message ID.",
+                "optional": true
+              },
+              "messages": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "body": "string",
+                      "body_crc": "number",
+                      "born_host": "string",
+                      "born_time": "string",
+                      "message_id": "string",
+                      "property_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "name": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ],
+                      "queue_id": "number",
+                      "queue_offset": "number",
+                      "reconsume_times": "number",
+                      "store_host": "string",
+                      "store_size": "number",
+                      "store_time": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the message list.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "start_time": {
+                "type": "string",
+                "description": "Specifies the start time, a Unix timestamp in millisecond.",
+                "optional": true
+              },
+              "topic": {
+                "type": "string",
+                "description": "Specifies the topic name.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "RocketMQ",
+            "name": "Distributed Message Service for RocketMQ",
+            "catalog": "Middleware",
+            "name_cn": "分布式消息服务 RocketMQ",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

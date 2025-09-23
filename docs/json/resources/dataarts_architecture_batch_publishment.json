@@ -1,0 +1,77 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dataarts_architecture_batch_publishment": {
+          "block": {
+            "attributes": {
+              "approver_user_id": {
+                "type": "string",
+                "description": "Specifies the user ID of the architecture reviewer.",
+                "required": true,
+                "forcenew": true
+              },
+              "approver_user_name": {
+                "type": "string",
+                "description": "Specifies the user name of the architecture reviewer.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "schedule_time": {
+                "type": "string",
+                "description": "Specifies scheduling time of the DataArts quality job.",
+                "optional": true,
+                "forcenew": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "The ID of DataArts Studio workspace.",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "biz_infos": {
+                "block": {
+                  "attributes": {
+                    "biz_id": {
+                      "type": "string",
+                      "description": "Specifies the ID of the object to be published.",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "biz_type": {
+                      "type": "string",
+                      "description": "Specifies the type of the object to be published.",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  },
+                  "description": "Specifies the list of objects to be published."
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "DataArtsStudio",
+            "name": "DataArts Studio",
+            "catalog": "Analytics",
+            "name_cn": "数据治理中心",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

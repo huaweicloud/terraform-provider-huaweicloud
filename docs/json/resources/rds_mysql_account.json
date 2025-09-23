@@ -17,8 +17,7 @@
                 ],
                 "description": "Specifies the IP addresses that are allowed to access your DB instance.",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "id": {
                 "type": "string",
@@ -27,14 +26,12 @@
               "instance_id": {
                 "type": "string",
                 "description": "Specifies the ID of the RDS Mysql instance.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "name": {
                 "type": "string",
                 "description": "Specifies the username of the DB account.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "password": {
                 "type": "string",

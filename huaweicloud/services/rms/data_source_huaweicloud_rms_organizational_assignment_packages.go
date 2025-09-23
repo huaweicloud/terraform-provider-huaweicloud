@@ -173,7 +173,7 @@ func (w *OrganizationalAssignmentPackagesDSWrapper) listOrganizationConformanceP
 						func(varStr gjson.Result) any {
 							return map[string]any{
 								"var_key":   varStr.Get("var_key").Value(),
-								"var_value": varStr.Get("var_value").Value(),
+								"var_value": utils.JsonToString(varStr.Get("var_value").Value()),
 							}
 						},
 					),

@@ -3,19 +3,20 @@ package iotda
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API IoTDA GET /v5/iot/{project_id}/products
+// @API IoTDA GET /v5/iot/{project_id}/cetificates
 func DataSourceDeviceCertificates() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceDeviceCertificatesRead,
@@ -86,85 +87,90 @@ func DataSourceDeviceCertificates() *schema.Resource {
 	}
 }
 
-func dataSourceDeviceCertificatesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	var (
-		cfg       = meta.(*config.Config)
-		region    = cfg.GetRegion(d)
-		isDerived = WithDerivedAuth(cfg, region)
-	)
-
-	client, err := cfg.HcIoTdaV5Client(region, isDerived)
-	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+func buildDeviceCertificatesQueryParams(d *schema.ResourceData) string {
+	if spaceId, ok := d.GetOk("space_id"); ok {
+		return fmt.Sprintf("&app_id=%v", spaceId)
 	}
 
+	return ""
+}
+
+func dataSourceDeviceCertificatesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		allCertificates []model.CertificatesRspDto
-		limit           = int32(50)
-		offset          int32
+		cfg             = meta.(*config.Config)
+		region          = cfg.GetRegion(d)
+		isDerived       = WithDerivedAuth(cfg, region)
+		httpUrl         = "v5/iot/{project_id}/certificates?limit=50"
+		allCertificates = make([]interface{}, 0)
+		offset          = 0
 	)
 
+	client, err := cfg.NewServiceClientWithDerivedAuth("iotda", region, isDerived)
+	if err != nil {
+		return diag.Errorf("error creating IoTDA client: %s", err)
+	}
+
+	listPath := client.Endpoint + httpUrl
+	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
+	listPath += buildDeviceCertificatesQueryParams(d)
+	listOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
 	for {
-		listOpts := model.ListCertificatesRequest{
-			AppId:  utils.StringIgnoreEmpty(d.Get("space_id").(string)),
-			Limit:  utils.Int32(limit),
-			Offset: &offset,
+		listPathWithOffset := fmt.Sprintf("%s&offset=%d", listPath, offset)
+		resp, err := client.Request("GET", listPathWithOffset, &listOpts)
+		if err != nil {
+			return diag.Errorf("error querying IoTDA device CA certificates: %s", err)
 		}
 
-		listResp, listErr := client.ListCertificates(&listOpts)
-		if listErr != nil {
-			return diag.Errorf("error querying IoTDA device CA certificates: %s", listErr)
+		respBody, err := utils.FlattenResponse(resp)
+		if err != nil {
+			return diag.FromErr(err)
 		}
 
-		if len(*listResp.Certificates) == 0 {
+		certificates := utils.PathSearch("certificates", respBody, make([]interface{}, 0)).([]interface{})
+		if len(certificates) == 0 {
 			break
 		}
 
-		allCertificates = append(allCertificates, *listResp.Certificates...)
-		offset += limit
+		allCertificates = append(allCertificates, certificates...)
+		offset += len(certificates)
 	}
 
 	uuId, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
+
 	d.SetId(uuId)
 
-	targetCertificates := filterListCertificates(allCertificates, d)
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("certificates", flattenCertificates(targetCertificates)),
+		d.Set("certificates", flattenCertificates(filterListCertificates(allCertificates, d))),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func convertStatus(status *bool) string {
-	if status != nil && *status {
-		return "Verified"
-	}
-
-	return "Unverified"
-}
-
-func filterListCertificates(certificates []model.CertificatesRspDto, d *schema.ResourceData) []model.CertificatesRspDto {
+func filterListCertificates(certificates []interface{}, d *schema.ResourceData) []interface{} {
 	if len(certificates) == 0 {
 		return nil
 	}
 
-	rst := make([]model.CertificatesRspDto, 0, len(certificates))
+	rst := make([]interface{}, 0, len(certificates))
 	for _, v := range certificates {
 		if certificateID, ok := d.GetOk("certificate_id"); ok &&
-			fmt.Sprint(certificateID) != utils.StringValue(v.CertificateId) {
+			fmt.Sprint(certificateID) != utils.PathSearch("certificate_id", v, "").(string) {
 			continue
 		}
 
 		if cn, ok := d.GetOk("cn"); ok &&
-			fmt.Sprint(cn) != utils.StringValue(v.CnName) {
+			fmt.Sprint(cn) != utils.PathSearch("cn_name", v, "").(string) {
 			continue
 		}
 
-		statusResp := convertStatus(v.Status)
+		statusResp := flattenStatus(utils.PathSearch("status", v, false).(bool))
 		if status, ok := d.GetOk("status"); ok &&
 			fmt.Sprint(status) != statusResp {
 			continue
@@ -176,7 +182,7 @@ func filterListCertificates(certificates []model.CertificatesRspDto, d *schema.R
 	return rst
 }
 
-func flattenCertificates(certificates []model.CertificatesRspDto) []interface{} {
+func flattenCertificates(certificates []interface{}) []interface{} {
 	if len(certificates) == 0 {
 		return nil
 	}
@@ -184,14 +190,14 @@ func flattenCertificates(certificates []model.CertificatesRspDto) []interface{} 
 	rst := make([]interface{}, 0, len(certificates))
 	for _, v := range certificates {
 		rst = append(rst, map[string]interface{}{
-			"id":             v.CertificateId,
-			"cn":             v.CnName,
-			"owner":          v.Owner,
-			"status":         convertStatus(v.Status),
-			"verify_code":    v.VerifyCode,
-			"created_at":     v.CreateDate,
-			"effective_date": v.EffectiveDate,
-			"expiry_date":    v.ExpiryDate,
+			"id":             utils.PathSearch("certificate_id", v, nil),
+			"cn":             utils.PathSearch("cn_name", v, nil),
+			"owner":          utils.PathSearch("owner", v, nil),
+			"status":         flattenStatus(utils.PathSearch("status", v, false).(bool)),
+			"verify_code":    utils.PathSearch("verify_code", v, nil),
+			"created_at":     utils.PathSearch("create_date", v, nil),
+			"effective_date": utils.PathSearch("effective_date", v, nil),
+			"expiry_date":    utils.PathSearch("expiry_date", v, nil),
 		})
 	}
 

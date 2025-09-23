@@ -9,6 +9,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -42,6 +43,33 @@ import (
 // @API CCE PUT /api/v3/projects/{project_id}/clusters/{cluster_id}/nodes/operation/remove
 // @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
 
+var nodeNonUpdatableParams = []string{
+	"cluster_id", "flavor_id", "type", "availability_zone", "os",
+	"root_volume", "root_volume.*.size", "root_volume.*.volumetype", "root_volume.*.extend_params", "root_volume.*.kms_key_id",
+	"root_volume.*.dss_pool_id", "root_volume.*.iops", "root_volume.*.throughput", "root_volume.*.hw_passthrough", "root_volume.*.extend_param",
+	"data_volumes", "data_volumes.*.size", "data_volumes.*.volumetype", "data_volumes.*.extend_params", "data_volumes.*.kms_key_id",
+	"data_volumes.*.dss_pool_id", "data_volumes.*.iops", "data_volumes.*.throughput", "data_volumes.*.hw_passthrough",
+	"data_volumes.*.extend_param",
+	"storage", "storage.*.selectors", "storage.*.selectors.*.name", "storage.*.selectors.*.type", "storage.*.selectors.*.match_label_size",
+	"storage.*.selectors.*.match_label_volume_type", "storage.*.selectors.*.match_label_metadata_encrypted",
+	"storage.*.selectors.*.match_label_metadata_cmkid", "storage.*.selectors.*.match_label_count",
+	"storage.*.groups", "storage.*.groups.*.name", "storage.*.groups.*.cce_managed", "storage.*.groups.*.selector_names",
+	"storage.*.groups.*.virtual_spaces",
+	"storage.*.groups.*.virtual_spaces.*.name", "storage.*.groups.*.virtual_spaces.*.size", "storage.*.groups.*.virtual_spaces.*.lvm_lv_type",
+	"storage.*.groups.*.virtual_spaces.*.lvm_path", "storage.*.groups.*.virtual_spaces.*.runtime_lv_type",
+	"taints", "taints.*.key", "taints.*.value", "taints.*.effect",
+	"eip_id", "iptype", "bandwidth_charge_mode", "sharetype", "bandwidth_size", "runtime", "ecs_group_id", "ecs_performance_type",
+	"product_id", "max_pods", "public_key", "preinstall", "postinstall", "labels", "annotations",
+	"charging_mode", "period_unit", "period", "auto_pay",
+	"extend_param", "extend_params", "extend_params.*.max_pods", "extend_params.*.docker_base_size", "extend_params.*.preinstall",
+	"extend_params.*.postinstall", "extend_params.*.node_image_id", "extend_params.*.node_multi_queue", "extend_params.*.nic_threshold",
+	"extend_params.*.agency_name", "extend_params.*.kube_reserved_mem", "extend_params.*.system_reserved_mem",
+	"extend_params.*.security_reinforcement_type", "extend_params.*.market_type", "extend_params.*.spot_price",
+	"subnet_id", "fixed_ip", "extension_nics", "extension_nics.*.subnet_id", "dedicated_host_id", "initialized_conditions",
+	"hostname_config", "hostname_config.*.type", "enterprise_project_id", "eip_ids", "billing_mode",
+	"extend_param_charging_mode", "order_id", "partition",
+}
+
 func ResourceNode() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceNodeCreate,
@@ -51,6 +79,11 @@ func ResourceNode() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceNodeImport,
 		},
+
+		CustomizeDiff: customdiff.All(
+			config.FlexibleForceNew(nodeNonUpdatableParams),
+			config.MergeDefaultTags(),
+		),
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
@@ -68,17 +101,14 @@ func ResourceNode() *schema.Resource {
 			"cluster_id": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"flavor_id": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"availability_zone": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"name": {
 				Type:     schema.TypeString,
@@ -89,7 +119,6 @@ func ResourceNode() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 			},
 			"key_pair": {
 				Type:         schema.TypeString,
@@ -113,23 +142,19 @@ func ResourceNode() *schema.Resource {
 			"taints": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"key": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 						"value": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 						},
 						"effect": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 					},
 				},
@@ -137,90 +162,61 @@ func ResourceNode() *schema.Resource {
 			"eip_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
-				ConflictsWith: []string{
-					"eip_ids", "iptype", "bandwidth_charge_mode", "bandwidth_size", "sharetype",
-				},
 			},
 			"iptype": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
-				RequiredWith: []string{
-					"iptype", "bandwidth_size", "sharetype",
-				},
 			},
 			"bandwidth_charge_mode": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				ForceNew:      true,
-				ConflictsWith: []string{"eip_ids", "eip_id"},
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"sharetype": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
-				RequiredWith: []string{
-					"iptype", "bandwidth_size", "sharetype",
-				},
 			},
 			"bandwidth_size": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				ForceNew: true,
-				RequiredWith: []string{
-					"iptype", "bandwidth_size", "sharetype",
-				},
 			},
 			"runtime": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Computed: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"docker", "containerd",
-				}, false),
 			},
 			"ecs_group_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 			},
 			"ecs_performance_type": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Description: "schema: Deprecated",
 			},
 			"product_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Description: "schema: Deprecated",
 			},
 			"max_pods": {
 				Type:        schema.TypeInt,
 				Optional:    true,
-				ForceNew:    true,
 				Description: "schema: Deprecated",
 			},
 			"public_key": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Description: "schema: Deprecated",
 			},
 			"preinstall": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Description: "schema: Deprecated",
 				StateFunc:   utils.DecodeHashAndHexEncode,
 			},
 			"postinstall": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Description: "schema: Deprecated",
 				StateFunc:   utils.DecodeHashAndHexEncode,
 			},
@@ -228,7 +224,6 @@ func ResourceNode() *schema.Resource {
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			// (node/ecs_tags)
@@ -236,22 +231,20 @@ func ResourceNode() *schema.Resource {
 			"annotations": {
 				Type:        schema.TypeMap,
 				Optional:    true,
-				ForceNew:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: "schema: Internal",
 			},
 
 			// charge info: charging_mode, period_unit, period, auto_renew, auto_pay
-			"charging_mode": common.SchemaChargingMode(nil),
-			"period_unit":   common.SchemaPeriodUnit(nil),
-			"period":        common.SchemaPeriod(nil),
-			"auto_renew":    common.SchemaAutoRenewUpdatable(nil),
-			"auto_pay":      common.SchemaAutoPay(nil),
+			"charging_mode": schemaChargingMode(nil),
+			"period_unit":   schemaPeriodUnit(nil),
+			"period":        schemaPeriod(nil),
+			"auto_renew":    schemaAutoRenew(nil),
+			"auto_pay":      schemaAutoPay(nil),
 
 			"extend_param": {
 				Type:        schema.TypeMap,
 				Optional:    true,
-				ForceNew:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: "schema: Deprecated",
 			},
@@ -262,24 +255,20 @@ func ResourceNode() *schema.Resource {
 			"subnet_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Computed: true,
 			},
 			"fixed_ip": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 			},
 			"extension_nics": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"subnet_id": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 					},
 				},
@@ -287,19 +276,46 @@ func ResourceNode() *schema.Resource {
 			"dedicated_host_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 			},
 			"initialized_conditions": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"keep_ecs": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Description: "schema: Internal",
+			},
+			"hostname_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"type": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
+			},
+			"partition": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
 			},
 			"private_ip": {
 				Type:     schema.TypeString,
@@ -320,40 +336,27 @@ func ResourceNode() *schema.Resource {
 
 			// Deprecated
 			"eip_ids": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Set:      schema.HashString,
-				ConflictsWith: []string{
-					"eip_id", "iptype", "bandwidth_charge_mode", "bandwidth_size", "sharetype",
-				},
+				Type:       schema.TypeSet,
+				Optional:   true,
+				Elem:       &schema.Schema{Type: schema.TypeString},
+				Set:        schema.HashString,
 				Deprecated: "use eip_id instead",
 			},
 			"billing_mode": {
 				Type:       schema.TypeInt,
 				Optional:   true,
-				ForceNew:   true,
 				Computed:   true,
 				Deprecated: "use charging_mode instead",
 			},
 			"extend_param_charging_mode": {
 				Type:       schema.TypeInt,
 				Optional:   true,
-				ForceNew:   true,
 				Deprecated: "use charging_mode instead",
 			},
 			"order_id": {
 				Type:       schema.TypeString,
 				Optional:   true,
-				ForceNew:   true,
 				Deprecated: "will be removed after v1.26.0",
-			},
-			"partition": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				ForceNew:    true,
-				Description: "schema: Internal",
 			},
 		},
 	}
@@ -478,6 +481,18 @@ func buildResourceNodeLoginSpec(d *schema.ResourceData) (nodes.LoginSpec, error)
 	return loginSpec, nil
 }
 
+func buildResourceNodeHostnameConfig(d *schema.ResourceData) *nodes.HostnameConfig {
+	if v, ok := d.GetOk("hostname_config"); ok {
+		res := nodes.HostnameConfig{
+			Type: utils.PathSearch("[0].type", v, "").(string),
+		}
+
+		return &res
+	}
+
+	return nil
+}
+
 func resourceNodeCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -518,23 +533,25 @@ func resourceNodeCreate(ctx context.Context, d *schema.ResourceData, meta interf
 			Annotations: buildResourceNodeAnnotations(d),
 		},
 		Spec: nodes.Spec{
-			Flavor:                d.Get("flavor_id").(string),
-			Az:                    d.Get("availability_zone").(string),
-			Os:                    d.Get("os").(string),
-			RootVolume:            buildResourceNodeRootVolume(d),
-			DataVolumes:           buildResourceNodeDataVolume(d),
-			Storage:               buildResourceNodeStorage(d),
-			PublicIP:              buildResourceNodePublicIP(d),
-			BillingMode:           billingMode,
-			Count:                 1,
-			NodeNicSpec:           buildResourceNodeNicSpec(d),
-			EcsGroupID:            d.Get("ecs_group_id").(string),
-			ExtendParam:           buildExtendParams(d),
-			Taints:                buildResourceNodeTaint(d),
-			K8sTags:               buildResourceNodeK8sTags(d),
-			UserTags:              buildResourceNodeTags(d),
-			DedicatedHostID:       d.Get("dedicated_host_id").(string),
-			InitializedConditions: utils.ExpandToStringList(d.Get("initialized_conditions").([]interface{})),
+			Flavor:                    d.Get("flavor_id").(string),
+			Az:                        d.Get("availability_zone").(string),
+			Os:                        d.Get("os").(string),
+			RootVolume:                buildResourceNodeRootVolume(d),
+			DataVolumes:               buildResourceNodeDataVolume(d),
+			Storage:                   buildResourceNodeStorage(d),
+			PublicIP:                  buildResourceNodePublicIP(d),
+			BillingMode:               billingMode,
+			Count:                     1,
+			NodeNicSpec:               buildResourceNodeNicSpec(d),
+			EcsGroupID:                d.Get("ecs_group_id").(string),
+			ExtendParam:               buildExtendParams(d),
+			Taints:                    buildResourceNodeTaint(d),
+			K8sTags:                   buildResourceNodeK8sTags(d),
+			UserTags:                  buildResourceNodeTags(d),
+			DedicatedHostID:           d.Get("dedicated_host_id").(string),
+			InitializedConditions:     utils.ExpandToStringList(d.Get("initialized_conditions").([]interface{})),
+			HostnameConfig:            buildResourceNodeHostnameConfig(d),
+			ServerEnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
 		},
 	}
 
@@ -620,8 +637,8 @@ func resourceNodeRead(_ context.Context, d *schema.ResourceData, meta interface{
 	}
 
 	// The following parameters are not returned:
-	// password, private_key, storage, fixed_ip, extension_nics, eip_id, iptype, bandwidth_charge_mode, bandwidth_size,
-	// share_type, extend_params, dedicated_host_id, initialized_conditions, labels, taints
+	// password, private_key, fixed_ip, extension_nics, eip_id, iptype, bandwidth_charge_mode, bandwidth_size,
+	// sharetype, extend_params, dedicated_host_id, initialized_conditions, labels, taints, period_unit, period, auto_renew, auto_pay
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
 		d.Set("name", s.Metadata.Name),
@@ -638,6 +655,11 @@ func resourceNodeRead(_ context.Context, d *schema.ResourceData, meta interface{
 		d.Set("root_volume", flattenResourceNodeRootVolume(d, s.Spec.RootVolume)),
 		d.Set("data_volumes", flattenResourceNodeDataVolume(d, s.Spec.DataVolumes)),
 		d.Set("initialized_conditions", s.Spec.InitializedConditions),
+		d.Set("hostname_config", flattenResourceNodeHostnameConfig(s.Spec.HostnameConfig)),
+		d.Set("enterprise_project_id", s.Spec.ServerEnterpriseProjectID),
+		d.Set("tags", utils.TagsToMap(s.Spec.UserTags)),
+		d.Set("storage", flattenResourceNodeStorage(s.Spec.Storage)),
+		d.Set("extension_nics", flattenExtensionNics(s.Spec.NodeNicSpec.ExtNics)),
 	)
 
 	if s.Spec.BillingMode != 0 {
@@ -672,6 +694,36 @@ func resourceNodeRead(_ context.Context, d *schema.ResourceData, meta interface{
 		return diag.Errorf("error setting CCE Node fields: %s", err)
 	}
 	return nil
+}
+
+func flattenResourceNodeHostnameConfig(hostNameConfig *nodes.HostnameConfig) []map[string]interface{} {
+	if hostNameConfig == nil {
+		return nil
+	}
+
+	res := []map[string]interface{}{
+		{
+			"type": hostNameConfig.Type,
+		},
+	}
+
+	return res
+}
+
+func flattenExtensionNics(extraNic []nodes.ExtNic) []map[string]interface{} {
+	if len(extraNic) == 0 {
+		return nil
+	}
+
+	res := make([]map[string]interface{}, len(extraNic))
+
+	for i, v := range extraNic {
+		res[i] = map[string]interface{}{
+			"subnet_id": utils.PathSearch("SubnetId", v, nil),
+		}
+	}
+
+	return res
 }
 
 func resourceNodeUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

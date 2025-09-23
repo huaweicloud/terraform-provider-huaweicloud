@@ -11,37 +11,41 @@ import (
 	"github.com/tidwall/gjson"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/filters"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/httphelper"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/schemas"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func DataSourceDNSCustomLines() *schema.Resource {
+func DataSourceCustomLines() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceDNSCustomLinesRead,
+		ReadContext: dataSourceCustomLinesRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				Description: `Specifies the region in which to query the resource. If omitted, the provider-level region will be used.`,
+				Description: `The region in which to query the resource. If omitted, the provider-level region will be used.`,
 			},
 			"line_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specified the ID of the custom line. Fuzzy search is supported.`,
+				Description: `The ID of the custom line. Fuzzy search is supported.`,
 			},
 			"name": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specified the name of the custom line. Fuzzy search is supported.`,
+				Description: `The name of the custom line. Fuzzy search is supported.`,
+			},
+			"ip": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The IP address used to query custom line which is in the IP address range.`,
 			},
 			"status": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specifies the status of the custom line.`,
+				Description: `The status of the custom line.`,
 			},
 			"lines": {
 				Type:        schema.TypeList,
@@ -104,7 +108,7 @@ func newCustomLinesDSWrapper(d *schema.ResourceData, meta interface{}) *CustomLi
 	}
 }
 
-func dataSourceDNSCustomLinesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceCustomLinesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	wrapper := newCustomLinesDSWrapper(d, meta)
 	listCustomLineRst, err := wrapper.ListCustomLine()
 	if err != nil {
@@ -136,6 +140,8 @@ func (w *CustomLinesDSWrapper) ListCustomLine() (*gjson.Result, error) {
 	params := map[string]any{
 		"line_id": w.Get("line_id"),
 		"name":    w.Get("name"),
+		"status":  w.Get("status"),
+		"ip":      w.Get("ip"),
 	}
 	params = utils.RemoveNil(params)
 	return httphelper.New(client).
@@ -143,10 +149,6 @@ func (w *CustomLinesDSWrapper) ListCustomLine() (*gjson.Result, error) {
 		URI(uri).
 		Query(params).
 		OffsetPager("lines", "offset", "limit", 0).
-		Filter(
-			filters.New().From("lines").
-				Where("status", "=", w.Get("status")),
-		).
 		Request().
 		Result()
 }

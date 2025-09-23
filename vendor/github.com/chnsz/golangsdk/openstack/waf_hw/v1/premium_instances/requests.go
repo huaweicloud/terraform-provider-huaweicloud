@@ -7,6 +7,7 @@ package premium_instances
 import (
 	"fmt"
 	"github.com/chnsz/golangsdk"
+	"github.com/chnsz/golangsdk/openstack/common/tags"
 )
 
 // requestOpts defines the request header and language.
@@ -16,23 +17,24 @@ var requestOpts = golangsdk.RequestOpts{
 
 // CreateInstanceOpts the parameters in the creating request body
 type CreateInstanceOpts struct {
-	Region        string   `json:"region" required:"true"`
-	ChargeMode    int      `json:"chargemode" required:"true"`
-	AvailableZone string   `json:"available_zone" required:"true"`
-	Arch          string   `json:"arch" required:"true"`
-	NamePrefix    string   `json:"instancename" required:"true"`
-	Specification string   `json:"specification" required:"true"`
-	VpcId         string   `json:"vpc_id" required:"true"`
-	SubnetId      string   `json:"subnet_id" required:"true"`
-	SecurityGroup []string `json:"security_group" required:"true"`
-	Count         int      `json:"count" required:"true"`
-	Ipv6Enable    string   `json:"ipv6_enable,omitempty"`
-	VolumeType    string   `json:"volume_type,omitempty"`
-	ClusterId     string   `json:"cluster_id,omitempty"`
-	PoolId        string   `json:"pool_id,omitempty"`
-	ResTenant     *bool    `json:"res_tenant,omitempty"`
-	CpuFlavor     string   `json:"cpu_flavor,omitempty"`
-	AntiAffinity  *bool    `json:"anti_affinity,omitempty"`
+	Region        string             `json:"region" required:"true"`
+	ChargeMode    int                `json:"chargemode" required:"true"`
+	AvailableZone string             `json:"available_zone" required:"true"`
+	Arch          string             `json:"arch" required:"true"`
+	NamePrefix    string             `json:"instancename" required:"true"`
+	Specification string             `json:"specification" required:"true"`
+	VpcId         string             `json:"vpc_id" required:"true"`
+	SubnetId      string             `json:"subnet_id" required:"true"`
+	SecurityGroup []string           `json:"security_group" required:"true"`
+	Count         int                `json:"count" required:"true"`
+	Ipv6Enable    string             `json:"ipv6_enable,omitempty"`
+	VolumeType    string             `json:"volume_type,omitempty"`
+	ClusterId     string             `json:"cluster_id,omitempty"`
+	PoolId        string             `json:"pool_id,omitempty"`
+	ResTenant     *bool              `json:"res_tenant,omitempty"`
+	CpuFlavor     string             `json:"cpu_flavor,omitempty"`
+	AntiAffinity  *bool              `json:"anti_affinity,omitempty"`
+	Tags          []tags.ResourceTag `json:"tags,omitempty"`
 }
 
 // ListInstanceOpts the parameters in the querying request.

@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
@@ -14,15 +15,21 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+var pgPluginUpdateNonUpdatableParams = []string{"instance_id", "database_name", "extension_name"}
+
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/extensions
 func ResourceRdsPgPluginUpdate() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceRdsPgPluginUpdateCreate,
 		ReadContext:   resourceRdsPgPluginUpdateRead,
+		UpdateContext: resourceRdsPgPluginUpdateUpdate,
 		DeleteContext: resourceRdsPgPluginUpdateDelete,
+
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+
+		CustomizeDiff: config.FlexibleForceNew(pgPluginUpdateNonUpdatableParams),
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -34,20 +41,23 @@ func ResourceRdsPgPluginUpdate() *schema.Resource {
 			"instance_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the ID of the RDS instance.`,
 			},
 			"database_name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the database name.`,
 			},
 			"extension_name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the extension name.`,
+			},
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
 			},
 		},
 	}
@@ -96,6 +106,10 @@ func buildCreateRdsPluginUpdateBodyParams(d *schema.ResourceData) map[string]int
 }
 
 func resourceRdsPgPluginUpdateRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+	return nil
+}
+
+func resourceRdsPgPluginUpdateUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	return nil
 }
 

@@ -1,0 +1,85 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cce_autopilot_addon_templates": {
+          "block": {
+            "attributes": {
+              "addon_template_name": {
+                "type": "string",
+                "description": "Specifies the name of the add-on.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "templates": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "alias": "string",
+                      "annotations": [
+                        "map",
+                        "string"
+                      ],
+                      "description": "string",
+                      "id": "string",
+                      "labels": [
+                        "list",
+                        "string"
+                      ],
+                      "name": "string",
+                      "require": "bool",
+                      "type": "string",
+                      "versions": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "input": "string",
+                            "stable": "bool",
+                            "support_versions": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "cluster_type": "string",
+                                  "cluster_version": [
+                                    "list",
+                                    "string"
+                                  ]
+                                }
+                              ]
+                            ],
+                            "version": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The list of add-on templates.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CCE",
+            "name": "Cloud Container Engine",
+            "catalog": "Containers",
+            "name_cn": "云容器引擎",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

@@ -14,8 +14,19 @@
                 "type": "string",
                 "computed": true
               },
+              "key": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "sensitive": true
+              },
               "region": {
                 "type": "string",
+                "computed": true
+              },
+              "sign_type": {
+                "type": "string",
+                "optional": true,
                 "computed": true
               },
               "types": {

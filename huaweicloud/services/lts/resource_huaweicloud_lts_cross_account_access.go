@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -27,6 +26,8 @@ func ResourceCrossAccountAccess() *schema.Resource {
 		UpdateContext: resourceCrossAccountAccessUpdate,
 		ReadContext:   resourceCrossAccountAccessRead,
 		DeleteContext: resourceHostAccessConfigDelete,
+
+		CustomizeDiff: config.MergeDefaultTags(),
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -152,11 +153,11 @@ func resourceCrossAccountAccessCreate(ctx context.Context, d *schema.ResourceDat
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("[0].access_config_id", createRespBody)
-	if err != nil {
-		return diag.Errorf("error creating LTS cross account access: ID is not found in API response")
+	accessId := utils.PathSearch("[0].access_config_id", createRespBody, "").(string)
+	if accessId == "" {
+		return diag.Errorf("unable to find the access ID of the LTS cross account from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(accessId)
 
 	// deal tags
 	if tags, ok := d.GetOk("tags"); ok {

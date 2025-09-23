@@ -1,0 +1,73 @@
+name: hcbp-lint
+
+on:
+  pull_request:
+    branches: [ master ]
+    paths: 
+      - 'examples/**/*.tf'
+      - 'examples/**/*.tfvars'
+
+permissions:
+  contents: read
+  actions: write
+  checks: write
+  pull-requests: write
+
+jobs:
+  lint-examples:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (Cross-Repo Safe)
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Fallback Checkout
+        if: failure()
+        uses: actions/checkout@v4
+        with:
+          ref: 'master'
+          fetch-depth: 0
+
+      - name: Ensure Master Branch
+        run: |
+          git fetch origin master:master 2>/dev/null || \
+          git fetch origin || \
+          echo "Warning: Unable to fetch master branch, using base SHA"
+
+      - name: Lint Terraform Examples
+        id: terraform-lint
+        uses: Lance52259/hcbp-scripts-lint@v2
+        with:
+          directory: 'examples'
+          fail-on-error: 'true'
+          exclude-paths: '*.md,*.txt,*.json,*.yml,*.yaml'
+          changed-files-only: 'true'
+          base-ref: ${{ github.event.pull_request.base.sha }}
+          performance-monitoring: 'true'
+          report-format: 'both'
+
+      - name: Show Results Summary
+        if: always()
+        run: |
+          echo "📊 Lint Results:"
+          echo "- Result: ${{ steps.terraform-lint.outputs.result }}"
+          echo "- Errors: ${{ steps.terraform-lint.outputs.error-count }}"
+          echo "- Warnings: ${{ steps.terraform-lint.outputs.warning-count }}"
+          echo "- Files Processed: ${{ steps.terraform-lint.outputs.files-processed }}"
+          echo "- Execution Time: ${{ steps.terraform-lint.outputs.execution-time }}s"
+
+          HEAD_REPO="${{ github.event.pull_request.head.repo.full_name }}"
+          BASE_REPO="${{ github.event.pull_request.base.repo.full_name }}"
+          if [ "$HEAD_REPO" != "$BASE_REPO" ]; then
+            echo "🔀 Cross-repository push detected and handled"
+          fi
+
+      - name: Show Detailed Report on Issues
+        if: failure() || (steps.terraform-lint.outputs.error-count != '0')
+        run: |
+          echo "=== Detailed Report ==="
+          cat terraform-lint-report.txt 2>/dev/null || \
+          cat terraform-lint-report-unified-*.txt 2>/dev/null || \
+          echo "Report not found"

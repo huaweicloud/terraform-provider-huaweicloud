@@ -1,0 +1,124 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_ccm_certificate_import": {
+          "block": {
+            "attributes": {
+              "authentifications": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "domain": "string",
+                      "record_name": "string",
+                      "record_type": "string",
+                      "record_value": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "certificate": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "certificate_chain": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "domain": {
+                "type": "string",
+                "computed": true
+              },
+              "domain_count": {
+                "type": "number",
+                "computed": true
+              },
+              "enc_certificate": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "enc_private_key": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "not_after": {
+                "type": "string",
+                "computed": true
+              },
+              "not_before": {
+                "type": "string",
+                "computed": true
+              },
+              "private_key": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "push_support": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "target": {
+                "block": {
+                  "attributes": {
+                    "project": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "optional": true
+                    },
+                    "service": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "CCM",
+            "name": "Cloud Certificate & Manager",
+            "catalog": "Security & Compliance",
+            "name_cn": "云证书与管理服务",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

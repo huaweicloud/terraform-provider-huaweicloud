@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_sfs_turbo_perm_rules
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: SFSTURBO
+paths:
+    /v1/{project_id}/sfs-turbo/shares/{share_id}/fs/perm-rules:
+        GET:
+            tag: SFSTURBO

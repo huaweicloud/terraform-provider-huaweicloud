@@ -1,0 +1,100 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_smn_message_publish": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "message": {
+                "type": "string",
+                "description": "Specifies the message content.",
+                "optional": true
+              },
+              "message_structure": {
+                "type": "string",
+                "description": "Specifies the message structure.",
+                "optional": true
+              },
+              "message_template_name": {
+                "type": "string",
+                "description": "Specifies the message template name.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "subject": {
+                "type": "string",
+                "description": "Specifies the message title.",
+                "optional": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
+              "time_to_live": {
+                "type": "string",
+                "description": "Specifies the maximum retention time of the message within the SMN system.",
+                "optional": true
+              },
+              "topic_urn": {
+                "type": "string",
+                "description": "Specifies the resource identifier of a topic.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "message_attributes": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "description": "Specifies the property name.",
+                      "required": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Specifies the property type.",
+                      "required": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "description": "Specifies the property value.",
+                      "optional": true
+                    },
+                    "values": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "Specifies the property values.",
+                      "optional": true
+                    }
+                  },
+                  "description": "Specifies the message filter policies of a subscriber."
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "SMN",
+            "name": "Simple Message Notification",
+            "catalog": "Management & Governance",
+            "name_cn": "消息通知服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

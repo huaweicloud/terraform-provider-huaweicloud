@@ -1,0 +1,55 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_kms_datakey_without_plaintext": {
+          "block": {
+            "attributes": {
+              "cipher_text": {
+                "type": "string",
+                "description": "The encrypted ciphertext, Base64 encoded.",
+                "computed": true
+              },
+              "datakey_length": {
+                "type": "string",
+                "description": "Specifies the bit length of the key.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "key_id": {
+                "type": "string",
+                "description": "Specifies the key ID.",
+                "required": true
+              },
+              "key_spec": {
+                "type": "string",
+                "description": "Specifies the generated key bit length.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to create the resource.",
+                "computed": true
+              },
+              "sequence": {
+                "type": "string",
+                "description": "Specifies the sequence number of the request message.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "KMS",
+            "name": "Data Encryption Workshop KMS",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据加密服务-密钥管理",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

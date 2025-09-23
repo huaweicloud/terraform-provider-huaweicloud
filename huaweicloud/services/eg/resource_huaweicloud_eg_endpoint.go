@@ -14,7 +14,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/pagination"
@@ -129,11 +128,11 @@ func resourceEndpointCreate(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("id", createEndpointRespBody)
-	if err != nil {
-		return diag.Errorf("error creating Endpoint: ID is not found in API response")
+	endpointId := utils.PathSearch("id", createEndpointRespBody, "").(string)
+	if endpointId == "" {
+		return diag.Errorf("unable to find the EG endpoint ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(endpointId)
 
 	return resourceEndpointRead(ctx, d, meta)
 }

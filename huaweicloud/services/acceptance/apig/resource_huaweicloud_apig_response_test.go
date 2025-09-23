@@ -49,7 +49,17 @@ func TestAccResponse_basic(t *testing.T) {
 				Config: testAccResponse_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "instance_id", acceptance.HW_APIG_DEDICATED_INSTANCE_ID),
 					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttrPair(rName, "group_id", "huaweicloud_apig_group.test", "id"),
+					resource.TestCheckResourceAttr(rName, "rule.#", "1"),
+					resource.TestCheckResourceAttr(rName, "rule.0.error_type", "AUTHORIZER_FAILURE"),
+					resource.TestCheckResourceAttr(rName, "rule.0.body",
+						"{\"code\":\"$context.authorizer.frontend.code\",\"message\":\"$context.authorizer.frontend.message\"}"),
+					resource.TestCheckResourceAttr(rName, "rule.0.status_code", "401"),
+					resource.TestCheckResourceAttr(rName, "rule.0.headers.#", "1"),
+					resource.TestCheckResourceAttr(rName, "rule.0.headers.0.key", "test-0"),
+					resource.TestCheckResourceAttr(rName, "rule.0.headers.0.value", "test-value-0"),
 				),
 			},
 			{
@@ -94,7 +104,17 @@ func TestAccResponse_customRules(t *testing.T) {
 				Config: testAccResponse_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "instance_id", acceptance.HW_APIG_DEDICATED_INSTANCE_ID),
 					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttrPair(rName, "group_id", "huaweicloud_apig_group.test", "id"),
+					resource.TestCheckResourceAttr(rName, "rule.#", "1"),
+					resource.TestCheckResourceAttr(rName, "rule.0.error_type", "AUTHORIZER_FAILURE"),
+					resource.TestCheckResourceAttr(rName, "rule.0.body",
+						"{\"code\":\"$context.authorizer.frontend.code\",\"message\":\"$context.authorizer.frontend.message\"}"),
+					resource.TestCheckResourceAttr(rName, "rule.0.status_code", "401"),
+					resource.TestCheckResourceAttr(rName, "rule.0.headers.#", "1"),
+					resource.TestCheckResourceAttr(rName, "rule.0.headers.0.key", "test-0"),
+					resource.TestCheckResourceAttr(rName, "rule.0.headers.0.value", "test-value-0"),
 				),
 			},
 			{
@@ -111,6 +131,11 @@ func TestAccResponse_customRules(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "rule.#", "1"),
+					resource.TestCheckResourceAttr(rName, "rule.0.error_type", "AUTHORIZER_FAILURE"),
+					resource.TestCheckResourceAttr(rName, "rule.0.body",
+						"{\"code\":\"$context.authorizer.frontend.code\",\"message\":\"$context.authorizer.frontend.message\"}"),
+					resource.TestCheckResourceAttr(rName, "rule.0.status_code", "403"),
+					resource.TestCheckResourceAttr(rName, "rule.0.headers.#", "0"),
 				),
 			},
 			{
@@ -155,6 +180,11 @@ resource "huaweicloud_apig_response" "test" {
     error_type  = "AUTHORIZER_FAILURE"
     body        = "{\"code\":\"$context.authorizer.frontend.code\",\"message\":\"$context.authorizer.frontend.message\"}"
     status_code = 401
+
+    headers {
+      key   = "test-0"
+      value = "test-value-0" 
+    }
   }
 }
 `, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name)
@@ -181,6 +211,15 @@ resource "huaweicloud_apig_response" "test" {
     error_type  = "AUTHORIZER_FAILURE"
     body        = "{\"code\":\"$context.authorizer.frontend.code\",\"message\":\"$context.authorizer.frontend.message\"}"
     status_code = 401
+
+    headers {
+      key   = "test-0"
+      value = "test-value-0" 
+    }
+    headers {
+      key   = "test-1"
+      value = "test-value-1" 
+    }
   }
 }
 `, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name)

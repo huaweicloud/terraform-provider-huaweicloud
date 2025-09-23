@@ -1,0 +1,61 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_lts_register_kafka_instance": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the Kafka instance to be registered to the LTS.",
+                "required": true
+              },
+              "kafka_name": {
+                "type": "string",
+                "description": "The name of the Kafka instance to be registered to the LTS.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "connect_info": {
+                "block": {
+                  "attributes": {
+                    "pwd": {
+                      "type": "string",
+                      "description": "The password of the SASL_SSL user of the Kafka instance.",
+                      "optional": true,
+                      "sensitive": true
+                    },
+                    "user_name": {
+                      "type": "string",
+                      "description": "The name of the SASL_SSL user of the Kafka instance.",
+                      "optional": true
+                    }
+                  },
+                  "description": "The connection information of the Kafka instance to be registered to the LTS."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "LTS",
+            "name": "Log Tank Service",
+            "catalog": "Management & Governance",
+            "name_cn": "云日志服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

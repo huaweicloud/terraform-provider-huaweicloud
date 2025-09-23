@@ -1,0 +1,137 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_asm_meshes": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "items": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "annotations": [
+                        "map",
+                        "string"
+                      ],
+                      "created_at": "string",
+                      "extend_params": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "clusters": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "cluster_id": "string",
+                                  "injection": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "namespaces": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "field_selector": [
+                                                "list",
+                                                [
+                                                  "object",
+                                                  {
+                                                    "key": "string",
+                                                    "operator": "string",
+                                                    "values": [
+                                                      "list",
+                                                      "string"
+                                                    ]
+                                                  }
+                                                ]
+                                              ]
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    ]
+                                  ],
+                                  "installation": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "nodes": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "field_selector": [
+                                                "list",
+                                                [
+                                                  "object",
+                                                  {
+                                                    "key": "string",
+                                                    "operator": "string",
+                                                    "values": [
+                                                      "list",
+                                                      "string"
+                                                    ]
+                                                  }
+                                                ]
+                                              ]
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "id": "string",
+                      "labels": [
+                        "map",
+                        "string"
+                      ],
+                      "name": "string",
+                      "status": "string",
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "type": "string",
+                      "version": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of meshes.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "ASM",
+            "name": "Application Service Mesh",
+            "catalog": "Containers",
+            "name_cn": "应用服务网格",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

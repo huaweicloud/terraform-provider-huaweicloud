@@ -2,20 +2,37 @@
 subcategory: "Cloud Application Engine (CAE)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_cae_applications"
-description: ""
+description: |-
+  Use this data source to get the list of CAE applications within HuaweiCloud.
 ---
 
 # huaweicloud_cae_applications
 
-Use this data source to get the list of CAE applications.
+Use this data source to get the list of CAE applications within HuaweiCloud.
 
 ## Example Usage
+
+### Query all applications under the default enterprise project or EPS service is not enable
 
 ```hcl
 variable "environment_id" {}
 
 data "huaweicloud_cae_applications" "test" {
   environment_id = var.environment_id
+}
+```
+
+### Query the application under the specified enterprise project by application ID
+
+```hcl
+variable "environment_id" {}
+variable "application_id" {}
+variable "enterprise_project_id" {}
+
+data "huaweicloud_cae_applications" "filter_by_application_id" {
+  environment_id        = var.environment_id
+  application_id        = var.application_id
+  enterprise_project_id = var.enterprise_project_id
 }
 ```
 
@@ -33,6 +50,11 @@ The following arguments are supported:
 * `name` - (Optional, String) Specifies the name of the application to be queried.
   The name can contain `2` to `64` characters, only lowercase letters, digits, and hyphens (-) allowed.
   The name must start with a lowercase letter and end with lowercase letters and digits.
+
+* `enterprise_project_id` - (Optional, String) Specifies the ID of the enterprise project to which the applications
+  belong.  
+  If the `environment_id` belongs to the non-default enterprise project, this parameter is required and is only valid
+  for enterprise users.
 
 ## Attribute Reference
 

@@ -10,23 +10,30 @@
                 "optional": true,
                 "forcenew": true
               },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
               "email": {
                 "type": "string",
                 "optional": true,
+                "computed": true,
                 "forcenew": true
               },
               "id": {
                 "type": "string",
                 "computed": true
               },
+              "intl_number_prefix": {
+                "type": "string",
+                "computed": true
+              },
               "joined_at": {
                 "type": "string",
-                "description": "Indicates the time when the account was created.",
                 "computed": true
               },
               "joined_method": {
                 "type": "string",
-                "description": "Indicates how an account joined an organization.",
                 "computed": true
               },
               "name": {
@@ -37,13 +44,13 @@
               },
               "parent_id": {
                 "type": "string",
-                "description": "Specifies the ID of the root or organization unit in which you want to create a new account.",
                 "optional": true,
                 "computed": true
               },
               "phone": {
                 "type": "string",
                 "optional": true,
+                "computed": true,
                 "forcenew": true
               },
               "tags": {
@@ -51,11 +58,11 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "urn": {
                 "type": "string",
-                "description": "Indicates the uniform resource name of the account.",
                 "computed": true
               }
             }

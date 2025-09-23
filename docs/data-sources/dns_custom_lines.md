@@ -23,9 +23,11 @@ The following arguments are supported:
 * `region` - (Optional, String) Specifies the region in which to query the resource.
   If omitted, the provider-level region will be used.
 
-* `line_id` - (Optional, String) Specified the ID of the custom line. Fuzzy search is supported.
+* `line_id` - (Optional, String) Specifies the ID of the custom line. Fuzzy search is supported.
 
-* `name` - (Optional, String) Specified the name of the custom line. Fuzzy search is supported.
+* `name` - (Optional, String) Specifies the name of the custom line. Fuzzy search is supported.
+
+* `ip` - (Optional, String) Specifies the IP address used to query custom line which is in the IP address range.
 
 * `status` - (Optional, String) Specifies the status of the custom line.  
   The valid values are as follows:

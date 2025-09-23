@@ -1,0 +1,82 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_eg_event_target_catalogs": {
+          "block": {
+            "attributes": {
+              "catalogs": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_time": "string",
+                      "description": "string",
+                      "id": "string",
+                      "label": "string",
+                      "name": "string",
+                      "parameters": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "label": "string",
+                            "metadata": "string",
+                            "name": "string"
+                          }
+                        ]
+                      ],
+                      "provider_type": "string",
+                      "support_types": [
+                        "list",
+                        "string"
+                      ],
+                      "updated_time": "string"
+                    }
+                  ]
+                ],
+                "description": "All event target catalogs that match the filter parameters.",
+                "computed": true
+              },
+              "fuzzy_label": {
+                "type": "string",
+                "description": "The label of the event target catalog to be queried.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the event target catalogs are located.",
+                "computed": true
+              },
+              "sort": {
+                "type": "string",
+                "description": "The sort order for querying event target catalogs.",
+                "optional": true
+              },
+              "support_types": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The support type list of event targets to be queried.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "EG",
+            "name": "EventGrid",
+            "catalog": "Middleware",
+            "name_cn": "事件网格",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

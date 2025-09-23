@@ -32,6 +32,7 @@ func TestAccDataSourceInstances_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -71,7 +72,7 @@ data "huaweicloud_apig_instances" "test" {
 
 # Filter by ID
 locals {
-  instance_id = data.huaweicloud_apig_instances.test.instances[0].id
+  instance_id = huaweicloud_apig_instance.test.id
 }
 
 data "huaweicloud_apig_instances" "filter_by_id" {
@@ -90,10 +91,14 @@ output "instance_id_filter_is_useful" {
 
 # Filter by name
 locals {
-  name = data.huaweicloud_apig_instances.test.instances[0].name
+  name = huaweicloud_apig_instance.test.name
 }
 
 data "huaweicloud_apig_instances" "filter_by_name" {
+  depends_on = [
+    huaweicloud_apig_instance.test
+  ]
+
   name = local.name
 }
 
@@ -109,7 +114,7 @@ output "name_filter_is_useful" {
 
 # Filter by status
 locals {
-  status = data.huaweicloud_apig_instances.test.instances[0].status
+  status = huaweicloud_apig_instance.test.status
 }
 
 data "huaweicloud_apig_instances" "filter_by_status" {
@@ -128,10 +133,14 @@ output "status_filter_is_useful" {
 
 # Filter by enterprise_project_id
 locals {
-  enterprise_project_id = data.huaweicloud_apig_instances.test.instances[0].enterprise_project_id
+  enterprise_project_id = huaweicloud_apig_instance.test.enterprise_project_id
 }
 
 data "huaweicloud_apig_instances" "filter_by_enterprise_project_id" {
+  depends_on = [
+    huaweicloud_apig_instance.test
+  ]
+
   enterprise_project_id = local.enterprise_project_id
 }
 

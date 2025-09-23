@@ -40,6 +40,32 @@ func TestAccDataSourceCfwServiceGroupMembers_basic(t *testing.T) {
 	})
 }
 
+func TestAccDataSourceCfwServiceGroupMembers_predefinedGroupMembers(t *testing.T) {
+	dataSource := "data.huaweicloud_cfw_service_group_members.test"
+	dc := acceptance.InitDataSourceCheck(dataSource)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckCfw(t)
+			acceptance.TestAccPreCheckCfwPredefinedServiceGroup(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testDataSourceCfwServiceGroupMembers_predefinedGroupMembers(),
+				Check: resource.ComposeTestCheckFunc(
+					dc.CheckResourceExists(),
+					resource.TestCheckResourceAttrSet(dataSource, "records.0.item_id"),
+					resource.TestCheckResourceAttrSet(dataSource, "records.0.protocol"),
+					resource.TestCheckResourceAttrSet(dataSource, "records.0.source_port"),
+					resource.TestCheckResourceAttrSet(dataSource, "records.0.dest_port"),
+				),
+			},
+		},
+	})
+}
+
 func testDataSourceCfwServiceGroupMembers_basic(name string) string {
 	return fmt.Sprintf(`
 %[1]s
@@ -129,6 +155,15 @@ output "is_protocol_filter_useful" {
   ])
 }
 `, testDataSourceCfwServiceGroupMembers_base(name))
+}
+
+func testDataSourceCfwServiceGroupMembers_predefinedGroupMembers() string {
+	return fmt.Sprintf(`
+data "huaweicloud_cfw_service_group_members" "test" {
+  group_id   = "%[1]s"
+  group_type = "1"
+}
+`, acceptance.HW_CFW_PREDEFINED_SERVICE_GROUP1)
 }
 
 func testDataSourceCfwServiceGroupMembers_base(name string) string {

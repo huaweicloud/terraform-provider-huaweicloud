@@ -1,0 +1,144 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cce_addons": {
+          "block": {
+            "attributes": {
+              "cluster_id": {
+                "type": "string",
+                "description": "Specifies the ID of the cluster to which the add-on instance belongs.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "items": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "metadata": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "alias": "string",
+                            "annotations": [
+                              "map",
+                              "string"
+                            ],
+                            "creation_timestamp": "string",
+                            "labels": [
+                              "map",
+                              "string"
+                            ],
+                            "name": "string",
+                            "uid": "string",
+                            "update_timestamp": "string"
+                          }
+                        ]
+                      ],
+                      "spec": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "addon_template_labels": [
+                              "list",
+                              "string"
+                            ],
+                            "addon_template_logo": "string",
+                            "addon_template_name": "string",
+                            "addon_template_type": "string",
+                            "cluster_id": "string",
+                            "description": "string",
+                            "values": [
+                              "list",
+                              "string"
+                            ],
+                            "version": "string"
+                          }
+                        ]
+                      ],
+                      "status": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "_reason": "string",
+                            "current_version": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "creation_timestamp": "string",
+                                  "input": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "stable": "bool",
+                                  "support_versions": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "category": [
+                                          "list",
+                                          "string"
+                                        ],
+                                        "cluster_type": "string",
+                                        "cluster_version": [
+                                          "list",
+                                          "string"
+                                        ]
+                                      }
+                                    ]
+                                  ],
+                                  "translate": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "update_timestamp": "string",
+                                  "version": "string"
+                                }
+                              ]
+                            ],
+                            "is_rollbackable": "bool",
+                            "message": "string",
+                            "previous_version": "string",
+                            "status": "string",
+                            "target_versions": [
+                              "list",
+                              "string"
+                            ]
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The add-on instance list.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CCE",
+            "name": "Cloud Container Engine",
+            "catalog": "Containers",
+            "name_cn": "云容器引擎",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

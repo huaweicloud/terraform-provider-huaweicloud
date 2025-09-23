@@ -2,13 +2,13 @@ package nat
 
 import (
 	"context"
-	"log"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/chnsz/golangsdk/openstack/nat/v3/transitips"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -29,6 +29,8 @@ func ResourcePrivateTransitIp() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+
+		CustomizeDiff: config.MergeDefaultTags(),
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -64,6 +66,11 @@ func ResourcePrivateTransitIp() *schema.Resource {
 				Computed:    true,
 				Description: "The network interface ID of the transit IP for private NAT.",
 			},
+			"status": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The status of the transit IP.",
+			},
 			"gateway_id": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -83,87 +90,151 @@ func ResourcePrivateTransitIp() *schema.Resource {
 	}
 }
 
+func buildCreatePrivateTransitIpBodyParams(d *schema.ResourceData, epsId string) map[string]interface{} {
+	transitIpBodyParams := map[string]interface{}{
+		"virsubnet_id":          d.Get("subnet_id"),
+		"ip_address":            utils.ValueIgnoreEmpty(d.Get("ip_address")),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(epsId),
+		"tags":                  utils.ExpandResourceTagsMap(d.Get("tags").(map[string]interface{})),
+	}
+
+	return map[string]interface{}{
+		"transit_ip": transitIpBodyParams,
+	}
+}
+
 func resourcePrivateTransitIpCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	client, err := cfg.NatV3Client(cfg.GetRegion(d))
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v3/{project_id}/private-nat/transit-ips"
+	)
+
+	client, err := cfg.NewServiceClient("nat", region)
 	if err != nil {
 		return diag.Errorf("error creating NAT v3 client: %s", err)
 	}
 
-	opts := transitips.CreateOpts{
-		SubnetId:            d.Get("subnet_id").(string),
-		IpAddress:           d.Get("ip_address").(string),
-		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
-		Tags:                utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
+	createPath := client.Endpoint + httpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildCreatePrivateTransitIpBodyParams(d, cfg.GetEnterpriseProjectID(d))),
 	}
 
-	log.Printf("[DEBUG] The create options of the transit IP (Private NAT) is: %#v", opts)
-	resp, err := transitips.Create(client, opts)
+	resp, err := client.Request("POST", createPath, &createOpt)
 	if err != nil {
-		return diag.Errorf("error creating transit IP (Private NAT): %s", err)
+		return diag.Errorf("error creating transit IP (private NAT): %s", err)
 	}
-	d.SetId(resp.ID)
+
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	transitIpId := utils.PathSearch("transit_ip.id", respBody, "").(string)
+	if transitIpId == "" {
+		return diag.Errorf("error creating transit IP (private NAT): ID is not found in API response")
+	}
+
+	d.SetId(transitIpId)
 
 	return resourcePrivateTransitIpRead(ctx, d, meta)
 }
 
+func GetTransitIp(client *golangsdk.ServiceClient, transitIpId string) (interface{}, error) {
+	httpUrl := "v3/{project_id}/private-nat/transit-ips/{transit_ip_id}"
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{transit_ip_id}", transitIpId)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(getResp)
+}
+
 func resourcePrivateTransitIpRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	natClient, err := cfg.NatV3Client(region)
+	var (
+		cfg    = meta.(*config.Config)
+		region = cfg.GetRegion(d)
+	)
+
+	client, err := cfg.NewServiceClient("nat", region)
 	if err != nil {
 		return diag.Errorf("error creating NAT v3 client: %s", err)
 	}
 
-	resp, err := transitips.Get(natClient, d.Id())
+	respBody, err := GetTransitIp(client, d.Id())
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "Transit IP (Private NAT)")
+		// If the transit IP does not exist, the response HTTP status code of the details API is 404.
+		return common.CheckDeletedDiag(d, err, "error retrieving transit IP (private NAT)")
 	}
-	mErr := multierror.Append(nil,
+	mErr := multierror.Append(
 		d.Set("region", region),
-		d.Set("subnet_id", resp.SubnetId),
-		d.Set("ip_address", resp.IpAddress),
-		d.Set("enterprise_project_id", resp.EnterpriseProjectId),
-		d.Set("tags", utils.TagsToMap(resp.Tags)),
-		d.Set("gateway_id", resp.GatewayId),
-		d.Set("network_interface_id", resp.NetworkInterfaceId),
-		d.Set("created_at", resp.CreatedAt),
-		d.Set("updated_at", resp.UpdatedAt),
+		d.Set("subnet_id", utils.PathSearch("transit_ip.virsubnet_id", respBody, nil)),
+		d.Set("ip_address", utils.PathSearch("transit_ip.ip_address", respBody, nil)),
+		d.Set("enterprise_project_id", utils.PathSearch("transit_ip.enterprise_project_id", respBody, nil)),
+		d.Set("tags", utils.FlattenTagsToMap(utils.PathSearch("transit_ip.tags", respBody, make([]interface{}, 0)))),
+		d.Set("gateway_id", utils.PathSearch("transit_ip.gateway_id", respBody, nil)),
+		d.Set("network_interface_id", utils.PathSearch("transit_ip.network_interface_id", respBody, nil)),
+		d.Set("status", utils.PathSearch("transit_ip.status", respBody, nil)),
+		d.Set("created_at", utils.PathSearch("transit_ip.created_at", respBody, nil)),
+		d.Set("updated_at", utils.PathSearch("transit_ip.updated_at", respBody, nil)),
 	)
-	if err = mErr.ErrorOrNil(); err != nil {
-		return diag.Errorf("error saving transit IP (Private NAT) fields: %s", err)
-	}
-	return nil
+
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func resourcePrivateTransitIpUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	natClient, err := cfg.NatV3Client(region)
+	var (
+		cfg    = meta.(*config.Config)
+		region = cfg.GetRegion(d)
+	)
+
+	client, err := cfg.NatV3Client(region)
 	if err != nil {
 		return diag.Errorf("error creating NAT v3 client: %s", err)
 	}
 
-	transitIpId := d.Id()
-	err = utils.UpdateResourceTags(natClient, d, "transit-ips", transitIpId)
-	if err != nil {
-		return diag.Errorf("error updating tags of the transit IP (Private NAT) (%s): %s", transitIpId, err)
+	if d.HasChange("tags") {
+		err = utils.UpdateResourceTags(client, d, "transit-ips", d.Id())
+		if err != nil {
+			return diag.Errorf("error updating tags of the transit IP (Private NAT): %s", err)
+		}
 	}
 
 	return resourcePrivateTransitIpRead(ctx, d, meta)
 }
 
 func resourcePrivateTransitIpDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	client, err := cfg.NatV3Client(cfg.GetRegion(d))
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v3/{project_id}/private-nat/transit-ips/{transit_ip_id}"
+	)
+
+	client, err := cfg.NewServiceClient("nat", region)
 	if err != nil {
 		return diag.Errorf("error creating NAT v3 client: %s", err)
 	}
 
-	transitIpId := d.Id()
-	err = transitips.Delete(client, transitIpId)
+	deletePath := client.Endpoint + httpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = strings.ReplaceAll(deletePath, "{transit_ip_id}", d.Id())
+	deleteOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	_, err = client.Request("DELETE", deletePath, &deleteOpts)
 	if err != nil {
-		return diag.Errorf("error deleting transit IP (Private NAT) (%s): %s", transitIpId, err)
+		// If the transit IP does not exist, the response HTTP status code of the details API is 404.
+		return common.CheckDeletedDiag(d, err, "error deleting transit IP (private NAT)")
 	}
 
 	return nil

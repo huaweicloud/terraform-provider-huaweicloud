@@ -1,0 +1,103 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cse_microservice_engine_configuration": {
+          "block": {
+            "attributes": {
+              "admin_pass": {
+                "type": "string",
+                "description": "The user password that used to pass the RBAC control.",
+                "optional": true,
+                "forcenew": true,
+                "sensitive": true
+              },
+              "admin_user": {
+                "type": "string",
+                "description": "The user name that used to pass the RBAC control.",
+                "optional": true,
+                "forcenew": true
+              },
+              "auth_address": {
+                "type": "string",
+                "description": "The address that used to request the access token.",
+                "required": true,
+                "forcenew": true
+              },
+              "connect_address": {
+                "type": "string",
+                "description": "The address that used to send requests and manage configuration.",
+                "required": true,
+                "forcenew": true
+              },
+              "create_revision": {
+                "type": "number",
+                "description": "The create version of the configuration.",
+                "computed": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the configuration, in RFC3339 format.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "key": {
+                "type": "string",
+                "description": "The configuration key (item name).",
+                "required": true,
+                "forcenew": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The configuration status.",
+                "optional": true,
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "The key/value pairs to associate with the configuration that used to filter resource.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "update_revision": {
+                "type": "number",
+                "description": "The update version of the configuration.",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The latest update time of the configuration, in RFC3339 format.",
+                "computed": true
+              },
+              "value": {
+                "type": "string",
+                "description": "The configuration value.",
+                "required": true
+              },
+              "value_type": {
+                "type": "string",
+                "description": "The type of the configuration value.",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "CSE",
+            "name": "Cloud Service Engine",
+            "catalog": "Middleware",
+            "name_cn": "微服务引擎",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

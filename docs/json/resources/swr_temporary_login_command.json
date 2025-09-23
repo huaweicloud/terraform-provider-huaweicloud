@@ -1,0 +1,58 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_swr_temporary_login_command": {
+          "block": {
+            "attributes": {
+              "auths": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "auth": "string",
+                      "key": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the authentication information.",
+                "computed": true
+              },
+              "enhanced": {
+                "type": "bool",
+                "description": "Specifies whether to create enhanced login command.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "x_expire_at": {
+                "type": "string",
+                "description": "Indicates the expiration time of the login command.",
+                "computed": true
+              },
+              "x_swr_docker_login": {
+                "type": "string",
+                "description": "Indicates the docker login command.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "SWR",
+            "name": "Software Repository for Container",
+            "catalog": "Containers",
+            "name_cn": "容器镜像服务",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

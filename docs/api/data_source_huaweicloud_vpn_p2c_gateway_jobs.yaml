@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_vpn_p2c_gateway_jobs
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: VPN
+paths:
+    /v5/{project_id}/p2c-vpn-gateways/jobs:
+        GET:
+            tag: VPN

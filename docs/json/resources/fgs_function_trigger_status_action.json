@@ -1,0 +1,55 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_fgs_function_trigger_status_action": {
+          "block": {
+            "attributes": {
+              "event_data": {
+                "type": "string",
+                "description": "The event data of the trigger.",
+                "required": true
+              },
+              "function_urn": {
+                "type": "string",
+                "description": "The URN of the function.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the function trigger is located.",
+                "computed": true
+              },
+              "trigger_id": {
+                "type": "string",
+                "description": "The trigger ID.",
+                "required": true
+              },
+              "trigger_status": {
+                "type": "string",
+                "description": "The status of the trigger. Valid values are ACTIVE and DISABLED.",
+                "required": true
+              },
+              "trigger_type_code": {
+                "type": "string",
+                "description": "The trigger type code.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "FunctionGraph",
+            "name": "FunctionGraph",
+            "catalog": "Compute",
+            "name_cn": "函数工作流",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

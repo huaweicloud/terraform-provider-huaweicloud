@@ -30,7 +30,7 @@ const (
 // @API WAF PUT /v1/{project_id}/waf/policy/{policy_id}/privacy/{rule_id}
 // @API WAF POST /v1/{project_id}/waf/policy/{policy_id}/privacy
 // @API WAF PUT /v1/{project_id}/waf/policy/{policy_id}/{rule_type}/{rule_id}/status
-func ResourceWafRuleDataMaskingV1() *schema.Resource {
+func ResourceWafRuleDataMasking() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceWafRuleDataMaskingCreate,
 		ReadContext:   resourceWafRuleDataMaskingRead,
@@ -128,6 +128,7 @@ func resourceWafRuleDataMaskingRead(_ context.Context, d *schema.ResourceData, m
 	epsID := cfg.GetEnterpriseProjectID(d)
 	n, err := rules.GetWithEpsID(wafClient, policyID, d.Id(), epsID).Extract()
 	if err != nil {
+		// If the data masking rule does not exist, the response HTTP status code of the details API is 404.
 		return common.CheckDeletedDiag(d, err, "error retrieving WAF data masking rule")
 	}
 
@@ -185,7 +186,8 @@ func resourceWafRuleDataMaskingDelete(_ context.Context, d *schema.ResourceData,
 	policyID := d.Get("policy_id").(string)
 	err = rules.DeleteWithEpsID(wafClient, policyID, d.Id(), cfg.GetEnterpriseProjectID(d)).ExtractErr()
 	if err != nil {
-		return diag.Errorf("error deleting WAF data masking rule: %s", err)
+		// If the data masking rule does not exist, the response HTTP status code of the deletion API is 404.
+		return common.CheckDeletedDiag(d, err, "error deleting WAF data masking rule")
 	}
 	return nil
 }

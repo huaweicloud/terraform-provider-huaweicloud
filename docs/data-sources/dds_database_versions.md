@@ -14,7 +14,7 @@ Use this data source to get the versions of DDS instances.
 
 ```hcl
 data "huaweicloud_dds_database_versions" "test1" {
-  name = "DDS-Community"
+  datastore_name = "DDS-Community"
 }
 ```
 

@@ -193,7 +193,7 @@ resource "huaweicloud_rds_instance" "test" {
   name              = "%[2]s"
   flavor            = data.huaweicloud_rds_flavors.test.flavors[0].name
   availability_zone = [data.huaweicloud_availability_zones.test.names[0]]
-  security_group_id = huaweicloud_networking_secgroup.test.id
+  security_group_id = data.huaweicloud_networking_secgroup.test.id
   subnet_id         = data.huaweicloud_vpc_subnet.test.id
   vpc_id            = data.huaweicloud_vpc.test.id
   time_zone         = "UTC+08:00"
@@ -224,7 +224,7 @@ resource "huaweicloud_rds_backup" "test" {
   name        = "%[2]s"
   instance_id = huaweicloud_rds_instance.test.id
 }
-`, testAccRdsInstance_base(name), name)
+`, testAccRdsInstance_base(), name)
 }
 
 // disable auto_backup to prevent the instance status from changing to "BACKING UP" before manual backup creation.
@@ -238,7 +238,7 @@ resource "huaweicloud_networking_secgroup_rule" "ingress" {
   ports             = 8634
   protocol          = "tcp"
   remote_ip_prefix  = "0.0.0.0/0"
-  security_group_id = huaweicloud_networking_secgroup.test.id
+  security_group_id = data.huaweicloud_networking_secgroup.test.id
 }
 
 data "huaweicloud_rds_flavors" "test" {
@@ -254,7 +254,7 @@ resource "huaweicloud_rds_instance" "test" {
   name              = "%[2]s"
   flavor            = data.huaweicloud_rds_flavors.test.flavors[0].name
   availability_zone = [data.huaweicloud_availability_zones.test.names[0]]
-  security_group_id = huaweicloud_networking_secgroup.test.id
+  security_group_id = data.huaweicloud_networking_secgroup.test.id
   subnet_id         = data.huaweicloud_vpc_subnet.test.id
   vpc_id            = data.huaweicloud_vpc.test.id
   time_zone         = "UTC+08:00"
@@ -285,7 +285,7 @@ resource "huaweicloud_rds_backup" "test" {
   name        = "%[2]s"
   instance_id = huaweicloud_rds_instance.test.id
 }
-`, testAccRdsInstance_base(name), name)
+`, testAccRdsInstance_base(), name)
 }
 
 // disable auto_backup to prevent the instance status from changing to "BACKING UP" before manual backup creation.
@@ -305,7 +305,7 @@ resource "huaweicloud_rds_instance" "test" {
   name              = "%[2]s"
   flavor            = data.huaweicloud_rds_flavors.test.flavors[0].name
   availability_zone = [data.huaweicloud_availability_zones.test.names[0]]
-  security_group_id = huaweicloud_networking_secgroup.test.id
+  security_group_id = data.huaweicloud_networking_secgroup.test.id
   subnet_id         = data.huaweicloud_vpc_subnet.test.id
   vpc_id            = data.huaweicloud_vpc.test.id
   time_zone         = "UTC+08:00"
@@ -336,7 +336,7 @@ resource "huaweicloud_rds_backup" "test" {
   name        = "%[2]s"
   instance_id = huaweicloud_rds_instance.test.id
 }
-`, testAccRdsInstance_base(name), name)
+`, testAccRdsInstance_base(), name)
 }
 
 func testAccBackupImportStateFunc(name string) resource.ImportStateIdFunc {

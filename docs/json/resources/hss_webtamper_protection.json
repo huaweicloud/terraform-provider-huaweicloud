@@ -61,7 +61,8 @@
               },
               "quota_id": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "forcenew": true
               },
               "rasp_protect_status": {
                 "type": "string",

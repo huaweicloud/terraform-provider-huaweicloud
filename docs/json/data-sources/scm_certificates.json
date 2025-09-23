@@ -30,17 +30,14 @@
                     }
                   ]
                 ],
-                "description": "Certificate list. For details, see Data structure of the Certificate field.",
                 "computed": true
               },
               "deploy_support": {
                 "type": "bool",
-                "description": "Whether to support deployment.",
                 "optional": true
               },
               "enterprise_project_id": {
                 "type": "string",
-                "description": "The enterprise project id of the project.",
                 "optional": true
               },
               "id": {
@@ -49,7 +46,6 @@
               },
               "name": {
                 "type": "string",
-                "description": "Certificate name.",
                 "optional": true
               },
               "region": {
@@ -58,7 +54,6 @@
               },
               "status": {
                 "type": "string",
-                "description": "Certificate status.",
                 "optional": true
               }
             }

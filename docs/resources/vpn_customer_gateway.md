@@ -44,7 +44,8 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `name` - (Required, String) The customer gateway name.
+* `name` - (Required, String) The customer gateway name.  
+  The valid length is limited from `1` to `64`, only letters, digits, hyphens (-) and underscores (_) are allowed.
 
 * `id_value` - (Required, String, ForceNew) Specifies the identifier of a customer gateway.
   When `id_type` is set to **ip**, the value is an IPv4 address in dotted decimal notation, for example, 192.168.45.7.
@@ -57,8 +58,8 @@ The following arguments are supported:
   The value can be **ip** or **fqdn**. The default value is **ip**.
 
 * `asn` - (Optional, Int, ForceNew) The BGP ASN number of the customer gateway.
-  The value ranges from **1** to **4294967295**, the default value is **65000**.
-  Set this parameter to **0** when `id_type` is set to **fqdn**.
+  The value ranges from `1` to `4,294,967,295`, the default value is `65,000`.
+  Set this parameter to `0` when `id_type` is set to **fqdn**.
 
   Changing this parameter will create a new resource.
 

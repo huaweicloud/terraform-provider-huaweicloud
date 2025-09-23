@@ -34,9 +34,7 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `instance_id` - (Required, String, ForceNew) Specifies the ID of the RDS PostgreSQL instance.
-
-  Changing this parameter will create a new resource.
+* `instance_id` - (Required, String, NonUpdatable) Specifies the ID of the RDS PostgreSQL instance.
 
 * `host_based_authentications` - (Required, List) Specifies the list of host based authentications.
 The [host_based_authentications](#PgHba_HostBasedAuthentication) structure is documented below.

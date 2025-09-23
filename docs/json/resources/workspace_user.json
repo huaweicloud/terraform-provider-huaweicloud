@@ -10,6 +10,12 @@
                 "optional": true,
                 "default": "0"
               },
+              "active_type": {
+                "type": "string",
+                "description": "The activation mode of the user.",
+                "optional": true,
+                "computed": true
+              },
               "description": {
                 "type": "string",
                 "optional": true
@@ -20,7 +26,7 @@
               },
               "email": {
                 "type": "string",
-                "required": true
+                "optional": true
               },
               "enable_change_password": {
                 "type": "bool",
@@ -45,8 +51,19 @@
                 "optional": true,
                 "default": true
               },
+              "password": {
+                "type": "string",
+                "description": "The initial passowrd of user.",
+                "optional": true,
+                "sensitive": true
+              },
               "password_never_expires": {
                 "type": "bool",
+                "optional": true
+              },
+              "phone": {
+                "type": "string",
+                "description": "The phone number of the user.",
                 "optional": true
               },
               "region": {

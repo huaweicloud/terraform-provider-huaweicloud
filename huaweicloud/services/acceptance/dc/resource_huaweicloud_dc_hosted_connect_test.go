@@ -55,6 +55,7 @@ func getHostedConnectResourceFunc(cfg *config.Config, state *terraform.ResourceS
 	return getHostedConnectRespBody, nil
 }
 
+// This resource needs other user's tenant_id and host_id, so skip the acceptance test
 func TestAccHostedConnect_basic(t *testing.T) {
 	var obj interface{}
 

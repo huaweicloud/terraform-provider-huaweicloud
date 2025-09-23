@@ -1,0 +1,19 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cce_node_pool_scale
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CCE
+paths:
+    /api/v3/projects/{project_id}/clusters/{cluster_id}:
+        GET:
+            tag: CCE
+    /api/v3/projects/{project_id}/clusters/{cluster_id}/nodepools/{nodepool_id}/operation/scale:
+        POST:
+            tag: CCE
+    /api/v3/projects/{project_id}/jobs/{job_id}:
+        GET:
+            tag: CCE

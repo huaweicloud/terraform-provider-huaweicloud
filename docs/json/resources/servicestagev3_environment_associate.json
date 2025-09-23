@@ -1,0 +1,50 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_servicestagev3_environment_associate": {
+          "block": {
+            "attributes": {
+              "environment_id": {
+                "type": "string",
+                "description": "The environment ID associated with the resources.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the environment and resources are located.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "resources": {
+                "block": {
+                  "attributes": {
+                    "id": {
+                      "type": "string",
+                      "description": "The ID of the resource to be associated.",
+                      "required": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The type of the resource to be associated.",
+                      "required": true
+                    }
+                  },
+                  "description": "The information about the associated resources."
+                },
+                "nesting_mode": "set",
+                "min_items": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

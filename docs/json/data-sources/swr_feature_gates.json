@@ -1,0 +1,70 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_swr_feature_gates": {
+          "block": {
+            "attributes": {
+              "enable_cci_service": {
+                "type": "bool",
+                "description": "Whether interconnection with CCI is enabled.",
+                "computed": true
+              },
+              "enable_experience": {
+                "type": "bool",
+                "description": "Whether the experience center is enabled.",
+                "computed": true
+              },
+              "enable_hss_service": {
+                "type": "bool",
+                "description": "Whether interconnection with HSS is enabled.",
+                "computed": true
+              },
+              "enable_image_label": {
+                "type": "bool",
+                "description": "Whether image tagging is enabled.",
+                "computed": true
+              },
+              "enable_image_scan": {
+                "type": "bool",
+                "description": "Whether image scanning is enabled.",
+                "computed": true
+              },
+              "enable_image_sync": {
+                "type": "bool",
+                "description": "Whether image synchronization is enabled.",
+                "computed": true
+              },
+              "enable_pipeline": {
+                "type": "bool",
+                "description": "Whether pipeline is enabled.",
+                "computed": true
+              },
+              "enable_sm3": {
+                "type": "bool",
+                "description": "Whether SM algorithms are enabled.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "SWR",
+            "name": "Software Repository for Container",
+            "catalog": "Containers",
+            "name_cn": "容器镜像服务",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

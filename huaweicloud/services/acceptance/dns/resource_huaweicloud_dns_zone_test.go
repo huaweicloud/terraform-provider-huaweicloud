@@ -29,14 +29,14 @@ func getDNSZoneResourceFunc(c *config.Config, state *terraform.ResourceState) (i
 }
 
 func TestAccDNSZone_basic(t *testing.T) {
-	var zone zones.Zone
-	resourceName := "huaweicloud_dns_zone.zone_1"
-	name := fmt.Sprintf("acpttest-zone-%s.com.", acctest.RandString(5))
+	var (
+		obj interface{}
 
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&zone,
-		getDNSZoneResourceFunc,
+		resourceName = "huaweicloud_dns_zone.test"
+		rc           = acceptance.InitResourceCheck(resourceName, &obj, getDNSZoneResourceFunc)
+
+		name              = fmt.Sprintf("acpttest-zone-%s.com", acctest.RandString(5))
+		nameWithDotSuffix = fmt.Sprintf("%s.", name)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -48,7 +48,7 @@ func TestAccDNSZone_basic(t *testing.T) {
 				Config: testAccDNSZone_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "name", nameWithDotSuffix),
 					resource.TestCheckResourceAttr(resourceName, "zone_type", "public"),
 					resource.TestCheckResourceAttr(resourceName, "description", "a zone"),
 					resource.TestCheckResourceAttr(resourceName, "ttl", "300"),
@@ -56,6 +56,19 @@ func TestAccDNSZone_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
 					resource.TestCheckResourceAttrSet(resourceName, "email"),
 					resource.TestCheckResourceAttr(resourceName, "status", "DISABLE"),
+					resource.TestCheckResourceAttr(resourceName, "dnssec", "ENABLE"),
+					resource.TestCheckResourceAttrSet(resourceName, "dnssec_infos.#"),
+					resource.TestCheckResourceAttrSet(resourceName, "dnssec_infos.0.key_tag"),
+					resource.TestCheckResourceAttrSet(resourceName, "dnssec_infos.0.flag"),
+					resource.TestCheckResourceAttrSet(resourceName, "dnssec_infos.0.digest_algorithm"),
+					resource.TestCheckResourceAttrSet(resourceName, "dnssec_infos.0.digest_type"),
+					resource.TestCheckResourceAttrSet(resourceName, "dnssec_infos.0.digest"),
+					resource.TestCheckResourceAttrSet(resourceName, "dnssec_infos.0.signature"),
+					resource.TestCheckResourceAttrSet(resourceName, "dnssec_infos.0.signature_type"),
+					resource.TestCheckResourceAttrSet(resourceName, "dnssec_infos.0.ksk_public_key"),
+					resource.TestCheckResourceAttrSet(resourceName, "dnssec_infos.0.ds_record"),
+					resource.TestCheckResourceAttrSet(resourceName, "dnssec_infos.0.created_at"),
+					resource.TestCheckResourceAttrSet(resourceName, "dnssec_infos.0.updated_at"),
 				),
 			},
 			{
@@ -72,6 +85,7 @@ func TestAccDNSZone_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "tf-acc"),
 					resource.TestCheckResourceAttrSet(resourceName, "email"),
 					resource.TestCheckResourceAttr(resourceName, "status", "ENABLE"),
+					resource.TestCheckResourceAttr(resourceName, "dnssec", "DISABLE"),
 				),
 			},
 		},
@@ -79,15 +93,15 @@ func TestAccDNSZone_basic(t *testing.T) {
 }
 
 func TestAccDNSZone_private(t *testing.T) {
-	var zone zones.Zone
-	resourceName := "huaweicloud_dns_zone.test"
-	name := fmt.Sprintf("acpttest-zone-%s.com.", acctest.RandString(5))
-	vpcName := acceptance.RandomAccResourceName()
+	var (
+		obj interface{}
 
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&zone,
-		getDNSZoneResourceFunc,
+		resourceName = "huaweicloud_dns_zone.test"
+		rc           = acceptance.InitResourceCheck(resourceName, &obj, getDNSZoneResourceFunc)
+
+		name              = fmt.Sprintf("acpttest-zone-%s.com", acctest.RandString(5))
+		nameWithDotSuffix = fmt.Sprintf("%s.", name)
+		baseConfig        = testAccDNSZone_private_base(acceptance.RandomAccResourceName())
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -96,10 +110,10 @@ func TestAccDNSZone_private(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDNSZone_private_step1(name, vpcName),
+				Config: testAccDNSZone_private_step1(baseConfig, name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "name", nameWithDotSuffix),
 					resource.TestCheckResourceAttr(resourceName, "zone_type", "private"),
 					resource.TestCheckResourceAttr(resourceName, "description", "a private zone"),
 					resource.TestCheckResourceAttr(resourceName, "ttl", "300"),
@@ -107,30 +121,39 @@ func TestAccDNSZone_private(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "router.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "tags.zone_type", "private"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
+					resource.TestCheckResourceAttr(resourceName, "status", "DISABLE"),
+					resource.TestCheckResourceAttr(resourceName, "proxy_pattern", "RECURSIVE"),
 				),
 			},
 			{
-				Config: testAccDNSZone_private_step2(name, vpcName),
+				Config: testAccDNSZone_private_step2(baseConfig, name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", name),
-					resource.TestCheckOutput("valid_route_id", "true"),
+					resource.TestCheckResourceAttr(resourceName, "name", nameWithDotSuffix),
 					resource.TestCheckResourceAttr(resourceName, "router.#", "2"),
+					resource.TestCheckResourceAttrSet(resourceName, "router.0.router_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "router.0.router_region"),
+					resource.TestCheckResourceAttr(resourceName, "status", "ENABLE"),
+					resource.TestCheckResourceAttr(resourceName, "proxy_pattern", "AUTHORITY"),
 				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
 }
 
 func TestAccDNSZone_readTTL(t *testing.T) {
-	var zone zones.Zone
-	resourceName := "huaweicloud_dns_zone.zone_1"
-	name := fmt.Sprintf("acpttest-zone-%s.com.", acctest.RandString(5))
+	var (
+		obj interface{}
 
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&zone,
-		getDNSZoneResourceFunc,
+		resourceName = "huaweicloud_dns_zone.test"
+		rc           = acceptance.InitResourceCheck(resourceName, &obj, getDNSZoneResourceFunc)
+
+		name = fmt.Sprintf("acpttest-zone-%s.com", acctest.RandString(5))
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -145,19 +168,24 @@ func TestAccDNSZone_readTTL(t *testing.T) {
 					resource.TestMatchResourceAttr(resourceName, "ttl", regexp.MustCompile("^[0-9]+$")),
 				),
 			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
 
 func TestAccDNSZone_withEpsId(t *testing.T) {
-	var zone zones.Zone
-	resourceName := "huaweicloud_dns_zone.zone_1"
-	name := fmt.Sprintf("acpttest-zone-%s.com.", acctest.RandString(5))
+	var (
+		obj interface{}
 
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&zone,
-		getDNSZoneResourceFunc,
+		resourceName = "huaweicloud_dns_zone.test"
+		rc           = acceptance.InitResourceCheck(resourceName, &obj, getDNSZoneResourceFunc)
+
+		name              = fmt.Sprintf("acpttest-zone-%s.com", acctest.RandString(5))
+		nameWithDotSuffix = fmt.Sprintf("%s.", name)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -169,10 +197,16 @@ func TestAccDNSZone_withEpsId(t *testing.T) {
 				Config: testAccDNSZone_withEpsId(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "name", nameWithDotSuffix),
 					resource.TestCheckResourceAttr(resourceName, "zone_type", "private"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "proxy_pattern", "AUTHORITY"),
 				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})
@@ -180,11 +214,12 @@ func TestAccDNSZone_withEpsId(t *testing.T) {
 
 func testAccDNSZone_basic(zoneName string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_dns_zone" "zone_1" {
+resource "huaweicloud_dns_zone" "test" {
   name        = "%s"
   description = "a zone"
   ttl         = 300
   status      = "DISABLE"
+  dnssec      = "ENABLE"
 
   tags = {
     zone_type = "public"
@@ -196,11 +231,12 @@ resource "huaweicloud_dns_zone" "zone_1" {
 
 func testAccDNSZone_update(zoneName string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_dns_zone" "zone_1" {
+resource "huaweicloud_dns_zone" "test" {
   name        = "%s"
   description = "an updated zone"
   ttl         = 600
   status      = "ENABLE"
+  dnssec      = "DISABLE"
 
   tags = {
     zone_type = "public"
@@ -212,26 +248,33 @@ resource "huaweicloud_dns_zone" "zone_1" {
 
 func testAccDNSZone_readTTL(zoneName string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_dns_zone" "zone_1" {
+resource "huaweicloud_dns_zone" "test" {
   name  = "%s"
   email = "email1@example.com"
 }
 `, zoneName)
 }
 
-func testAccDNSZone_private_step1(zoneName, vpcName string) string {
+func testAccDNSZone_private_base(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_vpc" "test" {
   count = 3
-  name  = "%s_${count.index}"
-  cidr  = "192.168.0.0/16"
+
+  name = "%s_${count.index}"
+  cidr = cidrsubnet("192.168.0.0/16", 4, count.index)
+}`, name)
 }
 
+func testAccDNSZone_private_step1(baseConfig, name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
 resource "huaweicloud_dns_zone" "test" {
-  name        = "%s"
+  name        = "%[2]s"
   email       = "email@example.com"
   description = "a private zone"
   zone_type   = "private"
+  status      = "DISABLE"
 
   dynamic "router" {
     for_each = slice(huaweicloud_vpc.test[*].id, 0, 2)
@@ -241,27 +284,26 @@ resource "huaweicloud_dns_zone" "test" {
     }
   }
 
+  proxy_pattern = "RECURSIVE"
+
   tags = {
     zone_type = "private"
     owner     = "terraform"
   }
 }
-`, vpcName, zoneName)
+`, baseConfig, name)
 }
 
-func testAccDNSZone_private_step2(zoneName, vpcName string) string {
+func testAccDNSZone_private_step2(baseConfig, name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_vpc" "test" {
-  count = 3
-  name  = "%s_${count.index}"
-  cidr  = "192.168.0.0/16"
-}
+%[1]s
 
 resource "huaweicloud_dns_zone" "test" {
-  name        = "%s"
+  name        = "%[2]s"
   email       = "email@example.com"
   description = "a private zone"
   zone_type   = "private"
+  status      = "ENABLE"
 
   dynamic "router" {
     for_each = slice(huaweicloud_vpc.test[*].id, 1, 3)
@@ -271,20 +313,14 @@ resource "huaweicloud_dns_zone" "test" {
     }
   }
 
+  proxy_pattern = "AUTHORITY"
+
   tags = {
     zone_type = "private"
     owner     = "terraform"
   }
 }
-
-locals {
-  router_ids = huaweicloud_dns_zone.test.router[*].router_id
-}
-
-output "valid_route_id" {
-  value = contains(local.router_ids, huaweicloud_vpc.test[1].id) && contains(local.router_ids, huaweicloud_vpc.test[2].id)
-}
-`, vpcName, zoneName)
+`, baseConfig, name)
 }
 
 func testAccDNSZone_withEpsId(zoneName string) string {
@@ -293,7 +329,7 @@ data "huaweicloud_vpc" "default" {
   name = "vpc-default"
 }
 
-resource "huaweicloud_dns_zone" "zone_1" {
+resource "huaweicloud_dns_zone" "test" {
   name                  = "%s"
   email                 = "email@example.com"
   description           = "a private zone"

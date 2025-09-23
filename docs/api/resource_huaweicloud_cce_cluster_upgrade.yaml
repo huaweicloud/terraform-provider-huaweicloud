@@ -1,0 +1,37 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cce_cluster_upgrade
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CCE
+paths:
+    /api/v3.1/projects/{project_id}/clusters/{cluster_id}/operation/snapshot:
+        POST:
+            tag: CCE
+    /api/v3.1/projects/{project_id}/clusters/{cluster_id}/operation/snapshot/tasks:
+        GET:
+            tag: CCE
+    /api/v3/projects/{project_id}/clusters/{cluster_id}:
+        GET:
+            tag: CCE
+    /api/v3/projects/{project_id}/clusters/{cluster_id}/operation/postcheck:
+        POST:
+            tag: CCE
+    /api/v3/projects/{project_id}/clusters/{cluster_id}/operation/postcheck/tasks/{task_id}:
+        GET:
+            tag: CCE
+    /api/v3/projects/{project_id}/clusters/{cluster_id}/operation/precheck:
+        POST:
+            tag: CCE
+    /api/v3/projects/{project_id}/clusters/{cluster_id}/operation/upgrade:
+        POST:
+            tag: CCE
+    /api/v3/projects/{project_id}/clusters/{cluster_id}/operation/upgrade/tasks/{task_id}:
+        GET:
+            tag: CCE
+    /api/v3/projects/{project_id}/clusters/{cluster_id}/operation/upgradeworkflows:
+        POST:
+            tag: CCE

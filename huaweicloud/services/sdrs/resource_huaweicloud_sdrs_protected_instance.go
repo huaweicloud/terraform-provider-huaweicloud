@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/sdrs/v1/protectedinstances"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -21,6 +20,9 @@ import (
 // @API SDRS PUT /v1/{project_id}/protected-instances/{id}
 // @API SDRS DELETE /v1/{project_id}/protected-instances/{id}
 // @API SDRS POST /v1/{project_id}/protected-instances
+// @API SDRS GET /v1/{project_id}/protected-instances/{protected_instance_id}/tags
+// @API SDRS POST /v1/{project_id}/protected-instances/{protected_instance_id}/tags/action
+// @API SDRS GET /v1/{project_id}/jobs/{job_id}
 func ResourceProtectedInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceProtectedInstanceCreate,
@@ -35,6 +37,8 @@ func ResourceProtectedInstance() *schema.Resource {
 			Create: schema.DefaultTimeout(10 * time.Minute),
 			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
+
+		CustomizeDiff: config.MergeDefaultTags(),
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -149,14 +153,10 @@ func resourceProtectedInstanceRead(_ context.Context, d *schema.ResourceData, me
 
 	n, err := protectedinstances.Get(client, d.Id()).Extract()
 	if err != nil {
-		if errCode, ok := err.(golangsdk.ErrDefault400); ok {
-			if resp, pErr := common.ParseErrorMsg(errCode.Body); pErr == nil && resp.ErrorCode == "SDRS.0208" {
-				// `SDRS.0208` means invalid protected instance ID
-				return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{},
-					"error retrieving SDRS protected instance")
-			}
-		}
-		return diag.FromErr(err)
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error.code", "SDRS.1320"),
+			"error retrieving SDRS protected instance",
+		)
 	}
 
 	mErr := multierror.Append(
@@ -167,6 +167,7 @@ func resourceProtectedInstanceRead(_ context.Context, d *schema.ResourceData, me
 		d.Set("server_id", n.SourceServer),
 		d.Set("description", n.Description),
 		d.Set("target_server", n.TargetServer),
+		d.Set("tags", d.Get("tags")),
 	)
 	if mErr.ErrorOrNil() != nil {
 		return diag.Errorf("error setting resource: %s", mErr)
@@ -221,14 +222,11 @@ func resourceProtectedInstanceDelete(_ context.Context, d *schema.ResourceData, 
 	}
 	n, err := protectedinstances.Delete(client, d.Id(), deleteOpts).ExtractJobResponse()
 	if err != nil {
-		if errCode, ok := err.(golangsdk.ErrDefault400); ok {
-			if resp, pErr := common.ParseErrorMsg(errCode.Body); pErr == nil && resp.ErrorCode == "SDRS.0208" {
-				// `SDRS.0208` means invalid protected instance ID
-				return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{},
-					"error deleting SDRS protected instance")
-			}
-		}
-		return diag.FromErr(err)
+		return common.CheckDeletedDiag(
+			d,
+			common.ConvertExpected400ErrInto404Err(err, "error.code", "SDRS.1301"),
+			"error deleting SDRS protected instance",
+		)
 	}
 
 	deleteTimeoutSec := int(d.Timeout(schema.TimeoutDelete).Seconds())

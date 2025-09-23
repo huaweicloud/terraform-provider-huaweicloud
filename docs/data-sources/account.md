@@ -23,6 +23,14 @@ There are no arguments available for this data source.
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - The account ID.
+* `id` - The domain ID.
 
-* `name` - The account name.
+* `name` - The domain name.
+
+* `current_project_id` - The Project ID currently used.
+
+* `username` - The username.
+
+* `user_id` - The user ID.
+
+-> **NOTE:** The `username` and `user_id` might be empty due to insufficient account permissions.

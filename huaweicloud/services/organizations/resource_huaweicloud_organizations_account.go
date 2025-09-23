@@ -16,7 +16,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -29,6 +28,7 @@ import (
 // @API Organizations GET /v1/organizations/accounts/{account_id}
 // @API Organizations GET /v1/organizations/{resource_type}/{resource_id}/tags
 // @API Organizations POST /v1/organizations/accounts/{account_id}/move
+// @API Organizations PATCH /v1/organizations/accounts/{account_id}
 // @API Organizations GET /v1/organizations/entities
 // @API Organizations GET /v1/organizations/create-account-status/{create_account_status_id}
 // @API Organizations POST /v1/organizations/{resource_type}/{resource_id}/tags/delete
@@ -48,6 +48,8 @@ func ResourceAccount() *schema.Resource {
 			Create: schema.DefaultTimeout(5 * time.Minute),
 		},
 
+		CustomizeDiff: config.MergeDefaultTags(),
+
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:        schema.TypeString,
@@ -59,38 +61,44 @@ func ResourceAccount() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+				Computed: true,
 			},
 			"phone": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+				Computed: true,
 			},
 			"agency_name": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"parent_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: `Specifies the ID of the root or organization unit in which you want to create a new account.`,
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 			"tags": common.TagsSchema(),
+			"intl_number_prefix": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"urn": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Indicates the uniform resource name of the account.`,
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"joined_at": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Indicates the time when the account was created.`,
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"joined_method": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Indicates how an account joined an organization.`,
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	}
@@ -127,15 +135,15 @@ func resourceAccountCreate(ctx context.Context, d *schema.ResourceData, meta int
 	}
 
 	// we cannot get the account ID in API response, retrieve it from ShowCreateAccountStatus API
-	statusID, err := jmespath.Search("create_account_status.id", createAccountRespBody)
-	if err != nil {
+	statusID := utils.PathSearch("create_account_status.id", createAccountRespBody, "").(string)
+	if statusID == "" {
 		return diag.Errorf("error creating Account: state is not found in API response")
 	}
 
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"in_progress"},
 		Target:       []string{"succeeded"},
-		Refresh:      accountStateRefreshFunc(createAccountClient, statusID.(string)),
+		Refresh:      accountStateRefreshFunc(createAccountClient, statusID),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        10 * time.Second,
 		PollInterval: 10 * time.Second,
@@ -148,14 +156,14 @@ func resourceAccountCreate(ctx context.Context, d *schema.ResourceData, meta int
 	}
 
 	// set the account ID
-	id, err := jmespath.Search("create_account_status.account_id", accountStatusRespBody)
-	if err != nil {
-		return diag.Errorf("error creating Account: ID is not found in API response")
+	accountId := utils.PathSearch("create_account_status.account_id", accountStatusRespBody, "").(string)
+	if accountId == "" {
+		return diag.Errorf("unable to find the account ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(accountId)
 
 	if v, ok := d.GetOk("parent_id"); ok {
-		parentID, err := getParentIdByAccountId(createAccountClient, id.(string))
+		parentID, err := getParentIdByAccountId(createAccountClient, accountId)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -189,17 +197,14 @@ func accountStateRefreshFunc(client *golangsdk.ServiceClient, accountStatusId st
 			return nil, "", err
 		}
 
-		state, err := jmespath.Search("create_account_status.state", getAccountStatusRespBody)
-		if err != nil {
-			return nil, "", err
+		state := utils.PathSearch("create_account_status.state", getAccountStatusRespBody, "").(string)
+
+		reason := utils.PathSearch("create_account_status.failure_reason", getAccountStatusRespBody, "").(string)
+		if reason != "" {
+			return getAccountStatusRespBody, state, fmt.Errorf("state: %s; failure_reason: %s", state, reason)
 		}
 
-		reason, err := jmespath.Search("create_account_status.failure_reason", getAccountStatusRespBody)
-		if err == nil && reason != nil {
-			return getAccountStatusRespBody, state.(string), fmt.Errorf("state: %s; failure_reason: %s", state, reason)
-		}
-
-		return getAccountStatusRespBody, state.(string), nil
+		return getAccountStatusRespBody, state, nil
 	}
 }
 
@@ -209,6 +214,7 @@ func buildCreateAccountBodyParams(d *schema.ResourceData) map[string]interface{}
 		"email":       utils.ValueIgnoreEmpty(d.Get("email")),
 		"phone":       utils.ValueIgnoreEmpty(d.Get("phone")),
 		"agency_name": utils.ValueIgnoreEmpty(d.Get("agency_name")),
+		"description": utils.ValueIgnoreEmpty(d.Get("description")),
 		"tags":        utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 	}
 	return bodyParams
@@ -229,7 +235,7 @@ func resourceAccountRead(_ context.Context, d *schema.ResourceData, meta interfa
 		return diag.Errorf("error creating Organizations client: %s", err)
 	}
 
-	getAccountHttpUrl := "v1/organizations/accounts/{account_id}"
+	getAccountHttpUrl := "v1/organizations/accounts/{account_id}?with_register_contact_info=true"
 	getAccountPath := getAccountClient.Endpoint + getAccountHttpUrl
 	getAccountPath = strings.ReplaceAll(getAccountPath, "{account_id}", d.Id())
 
@@ -261,6 +267,10 @@ func resourceAccountRead(_ context.Context, d *schema.ResourceData, meta interfa
 		mErr,
 		d.Set("parent_id", parentID),
 		d.Set("name", utils.PathSearch("account.name", getAccountRespBody, nil)),
+		d.Set("email", utils.PathSearch("account.email", getAccountRespBody, nil)),
+		d.Set("phone", utils.PathSearch("account.mobile_phone", getAccountRespBody, nil)),
+		d.Set("description", utils.PathSearch("account.description", getAccountRespBody, nil)),
+		d.Set("intl_number_prefix", utils.PathSearch("account.intl_number_prefix", getAccountRespBody, nil)),
 		d.Set("urn", utils.PathSearch("account.urn", getAccountRespBody, nil)),
 		d.Set("joined_at", utils.PathSearch("account.joined_at", getAccountRespBody, nil)),
 		d.Set("joined_method", utils.PathSearch("account.join_method", getAccountRespBody, nil)),
@@ -293,7 +303,14 @@ func resourceAccountUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		oldVal, newVal := d.GetChange("parent_id")
 		err = moveAccount(updateAccountClient, d.Id(), oldVal.(string), newVal.(string))
 		if err != nil {
-			return diag.Errorf("error updating Account: %s", err)
+			return diag.Errorf("error moving account: %s", err)
+		}
+	}
+
+	if d.HasChange("description") {
+		err = updateAccount(updateAccountClient, d)
+		if err != nil {
+			return diag.Errorf("error updating account: %s", err)
 		}
 	}
 
@@ -306,7 +323,29 @@ func resourceAccountUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	return resourceAccountRead(ctx, d, meta)
 }
 
-func buildUpdateAccountBodyParams(oldOrganizationsUnitId, newOrganizationsUnitId string) map[string]interface{} {
+func buildUpdateAccountBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"description": d.Get("description"),
+	}
+	return bodyParams
+}
+
+func updateAccount(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	var (
+		updateAccountHttpUrl = "v1/organizations/accounts/{account_id}"
+	)
+	updateAccountPath := client.Endpoint + updateAccountHttpUrl
+	updateAccountPath = strings.ReplaceAll(updateAccountPath, "{account_id}", d.Id())
+
+	updateAccountOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	updateAccountOpt.JSONBody = utils.RemoveNil(buildUpdateAccountBodyParams(d))
+	_, err := client.Request("PATCH", updateAccountPath, &updateAccountOpt)
+	return err
+}
+
+func buildMoveAccountBodyParams(oldOrganizationsUnitId, newOrganizationsUnitId string) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"source_parent_id":      oldOrganizationsUnitId,
 		"destination_parent_id": newOrganizationsUnitId,
@@ -325,7 +364,7 @@ func moveAccount(client *golangsdk.ServiceClient, accountId, sourceParentID, des
 	moveAccountOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 	}
-	moveAccountOpt.JSONBody = utils.RemoveNil(buildUpdateAccountBodyParams(sourceParentID, destinationParentID))
+	moveAccountOpt.JSONBody = utils.RemoveNil(buildMoveAccountBodyParams(sourceParentID, destinationParentID))
 	_, err := client.Request("POST", moveAccountPath, &moveAccountOpt)
 	return err
 }

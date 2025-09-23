@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -26,7 +25,7 @@ var CatalogResourceNotFoundCodes = []string{
 // @API DataArtsStudio GET /v1/{project_id}/service/servicecatalogs/{catalog_id}
 // @API DataArtsStudio PUT /v1/{project_id}/service/servicecatalogs/{catalog_id}
 // @API DataArtsStudio POST /v1/{project_id}/service/servicecatalogs/{catalog_id}/move
-// @API DataArtsStudio DELETE /v1/{project_id}/service/servicecatalogs/{catalog_id}
+// @API DataArtsStudio POST /v1/{project_id}/service/servicecatalogs/batch-delete
 func ResourceDatatServiceCatalog() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDatatServiceCatalogCreate,
@@ -156,11 +155,11 @@ func resourceDatatServiceCatalogCreate(ctx context.Context, d *schema.ResourceDa
 		return diag.FromErr(err)
 	}
 
-	catalogId, err := jmespath.Search("catalog_id", createAppRespBody)
-	if err != nil {
-		return diag.Errorf("catalog ID does not found in API response")
+	catalogId := utils.PathSearch("catalog_id", createAppRespBody, "").(string)
+	if catalogId == "" {
+		return diag.Errorf("unable to find the DataArts DataService catalog ID from the API response")
 	}
-	d.SetId(catalogId.(string))
+	d.SetId(catalogId)
 
 	return resourceDatatServiceCatalogRead(ctx, d, meta)
 }
@@ -191,7 +190,8 @@ func resourceDatatServiceCatalogRead(_ context.Context, d *schema.ResourceData, 
 
 	requestResp, err := client.Request("GET", getPath, &opt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, ParseQueryError400(err, CatalogResourceNotFoundCodes), "error retrieving catalog")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", CatalogResourceNotFoundCodes...),
+			"error retrieving catalog")
 	}
 
 	respBody, err := utils.FlattenResponse(requestResp)
@@ -205,8 +205,8 @@ func resourceDatatServiceCatalogRead(_ context.Context, d *schema.ResourceData, 
 		d.Set("path", utils.PathSearch("path", respBody, nil)),
 		d.Set("catalog_total", utils.PathSearch("catalog_total", respBody, nil)),
 		d.Set("api_total", utils.PathSearch("api_total", respBody, nil)),
-		d.Set("created_at", utils.FormatTimeStampRFC3339(int64(utils.PathSearch("create_time", respBody, 0).(float64))/1000, false)),
-		d.Set("updated_at", utils.FormatTimeStampRFC3339(int64(utils.PathSearch("update_time", respBody, 0).(float64))/1000, false)),
+		d.Set("created_at", utils.FormatTimeStampRFC3339(int64(utils.PathSearch("create_time", respBody, float64(0)).(float64))/1000, false)),
+		d.Set("updated_at", utils.FormatTimeStampRFC3339(int64(utils.PathSearch("update_time", respBody, float64(0)).(float64))/1000, false)),
 		d.Set("create_user", utils.PathSearch("create_user", respBody, nil)),
 		d.Set("update_user", utils.PathSearch("update_user", respBody, nil)),
 	)

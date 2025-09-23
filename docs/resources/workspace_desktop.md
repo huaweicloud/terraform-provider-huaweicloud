@@ -121,6 +121,10 @@ The following arguments are supported:
   The name must start with a letter or digit and cannot end with a hyphen.
   Changing this will create a new resource.
 
+  ~> Some images will cause the names in `.tfstate` file to be set to uppercase.
+     Although this will not cause changes by terraform commands, special processing is required when subsequent
+     resources reference this field.
+
 * `email_notification` - (Optional, Bool, ForceNew) Specifies whether to send emails to user mailbox during important
   operations.  
   Defaults to **false**. Changing this will create a new resource.
@@ -200,24 +204,24 @@ This resource provides the following timeouts configuration options:
 
 Desktops can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_workspace_desktop.test 339d2539-e945-4090-a08d-c16badc0c6bb
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
-API response. The missing attributes include: `user_email`, `delete_user`, `image_type`, `vpc_id`, `power_action`
-and `power_action_type`.
+API response. The missing attributes include: `user_email`, `delete_user`, `image_type`, `vpc_id`, `power_action`,
+`power_action_type` and `email_notification`.
 It is generally recommended running `terraform plan` after importing a desktop.
 You can then decide if changes should be applied to the desktop, or the resource definition should be updated to
 align with the desktop. Also you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_workspace_desktop" "test" {
   ...
 
   lifecycle {
     ignore_changes = [
-      user_email, delete_user, image_type, vpc_id, power_action, power_action_type,
+      user_email, delete_user, image_type, vpc_id, power_action, power_action_type, email_notification,
     ]
   }
 }

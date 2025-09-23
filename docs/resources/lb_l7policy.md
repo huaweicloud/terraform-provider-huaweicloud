@@ -94,6 +94,6 @@ This resource provides the following timeouts configuration options:
 
 Load Balancer L7 Policy can be imported using the L7 Policy ID, e.g.:
 
-```
+```bash
 $ terraform import huaweicloud_lb_l7policy.l7policy_1 8a7a79c2-cf17-4e65-b2ae-ddc8bfcf6c74
 ```

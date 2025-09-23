@@ -125,7 +125,7 @@ func resourceSWROrganizationDelete(_ context.Context, d *schema.ResourceData, me
 
 	err = namespaces.Delete(swrClient, d.Id()).ExtractErr()
 	if err != nil {
-		return diag.Errorf("error deleting SWR organization: %s", err)
+		return common.CheckDeletedDiag(d, err, "error deleting SWR organization")
 	}
 
 	return nil

@@ -1,8 +1,3 @@
-// ---------------------------------------------------------------
-// *** AUTO GENERATED CODE ***
-// @Product ProjectMan
-// ---------------------------------------------------------------
-
 package codearts
 
 import (
@@ -13,7 +8,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -44,10 +38,9 @@ func ResourceProject() *schema.Resource {
 				ForceNew: true,
 			},
 			"name": {
-				Type:         schema.TypeString,
-				Required:     true,
-				Description:  `The project name.`,
-				ValidateFunc: validation.StringLenBetween(1, 128),
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The project name.`,
 			},
 			"type": {
 				Type:        schema.TypeString,
@@ -137,11 +130,11 @@ func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, meta int
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("project_id", createProjectRespBody)
-	if err != nil {
-		return diag.Errorf("error creating Project: ID is not found in API response")
+	projectId := utils.PathSearch("project_id", createProjectRespBody, "").(string)
+	if projectId == "" {
+		return diag.Errorf("unable to find the CodeArts project ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(projectId)
 
 	return resourceProjectRead(ctx, d, meta)
 }
@@ -150,7 +143,7 @@ func buildCreateProjectBodyParams(d *schema.ResourceData, cfg *config.Config) ma
 	bodyParams := map[string]interface{}{
 		"project_name":  utils.ValueIgnoreEmpty(d.Get("name")),
 		"description":   utils.ValueIgnoreEmpty(d.Get("description")),
-		"enterprise_id": utils.ValueIgnoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
+		"enterprise_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
 		"project_type":  utils.ValueIgnoreEmpty(d.Get("type")),
 		"source":        utils.ValueIgnoreEmpty(d.Get("source")),
 		"template_id":   utils.ValueIgnoreEmpty(d.Get("template_id")),

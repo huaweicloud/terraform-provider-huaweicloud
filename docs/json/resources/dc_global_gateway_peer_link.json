@@ -1,0 +1,131 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dc_global_gateway_peer_link": {
+          "block": {
+            "attributes": {
+              "bandwidth_info": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "bandwidth_size": "number",
+                      "gcb_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The bandwidth information.",
+                "computed": true
+              },
+              "create_owner": {
+                "type": "string",
+                "description": "The cloud service where the peer link is used.",
+                "computed": true
+              },
+              "created_time": {
+                "type": "string",
+                "description": "The time when the peer link was added.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description of global DC gateway peer link.",
+                "optional": true
+              },
+              "global_dc_gateway_id": {
+                "type": "string",
+                "description": "Specifies the global DC gateway ID.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the instance associated with the peer link.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the global DC gateway peer link.",
+                "required": true
+              },
+              "reason": {
+                "type": "string",
+                "description": "The cause of the failure to add the peer link.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region in which to create the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the peer link.",
+                "computed": true
+              },
+              "updated_time": {
+                "type": "string",
+                "description": "The time when the peer link was updated.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "peer_site": {
+                "block": {
+                  "attributes": {
+                    "gateway_id": {
+                      "type": "string",
+                      "description": "Specifies the ID of enterprise router that the global DC gateway is attached to.",
+                      "required": true
+                    },
+                    "link_id": {
+                      "type": "string",
+                      "description": "The connection ID of the peer gateway at the peer site.",
+                      "computed": true
+                    },
+                    "project_id": {
+                      "type": "string",
+                      "description": "Specifies the project ID of the enterprise router that the global DC gateway is attached to.",
+                      "required": true
+                    },
+                    "region_id": {
+                      "type": "string",
+                      "description": "Specifies the region ID of the enterprise router that the global DC gateway is attached to.",
+                      "required": true
+                    },
+                    "site_code": {
+                      "type": "string",
+                      "description": "The site information of the global DC gateway.",
+                      "computed": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The type of the peer gateway.",
+                      "computed": true
+                    }
+                  },
+                  "description": "Specifies the site of the peer link."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "DC",
+            "name": "Direct Connect",
+            "catalog": "Networking",
+            "name_cn": "云专线",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

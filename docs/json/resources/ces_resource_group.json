@@ -44,7 +44,6 @@
                   "map",
                   "string"
                 ],
-                "description": "Specifies the key/value to match resources.",
                 "optional": true,
                 "computed": true
               },

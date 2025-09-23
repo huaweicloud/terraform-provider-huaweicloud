@@ -12,7 +12,6 @@ import (
 
 	"github.com/chnsz/golangsdk/pagination"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -100,61 +99,81 @@ func endpointGroupsSchema() *schema.Resource {
 				Computed:    true,
 				Description: "The latest update time of the endpoint group.",
 			},
+			"frozen_info": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `The frozen details of cloud services or resources.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"status": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `The status of a cloud service or resource.`,
+						},
+						"effect": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `The status of the resource after being forzen.`,
+						},
+						"scene": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Description: `The service scenario.`,
+						},
+					},
+				},
+			},
 		},
 	}
 	return &sc
 }
 
 func dataSourceEndpointGroupsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// listEndpointGroups: Query the list of endpoint groups
 	var (
-		listEndpointGroupsHttpUrl = "v1/endpoint-groups"
-		listEndpointGroupsProduct = "ga"
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1/endpoint-groups"
+		product = "ga"
+		mErr    *multierror.Error
 	)
-	listEndpointGroupsClient, err := cfg.NewServiceClient(listEndpointGroupsProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating GA client: %s", err)
 	}
 
-	listEndpointGroupsPath := listEndpointGroupsClient.Endpoint + listEndpointGroupsHttpUrl
-
-	listEndpointGroupsqueryParams := buildListEndpointGroupsQueryParams(d)
-	listEndpointGroupsPath += listEndpointGroupsqueryParams
-
-	listEndpointGroupsResp, err := pagination.ListAllItems(
-		listEndpointGroupsClient,
+	requestPath := client.Endpoint + httpUrl
+	requestPath += buildListEndpointGroupsQueryParams(d)
+	resp, err := pagination.ListAllItems(
+		client,
 		"marker",
-		listEndpointGroupsPath,
+		requestPath,
 		&pagination.QueryOpts{MarkerField: ""})
 
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving endpoint groups")
+		return diag.Errorf("error retrieving GA endpoint groups: %s", err)
 	}
 
-	listEndpointGroupsRespJson, err := json.Marshal(listEndpointGroupsResp)
+	respJson, err := json.Marshal(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	var listEndpointGroupsRespBody interface{}
-	err = json.Unmarshal(listEndpointGroupsRespJson, &listEndpointGroupsRespBody)
+	var respBody interface{}
+	err = json.Unmarshal(respJson, &respBody)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	generateUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(generateUUID)
 
-	var mErr *multierror.Error
 	mErr = multierror.Append(
 		mErr,
-		d.Set("endpoint_groups", flattenListEndpointGroupsResponseBody(listEndpointGroupsRespBody)),
+		d.Set("endpoint_groups", flattenListEndpointGroupsResponseBody(respBody)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -179,9 +198,24 @@ func flattenListEndpointGroupsResponseBody(resp interface{}) []interface{} {
 			"listener_id":             utils.PathSearch("listeners[0].id", v, nil),
 			"created_at":              utils.PathSearch("created_at", v, nil),
 			"updated_at":              utils.PathSearch("updated_at", v, nil),
+			"frozen_info":             flattenEndpointGroupsFrozenInfo(utils.PathSearch("frozen_info", v, nil)),
 		})
 	}
 	return rst
+}
+
+func flattenEndpointGroupsFrozenInfo(resp interface{}) []map[string]interface{} {
+	if resp == nil {
+		return nil
+	}
+
+	frozenInfo := map[string]interface{}{
+		"status": utils.PathSearch("status", resp, nil),
+		"effect": utils.PathSearch("effect", resp, nil),
+		"scene":  utils.PathSearch("scene", resp, []string{}),
+	}
+
+	return []map[string]interface{}{frozenInfo}
 }
 
 func buildListEndpointGroupsQueryParams(d *schema.ResourceData) string {

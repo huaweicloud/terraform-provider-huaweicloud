@@ -3,18 +3,17 @@ package apig
 import (
 	"context"
 	"fmt"
-	"regexp"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/responses"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 // @API APIG GET /v2/{project_id}/apigw/instances/{instanceId}/api-groups/{group_id}/gateway-responses/{response_id}
@@ -55,13 +54,8 @@ func ResourceApigResponseV2() *schema.Resource {
 				Description: "The ID of the API group to which the API custom response belongs.",
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[\w-]*$`),
-						"Only letters, digits, hyphens(-), and underscores (_) are allowed."),
-					validation.StringLenBetween(1, 64),
-				),
+				Type:        schema.TypeString,
+				Required:    true,
 				Description: "The name of the API custom response.",
 			},
 			"rule": {
@@ -82,11 +76,29 @@ func ResourceApigResponseV2() *schema.Resource {
 							Description: "The body template of the API custom response rule.",
 						},
 						"status_code": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							Computed:     true,
-							ValidateFunc: validation.IntBetween(200, 599),
-							Description:  "The HTTP status code of the API custom response rule.",
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Computed:    true,
+							Description: "The HTTP status code of the API custom response rule.",
+						},
+						"headers": {
+							Type:     schema.TypeSet,
+							Optional: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"key": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "The key name of the response header.",
+									},
+									"value": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "The value for the specified response header key.",
+									},
+								},
+							},
+							Description: "The configuration of the custom response headers.",
 						},
 					},
 				},
@@ -106,6 +118,21 @@ func ResourceApigResponseV2() *schema.Resource {
 	}
 }
 
+func buildCustomResponseHeaders(headers *schema.Set) []responses.ResponseInfoHeader {
+	if headers.Len() < 1 {
+		return nil
+	}
+
+	result := make([]responses.ResponseInfoHeader, 0, headers.Len())
+	for _, v := range headers.List() {
+		result = append(result, responses.ResponseInfoHeader{
+			Key:   utils.PathSearch("key", v, "").(string),
+			Value: utils.PathSearch("value", v, "").(string),
+		})
+	}
+	return result
+}
+
 // 'error_type' is the key of the response mapping, and 'body' and 'status_code' are the structural elements of the
 // mapping value.
 func buildCustomResponses(respSet *schema.Set) map[string]responses.ResponseInfo {
@@ -115,8 +142,9 @@ func buildCustomResponses(respSet *schema.Set) map[string]responses.ResponseInfo
 		rule := response.(map[string]interface{})
 
 		result[rule["error_type"].(string)] = responses.ResponseInfo{
-			Body:   rule["body"].(string),
-			Status: rule["status_code"].(int),
+			Body:    rule["body"].(string),
+			Status:  rule["status_code"].(int),
+			Headers: buildCustomResponseHeaders(rule["headers"].(*schema.Set)),
 		}
 	}
 
@@ -144,6 +172,21 @@ func resourceResponseCreate(ctx context.Context, d *schema.ResourceData, meta in
 	return resourceResponseRead(ctx, d, meta)
 }
 
+func flattenCustomResponseHeaders(headers []responses.ResponseInfoHeader) []interface{} {
+	if len(headers) < 1 {
+		return nil
+	}
+
+	result := make([]interface{}, 0, len(headers))
+	for _, v := range headers {
+		result = append(result, map[string]interface{}{
+			"key":   v.Key,
+			"value": v.Value,
+		})
+	}
+	return result
+}
+
 func flattenCustomResponses(respMap map[string]responses.ResponseInfo) []map[string]interface{} {
 	if len(respMap) < 1 {
 		return nil
@@ -159,6 +202,7 @@ func flattenCustomResponses(respMap map[string]responses.ResponseInfo) []map[str
 			"error_type":  errorType,
 			"body":        rule.Body,
 			"status_code": rule.Status,
+			"headers":     flattenCustomResponseHeaders(rule.Headers),
 		})
 	}
 	return result

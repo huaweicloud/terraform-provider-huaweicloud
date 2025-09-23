@@ -44,6 +44,8 @@ type LoadBalancer struct {
 	// Human-readable name for the LoadBalancer. Does not have to be unique.
 	Name string `json:"name"`
 
+	LoadBalancerType string `json:"loadbalancer_type"`
+
 	// Owner of the LoadBalancer.
 	ProjectID string `json:"project_id"`
 
@@ -92,6 +94,9 @@ type LoadBalancer struct {
 	// L7 Scale Flavor ID.
 	L7ScaleFlavorID string `json:"l7_scale_flavor_id"`
 
+	// Gateway flavor ID.
+	GwFlavorId string `json:"gw_flavor_id"`
+
 	// Public IP Info.
 	PublicIps []PublicIpInfo `json:"publicips"`
 
@@ -127,6 +132,9 @@ type LoadBalancer struct {
 
 	// Charge Mode
 	ChargeMode string `json:"charge_mode"`
+
+	// Public Border Group
+	PublicBorderGroup string `json:"public_border_group"`
 
 	// Creation time
 	CreatedAt string `json:"created_at"`

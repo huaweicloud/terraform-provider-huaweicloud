@@ -1,0 +1,18 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dms_rocketmq_instance_diagnosis
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: RocketMQ
+paths:
+    /v2/{engine}/{project_id}/diagnosis/{report_id}:
+        GET:
+            tag: RocketMQ
+    /v2/{engine}/{project_id}/instances/{instance_id}/diagnosis:
+        DELETE:
+            tag: RocketMQ
+        POST:
+            tag: RocketMQ

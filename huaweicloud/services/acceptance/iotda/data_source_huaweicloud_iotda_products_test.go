@@ -18,6 +18,7 @@ func TestAccDataSourceProducts_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckHWIOTDAAccessAddress(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -48,45 +49,34 @@ func TestAccDataSourceProducts_basic(t *testing.T) {
 	})
 }
 
-func TestAccDataSourceProducts_derived(t *testing.T) {
-	var (
-		dataSourceName = "data.huaweicloud_iotda_products.test_derived"
-		dc             = acceptance.InitDataSourceCheck(dataSourceName)
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckHWIOTDAAccessAddress(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccDataSourceProducts_derived(),
-				Check: resource.ComposeTestCheckFunc(
-					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttrSet(dataSourceName, "products.#"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "products.0.space_id"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "products.0.space_name"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "products.0.id"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "products.0.name"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "products.0.device_type"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "products.0.data_type"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "products.0.manufacturer_name"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "products.0.industry"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "products.0.created_at"),
-
-					resource.TestCheckOutput("is_product_id_filter_useful", "true"),
-					resource.TestCheckOutput("not_found_validation_pass", "true"),
-				),
-			},
-		},
-	})
-}
-
-func testAccDataSourceProducts_basic() string {
+func testAccDataSourceProducts_base() string {
 	name := acceptance.RandomAccResourceName()
 
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_iotda_spaces" "test" {
+  is_default = "true"
+}
+
+resource "huaweicloud_iotda_product" "test" {
+  name              = "%[2]s"
+  device_type       = "test"
+  protocol          = "MQTT"
+  space_id          = data.huaweicloud_iotda_spaces.test.spaces[0].id
+  data_type         = "json"
+  manufacturer_name = "demo_manufacturer_name"
+  industry          = "demo_industry"
+
+  services {
+    id     = "service_1"
+    type   = "serv_type"
+    option = "Master"
+  }
+}
+`, buildIoTDAEndpoint(), name)
+}
+func testAccDataSourceProducts_basic() string {
 	return fmt.Sprintf(`
 %s
 
@@ -177,42 +167,5 @@ data "huaweicloud_iotda_products" "not_found" {
 output "not_found_validation_pass" {
   value = length(data.huaweicloud_iotda_products.not_found.products) == 0
 }
-`, testProduct_basic(name))
-}
-
-func testAccDataSourceProducts_derived() string {
-	name := acceptance.RandomAccResourceName()
-
-	return fmt.Sprintf(`
-%[1]s
-%[2]s
-
-data "huaweicloud_iotda_products" "test_derived" {
-  depends_on = [huaweicloud_iotda_product.test]
-}
-
-# Filter using product ID.
-locals {
-  product_id = data.huaweicloud_iotda_products.test_derived.products[0].id
-}
-
-data "huaweicloud_iotda_products" "product_id_filter" {
-  product_id = local.product_id
-}
-
-output "is_product_id_filter_useful" {
-  value = length(data.huaweicloud_iotda_products.product_id_filter.products) > 0 && alltrue(
-    [for v in data.huaweicloud_iotda_products.product_id_filter.products[*].id : v == local.product_id]
-  )
-}
-
-# Filter using non existent product name.
-data "huaweicloud_iotda_products" "not_found" {
-  product_name = "resource_not_found"
-}
-
-output "not_found_validation_pass" {
-  value = length(data.huaweicloud_iotda_products.not_found.products) == 0
-}
-`, testProduct_basic(name), buildIoTDAEndpoint())
+`, testAccDataSourceProducts_base())
 }

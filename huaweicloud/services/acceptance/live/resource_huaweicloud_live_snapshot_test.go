@@ -16,47 +16,40 @@ import (
 )
 
 func getLiveSnapshotResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	region := acceptance.HW_REGION_NAME
-	// getLiveSnapshot: Query Live snapshot
 	var (
-		getLiveSnapshotHttpUrl = "v1/{project_id}/stream/snapshot"
-		getLiveSnapshotProduct = "live"
+		region  = acceptance.HW_REGION_NAME
+		httpUrl = "v1/{project_id}/stream/snapshot"
+		product = "live"
 	)
-	getLiveSnapshotClient, err := cfg.NewServiceClient(getLiveSnapshotProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return nil, fmt.Errorf("error creating Live Client: %s", err)
+		return nil, fmt.Errorf("error creating Live client: %s", err)
 	}
 
 	parts := strings.SplitN(state.Primary.ID, "/", 2)
 	if len(parts) != 2 {
-		return nil, fmt.Errorf("invalid id format, must be <domain_name>/<app_name>")
+		return nil, fmt.Errorf("invalid ID format, want '<domain_name>/<app_name>', but got '%s'", state.Primary.ID)
 	}
 	domainName := parts[0]
 	appName := parts[1]
 
-	getLiveSnapshotPath := getLiveSnapshotClient.Endpoint + getLiveSnapshotHttpUrl
-	getLiveSnapshotPath = strings.ReplaceAll(getLiveSnapshotPath, "{project_id}", getLiveSnapshotClient.ProjectID)
-
-	getLiveSnapshotQueryParams := buildGetLiveSnapshotQueryParams(domainName, appName)
-	getLiveSnapshotPath += getLiveSnapshotQueryParams
-
-	getLiveSnapshotOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath += buildGetLiveSnapshotQueryParams(domainName, appName)
+	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
-	getLiveSnapshotResp, err := getLiveSnapshotClient.Request("GET", getLiveSnapshotPath, &getLiveSnapshotOpt)
+	resp, err := client.Request("GET", requestPath, &requestOpt)
 	if err != nil {
 		return nil, fmt.Errorf("error retrieving Live snapshot: %s", err)
 	}
 
-	getLiveSnapshotRespBody, err := utils.FlattenResponse(getLiveSnapshotResp)
+	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
 		return nil, err
 	}
 
-	snapshot := utils.PathSearch("snapshot_config_list|[0]", getLiveSnapshotRespBody, nil)
+	snapshot := utils.PathSearch("snapshot_config_list|[0]", respBody, nil)
 	if snapshot == nil {
 		return nil, fmt.Errorf("error get live snapshot")
 	}

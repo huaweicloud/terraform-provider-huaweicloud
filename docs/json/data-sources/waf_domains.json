@@ -15,6 +15,7 @@
                   [
                     "object",
                     {
+                      "access_code": "string",
                       "access_status": "number",
                       "charging_mode": "string",
                       "created_at": "string",

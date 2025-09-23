@@ -15,6 +15,8 @@ Manages a component resource within HuaweiCloud.
 
 ## Example Usage
 
+### Create a component
+
 ```hcl
 variable "environment_id" {}
 variable "application_id" {}
@@ -50,6 +52,45 @@ resource "huaweicloud_cae_component" "test" {
 }
 ```
 
+### Create and deploy a component
+
+```hcl
+variable "environment_id" {}
+variable "application_id" {}
+variable "component_name" {}
+variable "image_url" {}
+
+resource "huaweicloud_cae_component" "test" {
+  environment_id = var.environment_id
+  application_id = var.application_id
+
+  metadata {
+    name = var.component_name
+
+    annotations = {
+      version = "1.0.0"
+    }
+  }
+
+  spec {
+    runtime = "Docker"
+    replica = 1
+
+    source {
+      type = "image"
+      url  = var.image_url
+    }
+
+    resource_limit {
+      cpu    = "500m"
+      memory = "1Gi"
+    }
+  }
+
+  action = "deploy"
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -58,11 +99,11 @@ The following arguments are supported:
   If omitted, the provider-level region will be used.
   Changing this creates a new resource.
 
-* `environment_id` - (Required, String, ForceNew) Specifies the environment ID to which the application and the
+* `environment_id` - (Required, String, ForceNew) Specifies the ID of the environment to which the application and the
   component belongs.
   Changing this creates a new resource.
 
-* `application_id` - (Required, String, ForceNew) Specifies the application ID to which the component belongs.
+* `application_id` - (Required, String, ForceNew) Specifies the ID of the application to which the component belongs.
   Changing this creates a new resource.
 
 * `metadata` - (Required, List) Specifies the metadata of the component.
@@ -70,6 +111,22 @@ The following arguments are supported:
 
 * `spec` - (Required, List) Specifies the configuration information of the component.
   The [spec](#component_spec) structure is documented below.
+
+* `action` - (Optional, String) Specifies operation type of the component.  
+  The valid values are as follows:
+  + **deploy**: Deploy component. Only valid for undeployed component.
+  + **configure**: Configurations of effesctive component. Only valid for deployed component.
+  + **upgrade**: Upgrade component. Only valid for deployed component.
+
+* `configurations` - (Optional, List) Specifies the list of configurations of the component.  
+  The [configurations](#component_configurations) structure is documented below.  
+
+  -> This parameter must be used together with `action` parameter.
+
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the ID of the enterprise project to which the
+  component belongs.  
+  If the `application_id` belongs to the non-default enterprise project, this parameter is required and is only valid
+  for enterprise users.
 
 <a name="component_metadata"></a>
 The `metadata` block supports:
@@ -80,7 +137,7 @@ The `metadata` block supports:
 
 * `annotations` - (Required, Map) Specifies the key/value pairs parameters related to the component.
   Currently, only `version` is supported and required.
-  The format is `A.B.C` or `A.B.C.D`, A, B, C and D must be interger. e.g.`1.0.0` or `1.0.0.0`
+  The format is `A.B.C` or `A.B.C.D`, A, B, C and D must be integer. e.g.`1.0.0` or `1.0.0.0`
 
 <a name="component_spec"></a>
 The `spec` block supports:
@@ -155,7 +212,7 @@ The `build` block supports:
   + **artifact_name**: Select and run the specified JAR package from multiple JAR packages generated during Maven build.
   The JAR package end with **.jar**. Fuzzy match is supported. e.g. `demo-1.0.jar`, `demo*.jar`.
 
-  -> `build_cmd`, `dockerfile_path` and `artifact_name` parameters is valid only when `source.type` is set to `code`.
+  -> `build_cmd`, `dockerfile_path` and `artifact_name` parameters are valid only when `source.type` is set to `code`.
      `dockerfile_path` and `artifact_name` parameters can't be set at the same time.
      `dockerfile_content` is valid only when `source.type` is set to `softwarePackage`.
 
@@ -165,27 +222,59 @@ The `archive` block supports:
 * `artifact_namespace` - (Required, String) Specifies the name of the SWR organization after the code source
   corresponding to component is built.
 
+<a name="component_configurations"></a>
+The `configurations` block supports:
+
+* `type` - (Required, String) Specifies the type of the component configuration.  
+  Please following [reference documentation](https://support.huaweicloud.com/api-cae/CreateComponentConfiguration.html#CreateComponentConfiguration__request_ConfigurationItem).
+
+* `data` - (Required, String) Specifies the configuration detail, in JSON format.  
+  Please following [reference documentation](https://support.huaweicloud.com/api-cae/CreateComponentConfiguration.html#CreateComponentConfiguration__request_ConfigurationData).
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID.
 
+* `available_replica` - The number of available instances under the component.
+
+* `status` - The current status of the component.
+  + **running**
+  + **paused**
+  + **notReady**: The component deployed but not ready.
+  + **created**: The component was not deployed.
+
 * `created_at` - The creation time of the component.
 
 * `updated_at` - The latest update time of the component.
 
+## Timeouts
+
+This resource provides the following timeouts configuration options:
+
+* `create` - Default is 10 minutes.
+* `update` - Default is 10 minutes.
+* `delete` - Default is 10 minutes.
+
 ## Import
 
-The CAE component can be imported using `environment_id`, `application_id` and `id`, separated by slashes (/), e.g.
+The component can be imported using `environment_id`, `application_id` and `id`, separated by slashes (/), e.g.
 
 ```bash
 $ terraform import huaweicloud_cae_component.test <environment_id>/<application_id>/<id>
 ```
 
+For the component with the `enterprise_project_id`, its enterprise project ID need to be specified additionanlly when
+importing. All fields are separated by slashes (/), e.g.
+
+```bash
+$ terraform import huaweicloud_cae_component.test <environment_id>/<application_id>/<id>/<enterprise_project_id>
+```
+
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason.
-The missing attributes include: `metadata.0.annotations`, `spec.0.build.0.parameters`.
+The missing attributes include: `metadata.0.annotations`, `spec.0.build.0.parameters`, `action`, `configurations`.
 It is generally recommended running `terraform plan` after importing the resource.
 You can then decide if changes should be applied to the resource, or the resource definition should be updated to
 align with the resource. Also you can ignore changes as below.
@@ -196,7 +285,7 @@ resource "huaweicloud_cae_component" "test" {
 
   lifecycle {
     ignore_changes = [
-      metadata.0.annotations, spec.0.build.0.parameters,
+      metadata.0.annotations, spec.0.build.0.parameters, action, configurations,
     ]
   }
 }

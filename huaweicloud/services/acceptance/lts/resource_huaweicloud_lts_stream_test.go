@@ -68,6 +68,7 @@ func TestAccLtsStream_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "stream_name", rName),
+					resource.TestCheckResourceAttr(resourceName, "ttl_in_days", "-1"),
 					resource.TestCheckResourceAttr(resourceName, "filter_count", "0"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
 					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
@@ -75,22 +76,24 @@ func TestAccLtsStream_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.%", "2"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.terraform", ""),
+					resource.TestCheckResourceAttr(resourceName, "is_favorite", "true"),
 				),
 			},
 			{
 				Config: testAccLtsStream_update(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "ttl_in_days", "60"),
 					resource.TestCheckResourceAttr(resourceName, "tags.%", "1"),
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
+					resource.TestCheckResourceAttr(resourceName, "is_favorite", "false"),
 				),
 			},
 			{
-				ResourceName:            resourceName,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ttl_in_days"},
-				ImportStateIdFunc:       testLtsStreamImportState(resourceName),
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testLtsStreamImportState(resourceName),
 			},
 		},
 	})
@@ -110,7 +113,7 @@ func testLtsStreamImportState(name string) resource.ImportStateIdFunc {
 	}
 }
 
-func testAccLtsStream_basic(rName string) string {
+func testAccStream_base(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_lts_group" "test" {
   group_name  = "%[1]s"
@@ -120,41 +123,40 @@ resource "huaweicloud_lts_group" "test" {
     owner = "terraform"
   }
 }
+`, rName)
+}
+
+func testAccLtsStream_basic(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
 
 resource "huaweicloud_lts_stream" "test" {
   group_id    = huaweicloud_lts_group.test.id
-  stream_name = "%[1]s"
-  ttl_in_days = 60
+  stream_name = "%[2]s"
+  is_favorite = true
 
   tags = {
     foo       = "bar"
     terraform = ""
   }
 }
-`, rName)
+`, testAccStream_base(rName), rName)
 }
 
 func testAccLtsStream_update(rName string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_lts_group" "test" {
-  group_name  = "%[1]s"
-  ttl_in_days = 30
-
-  tags = {
-    owner = "terraform"
-  }
-}
+%[1]s
 
 resource "huaweicloud_lts_stream" "test" {
   group_id    = huaweicloud_lts_group.test.id
-  stream_name = "%[1]s"
+  stream_name = "%[2]s"
   ttl_in_days = 60
 
   tags = {
     owner = "terraform"
   }
 }
-`, rName)
+`, testAccStream_base(rName), rName)
 }
 
 func TestAccLtsStream_epsId(t *testing.T) {
@@ -174,11 +176,21 @@ func TestAccLtsStream_epsId(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccLtsStream_epsId(rName),
+				Config: testAccStream_epsId_step1(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "stream_name", rName),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "is_favorite", "false"),
+				),
+			},
+			{
+				Config: testAccStream_epsId_step2(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "stream_name", rName),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(resourceName, "is_favorite", "true"),
 				),
 			},
 			{
@@ -191,17 +203,27 @@ func TestAccLtsStream_epsId(t *testing.T) {
 	})
 }
 
-func testAccLtsStream_epsId(rName string) string {
+func testAccStream_epsId_step1(rName string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_lts_group" "test" {
-  group_name  = "%[1]s"
-  ttl_in_days = 30
-}
+%[1]s
 
 resource "huaweicloud_lts_stream" "test" {
   group_id              = huaweicloud_lts_group.test.id
-  stream_name           = "%[1]s"
-  enterprise_project_id = "%[2]s"
+  stream_name           = "%[2]s"
+  enterprise_project_id = "%[3]s"
 }
-`, rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, testAccStream_base(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+}
+
+func testAccStream_epsId_step2(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_lts_stream" "test" {
+  group_id              = huaweicloud_lts_group.test.id
+  stream_name           = "%[2]s"
+  enterprise_project_id = "%[3]s"
+  is_favorite           = true
+}
+`, testAccStream_base(rName), rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }

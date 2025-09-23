@@ -1,0 +1,105 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_asset_statistics": {
+          "block": {
+            "attributes": {
+              "account_num": {
+                "type": "number",
+                "description": "The number of server accounts.",
+                "computed": true
+              },
+              "app_num": {
+                "type": "number",
+                "description": "The number of applications.",
+                "computed": true
+              },
+              "auto_launch_num": {
+                "type": "number",
+                "description": "The number of auto launch startup processes.",
+                "computed": true
+              },
+              "category": {
+                "type": "string",
+                "description": "Specifies the type. The default value is host.",
+                "optional": true
+              },
+              "database_num": {
+                "type": "number",
+                "description": "The number of databases.",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the ID of the enterprise project to which the resource belongs.",
+                "optional": true
+              },
+              "host_id": {
+                "type": "string",
+                "description": "Specifies the host ID.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "jar_package_num": {
+                "type": "number",
+                "description": "The number of JAR packages.",
+                "computed": true
+              },
+              "kernel_module_num": {
+                "type": "number",
+                "description": "The number of kernel modules.",
+                "computed": true
+              },
+              "port_num": {
+                "type": "number",
+                "description": "The number of open ports.",
+                "computed": true
+              },
+              "process_num": {
+                "type": "number",
+                "description": "The number of processes.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource.",
+                "computed": true
+              },
+              "web_app_num": {
+                "type": "number",
+                "description": "The number of web applications.",
+                "computed": true
+              },
+              "web_framework_num": {
+                "type": "number",
+                "description": "The number of web frameworks.",
+                "computed": true
+              },
+              "web_service_num": {
+                "type": "number",
+                "description": "The number of web services.",
+                "computed": true
+              },
+              "web_site_num": {
+                "type": "number",
+                "description": "The number of web sites.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

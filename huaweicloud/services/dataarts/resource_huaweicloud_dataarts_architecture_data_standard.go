@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -246,11 +245,11 @@ func resourceDataStandardCreate(ctx context.Context, d *schema.ResourceData, met
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("data.value.id", createDataStandardRespBody)
-	if err != nil {
-		return diag.Errorf("error creating DataArts Architecture data standard: ID is not found in API response")
+	standardId := utils.PathSearch("data.value.id", createDataStandardRespBody, "").(string)
+	if standardId == "" {
+		return diag.Errorf("unable to find the DataArts Architecture data standard ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(standardId)
 
 	return resourceDataStandardRead(ctx, d, meta)
 }

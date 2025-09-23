@@ -33,6 +33,7 @@ func TestAccCCEPartition_basic(t *testing.T) {
 	randName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
 	// The availability zone of IES edge partition, example: "cn-south-1-ies-fstxz"
 	azName := acceptance.HW_CCE_PARTITION_AZ
+	groupName := acceptance.HW_CCE_PARTITION_GROUP
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
@@ -49,12 +50,12 @@ func TestAccCCEPartition_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccPartition_basic(randName, azName),
+				Config: testAccPartition_basic(randName, azName, groupName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(resourceName, "cluster_id",
 						"huaweicloud_cce_cluster.test", "id"),
-					resource.TestCheckResourceAttr(resourceName, "availability_zone", azName),
+					resource.TestCheckResourceAttr(resourceName, "name", azName),
 				),
 			},
 			{
@@ -125,16 +126,17 @@ resource "huaweicloud_cce_cluster" "test" {
 `, testVpc(randName, azName), randName)
 }
 
-func testAccPartition_basic(randName, azName string) string {
+func testAccPartition_basic(randName, azName, groupName string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_cce_partition" "test" {
   cluster_id           = huaweicloud_cce_cluster.test.id
   category             = "IES"
-  availability_zone    = "%s"
+  name                 = "%[2]s"
+  public_border_group  = "%[3]s"
   partition_subnet_id  = huaweicloud_vpc_subnet.subnet_edge.id
   container_subnet_ids = [huaweicloud_vpc_subnet.subnet_edge.ipv4_subnet_id]
 }
-`, testAccPartition_Base(randName, azName), azName)
+`, testAccPartition_Base(randName, azName), azName, groupName)
 }

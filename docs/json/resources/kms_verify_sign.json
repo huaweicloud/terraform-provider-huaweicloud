@@ -1,0 +1,65 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_kms_verify_sign": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "key_id": {
+                "type": "string",
+                "description": "Specifies the key ID.",
+                "required": true
+              },
+              "message": {
+                "type": "string",
+                "description": "Specifies the message digest or message.",
+                "required": true
+              },
+              "message_type": {
+                "type": "string",
+                "description": "Specifies the type of the message.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to create the resource.",
+                "computed": true
+              },
+              "sequence": {
+                "type": "string",
+                "description": "Specifies the sequence number of the request message.",
+                "optional": true
+              },
+              "signature": {
+                "type": "string",
+                "description": "Specifies the signature value to be verified.",
+                "required": true
+              },
+              "signature_valid": {
+                "type": "string",
+                "description": "The validity of signature verification.",
+                "computed": true
+              },
+              "signing_algorithm": {
+                "type": "string",
+                "description": "Specifies the signature algorithm.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "KMS",
+            "name": "Data Encryption Workshop KMS",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据加密服务-密钥管理",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

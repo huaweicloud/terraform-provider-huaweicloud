@@ -18,7 +18,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -81,6 +80,7 @@ func ResourceFirewall() *schema.Resource {
 				}
 				return nil
 			}),
+			config.MergeDefaultTags(),
 		),
 
 		Schema: map[string]*schema.Schema{
@@ -104,12 +104,7 @@ func ResourceFirewall() *schema.Resource {
 				ForceNew:    true,
 				Description: `Specifies the flavor of the firewall.`,
 			},
-			"tags": {
-				Type:        schema.TypeMap,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Optional:    true,
-				Description: `Specifies the key/value pairs to associate with the firewall.`,
-			},
+			"tags": common.TagsSchema(),
 			"east_west_firewall_inspection_cidr": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -486,9 +481,9 @@ func createFirewallWaitingForStateCompleted(ctx context.Context, d *schema.Resou
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`data.status`, createFirewallWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `data.status`)
+			statusRaw := utils.PathSearch(`data.status`, createFirewallWaitingRespBody, nil)
+			if statusRaw == nil {
+				return nil, "ERROR", fmt.Errorf("error parsing %s from response body", `data.status`)
 			}
 
 			status := fmt.Sprintf("%v", statusRaw)
@@ -553,12 +548,12 @@ func createEastWestFirewallWaitingForStateCompleted(ctx context.Context, d *sche
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`data.status`, createEastWestFirewallWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `data.status`)
+			statusRaw := utils.PathSearch(`data.status`, createEastWestFirewallWaitingRespBody, nil)
+			if statusRaw == nil {
+				return nil, "ERROR", fmt.Errorf("error parsing %s from response body", `data.status`)
 			}
 
-			status := fmt.Sprintf("%v", statusRaw)
+			status := fmt.Sprintf("%v", int(statusRaw.(float64)))
 
 			targetStatus := []string{
 				"0", "1",
@@ -609,10 +604,10 @@ func resourceFirewallRead(_ context.Context, d *schema.ResourceData, meta interf
 	}
 	getFirewallsResp, err := getFirewallClient.Request("GET", getFirewallPath, &getFirewallOpt)
 	if err != nil {
-		if hasErrorCode(err, FirewallNotExistsCode) {
-			err = golangsdk.ErrDefault404{}
-		}
-		return common.CheckDeletedDiag(d, err, "error retrieving firewalls")
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error_code", FirewallNotExistsCode),
+			"error retrieving firewalls",
+		)
 	}
 
 	getFirewallRespBody, err := utils.FlattenResponse(getFirewallsResp)
@@ -701,9 +696,9 @@ func hasErrorCode(err error, expectCode string) bool {
 	if errCode, ok := err.(golangsdk.ErrDefault400); ok {
 		var response interface{}
 		if jsonErr := json.Unmarshal(errCode.Body, &response); jsonErr == nil {
-			errorCode, parseErr := jmespath.Search("error_code", response)
-			if parseErr != nil {
-				log.Printf("[WARN] failed to parse error_code from response body: %s", parseErr)
+			errorCode := utils.PathSearch("error_code", response, nil)
+			if errorCode == nil {
+				log.Printf("[WARN] failed to parse error_code from response body")
 			}
 
 			if errorCode == expectCode {
@@ -815,7 +810,12 @@ func getIpsProtectMode(client *golangsdk.ServiceClient, objectID string) (interf
 		return nil, err
 	}
 
-	return jmespath.Search("data.mode", getIpsProtectModeRespBody)
+	mode := utils.PathSearch("data.mode", getIpsProtectModeRespBody, nil)
+	if mode == nil {
+		return nil, fmt.Errorf("error parsing data.mode from response body")
+	}
+
+	return mode, nil
 }
 
 func getIpsSwitchStatus(client *golangsdk.ServiceClient, objectID string) (interface{}, error) {
@@ -838,7 +838,11 @@ func getIpsSwitchStatus(client *golangsdk.ServiceClient, objectID string) (inter
 		return nil, err
 	}
 
-	return jmespath.Search("data.virtual_patches_status", getIpsSwitchStatusRespBody)
+	status := utils.PathSearch("data.virtual_patches_status", getIpsSwitchStatusRespBody, nil)
+	if status == nil {
+		return nil, fmt.Errorf("error parsing data.virtual_patches_status from response body")
+	}
+	return status, nil
 }
 
 func resourceFirewallUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -874,10 +878,10 @@ func resourceFirewallUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		}
 		getFirewallsResp, err := getFirewallClient.Request("GET", getFirewallPath, &getFirewallOpt)
 		if err != nil {
-			if hasErrorCode(err, FirewallNotExistsCode) {
-				err = golangsdk.ErrDefault404{}
-			}
-			return common.CheckDeletedDiag(d, err, "error retrieving firewalls")
+			return common.CheckDeletedDiag(d,
+				common.ConvertExpected400ErrInto404Err(err, "error_code", FirewallNotExistsCode),
+				"error retrieving firewalls",
+			)
 		}
 
 		getFirewallRespBody, err := utils.FlattenResponse(getFirewallsResp)
@@ -1125,7 +1129,10 @@ func resourceFirewallDelete(ctx context.Context, d *schema.ResourceData, meta in
 
 	if d.Get("charging_mode") == "prePaid" {
 		if err := common.UnsubscribePrePaidResource(d, cfg, []string{d.Id()}); err != nil {
-			return diag.Errorf("error unsubscribing CFW firewall: %s", err)
+			return common.CheckDeletedDiag(d,
+				common.ConvertExpected400ErrInto404Err(err, "error_code", "CBC.30000067"),
+				"error unsubscribing CFW firewall",
+			)
 		}
 	} else {
 		// deleteFirewall: Delete an existing CFW firewall
@@ -1148,7 +1155,10 @@ func resourceFirewallDelete(ctx context.Context, d *schema.ResourceData, meta in
 
 		_, err = deleteFirewallClient.Request("DELETE", deleteFirewallPath, &deleteFirewallOpt)
 		if err != nil {
-			return diag.Errorf("error deleting Firewall: %s", err)
+			return common.CheckDeletedDiag(d,
+				common.ConvertExpected400ErrInto404Err(err, "error_code", FirewallNotExistsCode),
+				"error deleting CFW firewall",
+			)
 		}
 	}
 
@@ -1203,8 +1213,8 @@ func deleteFirewallWaitingForStateCompleted(ctx context.Context, d *schema.Resou
 				return deleteFirewallWaitingRespBody, "COMPLETED", nil
 			}
 
-			statusRaw, err := jmespath.Search(`status`, deleteFirewallWaitingRespBody)
-			if err != nil {
+			statusRaw := utils.PathSearch(`status`, deleteFirewallWaitingRespBody, nil)
+			if statusRaw == nil {
 				return nil, "ERROR", fmt.Errorf("error parsing %s from response body", `data.status`)
 			}
 

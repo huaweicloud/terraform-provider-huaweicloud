@@ -52,7 +52,7 @@ data "huaweicloud_dms_kafka_flavors" "test" {
   + **dms.physical.storage.high.v2**: Type of the disk that uses high I/O.
   + **dms.physical.storage.ultra.v2**: Type of the disk that uses ultra-high I/O.
 
-* `type` - (Optional, String) Specifies flavor type. The valid values are **single** and **cluster**.
+* `type` - (Optional, String) Specifies flavor type. The valid values are **single**, **cluster** and **cluster.small**.
 
 * `arch_type` - (Optional, String) Specifies the type of CPU architecture, e.g. **X86**.
 

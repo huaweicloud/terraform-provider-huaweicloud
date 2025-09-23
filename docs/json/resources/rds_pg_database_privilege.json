@@ -1,0 +1,65 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_rds_pg_database_privilege": {
+          "block": {
+            "attributes": {
+              "db_name": {
+                "type": "string",
+                "description": "Specifies the database name.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the RDS PostgreSQL instance.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "users": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "description": "Specifies the username of the database account.",
+                      "required": true
+                    },
+                    "readonly": {
+                      "type": "bool",
+                      "description": "Specifies the read-only permission.",
+                      "required": true
+                    },
+                    "schema_name": {
+                      "type": "string",
+                      "description": "Specifies the name of the schema.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the account that associated with the database"
+                },
+                "nesting_mode": "set",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "RDS",
+            "name": "Relational Database Service",
+            "catalog": "Databases",
+            "name_cn": "云数据库",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

@@ -9,6 +9,13 @@
                 "type": "string",
                 "computed": true
               },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The enterprise project ID to which the log group belongs.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "group_name": {
                 "type": "string",
                 "required": true,
@@ -27,7 +34,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "ttl_in_days": {
                 "type": "number",

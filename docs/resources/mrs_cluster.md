@@ -51,26 +51,30 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which to create the msr cluster resource. If omitted, the
   provider-level region will be used. Changing this creates a new msr cluster resource.
 
-* `billing_type` - (Required, Int, ForceNew) The value is 12, indicating on-demand payment.
+* `billing_type` - (Required, Int, ForceNew) The value is `12`, indicating on-demand payment.
 
-* `cluster_name` - (Required, String, ForceNew) Cluster name, which is globally unique and contains only 1 to 64
+* `cluster_name` - (Required, String, ForceNew) Cluster name, which is globally unique and contains only `1` to `64`
   letters, digits, hyphens (-), and underscores (_).
 
 * `cluster_version` - (Optional, String, ForceNew) Version of the clusters. Currently, MRS 1.8.10, MRS 1.9.2 and MRS
   2.1.0 are supported.
 
-* `cluster_type` - (Optional, Int, ForceNew) Type of clusters. 0: analysis cluster 1: streaming cluster. The default
-  value is 0.
+* `cluster_type` - (Optional, Int, ForceNew) Type of clusters.  
+  + **0**: Analysis cluster.
+  + **1**: Streaming cluster.
+  
+  The default value is `0`.
 
-* `master_node_num` - (Required, Int, ForceNew) Number of Master nodes. Set this parameter to 2 to enable cluster HA,
-  set this parameter to 1 to enable cluster HA.
+* `master_node_num` - (Required, Int, ForceNew) Number of Master nodes.  
+  + **1**: Disable the HA mode.
+  + **2**: Enable the HA mode.
 
 * `master_node_size` - (Required, String, ForceNew) Best match based on several years of commissioning experience. MRS
   supports specifications of hosts, and host specifications are determined by CPUs, memory, and disks space. MRS
   supports instance specifications detailed
   in [MRS specifications](https://support.huaweicloud.com/en-us/api-mrs/mrs_01_9006.html)
 
-* `core_node_num` - (Required, Int, ForceNew) Number of Core nodes. Value range: 1 to 500.
+* `core_node_num` - (Required, Int, ForceNew) Number of Core nodes. Value range: `1` to `500`.
 
 * `core_node_size` - (Required, String, ForceNew) Instance specification of a Core node Configuration method of this
   parameter is identical to that of master_node_size.
@@ -106,21 +110,21 @@ The following arguments are supported:
 * `volume_size` - (Required, Int, ForceNew) Data disk storage space of a Core node. Value range: 100 GB to 32000 GB
 
 * `safe_mode` - (Required, Int, ForceNew) running mode of an MRS cluster.
-  + 0: indicates that the Kerberos authentication is disabled. Users can use all functions provided by the cluster.
-  + 1: indicates that the Kerberos authentication is enabled. Common users cannot use the file management or job
+  + **0**: indicates that the Kerberos authentication is disabled. Users can use all functions provided by the cluster.
+  + **1**: indicates that the Kerberos authentication is enabled. Common users cannot use the file management or job
       management functions of an MRS cluster and cannot view cluster resource usage or the job records of Hadoop and
       Spark. To use these functions, the users must obtain the relevant permissions from the MRS Manager administrator.
 
 * `cluster_admin_secret` - (Required, String, ForceNew) Indicates the password of the MRS Manager administrator. This
   parameter must meet the following requirements:
-  + Must contain 8 to 26 characters.
+  + Must contain `8` to `26` characters.
   + Must contain at least three of the following: uppercase letters, lowercase letters, digits, and special
       characters: `~!@#$%^&*()-_=+\|[{}];:'",<.>/? and space.
   + Cannot be the username or the username spelled backwards.
 
 * `node_password` - (Optional, String, ForceNew) Password of user **root** for logging in to a cluster node. This
   parameter and `node_public_cert_name` are alternative. A password must meet the following requirements:
-  + Must be 8 to 26 characters.
+  + Must be `8` to `26` characters.
   + Must contain at least three of the following: uppercase letters, lowercase letters, digits, and special
       characters (!@$%^-_=+[{}]:,./?), but must not contain spaces.
   + Cannot be the username or the username spelled backwards.
@@ -128,9 +132,12 @@ The following arguments are supported:
 * `node_public_cert_name` - (Optional, String, ForceNew) Name of a key pair. You can use a key to log in to the Master
   node in the cluster. This parameter and `node_password` are alternative.
 
-* `log_collection` - (Optional, Int, ForceNew) Indicates whether logs are collected when cluster installation fails. 0:
-  not collected; 1: collected. The default value is 1, indicating that OBS buckets will be created and only used to
-  collect logs that record MRS cluster creation failures.
+* `log_collection` - (Optional, Int, ForceNew) Indicates whether logs are collected when cluster installation fails.  
+  + **0**: Not collected.
+  + **1**: Collected.
+  
+  The default value is `1`, indicating that OBS buckets will be created and only used to collect logs that record MRS
+  cluster creation failures.
 
 * `component_list` - (Required, List, ForceNew) List of service components to be installed. Structure is documented
   below.
@@ -152,17 +159,22 @@ The `component_list` block supports:
 
 The `add_jobs` block supports:
 
-* `job_type` - (Required, Int, ForceNew) Job type code. 1: MapReduce; 2: Spark; 3: Hive Script; 4: HiveQL
-  (not supported currently); 5: DistCp, importing and exporting data (not supported currently); 6: Spark Script; 7:
-  Spark SQL, submitting Spark SQL statements
-  (not supported currently). NOTE: Spark and Hive jobs can be added to only clusters including Spark and Hive
-  components.
+* `job_type` - (Required, Int, ForceNew) Job type code.  
+  + **1**: MapReduce
+  + **2**: Spark
+  + **3**: Hive Script
+  + **4**: HiveQL (not supported currently)
+  + **5**: DistCp, importing and exporting data (not supported currently)
+  + **6**: Spark Script
+  + **7**: Spark SQL, submitting Spark SQL statements (not supported currently)
 
-* `job_name` - (Required, String, ForceNew) Job name. It contains 1 to 64 characters. Only letters, digits, hyphens (-),
+  -> NOTE: Spark and Hive jobs can be added to only clusters including Spark and Hive components.
+
+* `job_name` - (Required, String, ForceNew) Job name. It contains `1` to `64` characters. Only letters, digits, hyphens (-),
   and underscores (_) are allowed. NOTE: Identical job names are allowed but not recommended.
 
-* `jar_path` - (Required, String, ForceNew) Path of the .jar file or .sql file for program execution The parameter must
-  meet the following requirements:
+* `jar_path` - (Required, String, ForceNew) Path of the **.jar** file or **.sql** file for program execution.  
+  The parameter must meet the following requirements:
   + Contains a maximum of 1,023 characters, excluding special characters such as ;|&><'$. The parameter value cannot
       be empty or full of spaces.
   + Files can be stored in HDFS or OBS. The path varies depending on the file system. OBS: The path must start with
@@ -172,19 +184,19 @@ The `add_jobs` block supports:
 
 * `arguments` - (Optional, String, ForceNew) Key parameter for program execution. The parameter is specified by the
   function of the user's program. MRS is only responsible for loading the parameter. The parameter contains a maximum of
-  2047 characters, excluding special characters such as ;|&>'<$, and can be empty.
+  `2,047` characters, excluding special characters such as `;|&>'<$`, and can be empty.
 
 * `input` - (Optional, String, ForceNew) Path for inputting data, which must start with / or s3a://. A correct OBS path
-  is required. The parameter contains a maximum of 1023 characters, excluding special characters such as ;|&>'<$, and
+  is required. The parameter contains a maximum of 1023 characters, excluding special characters such as `;|&>'<$`, and
   can be empty.
 
 * `output` - (Optional, String, ForceNew) Path for outputting data, which must start with / or s3a://. A correct OBS
   path is required. If the path does not exist, the system automatically creates it. The parameter contains a maximum of
-  1023 characters, excluding special characters such as ;|&>'<$, and can be empty.
+  1023 characters, excluding special characters such as `;|&>'<$`, and can be empty.
 
 * `job_log` - (Optional, String, ForceNew) Path for storing job logs that record job running status. This path must
   start with / or s3a://. A correct OBS path is required. The parameter contains a maximum of 1023 characters, excluding
-  special characters such as ;|&>'<$, and can be empty.
+  special characters such as `;|&>'<$`, and can be empty.
 
 * `shutdown_cluster` - (Optional, Bool, ForceNew) Whether to delete the cluster after the jobs are complete.
 
@@ -197,7 +209,7 @@ The `add_jobs` block supports:
 
 * `hive_script_path` - (Optional, String, ForceNew) SQL program path This parameter is needed by Spark Script and Hive
   Script jobs only and must meet the following requirements:
-  Contains a maximum of 1023 characters, excluding special characters such as ;|&><'$. The address cannot be empty or
+  Contains a maximum of 1023 characters, excluding special characters such as `;|&><'$`. The address cannot be empty or
   full of spaces. Starts with / or s3a://. Ends with .sql. sql is case-insensitive.
 
 ## Attribute Reference

@@ -34,6 +34,7 @@ func TestAccDataSourceGroups_basic(t *testing.T) {
 					resource.TestMatchResourceAttr(dataSource, "groups.0.created_at",
 						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
 					resource.TestCheckOutput("is_exist_log_group", "true"),
+					resource.TestCheckOutput("is_eps_return_and_matched", "true"),
 				),
 			},
 		},
@@ -52,6 +53,15 @@ data "huaweicloud_lts_groups" "test" {
 
 output "is_exist_log_group" {
   value = contains(data.huaweicloud_lts_groups.test.groups[*].id, huaweicloud_lts_group.test.id)
+}
+
+locals {
+  eps_filter_result = [for v in data.huaweicloud_lts_groups.test.groups :
+  v.enterprise_project_id == huaweicloud_lts_group.test.enterprise_project_id if v.id == huaweicloud_lts_group.test.id]
+}
+
+output "is_eps_return_and_matched" {
+  value = length(local.eps_filter_result) > 0 && alltrue(local.eps_filter_result)
 }
 `, testAccLtsGroup_basic(name, 30))
 }

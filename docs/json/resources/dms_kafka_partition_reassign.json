@@ -1,0 +1,114 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dms_kafka_partition_reassign": {
+          "block": {
+            "attributes": {
+              "execute_at": {
+                "type": "number",
+                "optional": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "is_schedule": {
+                "type": "bool",
+                "optional": true,
+                "forcenew": true
+              },
+              "reassignment_time": {
+                "type": "number",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "task_id": {
+                "type": "string",
+                "computed": true
+              },
+              "throttle": {
+                "type": "number",
+                "optional": true,
+                "forcenew": true
+              },
+              "time_estimate": {
+                "type": "bool",
+                "optional": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "reassignments": {
+                "block": {
+                  "attributes": {
+                    "brokers": {
+                      "type": [
+                        "list",
+                        "number"
+                      ],
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "replication_factor": {
+                      "type": "number",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "topic": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  },
+                  "block_types": {
+                    "assignment": {
+                      "block": {
+                        "attributes": {
+                          "partition": {
+                            "type": "number",
+                            "optional": true,
+                            "forcenew": true
+                          },
+                          "partition_brokers": {
+                            "type": [
+                              "list",
+                              "number"
+                            ],
+                            "optional": true,
+                            "forcenew": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "Kafka",
+            "name": "Distributed Message Service for Kafka",
+            "catalog": "Middleware",
+            "name_cn": "分布式消息服务 Kafka",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

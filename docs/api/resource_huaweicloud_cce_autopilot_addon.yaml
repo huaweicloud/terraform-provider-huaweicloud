@@ -1,0 +1,20 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cce_autopilot_addon
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CCE
+paths:
+    /autopilot/v3/addons:
+        POST:
+            tag: CCE
+    /autopilot/v3/addons/{id}:
+        DELETE:
+            tag: CCE
+        GET:
+            tag: CCE
+        PUT:
+            tag: CCE

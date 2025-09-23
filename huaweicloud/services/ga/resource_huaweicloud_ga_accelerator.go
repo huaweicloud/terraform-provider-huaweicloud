@@ -7,9 +7,8 @@ package ga
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"log"
-	"regexp"
 	"strings"
 	"time"
 
@@ -17,8 +16,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -48,20 +45,17 @@ func ResourceAccelerator() *schema.Resource {
 			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 
+		CustomizeDiff: config.MergeDefaultTags(),
+
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: `Specifies the global accelerator name.`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[A-Za-z0-9-]+$`),
-						"the input is invalid"),
-					validation.StringLenBetween(1, 64),
-				),
 			},
 			"ip_sets": {
 				Type:     schema.TypeList,
-				MaxItems: 1,
+				MaxItems: 2,
 				Elem:     AcceleratorAccelerateIpSchema(),
 				Required: true,
 				ForceNew: true,
@@ -71,11 +65,6 @@ func ResourceAccelerator() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				Description: `Specifies the description about the global accelerator.`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`[^<>]*`),
-						"the input is invalid"),
-					validation.StringLenBetween(0, 255),
-				),
 			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
@@ -86,11 +75,6 @@ func ResourceAccelerator() *schema.Resource {
 					Specifies the enterprise project ID of the tenant. The value is **0** or a string that
 					contains a maximum of 36 characters in UUID format with hyphens (-). **0** indicates the
 					default enterprise project.`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}|0`),
-						"the input is invalid"),
-					validation.StringLenBetween(0, 36),
-				),
 			},
 			"tags": common.TagsSchema(),
 
@@ -140,9 +124,6 @@ func AcceleratorAccelerateIpSchema() *schema.Resource {
 					Specifies the acceleration area. The value can be one of the following:
 					  - **OUTOFCM**: Outside the Chinese mainland
 					  - **CM**: Chinese mainland`,
-				ValidateFunc: validation.StringInSlice([]string{
-					"OUTOFCM", "CM",
-				}, false),
 			},
 			"ip_type": {
 				Type:        schema.TypeString,
@@ -150,9 +131,6 @@ func AcceleratorAccelerateIpSchema() *schema.Resource {
 				ForceNew:    true,
 				Default:     "IPV4",
 				Description: `Specifies the IP address version.`,
-				ValidateFunc: validation.StringInSlice([]string{
-					"IPV4",
-				}, false),
 			},
 			"ip_address": {
 				Type:        schema.TypeString,
@@ -204,47 +182,42 @@ func AcceleratorFrozenInfoSchema() *schema.Resource {
 }
 
 func resourceAcceleratorCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	region := conf.GetRegion(d)
-
-	// createAccelerator: Create a GA Accelerator.
 	var (
-		createAcceleratorHttpUrl = "v1/accelerators"
-		createAcceleratorProduct = "ga"
+		conf    = meta.(*config.Config)
+		region  = conf.GetRegion(d)
+		httpUrl = "v1/accelerators"
+		product = "ga"
 	)
-	createAcceleratorClient, err := conf.NewServiceClient(createAcceleratorProduct, region)
+	client, err := conf.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating Accelerator Client: %s", err)
+		return diag.Errorf("error creating GA client: %s", err)
 	}
 
-	createAcceleratorPath := createAcceleratorClient.Endpoint + createAcceleratorHttpUrl
-
-	createAcceleratorOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			201,
-		},
-	}
-	createAcceleratorOpt.JSONBody = utils.RemoveNil(buildCreateAcceleratorBodyParams(d, conf))
-	createAcceleratorResp, err := createAcceleratorClient.Request("POST", createAcceleratorPath, &createAcceleratorOpt)
-	if err != nil {
-		return diag.Errorf("error creating Accelerator: %s", err)
+		JSONBody:         utils.RemoveNil(buildCreateAcceleratorBodyParams(d, conf)),
 	}
 
-	createAcceleratorRespBody, err := utils.FlattenResponse(createAcceleratorResp)
+	resp, err := client.Request("POST", requestPath, &requestOpt)
+	if err != nil {
+		return diag.Errorf("error creating GA accelerator: %s", err)
+	}
+
+	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("accelerator.id", createAcceleratorRespBody)
-	if err != nil {
-		return diag.Errorf("error creating Accelerator: ID is not found in API response")
+	acceleratorId := utils.PathSearch("accelerator.id", respBody, "").(string)
+	if acceleratorId == "" {
+		return diag.Errorf("error creating GA accelerator: unable to find the accelerator ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(acceleratorId)
 
 	err = createAcceleratorWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
-		return diag.Errorf("error waiting for the Create of Accelerator (%s) to complete: %s", d.Id(), err)
+		return diag.Errorf("error waiting for the accelerator (%s) creation to complete: %s", acceleratorId, err)
 	}
 	return resourceAcceleratorRead(ctx, d, meta)
 }
@@ -256,12 +229,12 @@ func buildCreateAcceleratorBodyParams(d *schema.ResourceData, conf *config.Confi
 	return bodyParams
 }
 
-func buildCreateAcceleratorAcceleratorChildBody(d *schema.ResourceData, conf *config.Config) map[string]interface{} {
+func buildCreateAcceleratorAcceleratorChildBody(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
 	params := map[string]interface{}{
 		"name":                  utils.ValueIgnoreEmpty(d.Get("name")),
 		"ip_sets":               buildCreateAcceleratorIpSetsChildBody(d),
 		"description":           utils.ValueIgnoreEmpty(d.Get("description")),
-		"enterprise_project_id": utils.ValueIgnoreEmpty(common.GetEnterpriseProjectID(d, conf)),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
 		"tags":                  utils.ExpandResourceTagsMap(d.Get("tags").(map[string]interface{})),
 	}
 	return params
@@ -273,152 +246,135 @@ func buildCreateAcceleratorIpSetsChildBody(d *schema.ResourceData) []map[string]
 		return nil
 	}
 
-	raw := rawParams[0].(map[string]interface{})
-	params := map[string]interface{}{
-		"area":       utils.ValueIgnoreEmpty(raw["area"]),
-		"ip_address": utils.ValueIgnoreEmpty(raw["ip_address"]),
-		"ip_type":    utils.ValueIgnoreEmpty(raw["ip_type"]),
+	ipSets := make([]map[string]interface{}, 0, len(rawParams))
+	for _, v := range rawParams {
+		raw := v.(map[string]interface{})
+		params := map[string]interface{}{
+			"area":       utils.ValueIgnoreEmpty(raw["area"]),
+			"ip_address": utils.ValueIgnoreEmpty(raw["ip_address"]),
+			"ip_type":    utils.ValueIgnoreEmpty(raw["ip_type"]),
+		}
+		ipSets = append(ipSets, params)
 	}
 
-	return []map[string]interface{}{params}
+	return ipSets
 }
 
 func createAcceleratorWaitingForStateCompleted(ctx context.Context, d *schema.ResourceData, meta interface{}, t time.Duration) error {
+	var (
+		cfg              = meta.(*config.Config)
+		region           = cfg.GetRegion(d)
+		httpUrl          = "v1/accelerators/{accelerator_id}"
+		product          = "ga"
+		targetStatus     = []string{"ACTIVE"}
+		unexpectedStatus = []string{"ERROR"}
+	)
+	client, err := cfg.NewServiceClient(product, region)
+	if err != nil {
+		return fmt.Errorf("error creating GA client: %s", err)
+	}
+
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{accelerator_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
-			config := meta.(*config.Config)
-			region := config.GetRegion(d)
-			// createAcceleratorWaiting: missing operation notes
-			var (
-				createAcceleratorWaitingHttpUrl = "v1/accelerators/{accelerator_id}"
-				createAcceleratorWaitingProduct = "ga"
-			)
-			createAcceleratorWaitingClient, err := config.NewServiceClient(createAcceleratorWaitingProduct, region)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error creating Accelerator Client: %s", err)
-			}
-
-			createAcceleratorWaitingPath := createAcceleratorWaitingClient.Endpoint + createAcceleratorWaitingHttpUrl
-			createAcceleratorWaitingPath = strings.ReplaceAll(createAcceleratorWaitingPath, "{accelerator_id}", d.Id())
-
-			createAcceleratorWaitingOpt := golangsdk.RequestOpts{
-				KeepResponseBody: true,
-				OkCodes: []int{
-					200,
-				},
-			}
-			createAcceleratorWaitingResp, err := createAcceleratorWaitingClient.Request("GET",
-				createAcceleratorWaitingPath, &createAcceleratorWaitingOpt)
+			resp, err := client.Request("GET", requestPath, &requestOpt)
 			if err != nil {
 				return nil, "ERROR", err
 			}
 
-			createAcceleratorWaitingRespBody, err := utils.FlattenResponse(createAcceleratorWaitingResp)
+			respBody, err := utils.FlattenResponse(resp)
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`accelerator.status`, createAcceleratorWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `accelerator.status`)
-			}
 
-			status := fmt.Sprintf("%v", statusRaw)
-
-			targetStatus := []string{
-				"ACTIVE",
-			}
+			status := utils.PathSearch(`accelerator.status`, respBody, "").(string)
 			if utils.StrSliceContains(targetStatus, status) {
-				return createAcceleratorWaitingRespBody, "COMPLETED", nil
+				return respBody, "COMPLETED", nil
 			}
 
-			unexpectedStatus := []string{
-				"ERROR",
-			}
 			if utils.StrSliceContains(unexpectedStatus, status) {
-				return createAcceleratorWaitingRespBody, status, nil
+				return respBody, status, nil
 			}
 
-			return createAcceleratorWaitingRespBody, "PENDING", nil
+			return respBody, "PENDING", nil
 		},
 		Timeout:      t,
 		Delay:        10 * time.Second,
 		PollInterval: 5 * time.Second,
 	}
-	_, err := stateConf.WaitForStateContext(ctx)
+	_, err = stateConf.WaitForStateContext(ctx)
 	return err
 }
 
 func resourceAcceleratorRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	region := conf.GetRegion(d)
-
-	var mErr *multierror.Error
-
-	// getAccelerator: Query the GA accelerator detail
 	var (
-		getAcceleratorHttpUrl = "v1/accelerators/{accelerator_id}"
-		getAcceleratorProduct = "ga"
+		conf    = meta.(*config.Config)
+		region  = conf.GetRegion(d)
+		mErr    *multierror.Error
+		httpUrl = "v1/accelerators/{accelerator_id}"
+		product = "ga"
 	)
-	getAcceleratorClient, err := conf.NewServiceClient(getAcceleratorProduct, region)
+	client, err := conf.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating Accelerator Client: %s", err)
+		return diag.Errorf("error creating GA client: %s", err)
 	}
 
-	getAcceleratorPath := getAcceleratorClient.Endpoint + getAcceleratorHttpUrl
-	getAcceleratorPath = strings.ReplaceAll(getAcceleratorPath, "{accelerator_id}", d.Id())
-
-	getAcceleratorOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{accelerator_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
-	getAcceleratorResp, err := getAcceleratorClient.Request("GET", getAcceleratorPath, &getAcceleratorOpt)
 
+	resp, err := client.Request("GET", requestPath, &requestOpt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving Accelerator")
+		return common.CheckDeletedDiag(d, err, "error retrieving GA accelerator")
 	}
 
-	getAcceleratorRespBody, err := utils.FlattenResponse(getAcceleratorResp)
+	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
 	mErr = multierror.Append(
 		mErr,
-		d.Set("name", utils.PathSearch("accelerator.name", getAcceleratorRespBody, nil)),
-		d.Set("description", utils.PathSearch("accelerator.description", getAcceleratorRespBody, nil)),
-		d.Set("ip_sets", flattenGetAcceleratorResponseBodyAccelerateIp(getAcceleratorRespBody)),
-		d.Set("enterprise_project_id", utils.PathSearch("accelerator.enterprise_project_id", getAcceleratorRespBody, nil)),
-		d.Set("tags", flattenGetAcceleratorResponseBodyResourceTag(getAcceleratorRespBody)),
-		d.Set("status", utils.PathSearch("accelerator.status", getAcceleratorRespBody, nil)),
-		d.Set("flavor_id", utils.PathSearch("accelerator.flavor_id", getAcceleratorRespBody, nil)),
-		d.Set("frozen_info", flattenGetAcceleratorResponseBodyFrozenInfo(getAcceleratorRespBody)),
-		d.Set("created_at", utils.PathSearch("accelerator.created_at", getAcceleratorRespBody, nil)),
-		d.Set("updated_at", utils.PathSearch("accelerator.updated_at", getAcceleratorRespBody, nil)),
+		d.Set("name", utils.PathSearch("accelerator.name", respBody, nil)),
+		d.Set("description", utils.PathSearch("accelerator.description", respBody, nil)),
+		d.Set("ip_sets", flattenAccelerateIpSets(utils.PathSearch("accelerator.ip_sets", respBody, make([]interface{}, 0)))),
+		d.Set("enterprise_project_id", utils.PathSearch("accelerator.enterprise_project_id", respBody, nil)),
+		d.Set("tags", flattenGetAcceleratorResponseBodyResourceTag(respBody)),
+		d.Set("status", utils.PathSearch("accelerator.status", respBody, nil)),
+		d.Set("flavor_id", utils.PathSearch("accelerator.flavor_id", respBody, nil)),
+		d.Set("frozen_info", flattenGetAcceleratorResponseBodyFrozenInfo(respBody)),
+		d.Set("created_at", utils.PathSearch("accelerator.created_at", respBody, nil)),
+		d.Set("updated_at", utils.PathSearch("accelerator.updated_at", respBody, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func flattenGetAcceleratorResponseBodyAccelerateIp(resp interface{}) []interface{} {
-	var rst []interface{}
-	curJson, err := jmespath.Search("accelerator.ip_sets", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing accelerator.ip_sets from response= %#v", resp)
-		return rst
+func flattenAccelerateIpSets(resp interface{}) []map[string]interface{} {
+	rawArray, _ := resp.([]interface{})
+	if len(rawArray) == 0 {
+		return nil
 	}
 
-	curArray := curJson.([]interface{})
-	rst = []interface{}{
-		map[string]interface{}{
-			"area":       utils.PathSearch("area", curArray[0], nil),
-			"ip_address": utils.PathSearch("ip_address", curArray[0], nil),
-			"ip_type":    utils.PathSearch("ip_type", curArray[0], nil),
-		},
+	rst := make([]map[string]interface{}, len(rawArray))
+	for i, v := range rawArray {
+		params := map[string]interface{}{
+			"area":       utils.PathSearch("area", v, nil),
+			"ip_address": utils.PathSearch("ip_address", v, nil),
+			"ip_type":    utils.PathSearch("ip_type", v, nil),
+		}
+		rst[i] = params
 	}
+
 	return rst
 }
 
@@ -432,9 +388,8 @@ func flattenGetAcceleratorResponseBodyResourceTag(resp interface{}) map[string]i
 
 func flattenGetAcceleratorResponseBodyFrozenInfo(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("accelerator.frozen_info", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing accelerator.frozen_info from response= %#v", resp)
+	curJson := utils.PathSearch("accelerator.frozen_info", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return rst
 	}
 
@@ -449,52 +404,38 @@ func flattenGetAcceleratorResponseBodyFrozenInfo(resp interface{}) []interface{}
 }
 
 func resourceAcceleratorUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	region := conf.GetRegion(d)
+	var (
+		conf    = meta.(*config.Config)
+		region  = conf.GetRegion(d)
+		product = "ga"
+	)
 
-	updateAcceleratorhasChanges := []string{
-		"name",
-		"description",
+	client, err := conf.NewServiceClient(product, region)
+	if err != nil {
+		return diag.Errorf("error creating GA client: %s", err)
 	}
 
-	if d.HasChanges(updateAcceleratorhasChanges...) {
-		// updateAccelerator: Update the configuration of GA accelerator
-		var (
-			updateAcceleratorHttpUrl = "v1/accelerators/{accelerator_id}"
-			updateAcceleratorProduct = "ga"
-		)
-		updateAcceleratorClient, err := conf.NewServiceClient(updateAcceleratorProduct, region)
-		if err != nil {
-			return diag.Errorf("error creating Accelerator Client: %s", err)
-		}
-
-		updateAcceleratorPath := updateAcceleratorClient.Endpoint + updateAcceleratorHttpUrl
-		updateAcceleratorPath = strings.ReplaceAll(updateAcceleratorPath, "{accelerator_id}", d.Id())
-
-		updateAcceleratorOpt := golangsdk.RequestOpts{
+	if d.HasChanges("name", "description") {
+		requestPath := client.Endpoint + "v1/accelerators/{accelerator_id}"
+		requestPath = strings.ReplaceAll(requestPath, "{accelerator_id}", d.Id())
+		requestOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
-			OkCodes: []int{
-				200,
-			},
+			JSONBody:         utils.RemoveNil(buildUpdateAcceleratorBodyParams(d)),
 		}
-		updateAcceleratorOpt.JSONBody = utils.RemoveNil(buildUpdateAcceleratorBodyParams(d))
-		_, err = updateAcceleratorClient.Request("PUT", updateAcceleratorPath, &updateAcceleratorOpt)
+
+		_, err = client.Request("PUT", requestPath, &requestOpt)
 		if err != nil {
-			return diag.Errorf("error updating Accelerator: %s", err)
+			return diag.Errorf("error updating GA accelerator: %s", err)
 		}
+
 		err = updateAcceleratorWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
-			return diag.Errorf("error waiting for the Update of Accelerator (%s) to complete: %s", d.Id(), err)
+			return diag.Errorf("error waiting for the GA accelerator (%s) update to complete: %s", d.Id(), err)
 		}
 	}
 
-	// update tags
+	// Editing tags will cause the status to change to pending. Instances in the pending status do not support editing tags.
 	if d.HasChange("tags") {
-		client, err := conf.NewServiceClient("ga", region)
-		if err != nil {
-			return diag.Errorf("error creating GA Client: %s", err)
-		}
-
 		oldRaw, newRaw := d.GetChange("tags")
 		oldMap := oldRaw.(map[string]interface{})
 		newMap := newRaw.(map[string]interface{})
@@ -504,12 +445,22 @@ func resourceAcceleratorUpdate(ctx context.Context, d *schema.ResourceData, meta
 			if err = deleteTags(client, "ga-accelerators", d.Id(), oldMap); err != nil {
 				return diag.FromErr(err)
 			}
+
+			err = updateAcceleratorWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutUpdate))
+			if err != nil {
+				return diag.Errorf("error waiting for the GA accelerator (%s) delete tags to complete: %s", d.Id(), err)
+			}
 		}
 
 		// set new tags
 		if len(newMap) > 0 {
 			if err := createTags(client, "ga-accelerators", d.Id(), newMap); err != nil {
 				return diag.FromErr(err)
+			}
+
+			err = updateAcceleratorWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutUpdate))
+			if err != nil {
+				return diag.Errorf("error waiting for the GA accelerator (%s) create tags to complete: %s", d.Id(), err)
 			}
 		}
 	}
@@ -534,7 +485,7 @@ func createTags(createTagsClient *golangsdk.ServiceClient, resourceType, resourc
 
 	_, err := createTagsClient.Request("POST", createTagsPath, &createTagsOpt)
 	if err != nil {
-		return fmt.Errorf("error creating tags: %s", err)
+		return fmt.Errorf("error creating GA (%s) tags: %s", resourceType, err)
 	}
 	return nil
 }
@@ -556,7 +507,7 @@ func deleteTags(deleteTagsClient *golangsdk.ServiceClient, resourceType, resourc
 
 	_, err := deleteTagsClient.Request("DELETE", deleteTagsPath, &deleteTagsOpt)
 	if err != nil {
-		return fmt.Errorf("error deleting tags: %s", err)
+		return fmt.Errorf("error deleting GA (%s) tags: %s", resourceType, err)
 	}
 	return nil
 }
@@ -577,168 +528,138 @@ func buildUpdateAcceleratorAcceleratorChildBody(d *schema.ResourceData) map[stri
 }
 
 func updateAcceleratorWaitingForStateCompleted(ctx context.Context, d *schema.ResourceData, meta interface{}, t time.Duration) error {
+	var (
+		cfg              = meta.(*config.Config)
+		region           = cfg.GetRegion(d)
+		httpUrl          = "v1/accelerators/{accelerator_id}"
+		product          = "ga"
+		targetStatus     = []string{"ACTIVE"}
+		unexpectedStatus = []string{"ERROR"}
+	)
+	client, err := cfg.NewServiceClient(product, region)
+	if err != nil {
+		return fmt.Errorf("error creating GA client: %s", err)
+	}
+
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{accelerator_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
-			config := meta.(*config.Config)
-			region := config.GetRegion(d)
-			// updateAcceleratorWaiting: missing operation notes
-			var (
-				updateAcceleratorWaitingHttpUrl = "v1/accelerators/{accelerator_id}"
-				updateAcceleratorWaitingProduct = "ga"
-			)
-			updateAcceleratorWaitingClient, err := config.NewServiceClient(updateAcceleratorWaitingProduct, region)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error creating Accelerator Client: %s", err)
-			}
-
-			updateAcceleratorWaitingPath := updateAcceleratorWaitingClient.Endpoint + updateAcceleratorWaitingHttpUrl
-			updateAcceleratorWaitingPath = strings.ReplaceAll(updateAcceleratorWaitingPath, "{accelerator_id}", d.Id())
-
-			updateAcceleratorWaitingOpt := golangsdk.RequestOpts{
-				KeepResponseBody: true,
-				OkCodes: []int{
-					200,
-				},
-			}
-			updateAcceleratorWaitingResp, err := updateAcceleratorWaitingClient.Request("GET",
-				updateAcceleratorWaitingPath, &updateAcceleratorWaitingOpt)
+			resp, err := client.Request("GET", requestPath, &requestOpt)
 			if err != nil {
 				return nil, "ERROR", err
 			}
 
-			updateAcceleratorWaitingRespBody, err := utils.FlattenResponse(updateAcceleratorWaitingResp)
+			respBody, err := utils.FlattenResponse(resp)
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`accelerator.status`, updateAcceleratorWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `accelerator.status`)
-			}
 
-			status := fmt.Sprintf("%v", statusRaw)
-
-			targetStatus := []string{
-				"ACTIVE",
-			}
+			status := utils.PathSearch(`accelerator.status`, respBody, "").(string)
 			if utils.StrSliceContains(targetStatus, status) {
-				return updateAcceleratorWaitingRespBody, "COMPLETED", nil
+				return respBody, "COMPLETED", nil
 			}
 
-			unexpectedStatus := []string{
-				"ERROR",
-			}
 			if utils.StrSliceContains(unexpectedStatus, status) {
-				return updateAcceleratorWaitingRespBody, status, nil
+				return respBody, status, nil
 			}
 
-			return updateAcceleratorWaitingRespBody, "PENDING", nil
+			return respBody, "PENDING", nil
 		},
 		Timeout:      t,
 		Delay:        10 * time.Second,
 		PollInterval: 5 * time.Second,
 	}
-	_, err := stateConf.WaitForStateContext(ctx)
+	_, err = stateConf.WaitForStateContext(ctx)
 	return err
 }
 
 func resourceAcceleratorDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	region := conf.GetRegion(d)
-
-	// deleteAccelerator: Delete an existing GA Accelerator
 	var (
-		deleteAcceleratorHttpUrl = "v1/accelerators/{accelerator_id}"
-		deleteAcceleratorProduct = "ga"
+		conf    = meta.(*config.Config)
+		region  = conf.GetRegion(d)
+		httpUrl = "v1/accelerators/{accelerator_id}"
+		product = "ga"
 	)
-	deleteAcceleratorClient, err := conf.NewServiceClient(deleteAcceleratorProduct, region)
+	client, err := conf.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating Accelerator Client: %s", err)
+		return diag.Errorf("error creating GA client: %s", err)
 	}
 
-	deleteAcceleratorPath := deleteAcceleratorClient.Endpoint + deleteAcceleratorHttpUrl
-	deleteAcceleratorPath = strings.ReplaceAll(deleteAcceleratorPath, "{accelerator_id}", d.Id())
-
-	deleteAcceleratorOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{accelerator_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			204,
-		},
 	}
-	_, err = deleteAcceleratorClient.Request("DELETE", deleteAcceleratorPath, &deleteAcceleratorOpt)
+
+	_, err = client.Request("DELETE", requestPath, &requestOpt)
 	if err != nil {
-		return diag.Errorf("error deleting Accelerator: %s", err)
+		return diag.Errorf("error deleting GA accelerator: %s", err)
 	}
 
 	err = deleteAcceleratorWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return diag.Errorf("error waiting for the Delete of Accelerator (%s) to complete: %s", d.Id(), err)
+		return diag.Errorf("error waiting for the GA accelerator (%s) delete to complete: %s", d.Id(), err)
 	}
 	return nil
 }
 
 func deleteAcceleratorWaitingForStateCompleted(ctx context.Context, d *schema.ResourceData, meta interface{}, t time.Duration) error {
+	var (
+		cfg              = meta.(*config.Config)
+		region           = cfg.GetRegion(d)
+		httpUrl          = "v1/accelerators/{accelerator_id}"
+		product          = "ga"
+		unexpectedStatus = []string{"ERROR"}
+	)
+	client, err := cfg.NewServiceClient(product, region)
+	if err != nil {
+		return fmt.Errorf("error creating GA client: %s", err)
+	}
+
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{accelerator_id}", d.Id())
+	deleteOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
-			config := meta.(*config.Config)
-			region := config.GetRegion(d)
-			// deleteAcceleratorWaiting: missing operation notes
-			var (
-				deleteAcceleratorWaitingHttpUrl = "v1/accelerators/{accelerator_id}"
-				deleteAcceleratorWaitingProduct = "ga"
-			)
-			deleteAcceleratorWaitingClient, err := config.NewServiceClient(deleteAcceleratorWaitingProduct, region)
+			resp, err := client.Request("GET", requestPath, &deleteOpt)
 			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error creating Accelerator Client: %s", err)
-			}
-
-			deleteAcceleratorWaitingPath := deleteAcceleratorWaitingClient.Endpoint + deleteAcceleratorWaitingHttpUrl
-			deleteAcceleratorWaitingPath = strings.ReplaceAll(deleteAcceleratorWaitingPath, "{accelerator_id}", d.Id())
-
-			deleteAcceleratorWaitingOpt := golangsdk.RequestOpts{
-				KeepResponseBody: true,
-				OkCodes: []int{
-					200,
-				},
-			}
-			deleteAcceleratorWaitingResp, err := deleteAcceleratorWaitingClient.Request("GET",
-				deleteAcceleratorWaitingPath, &deleteAcceleratorWaitingOpt)
-			if err != nil {
-				if _, ok := err.(golangsdk.ErrDefault404); ok {
-					// When the error code is 404, the value of respBody is nil, and a non-null value is returned to avoid continuing the loop check.
+				var errDefault404 golangsdk.ErrDefault404
+				if errors.As(err, &errDefault404) {
+					// When the error code is `404`, the value of respBody is nil, and a non-null value is returned to
+					// avoid continuing the loop check.
 					return "Resource Not Found", "COMPLETED", nil
 				}
-
 				return nil, "ERROR", err
 			}
 
-			deleteAcceleratorWaitingRespBody, err := utils.FlattenResponse(deleteAcceleratorWaitingResp)
+			respBody, err := utils.FlattenResponse(resp)
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`accelerator.status`, deleteAcceleratorWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `accelerator.status`)
-			}
 
-			status := fmt.Sprintf("%v", statusRaw)
-
-			unexpectedStatus := []string{
-				"ERROR",
-			}
+			status := utils.PathSearch(`accelerator.status`, respBody, "").(string)
 			if utils.StrSliceContains(unexpectedStatus, status) {
-				return deleteAcceleratorWaitingRespBody, status, nil
+				return respBody, status, nil
 			}
 
-			return deleteAcceleratorWaitingRespBody, "PENDING", nil
+			return respBody, "PENDING", nil
 		},
 		Timeout:      t,
 		Delay:        10 * time.Second,
 		PollInterval: 5 * time.Second,
 	}
-	_, err := stateConf.WaitForStateContext(ctx)
+	_, err = stateConf.WaitForStateContext(ctx)
 	return err
 }

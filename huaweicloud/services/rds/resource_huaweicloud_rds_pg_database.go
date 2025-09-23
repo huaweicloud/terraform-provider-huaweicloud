@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/pagination"
@@ -24,6 +25,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
+
+var pgDatabaseNonUpdatableParams = []string{"instance_id", "name", "template", "character_set", "lc_collate",
+	"lc_ctype", "is_revoke_public_privilege"}
 
 // @API RDS POST /v3/{project_id}/instances/{instance_id}/database
 // @API RDS GET /v3/{project_id}/instances
@@ -37,9 +41,12 @@ func ResourcePgDatabase() *schema.Resource {
 		UpdateContext: resourcePgDatabaseUpdate,
 		ReadContext:   resourcePgDatabaseRead,
 		DeleteContext: resourcePgDatabaseDelete,
+
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+
+		CustomizeDiff: config.FlexibleForceNew(pgDatabaseNonUpdatableParams),
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
@@ -57,13 +64,11 @@ func ResourcePgDatabase() *schema.Resource {
 			"instance_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the ID of the RDS PostgreSQL instance.`,
 			},
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the database name.`,
 			},
 			"owner": {
@@ -76,35 +81,30 @@ func ResourcePgDatabase() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				ForceNew:    true,
 				Description: `Specifies the name of the database template.`,
 			},
 			"character_set": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				ForceNew:    true,
 				Description: `Specifies the database character set.`,
 			},
 			"lc_collate": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				ForceNew:    true,
 				Description: `Specifies the database collocation.`,
 			},
 			"lc_ctype": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				ForceNew:    true,
 				Description: `Specifies the database classification.`,
 			},
 			"is_revoke_public_privilege": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Computed:    true,
-				ForceNew:    true,
 				Description: `Specifies whether to revoke the PUBLIC CREATE permission of the public schema.`,
 			},
 			"description": {
@@ -116,6 +116,12 @@ func ResourcePgDatabase() *schema.Resource {
 				Type:        schema.TypeInt,
 				Computed:    true,
 				Description: `Indicates the database size, in bytes.`,
+			},
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
 			},
 		},
 	}

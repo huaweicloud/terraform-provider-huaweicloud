@@ -1,0 +1,93 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_rds_dr_relationships": {
+          "block": {
+            "attributes": {
+              "create_at_end": {
+                "type": "number",
+                "optional": true
+              },
+              "create_at_start": {
+                "type": "number",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_dr_infos": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "build_process": "string",
+                      "failed_message": "string",
+                      "id": "string",
+                      "master_instance_id": "string",
+                      "master_region": "string",
+                      "replica_state": "string",
+                      "slave_instance_id": "string",
+                      "slave_region": "string",
+                      "status": "string",
+                      "time": "number",
+                      "wal_receive_replay_delay_in_ms": "string",
+                      "wal_write_receive_delay_in_mb": "string",
+                      "wal_write_replay_delay_in_mb": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "master_instance_id": {
+                "type": "string",
+                "optional": true
+              },
+              "master_region": {
+                "type": "string",
+                "optional": true
+              },
+              "order": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "relationship_id": {
+                "type": "string",
+                "optional": true
+              },
+              "slave_instance_id": {
+                "type": "string",
+                "optional": true
+              },
+              "slave_region": {
+                "type": "string",
+                "optional": true
+              },
+              "sort_field": {
+                "type": "string",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "RDS",
+            "name": "Relational Database Service",
+            "catalog": "Databases",
+            "name_cn": "云数据库",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

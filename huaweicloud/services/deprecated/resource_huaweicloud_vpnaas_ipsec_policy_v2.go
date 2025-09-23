@@ -308,10 +308,8 @@ func waitForIPSecPolicyDeletion(networkingClient *golangsdk.ServiceClient, id st
 			return "", "DELETED", nil
 		}
 
-		if errCode, ok := err.(golangsdk.ErrUnexpectedResponseCode); ok {
-			if errCode.Actual == 409 {
-				return nil, "ACTIVE", nil
-			}
+		if _, ok := err.(golangsdk.ErrDefault409); ok {
+			return nil, "ACTIVE", nil
 		}
 
 		return nil, "ACTIVE", err

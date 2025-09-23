@@ -3,13 +3,11 @@ package er
 import (
 	"context"
 	"fmt"
-	"regexp"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/er/v3/associations"
@@ -51,11 +49,6 @@ func DataSourceRouteTables() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `The name used to filter the route tables.`,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(1, 64),
-					validation.StringMatch(regexp.MustCompile("^[\u4e00-\u9fa5\\w.-]*$"), "The name only english and "+
-						"chinese letters, digits, underscore (_), hyphens (-) and dots (.) are allowed."),
-				),
 			},
 			"tags": common.TagsSchema(),
 			// Attributes

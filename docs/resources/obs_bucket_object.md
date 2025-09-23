@@ -94,7 +94,7 @@ In addition to all arguments above, the following attributes are exported:
 
 OBS bucket object can be imported using the bucket and key separated by a slash, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_obs_bucket_object.object bucket/key
 ```
 
@@ -104,7 +104,7 @@ API response, security or some other reason. The missing attributes include: `en
 You can then decide if changes should be applied to the object, or the resource
 definition should be updated to align with the object. Also you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_obs_bucket_object" "object" {
     ...
 

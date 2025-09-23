@@ -136,10 +136,9 @@ func resourceLogSettingRead(_ context.Context, d *schema.ResourceData, meta inte
 
 	getLogSettingResp, err := cssV1Client.Request("GET", getLogSettingPath, &getLogSettingPathOpt)
 	if err != nil {
-		if hasErrorCode(err, "CSS.0015") {
-			err = golangsdk.ErrDefault404{}
-		}
-		return common.CheckDeletedDiag(d, err, "CSS cluster log setting")
+		// The cluster does not exist, http code is 403, key/value of error code is errCode/CSS.0015.
+		err = common.ConvertExpected403ErrInto404Err(err, "errCode", "CSS.0015")
+		return common.CheckDeletedDiag(d, err, "erorr retrieving CSS cluster log setting")
 	}
 
 	getLogSettingRespBody, err := utils.FlattenResponse(getLogSettingResp)
@@ -229,7 +228,12 @@ func resourceLogSettingDelete(_ context.Context, d *schema.ResourceData, meta in
 
 	_, err = cssV1Client.Request("PUT", deleteLogSettingPath, &deleteLogSettingOpt)
 	if err != nil {
-		return diag.Errorf("error closing CSS cluster log function: %s", err)
+		// "CSS.0015": The cluster does not exist. Status code is 403.
+		err = common.ConvertExpected403ErrInto404Err(err, "errCode", "CSS.0015")
+		// "CSS.0004": Invalid operation. Status code is 415.
+		// {"errCode":"CSS.0004","externalMessage":"CSS.0004 : Invalid operation. (Illegal operation)"}
+		err = common.ConvertUndefinedErrInto404Err(err, 415, "errCode", "CSS.0004")
+		return common.CheckDeletedDiag(d, err, "error closing CSS cluster log function")
 	}
 
 	return nil

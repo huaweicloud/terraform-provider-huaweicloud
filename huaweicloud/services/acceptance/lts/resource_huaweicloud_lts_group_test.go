@@ -46,7 +46,7 @@ func getLtsGroupResourceFunc(cfg *config.Config, state *terraform.ResourceState)
 	return groupResult, nil
 }
 
-func TestAccLtsGroup_basic(t *testing.T) {
+func TestAccGroup_basic(t *testing.T) {
 	var (
 		group        interface{}
 		resourceName = "huaweicloud_lts_group.test"
@@ -68,7 +68,9 @@ func TestAccLtsGroup_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "group_name", rName),
 					resource.TestCheckResourceAttr(resourceName, "ttl_in_days", "30"),
 					resource.TestCheckResourceAttr(resourceName, "tags.%", "1"),
-					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform")),
+					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
+				),
 			},
 			{
 				ResourceName:      resourceName,
@@ -106,8 +108,8 @@ func TestAccLtsGroup_basic(t *testing.T) {
 func testAccLtsGroup_basic(name string, ttl int) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_lts_group" "test" {
-  group_name  = "%s"
-  ttl_in_days = %d
+  group_name  = "%[1]s"
+  ttl_in_days = %[2]d
 
   tags = {
     owner = "terraform"
@@ -138,4 +140,62 @@ resource "huaweicloud_lts_group" "test" {
   ttl_in_days = %d
 }
 `, name, ttl)
+}
+
+func TestAccGroup_withEpsId(t *testing.T) {
+	var (
+		group interface{}
+
+		resourceName = "huaweicloud_lts_group.test"
+		rName        = acceptance.RandomAccResourceName()
+		rc           = acceptance.InitResourceCheck(resourceName, &group, getLtsGroupResourceFunc)
+		epsId        = acceptance.HW_ENTERPRISE_PROJECT_ID_TEST
+		updateEpsId  = acceptance.HW_ENTERPRISE_MIGRATE_PROJECT_ID_TEST
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckMigrateEpsID(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccGroup_withEpsId_step1(rName, epsId),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "group_name", rName),
+					resource.TestCheckResourceAttr(resourceName, "ttl_in_days", "30"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", epsId),
+				),
+			},
+			{
+				Config: testAccGroup_withEpsId_step2(rName, updateEpsId),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "group_name", rName),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", updateEpsId),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccGroup_withEpsId_step1(name, epsId string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_lts_group" "test" {
+  group_name            = "%[1]s"
+  ttl_in_days           = 30
+  enterprise_project_id = "%[2]s"
+}
+`, name, epsId)
+}
+
+func testAccGroup_withEpsId_step2(name, epsId string) string {
+	return testAccGroup_withEpsId_step1(name, epsId)
 }

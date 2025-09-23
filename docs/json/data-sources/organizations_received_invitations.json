@@ -1,0 +1,61 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_organizations_received_invitations": {
+          "block": {
+            "attributes": {
+              "handshakes": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "id": "string",
+                      "management_account_id": "string",
+                      "management_account_name": "string",
+                      "notes": "string",
+                      "organization_id": "string",
+                      "status": "string",
+                      "target": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "entity": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "updated_at": "string",
+                      "urn": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of invitations (handshakes).",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Organizations",
+            "name": "Organizations",
+            "catalog": "Management & Governance",
+            "name_cn": "组织",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

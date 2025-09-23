@@ -10,6 +10,7 @@ import (
 
 	"github.com/chnsz/golangsdk"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dataarts"
@@ -38,7 +39,7 @@ func getDataServiceCatalogResourceFunc(cfg *config.Config, state *terraform.Reso
 
 	requestResp, err := client.Request("GET", getPath, &opt)
 	if err != nil {
-		return nil, dataarts.ParseQueryError400(err, dataarts.CatalogResourceNotFoundCodes)
+		return nil, common.ConvertExpected400ErrInto404Err(err, "error_code", dataarts.CatalogResourceNotFoundCodes...)
 	}
 
 	return utils.FlattenResponse(requestResp)

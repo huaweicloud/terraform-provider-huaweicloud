@@ -7,7 +7,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -52,8 +51,8 @@ func getKmsGrantResourceFunc(cfg *config.Config, state *terraform.ResourceState)
 	}
 
 	searchPath := fmt.Sprintf("grants[?grant_id=='%s']|[0]", state.Primary.ID)
-	r, err := jmespath.Search(searchPath, grantResponseBody)
-	if err != nil || r == nil {
+	r := utils.PathSearch(searchPath, grantResponseBody, nil)
+	if r == nil {
 		return nil, fmt.Errorf("error retrieving KMS grant: %s", err)
 	}
 
@@ -84,7 +83,7 @@ func TestAccKmsGrant_basic(t *testing.T) {
 				Config: testKmsGrant_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "operations.#", "2"),
+					resource.TestCheckResourceAttr(rName, "operations.#", "8"),
 					resource.TestCheckResourceAttrPair(rName, "key_id", "huaweicloud_kms_key.test", "id"),
 					resource.TestCheckResourceAttrPair(rName, "grantee_principal", "huaweicloud_identity_user.test", "id"),
 					resource.TestCheckResourceAttrSet(rName, "creator"),
@@ -119,8 +118,18 @@ resource "huaweicloud_identity_user" "test" {
 resource "huaweicloud_kms_grant" "test" {
   key_id             = huaweicloud_kms_key.test.id
   grantee_principal  = huaweicloud_identity_user.test.id
-  operations         = ["create-datakey", "encrypt-datakey"]
   retiring_principal = huaweicloud_identity_user.test.id
+
+  operations = [
+    "create-datakey",
+    "create-datakey-without-plaintext",
+    "describe-key",
+    "encrypt-data",
+    "decrypt-data",
+    "decrypt-datakey",
+    "retire-grant",
+    "encrypt-datakey"
+  ]
 }
 `, name, name)
 }

@@ -13,6 +13,10 @@
                 "type": "string",
                 "optional": true
               },
+              "group_type": {
+                "type": "string",
+                "optional": true
+              },
               "id": {
                 "type": "string",
                 "computed": true
@@ -88,6 +92,7 @@
                         "string"
                       ],
                       "time_zone": "string",
+                      "type": "string",
                       "volume": [
                         "list",
                         [

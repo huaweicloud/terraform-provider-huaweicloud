@@ -13,7 +13,6 @@ import (
 
 	"github.com/chnsz/golangsdk/pagination"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -77,6 +76,18 @@ func DataSourcePrivateDnatRules() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "The ID of the enterprise project to which the private DNAT rules belong.",
+			},
+			"description": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: "The description of the private DNAT rule.",
+			},
+			"external_ip_address": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: "The transit IP address used to the private DNAT rule.",
 			},
 			"rules": {
 				Type:        schema.TypeList,
@@ -167,57 +178,52 @@ func dnatRulesSchema() *schema.Resource {
 }
 
 func dataSourcePrivateDnatRulesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// listDnatRules: Query the private DNAT rule list
 	var (
-		listDnatRulesHttpUrl = "v3/{project_id}/private-nat/dnat-rules"
-		listDnatRulesProduct = "nat"
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v3/{project_id}/private-nat/dnat-rules"
+		product = "nat"
 	)
-	listDnatRulesClient, err := cfg.NewServiceClient(listDnatRulesProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating NAT client: %s", err)
 	}
 
-	listDnatRulesPath := listDnatRulesClient.Endpoint + listDnatRulesHttpUrl
-	listDnatRulesPath = strings.ReplaceAll(listDnatRulesPath, "{project_id}", listDnatRulesClient.ProjectID)
-
-	listDnatRulesQueryParams := buildListDnatRulesQueryParams(d, cfg)
-	listDnatRulesPath += listDnatRulesQueryParams
-
-	listDnatRulesResp, err := pagination.ListAllItems(
-		listDnatRulesClient,
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath += buildListDnatRulesQueryParams(d, cfg)
+	resp, err := pagination.ListAllItems(
+		client,
 		"marker",
-		listDnatRulesPath,
+		requestPath,
 		&pagination.QueryOpts{MarkerField: ""})
 
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving private DNAT rule")
+		return diag.Errorf("error retrieving private DNAT rules %s", err)
 	}
 
-	listDnatRulesRespJson, err := json.Marshal(listDnatRulesResp)
+	respJson, err := json.Marshal(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	var listDnatRulesRespBody interface{}
-	err = json.Unmarshal(listDnatRulesRespJson, &listDnatRulesRespBody)
+	var respBody interface{}
+	err = json.Unmarshal(respJson, &respBody)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	generateUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(generateUUID)
 
 	var mErr *multierror.Error
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),
-		d.Set("rules", filterListDnatRulesResponseBody(flattenListDnatRuleResponseBody(listDnatRulesRespBody), d)),
+		d.Set("rules", filterListDnatRulesResponseBody(flattenListDnatRuleResponseBody(respBody), d)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -253,20 +259,23 @@ func flattenListDnatRuleResponseBody(resp interface{}) []interface{} {
 }
 
 func filterListDnatRulesResponseBody(all []interface{}, d *schema.ResourceData) []interface{} {
-	rst := make([]interface{}, 0, len(all))
+	var (
+		protocol            = d.Get("protocol").(string)
+		internalServicePort = d.Get("internal_service_port").(string)
+		transitServicePort  = d.Get("transit_service_port").(string)
+		rst                 = make([]interface{}, 0, len(all))
+	)
+
 	for _, v := range all {
-		if param, ok := d.GetOk("protocol"); ok &&
-			fmt.Sprint(param) != utils.PathSearch("protocol", v, nil) {
+		if protocol != "" && protocol != utils.PathSearch("protocol", v, nil) {
 			continue
 		}
 
-		if param, ok := d.GetOk("internal_service_port"); ok &&
-			fmt.Sprint(param) != utils.PathSearch("internal_service_port", v, nil) {
+		if internalServicePort != "" && internalServicePort != utils.PathSearch("internal_service_port", v, nil) {
 			continue
 		}
 
-		if param, ok := d.GetOk("transit_service_port"); ok &&
-			fmt.Sprint(param) != utils.PathSearch("transit_service_port", v, nil) {
+		if transitServicePort != "" && transitServicePort != utils.PathSearch("transit_service_port", v, nil) {
 			continue
 		}
 
@@ -278,6 +287,8 @@ func filterListDnatRulesResponseBody(all []interface{}, d *schema.ResourceData) 
 func buildListDnatRulesQueryParams(d *schema.ResourceData, cfg *config.Config) string {
 	res := ""
 	epsID := cfg.GetEnterpriseProjectID(d)
+	descriptionList := d.Get("description").([]interface{})
+	externalIpAddresses := d.Get("external_ip_address").([]interface{})
 
 	if v, ok := d.GetOk("rule_id"); ok {
 		res = fmt.Sprintf("%s&id=%v", res, v)
@@ -296,6 +307,16 @@ func buildListDnatRulesQueryParams(d *schema.ResourceData, cfg *config.Config) s
 	}
 	if v, ok := d.GetOk("backend_private_ip"); ok {
 		res = fmt.Sprintf("%s&private_ip_address=%v", res, v)
+	}
+	if len(descriptionList) > 0 {
+		for _, v := range descriptionList {
+			res = fmt.Sprintf("%s&description=%v", res, v)
+		}
+	}
+	if len(externalIpAddresses) > 0 {
+		for _, v := range externalIpAddresses {
+			res = fmt.Sprintf("%s&external_ip_address=%v", res, v)
+		}
 	}
 	if epsID != "" {
 		res = fmt.Sprintf("%s&enterprise_project_id=%v", res, epsID)

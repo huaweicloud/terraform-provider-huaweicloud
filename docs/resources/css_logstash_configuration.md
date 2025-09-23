@@ -48,7 +48,7 @@ The following arguments are supported:
 
 * `sensitive_words` - (Optional, List) Specifies the input list of sensitive strings that need to be hidden.
   After configuring the hidden string list, all strings in the list will be hidden as `***` in the returned
-  configuration content (the list supports a maximum of **20** items, and the maximum length of a single string
+  configuration content (the list supports a maximum of `20` items, and the maximum length of a single string
   is 512 bytes).
 
   -> **NOTE:** When this field is used, the configuration file content will also trigger update changes when the
@@ -63,7 +63,7 @@ The `setting` block supports:
 
 * `batch_size` - (Optional, Int) Specifies the maximum number of events a single worker thread will collect
   from inputs before attempting to execute its **Filters** and **Outputs**. Larger values ​​are generally more
-  efficient but increase memory overhead. Default is **125**.
+  efficient but increase memory overhead. Default is `125`.
 
 * `batch_delay_ms` - (Optional, Int) Specifies the minimum time in the unit of milliseconds for each event to be
   waited for by pipeline scheduling.
@@ -73,10 +73,10 @@ The `setting` block supports:
   + **persisted:** a disk-based ACKed persistence queue.
 
 * `queue_check_point_writes` - (Optional, Int) Specifies the maximum number of events to be written before forcing
-  a checkpoint when using a persistent queue, default is **1024**.
+  a checkpoint when using a persistent queue, default is `1,024`.
 
 * `queue_max_bytes_mb` - (Optional, Int) Specifies the total capacity of the persistent queue in megabytes (MB) when
-  using a persistent queue. Make sure the disk is larger than this value. The default value is **1024**.
+  using a persistent queue. Make sure the disk is larger than this value. The default value is `1,024`.
 
 ## Attribute Reference
 

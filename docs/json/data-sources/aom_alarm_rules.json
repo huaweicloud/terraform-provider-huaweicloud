@@ -1,0 +1,231 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_aom_alarm_rules": {
+          "block": {
+            "attributes": {
+              "alarm_rule_name": {
+                "type": "string",
+                "optional": true
+              },
+              "alarm_rule_status": {
+                "type": "string",
+                "optional": true
+              },
+              "alarm_rule_type": {
+                "type": "string",
+                "optional": true
+              },
+              "alarm_rules": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "alarm_notifications": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "bind_notification_rule_id": "string",
+                            "notification_enable": "bool",
+                            "notification_type": "string",
+                            "notify_frequency": "string",
+                            "notify_resolved": "bool",
+                            "notify_triggered": "bool",
+                            "route_group_enable": "bool",
+                            "route_group_rule": "string"
+                          }
+                        ]
+                      ],
+                      "alarm_rule_id": "string",
+                      "created_at": "string",
+                      "description": "string",
+                      "enable": "bool",
+                      "enterprise_project_id": "string",
+                      "event_alarm_spec": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "alarm_source": "string",
+                            "event_source": "string",
+                            "monitor_objects": [
+                              "list",
+                              [
+                                "map",
+                                "string"
+                              ]
+                            ],
+                            "trigger_conditions": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "aggregation_window": "number",
+                                  "event_name": "string",
+                                  "frequency": "string",
+                                  "operator": "string",
+                                  "thresholds": [
+                                    "map",
+                                    "number"
+                                  ],
+                                  "trigger_type": "string"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "metric_alarm_spec": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "alarm_tags": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "auto_tags": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "custom_annotations": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "custom_tags": [
+                                    "list",
+                                    "string"
+                                  ]
+                                }
+                              ]
+                            ],
+                            "monitor_objects": [
+                              "list",
+                              [
+                                "map",
+                                "string"
+                              ]
+                            ],
+                            "monitor_type": "string",
+                            "no_data_conditions": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "no_data_alert_state": "string",
+                                  "no_data_timeframe": "number",
+                                  "notify_no_data": "bool"
+                                }
+                              ]
+                            ],
+                            "recovery_conditions": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "recovery_timeframe": "number"
+                                }
+                              ]
+                            ],
+                            "trigger_conditions": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "aggregate_type": "string",
+                                  "aggregation_type": "string",
+                                  "aggregation_window": "string",
+                                  "aom_monitor_level": "string",
+                                  "expression": "string",
+                                  "metric_labels": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "metric_name": "string",
+                                  "metric_namespace": "string",
+                                  "metric_query_mode": "string",
+                                  "metric_statistic_method": "string",
+                                  "metric_unit": "string",
+                                  "mix_promql": "string",
+                                  "operator": "string",
+                                  "promql": "string",
+                                  "promql_expr": [
+                                    "set",
+                                    "string"
+                                  ],
+                                  "promql_for": "string",
+                                  "query_match": "string",
+                                  "query_param": "string",
+                                  "thresholds": [
+                                    "map",
+                                    "string"
+                                  ],
+                                  "trigger_interval": "string",
+                                  "trigger_times": "string",
+                                  "trigger_type": "string"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "name": "string",
+                      "prom_instance_id": "string",
+                      "status": "string",
+                      "type": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "bind_notification_rule_id": {
+                "type": "string",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "event_severity": {
+                "type": "string",
+                "optional": true
+              },
+              "event_source": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "prom_instance_id": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "related_cce_clusters": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "AOM",
+            "name": "Application Operations Management",
+            "catalog": "Management & Governance",
+            "name_cn": "应用运维管理",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

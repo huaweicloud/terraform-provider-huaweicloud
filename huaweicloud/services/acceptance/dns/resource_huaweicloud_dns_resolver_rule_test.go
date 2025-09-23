@@ -7,34 +7,29 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk/openstack/dns/v2/resolverrule"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dns"
 )
 
-func getDNSResolverRuleFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getResolverRule(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	client, err := conf.DNSV21Client(acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating dns client: %s", err)
 	}
-	body, err := resolverrule.Get(client, state.Primary.ID).Extract()
-	if err == nil && body.Status == "DELETED" {
-		return nil, fmt.Errorf("DNS resolver rule does not found")
-	}
-	return body, err
+
+	return dns.GetResolverRuleById(client, state.Primary.ID)
 }
 
-func TestAccDNSResolverRule_basic(t *testing.T) {
+func TestAccResolverRule_basic(t *testing.T) {
 	var (
-		obj   interface{}
-		name  = acceptance.RandomAccResourceName()
-		rName = "huaweicloud_dns_resolver_rule.test"
-	)
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&obj,
-		getDNSResolverRuleFunc,
+		name       = acceptance.RandomAccResourceNameWithDash()
+		domainName = fmt.Sprintf("%s.", name)
+
+		resolverRule interface{}
+		rName        = "huaweicloud_dns_resolver_rule.test"
+		rc           = acceptance.InitResourceCheck(rName, &resolverRule, getResolverRule)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -43,37 +38,39 @@ func TestAccDNSResolverRule_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testDNSResolverRule_basic(name),
+				Config: testAccResolverRule_basic_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "domain_name", "terraform.test.com."),
+					resource.TestCheckResourceAttr(rName, "domain_name", domainName),
 					resource.TestCheckResourceAttr(rName, "ip_addresses.#", "1"),
-					resource.TestCheckResourceAttr(rName, "status", "ACTIVE"),
-					resource.TestCheckResourceAttrSet(rName, "rule_type"),
-					resource.TestCheckResourceAttrSet(rName, "created_at"),
-					resource.TestCheckResourceAttrSet(rName, "updated_at"),
 					resource.TestCheckResourceAttrPair(rName, "endpoint_id",
 						"huaweicloud_dns_endpoint.test", "id"),
 					resource.TestCheckResourceAttrPair(rName, "ip_addresses.0.ip",
 						"huaweicloud_dns_endpoint.test", "ip_addresses.0.ip"),
-				),
-			},
-			{
-				Config: testDNSResolverRule_basic_update(name),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "name", fmt.Sprintf("%s_update", name)),
-					resource.TestCheckResourceAttr(rName, "domain_name", "terraform.test.com."),
-					resource.TestCheckResourceAttr(rName, "ip_addresses.#", "1"),
+					// Check attributtes.
 					resource.TestCheckResourceAttr(rName, "status", "ACTIVE"),
 					resource.TestCheckResourceAttrSet(rName, "rule_type"),
 					resource.TestCheckResourceAttrSet(rName, "created_at"),
 					resource.TestCheckResourceAttrSet(rName, "updated_at"),
+				),
+			},
+			{
+				Config: testAccResolverRule_basic_step2(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", fmt.Sprintf("%s_update", name)),
+					resource.TestCheckResourceAttr(rName, "domain_name", domainName),
+					resource.TestCheckResourceAttr(rName, "ip_addresses.#", "2"),
+					resource.TestCheckResourceAttrSet(rName, "ip_addresses.0.ip"),
+					resource.TestCheckResourceAttrSet(rName, "ip_addresses.1.ip"),
 					resource.TestCheckResourceAttrPair(rName, "endpoint_id",
 						"huaweicloud_dns_endpoint.test", "id"),
-					resource.TestCheckResourceAttrPair(rName, "ip_addresses.0.ip",
-						"huaweicloud_dns_endpoint.test", "ip_addresses.1.ip"),
+					// Check attributtes.
+					resource.TestCheckResourceAttr(rName, "status", "ACTIVE"),
+					resource.TestCheckResourceAttrSet(rName, "rule_type"),
+					resource.TestCheckResourceAttrSet(rName, "created_at"),
+					resource.TestCheckResourceAttrSet(rName, "updated_at"),
 				),
 			},
 			{
@@ -85,56 +82,52 @@ func TestAccDNSResolverRule_basic(t *testing.T) {
 	})
 }
 
-func testDNSEndpoint(rName string) string {
+func testAccResolverRule_base(rName string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_vpc" "test" {
-  name = "%[1]s"
-  cidr = "192.168.0.0/16"
-}
-
-resource "huaweicloud_vpc_subnet" "test" {
-  name       = "%[1]s"
-  cidr       = "192.168.0.0/24"
-  gateway_ip = "192.168.0.1"
-  vpc_id     = huaweicloud_vpc.test.id
-}
+%[1]s
 
 resource "huaweicloud_dns_endpoint" "test" {
-  name      = "%[1]s"
+  name      = "%[2]s"
   direction = "inbound"
+
   ip_addresses {
     subnet_id = huaweicloud_vpc_subnet.test.id
   }
   ip_addresses {
     subnet_id = huaweicloud_vpc_subnet.test.id
   }
-}`, rName)
+}`, common.TestVpc(rName), rName)
 }
 
-func testDNSResolverRule_basic(rName string) string {
+func testAccResolverRule_basic_step1(rName string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_dns_resolver_rule" "test" {
-  name        = "%s"
-  domain_name = "terraform.test.com."
+  name        = "%[2]s"
+  domain_name = "%[2]s"
   endpoint_id = huaweicloud_dns_endpoint.test.id
+
   ip_addresses {
     ip = huaweicloud_dns_endpoint.test.ip_addresses[0].ip
   }
-}`, testDNSEndpoint(rName), rName)
+}`, testAccResolverRule_base(rName), rName)
 }
 
-func testDNSResolverRule_basic_update(rName string) string {
+func testAccResolverRule_basic_step2(rName string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_dns_resolver_rule" "test" {
-  name        = "%s_update"
-  domain_name = "terraform.test.com."
+  name        = "%[2]s_update"
+  domain_name = "%[2]s"
   endpoint_id = huaweicloud_dns_endpoint.test.id
-  ip_addresses {
-    ip = huaweicloud_dns_endpoint.test.ip_addresses[1].ip
+
+  dynamic "ip_addresses" {
+    for_each = huaweicloud_dns_endpoint.test.ip_addresses[*].ip
+    content {
+      ip = ip_addresses.value
+    }
   }
-}`, testDNSEndpoint(rName), rName)
+}`, testAccResolverRule_base(rName), rName)
 }

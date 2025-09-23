@@ -153,13 +153,28 @@ resource "huaweicloud_networking_secgroup" "test" {
   name                 = "%[1]s"
   delete_default_rules = true
 }
-  
-resource "huaweicloud_networking_secgroup_rule" "test" {
+
+resource "huaweicloud_networking_secgroup_rule" "with_icmp_ingress" {
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "icmp"
+  remote_ip_prefix  = "0.0.0.0/0"
+}
+
+resource "huaweicloud_networking_secgroup_rule" "with_rocketmq_ingress" {
   security_group_id = huaweicloud_networking_secgroup.test.id
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "tcp"
   ports             = "8100,10100-10103"
+  remote_ip_prefix  = "0.0.0.0/0"
+}
+
+resource "huaweicloud_networking_secgroup_rule" "with_rocketmq_egress" {
+  security_group_id = huaweicloud_networking_secgroup.test.id
+  direction         = "egress"
+  ethertype         = "IPv4"
   remote_ip_prefix  = "0.0.0.0/0"
 }
 

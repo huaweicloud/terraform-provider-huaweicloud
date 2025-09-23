@@ -1,0 +1,71 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dnsv21_ptrrecord": {
+          "block": {
+            "attributes": {
+              "address": {
+                "type": "string",
+                "description": "The address of the EIP.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description of the PTR record.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID of the PTR record.",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "names": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "description": "Specifies the domain names of the PTR record.",
+                "required": true
+              },
+              "publicip_id": {
+                "type": "string",
+                "description": "Specifies the ID of the EIP.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the PTR record.",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "Specifies the key/value pairs to associate with the PTR record.",
+                "optional": true,
+                "computed": true
+              },
+              "ttl": {
+                "type": "number",
+                "description": "Specifies the time to live (TTL) of the record set (in seconds).",
+                "optional": true,
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

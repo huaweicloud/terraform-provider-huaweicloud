@@ -215,14 +215,14 @@ func resourceUserGroupRead(_ context.Context, d *schema.ResourceData, meta inter
 }
 
 func doActionUserGroup(client *golangsdk.ServiceClient, groupID, action string, users []interface{}) error {
-	userIDs := make([]string, len(users))
-	for _, user := range users {
+	userIds := make([]string, len(users))
+	for i, user := range users {
 		userMap := user.(map[string]interface{})
-		userIDs = append(userIDs, userMap["id"].(string))
+		userIds[i] = userMap["id"].(string)
 	}
 
 	actionOpts := groups.ActionOpts{
-		UserIDs: userIDs,
+		UserIDs: userIds,
 		Type:    action,
 	}
 	err := groups.DoAction(client, groupID, actionOpts)
@@ -296,7 +296,10 @@ func resourceUserGroupDelete(_ context.Context, d *schema.ResourceData, meta int
 	groupID := d.Id()
 	err = groups.Delete(client, groupID)
 	if err != nil {
-		return diag.Errorf("error deleting Workspace user group (%s): %s", groupID, err)
+		// WKS.00170117: The tenant does not exist.
+		// WKS.00170208: The user group does not exist.
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", []string{"WKS.00170117", "WKS.00170208"}...),
+			fmt.Sprintf("error deleting Workspace user group (%s)", groupID))
 	}
 
 	return nil

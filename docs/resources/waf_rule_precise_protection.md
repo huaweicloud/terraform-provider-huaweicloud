@@ -2,7 +2,8 @@
 subcategory: "Web Application Firewall (WAF)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_waf_rule_precise_protection"
-description: ""
+description: |-
+  Manages a WAF precise protection rule resource within HuaweiCloud.
 ---
 
 # huaweicloud_waf_rule_precise_protection
@@ -10,7 +11,7 @@ description: ""
 Manages a WAF precise protection rule resource within HuaweiCloud.
 
 -> **NOTE:** All WAF resources depend on WAF instances, and the WAF instances need to be purchased before they can be
-used. The precise protection rule resource can be used in Cloud Mode, Dedicated Mode.
+used. The precise protection rule resource can be used in Cloud Mode and Dedicated Mode.
 
 ## Example Usage
 
@@ -73,7 +74,7 @@ The following arguments are supported:
   The [conditions](#RulePreciseProtection_conditions) structure is documented below.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID of WAF precise protection
-  rule.
+  rule. For enterprise users, if omitted, default enterprise project will be used.
 
   Changing this parameter will create a new resource.
 
@@ -90,10 +91,10 @@ The following arguments are supported:
 
 * `status` - (Optional, Int) Specifies the status of WAF precise protection rule.
   Valid values are as follows:
-  + **0**: Disabled.
-  + **1**: Enabled.
+  + `0`: Disabled.
+  + `1`: Enabled.
 
-  The default value is **1**.
+  The default value is `1`.
 
 * `start_time` - (Optional, String) Specifies the time when the precise protection rule takes effect.
   The time format is **yyyy-MM-dd HH:mm:ss**, e.g. **2023-05-01 15:04:05**.
@@ -133,7 +134,7 @@ The `conditions` block supports:
     **len_not_equal**, **num_greater**, **num_less**, **num_equal**, **num_not_equal**, **exist**, **not_exist**.
 
 * `subfield` - (Optional, String) Specifies the subfield of the condition. The parameter is required when `field`
-  is set to `params`, `header` and `cookie`.
+  is set to **params**, **header** and **cookie**.
 
   + If `field` is set to **cookie**: The parameter indicates cookie name.
 
@@ -142,10 +143,10 @@ The `conditions` block supports:
   + If `field` is set to **header**: The parameter indicates an option in the header.
 
 * `content` - (Optional, String) Specifies the content of the match condition. It is required when the `logic`
-  does not end with `any` or `all`.
+  does not end with **any** or **all**.
 
 * `reference_table_id` - (Optional, String) Specifies the reference table id. It is required when the `logic`
-  end with `any` or `all`. The type of reference table should be consistent with the type of `field`.
+  end with **any** or **all**. The type of reference table should be consistent with the type of `field`.
 
 ## Attribute Reference
 

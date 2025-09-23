@@ -14,6 +14,7 @@ import (
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/basic"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/global"
+	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/signer/algorithm"
 	hcconfig "github.com/huaweicloud/huaweicloud-sdk-go-v3/core/config"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/httphandler"
 	hcregion "github.com/huaweicloud/huaweicloud-sdk-go-v3/core/region"
@@ -96,6 +97,9 @@ func buildGlobalAuthCredentials(c *Config, region string) (*global.Credentials, 
 
 func buildHTTPConfig(c *Config) *hcconfig.HttpConfig {
 	httpConfig := hcconfig.DefaultHttpConfig()
+	if c.SigningAlgorithm != "" {
+		httpConfig.WithSigningAlgorithm(algorithm.SigningAlgorithm(c.SigningAlgorithm))
+	}
 
 	if c.MaxRetries > 0 {
 		httpConfig = httpConfig.WithRetries(c.MaxRetries)

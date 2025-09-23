@@ -131,6 +131,8 @@ func TestAccVpcSubnetV1_dhcp(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "dhcp_lease_time", "48h"),
 					resource.TestCheckResourceAttr(resourceName, "ntp_server_address", "10.100.0.33"),
+					resource.TestCheckResourceAttr(resourceName, "dhcp_ipv6_lease_time", "4h"),
+					resource.TestCheckResourceAttr(resourceName, "dhcp_domain_name", "test.domainname"),
 				),
 			},
 			{
@@ -139,6 +141,8 @@ func TestAccVpcSubnetV1_dhcp(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "dhcp_lease_time", "72h"),
 					resource.TestCheckResourceAttr(resourceName, "ntp_server_address", "10.100.0.33,10.100.0.34"),
+					resource.TestCheckResourceAttr(resourceName, "dhcp_ipv6_lease_time", "8h"),
+					resource.TestCheckResourceAttr(resourceName, "dhcp_domain_name", "test.domainname.update"),
 				),
 			},
 		},
@@ -278,10 +282,13 @@ resource "huaweicloud_vpc_subnet" "test" {
   cidr              = "192.168.0.0/24"
   gateway_ip        = "192.168.0.1"
   vpc_id            = huaweicloud_vpc.test.id
+  ipv6_enable       = true
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
 
-  dhcp_lease_time    = "48h"
-  ntp_server_address = "10.100.0.33"
+  dhcp_lease_time      = "48h"
+  ntp_server_address   = "10.100.0.33"
+  dhcp_ipv6_lease_time = "4h"
+  dhcp_domain_name     = "test.domainname"
 }
 `, testAccVpcSubnet_base(rName), rName)
 }
@@ -295,10 +302,13 @@ resource "huaweicloud_vpc_subnet" "test" {
   cidr              = "192.168.0.0/24"
   gateway_ip        = "192.168.0.1"
   vpc_id            = huaweicloud_vpc.test.id
+  ipv6_enable       = true
   availability_zone = data.huaweicloud_availability_zones.test.names[0]
 
-  dhcp_lease_time    = "72h"
-  ntp_server_address = "10.100.0.33,10.100.0.34"
+  dhcp_lease_time      = "72h"
+  ntp_server_address   = "10.100.0.33,10.100.0.34"
+  dhcp_ipv6_lease_time = "8h"
+  dhcp_domain_name     = "test.domainname.update"
 }
 `, testAccVpcSubnet_base(rName), rName)
 }

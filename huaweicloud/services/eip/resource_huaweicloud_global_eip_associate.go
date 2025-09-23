@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -134,13 +133,7 @@ func ResourceGlobalEIPAssociate() *schema.Resource {
 							Computed: true,
 							ForceNew: true,
 						},
-						"tags": {
-							Type:     schema.TypeMap,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-							Optional: true,
-							Computed: true,
-							ForceNew: true,
-						},
+						"tags": common.TagsForceNewSchema(),
 					},
 				},
 			},
@@ -179,13 +172,13 @@ func resourceGlobalEIPAssociateCreate(ctx context.Context, d *schema.ResourceDat
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	jobID, err := jmespath.Search("job_id", createGEIPAssociateRespBody)
-	if err != nil {
-		return diag.Errorf("error associating global EIP with instance: %s is not found in API response", "job_id")
+	jobID := utils.PathSearch("job_id", createGEIPAssociateRespBody, "").(string)
+	if jobID == "" {
+		return diag.Errorf("unable to find job ID from the API response")
 	}
 
 	// wait for job status become SUCCESS
-	err = waitForJobStatusComplete(ctx, d.Timeout(schema.TimeoutCreate), jobID.(string), cfg.DomainID, client)
+	err = waitForJobStatusComplete(ctx, d.Timeout(schema.TimeoutCreate), jobID, cfg.DomainID, client)
 	if err != nil {
 		return diag.Errorf("error waiting for global EIP associating with instance: %s", err)
 	}
@@ -198,9 +191,11 @@ func resourceGlobalEIPAssociateCreate(ctx context.Context, d *schema.ResourceDat
 	if err != nil {
 		return diag.Errorf("error waiting for global EIP associating with instance: %s", err)
 	}
-	gcbID, err := jmespath.Search("global_eip.global_connection_bandwidth_info.gcb_id", geip)
-	if err != nil {
-		return diag.Errorf("error: %s is not found in API response", "gcb_id")
+	gcbID := utils.PathSearch("global_eip.global_connection_bandwidth_info.gcb_id", geip, "").(string)
+	if gcbID == "" {
+		if v, ok := d.GetOk("gc_bandwidth"); ok && len(v.([]interface{})) > 0 {
+			return diag.Errorf("unable to find global connection bandwidth ID from the API response")
+		}
 	}
 
 	// if bandwidth charge_mode is not "bwd", call Update GCB
@@ -211,7 +206,7 @@ func resourceGlobalEIPAssociateCreate(ctx context.Context, d *schema.ResourceDat
 	if v, ok := d.GetOk("gc_bandwidth"); ok && len(v.([]interface{})) > 0 {
 		gcb := d.Get("gc_bandwidth").([]interface{})[0].(map[string]interface{})
 		if gcb["id"].(string) == "" && gcb["charge_mode"].(string) == "95" {
-			err = updateGCB(ccClient, gcbID.(string), cfg.DomainID)
+			err = updateGCB(ccClient, gcbID, cfg.DomainID)
 			if err != nil {
 				return diag.FromErr(err)
 			}
@@ -297,15 +292,15 @@ func jobStatusRefreshFunc(client *golangsdk.ServiceClient, jobID, domainID strin
 		if err != nil {
 			return nil, "ERROR", err
 		}
-		status, err := jmespath.Search("job.status", getJobRespBody)
-		if err != nil {
-			return nil, "ERROR", err
+		status := utils.PathSearch("job.status", getJobRespBody, "").(string)
+		if status == "" {
+			return nil, "ERROR", fmt.Errorf("unable to find job status from the API response")
 		}
 
 		// status are FINISH_ROLLBACK_SUCC, FINISH_SUCC and WAIT_TO_SCHEDULE
-		if status.(string) == "FINISH_ROLLBACK_SUCC" {
+		if status == "FINISH_ROLLBACK_SUCC" {
 			return nil, "FAILURE", fmt.Errorf("job fail: %s", utils.PathSearch("job.error_message", getJobRespBody, nil))
-		} else if status.(string) == "FINISH_SUCC" {
+		} else if status == "FINISH_SUCC" {
 			return getJobRespBody, "SUCCESS", nil
 		}
 		return getJobRespBody, "PENDING", nil
@@ -372,9 +367,9 @@ func resourceGlobalEIPAssociateRead(_ context.Context, d *schema.ResourceData, m
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	geip, err := jmespath.Search("global_eip", getGEIPRespBody)
-	if err != nil {
-		return diag.Errorf("error getting global EIP: %s is not found in API response", "global_eip")
+	geip := utils.PathSearch("global_eip", getGEIPRespBody, nil)
+	if geip == nil {
+		return diag.Errorf("unable to find global EIP from the API response")
 	}
 
 	// Call GET GCB API to get more info, because charge_mode is not in return.
@@ -382,13 +377,10 @@ func resourceGlobalEIPAssociateRead(_ context.Context, d *schema.ResourceData, m
 	if err != nil {
 		return diag.Errorf("error creating CC client: %s", err)
 	}
-	gcbID, err := jmespath.Search("global_connection_bandwidth_info.gcb_id", geip)
-	if err != nil {
-		return diag.Errorf("error: %s is not found in API response", "gcb_id")
-	}
+	gcbID := utils.PathSearch("global_connection_bandwidth_info.gcb_id", geip, "").(string)
 	var gcbInfo interface{}
-	if gcbID != nil {
-		gcbInfo, err = getGCBInfo(ccClient, cfg.DomainID, gcbID.(string))
+	if gcbID != "" {
+		gcbInfo, err = getGCBInfo(ccClient, cfg.DomainID, gcbID)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -401,11 +393,8 @@ func resourceGlobalEIPAssociateRead(_ context.Context, d *schema.ResourceData, m
 		d.Set("associate_instance", flattenAssociateInstance(utils.PathSearch("associate_instance_info", geip, nil))),
 		d.Set("gc_bandwidth", gcbInfo),
 	)
-	if err := mErr.ErrorOrNil(); err != nil {
-		return diag.Errorf("error setting global EIP association fields: %s", err)
-	}
 
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func getGCBInfo(client *golangsdk.ServiceClient, domainID, gcbID string) (interface{}, error) {
@@ -425,9 +414,9 @@ func getGCBInfo(client *golangsdk.ServiceClient, domainID, gcbID string) (interf
 	if err != nil {
 		return nil, fmt.Errorf("error flattening GCB: %s", err)
 	}
-	gcb, err := jmespath.Search("globalconnection_bandwidth", getGCBRespBody)
-	if err != nil {
-		return nil, fmt.Errorf("error getting GCB: %s is not found in API response", "globalconnection_bandwidth")
+	gcb := utils.PathSearch("globalconnection_bandwidth", getGCBRespBody, nil)
+	if gcb == nil {
+		return nil, fmt.Errorf("unable to find global connection bandwidth from the API response")
 	}
 
 	result := make([]interface{}, 0)
@@ -490,12 +479,12 @@ func resourceGlobalEIPAssociateDelete(ctx context.Context, d *schema.ResourceDat
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	jobID, err := jmespath.Search("job_id", deleteGEIPAssociateRespBody)
-	if err != nil {
-		return diag.Errorf("error disassociating global EIP with instance: %s is not found in API response", "job_id")
+	jobID := utils.PathSearch("job_id", deleteGEIPAssociateRespBody, "").(string)
+	if jobID == "" {
+		return diag.Errorf("unable to find job ID from the API response")
 	}
 
-	err = waitForJobStatusComplete(ctx, d.Timeout(schema.TimeoutDelete), jobID.(string), cfg.DomainID, client)
+	err = waitForJobStatusComplete(ctx, d.Timeout(schema.TimeoutDelete), jobID, cfg.DomainID, client)
 	if err != nil {
 		return diag.Errorf("error waiting for global EIP disassociating with instance: %s", err)
 	}

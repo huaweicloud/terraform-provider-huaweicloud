@@ -201,7 +201,7 @@ The following arguments are supported:
 <!-- markdownlint-disable MD033 -->
 
 * `quota` - (Optional, Int) Specifies bucket storage quota. Must be a positive integer in the unit of byte. The maximum
-  storage quota is 2<sup>63</sup> – 1 bytes. The default bucket storage quota is 0, indicating that the bucket storage
+  storage quota is 2<sup>63</sup> – 1 bytes. The default bucket storage quota is `0`, indicating that the bucket storage
   quota is not limited.
 
 <!-- markdownlint-enable MD033 -->
@@ -385,13 +385,13 @@ The `storage_info` block supports:
 
 OBS bucket can be imported using the `bucket`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_obs_bucket.bucket <bucket-name>
 ```
 
 OBS bucket with S3 format bucket policy can be imported using the `bucket` and "s3" by a slash, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_obs_bucket.bucket_with_s3_policy <bucket-name>/s3
 ```
 
@@ -399,7 +399,7 @@ Note that the imported state may not be identical to your resource definition, d
 API response. The missing attributes include `acl` and `force_destroy`. It is generally recommended
 running `terraform plan` after importing an OBS bucket. Also you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_obs_bucket" "bucket" {
     ...
 

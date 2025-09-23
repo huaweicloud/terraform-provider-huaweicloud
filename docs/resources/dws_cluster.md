@@ -2,7 +2,8 @@
 subcategory: "GaussDB(DWS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_dws_cluster"
-description: ""
+description: |-
+  Manages a GaussDB(DWS) cluster resource within HuaweiCloud.  
 ---
 
 # huaweicloud_dws_cluster
@@ -79,7 +80,7 @@ The following arguments are supported:
 * `network_id` - (Required, String, ForceNew) The subnet ID.
   Changing this parameter will create a new resource.
 
-* `security_group_id` - (Required, String, ForceNew) The security group ID.
+* `security_group_id` - (Required, String) Specifies the security group ID of the cluster.
   Changing this parameter will create a new resource.
 
 * `availability_zone` - (Required, String, ForceNew) The availability zone in which to create the cluster instance.
@@ -90,15 +91,16 @@ The following arguments are supported:
 
 * `number_of_cn` - (Required, Int, ForceNew) The number of CN.  
   The value ranges from 2 to **number_of_node**, the maximum value is 20.
+  This parameter must be used together with `version`.
   Changing this parameter will create a new resource.
 
 * `version` - (Required, String, ForceNew) The cluster version.
-  [For details](https://support.huaweicloud.com/intl/en-us/versioning-dws/dws_12_0000.html).
+  [For details](https://support.huaweicloud.com/intl/en-us/bulletin-dws/dws_12_0000.html).
   Changing this parameter will create a new resource.
 
-* `volume` - (Required, List, ForceNew) The information about the volume.
-
+* `volume` - (Optional, List, ForceNew) The information about the volume.
   Changing this parameter will create a new resource.
+  For local disks, this parameter can not be specified.
 
   The [Volume](#DwsCluster_Volume) structure is documented below.
 
@@ -122,12 +124,18 @@ The following arguments are supported:
 * `keep_last_manual_snapshot` - (Optional, Int) The number of latest manual snapshots that need to be
   retained when deleting the cluster.
 
-* `logical_cluster_enable` - (Optional, Bool) Specified whether to enable logical cluster. The switch needs to be turned
+* `logical_cluster_enable` - (Optional, Bool) Specifies whether to enable logical cluster. The switch needs to be turned
   on before creating a logical cluster.
 
 * `elb_id` - (Optional, String) Specifies the ID of the ELB load balancer.
 
-* `lts_enable` - (Optional, Bool) Specified whether to enable LTS. The default value is **false**.
+* `lts_enable` - (Optional, Bool) Specifies whether to enable LTS. The default value is **false**.
+
+* `description` - (Optional, String) Specifies the description of the cluster.
+
+* `force_backup` - (Optional, Bool) Specified whether to automatically execute snapshot when shrinking the number of nodes.
+  The default value is **true**.
+  This parameter is required and available only when scaling-in the `number_of_node` parameter value.
 
 <a name="DwsCluster_PublicIp"></a>
 The `PublicIp` block supports:
@@ -264,26 +272,26 @@ This resource provides the following timeouts configuration options:
 
 ## Import
 
-Cluster can be imported using the following format:
+The resource can be imported using the `id`, e.g.
 
-```
-$ terraform import huaweicloud_dws_cluster.test 47ad727e-9dcc-4833-bde0-bb298607c719
+```bash
+$ terraform import huaweicloud_dws_cluster.test <id>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include: `user_pwd`, `number_of_cn`, `kms_key_id`,
-`volume`, `dss_pool_id`, `logical_cluster_enable`, `lts_enable`.
+`volume`, `dss_pool_id`, `logical_cluster_enable`, `lts_enable`, `force_backup`.
 It is generally recommended running `terraform plan` after importing a cluster.
 You can then decide if changes should be applied to the cluster, or the resource definition
 should be updated to align with the cluster. Also you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_dws_cluster" "test" {
-    ...
+  ...
 
   lifecycle {
     ignore_changes = [
-      user_pwd, number_of_cn, kms_key_id, volume, dss_pool_id, logical_cluster_enable, lts_enable
+      user_pwd, number_of_cn, kms_key_id, volume, dss_pool_id, logical_cluster_enable, lts_enable, `force_backup`,
     ]
   }
 }

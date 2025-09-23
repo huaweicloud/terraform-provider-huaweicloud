@@ -70,7 +70,7 @@ data "huaweicloud_apig_endpoint_connections" "test" {
 
 # By endpoint ID filter
 locals {
-  endpoint_id = data.huaweicloud_apig_endpoint_connections.test.connections[0].id
+  endpoint_id = huaweicloud_apig_endpoint_connection_management.test.id
 }
 
 data "huaweicloud_apig_endpoint_connections" "by_endpoint_id_filter" {
@@ -89,8 +89,9 @@ output "is_endpoint_id_filter_useful" {
 }
 
 # By packet ID filter
+# There is no "packet_id" field in the corresponding resource.
 locals {
-  packet_id = data.huaweicloud_apig_endpoint_connections.test.connections[0].packet_id
+  packet_id = data.huaweicloud_apig_endpoint_connections.by_endpoint_id_filter.connections[0].packet_id
 }
 
 data "huaweicloud_apig_endpoint_connections" "by_packet_id_filter" {
@@ -110,7 +111,7 @@ output "is_packet_id_filter_useful" {
 
 # By status filter
 locals {
-  status = data.huaweicloud_apig_endpoint_connections.test.connections[0].status
+  status = huaweicloud_apig_endpoint_connection_management.test.status
 }
 
 data "huaweicloud_apig_endpoint_connections" "by_status_filter" {

@@ -2,9 +2,7 @@ package css
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"log"
 	"strings"
 	"time"
 
@@ -12,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -160,9 +157,7 @@ func resourceLogstashPipelineRead(_ context.Context, d *schema.ResourceData, met
 
 	pipelineList, err := getPipelines(d, cssV1Client)
 	if err != nil {
-		if hasErrorCode(err, "CSS.0015") {
-			err = golangsdk.ErrDefault404{}
-		}
+		err = common.ConvertExpected403ErrInto404Err(err, "errCode", "CSS.0015")
 		return common.CheckDeletedDiag(d, err, "error get CSS logstash cluster pipeline")
 	}
 	if len(pipelineList) == 0 {
@@ -224,7 +219,11 @@ func resourceLogstashPipelineDelete(ctx context.Context, d *schema.ResourceData,
 
 	_, err = cssV1Client.Request("POST", stopPipelinePath, &stopPipelineOpt)
 	if err != nil {
-		return diag.Errorf("error deleting CSS logstash cluster pipeline: %s", err)
+		// "CSS.0015": The cluster does not exist. Status code is 403.
+		err = common.ConvertExpected403ErrInto404Err(err, "errCode", "CSS.0015")
+		// "CSS.5090": In this status, the current operation is not allowed. (stop logstash failed, no pipeline is working.)
+		err = common.ConvertExpected400ErrInto404Err(err, "errCode", "CSS.5090")
+		return common.CheckDeletedDiag(d, err, "error deleting CSS logstash cluster pipeline")
 	}
 
 	checkErr := pipelineStatusCheck(ctx, d, cssV1Client, d.Timeout(schema.TimeoutUpdate), "DELETED")
@@ -315,7 +314,7 @@ func getPipelines(d *schema.ResourceData, cssV1Client *golangsdk.ServiceClient) 
 
 	getPipelineResp, err := cssV1Client.Request("GET", getPipelinesPath, &getPipelineOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error query CSS logstash cluster pipeline: %s", err)
+		return nil, err
 	}
 	getPipelineRespBody, err := utils.FlattenResponse(getPipelineResp)
 	if err != nil {
@@ -360,22 +359,4 @@ func flattenPipelineEvent(events interface{}) []map[string]interface{} {
 		},
 	}
 	return rst
-}
-
-func hasErrorCode(err error, expectCode string) bool {
-	if errCode, ok := err.(golangsdk.ErrDefault400); ok {
-		var response interface{}
-		if jsonErr := json.Unmarshal(errCode.Body, &response); jsonErr == nil {
-			errorCode, parseErr := jmespath.Search("error_code", response)
-			if parseErr != nil {
-				log.Printf("[WARN] failed to parse error_code from response body: %s", parseErr)
-			}
-
-			if errorCode == expectCode {
-				return true
-			}
-		}
-	}
-
-	return false
 }

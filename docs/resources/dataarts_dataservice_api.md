@@ -378,7 +378,21 @@ In addition to all arguments above, the following attributes are exported:
 
 * `host` - The API host configuration, for shared type.
 
-* `hosts` - The API host configuration, for exclusive type.
+* `hosts` - The API host configuration, for exclusive type.  
+  The [hosts](#dataservice_api_hosts_attr) structure is documented below.
+
+<a name="dataservice_api_hosts_attr"></a>
+The `hosts` block supports:
+
+* `instance_id` - The cluster ID to which the API belongs.
+
+* `instance_name` - The cluster name to which the API belongs.
+
+* `intranet_host` - The intranet address.
+
+* `external_host` - The exrernal address.
+
+* `domains` - The list of gateway damains.
 
 ## Import
 

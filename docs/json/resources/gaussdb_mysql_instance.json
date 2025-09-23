@@ -27,14 +27,19 @@
               "configuration_id": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
-              "configuration_name": {
+              "created_at": {
                 "type": "string",
-                "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
+              },
+              "current_kernel_version": {
+                "type": "string",
+                "computed": true
+              },
+              "current_version": {
+                "type": "string",
+                "computed": true
               },
               "db_user_name": {
                 "type": "string",
@@ -52,6 +57,19 @@
                 "computed": true,
                 "forcenew": true
               },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "encryption_status": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "encryption_type": {
+                "type": "string",
+                "optional": true
+              },
               "enterprise_project_id": {
                 "type": "string",
                 "optional": true
@@ -66,6 +84,20 @@
               },
               "id": {
                 "type": "string",
+                "computed": true
+              },
+              "kms_key_id": {
+                "type": "string",
+                "optional": true
+              },
+              "maintain_begin": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "maintain_end": {
+                "type": "string",
+                "optional": true,
                 "computed": true
               },
               "master_availability_zone": {
@@ -114,10 +146,21 @@
               },
               "port": {
                 "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "private_dns_name": {
+                "type": "string",
+                "computed": true
+              },
+              "private_dns_name_prefix": {
+                "type": "string",
+                "optional": true,
                 "computed": true
               },
               "private_write_ip": {
                 "type": "string",
+                "optional": true,
                 "computed": true
               },
               "read_replicas": {
@@ -129,15 +172,33 @@
                 "type": "string",
                 "computed": true
               },
+              "seconds_level_monitoring_enabled": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "seconds_level_monitoring_period": {
+                "type": "number",
+                "optional": true
+              },
               "security_group_id": {
                 "type": "string",
                 "optional": true,
-                "forcenew": true
+                "computed": true
+              },
+              "slow_log_show_original_switch": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
               },
               "sql_filter_enabled": {
                 "type": "bool",
                 "optional": true,
                 "computed": true
+              },
+              "ssl_option": {
+                "type": "string",
+                "optional": true
               },
               "status": {
                 "type": "string",
@@ -157,13 +218,22 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "time_zone": {
                 "type": "string",
                 "optional": true,
                 "forcenew": true,
                 "default": "UTC+08:00"
+              },
+              "updated_at": {
+                "type": "string",
+                "computed": true
+              },
+              "upgrade_flag": {
+                "type": "bool",
+                "computed": true
               },
               "volume_size": {
                 "type": "number",
@@ -177,6 +247,88 @@
               }
             },
             "block_types": {
+              "auto_scaling": {
+                "block": {
+                  "attributes": {
+                    "enlarge_threshold": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "max_flavor": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "max_read_only_count": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "min_flavor": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "min_read_only_count": {
+                      "type": "number",
+                      "computed": true
+                    },
+                    "monitor_cycle": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "read_only_weight": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "reduce_enabled": {
+                      "type": "bool",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "silence_cycle": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "silence_start_at": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "status": {
+                      "type": "string",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "scaling_strategy": {
+                      "block": {
+                        "attributes": {
+                          "flavor_switch": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "read_only_switch": {
+                            "type": "string",
+                            "required": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "min_items": 1,
+                      "max_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
               "backup_strategy": {
                 "block": {
                   "attributes": {
@@ -211,6 +363,21 @@
                 "nesting_mode": "list",
                 "forcenew": true,
                 "max_items": 1
+              },
+              "parameters": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "set"
               }
             }
           },

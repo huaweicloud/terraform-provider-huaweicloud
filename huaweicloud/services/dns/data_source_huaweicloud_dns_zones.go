@@ -1,8 +1,3 @@
-// ---------------------------------------------------------------
-// *** AUTO GENERATED CODE ***
-// @Product DNS
-// ---------------------------------------------------------------
-
 package dns
 
 import (
@@ -35,32 +30,52 @@ func DataSourceZones() *schema.Resource {
 			"zone_type": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: `Specifies the zone type. The value can be **public** or **private**.`,
+				Description: `The zone type. The value can be **public** or **private**.`,
+			},
+			"zone_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The ID of the zone.`,
 			},
 			"tags": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specifies the resource tag.`,
+				Description: `The resource tag.`,
 			},
 			"name": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specifies the zone name.`,
+				Description: `The zone name.`,
 			},
 			"status": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specifies the zone status.`,
+				Description: `The zone status.`,
 			},
 			"search_mode": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specifies the query criteria search mode.`,
+				Description: `The query criteria search mode.`,
 			},
 			"enterprise_project_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specifies the enterprise project ID which the zone associated.`,
+				Description: `The enterprise project ID which the zone associated.`,
+			},
+			"router_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The ID of the VPC associated with the private zone.`,
+			},
+			"sort_key": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The sorting filed for the list of the zones.`,
+			},
+			"sort_dir": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The sorting mode for the list of the zones.`,
 			},
 			"zones": {
 				Type:        schema.TypeList,
@@ -133,6 +148,26 @@ func zoneSchema() *schema.Resource {
 				Description: `The list of VPCs associated with the zone.`,
 			},
 			"tags": common.TagsComputedSchema(),
+			"proxy_pattern": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The recursive resolution proxy mode for subdomains of the private zone.`,
+			},
+			"pool_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The creation time of the zone, in RFC3339 format.`,
+			},
+			"created_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The creation time of the zone, in RFC3339 format.`,
+			},
+			"updated_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The latest update time of the zone, in RFC3339 format.`,
+			},
 		},
 	}
 	return &sc
@@ -228,6 +263,12 @@ func flattenListZones(resp interface{}) []interface{} {
 			"masters":               utils.PathSearch("masters", v, nil),
 			"routers":               flattenZonesRouters(v),
 			"tags":                  utils.FlattenTagsToMap(utils.PathSearch("tags", v, nil)),
+			"proxy_pattern":         utils.PathSearch("proxy_pattern", v, nil),
+			"pool_id":               utils.PathSearch("pool_id", v, nil),
+			"created_at": utils.FormatTimeStampRFC3339(utils.ConvertTimeStrToNanoTimestamp(utils.PathSearch("created_at",
+				v, "").(string), "2006-01-02T15:04:05")/1000, false),
+			"updated_at": utils.FormatTimeStampRFC3339(utils.ConvertTimeStrToNanoTimestamp(utils.PathSearch("updated_at",
+				v, "").(string), "2006-01-02T15:04:05")/1000, false),
 		}
 	}
 	return rst
@@ -251,6 +292,10 @@ func flattenZonesRouters(resp interface{}) []interface{} {
 
 func buildListZonesQueryParams(d *schema.ResourceData) string {
 	queryParam := fmt.Sprintf("?type=%v", d.Get("zone_type"))
+	if v, ok := d.GetOk("zone_id"); ok {
+		queryParam = fmt.Sprintf("%s&id=%v", queryParam, v)
+	}
+
 	if v, ok := d.GetOk("tags"); ok {
 		queryParam = fmt.Sprintf("%s&tags=%v", queryParam, v)
 	}
@@ -269,6 +314,18 @@ func buildListZonesQueryParams(d *schema.ResourceData) string {
 
 	if v, ok := d.GetOk("enterprise_project_id"); ok {
 		queryParam = fmt.Sprintf("%s&enterprise_project_id=%v", queryParam, v)
+	}
+
+	if v, ok := d.GetOk("router_id"); ok {
+		queryParam = fmt.Sprintf("%s&router_id=%v", queryParam, v)
+	}
+
+	if v, ok := d.GetOk("sort_key"); ok {
+		queryParam = fmt.Sprintf("%s&sort_key=%v", queryParam, v)
+	}
+
+	if v, ok := d.GetOk("sort_dir"); ok {
+		queryParam = fmt.Sprintf("%s&sort_dir=%v", queryParam, v)
 	}
 	return queryParam
 }

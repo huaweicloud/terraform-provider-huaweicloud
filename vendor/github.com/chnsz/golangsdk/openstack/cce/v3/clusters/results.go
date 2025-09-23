@@ -41,6 +41,8 @@ type MetaData struct {
 	Annotations map[string]string `json:"annotations,omitempty"`
 	// Cluster alias
 	Alias string `json:"alias"`
+	// Cluster timezone
+	Timezone string `json:"timezone"`
 }
 
 // Specifications to create a cluster
@@ -73,6 +75,8 @@ type Spec struct {
 	Masters []MasterSpec `json:"masters,omitempty"`
 	//Range of kubernetes clusterIp
 	KubernetesSvcIPRange string `json:"kubernetesSvcIpRange,omitempty"`
+	// Service network, use this to replace KubernetesSvcIPRange
+	ServiceNetwork *ServiceNetwork `json:"serviceNetwork,omitempty"`
 	//Custom san list for certificates
 	CustomSan []string `json:"customSan,omitempty"`
 	// Tags of cluster, key value pair format
@@ -87,11 +91,22 @@ type Spec struct {
 	SupportIstio bool `json:"supportIstio,omitempty"`
 	// The category, the value can be CCE and CCE
 	Category string `json:"category,omitempty"`
+	// The Encrytion Config
+	EncryptionConfig *EncryptionConfig `json:"encryptionConfig,omitempty"`
+}
+
+type ServiceNetwork struct {
+	IPv4Cidr string `json:"IPv4CIDR,omitempty"`
 }
 
 type PackageConfiguration struct {
 	Name           string        `json:"name,omitempty"`
 	Configurations []interface{} `json:"configurations,omitempty"`
+}
+
+type EncryptionConfig struct {
+	Mode     string `json:"mode,omitempty"`
+	KmsKeyID string `json:"kmsKeyID,omitempty"`
 }
 
 // Node network parameters

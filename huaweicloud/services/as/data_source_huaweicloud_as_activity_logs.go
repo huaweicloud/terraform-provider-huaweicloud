@@ -10,7 +10,6 @@ import (
 
 	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/activitylogs"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
@@ -117,7 +116,7 @@ func dataSourceActivityLogsRead(_ context.Context, d *schema.ResourceData, meta 
 
 	activityLogList, err := activitylogs.List(client, groupID, opts)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "AS activity logs")
+		return diag.Errorf("error retrieving activity logs in AS group %s: %s", groupID, err)
 	}
 
 	randUUID, err := uuid.GenerateUUID()

@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_fgs_lts_log_enable
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: FunctionGraph
+paths:
+    /v2/{project_id}/fgs/functions/enable-lts-logs:
+        POST:
+            tag: FunctionGraph

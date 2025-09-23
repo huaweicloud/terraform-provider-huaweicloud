@@ -40,6 +40,11 @@ func DataSourceASConfigurations() *schema.Resource {
 				Description: "The information about AS instance configurations.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"scaling_configuration_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The ID of the AS configuration.",
+						},
 						"scaling_configuration_name": {
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -69,6 +74,21 @@ func DataSourceASConfigurations() *schema.Resource {
 										Type:        schema.TypeString,
 										Computed:    true,
 										Description: "The name of the SSH key pair used to log in to the instance.",
+									},
+									"key_fingerprint": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The fingerprint of the SSH key pair used to log in to the instance.",
+									},
+									"tenancy": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Indicates creating ECS instance on DEH.",
+									},
+									"dedicated_host_id": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The ID of the DEH.",
 									},
 									"security_group_ids": {
 										Type:        schema.TypeList,
@@ -129,6 +149,11 @@ func DataSourceASConfigurations() *schema.Resource {
 							Computed:    true,
 							Description: "The status of the AS configuration.",
 						},
+						"create_time": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The creation time of the AS configuration.",
+						},
 					},
 				},
 			},
@@ -158,6 +183,31 @@ func configurationDataSourceDiskSchema() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The encryption KMS ID.",
+			},
+			"dedicated_storage_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The ID of the DSS device for the disk.",
+			},
+			"data_disk_image_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The ID of the data disk image for creating a data disk.",
+			},
+			"snapshot_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The disk backup snapshot ID.",
+			},
+			"iops": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "The IOPS of an EVS disk.",
+			},
+			"throughput": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "The throughput of an EVS disk.",
 			},
 		},
 	}
@@ -215,6 +265,11 @@ func configurationDataSourcePublicIpSchema() *schema.Resource {
 										Computed:    true,
 										Description: "The bandwidth billing mode.",
 									},
+									"id": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The ID of the bandwidth.",
+									},
 								},
 							},
 						},
@@ -271,9 +326,11 @@ func flattenDataSourceConfigurations(configurationList []configurations.Configur
 	elements := make([]map[string]interface{}, 0, len(configurationList))
 	for _, configuration := range configurationList {
 		configurationMap := map[string]interface{}{
+			"scaling_configuration_id":   configuration.ID,
 			"scaling_configuration_name": configuration.Name,
 			"instance_config":            flattenInstanceConfigs(configuration.InstanceConfig),
 			"status":                     normalizeDataSourceConfigurationStatus(configuration.ScalingGroupID),
+			"create_time":                configuration.CreateTime,
 		}
 		ids = append(ids, configuration.ID)
 		elements = append(elements, configurationMap)
@@ -298,6 +355,9 @@ func flattenInstanceConfigs(instanceConfig configurations.InstanceConfig) []map[
 			"public_ip":              flattenAsInstancePublicIP(instanceConfig.PublicIp.Eip),
 			"security_group_ids":     flattenAsSecurityGroupIDs(instanceConfig.SecurityGroups),
 			"personality":            flattenAsInstancePersonality(instanceConfig.Personality),
+			"key_fingerprint":        instanceConfig.KeyFingerprint,
+			"tenancy":                instanceConfig.Tenancy,
+			"dedicated_host_id":      instanceConfig.DedicatedHostID,
 		},
 	}
 }
@@ -317,9 +377,14 @@ func flattenAsInstanceDisks(disks []configurations.Disk) []map[string]interface{
 	res := make([]map[string]interface{}, len(disks))
 	for i, item := range disks {
 		res[i] = map[string]interface{}{
-			"volume_type": item.VolumeType,
-			"size":        item.Size,
-			"disk_type":   item.DiskType,
+			"volume_type":          item.VolumeType,
+			"size":                 item.Size,
+			"disk_type":            item.DiskType,
+			"dedicated_storage_id": item.DedicatedStorageID,
+			"data_disk_image_id":   item.DataDiskImageID,
+			"snapshot_id":          item.SnapshotID,
+			"iops":                 item.Iops,
+			"throughput":           item.Throughput,
 		}
 
 		if kms, ok := item.Metadata["__system__cmkid"]; ok {
@@ -339,6 +404,7 @@ func flattenAsInstancePublicIP(eipObject configurations.Eip) []map[string]interf
 			"share_type":    eipObject.Bandwidth.ShareType,
 			"size":          eipObject.Bandwidth.Size,
 			"charging_mode": eipObject.Bandwidth.ChargingMode,
+			"id":            eipObject.Bandwidth.ID,
 		},
 	}
 

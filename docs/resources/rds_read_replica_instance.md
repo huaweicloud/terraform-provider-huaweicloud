@@ -109,11 +109,11 @@ The following arguments are supported:
 The `db` block supports:
 
 * `port` - (Optional, Int) Specifies the database port.
-  + The MySQL database port ranges from **1024** to **65535** (excluding **12017** and **33071**, which are occupied by
-    the RDS system and cannot be used). The default value is **3306**.
-  + The PostgreSQL database port ranges from **2100** to **9500**. The default value is **5432**.
-  + The Microsoft SQL Server database port can be **1433** or ranges from **2100** to **9500**, excluding **5355** and
-    **5985**. The default value is **1433**.
+  + The MySQL database port ranges from `1,024` to `65,535` (excluding `12,017` and `33,071`, which are occupied by
+    the RDS system and cannot be used). The default value is `3,306`.
+  + The PostgreSQL database port ranges from `2,100` to `9,500`. The default value is `5,432`.
+  + The Microsoft SQL Server database port can be `1,433` or ranges from `2,100` to `9,500`, excluding `5,355` and
+    `5,985`. The default value is `1,433`.
 
 <a name="Rds_volume"></a>
 The `volume` block supports:
@@ -128,13 +128,13 @@ The `volume` block supports:
 
   Changing this parameter will create a new resource.
 
-* `size` - (Optional, Int) Specifies the volume size. Its value range is from **40** GB to **4000** GB. The value must
+* `size` - (Optional, Int) Specifies the volume size. Its value range is from `40` GB to `4,000` GB. The value must
   be a multiple of 10 and greater than the original size.
 
 * `limit_size` - (Optional, Int) Specifies the upper limit of automatic expansion of storage, in GB.
 
 * `trigger_threshold` - (Optional, Int) Specifies the threshold to trigger automatic expansion.  
-  If the available storage drops to this threshold or **10** GB, the automatic expansion is triggered.  
+  If the available storage drops to this threshold or `10` GB, the automatic expansion is triggered.  
   The valid values are as follows:
   + **10**
   + **15**

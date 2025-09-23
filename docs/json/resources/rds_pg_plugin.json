@@ -7,8 +7,7 @@
             "attributes": {
               "database_name": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "description": {
                 "type": "string",
@@ -20,13 +19,11 @@
               },
               "instance_id": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "name": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "region": {
                 "type": "string",

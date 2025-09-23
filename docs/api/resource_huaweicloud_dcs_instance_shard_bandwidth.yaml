@@ -1,0 +1,21 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dcs_instance_shard_bandwidth
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DCS
+paths:
+    /v2/{project_id}/instances/{instance_id}:
+        GET:
+            tag: DCS
+    /v2/{project_id}/instances/{instance_id}/bandwidths:
+        GET:
+            tag: DCS
+        PUT:
+            tag: DCS
+    /v2/{project_id}/jobs/{job_id}:
+        GET:
+            tag: DCS

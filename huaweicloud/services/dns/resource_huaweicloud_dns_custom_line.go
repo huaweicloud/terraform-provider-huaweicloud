@@ -1,14 +1,8 @@
-// ---------------------------------------------------------------
-// *** AUTO GENERATED CODE ***
-// @Product DNS
-// ---------------------------------------------------------------
-
 package dns
 
 import (
 	"context"
 	"fmt"
-	"regexp"
 	"strings"
 	"time"
 
@@ -16,8 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -26,16 +18,16 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API DNS GET /v2.1/customlines
 // @API DNS POST /v2.1/customlines
-// @API DNS DELETE /v2.1/customlines/{line_id}
+// @API DNS GET /v2.1/customlines
 // @API DNS PUT /v2.1/customlines/{line_id}
-func ResourceDNSCustomLine() *schema.Resource {
+// @API DNS DELETE /v2.1/customlines/{line_id}
+func ResourceCustomLine() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceDNSCustomLineCreate,
-		UpdateContext: resourceDNSCustomLineUpdate,
-		ReadContext:   resourceDNSCustomLineRead,
-		DeleteContext: resourceDNSCustomLineDelete,
+		CreateContext: resourceCustomLineCreate,
+		UpdateContext: resourceCustomLineUpdate,
+		ReadContext:   resourceCustomLineRead,
+		DeleteContext: resourceCustomLineDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -54,30 +46,22 @@ func ResourceDNSCustomLine() *schema.Resource {
 				ForceNew: true,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(1, 80),
-					validation.StringMatch(regexp.MustCompile("^[\u4e00-\u9fa5A-Za-z]([\u4e00-\u9fa5\\w-.]*)?$"),
-						"Only chinese and english letters, digits, hyphens (-), underscores (_), and periods"+
-							" (.) are allowed"),
-				),
-				Description: `Specifies the custom line name.`,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The custom line name.`,
 			},
 			"ip_segments": {
-				Type:        schema.TypeList,
+				Type:        schema.TypeSet,
 				Required:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				MinItems:    1,
 				MaxItems:    50,
-				Description: `Specifies the IP address range.`,
+				Description: `The IP address range.`,
 			},
 			"description": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Computed:     true,
-				ValidateFunc: validation.StringLenBetween(0, 255),
-				Description:  `Specifies the custom line description. A maximum of 255 characters are allowed.`,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The custom line description.`,
 			},
 			"status": {
 				Type:        schema.TypeString,
@@ -88,298 +72,220 @@ func ResourceDNSCustomLine() *schema.Resource {
 	}
 }
 
-func resourceDNSCustomLineCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCustomLineCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	createDNSCustomLineClient, err := cfg.NewServiceClient("dns", region)
+	createCustomLineClient, err := cfg.NewServiceClient("dns", cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating DNS Client: %s", err)
 	}
 
-	// createDNSCustomLine: create DNS custom line.
-	if err := createDNSCustomLine(createDNSCustomLineClient, d); err != nil {
+	if err := createCustomLine(createCustomLineClient, d); err != nil {
 		return diag.FromErr(err)
 	}
 
-	timeout := d.Timeout(schema.TimeoutCreate)
-	if err := waitForDNSCustomLineCreateOrUpdate(ctx, createDNSCustomLineClient, d, timeout); err != nil {
+	err = waitForCustomLineCreateOrUpdate(ctx, createCustomLineClient, d.Id(), d.Timeout(schema.TimeoutCreate))
+	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	return resourceDNSCustomLineRead(ctx, d, meta)
+	return resourceCustomLineRead(ctx, d, meta)
 }
 
-func createDNSCustomLine(customLineClient *golangsdk.ServiceClient, d *schema.ResourceData) error {
-	var (
-		createDNSCustomLineHttpUrl = "v2.1/customlines"
-	)
-
-	createDNSCustomLinePath := customLineClient.Endpoint + createDNSCustomLineHttpUrl
-	createDNSCustomLineOpt := golangsdk.RequestOpts{
+func createCustomLine(customLineClient *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	createCustomLineHttpUrl := "v2.1/customlines"
+	createCustomLinePath := customLineClient.Endpoint + createCustomLineHttpUrl
+	createCustomLineOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			202,
-		},
+		JSONBody:         utils.RemoveNil(buildCreateOrUpdateCustomLineBodyParams(d)),
 	}
-	createDNSCustomLineOpt.JSONBody = utils.RemoveNil(buildCreateOrUpdateDNSCustomLineBodyParams(d))
-	createDNSCustomLineResp, err := customLineClient.Request("POST", createDNSCustomLinePath,
-		&createDNSCustomLineOpt)
+	createCustomLineResp, err := customLineClient.Request("POST", createCustomLinePath, &createCustomLineOpt)
 	if err != nil {
 		return fmt.Errorf("error creating DNS custom line: %s", err)
 	}
 
-	createDNSCustomLineRespBody, err := utils.FlattenResponse(createDNSCustomLineResp)
+	createCustomLineRespBody, err := utils.FlattenResponse(createCustomLineResp)
 	if err != nil {
 		return err
 	}
 
-	id, err := jmespath.Search("line_id", createDNSCustomLineRespBody)
-	if err != nil {
-		return fmt.Errorf("error creating DNS custom line: ID is not found in API response")
+	customLineId := utils.PathSearch("line_id", createCustomLineRespBody, "").(string)
+	if customLineId == "" {
+		return fmt.Errorf("unable to find the DNS custom line ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(customLineId)
 	return nil
 }
 
-func waitForDNSCustomLineCreateOrUpdate(ctx context.Context, customLineClient *golangsdk.ServiceClient,
-	d *schema.ResourceData, timeout time.Duration) error {
+func waitForCustomLineCreateOrUpdate(ctx context.Context, customLineClient *golangsdk.ServiceClient,
+	customLineId string, timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Target:       []string{"ACTIVE"},
 		Pending:      []string{"PENDING"},
-		Refresh:      dnsCustomLineStatusRefreshFunc(d, customLineClient),
+		Refresh:      customLineStatusRefreshFunc(customLineClient, customLineId),
 		Timeout:      timeout,
 		Delay:        5 * time.Second,
 		PollInterval: 5 * time.Second,
 	}
 	_, err := stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmt.Errorf("error waiting for DNS custom line (%s) to be ACTIVE : %s", d.Id(), err)
+		return fmt.Errorf("error waiting for DNS custom line (%s) to be ACTIVE : %s", customLineId, err)
 	}
 	return nil
 }
 
-func buildCreateOrUpdateDNSCustomLineBodyParams(d *schema.ResourceData) map[string]interface{} {
+func buildCreateOrUpdateCustomLineBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":        utils.ValueIgnoreEmpty(d.Get("name")),
-		"description": utils.ValueIgnoreEmpty(d.Get("description")),
-		"ip_segments": utils.ValueIgnoreEmpty(d.Get("ip_segments")),
+		"name":        d.Get("name"),
+		"ip_segments": utils.ExpandToStringList(d.Get("ip_segments").(*schema.Set).List()),
+		// When description is updated to empty, the value of this field must be specified as an empty string.
+		"description": d.Get("description"),
 	}
 	return bodyParams
 }
 
-func resourceDNSCustomLineRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+// GetCustomLineById is a method used to query custom line detail by its ID.
+func GetCustomLineById(client *golangsdk.ServiceClient, customLineId string) (interface{}, error) {
+	getCustomLineHttpUrl := "v2.1/customlines"
+	getPath := client.Endpoint + getCustomLineHttpUrl
+	getPath += fmt.Sprintf("?line_id=%s", customLineId)
+
+	getCustomLineOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	resp, err := client.Request("GET", getPath, &getCustomLineOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return nil, err
+	}
+
+	customLine := utils.PathSearch("lines[0]", respBody, nil)
+	if customLine == nil {
+		return nil, golangsdk.ErrDefault404{}
+	}
+
+	return customLine, nil
+}
+
+func resourceCustomLineRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
-	var mErr *multierror.Error
-
-	// getDNSCustomLine: Query DNS custom line
-	var (
-		getDNSCustomLineHttpUrl = "v2.1/customlines"
-		getDNSCustomLineProduct = "dns"
-	)
-	getDNSCustomLineClient, err := cfg.NewServiceClient(getDNSCustomLineProduct, region)
+	getCustomLineClient, err := cfg.NewServiceClient("dns", region)
 	if err != nil {
 		return diag.Errorf("error creating DNS Client: %s", err)
 	}
 
-	getDNSCustomLinePath := getDNSCustomLineClient.Endpoint + getDNSCustomLineHttpUrl
-	getDNSCustomLinePath += buildGetDNSCustomLineQueryParams(d)
-
-	getDNSCustomLineOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-	}
-	getDNSCustomLineResp, err := getDNSCustomLineClient.Request("GET", getDNSCustomLinePath,
-		&getDNSCustomLineOpt)
-
+	customLine, err := GetCustomLineById(getCustomLineClient, d.Id())
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving DNS custom line")
 	}
 
-	getDNSCustomLineRespBody, err := utils.FlattenResponse(getDNSCustomLineResp)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	customLineMap, err := flattenCustomLineResponseBody(getDNSCustomLineRespBody, d)
-	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving DNS custom line")
-	}
-	mErr = multierror.Append(
-		mErr,
+	mErr := multierror.Append(
+		nil,
 		d.Set("region", region),
-		d.Set("name", customLineMap["name"]),
-		d.Set("ip_segments", customLineMap["ip_segments"]),
-		d.Set("status", customLineMap["status"]),
-		d.Set("description", customLineMap["description"]),
+		d.Set("name", utils.PathSearch("name", customLine, nil)),
+		d.Set("ip_segments", utils.PathSearch("ip_segments", customLine, nil)),
+		d.Set("status", utils.PathSearch("status", customLine, nil)),
+		d.Set("description", utils.PathSearch("description", customLine, nil)),
 	)
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func flattenCustomLineResponseBody(resp interface{}, d *schema.ResourceData) (map[string]interface{}, error) {
-	if resp == nil {
-		return nil, fmt.Errorf("the custom line response is empty")
-	}
-
-	curJson := utils.PathSearch("lines", resp, make([]interface{}, 0))
-	curArray := curJson.([]interface{})
-	for _, v := range curArray {
-		lineId := utils.PathSearch("line_id", v, "")
-		if d.Id() == lineId.(string) {
-			return map[string]interface{}{
-				"name":        utils.PathSearch("name", v, nil),
-				"ip_segments": utils.PathSearch("ip_segments", v, nil),
-				"status":      utils.PathSearch("status", v, nil),
-				"description": utils.PathSearch("description", v, nil),
-			}, nil
-		}
-	}
-	return nil, golangsdk.ErrDefault404{}
-}
-
-func buildGetDNSCustomLineQueryParams(d *schema.ResourceData) string {
-	return fmt.Sprintf("?line_id=%s", d.Id())
-}
-
-func resourceDNSCustomLineUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceCustomLineUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-	updateDNSCustomLineClient, err := cfg.NewServiceClient("dns", region)
+	updateCustomLineClient, err := cfg.NewServiceClient("dns", region)
 	if err != nil {
 		return diag.Errorf("error creating DNS Client: %s", err)
 	}
 
-	updateDNSCustomLineChanges := []string{
-		"name",
-		"description",
-		"ip_segments",
+	if err := updateCustomLine(updateCustomLineClient, d); err != nil {
+		return diag.FromErr(err)
 	}
 
-	if d.HasChanges(updateDNSCustomLineChanges...) {
-		// updateDNSCustomLine: Update DNS custom line
-		if err := updateDNSCustomLine(updateDNSCustomLineClient, d); err != nil {
-			return diag.FromErr(err)
-		}
-
-		timeout := d.Timeout(schema.TimeoutUpdate)
-		if err := waitForDNSCustomLineCreateOrUpdate(ctx, updateDNSCustomLineClient, d, timeout); err != nil {
-			return diag.FromErr(err)
-		}
+	err = waitForCustomLineCreateOrUpdate(ctx, updateCustomLineClient, d.Id(), d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return diag.FromErr(err)
 	}
-	return resourceDNSCustomLineRead(ctx, d, meta)
+	return resourceCustomLineRead(ctx, d, meta)
 }
 
-func updateDNSCustomLine(customLineClient *golangsdk.ServiceClient, d *schema.ResourceData) error {
-	var (
-		updateDNSCustomLineHttpUrl = "v2.1/customlines/{line_id}"
-	)
+func updateCustomLine(customLineClient *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	updateCustomLineHttpUrl := "v2.1/customlines/{line_id}"
+	updateCustomLinePath := customLineClient.Endpoint + updateCustomLineHttpUrl
+	updateCustomLinePath = strings.ReplaceAll(updateCustomLinePath, "{line_id}", d.Id())
 
-	updateDNSCustomLinePath := customLineClient.Endpoint + updateDNSCustomLineHttpUrl
-	updateDNSCustomLinePath = strings.ReplaceAll(updateDNSCustomLinePath, "{line_id}", d.Id())
-
-	updateDNSCustomLineOpt := golangsdk.RequestOpts{
+	updateCustomLineOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			202,
-		},
+		JSONBody:         utils.RemoveNil(buildCreateOrUpdateCustomLineBodyParams(d)),
 	}
-	updateDNSCustomLineOpt.JSONBody = utils.RemoveNil(buildCreateOrUpdateDNSCustomLineBodyParams(d))
-	_, err := customLineClient.Request("PUT", updateDNSCustomLinePath,
-		&updateDNSCustomLineOpt)
+	_, err := customLineClient.Request("PUT", updateCustomLinePath, &updateCustomLineOpt)
 	if err != nil {
 		return fmt.Errorf("error updating DNS custom line: %s", err)
 	}
 	return nil
 }
 
-func resourceDNSCustomLineDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// deleteDNSCustomLine: Delete DNS custom line
+func resourceCustomLineDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		deleteDNSCustomLineHttpUrl = "v2.1/customlines/{line_id}"
-		deleteDNSCustomLineProduct = "dns"
+		cfg                     = meta.(*config.Config)
+		deleteCustomLineHttpUrl = "v2.1/customlines/{line_id}"
+		customLineId            = d.Id()
 	)
-	deleteDNSCustomLineClient, err := cfg.NewServiceClient(deleteDNSCustomLineProduct, region)
+	deleteCustomLineClient, err := cfg.NewServiceClient("dns", cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating DNS Client: %s", err)
 	}
 
-	deleteDNSCustomLinePath := deleteDNSCustomLineClient.Endpoint + deleteDNSCustomLineHttpUrl
-	deleteDNSCustomLinePath = strings.ReplaceAll(deleteDNSCustomLinePath, "{line_id}", d.Id())
+	deleteCustomLinePath := deleteCustomLineClient.Endpoint + deleteCustomLineHttpUrl
+	deleteCustomLinePath = strings.ReplaceAll(deleteCustomLinePath, "{line_id}", customLineId)
 
-	deleteDNSCustomLineOpt := golangsdk.RequestOpts{
+	deleteCustomLineOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			202,
-		},
 	}
-	_, err = deleteDNSCustomLineClient.Request("DELETE", deleteDNSCustomLinePath, &deleteDNSCustomLineOpt)
+	_, err = deleteCustomLineClient.Request("DELETE", deleteCustomLinePath, &deleteCustomLineOpt)
 	if err != nil {
-		return diag.Errorf("error deleting DNS custom line: %s", err)
+		return common.CheckDeletedDiag(d, err, "error deleting DNS custom line")
 	}
 
-	if err := waitForDNSCustomLineDeleted(ctx, deleteDNSCustomLineClient, d); err != nil {
+	if err := waitForCustomLineDeleted(ctx, deleteCustomLineClient, customLineId, d.Timeout(schema.TimeoutDelete)); err != nil {
 		return diag.FromErr(err)
 	}
 	return nil
 }
 
-func waitForDNSCustomLineDeleted(ctx context.Context, customLineClient *golangsdk.ServiceClient,
-	d *schema.ResourceData) error {
+func waitForCustomLineDeleted(ctx context.Context, customLineClient *golangsdk.ServiceClient, customLineId string,
+	timeOut time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Target:       []string{"DELETED"},
 		Pending:      []string{"ACTIVE", "PENDING", "ERROR"},
-		Refresh:      dnsCustomLineStatusRefreshFunc(d, customLineClient),
-		Timeout:      d.Timeout(schema.TimeoutDelete),
+		Refresh:      customLineStatusRefreshFunc(customLineClient, customLineId),
+		Timeout:      timeOut,
 		Delay:        5 * time.Second,
 		PollInterval: 5 * time.Second,
 	}
 	_, err := stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmt.Errorf("error waiting for DNS custom line (%s) to be DELETED: %s", d.Id(), err)
+		return fmt.Errorf("error waiting for DNS custom line (%s) to be DELETED: %s", customLineId, err)
 	}
 	return nil
 }
 
-func dnsCustomLineStatusRefreshFunc(d *schema.ResourceData, client *golangsdk.ServiceClient) resource.StateRefreshFunc {
+func customLineStatusRefreshFunc(client *golangsdk.ServiceClient, customLineId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		var (
-			getDNSCustomLineHttpUrl = "v2.1/customlines"
-		)
-
-		getDNSCustomLinePath := client.Endpoint + getDNSCustomLineHttpUrl
-		getDNSCustomLinePath += buildGetDNSCustomLineQueryParams(d)
-		getDNSCustomLineOpt := golangsdk.RequestOpts{
-			KeepResponseBody: true,
-			OkCodes: []int{
-				200,
-			},
-		}
-
-		getDNSCustomLineResp, err := client.Request("GET", getDNSCustomLinePath, &getDNSCustomLineOpt)
-		if err != nil {
-			return nil, "", err
-		}
-
-		getDNSCustomLineRespBody, err := utils.FlattenResponse(getDNSCustomLineResp)
-		if err != nil {
-			return nil, "", err
-		}
-		customLineMap, err := flattenCustomLineResponseBody(getDNSCustomLineRespBody, d)
+		customLine, err := GetCustomLineById(client, customLineId)
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
 				// When the error code is 404, the value of respBody is nil, and a non-null value is returned to avoid continuing the loop check.
 				return "Resource Not Found", "DELETED", nil
 			}
-			return customLineMap, "", err
+			return customLine, "", err
 		}
 
-		status := customLineMap["status"]
-		return getDNSCustomLineRespBody, parseStatus(status.(string)), nil
+		return customLine, parseStatus(utils.PathSearch("status", customLine, "").(string)), nil
 	}
 }

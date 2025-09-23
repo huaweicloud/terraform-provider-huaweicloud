@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_secmaster_alert_rule_simulation
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: SecMaster
+paths:
+    /v1/{project_id}/workspaces/{workspace_id}/siem/alert-rules/simulation:
+        POST:
+            tag: SecMaster

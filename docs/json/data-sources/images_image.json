@@ -5,15 +5,16 @@
         "huaweicloud_images_image": {
           "block": {
             "attributes": {
-              "architecture": {
-                "type": "string",
-                "optional": true
-              },
-              "backup_id": {
+              "active_at": {
                 "type": "string",
                 "computed": true
               },
-              "checksum": {
+              "architecture": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "backup_id": {
                 "type": "string",
                 "computed": true
               },
@@ -22,6 +23,14 @@
                 "computed": true
               },
               "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "data_origin": {
+                "type": "string",
+                "computed": true
+              },
+              "description": {
                 "type": "string",
                 "computed": true
               },
@@ -40,11 +49,15 @@
               },
               "flavor_id": {
                 "type": "string",
-                "optional": true,
-                "computed": true
+                "optional": true
               },
               "id": {
                 "type": "string",
+                "computed": true
+              },
+              "image_id": {
+                "type": "string",
+                "optional": true,
                 "computed": true
               },
               "image_type": {
@@ -52,11 +65,12 @@
                 "optional": true,
                 "computed": true
               },
-              "metadata": {
-                "type": [
-                  "map",
-                  "string"
-                ],
+              "is_whole_image": {
+                "type": "bool",
+                "optional": true
+              },
+              "max_ram_mb": {
+                "type": "number",
                 "computed": true
               },
               "min_disk_gb": {
@@ -88,7 +102,6 @@
               },
               "os_version": {
                 "type": "string",
-                "optional": true,
                 "computed": true
               },
               "owner": {

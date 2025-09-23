@@ -1,0 +1,68 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_sfs_turbo_data_task": {
+          "block": {
+            "attributes": {
+              "dest_prefix": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "dest_target": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "end_time": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "message": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "share_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "src_prefix": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "src_target": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "start_time": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

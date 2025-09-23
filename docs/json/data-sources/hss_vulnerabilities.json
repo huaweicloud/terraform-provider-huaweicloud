@@ -1,0 +1,140 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_vulnerabilities": {
+          "block": {
+            "attributes": {
+              "asset_value": {
+                "type": "string",
+                "optional": true
+              },
+              "cve_id": {
+                "type": "string",
+                "optional": true
+              },
+              "data_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cve_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "cve_id": "string",
+                            "cvss": "number"
+                          }
+                        ]
+                      ],
+                      "description": "string",
+                      "fixed_num": "number",
+                      "host_id_list": [
+                        "list",
+                        "string"
+                      ],
+                      "host_num": "number",
+                      "hosts_num": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "common": "number",
+                            "important": "number",
+                            "test": "number"
+                          }
+                        ]
+                      ],
+                      "ignored_num": "number",
+                      "label_list": [
+                        "list",
+                        "string"
+                      ],
+                      "patch_url": "string",
+                      "repair_necessity": "string",
+                      "repair_priority": "string",
+                      "repair_priority_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "host_num": "number",
+                            "repair_priority": "string"
+                          }
+                        ]
+                      ],
+                      "repair_success_num": "number",
+                      "scan_time": "number",
+                      "severity_level": "string",
+                      "solution_detail": "string",
+                      "type": "string",
+                      "unhandle_host_num": "number",
+                      "url": "string",
+                      "verify_num": "number",
+                      "vul_id": "string",
+                      "vul_name": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "group_name": {
+                "type": "string",
+                "optional": true
+              },
+              "handle_status": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "label_list": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "repair_priority": {
+                "type": "string",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "optional": true
+              },
+              "vul_id": {
+                "type": "string",
+                "optional": true
+              },
+              "vul_name": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

@@ -114,13 +114,14 @@ The following arguments are supported:
 * `instance_id` - (Required, String, ForceNew) Specifies an ID of the APIG dedicated instance to which the API belongs
   to. Changing this will create a new API resource.
 
-* `group_id` - (Required, String) Specifies an ID of the APIG group to which the API belongs to.
+* `group_id` - (Required, String, ForceNew) Specifies the ID of the APIG group to which the API belongs.  
+  Changing this will create a new API resource.
 
 * `type` - (Required, String) Specifies the API type.  
   The valid values are **Public** and **Private**.
 
 * `name` - (Required, String) Specifies the API name.  
-  The valid length is limited from can contain `3` to `255`, only Chinese and English letters, digits and
+  The valid length is limited from `3` to `255`, only Chinese and English letters, digits and
   following special characters are allowed: `-_./（()）:：、`.
   The name must start with a digit, Chinese or English letter.
 
@@ -152,6 +153,22 @@ The following arguments are supported:
 -> The custom authorization is not supported if the `request_protocol` is **GRPCS**.
 
 * `tags` - (Optional, List) Specifies the list of tags configuration.
+
+* `content_type` - (Optional, String) Specifies the content type of the request body.  
+  The valid values are as follows:
+  + **application/json**
+  + **application/xml**
+  + **multipart/form-data**
+  + **text/plain**
+
+* `is_send_fg_body_base64` - (Optional, Bool) Specifies whether to perform base64 encoding on the body for interaction
+  with FunctionGraph.  
+  Defaults to **true**.  
+  The body does not need to be encoded using base64 only when `content_type` is set to **application/json**.  
+  These scenarios which can be applied:
+  + Custom authentication.
+  + Bound circuit breaker plug-in with FunctionGraph backend downgrade policy.
+  + APIs with FunctionGraph backend.
 
 * `request_params` - (Optional, List) Specifies the configurations of the front-end parameters.  
   The [object](#apig_api_request_params) structure is documented below.
@@ -208,8 +225,8 @@ The following arguments are supported:
 The `request_params` block supports:
 
 * `name` - (Required, String) Specifies the request parameter name.  
-  The valid length is limited from can contain `1` to `32`, only letters, digits, hyphens (-), underscores (_) and
-  periods (.) are allowed.  
+  The valid length is limited from `1` to `32`, only letters, digits, hyphens (-), underscores (_) and
+  periods (.) are allowed. It must start with a letter.  
   If Location is specified as **HEADER** and `security_authentication` is specified as **APP**, the parameter name
   cannot be `Authorization` (case-insensitive) and cannot contain underscores.
 
@@ -245,16 +262,25 @@ The `request_params` block supports:
   + **1**: enable
   + **2**: disable (by default)
 
+* `orchestrations` - (Optional, List) Specifies the list of orchestration rule IDs which parameter used.  
+  The order of the IDs determines the priority of the rules, and the priority decreases according to the order of the
+  list elements.
+
+  -> 1. The **none_value** rule has the highest priority, a maximum of one **none_value** rule can be bound.<br>2. The
+     **default** rule has the lowest priority, a maximum of one **default** rule can be bound.<br>3. Only one parameter
+     of each API can be bound with unique orchestration rules.
+
 <a name="apig_api_backend_params"></a>
 The `backend_params` block supports:
 
 * `type` - (Required, String) Specifies the backend parameter type.  
   The valid values are **REQUEST**, **CONSTANT** and **SYSTEM**.
 
-* `name` - (Required, String) Specifies the backend parameter name, which contain of 1 to 32 characters and start with a
-  letter. Only letters, digits, hyphens (-), underscores (_) and periods (.) are allowed. The parameter name is not
-  case-sensitive. It cannot start with `x-apig-` or `x-sdk-` and cannot be `x-stage`. If the location is specified as
-  **HEADER**, the name cannot contain underscores.
+* `name` - (Required, String) Specifies the backend parameter name, which contain of `1` to `32` characters and start
+  with a letter. Only letters, digits, hyphens (-), underscores (_) and periods (.) are allowed.  
+  It must start with a letter.
+  The parameter name is not case-sensitive. It cannot start with `x-apig-` or `x-sdk-` and cannot be `x-stage`.
+  If the location is specified as **HEADER**, the name cannot contain underscores.
 
 * `location` - (Required, String) Specifies the location of the backend parameter.  
   The valid values are **PATH**, **QUERY** and **HEADER**.
@@ -362,7 +388,8 @@ The `web` block supports:
 The `mock_policy` block supports:
 
 * `name` - (Required, String) Specifies the backend policy name.  
-  The valid length is limited from can contain `3` to `64`, only letters, digits and underscores (_) are allowed.
+  The valid length is limited from `3` to `64`, only letters, digits and underscores (_) are allowed.  
+  It must start with a letter.
 
 * `conditions` - (Required, List) Specifies an array of one or more policy conditions.  
   Up to five conditions can be set.
@@ -386,7 +413,8 @@ The `mock_policy` block supports:
 The `func_graph_policy` block supports:
 
 * `name` - (Required, String) Specifies the backend policy name.  
-  The valid length is limited from can contain `3` to `64`, only letters, digits and underscores (_) are allowed.
+  The valid length is limited from `3` to `64`, only letters, digits and underscores (_) are allowed.  
+  It must start with a letter.
 
 * `function_urn` - (Required, String) Specifies the URN of the FunctionGraph function.
 
@@ -431,7 +459,8 @@ The `func_graph_policy` block supports:
 The `web_policy` block supports:
 
 * `name` - (Required, String) Specifies the backend policy name.  
-  The valid length is limited from can contain `3` to `64`, only letters, digits and underscores (_) are allowed.
+  The valid length is limited from `3` to `64`, only letters, digits and underscores (_) are allowed.  
+  It must start with a letter.
 
 * `path` - (Required, String) Specifies the backend request address, which can contain a maximum of `512` characters and
   must comply with URI specifications.  
@@ -521,6 +550,14 @@ The `conditions` block supports:
 * `type` - (Optional, String) Specifies the condition type of the backend policy.  
   The valid values are **Equal**, **Enumerated** and **Matching**, defaults to **Equal**.  
   When the `sys_name` is **req_method**, the valid values are **Equal** and **Enumerated**.
+
+* `mapped_param_name` - (Optional, String) Specifies the name of a parameter generated after orchestration.
+  This parameter is required if the policy type is **orchestration**.  
+  The generated parameter name must exist in the orchestration rule bound to the API.
+
+* `mapped_param_location` - (Optional, String) Specifies the location of a parameter generated after orchestration.
+  This parameter is required if the policy type is **orchestration**.  
+  The generated parameter location must exist in the orchestration rule bound to the API.
 
 ## Attribute Reference
 

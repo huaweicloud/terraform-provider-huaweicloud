@@ -16,38 +16,34 @@ import (
 )
 
 func getAcceleratorResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	region := acceptance.HW_REGION_NAME
-	// getAccelerator: Query the GA accelerator detail
 	var (
-		getAcceleratorHttpUrl = "v1/accelerators/{id}"
-		getAcceleratorProduct = "ga"
+		region  = acceptance.HW_REGION_NAME
+		httpUrl = "v1/accelerators/{id}"
+		product = "ga"
 	)
-	getAcceleratorClient, err := conf.NewServiceClient(getAcceleratorProduct, region)
+	client, err := conf.NewServiceClient(product, region)
 	if err != nil {
-		return nil, fmt.Errorf("error creating Accelerator Client: %s", err)
+		return nil, fmt.Errorf("error creating GA client: %s", err)
 	}
 
-	getAcceleratorPath := getAcceleratorClient.Endpoint + getAcceleratorHttpUrl
-	getAcceleratorPath = strings.ReplaceAll(getAcceleratorPath, "{id}", state.Primary.ID)
-
-	getAcceleratorOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{id}", state.Primary.ID)
+	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
-	getAcceleratorResp, err := getAcceleratorClient.Request("GET", getAcceleratorPath, &getAcceleratorOpt)
+	resp, err := client.Request("GET", requestPath, &requestOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving Accelerator: %s", err)
+		return nil, fmt.Errorf("error retrieving GA accelerator: %s", err)
 	}
-	return utils.FlattenResponse(getAcceleratorResp)
+	return utils.FlattenResponse(resp)
 }
 
 func TestAccAccelerator_basic(t *testing.T) {
-	var obj interface{}
-
-	name := acceptance.RandomAccResourceNameWithDash()
-	rName := "huaweicloud_ga_accelerator.test"
+	var (
+		obj   interface{}
+		name  = acceptance.RandomAccResourceNameWithDash()
+		rName = "huaweicloud_ga_accelerator.test"
+	)
 
 	rc := acceptance.InitResourceCheck(
 		rName,
@@ -67,9 +63,14 @@ func TestAccAccelerator_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttr(rName, "description", "terraform test"),
 					resource.TestCheckResourceAttr(rName, "ip_sets.0.area", "CM"),
+					resource.TestCheckResourceAttr(rName, "ip_sets.0.ip_type", "IPV4"),
+					resource.TestCheckResourceAttr(rName, "ip_sets.1.area", "CM"),
+					resource.TestCheckResourceAttr(rName, "ip_sets.1.ip_type", "IPV6"),
 					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(rName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(rName, "status", "ACTIVE"),
+					resource.TestCheckResourceAttrSet(rName, "ip_sets.0.ip_address"),
+					resource.TestCheckResourceAttrSet(rName, "ip_sets.1.ip_address"),
 				),
 			},
 			{
@@ -98,7 +99,13 @@ resource "huaweicloud_ga_accelerator" "test" {
   description = "terraform test"
 
   ip_sets {
-    area = "CM"
+    ip_type = "IPV4"
+    area    = "CM"
+  }
+
+  ip_sets {
+    ip_type = "IPV6"
+    area    = "CM"
   }
 
   tags = {
@@ -116,7 +123,13 @@ resource "huaweicloud_ga_accelerator" "test" {
   description = "terraform test update"
 
   ip_sets {
-    area = "CM"
+    ip_type = "IPV4"
+    area    = "CM"
+  }
+
+  ip_sets {
+    ip_type = "IPV6"
+    area    = "CM"
   }
 
   tags = {

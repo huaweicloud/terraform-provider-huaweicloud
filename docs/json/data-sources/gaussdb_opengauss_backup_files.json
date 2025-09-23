@@ -1,0 +1,56 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_opengauss_backup_files": {
+          "block": {
+            "attributes": {
+              "backup_id": {
+                "type": "string",
+                "description": "Specifies the ID of the backup.",
+                "required": true
+              },
+              "bucket": {
+                "type": "string",
+                "description": "Indicates the bucket name.",
+                "computed": true
+              },
+              "files": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "download_link": "string",
+                      "link_expired_time": "string",
+                      "name": "string",
+                      "size": "number"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of backup files.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDB",
+            "name": "GaussDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

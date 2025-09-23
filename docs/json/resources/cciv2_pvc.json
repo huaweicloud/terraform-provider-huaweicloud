@@ -1,0 +1,169 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cciv2_pvc": {
+          "block": {
+            "attributes": {
+              "access_modes": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The access modes of the persistent volume claim.",
+                "optional": true
+              },
+              "annotations": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "The annotations of the persistent volume claim.",
+                "optional": true
+              },
+              "api_version": {
+                "type": "string",
+                "description": "The API version of the persistent volume claim.",
+                "computed": true
+              },
+              "creation_timestamp": {
+                "type": "string",
+                "description": "The creation timestamp of the persistent volume claim.",
+                "computed": true
+              },
+              "finalizers": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The finalizers of the persistent volume claim.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "kind": {
+                "type": "string",
+                "description": "The kind of the persistent volume claim.",
+                "computed": true
+              },
+              "labels": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "The labels of the persistent volume claim.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the persistent volume claim in the namespace.",
+                "required": true
+              },
+              "namespace": {
+                "type": "string",
+                "description": "The name of the namespace.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "resource_version": {
+                "type": "string",
+                "description": "The resource version of the persistent volume claim.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the persistent volume claim.",
+                "computed": true
+              },
+              "storage_class_name": {
+                "type": "string",
+                "optional": true
+              },
+              "uid": {
+                "type": "string",
+                "description": "The uid of the persistent volume claim.",
+                "computed": true
+              },
+              "valume_name": {
+                "type": "string",
+                "optional": true
+              },
+              "volume_mode": {
+                "type": "string",
+                "optional": true
+              }
+            },
+            "block_types": {
+              "resources": {
+                "block": {
+                  "attributes": {
+                    "limits": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "optional": true
+                    },
+                    "requests": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "selector": {
+                "block": {
+                  "attributes": {
+                    "match_labels": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "optional": true
+                    }
+                  },
+                  "block_types": {
+                    "match_expressions": {
+                      "block": {
+                        "attributes": {
+                          "key": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "operator": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "values": {
+                            "type": [
+                              "list",
+                              "string"
+                            ],
+                            "optional": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list"
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

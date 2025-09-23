@@ -12,7 +12,7 @@ paths:
         POST:
             tag: VPN
     /v5/{project_id}/{resource_type}/{resource_id}/tags/delete:
-        DELETE:
+        POST:
             tag: VPN
     /v5/{project_id}/customer-gateways:
         POST:

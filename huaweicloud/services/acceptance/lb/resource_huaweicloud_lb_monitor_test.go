@@ -2,38 +2,55 @@ package lb
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
+	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/elb/v2/monitors"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getMonitorResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	c, err := conf.LoadBalancerClient(acceptance.HW_REGION_NAME)
+func getMonitorResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	var (
+		httpUrl = "v2/{project_id}/elb/healthmonitors/{healthmonitor_id}"
+		product = "elb"
+	)
+	client, err := cfg.NewServiceClient(product, acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating HuaweiCloud LB v2 client: %s", err)
+		return nil, err
 	}
-	resp, err := monitors.Get(c, state.Primary.ID).Extract()
-	if resp == nil && err == nil {
-		return resp, fmt.Errorf("Unable to find the monitor (%s)", state.Primary.ID)
+
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{healthmonitor_id}", state.Primary.ID)
+
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
-	return resp, err
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(getResp)
 }
 
 func TestAccLBV2Monitor_basic(t *testing.T) {
-	var monitor monitors.Monitor
+	var obj interface{}
 	rName := acceptance.RandomAccResourceNameWithDash()
-	rNameUpdate := rName + "-update"
+	rNameUpdate := acceptance.RandomAccResourceNameWithDash()
 	resourceName := "huaweicloud_lb_monitor.monitor_1"
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
-		&monitor,
+		&obj,
 		getMonitorResourceFunc,
 	)
 
@@ -51,6 +68,7 @@ func TestAccLBV2Monitor_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "delay", "20"),
 					resource.TestCheckResourceAttr(resourceName, "timeout", "10"),
 					resource.TestCheckResourceAttr(resourceName, "max_retries", "5"),
+					resource.TestCheckResourceAttr(resourceName, "domain_name", "testdomain.com"),
 				),
 			},
 			{
@@ -61,6 +79,8 @@ func TestAccLBV2Monitor_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "timeout", "15"),
 					resource.TestCheckResourceAttr(resourceName, "max_retries", "3"),
 					resource.TestCheckResourceAttr(resourceName, "port", "8888"),
+					resource.TestCheckResourceAttr(resourceName, "type", "HTTP"),
+					resource.TestCheckResourceAttr(resourceName, "domain_name", "testdomainupdate.com"),
 				),
 			},
 			{
@@ -189,6 +209,7 @@ resource "huaweicloud_lb_monitor" "monitor_1" {
   delay       = 20
   timeout     = 10
   max_retries = 5
+  domain_name = "testdomain.com"
 }
 `, testAccLBV2MonitorConfig_base(rName), rName)
 }
@@ -200,11 +221,12 @@ func testAccLBV2MonitorConfig_update(rName, rNameUpdate string) string {
 resource "huaweicloud_lb_monitor" "monitor_1" {
   pool_id     = huaweicloud_lb_pool.pool_1.id
   name        = "%s"
-  type        = "TCP"
+  type        = "HTTP"
   delay       = 30
   timeout     = 15
   max_retries = 3
   port        = 8888
+  domain_name = "testdomainupdate.com"
 }
 `, testAccLBV2MonitorConfig_base(rName), rNameUpdate)
 }

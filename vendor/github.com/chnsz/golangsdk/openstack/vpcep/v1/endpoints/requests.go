@@ -22,22 +22,30 @@ type CreateOpts struct {
 	// Specifies the network ID of the subnet created in the VPC specified by vpc_id
 	// The parameter is mandatory to create an interface VPC endpoint
 	SubnetID string `json:"subnet_id,omitempty"`
-	// Specifies the IP address for accessing the associated VPC endpoint service
-	PortIP string `json:"port_ip,omitempty"`
 	// Specifies whether to create a private domain name
 	EnableDNS *bool `json:"enable_dns,omitempty"`
-	// Specifies whether to enable access control
-	EnableWhitelist *bool `json:"enable_whitelist,omitempty"`
-	// Specifies the whitelist for controlling access to the VPC endpoint
-	Whitelist []string `json:"whitelist,omitempty"`
+	// Specifies the resource tags in key/value format
+	Tags []tags.ResourceTag `json:"tags,omitempty"`
 	// Specifies the IDs of route tables
 	// The parameter is mandatory to create a gateway type VPC endpoint
 	// If the parameter is not set, will be associated with the default route table
 	RouteTables []string `json:"routetables,omitempty"`
-	// Specifies the resource tags in key/value format
-	Tags []tags.ResourceTag `json:"tags,omitempty"`
+	// Specifies the IP address for accessing the associated VPC endpoint service
+	PortIP string `json:"port_ip,omitempty"`
+	// Specifies the whitelist for controlling access to the VPC endpoint
+	Whitelist []string `json:"whitelist,omitempty"`
+	// Specifies whether to enable access control
+	EnableWhitelist *bool `json:"enable_whitelist,omitempty"`
 	// Specifies the description of the VPC endpoint service
 	Description string `json:"description,omitempty"`
+	// Specifies the endpoint policy information for the gateway type
+	PolicyStatement interface{} `json:"policy_statement,omitempty"`
+	// Specifies the endpoint policy information for the gateway type
+	PolicyDocument interface{} `json:"policy_document,omitempty"`
+	// Specifies the IP version
+	IPVersion string `json:"ip_version,omitempty"`
+	// Specifies the IPv6 address
+	IPv6Address string `json:"ipv6_address,omitempty"`
 }
 
 // ToEndpointCreateMap assembles a request body based on the contents of a CreateOpts.
@@ -88,6 +96,36 @@ func Update(c *golangsdk.ServiceClient, opts UpdateOptsBuilder, endpointID strin
 	}
 
 	_, r.Err = c.Put(resourceURL(c, endpointID), b, &r.Body, nil)
+	return
+}
+
+// UpdatePolicyOptsBuilder using to update endpoint policy
+type UpdatePolicyOptsBuilder interface {
+	UpdatePolicyOptsMap() (map[string]interface{}, error)
+}
+
+// UpdatePolicyOpts using to pass to UpdatePolicy()
+type UpdatePolicyOpts struct {
+	// Specifies the endpoint policy information for the gateway type
+	PolicyStatement interface{} `json:"policy_statement,omitempty"`
+	// Specifies the endpoint policy information for the gateway type
+	PolicyDocument interface{} `json:"policy_document,omitempty"`
+}
+
+// UpdatePolicyOptsMap assembles a request body based on the contents of a UpdatePolicyOpts.
+func (opts UpdatePolicyOpts) UpdatePolicyOptsMap() (map[string]interface{}, error) {
+	return golangsdk.BuildRequestBody(opts, "")
+}
+
+// UpdatePolicy accepts a UpdatePolicyOpts struct and uses the values to update endpoint policy
+func UpdatePolicy(c *golangsdk.ServiceClient, opts UpdatePolicyOptsBuilder, endpointID string) (r UpdateResult) {
+	b, err := opts.UpdatePolicyOptsMap()
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = c.Put(updatePolicyURL(c, endpointID), b, &r.Body, nil)
 	return
 }
 

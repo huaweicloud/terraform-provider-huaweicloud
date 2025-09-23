@@ -52,10 +52,12 @@ The following arguments are supported:
 * `function_urn` - (Required, String, ForceNew) Specifies the function URN to which the asynchronous invocation belongs.
   Changing this will create a new resource.
 
-* `max_async_event_age_in_seconds` - (Required, Int) Specifies the maximum validity period of a message.
+* `max_async_event_age_in_seconds` - (Required, Int) Specifies the maximum validity period of a message.  
+  The valid value is range from `1` to `86,400`.
 
 * `max_async_retry_attempts` - (Required, Int) Specifies the maximum number of retry attempts to be made if
-  asynchronous invocation fails.
+  asynchronous invocation fails.  
+  The valid value is range from `0` to `3`.
 
 * `on_success` - (Optional, List) Specifies the target to be invoked when a function is successfully executed.  
   The [object](#functiongraph_destination_config) structure is documented below.

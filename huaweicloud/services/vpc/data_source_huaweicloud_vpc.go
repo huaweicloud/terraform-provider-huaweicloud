@@ -87,9 +87,9 @@ func DataSourceVpcV1() *schema.Resource {
 }
 
 func dataSourceVpcV1Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	region := conf.GetRegion(d)
-	v1Client, err := conf.NetworkingV1Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	v1Client, err := cfg.NetworkingV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating VPC v1 client: %s", err)
 	}
@@ -99,7 +99,7 @@ func dataSourceVpcV1Read(_ context.Context, d *schema.ResourceData, meta interfa
 		Name:                d.Get("name").(string),
 		Status:              d.Get("status").(string),
 		CIDR:                d.Get("cidr").(string),
-		EnterpriseProjectID: conf.DataGetEnterpriseProjectID(d),
+		EnterpriseProjectID: cfg.GetEnterpriseProjectID(d, "all_granted_eps"),
 	}
 
 	refinedVpcs, err := vpcs.List(v1Client, listOpts)
@@ -140,7 +140,7 @@ func dataSourceVpcV1Read(_ context.Context, d *schema.ResourceData, meta interfa
 	d.Set("routes", s)
 
 	// save VirtualPrivateCloudV2 tags
-	if v2Client, err := conf.NetworkingV2Client(region); err == nil {
+	if v2Client, err := cfg.NetworkingV2Client(region); err == nil {
 		if resourceTags, err := tags.Get(v2Client, "vpcs", d.Id()).Extract(); err == nil {
 			tagmap := utils.TagsToMap(resourceTags.Tags)
 			if err := d.Set("tags", tagmap); err != nil {
@@ -152,7 +152,7 @@ func dataSourceVpcV1Read(_ context.Context, d *schema.ResourceData, meta interfa
 	}
 
 	// save VirtualPrivateCloudV3 extend_cidr
-	v3Client, err := conf.HcVpcV3Client(region)
+	v3Client, err := cfg.NewServiceClient("vpcv3", region)
 	if err != nil {
 		return diag.Errorf("error creating VPC v3 client: %s", err)
 	}
@@ -161,7 +161,7 @@ func dataSourceVpcV1Read(_ context.Context, d *schema.ResourceData, meta interfa
 	if err != nil {
 		diag.Errorf("error retrieving VPC (%s) v3 detail: %s", d.Id(), err)
 	}
-	d.Set("secondary_cidrs", res.Vpc.ExtendCidrs)
+	d.Set("secondary_cidrs", utils.PathSearch("vpc.extend_cidrs", res, nil))
 
 	return nil
 }

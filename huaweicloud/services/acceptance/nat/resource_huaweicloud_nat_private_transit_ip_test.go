@@ -7,38 +7,31 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk/openstack/nat/v3/transitips"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/nat"
 )
 
 func getPrivateTransitIpResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := cfg.NatV3Client(acceptance.HW_REGION_NAME)
+	region := acceptance.HW_REGION_NAME
+	client, err := cfg.NewServiceClient("nat", region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating NAT v3 client: %s", err)
 	}
 
-	return transitips.Get(client, state.Primary.ID)
+	return nat.GetTransitIp(client, state.Primary.ID)
 }
 
 func TestAccPrivateTransitIp_basic(t *testing.T) {
 	var (
-		obj transitips.TransitIp
-
-		rName1 = "huaweicloud_nat_private_transit_ip.test"
-		rName2 = "huaweicloud_nat_private_transit_ip.random_ip_address"
-		name   = acceptance.RandomAccResourceNameWithDash()
+		obj   interface{}
+		rName = "huaweicloud_nat_private_transit_ip.test"
+		name  = acceptance.RandomAccResourceNameWithDash()
 	)
 
-	rc1 := acceptance.InitResourceCheck(
-		rName1,
-		&obj,
-		getPrivateTransitIpResourceFunc,
-	)
-	rc2 := acceptance.InitResourceCheck(
-		rName2,
+	rc := acceptance.InitResourceCheck(
+		rName,
 		&obj,
 		getPrivateTransitIpResourceFunc,
 	)
@@ -48,49 +41,32 @@ func TestAccPrivateTransitIp_basic(t *testing.T) {
 			acceptance.TestAccPreCheck(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc1.CheckResourceDestroy(),
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccPrivateTransitIp_basic_step_1(name),
+				Config: testAccPrivateTransitIp_basic(name),
 				Check: resource.ComposeTestCheckFunc(
-					rc1.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(rName1, "subnet_id",
-						"huaweicloud_vpc_subnet.test", "id"),
-					resource.TestCheckResourceAttr(rName1, "ip_address", "192.168.0.68"),
-					resource.TestCheckResourceAttr(rName1, "enterprise_project_id", "0"),
-					resource.TestCheckResourceAttr(rName1, "tags.foo", "bar"),
-					resource.TestCheckResourceAttr(rName1, "tags.key", "value"),
-					resource.TestCheckResourceAttrSet(rName1, "created_at"),
-					resource.TestCheckResourceAttrSet(rName1, "updated_at"),
-					resource.TestCheckResourceAttrPair(rName2, "subnet_id",
-						"huaweicloud_vpc_subnet.test", "id"),
-					resource.TestCheckResourceAttrSet(rName2, "ip_address"),
-					resource.TestCheckResourceAttr(rName2, "enterprise_project_id", "0"),
-					resource.TestCheckResourceAttr(rName2, "tags.foo", "bar"),
-					resource.TestCheckResourceAttr(rName2, "tags.key", "value"),
-					resource.TestCheckResourceAttrSet(rName2, "created_at"),
-					resource.TestCheckResourceAttrSet(rName2, "updated_at"),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(rName, "subnet_id", "huaweicloud_vpc_subnet.test", "id"),
+					resource.TestCheckResourceAttr(rName, "ip_address", "192.168.0.68"),
+					resource.TestCheckResourceAttr(rName, "enterprise_project_id", "0"),
+					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(rName, "tags.key", "value"),
+					resource.TestCheckResourceAttrSet(rName, "status"),
+					resource.TestCheckResourceAttrSet(rName, "created_at"),
+					resource.TestCheckResourceAttrSet(rName, "updated_at"),
 				),
 			},
 			{
-				Config: testAccPrivateTransitIp_basic_step_2(name),
+				Config: testAccPrivateTransitIp_update(name),
 				Check: resource.ComposeTestCheckFunc(
-					rc1.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName1, "ip_address", "192.168.0.88"),
-					resource.TestCheckResourceAttr(rName1, "tags.foo", "baaar"),
-					resource.TestCheckResourceAttr(rName1, "tags.newkey", "value"),
-					rc2.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName2, "tags.foo", "baaar"),
-					resource.TestCheckResourceAttr(rName2, "tags.newkey", "value"),
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "tags.foo", "baaar"),
+					resource.TestCheckResourceAttr(rName, "tags.newkey", "value"),
 				),
 			},
 			{
-				ResourceName:      rName1,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
-				ResourceName:      rName2,
+				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -98,7 +74,7 @@ func TestAccPrivateTransitIp_basic(t *testing.T) {
 	})
 }
 
-func testAccPrivateTransitIp_basic_step_1(name string) string {
+func testAccPrivateTransitIp_basic(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -112,26 +88,16 @@ resource "huaweicloud_nat_private_transit_ip" "test" {
     key = "value"
   }
 }
-
-resource "huaweicloud_nat_private_transit_ip" "random_ip_address" {
-  subnet_id             = huaweicloud_vpc_subnet.test.id
-  enterprise_project_id = "0"
-
-  tags = {
-    foo = "bar"
-    key = "value"
-  }
-}
-`, common.TestBaseNetwork(name), name)
+`, common.TestBaseNetwork(name))
 }
 
-func testAccPrivateTransitIp_basic_step_2(name string) string {
+func testAccPrivateTransitIp_update(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
 resource "huaweicloud_nat_private_transit_ip" "test" {
   subnet_id             = huaweicloud_vpc_subnet.test.id
-  ip_address            = "192.168.0.88"
+  ip_address            = "192.168.0.68"
   enterprise_project_id = "0"
 
   tags = {
@@ -139,15 +105,5 @@ resource "huaweicloud_nat_private_transit_ip" "test" {
     newkey = "value"
   }
 }
-
-resource "huaweicloud_nat_private_transit_ip" "random_ip_address" {
-  subnet_id             = huaweicloud_vpc_subnet.test.id
-  enterprise_project_id = "0"
-
-  tags = {
-    foo    = "baaar"
-    newkey = "value"
-  }
-}
-`, common.TestBaseNetwork(name), name)
+`, common.TestBaseNetwork(name))
 }

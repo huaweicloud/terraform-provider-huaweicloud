@@ -7,8 +7,8 @@ package ga
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"regexp"
 	"strings"
 	"time"
 
@@ -16,8 +16,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -50,22 +48,12 @@ func ResourceEndpointGroup() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: `Specifies the endpoint group name.`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[A-Za-z0-9-]+$`),
-						"the input is invalid"),
-					validation.StringLenBetween(1, 64),
-				),
 			},
 			"region_id": {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
 				Description: `Specifies the region where the endpoint group belongs.`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[A-Za-z0-9-]*$`),
-						"the input is invalid"),
-					validation.StringLenBetween(1, 36),
-				),
 			},
 			"listeners": {
 				Type:        schema.TypeList,
@@ -80,18 +68,12 @@ func ResourceEndpointGroup() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `Specifies the information about the endpoint group.`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`[^<>]*`),
-						"the input is invalid"),
-					validation.StringLenBetween(0, 255),
-				),
 			},
 			"traffic_dial_percentage": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Computed:     true,
-				Description:  `Specifies the percentage of traffic distributed to the endpoint group.`,
-				ValidateFunc: validation.IntBetween(0, 100),
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Computed:    true,
+				Description: `Specifies the percentage of traffic distributed to the endpoint group.`,
 			},
 			"status": {
 				Type:        schema.TypeString,
@@ -108,6 +90,31 @@ func ResourceEndpointGroup() *schema.Resource {
 				Computed:    true,
 				Description: `Specifies when the endpoint group was updated.`,
 			},
+			"frozen_info": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `The frozen details of cloud services or resources.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"status": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `The status of a cloud service or resource.`,
+						},
+						"effect": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `The status of the resource after being forzen.`,
+						},
+						"scene": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Description: `The service scenario.`,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -119,11 +126,6 @@ func EndpointGroupIdSchema() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: `Specifies the ID of the associated listener.`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}`),
-						"the input is invalid"),
-					validation.StringLenBetween(0, 36),
-				),
 			},
 		},
 	}
@@ -131,47 +133,42 @@ func EndpointGroupIdSchema() *schema.Resource {
 }
 
 func resourceEndpointGroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	region := conf.GetRegion(d)
-
-	// createEndpointGroup: Create a GA endpoint group.
 	var (
-		createEndpointGroupHttpUrl = "v1/endpoint-groups"
-		createEndpointGroupProduct = "ga"
+		conf    = meta.(*config.Config)
+		region  = conf.GetRegion(d)
+		httpUrl = "v1/endpoint-groups"
+		product = "ga"
 	)
-	createEndpointGroupClient, err := conf.NewServiceClient(createEndpointGroupProduct, region)
+	client, err := conf.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating EndpointGroup Client: %s", err)
+		return diag.Errorf("error creating GA client: %s", err)
 	}
 
-	createEndpointGroupPath := createEndpointGroupClient.Endpoint + createEndpointGroupHttpUrl
-
-	createEndpointGroupOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			201,
-		},
-	}
-	createEndpointGroupOpt.JSONBody = utils.RemoveNil(buildCreateEndpointGroupBodyParams(d))
-	createEndpointGroupResp, err := createEndpointGroupClient.Request("POST", createEndpointGroupPath, &createEndpointGroupOpt)
-	if err != nil {
-		return diag.Errorf("error creating EndpointGroup: %s", err)
+		JSONBody:         utils.RemoveNil(buildCreateEndpointGroupBodyParams(d)),
 	}
 
-	createEndpointGroupRespBody, err := utils.FlattenResponse(createEndpointGroupResp)
+	resp, err := client.Request("POST", requestPath, &requestOpt)
+	if err != nil {
+		return diag.Errorf("error creating GA endpoint group: %s", err)
+	}
+
+	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("endpoint_group.id", createEndpointGroupRespBody)
-	if err != nil {
-		return diag.Errorf("error creating EndpointGroup: ID is not found in API response")
+	groupId := utils.PathSearch("endpoint_group.id", respBody, "").(string)
+	if groupId == "" {
+		return diag.Errorf("error creating GA endpoint group: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(groupId)
 
 	err = createEndpointGroupWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
-		return diag.Errorf("error waiting for the Create of EndpointGroup (%s) to complete: %s", d.Id(), err)
+		return diag.Errorf("error waiting for the GA endpoint group (%s) creation to complete: %s", d.Id(), err)
 	}
 	return resourceEndpointGroupRead(ctx, d, meta)
 }
@@ -208,118 +205,97 @@ func buildCreateEndpointGroupRequestBodyId(rawParams interface{}) []map[string]i
 }
 
 func createEndpointGroupWaitingForStateCompleted(ctx context.Context, d *schema.ResourceData, meta interface{}, t time.Duration) error {
+	var (
+		cfg              = meta.(*config.Config)
+		region           = cfg.GetRegion(d)
+		httpUrl          = "v1/endpoint-groups/{endpoint_group_id}"
+		product          = "ga"
+		targetStatus     = []string{"ACTIVE"}
+		unexpectedStatus = []string{"ERROR"}
+	)
+	client, err := cfg.NewServiceClient(product, region)
+	if err != nil {
+		return fmt.Errorf("error creating GA client: %s", err)
+	}
+
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{endpoint_group_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
-			config := meta.(*config.Config)
-			region := config.GetRegion(d)
-			// createEndpointGroupWaiting: missing operation notes
-			var (
-				createEndpointGroupWaitingHttpUrl = "v1/endpoint-groups/{endpoint_group_id}"
-				createEndpointGroupWaitingProduct = "ga"
-			)
-			createEndpointGroupWaitingClient, err := config.NewServiceClient(createEndpointGroupWaitingProduct, region)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error creating EndpointGroup Client: %s", err)
-			}
-
-			createEndpointGroupWaitingPath := createEndpointGroupWaitingClient.Endpoint + createEndpointGroupWaitingHttpUrl
-			createEndpointGroupWaitingPath = strings.ReplaceAll(createEndpointGroupWaitingPath, "{endpoint_group_id}", d.Id())
-
-			createEndpointGroupWaitingOpt := golangsdk.RequestOpts{
-				KeepResponseBody: true,
-				OkCodes: []int{
-					200,
-				},
-			}
-			createEndpointGroupWaitingResp, err := createEndpointGroupWaitingClient.Request("GET",
-				createEndpointGroupWaitingPath, &createEndpointGroupWaitingOpt)
+			resp, err := client.Request("GET", requestPath, &requestOpt)
 			if err != nil {
 				return nil, "ERROR", err
 			}
 
-			createEndpointGroupWaitingRespBody, err := utils.FlattenResponse(createEndpointGroupWaitingResp)
+			respBody, err := utils.FlattenResponse(resp)
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`endpoint_group.status`, createEndpointGroupWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `endpoint_group.status`)
-			}
 
-			status := fmt.Sprintf("%v", statusRaw)
-
-			targetStatus := []string{
-				"ACTIVE",
-			}
+			status := utils.PathSearch(`endpoint_group.status`, respBody, "").(string)
 			if utils.StrSliceContains(targetStatus, status) {
-				return createEndpointGroupWaitingRespBody, "COMPLETED", nil
+				return respBody, "COMPLETED", nil
 			}
 
-			unexpectedStatus := []string{
-				"ERROR",
-			}
 			if utils.StrSliceContains(unexpectedStatus, status) {
-				return createEndpointGroupWaitingRespBody, status, nil
+				return respBody, status, nil
 			}
 
-			return createEndpointGroupWaitingRespBody, "PENDING", nil
+			return respBody, "PENDING", nil
 		},
 		Timeout:      t,
 		Delay:        10 * time.Second,
 		PollInterval: 5 * time.Second,
 	}
-	_, err := stateConf.WaitForStateContext(ctx)
+	_, err = stateConf.WaitForStateContext(ctx)
 	return err
 }
 
 func resourceEndpointGroupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	region := conf.GetRegion(d)
-
-	var mErr *multierror.Error
-
-	// getEndpointGroup: Query the GA Endpoint Group detail
 	var (
-		getEndpointGroupHttpUrl = "v1/endpoint-groups/{endpoint_group_id}"
-		getEndpointGroupProduct = "ga"
+		conf    = meta.(*config.Config)
+		region  = conf.GetRegion(d)
+		mErr    *multierror.Error
+		httpUrl = "v1/endpoint-groups/{endpoint_group_id}"
+		product = "ga"
 	)
-	getEndpointGroupClient, err := conf.NewServiceClient(getEndpointGroupProduct, region)
+	client, err := conf.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating EndpointGroup Client: %s", err)
+		return diag.Errorf("error creating GA client: %s", err)
 	}
 
-	getEndpointGroupPath := getEndpointGroupClient.Endpoint + getEndpointGroupHttpUrl
-	getEndpointGroupPath = strings.ReplaceAll(getEndpointGroupPath, "{endpoint_group_id}", d.Id())
-
-	getEndpointGroupOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{endpoint_group_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
-	getEndpointGroupResp, err := getEndpointGroupClient.Request("GET", getEndpointGroupPath, &getEndpointGroupOpt)
-
+	resp, err := client.Request("GET", requestPath, &requestOpt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving EndpointGroup")
+		return common.CheckDeletedDiag(d, err, "error retrieving GA endpoint group")
 	}
 
-	getEndpointGroupRespBody, err := utils.FlattenResponse(getEndpointGroupResp)
+	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
 	mErr = multierror.Append(
 		mErr,
-		d.Set("created_at", utils.PathSearch("endpoint_group.created_at", getEndpointGroupRespBody, nil)),
-		d.Set("description", utils.PathSearch("endpoint_group.description", getEndpointGroupRespBody, nil)),
-		d.Set("listeners", flattenGetEndpointGroupResponseBodyId(getEndpointGroupRespBody)),
-		d.Set("name", utils.PathSearch("endpoint_group.name", getEndpointGroupRespBody, nil)),
-		d.Set("region_id", utils.PathSearch("endpoint_group.region_id", getEndpointGroupRespBody, nil)),
-		d.Set("status", utils.PathSearch("endpoint_group.status", getEndpointGroupRespBody, nil)),
-		d.Set("traffic_dial_percentage", utils.PathSearch("endpoint_group.traffic_dial_percentage", getEndpointGroupRespBody, nil)),
-		d.Set("updated_at", utils.PathSearch("endpoint_group.updated_at", getEndpointGroupRespBody, nil)),
+		d.Set("created_at", utils.PathSearch("endpoint_group.created_at", respBody, nil)),
+		d.Set("description", utils.PathSearch("endpoint_group.description", respBody, nil)),
+		d.Set("listeners", flattenGetEndpointGroupResponseBodyId(respBody)),
+		d.Set("name", utils.PathSearch("endpoint_group.name", respBody, nil)),
+		d.Set("region_id", utils.PathSearch("endpoint_group.region_id", respBody, nil)),
+		d.Set("status", utils.PathSearch("endpoint_group.status", respBody, nil)),
+		d.Set("traffic_dial_percentage", utils.PathSearch("endpoint_group.traffic_dial_percentage", respBody, nil)),
+		d.Set("updated_at", utils.PathSearch("endpoint_group.updated_at", respBody, nil)),
+		d.Set("frozen_info", flattenEndpointGroupFrozenInfo(utils.PathSearch("endpoint_group.frozen_info", respBody, nil))),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -340,44 +316,54 @@ func flattenGetEndpointGroupResponseBodyId(resp interface{}) []interface{} {
 	return rst
 }
 
+func flattenEndpointGroupFrozenInfo(resp interface{}) []map[string]interface{} {
+	if resp == nil {
+		return nil
+	}
+
+	frozenInfo := map[string]interface{}{
+		"status": utils.PathSearch("status", resp, nil),
+		"effect": utils.PathSearch("effect", resp, nil),
+		"scene":  utils.PathSearch("scene", resp, []string{}),
+	}
+
+	return []map[string]interface{}{frozenInfo}
+}
+
 func resourceEndpointGroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
 
-	updateEndpointGrouphasChanges := []string{
+	updateEndpointGroupHasChanges := []string{
 		"description",
 		"name",
 		"traffic_dial_percentage",
 	}
 
-	if d.HasChanges(updateEndpointGrouphasChanges...) {
-		// updateEndpointGroup: Update the configuration of GA Endpoint Group
+	if d.HasChanges(updateEndpointGroupHasChanges...) {
 		var (
-			updateEndpointGroupHttpUrl = "v1/endpoint-groups/{endpoint_group_id}"
-			updateEndpointGroupProduct = "ga"
+			httpUrl = "v1/endpoint-groups/{endpoint_group_id}"
+			product = "ga"
 		)
-		updateEndpointGroupClient, err := conf.NewServiceClient(updateEndpointGroupProduct, region)
+		client, err := conf.NewServiceClient(product, region)
 		if err != nil {
-			return diag.Errorf("error creating EndpointGroup Client: %s", err)
+			return diag.Errorf("error creating GA client: %s", err)
 		}
 
-		updateEndpointGroupPath := updateEndpointGroupClient.Endpoint + updateEndpointGroupHttpUrl
-		updateEndpointGroupPath = strings.ReplaceAll(updateEndpointGroupPath, "{endpoint_group_id}", d.Id())
-
-		updateEndpointGroupOpt := golangsdk.RequestOpts{
+		requestPath := client.Endpoint + httpUrl
+		requestPath = strings.ReplaceAll(requestPath, "{endpoint_group_id}", d.Id())
+		requestOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
-			OkCodes: []int{
-				200,
-			},
+			JSONBody:         utils.RemoveNil(buildUpdateEndpointGroupBodyParams(d)),
 		}
-		updateEndpointGroupOpt.JSONBody = utils.RemoveNil(buildUpdateEndpointGroupBodyParams(d))
-		_, err = updateEndpointGroupClient.Request("PUT", updateEndpointGroupPath, &updateEndpointGroupOpt)
+
+		_, err = client.Request("PUT", requestPath, &requestOpt)
 		if err != nil {
-			return diag.Errorf("error updating EndpointGroup: %s", err)
+			return diag.Errorf("error updating GA endpoint group: %s", err)
 		}
 		err = updateEndpointGroupWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
-			return diag.Errorf("error waiting for the Update of EndpointGroup (%s) to complete: %s", d.Id(), err)
+			return diag.Errorf("error waiting for the GA endpoint group (%s) update to complete: %s", d.Id(), err)
 		}
 	}
 	return resourceEndpointGroupRead(ctx, d, meta)
@@ -395,168 +381,138 @@ func buildUpdateEndpointGroupBodyParams(d *schema.ResourceData) map[string]inter
 }
 
 func updateEndpointGroupWaitingForStateCompleted(ctx context.Context, d *schema.ResourceData, meta interface{}, t time.Duration) error {
+	var (
+		cfg              = meta.(*config.Config)
+		region           = cfg.GetRegion(d)
+		httpUrl          = "v1/endpoint-groups/{endpoint_group_id}"
+		product          = "ga"
+		targetStatus     = []string{"ACTIVE"}
+		unexpectedStatus = []string{"ERROR"}
+	)
+	client, err := cfg.NewServiceClient(product, region)
+	if err != nil {
+		return fmt.Errorf("error creating GA client: %s", err)
+	}
+
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{endpoint_group_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
-			config := meta.(*config.Config)
-			region := config.GetRegion(d)
-			// updateEndpointGroupWaiting: missing operation notes
-			var (
-				updateEndpointGroupWaitingHttpUrl = "v1/endpoint-groups/{endpoint_group_id}"
-				updateEndpointGroupWaitingProduct = "ga"
-			)
-			updateEndpointGroupWaitingClient, err := config.NewServiceClient(updateEndpointGroupWaitingProduct, region)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error creating EndpointGroup Client: %s", err)
-			}
-
-			updateEndpointGroupWaitingPath := updateEndpointGroupWaitingClient.Endpoint + updateEndpointGroupWaitingHttpUrl
-			updateEndpointGroupWaitingPath = strings.ReplaceAll(updateEndpointGroupWaitingPath, "{endpoint_group_id}", d.Id())
-
-			updateEndpointGroupWaitingOpt := golangsdk.RequestOpts{
-				KeepResponseBody: true,
-				OkCodes: []int{
-					200,
-				},
-			}
-			updateEndpointGroupWaitingResp, err := updateEndpointGroupWaitingClient.Request("GET",
-				updateEndpointGroupWaitingPath, &updateEndpointGroupWaitingOpt)
+			resp, err := client.Request("GET", requestPath, &requestOpt)
 			if err != nil {
 				return nil, "ERROR", err
 			}
 
-			updateEndpointGroupWaitingRespBody, err := utils.FlattenResponse(updateEndpointGroupWaitingResp)
+			respBody, err := utils.FlattenResponse(resp)
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`endpoint_group.status`, updateEndpointGroupWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `endpoint_group.status`)
-			}
 
-			status := fmt.Sprintf("%v", statusRaw)
-
-			targetStatus := []string{
-				"ACTIVE",
-			}
+			status := utils.PathSearch(`endpoint_group.status`, respBody, "").(string)
 			if utils.StrSliceContains(targetStatus, status) {
-				return updateEndpointGroupWaitingRespBody, "COMPLETED", nil
+				return respBody, "COMPLETED", nil
 			}
 
-			unexpectedStatus := []string{
-				"ERROR",
-			}
 			if utils.StrSliceContains(unexpectedStatus, status) {
-				return updateEndpointGroupWaitingRespBody, status, nil
+				return respBody, status, nil
 			}
 
-			return updateEndpointGroupWaitingRespBody, "PENDING", nil
+			return respBody, "PENDING", nil
 		},
 		Timeout:      t,
 		Delay:        10 * time.Second,
 		PollInterval: 5 * time.Second,
 	}
-	_, err := stateConf.WaitForStateContext(ctx)
+	_, err = stateConf.WaitForStateContext(ctx)
 	return err
 }
 
 func resourceEndpointGroupDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	region := conf.GetRegion(d)
-
-	// deleteEndpointGroup: Delete an existing GA Endpoint Group
 	var (
-		deleteEndpointGroupHttpUrl = "v1/endpoint-groups/{endpoint_group_id}"
-		deleteEndpointGroupProduct = "ga"
+		conf    = meta.(*config.Config)
+		region  = conf.GetRegion(d)
+		httpUrl = "v1/endpoint-groups/{endpoint_group_id}"
+		product = "ga"
 	)
-	deleteEndpointGroupClient, err := conf.NewServiceClient(deleteEndpointGroupProduct, region)
+	client, err := conf.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating EndpointGroup Client: %s", err)
+		return diag.Errorf("error creating GA client: %s", err)
 	}
 
-	deleteEndpointGroupPath := deleteEndpointGroupClient.Endpoint + deleteEndpointGroupHttpUrl
-	deleteEndpointGroupPath = strings.ReplaceAll(deleteEndpointGroupPath, "{endpoint_group_id}", d.Id())
-
-	deleteEndpointGroupOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{endpoint_group_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			204,
-		},
 	}
-	_, err = deleteEndpointGroupClient.Request("DELETE", deleteEndpointGroupPath, &deleteEndpointGroupOpt)
+	_, err = client.Request("DELETE", requestPath, &requestOpt)
 	if err != nil {
-		return diag.Errorf("error deleting EndpointGroup: %s", err)
+		return diag.Errorf("error deleting GA endpoint group: %s", err)
 	}
 
 	err = deleteEndpointGroupWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return diag.Errorf("error waiting for the Delete of EndpointGroup (%s) to complete: %s", d.Id(), err)
+		return diag.Errorf("error waiting for the GA endpoint group (%s) delete to complete: %s", d.Id(), err)
 	}
 	return nil
 }
 
 func deleteEndpointGroupWaitingForStateCompleted(ctx context.Context, d *schema.ResourceData, meta interface{}, t time.Duration) error {
+	var (
+		cfg              = meta.(*config.Config)
+		region           = cfg.GetRegion(d)
+		httpUrl          = "v1/endpoint-groups/{endpoint_group_id}"
+		product          = "ga"
+		unexpectedStatus = []string{"ERROR"}
+	)
+	client, err := cfg.NewServiceClient(product, region)
+	if err != nil {
+		return fmt.Errorf("error creating GA client: %s", err)
+	}
+
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{endpoint_group_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
-			config := meta.(*config.Config)
-			region := config.GetRegion(d)
-			// deleteEndpointGroupWaiting: missing operation notes
-			var (
-				deleteEndpointGroupWaitingHttpUrl = "v1/endpoint-groups/{endpoint_group_id}"
-				deleteEndpointGroupWaitingProduct = "ga"
-			)
-			deleteEndpointGroupWaitingClient, err := config.NewServiceClient(deleteEndpointGroupWaitingProduct, region)
+			resp, err := client.Request("GET", requestPath, &requestOpt)
 			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error creating EndpointGroup Client: %s", err)
-			}
-
-			deleteEndpointGroupWaitingPath := deleteEndpointGroupWaitingClient.Endpoint + deleteEndpointGroupWaitingHttpUrl
-			deleteEndpointGroupWaitingPath = strings.ReplaceAll(deleteEndpointGroupWaitingPath, "{endpoint_group_id}", d.Id())
-
-			deleteEndpointGroupWaitingOpt := golangsdk.RequestOpts{
-				KeepResponseBody: true,
-				OkCodes: []int{
-					200,
-				},
-			}
-			deleteEndpointGroupWaitingResp, err := deleteEndpointGroupWaitingClient.Request("GET",
-				deleteEndpointGroupWaitingPath, &deleteEndpointGroupWaitingOpt)
-			if err != nil {
-				if _, ok := err.(golangsdk.ErrDefault404); ok {
-					// When the error code is 404, the value of respBody is nil, and a non-null value is returned to avoid continuing the loop check.
+				var errDefault404 golangsdk.ErrDefault404
+				if errors.As(err, &errDefault404) {
+					// When the error code is `404`, the value of respBody is nil, and a non-null value is returned to
+					// avoid continuing the loop check.
 					return "Resource Not Found", "COMPLETED", nil
 				}
 
 				return nil, "ERROR", err
 			}
 
-			deleteEndpointGroupWaitingRespBody, err := utils.FlattenResponse(deleteEndpointGroupWaitingResp)
+			respBody, err := utils.FlattenResponse(resp)
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`endpoint_group.status`, deleteEndpointGroupWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `endpoint_group.status`)
-			}
 
-			status := fmt.Sprintf("%v", statusRaw)
-
-			unexpectedStatus := []string{
-				"ERROR",
-			}
+			status := utils.PathSearch(`endpoint_group.status`, respBody, "").(string)
 			if utils.StrSliceContains(unexpectedStatus, status) {
-				return deleteEndpointGroupWaitingRespBody, status, nil
+				return respBody, status, nil
 			}
 
-			return deleteEndpointGroupWaitingRespBody, "PENDING", nil
+			return respBody, "PENDING", nil
 		},
 		Timeout:      t,
 		Delay:        10 * time.Second,
 		PollInterval: 5 * time.Second,
 	}
-	_, err := stateConf.WaitForStateContext(ctx)
+	_, err = stateConf.WaitForStateContext(ctx)
 	return err
 }

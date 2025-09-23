@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cnad_advanced_policy_ip_binding
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: AAD
+paths:
+    /v3/cnad/policies/{policy_id}/bind:
+        POST:
+            tag: AAD

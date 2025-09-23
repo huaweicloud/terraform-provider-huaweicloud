@@ -2,7 +2,6 @@ package dws
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -10,7 +9,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -164,39 +162,12 @@ func refreshWorkLoadPlanID(client *golangsdk.ServiceClient, d *schema.ResourceDa
 // When the cluster ID is illegal, the API returns a 400 status code.
 // Both of the above situations need to be processed as 404 error codes.
 func parseWorkLoadPlanError(err error) error {
-	var (
-		errCode401 golangsdk.ErrDefault401
-		errCode400 golangsdk.ErrDefault400
-	)
-
-	if errors.As(err, &errCode401) {
-		var apiError interface{}
-		if jsonErr := json.Unmarshal(errCode401.Body, &apiError); jsonErr != nil {
-			return err
-		}
-		errorCode, errorCodeErr := jmespath.Search("error_code", apiError)
-		if errorCodeErr != nil {
-			return err
-		}
-
-		if errorCode == "DWS.0047" {
-			return golangsdk.ErrDefault404(errCode401)
-		}
+	if errors.As(err, &golangsdk.ErrDefault400{}) {
+		return common.ConvertExpected400ErrInto404Err(err, "error_code", "DWS.0001")
 	}
 
-	if errors.As(err, &errCode400) {
-		var apiError interface{}
-		if jsonErr := json.Unmarshal(errCode400.Body, &apiError); jsonErr != nil {
-			return err
-		}
-		errorCode, errorCodeErr := jmespath.Search("error_code", apiError)
-		if errorCodeErr != nil {
-			return err
-		}
-
-		if errorCode == "DWS.0001" {
-			return golangsdk.ErrDefault404(errCode400)
-		}
+	if errors.As(err, &golangsdk.ErrDefault401{}) {
+		return common.ConvertExpected401ErrInto404Err(err, "error_code", "DWS.0047")
 	}
 
 	return err

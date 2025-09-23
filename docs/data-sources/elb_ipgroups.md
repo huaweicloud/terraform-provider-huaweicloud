@@ -2,7 +2,8 @@
 subcategory: Dedicated Load Balance (Dedicated ELB)
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_elb_ipgroups"
-description: ""
+description: |-
+  Use this data source to get the list of ELB IP groups.
 ---
 
 # huaweicloud_elb_ipgroups
@@ -32,6 +33,8 @@ The following arguments are supported:
 
 * `description` - (Optional, String) Specifies the description of the IP address group.
 
+* `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID.
+
 * `ip_address` - (Optional, String) Specifies the IP address of the IP address group.
 
 ## Attribute Reference
@@ -51,6 +54,8 @@ The `ipgroups` block supports:
 * `name` - The name of the IP address group.
 
 * `description` - The description of the IP address group.
+
+* `enterprise_project_id` - The enterprise project ID.
 
 * `project_id` - The project ID of the IP address group.
 

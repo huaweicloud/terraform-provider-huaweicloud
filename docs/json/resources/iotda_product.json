@@ -69,6 +69,11 @@
                       "type": "string",
                       "required": true
                     },
+                    "option": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
                     "type": {
                       "type": "string",
                       "optional": true,
@@ -88,6 +93,11 @@
                           "paras": {
                             "block": {
                               "attributes": {
+                                "default_value": {
+                                  "type": "string",
+                                  "optional": true,
+                                  "computed": true
+                                },
                                 "description": {
                                   "type": "string",
                                   "optional": true,
@@ -119,6 +129,11 @@
                                 "name": {
                                   "type": "string",
                                   "required": true
+                                },
+                                "required": {
+                                  "type": "bool",
+                                  "optional": true,
+                                  "default": false
                                 },
                                 "step": {
                                   "type": "number",
@@ -142,6 +157,11 @@
                           "responses": {
                             "block": {
                               "attributes": {
+                                "default_value": {
+                                  "type": "string",
+                                  "optional": true,
+                                  "computed": true
+                                },
                                 "description": {
                                   "type": "string",
                                   "optional": true,
@@ -173,6 +193,11 @@
                                 "name": {
                                   "type": "string",
                                   "required": true
+                                },
+                                "required": {
+                                  "type": "bool",
+                                  "optional": true,
+                                  "default": false
                                 },
                                 "step": {
                                   "type": "number",
@@ -201,6 +226,11 @@
                     "properties": {
                       "block": {
                         "attributes": {
+                          "default_value": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
                           "description": {
                             "type": "string",
                             "optional": true,
@@ -236,6 +266,11 @@
                           "name": {
                             "type": "string",
                             "required": true
+                          },
+                          "required": {
+                            "type": "bool",
+                            "optional": true,
+                            "default": false
                           },
                           "step": {
                             "type": "number",

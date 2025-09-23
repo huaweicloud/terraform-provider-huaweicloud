@@ -1,0 +1,53 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_live_disable_push_stream": {
+          "block": {
+            "attributes": {
+              "app_name": {
+                "type": "string",
+                "description": "Specifies the application name of the disabling push stream.",
+                "required": true,
+                "forcenew": true
+              },
+              "domain_name": {
+                "type": "string",
+                "description": "Specifies the ingest domain name of the disabling push stream.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "resume_time": {
+                "type": "string",
+                "description": "Specifies the time of the resuming push stream.",
+                "optional": true,
+                "computed": true
+              },
+              "stream_name": {
+                "type": "string",
+                "description": "Specifies the stream name of the disabling push stream.",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "Live",
+            "name": "Live",
+            "catalog": "Media Services",
+            "name_cn": "视频直播",
+            "catalog_cn": "视频"
+          }
+        }
+      }
+    }
+  }
+}

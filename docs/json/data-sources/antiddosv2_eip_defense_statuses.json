@@ -1,0 +1,51 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_antiddosv2_eip_defense_statuses": {
+          "block": {
+            "attributes": {
+              "ddos_status": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "block_threshold": "string",
+                      "clean_threshold": "number",
+                      "floating_ip_address": "string",
+                      "floating_ip_id": "string",
+                      "product_type": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of EIP defense statuses.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ips": {
+                "type": "string",
+                "description": "Specifies the IP address for filtering, supports partial matching.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the protection status of the EIP.",
+                "optional": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

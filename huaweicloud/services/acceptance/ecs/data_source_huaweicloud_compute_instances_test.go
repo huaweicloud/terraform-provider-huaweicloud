@@ -15,11 +15,13 @@ func TestAccComputeInstancesDataSource_basic(t *testing.T) {
 	dataSource2 := "data.huaweicloud_compute_instances.filter_by_name"
 	dataSource3 := "data.huaweicloud_compute_instances.filter_by_id"
 	dataSource4 := "data.huaweicloud_compute_instances.filter_by_ip"
+	dataSource5 := "data.huaweicloud_compute_instances.filter_by_tags"
 
 	dc1 := acceptance.InitDataSourceCheck(dataSource1)
 	dc2 := acceptance.InitDataSourceCheck(dataSource2)
 	dc3 := acceptance.InitDataSourceCheck(dataSource3)
 	dc4 := acceptance.InitDataSourceCheck(dataSource4)
+	dc5 := acceptance.InitDataSourceCheck(dataSource5)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
@@ -32,10 +34,12 @@ func TestAccComputeInstancesDataSource_basic(t *testing.T) {
 					dc2.CheckResourceExists(),
 					dc3.CheckResourceExists(),
 					dc4.CheckResourceExists(),
+					dc5.CheckResourceExists(),
 					resource.TestCheckOutput("is_results_not_empty", "true"),
 					resource.TestCheckOutput("is_name_filter_useful", "true"),
 					resource.TestCheckOutput("is_id_filter_useful", "true"),
 					resource.TestCheckOutput("is_ip_filter_useful", "true"),
+					resource.TestCheckOutput("is_tags_filter_useful", "true"),
 				),
 			},
 		},
@@ -58,7 +62,7 @@ resource "huaweicloud_compute_instance" "test" {
   }
 
   tags = {
-    foo = "bar"
+    server_name = "%[2]s"
   }
 }
 
@@ -78,6 +82,14 @@ data "huaweicloud_compute_instances" "filter_by_ip" {
   fixed_ip_v4 = huaweicloud_compute_instance.test.network[0].fixed_ip_v4
 }
 
+data "huaweicloud_compute_instances" "filter_by_tags" {
+  tags = {
+    server_name = "%[2]s"
+  }
+
+  depends_on = [huaweicloud_compute_instance.test]
+}
+
 locals {
   name_filter_result = [for v in data.huaweicloud_compute_instances.filter_by_name.instances[*].name : v == "%[2]s"]
   id_filter_result = [
@@ -87,6 +99,7 @@ locals {
     for v in data.huaweicloud_compute_instances.filter_by_id.instances[*].network[0].fixed_ip_v4 :
     v == huaweicloud_compute_instance.test.network[0].fixed_ip_v4
   ]
+  tags_filter_result = [for v in data.huaweicloud_compute_instances.filter_by_tags.instances[*].tags.server_name : v == "%[2]s"]
 }
 
 output "is_results_not_empty" {
@@ -103,6 +116,10 @@ output "is_id_filter_useful" {
 
 output "is_ip_filter_useful" {
   value = alltrue(local.ip_filter_result) && length(local.ip_filter_result) > 0
+}
+
+output "is_tags_filter_useful" {
+  value = alltrue(local.tags_filter_result) && length(local.tags_filter_result) > 0
 }
 `, testAccCompute_data, rName)
 }

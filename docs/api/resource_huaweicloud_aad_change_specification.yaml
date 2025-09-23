@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_aad_change_specification
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: AAD
+paths:
+    /v2/aad/instance:
+        PUT:
+            tag: AAD

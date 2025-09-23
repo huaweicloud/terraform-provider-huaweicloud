@@ -7,14 +7,11 @@ package aom
 
 import (
 	"context"
-	"encoding/json"
-	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -81,7 +78,7 @@ func buildCreateApplicationBodyParams(d *schema.ResourceData, cfg *config.Config
 		"name":         d.Get("name"),
 		"description":  utils.ValueIgnoreEmpty(d.Get("description")),
 		"display_name": utils.ValueIgnoreEmpty(d.Get("display_name")),
-		"eps_id":       utils.ValueIgnoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
+		"eps_id":       utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
 	}
 	return bodyParams
 }
@@ -113,12 +110,12 @@ func resourceCmdbApplicationCreate(ctx context.Context, d *schema.ResourceData, 
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("id", createApplicationRespBody)
-	if err != nil {
-		return diag.Errorf("error creating CMDB application: ID is not found in API response")
+	id := utils.PathSearch("id", createApplicationRespBody, "").(string)
+	if id == "" {
+		return diag.Errorf("unable to find application ID from the API response")
 	}
 
-	d.SetId(id.(string))
+	d.SetId(id)
 	return resourceCmdbApplicationRead(ctx, d, meta)
 }
 
@@ -142,10 +139,8 @@ func resourceCmdbApplicationRead(_ context.Context, d *schema.ResourceData, meta
 
 	getApplicationResp, err := client.Request("GET", getApplicationPath, &getApplicationOpt)
 	if err != nil {
-		if hasErrorCode(err, AppNotExistsCode) {
-			err = golangsdk.ErrDefault404{}
-		}
-		return common.CheckDeletedDiag(d, err, "error retrieving CMDB application")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", AppNotExistsCode),
+			"error retrieving CMDB application")
 	}
 
 	getApplicationRespBody, err := utils.FlattenResponse(getApplicationResp)
@@ -174,7 +169,7 @@ func buildUpdateApplicationBodyParams(d *schema.ResourceData, cfg *config.Config
 		"name":         d.Get("name"),
 		"description":  d.Get("description"),
 		"display_name": utils.ValueIgnoreEmpty(d.Get("display_name")),
-		"eps_id":       utils.ValueIgnoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
+		"eps_id":       utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
 	}
 	return bodyParams
 }
@@ -225,27 +220,10 @@ func resourceCmdbApplicationDelete(_ context.Context, d *schema.ResourceData, me
 	}
 
 	_, err = client.Request("DELETE", deleteApplicationPath, &deleteApplicationOpt)
-	if err != nil && !hasErrorCode(err, AppNotExistsCode) {
-		return diag.Errorf("error deleting CMDB application: %s", err)
+	if err != nil {
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", AppNotExistsCode),
+			"error deleting CMDB application")
 	}
 
 	return nil
-}
-
-func hasErrorCode(err error, expectCode string) bool {
-	if errCode, ok := err.(golangsdk.ErrDefault400); ok {
-		var response interface{}
-		if jsonErr := json.Unmarshal(errCode.Body, &response); jsonErr == nil {
-			errorCode, parseErr := jmespath.Search("error_code", response)
-			if parseErr != nil {
-				log.Printf("[WARN] failed to parse error_code from response body: %s", parseErr)
-			}
-
-			if errorCode == expectCode {
-				return true
-			}
-		}
-	}
-
-	return false
 }

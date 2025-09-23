@@ -2,16 +2,17 @@ package elb
 
 import (
 	"context"
-	"log"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/chnsz/golangsdk/openstack/elb/v3/ipgroups"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 // @API ELB POST /v3/{project_id}/elb/ipgroups
@@ -35,19 +36,16 @@ func ResourceIpGroupV3() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-
 			"ip_list": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Required: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -62,7 +60,6 @@ func ResourceIpGroupV3() *schema.Resource {
 					},
 				},
 			},
-
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -86,131 +83,219 @@ func ResourceIpGroupV3() *schema.Resource {
 	}
 }
 
-func resourceIpGroupAddresses(d *schema.ResourceData) []ipgroups.IpListOpt {
-	var ipLists []ipgroups.IpListOpt
-	ipListRaw := d.Get("ip_list").([]interface{})
-
-	for _, v := range ipListRaw {
-		ipList := v.(map[string]interface{})
-		ipListOpt := ipgroups.IpListOpt{
-			Ip:          ipList["ip"].(string),
-			Description: ipList["description"].(string),
-		}
-		ipLists = append(ipLists, ipListOpt)
-	}
-
-	return ipLists
-}
-
 func resourceIpGroupV3Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
+	region := cfg.GetRegion(d)
+
+	var (
+		httpUrl = "v3/{project_id}/elb/ipgroups"
+		product = "elb"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
-	ipList := resourceIpGroupAddresses(d)
-	desc := d.Get("description").(string)
-	createOpts := ipgroups.CreateOpts{
-		Name:                d.Get("name").(string),
-		Description:         &desc,
-		IpList:              &ipList,
-		EnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
+	createPath := client.Endpoint + httpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	createOpt.JSONBody = utils.RemoveNil(buildCreateIpGroupBodyParams(d, cfg))
+	createResp, err := client.Request("POST", createPath, &createOpt)
+	if err != nil {
+		return diag.Errorf("error creating ELB IP group: %s", err)
 	}
 
-	log.Printf("[DEBUG] Create ELB IP Group options: %#v", createOpts)
-	ipGroup, err := ipgroups.Create(elbClient, createOpts).Extract()
+	createRespBody, err := utils.FlattenResponse(createResp)
 	if err != nil {
-		return diag.Errorf("error creating IpGroup: %s", err)
+		return diag.Errorf("error retrieving ELB IP group: %s", err)
 	}
-	d.SetId(ipGroup.ID)
+	ipGroupId := utils.PathSearch("ipgroup.id", createRespBody, "").(string)
+	if ipGroupId == "" {
+		return diag.Errorf("error creating ELB IP group: ID is not found in API response")
+	}
+
+	d.SetId(ipGroupId)
 
 	return resourceIpGroupV3Read(ctx, d, meta)
+}
+
+func buildCreateIpGroupBodyParams(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
+	params := map[string]interface{}{
+		"name":                  utils.ValueIgnoreEmpty(d.Get("name")),
+		"description":           utils.ValueIgnoreEmpty(d.Get("description")),
+		"ip_list":               buildCreateIpGroupIpList(d.Get("ip_list").(*schema.Set).List()),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
+	}
+	bodyParams := map[string]interface{}{
+		"ipgroup": params,
+	}
+	return bodyParams
+}
+
+func buildCreateIpGroupIpList(rawIpList []interface{}) []map[string]interface{} {
+	if len(rawIpList) == 0 {
+		return nil
+	}
+
+	ipList := make([]map[string]interface{}, 0, len(rawIpList))
+	for _, rawIp := range rawIpList {
+		if v, ok := rawIp.(map[string]interface{}); ok {
+			ipList = append(ipList, map[string]interface{}{
+				"ip":          v["ip"],
+				"description": utils.ValueIgnoreEmpty(v["description"]),
+			})
+		}
+	}
+	return ipList
 }
 
 func resourceIpGroupV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
+	region := cfg.GetRegion(d)
+
+	var mErr *multierror.Error
+
+	var (
+		httpUrl = "v3/{project_id}/elb/ipgroups/{ipgroup_id}"
+		product = "elb"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
-	ipGroup, err := ipgroups.Get(elbClient, d.Id()).Extract()
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{ipgroup_id}", d.Id())
+
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "ipgroup")
+		return common.CheckDeletedDiag(d, err, "error retrieving ELB IP group")
 	}
 
-	log.Printf("[DEBUG] Retrieved ip group %s: %#v", d.Id(), ipGroup)
-
-	ipList := make([]map[string]interface{}, len(ipGroup.IpList))
-	for i, ip := range ipGroup.IpList {
-		ipList[i] = map[string]interface{}{
-			"ip":          ip.Ip,
-			"description": ip.Description,
-		}
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
-	listenerIDs := make([]string, 0)
-	for _, listener := range ipGroup.Listeners {
-		listenerIDs = append(listenerIDs, listener.ID)
-	}
-
-	mErr := multierror.Append(nil,
-		d.Set("name", ipGroup.Name),
-		d.Set("description", ipGroup.Description),
-		d.Set("region", cfg.GetRegion(d)),
-		d.Set("ip_list", ipList),
-		d.Set("listener_ids", listenerIDs),
-		d.Set("created_at", ipGroup.CreatedAt),
-		d.Set("updated_at", ipGroup.UpdatedAt),
+	mErr = multierror.Append(
+		mErr,
+		d.Set("region", region),
+		d.Set("name", utils.PathSearch("ipgroup.name", getRespBody, nil)),
+		d.Set("description", utils.PathSearch("ipgroup.description", getRespBody, nil)),
+		d.Set("ip_list", flattenIpGroupIpList(getRespBody)),
+		d.Set("listener_ids", flattenIpGroupListenerIds(getRespBody)),
+		d.Set("enterprise_project_id", utils.PathSearch("ipgroup.enterprise_project_id", getRespBody, nil)),
+		d.Set("created_at", utils.PathSearch("ipgroup.created_at", getRespBody, nil)),
+		d.Set("updated_at", utils.PathSearch("ipgroup.updated_at", getRespBody, nil)),
 	)
 
-	if err := mErr.ErrorOrNil(); err != nil {
-		return diag.Errorf("error setting Dedicated ELB ipgroup fields: %s", err)
+	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func flattenIpGroupIpList(resp interface{}) []interface{} {
+	if resp == nil {
+		return nil
 	}
 
-	return nil
+	curJson := utils.PathSearch("ipgroup.ip_list", resp, make([]interface{}, 0))
+	curArray := curJson.([]interface{})
+	rst := make([]interface{}, 0, len(curArray))
+	for _, v := range curArray {
+		rst = append(rst, map[string]interface{}{
+			"ip":          utils.PathSearch("ip", v, nil),
+			"description": utils.PathSearch("description", v, nil),
+		})
+	}
+	return rst
+}
+
+func flattenIpGroupListenerIds(resp interface{}) []interface{} {
+	if resp == nil {
+		return nil
+	}
+
+	curJson := utils.PathSearch("ipgroup.listener_ids", resp, make([]interface{}, 0))
+	curArray := curJson.([]interface{})
+	rst := make([]interface{}, 0, len(curArray))
+	for _, v := range curArray {
+		rst = append(rst, utils.PathSearch("id", v, nil))
+	}
+	return rst
 }
 
 func resourceIpGroupV3Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
+	region := cfg.GetRegion(d)
+
+	var (
+		httpUrl = "v3/{project_id}/elb/ipgroups/{ipgroup_id}"
+		product = "elb"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
-	var updateOpts ipgroups.UpdateOpts
-	if d.HasChange("name") {
-		updateOpts.Name = d.Get("name").(string)
-	}
-	if d.HasChange("description") {
-		description := d.Get("description").(string)
-		updateOpts.Description = &description
-	}
-	if d.HasChange("ip_list") {
-		ipList := resourceIpGroupAddresses(d)
-		updateOpts.IpList = &ipList
-	}
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{ipgroup_id}", d.Id())
 
-	log.Printf("[DEBUG] Updating ipgroup %s with options: %#v", d.Id(), updateOpts)
-	_, err = ipgroups.Update(elbClient, d.Id(), updateOpts).Extract()
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	updateOpt.JSONBody = utils.RemoveNil(buildUpdateIpGroupBodyParams(d))
+	_, err = client.Request("PUT", updatePath, &updateOpt)
 	if err != nil {
-		return diag.Errorf("error updating ELB ip group: %s", err)
+		return diag.Errorf("error updating ELB IP group: %s", err)
 	}
 
 	return resourceIpGroupV3Read(ctx, d, meta)
 }
 
+func buildUpdateIpGroupBodyParams(d *schema.ResourceData) map[string]interface{} {
+	params := map[string]interface{}{
+		"name":        utils.ValueIgnoreEmpty(d.Get("name")),
+		"description": utils.ValueIgnoreEmpty(d.Get("description")),
+		"ip_list":     buildCreateIpGroupIpList(d.Get("ip_list").(*schema.Set).List()),
+	}
+	bodyParams := map[string]interface{}{
+		"ipgroup": params,
+	}
+	return bodyParams
+}
+
 func resourceIpGroupV3Delete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
+	region := cfg.GetRegion(d)
+
+	var (
+		httpUrl = "v3/{project_id}/elb/ipgroups/{ipgroup_id}"
+		product = "elb"
+	)
+
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
-	log.Printf("[DEBUG] Deleting ip group %s", d.Id())
-	if err = ipgroups.Delete(elbClient, d.Id()).ExtractErr(); err != nil {
-		return common.CheckDeletedDiag(d, err, "error deleting ELB ip group")
+	deletePath := client.Endpoint + httpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = strings.ReplaceAll(deletePath, "{ipgroup_id}", d.Id())
+
+	deleteOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	_, err = client.Request("DELETE", deletePath, &deleteOpt)
+	if err != nil {
+		return diag.Errorf("error deleting ELB IP group: %s", err)
 	}
 
 	return nil

@@ -1,0 +1,70 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_codearts_deploy_application_deployment_records": {
+          "block": {
+            "attributes": {
+              "end_date": {
+                "type": "string",
+                "description": "Specifies the end time.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "project_id": {
+                "type": "string",
+                "description": "Specifies the project ID for CodeArts service.",
+                "required": true
+              },
+              "records": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "duration": "string",
+                      "end_time": "string",
+                      "id": "string",
+                      "operator": "string",
+                      "release_id": "number",
+                      "start_time": "string",
+                      "state": "string",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the record list.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "start_date": {
+                "type": "string",
+                "description": "Specifies the start time.",
+                "required": true
+              },
+              "task_id": {
+                "type": "string",
+                "description": "Specifies the deployment task ID.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "CodeArtsDeploy",
+            "name": "CodeArts Deploy",
+            "catalog": "CodeArts",
+            "name_cn": "部署",
+            "catalog_cn": "软件开发生产线"
+          }
+        }
+      }
+    }
+  }
+}

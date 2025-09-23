@@ -1,0 +1,189 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_evsv3_volume": {
+          "block": {
+            "attributes": {
+              "attachments": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "attached_at": "string",
+                      "attachment_id": "string",
+                      "device": "string",
+                      "host_name": "string",
+                      "id": "string",
+                      "server_id": "string",
+                      "volume_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "availability_zone": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "bootable": {
+                "type": "string",
+                "computed": true
+              },
+              "cascade": {
+                "type": "bool",
+                "optional": true
+              },
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "dedicated_storage_id": {
+                "type": "string",
+                "optional": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "disaster_recovery_azs": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "image_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "iops": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "iops_attribute": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "frozened": "bool",
+                      "id": "string",
+                      "total_val": "number",
+                      "volume_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "links": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "href": "string",
+                      "rel": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "metadata": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
+              "multiattach": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "size": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "snapshot_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "snapshot_policy_id": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
+              "throughput": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "throughput_attribute": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "frozened": "bool",
+                      "id": "string",
+                      "total_val": "number",
+                      "volume_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "computed": true
+              },
+              "volume_image_metadata": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "computed": true
+              },
+              "volume_type": {
+                "type": "string",
+                "required": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

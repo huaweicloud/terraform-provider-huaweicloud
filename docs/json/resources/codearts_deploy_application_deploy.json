@@ -1,0 +1,76 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_codearts_deploy_application_deploy": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "record_id": {
+                "type": "string",
+                "description": "Specifies the deployment record ID of an application.",
+                "optional": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "task_id": {
+                "type": "string",
+                "description": "Specifies the deployment task ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "trigger_source": {
+                "type": "string",
+                "description": "Specifies the trigger source.",
+                "optional": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "params": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "description": "Specifies the parameter name transferred when deploying application.",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Specifies the parameter type. If a dynamic parameter is set, the type is mandatory.",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "description": "Specifies the parameter value transferred during application deployment.",
+                      "optional": true,
+                      "forcenew": true
+                    }
+                  },
+                  "description": "Specifies the parameters transferred during application deployment."
+                },
+                "nesting_mode": "list",
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "CodeArtsDeploy",
+            "name": "CodeArts Deploy",
+            "catalog": "CodeArts",
+            "name_cn": "部署",
+            "catalog_cn": "软件开发生产线"
+          }
+        }
+      }
+    }
+  }
+}

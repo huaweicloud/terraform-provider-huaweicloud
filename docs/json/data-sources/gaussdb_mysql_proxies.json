@@ -1,0 +1,105 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_mysql_proxies": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the GaussDB MySQL instance.",
+                "required": true
+              },
+              "proxy_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "address": "string",
+                      "balance_route_mode_enabled": "bool",
+                      "connection_pool_type": "string",
+                      "consistence_mode": "string",
+                      "delay_threshold_in_seconds": "number",
+                      "elb_vip": "string",
+                      "flavor": "string",
+                      "id": "string",
+                      "master_node_weight": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "name": "string",
+                            "weight": "number"
+                          }
+                        ]
+                      ],
+                      "mode": "string",
+                      "name": "string",
+                      "new_node_auto_add_status": "string",
+                      "new_node_weight": "number",
+                      "node_num": "number",
+                      "nodes": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "az_code": "string",
+                            "frozen_flag": "number",
+                            "id": "string",
+                            "name": "string",
+                            "role": "string",
+                            "status": "string"
+                          }
+                        ]
+                      ],
+                      "port": "number",
+                      "ram": "string",
+                      "readonly_nodes_weight": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "name": "string",
+                            "weight": "number"
+                          }
+                        ]
+                      ],
+                      "route_mode": "number",
+                      "ssl_option": "string",
+                      "status": "string",
+                      "subnet_id": "string",
+                      "switch_connection_pool_type_enabled": "bool",
+                      "transaction_split": "string",
+                      "vcpus": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of proxies.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDBforMySQL",
+            "name": "GaussDB(for MySQL)",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB(for MySQL)",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

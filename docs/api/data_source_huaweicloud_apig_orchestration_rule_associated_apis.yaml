@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_apig_orchestration_rule_associated_apis
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: APIG
+paths:
+    /v2/{project_id}/apigw/instances/{instance_id}/orchestrations/{orchestration_id}/attached-apis:
+        GET:
+            tag: APIG

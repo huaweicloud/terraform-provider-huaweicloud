@@ -8,13 +8,10 @@ host: huaweicloud.com
 tags:
     - name: DEW
 paths:
-    /v1.0/{project_id}/{resourceType}/{id}/tags:
+    /v1.0/{project_id}/kms/{key_id}/tags:
         GET:
             tag: DEW
-    /v1.0/{project_id}/{resourceType}/{id}/tags/action:
-        POST:
-            tag: DEW
-    /v1.0/{project_id}/kms/{id}/tags/action:
+    /v1.0/{project_id}/kms/{key_id}/tags/action:
         POST:
             tag: DEW
     /v1.0/{project_id}/kms/create-key:

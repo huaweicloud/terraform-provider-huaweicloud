@@ -2,8 +2,6 @@ package dws
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -12,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -178,11 +175,11 @@ func resourceDwsDisasterRecoveryTaskCreate(ctx context.Context, d *schema.Resour
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("disaster_recovery.id", respBody)
-	if err != nil || id == nil {
-		return diag.Errorf("error creating DWS disaster recovery: ID is not found in API response")
+	recoveryId := utils.PathSearch("disaster_recovery.id", respBody, "").(string)
+	if recoveryId == "" {
+		return diag.Errorf("unable to find the DWS disaster recovery ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(recoveryId)
 	// When the disaster recovery successfully created, the status is unstart.
 	err = waitingForActionDisasterRecvery(ctx, d, client, "unstart", d.Timeout(schema.TimeoutCreate))
 	if err != nil {
@@ -326,7 +323,7 @@ func getDisasterRecoveryTask(client *golangsdk.ServiceClient, id string) (interf
 	}
 	resp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return nil, parsediasaterRecoveryError(err)
+		return nil, common.ConvertExpected400ErrInto404Err(err, "error_code", "DWS.10101")
 	}
 
 	respBody, err := utils.FlattenResponse(resp)
@@ -348,7 +345,7 @@ func doActionDisasterRecoveryTask(client *golangsdk.ServiceClient, d *schema.Res
 	}
 	resp, err := client.Request("POST", actionPath, &actionOpt)
 	if err != nil {
-		return parsediasaterRecoveryError(err)
+		return common.ConvertExpected400ErrInto404Err(err, "error_code", "DWS.10101")
 	}
 
 	_, err = utils.FlattenResponse(resp)
@@ -370,7 +367,7 @@ func updateDisasterRecoveryTask(client *golangsdk.ServiceClient, d *schema.Resou
 	}
 	resp, err := client.Request("PUT", updatePath, &updateOpt)
 	if err != nil {
-		return nil, parsediasaterRecoveryError(err)
+		return nil, common.ConvertExpected400ErrInto404Err(err, "error_code", "DWS.10101")
 	}
 
 	respBody, err := utils.FlattenResponse(resp)
@@ -378,26 +375,6 @@ func updateDisasterRecoveryTask(client *golangsdk.ServiceClient, d *schema.Resou
 		return nil, err
 	}
 	return respBody, nil
-}
-
-func parsediasaterRecoveryError(err error) error {
-	var errCode400 golangsdk.ErrDefault400
-	if errors.As(err, &errCode400) {
-		var apiError interface{}
-		if jsonErr := json.Unmarshal(errCode400.Body, &apiError); jsonErr != nil {
-			return err
-		}
-		errorCode, errorCodeErr := jmespath.Search("error_code", apiError)
-		if errorCodeErr != nil {
-			return err
-		}
-
-		if errorCode == "DWS.10101" {
-			return golangsdk.ErrDefault404(errCode400)
-		}
-	}
-
-	return err
 }
 
 func resourceDwsDisasterRecoveryTaskUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -508,8 +485,8 @@ func resourceDwsDisasterRecoveryTaskDelete(ctx context.Context, d *schema.Resour
 
 	_, err = client.Request("DELETE", delPath, &delStageOpts)
 	if err != nil {
-		err = parsediasaterRecoveryError(err)
-		return common.CheckDeletedDiag(d, err, "error deleting disaster recovery")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", "DWS.10101"),
+			"error deleting disaster recovery")
 	}
 
 	err = waitingForDisasterDeleteStatus(ctx, d, client)

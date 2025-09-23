@@ -2,17 +2,19 @@ package aom
 
 import (
 	"context"
-	"log"
-	"regexp"
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
 	"strconv"
-	"time"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	aom "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/aom/v2/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -33,12 +35,6 @@ func ResourceAlarmRule() *schema.Resource {
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 
-		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(5 * time.Minute),
-			Update: schema.DefaultTimeout(5 * time.Minute),
-			Delete: schema.DefaultTimeout(5 * time.Minute),
-		},
-
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
@@ -50,14 +46,6 @@ func ResourceAlarmRule() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(1, 100),
-					validation.StringMatch(regexp.MustCompile(
-						"^[\u4e00-\u9fa5A-Za-z0-9]([\u4e00-\u9fa5-_A-Za-z0-9]*[\u4e00-\u9fa5A-Za-z0-9])?$"),
-						"The name can only consist of letters, digits, underscores (_),"+
-							" hyphens (-) and chinese characters, and it must start and end with letters,"+
-							" digits or chinese characters."),
-				),
 			},
 			"metric_name": {
 				Type:     schema.TypeString,
@@ -96,10 +84,9 @@ func ResourceAlarmRule() *schema.Resource {
 				}),
 			},
 			"unit": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.StringLenBetween(1, 32),
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
 			},
 			"comparison_operator": {
 				Type:     schema.TypeString,
@@ -121,20 +108,17 @@ func ResourceAlarmRule() *schema.Resource {
 				Required: true,
 			},
 			"evaluation_periods": {
-				Type:         schema.TypeInt,
-				Required:     true,
-				ValidateFunc: validation.IntBetween(1, 5),
+				Type:     schema.TypeInt,
+				Required: true,
 			},
 			"description": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringLenBetween(0, 1000),
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"alarm_level": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Default:      2,
-				ValidateFunc: validation.IntBetween(1, 4),
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  2,
 			},
 			"alarm_actions": {
 				Type:     schema.TypeList,
@@ -177,275 +161,214 @@ func ResourceAlarmRule() *schema.Resource {
 	}
 }
 
-func buildActionOpts(rawActions []interface{}) *[]string {
-	if len(rawActions) == 0 {
-		return nil
+// flattenAlarmRuleCreateResponse returns the api response body for creating alarm rule,
+// json parse `alarm_rule_id` into float64 in default, which make a loss of precision,
+// parse it into json.Number to avoid this situation.
+func flattenAlarmRuleCreateResponse(resp *http.Response) (interface{}, error) {
+	var respBody interface{}
+	defer resp.Body.Close()
+	// Don't decode JSON when there is no content
+	if resp.StatusCode == http.StatusNoContent {
+		_, err := io.Copy(io.Discard, resp.Body)
+		return resp, err
 	}
-	actions := make([]string, len(rawActions))
-	for i, raw := range rawActions {
-		actions[i] = raw.(string)
+
+	decoder := json.NewDecoder(resp.Body)
+	decoder.UseNumber()
+	if err := decoder.Decode(&respBody); err != nil {
+		return nil, err
 	}
-	return &actions
+
+	return respBody, nil
 }
 
-func buildDimensionsOpts(rawDimensions []interface{}) []aom.Dimension {
+func resourceAlarmRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	client, err := cfg.NewServiceClient("aom", cfg.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("error creating AOM client: %s", err)
+	}
+
+	createHttpUrl := "v2/{project_id}/alarm-rules"
+	createPath := client.Endpoint + createHttpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+		JSONBody: utils.RemoveNil(buildV2AlarmRuleBodyParams(d)),
+	}
+
+	createResp, err := client.Request("POST", createPath, &createOpt)
+	if err != nil {
+		return diag.Errorf("error creating the alarm rule: %s", err)
+	}
+
+	createRespBody, err := flattenAlarmRuleCreateResponse(createResp)
+	if err != nil {
+		return diag.Errorf("error flattening the response: %s", err)
+	}
+
+	alarmRuleId, ok := utils.PathSearch("alarm_rule_id", createRespBody, json.Number("")).(json.Number)
+	if !ok {
+		return diag.Errorf("error asserting alarm rule ID value to json.Number")
+	}
+	if alarmRuleId.String() == "" {
+		return diag.Errorf("unable to find alarm rule ID from API response")
+	}
+
+	d.SetId(alarmRuleId.String())
+
+	return resourceAlarmRuleRead(ctx, d, meta)
+}
+
+func buildV2AlarmRuleBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"alarm_rule_name":           d.Get("name"),
+		"alarm_description":         d.Get("description"),
+		"alarm_level":               utils.ValueIgnoreEmpty(d.Get("alarm_level")),
+		"is_turn_on":                true,
+		"action_enabled":            utils.ValueIgnoreEmpty(d.Get("alarm_action_enabled")),
+		"alarm_actions":             utils.ValueIgnoreEmpty(d.Get("alarm_actions")),
+		"ok_actions":                utils.ValueIgnoreEmpty(d.Get("ok_actions")),
+		"insufficient_data_actions": utils.ValueIgnoreEmpty(d.Get("insufficient_data_actions")),
+		"namespace":                 d.Get("namespace"),
+		"metric_name":               d.Get("metric_name"),
+		"dimensions":                buildDimensionsOpts(d.Get("dimensions").([]interface{})),
+		"unit":                      d.Get("unit"),
+		"threshold":                 d.Get("threshold"),
+		"statistic":                 d.Get("statistic"),
+		"period":                    d.Get("period"),
+		"evaluation_periods":        d.Get("evaluation_periods"),
+		"comparison_operator":       d.Get("comparison_operator"),
+	}
+
+	return bodyParams
+}
+
+func buildDimensionsOpts(rawDimensions []interface{}) interface{} {
 	if len(rawDimensions) == 0 {
 		return nil
 	}
-	dimensions := make([]aom.Dimension, len(rawDimensions))
+	dimensions := make([]interface{}, len(rawDimensions))
 	for i, rawdimension := range rawDimensions {
 		dimension := rawdimension.(map[string]interface{})
-		dimensions[i] = aom.Dimension{
-			Name:  dimension["name"].(string),
-			Value: dimension["value"].(string),
+		dimensions[i] = map[string]interface{}{
+			"name":  dimension["name"].(string),
+			"value": dimension["value"].(string),
 		}
 	}
 	return dimensions
 }
 
-func buildAlarmLevelOpts(alarmLevel int) *aom.UpdateAlarmRuleParamAlarmLevel {
-	var alarmLevelToReq aom.UpdateAlarmRuleParamAlarmLevel
-	switch alarmLevel {
-	case 1:
-		alarmLevelToReq = aom.GetUpdateAlarmRuleParamAlarmLevelEnum().E_1
-	case 2:
-		alarmLevelToReq = aom.GetUpdateAlarmRuleParamAlarmLevelEnum().E_2
-	case 3:
-		alarmLevelToReq = aom.GetUpdateAlarmRuleParamAlarmLevelEnum().E_3
-	case 4:
-		alarmLevelToReq = aom.GetUpdateAlarmRuleParamAlarmLevelEnum().E_4
-	default:
-		log.Printf("[WARN] alarm level invalid: %d", alarmLevel)
-		return nil
-	}
-
-	return &alarmLevelToReq
-}
-
-func buildStatisticOpts(statistic string) *aom.UpdateAlarmRuleParamStatistic {
-	var statisticToReq aom.UpdateAlarmRuleParamStatistic
-	switch statistic {
-	case "maximum":
-		statisticToReq = aom.GetUpdateAlarmRuleParamStatisticEnum().MAXIMUM
-	case "minimum":
-		statisticToReq = aom.GetUpdateAlarmRuleParamStatisticEnum().MINIMUM
-	case "average":
-		statisticToReq = aom.GetUpdateAlarmRuleParamStatisticEnum().AVERAGE
-	case "sum":
-		statisticToReq = aom.GetUpdateAlarmRuleParamStatisticEnum().SUM
-	case "sampleCount":
-		statisticToReq = aom.GetUpdateAlarmRuleParamStatisticEnum().SAMPLE_COUNT
-	default:
-		log.Printf("[WARN] statistic invalid: %s", statistic)
-		return nil
-	}
-
-	return &statisticToReq
-}
-
-func buildAlarmLevelCreateOpts(alarmLevel int) aom.AlarmRuleParamAlarmLevel {
-	alarmLevelToReq := new(aom.AlarmRuleParamAlarmLevel)
-	if err := alarmLevelToReq.UnmarshalJSON([]byte(strconv.Itoa(alarmLevel))); err != nil {
-		log.Printf("[WARN] failed to parse alarm_level %d: %s", alarmLevel, err)
-	}
-	return *alarmLevelToReq
-}
-
-func buildStatisticCreateOpts(statistic string) aom.AlarmRuleParamStatistic {
-	statisticToReq := new(aom.AlarmRuleParamStatistic)
-	if err := statisticToReq.UnmarshalJSON([]byte(statistic)); err != nil {
-		log.Printf("[WARN] failed to parse statistic %s: %s", statistic, err)
-	}
-	return *statisticToReq
-}
-
-func buildPeriodCreateOpts(period int) aom.AlarmRuleParamPeriod {
-	periodToReq := new(aom.AlarmRuleParamPeriod)
-	if err := periodToReq.UnmarshalJSON([]byte(strconv.Itoa(period))); err != nil {
-		log.Printf("[WARN] failed to parse period %d: %s", period, err)
-	}
-	return *periodToReq
-}
-
-func buildComparisonOperatorCreateOpts(comparisonOperator string) aom.AlarmRuleParamComparisonOperator {
-	comparisonOperatorToReq := new(aom.AlarmRuleParamComparisonOperator)
-	if err := comparisonOperatorToReq.UnmarshalJSON([]byte(comparisonOperator)); err != nil {
-		log.Printf("[WARN] failed to parse comparison_operator %s: %s", comparisonOperator, err)
-	}
-	return *comparisonOperatorToReq
-}
-
-func resourceAlarmRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	client, err := cfg.HcAomV2Client(cfg.GetRegion(d))
-	if err != nil {
-		return diag.Errorf("error creating AOM client: %s", err)
-	}
-
-	createOpts := aom.AlarmRuleParam{
-		AlarmRuleName:           d.Get("name").(string),
-		AlarmDescription:        utils.String(d.Get("description").(string)),
-		AlarmLevel:              buildAlarmLevelCreateOpts(d.Get("alarm_level").(int)),
-		IsTurnOn:                utils.Bool(true),
-		AlarmActions:            buildActionOpts(d.Get("alarm_actions").([]interface{})),
-		ActionEnabled:           utils.Bool(d.Get("alarm_action_enabled").(bool)),
-		OkActions:               buildActionOpts(d.Get("ok_actions").([]interface{})),
-		InsufficientDataActions: buildActionOpts(d.Get("insufficient_data_actions").([]interface{})),
-
-		Namespace:  d.Get("namespace").(string),
-		MetricName: d.Get("metric_name").(string),
-		Dimensions: buildDimensionsOpts(d.Get("dimensions").([]interface{})),
-
-		Unit:               d.Get("unit").(string),
-		Threshold:          d.Get("threshold").(string),
-		Statistic:          buildStatisticCreateOpts(d.Get("statistic").(string)),
-		Period:             buildPeriodCreateOpts(d.Get("period").(int)),
-		EvaluationPeriods:  int32(d.Get("evaluation_periods").(int)),
-		ComparisonOperator: buildComparisonOperatorCreateOpts(d.Get("comparison_operator").(string)),
-	}
-
-	log.Printf("[DEBUG] Create %s Options: %#v", createOpts.AlarmRuleName, createOpts)
-
-	createReq := aom.AddAlarmRuleRequest{
-		Body: &createOpts,
-	}
-	response, err := client.AddAlarmRule(&createReq)
-	if err != nil {
-		return diag.Errorf("error creating AOM alarm rule %s: %s", createOpts.AlarmRuleName, err)
-	}
-
-	d.SetId(strconv.FormatInt(*response.AlarmRuleId, 10))
-
-	return resourceAlarmRuleRead(ctx, d, meta)
-}
-
 func resourceAlarmRuleRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, err := cfg.HcAomV2Client(cfg.GetRegion(d))
+	client, err := cfg.NewServiceClient("aom", cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating AOM client: %s", err)
 	}
 
-	response, err := client.ShowAlarmRule(&aom.ShowAlarmRuleRequest{AlarmRuleId: d.Id()})
+	rule, err := GetV2AlarmRule(client, d.Id())
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving AOM alarm rule")
+		return common.CheckDeletedDiag(d, err, "error getting the alarm rule")
 	}
 
-	allRules := *response.Thresholds
-	if len(allRules) != 1 {
-		return diag.Errorf("error retrieving AOM alarm rule %s", d.Id())
-	}
-	rule := allRules[0]
-	log.Printf("[DEBUG] Retrieved AOM alarm rule %s: %#v", d.Id(), rule)
-
-	alarmLevel, _ := strconv.Atoi(*rule.AlarmLevel)
+	alarmLevel, _ := strconv.Atoi(utils.PathSearch("alarm_level", rule, "0").(string))
 
 	mErr := multierror.Append(nil,
 		d.Set("region", cfg.GetRegion(d)),
-		d.Set("name", rule.AlarmRuleName),
-		d.Set("description", rule.AlarmDescription),
+		d.Set("name", utils.PathSearch("alarm_rule_name", rule, nil)),
+		d.Set("description", utils.PathSearch("alarm_description", rule, nil)),
 		d.Set("alarm_level", alarmLevel),
-		d.Set("metric_name", rule.MetricName),
-		d.Set("alarm_actions", rule.AlarmActions),
-		d.Set("ok_actions", rule.OkActions),
-		d.Set("alarm_enabled", rule.IdTurnOn),
-		d.Set("alarm_action_enabled", rule.ActionEnabled),
-		d.Set("comparison_operator", rule.ComparisonOperator),
-		d.Set("evaluation_periods", rule.EvaluationPeriods),
-		d.Set("insufficient_data_actions", rule.InsufficientDataActions),
-		d.Set("namespace", rule.Namespace),
-		d.Set("period", rule.Period),
-		d.Set("state_value", rule.StateValue),
-		d.Set("state_reason", rule.StateReason),
-		d.Set("statistic", rule.Statistic),
-		d.Set("threshold", rule.Threshold),
-		d.Set("unit", rule.Unit),
+		d.Set("metric_name", utils.PathSearch("metric_name", rule, nil)),
+		d.Set("alarm_actions", utils.PathSearch("alarm_actions", rule, nil)),
+		d.Set("ok_actions", utils.PathSearch("ok_actions", rule, nil)),
+		d.Set("alarm_enabled", utils.PathSearch("id_turn_on", rule, nil)),
+		d.Set("alarm_action_enabled", utils.PathSearch("alarm_enabled", rule, nil)),
+		d.Set("comparison_operator", utils.PathSearch("comparison_operator", rule, nil)),
+		d.Set("evaluation_periods", utils.PathSearch("evaluation_periods", rule, nil)),
+		d.Set("insufficient_data_actions", utils.PathSearch("insufficient_data_actions", rule, nil)),
+		d.Set("namespace", utils.PathSearch("namespace", rule, nil)),
+		d.Set("period", utils.PathSearch("period", rule, nil)),
+		d.Set("state_value", utils.PathSearch("state_value", rule, nil)),
+		d.Set("state_reason", utils.PathSearch("state_reason", rule, nil)),
+		d.Set("statistic", utils.PathSearch("statistic", rule, nil)),
+		d.Set("threshold", utils.PathSearch("threshold", rule, nil)),
+		d.Set("unit", utils.PathSearch("unit", rule, nil)),
+		d.Set("dimensions", flattenV2AlarmRuleDimensions(
+			utils.PathSearch("dimensions", rule, make([]interface{}, 0)).([]interface{}))),
 	)
 
-	var dimensions []map[string]interface{}
-	for _, pairObject := range *rule.Dimensions {
-		dimension := make(map[string]interface{})
-		dimension["name"] = pairObject.Name
-		dimension["value"] = pairObject.Value
-
-		dimensions = append(dimensions, dimension)
-	}
-	mErr = multierror.Append(mErr, d.Set("dimensions", dimensions))
-
-	if err := mErr.ErrorOrNil(); err != nil {
-		return diag.Errorf("error setting AOM alarm rule fields: %s", err)
-	}
-
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func buildAlarmLevelUpdateOpts(alarmLevel int) aom.UpdateAlarmRuleParamAlarmLevel {
-	alarmLevelToReq := new(aom.UpdateAlarmRuleParamAlarmLevel)
-	if err := alarmLevelToReq.UnmarshalJSON([]byte(strconv.Itoa(alarmLevel))); err != nil {
-		log.Printf("[WARN] failed to parse alarm_level %d: %s", alarmLevel, err)
+func GetV2AlarmRule(client *golangsdk.ServiceClient, id string) (interface{}, error) {
+	getHttpUrl := "v2/{project_id}/alarm-rules/{alarm_rule_id}"
+	getPath := client.Endpoint + getHttpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{alarm_rule_id}", id)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 	}
-	return *alarmLevelToReq
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, fmt.Errorf("error getting the alarm rule: %s", err)
+	}
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return nil, fmt.Errorf("error flattening the response: %s", err)
+	}
+
+	rule := utils.PathSearch("thresholds|[0]", getRespBody, nil)
+	if rule == nil {
+		return nil, golangsdk.ErrDefault404{}
+	}
+
+	return rule, nil
 }
 
-func buildPeriodUpdateOpts(period int) aom.UpdateAlarmRuleParamPeriod {
-	periodToReq := new(aom.UpdateAlarmRuleParamPeriod)
-	if err := periodToReq.UnmarshalJSON([]byte(strconv.Itoa(period))); err != nil {
-		log.Printf("[WARN] failed to parse period %d: %s", period, err)
+func flattenV2AlarmRuleDimensions(paramsList []interface{}) interface{} {
+	if len(paramsList) == 0 {
+		return nil
 	}
-	return *periodToReq
-}
+	rst := make([]map[string]interface{}, 0, len(paramsList))
+	for _, params := range paramsList {
+		m := map[string]interface{}{
+			"name":  utils.PathSearch("name", params, nil),
+			"value": utils.PathSearch("value", params, nil),
+		}
+		rst = append(rst, m)
+	}
 
-func buildComparisonOperatorUpdateOpts(comparisonOperator string) aom.UpdateAlarmRuleParamComparisonOperator {
-	comparisonOperatorToReq := new(aom.UpdateAlarmRuleParamComparisonOperator)
-	if err := comparisonOperatorToReq.UnmarshalJSON([]byte(comparisonOperator)); err != nil {
-		log.Printf("[WARN] failed to parse comparison_operator %s: %s", comparisonOperator, err)
-	}
-	return *comparisonOperatorToReq
-}
-
-func buildStatisticUpdateOpts(statistic string) aom.UpdateAlarmRuleParamStatistic {
-	statisticToReq := new(aom.UpdateAlarmRuleParamStatistic)
-	if err := statisticToReq.UnmarshalJSON([]byte(statistic)); err != nil {
-		log.Printf("[WARN] failed to parse statistic %s: %s", statistic, err)
-	}
-	return *statisticToReq
+	return rst
 }
 
 func resourceAlarmRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, err := cfg.HcAomV2Client(cfg.GetRegion(d))
+	client, err := cfg.NewServiceClient("aom", cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating AOM client: %s", err)
 	}
 
-	// all parameters should be set when updating due to the API issue
-	updateOpts := aom.UpdateAlarmRuleParam{
-		AlarmRuleName:           d.Get("name").(string),
-		AlarmLevel:              buildAlarmLevelUpdateOpts(d.Get("alarm_level").(int)),
-		AlarmDescription:        utils.String(d.Get("description").(string)),
-		IsTurnOn:                utils.Bool(d.Get("alarm_enabled").(bool)),
-		AlarmActions:            buildActionOpts(d.Get("alarm_actions").([]interface{})),
-		OkActions:               buildActionOpts(d.Get("ok_actions").([]interface{})),
-		InsufficientDataActions: buildActionOpts(d.Get("insufficient_data_actions").([]interface{})),
-		Namespace:               d.Get("namespace").(string),
-		MetricName:              d.Get("metric_name").(string),
-		Dimensions:              buildDimensionsOpts(d.Get("dimensions").([]interface{})),
-		Period:                  buildPeriodUpdateOpts(d.Get("period").(int)),
-		Unit:                    d.Get("unit").(string),
-		ComparisonOperator:      buildComparisonOperatorUpdateOpts(d.Get("comparison_operator").(string)),
-		Statistic:               buildStatisticUpdateOpts(d.Get("statistic").(string)),
-		Threshold:               d.Get("threshold").(string),
-		EvaluationPeriods:       int32(d.Get("evaluation_periods").(int)),
+	updateHttpUrl := "v2/{project_id}/alarm-rules"
+	updatePath := client.Endpoint + updateHttpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+		JSONBody: utils.RemoveNil(buildV2AlarmRuleBodyParams(d)),
 	}
 
-	log.Printf("[DEBUG] Update %s Options: %#v", updateOpts.AlarmRuleName, updateOpts)
-	reqOpts := aom.UpdateAlarmRuleRequest{
-		Body: &updateOpts,
-	}
-
-	_, err = client.UpdateAlarmRule(&reqOpts)
+	_, err = client.Request("PUT", updatePath, &updateOpt)
 	if err != nil {
-		return diag.Errorf("error updating AOM alarm rule %s: %s", updateOpts.AlarmRuleName, err)
+		return diag.Errorf("error updating the alarm rule: %s", err)
 	}
 
 	return resourceAlarmRuleRead(ctx, d, meta)
@@ -453,14 +376,28 @@ func resourceAlarmRuleUpdate(ctx context.Context, d *schema.ResourceData, meta i
 
 func resourceAlarmRuleDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, err := cfg.HcAomV2Client(cfg.GetRegion(d))
+	client, err := cfg.NewServiceClient("aom", cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating AOM client: %s", err)
 	}
 
-	_, err = client.DeleteAlarmRule(&aom.DeleteAlarmRuleRequest{AlarmRuleId: d.Id()})
-	if err != nil {
-		return diag.Errorf("error deleting AOM alarm rule %s: %s", d.Id(), err)
+	deleteHttpUrl := "v2/{project_id}/alarm-rules/{alarm_rule_id}"
+	deletePath := client.Endpoint + deleteHttpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = strings.ReplaceAll(deletePath, "{alarm_rule_id}", d.Id())
+
+	deleteOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 	}
+
+	_, err = client.Request("DELETE", deletePath, &deleteOpt)
+	if err != nil {
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", "AOM.02005112"),
+			"error deleting the alarm rule")
+	}
+
 	return nil
 }

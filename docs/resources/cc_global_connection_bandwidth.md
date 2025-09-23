@@ -50,8 +50,8 @@ The following arguments are supported:
 
   Only support changing **bwd** to **95**.
 
-* `size` - (Required, Int) Specifies the GCB size. If `charge_mode` is **bwd**, value ranges from 2 to 300 Mbit/s. If
-  `charge_mode` is **95**, value ranges from 100 to 300 Mbit/s.
+* `size` - (Required, Int) Specifies the GCB size. If `charge_mode` is **bwd**, value ranges from `2` to `300` Mbit/s. If
+  `charge_mode` is **95**, value ranges from `100` to `300` Mbit/s.
 
 * `sla_level` - (Optional, String) Specifies the network level. From high to low, divided into **Pt**(platinum),
   **Au**(gold), and **Ag**(silver). The default is **Au**.

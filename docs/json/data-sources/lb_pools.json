@@ -7,12 +7,14 @@
             "attributes": {
               "description": {
                 "type": "string",
-                "description": "Specifies the description of the LB pool.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
                 "optional": true
               },
               "healthmonitor_id": {
                 "type": "string",
-                "description": "Specifies the health monitor ID of the LB pool.",
                 "optional": true
               },
               "id": {
@@ -21,22 +23,26 @@
               },
               "lb_method": {
                 "type": "string",
-                "description": "Specifies the method of the LB pool.",
                 "optional": true
               },
               "loadbalancer_id": {
                 "type": "string",
-                "description": "Specifies the loadbalancer ID of the LB pool.",
+                "optional": true
+              },
+              "member_address": {
+                "type": "string",
+                "optional": true
+              },
+              "member_device_id": {
+                "type": "string",
                 "optional": true
               },
               "name": {
                 "type": "string",
-                "description": "Specifies the name of the LB pool.",
                 "optional": true
               },
               "pool_id": {
                 "type": "string",
-                "description": "Specifies the ID of the LB pool.",
                 "optional": true
               },
               "pools": {
@@ -83,20 +89,21 @@
                           "object",
                           {
                             "cookie_name": "string",
+                            "timeout": "number",
                             "type": "string"
                           }
                         ]
                       ],
+                      "protection_reason": "string",
+                      "protection_status": "string",
                       "protocol": "string"
                     }
                   ]
                 ],
-                "description": "Pool list. For details, see Data structure of the Pool field.",
                 "computed": true
               },
               "protocol": {
                 "type": "string",
-                "description": "Specifies the protocol of the LB pool.",
                 "optional": true
               },
               "region": {

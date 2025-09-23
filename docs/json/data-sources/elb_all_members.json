@@ -1,0 +1,177 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_elb_all_members": {
+          "block": {
+            "attributes": {
+              "address": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the IP address of the backend server.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the ID of the enterprise project.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ip_version": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the IP address version supported by the backend server group.",
+                "optional": true
+              },
+              "loadbalancer_id": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the ID of the load balancer with which the load balancer is associated.",
+                "optional": true
+              },
+              "member_id": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the backend server ID.",
+                "optional": true
+              },
+              "members": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "address": "string",
+                      "created_at": "string",
+                      "id": "string",
+                      "instance_id": "string",
+                      "ip_version": "string",
+                      "loadbalancer_id": "string",
+                      "member_type": "string",
+                      "name": "string",
+                      "operating_status": "string",
+                      "pool_id": "string",
+                      "project_id": "string",
+                      "protocol_port": "number",
+                      "reason": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "expected_response": "string",
+                            "healthcheck_response": "string",
+                            "reason_code": "string"
+                          }
+                        ]
+                      ],
+                      "status": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "listener_id": "string",
+                            "operating_status": "string",
+                            "reason": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "expected_response": "string",
+                                  "healthcheck_response": "string",
+                                  "reason_code": "string"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "subnet_cidr_id": "string",
+                      "updated_at": "string",
+                      "weight": "number"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of backend servers.",
+                "computed": true
+              },
+              "name": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the backend server name.",
+                "optional": true
+              },
+              "operating_status": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the operating status of the backend server.",
+                "optional": true
+              },
+              "pool_id": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the ID of the backend server group to which the backend server belongs.",
+                "optional": true
+              },
+              "protocol_port": {
+                "type": [
+                  "list",
+                  "number"
+                ],
+                "description": "Specifies the port used by the backend servers.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "subnet_cidr_id": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the ID of the subnet where the backend server works.",
+                "optional": true
+              },
+              "weight": {
+                "type": [
+                  "list",
+                  "number"
+                ],
+                "description": "Specifies the weight of the backend server.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "ELB",
+            "name": "Elastic Load Balance",
+            "catalog": "Networking",
+            "name_cn": "弹性负载均衡",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

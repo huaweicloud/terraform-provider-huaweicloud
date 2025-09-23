@@ -226,7 +226,7 @@ func dataSourceVpcSubnetsRead(_ context.Context, d *schema.ResourceData, meta in
 			}
 			subnet["tags"] = tagmap
 		} else {
-			return diag.Errorf("error query tags of subnets (%s): %s", item.ID, err)
+			log.Printf("[WARN] error query tags of subnets (%s): %s", item.ID, err)
 		}
 
 		subnets = append(subnets, subnet)

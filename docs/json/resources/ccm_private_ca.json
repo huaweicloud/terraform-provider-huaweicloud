@@ -5,6 +5,10 @@
         "huaweicloud_ccm_private_ca": {
           "block": {
             "attributes": {
+              "action": {
+                "type": "string",
+                "optional": true
+              },
               "auto_renew": {
                 "type": "string",
                 "optional": true,
@@ -97,7 +101,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "type": {
                 "type": "string",
@@ -115,24 +120,26 @@
                     },
                     "crl_name": {
                       "type": "string",
+                      "computed": true
+                    },
+                    "enabled": {
+                      "type": "bool",
                       "optional": true,
-                      "computed": true,
-                      "forcenew": true
+                      "computed": true
                     },
                     "obs_bucket_name": {
                       "type": "string",
-                      "required": true,
-                      "forcenew": true
+                      "optional": true,
+                      "computed": true
                     },
                     "valid_days": {
                       "type": "number",
-                      "required": true,
-                      "forcenew": true
+                      "optional": true,
+                      "computed": true
                     }
                   }
                 },
-                "nesting_mode": "list",
-                "forcenew": true
+                "nesting_mode": "list"
               },
               "distinguished_name": {
                 "block": {
@@ -201,9 +208,9 @@
           },
           "product": {
             "short": "CCM",
-            "name": "Cloud Certificate Manager Service",
+            "name": "Cloud Certificate & Manager",
             "catalog": "Security & Compliance",
-            "name_cn": "云证书管理服务",
+            "name_cn": "云证书与管理服务",
             "catalog_cn": "安全与合规"
           }
         }

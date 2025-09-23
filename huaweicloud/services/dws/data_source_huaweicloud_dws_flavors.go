@@ -8,7 +8,6 @@ package dws
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -16,11 +15,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -170,9 +167,8 @@ func resourceDwsFlavorsRead(_ context.Context, d *schema.ResourceData, meta inte
 		KeepResponseBody: true,
 	}
 	listFlavorsResp, err := listFlavorsClient.Request("GET", listFlavorsPath, &listFlavorsOpt)
-
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving DwsFlavors")
+		return diag.Errorf("error retrieving DWS flavors: %s", err)
 	}
 
 	listFlavorsRespBody, err := utils.FlattenResponse(listFlavorsResp)
@@ -207,7 +203,7 @@ func flattenListNodeTypesFlavors(resp interface{}) []interface{} {
 		rst = append(rst, map[string]interface{}{
 			"flavor_id":            utils.PathSearch("spec_name", v, nil),
 			"datastore_type":       utils.PathSearch("datastore_type", v, nil),
-			"datastore_version":    flattenFlavorsDatastoreVersion(v),
+			"datastore_version":    utils.PathSearch("datastores[0].version", v, nil),
 			"vcpus":                utils.PathSearch("vcpus", v, nil),
 			"memory":               utils.PathSearch("ram", v, nil),
 			"volumetype":           utils.PathSearch("detail[?type=='LOCAL_DISK' || type=='SSD' ].type|[0]", v, nil),
@@ -219,21 +215,10 @@ func flattenListNodeTypesFlavors(resp interface{}) []interface{} {
 	return rst
 }
 
-func flattenFlavorsDatastoreVersion(resp interface{}) string {
-	version, err := jmespath.Search("datastores[0].version", resp)
-	if err != nil {
-		log.Printf("[WARN] error parsing version from response: %s", err)
-		return ""
-	}
-
-	return version.(string)
-}
-
 func flattenFlavorsElasticVolumeSpecs(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("elastic_volume_specs[0]", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing elastic_volume_specs[0] from response= %#v", resp)
+	curJson := utils.PathSearch("elastic_volume_specs[0]", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return rst
 	}
 

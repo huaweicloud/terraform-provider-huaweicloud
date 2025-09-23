@@ -285,6 +285,58 @@ func TestAccCESAlarmRule_old(t *testing.T) {
 	})
 }
 
+func TestAccCESAlarmRule_withAlarmTemplate(t *testing.T) {
+	var ar alarmrule.AlarmRule
+	rName := acceptance.RandomAccResourceNameWithDash()
+	resourceName := "huaweicloud_ces_alarmrule.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&ar,
+		getAlarmRuleResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testCESAlarmRule_withAlarmTemplate(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "alarm_name", rName),
+					resource.TestCheckResourceAttr(resourceName, "alarm_type", "MULTI_INSTANCE"),
+					resource.TestCheckResourceAttr(resourceName, "alarm_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "alarm_action_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "alarm_level", "1"),
+					resource.TestCheckResourceAttrPair(resourceName, "alarm_template_id",
+						"huaweicloud_ces_alarm_template.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "condition.0.metric_name", "disk_util_inband"),
+					resource.TestCheckResourceAttr(resourceName, "condition.0.period", "1"),
+					resource.TestCheckResourceAttr(resourceName, "condition.0.filter", "average"),
+					resource.TestCheckResourceAttr(resourceName, "condition.0.value", "90"),
+					resource.TestCheckResourceAttr(resourceName, "condition.0.suppress_duration", "86400"),
+					resource.TestCheckResourceAttrPair(resourceName, "resources.0.dimensions.0.value", "huaweicloud_compute_instance.test.0", "id"),
+				),
+			},
+			{
+				Config: testCESAlarmRule_withAlarmTemplate_update(rName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "alarm_name", rName),
+					resource.TestCheckResourceAttr(resourceName, "alarm_enabled", "false"),
+					resource.TestCheckResourceAttrPair(resourceName, "resources.0.dimensions.0.value", "huaweicloud_compute_instance.test.1", "id"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testCESAlarmRule_instanceBase(rName string) string {
 	return fmt.Sprintf(`
 %s
@@ -702,6 +754,122 @@ resource "huaweicloud_ces_alarmrule" "test" {
     unit                = "B/s"
     count               = 1
     suppress_duration   = 300
+  }
+
+  alarm_actions {
+    type              = "notification"
+    notification_list = [
+      huaweicloud_smn_topic.test.topic_urn
+    ]
+  }
+}
+`, testCESAlarmRule_instanceBase(rName), testCESAlarmRule_topicBase(rName), rName)
+}
+
+func testCESAlarmRule_withAlarmTemplate(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+%[2]s
+
+resource "huaweicloud_ces_alarm_template" "test" {
+  name        = "%[3]s"
+  description = "It is an template"
+
+  policies {
+    namespace           = "SYS.ECS"
+    dimension_name      = "instance_id"
+    metric_name         = "disk_util_inband"
+    period              = 1
+    filter              = "average"
+    comparison_operator = ">="
+    value               = "90"
+    unit                = "%%"
+    count               = 3
+    alarm_level         = 1
+    suppress_duration   = 86400
+  }
+
+  depends_on = [
+    huaweicloud_compute_instance.test,
+    huaweicloud_smn_topic.test
+  ]
+}
+
+resource "huaweicloud_ces_alarmrule" "test" {
+  alarm_name           = "%[3]s"
+  alarm_enabled        = true
+  alarm_action_enabled = true
+  alarm_type           = "MULTI_INSTANCE"
+  alarm_template_id    = huaweicloud_ces_alarm_template.test.id
+
+  metric {
+    namespace = "SYS.ECS"
+  }
+
+  resources {
+    dimensions {
+      name  = "instance_id"
+      value = huaweicloud_compute_instance.test[0].id
+    }
+  }
+
+  alarm_actions {
+    type              = "notification"
+    notification_list = [
+      huaweicloud_smn_topic.test.topic_urn
+    ]
+  }
+}
+`, testCESAlarmRule_instanceBase(rName), testCESAlarmRule_topicBase(rName), rName)
+}
+
+func testCESAlarmRule_withAlarmTemplate_update(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+%[2]s
+
+resource "huaweicloud_ces_alarm_template" "test" {
+  name        = "%[3]s"
+  description = "It is an template"
+
+  policies {
+    namespace           = "SYS.ECS"
+    dimension_name      = "instance_id"
+    metric_name         = "disk_util_inband"
+    period              = 1
+    filter              = "average"
+    comparison_operator = ">="
+    value               = "90"
+    unit                = "%%"
+    count               = 3
+    alarm_level         = 1
+    suppress_duration   = 86400
+  }
+
+  depends_on = [
+    huaweicloud_compute_instance.test,
+    huaweicloud_smn_topic.test
+  ]
+}
+
+resource "huaweicloud_ces_alarmrule" "test" {
+  alarm_name           = "%[3]s"
+  alarm_action_enabled = true
+  alarm_enabled        = false
+  alarm_type           = "MULTI_INSTANCE"
+  alarm_template_id    = huaweicloud_ces_alarm_template.test.id
+
+  metric {
+    namespace = "SYS.ECS"
+  }
+
+  resources {
+    dimensions {
+      name  = "instance_id"
+      value = huaweicloud_compute_instance.test[1].id
+    }
   }
 
   alarm_actions {

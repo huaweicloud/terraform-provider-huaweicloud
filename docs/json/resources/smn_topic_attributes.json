@@ -1,0 +1,45 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_smn_topic_attributes": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The topic attribute name.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the topic is located.",
+                "computed": true
+              },
+              "topic_urn": {
+                "type": "string",
+                "description": "The topic URN.",
+                "required": true
+              },
+              "value": {
+                "type": "string",
+                "description": "The topic attribute value, in JSON format.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "SMN",
+            "name": "Simple Message Notification",
+            "catalog": "Management & Governance",
+            "name_cn": "消息通知服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

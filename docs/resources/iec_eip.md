@@ -60,6 +60,6 @@ This resource provides the following timeouts configuration options:
 
 IEC EIPs can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_iec_eip.eip_test b5ad19d1-57d1-48fd-aab7-1378f9bee169
 ```

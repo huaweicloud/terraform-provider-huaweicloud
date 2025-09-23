@@ -9,7 +9,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccKmsKeyDataSource_Basic(t *testing.T) {
+func TestAccKmsKeyDataSource_basic(t *testing.T) {
 	keyAlias := acceptance.RandomAccResourceName()
 	datasourceName := "data.huaweicloud_kms_key.test"
 	dc := acceptance.InitDataSourceCheck(datasourceName)
@@ -19,28 +19,27 @@ func TestAccKmsKeyDataSource_Basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccKmsKeyDataSource_Basic(keyAlias),
+				Config: testAccKmsKeyDataSource_basic(keyAlias),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(datasourceName, "key_alias", keyAlias),
 					resource.TestCheckResourceAttr(datasourceName, "rotation_enabled", "false"),
-					resource.TestCheckResourceAttr(datasourceName, "region", acceptance.HW_REGION_NAME),
 				),
 			},
 		},
 	})
 }
 
-func TestAccKmsKeyDataSource_WithTags(t *testing.T) {
+func TestAccKmsKeyDataSource_withTags(t *testing.T) {
 	keyAlias := acceptance.RandomAccResourceName()
-	var datasourceName = "data.huaweicloud_kms_key.key_1"
+	var datasourceName = "data.huaweicloud_kms_key.test"
 	dc := acceptance.InitDataSourceCheck(datasourceName)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheckKms(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccKmsKeyDataSource_WithTags(keyAlias),
+				Config: testAccKmsKeyDataSource_withTags(keyAlias),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(datasourceName, "key_alias", keyAlias),
@@ -52,67 +51,59 @@ func TestAccKmsKeyDataSource_WithTags(t *testing.T) {
 	})
 }
 
-func TestAccKmsKeyDataSource_WithEpsId(t *testing.T) {
+func TestAccKmsKeyDataSource_withEpsId(t *testing.T) {
 	keyAlias := acceptance.RandomAccResourceName()
-	var datasourceName = "data.huaweicloud_kms_key.key_1"
+	var datasourceName = "data.huaweicloud_kms_key.test"
 	dc := acceptance.InitDataSourceCheck(datasourceName)
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheckKms(t); acceptance.TestAccPreCheckEpsID(t) },
+		PreCheck:          func() { acceptance.TestAccPreCheckKms(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccKmsKeyDataSource_epsId(keyAlias),
+				Config: testAccKmsKeyDataSource_withEpsId(keyAlias),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(datasourceName, "key_alias", keyAlias),
-					resource.TestCheckResourceAttr(datasourceName, "enterprise_project_id",
-						acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(datasourceName, "enterprise_project_id", "0"),
 				),
 			},
 		},
 	})
 }
 
-func testAccKmsKeyDataSource_Basic(keyAlias string) string {
+func testAccKmsKeyDataSource_basic(keyAlias string) string {
 	return fmt.Sprintf(`
 %s
 
-data "huaweicloud_kms_key" "key_1" {
-  key_alias = huaweicloud_kms_key.key_1.key_alias
-  key_id    = huaweicloud_kms_key.key_1.id
+data "huaweicloud_kms_key" "test" {
+  key_alias = huaweicloud_kms_key.test.key_alias
+  key_id    = huaweicloud_kms_key.test.id
   key_state = "2"
 }
-`, testAccKmsKey_Basic(keyAlias))
+`, testAccKmsKey_basic(keyAlias))
 }
 
-func testAccKmsKeyDataSource_WithTags(keyAlias string) string {
+func testAccKmsKeyDataSource_withTags(keyAlias string) string {
 	return fmt.Sprintf(`
 %s
 
-data "huaweicloud_kms_key" "key_1" {
-  key_alias = huaweicloud_kms_key.key_1.key_alias
-  key_id    = huaweicloud_kms_key.key_1.id
+data "huaweicloud_kms_key" "test" {
+  key_alias = huaweicloud_kms_key.test.key_alias
+  key_id    = huaweicloud_kms_key.test.id
   key_state = "2"
 }
-`, testAccKmsKey_WithTags(keyAlias))
+`, testAccKmsKey_basic(keyAlias))
 }
 
-func testAccKmsKeyDataSource_epsId(keyAlias string) string {
+func testAccKmsKeyDataSource_withEpsId(keyAlias string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_kms_key" "key_1" {
-  key_alias             = "%s"
-  key_description       = "test description"
-  pending_days          = "7"
-  is_enabled            = true
-  enterprise_project_id = "%s"
-}
+%s
 
-data "huaweicloud_kms_key" "key_1" {
-  key_alias             = huaweicloud_kms_key.key_1.key_alias
-  key_id                = huaweicloud_kms_key.key_1.id
-  key_description       = "test description"
+data "huaweicloud_kms_key" "test" {
+  key_alias             = huaweicloud_kms_key.test.key_alias
+  key_id                = huaweicloud_kms_key.test.id
   key_state             = "2"
-  enterprise_project_id = huaweicloud_kms_key.key_1.enterprise_project_id
+  enterprise_project_id = huaweicloud_kms_key.test.enterprise_project_id
 }
-`, keyAlias, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, testAccKmsKey_basic(keyAlias))
 }

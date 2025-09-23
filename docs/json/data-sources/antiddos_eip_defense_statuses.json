@@ -1,0 +1,60 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_antiddos_eip_defense_statuses": {
+          "block": {
+            "attributes": {
+              "ddos_status": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "blackhole_endtime": "number",
+                      "eip_id": "string",
+                      "http_threshold": "number",
+                      "network_type": "string",
+                      "protect_type": "string",
+                      "public_ip": "string",
+                      "status": "string",
+                      "traffic_threshold": "number"
+                    }
+                  ]
+                ],
+                "description": "The Anti-DDos statuses.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ip": {
+                "type": "string",
+                "description": "Specifies the IP address. Both IPv4 and IPv6 addresses are supported.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the defense status.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "Anti-DDoS",
+            "name": "Anti-DDoS",
+            "catalog": "Security & Compliance",
+            "name_cn": "Anti-DDoS流量清洗",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

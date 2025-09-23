@@ -2,7 +2,8 @@
 subcategory: "Log Tank Service (LTS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_lts_aom_access"
-description: ""
+description: |-
+  Manages an AOM to LTS log mapping rule resource within HuaweiCloud.
 ---
 
 # huaweicloud_lts_aom_access
@@ -110,7 +111,7 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `name` - (Required, String) Specifies the unique rule name. The name consists of 1 to 100 characters,
+* `name` - (Required, String) Specifies the unique rule name. The name consists of `1` to `100` characters,
   including letters, digits, underscores (_), hyphens (-) and dots (.).
 
 * `cluster_id` - (Required, String) Specifies the CCE or CCI cluster ID. It is fixed to **CCI-ClusterID** for CCI.

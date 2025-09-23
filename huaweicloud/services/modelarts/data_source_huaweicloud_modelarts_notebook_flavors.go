@@ -8,14 +8,12 @@ package modelarts
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -245,9 +243,8 @@ func flattenListNotebookFlavorsFlavors(resp interface{}) []interface{} {
 
 func flattenFlavorsBilling(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("billing", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing billing from response= %#v", resp)
+	curJson := utils.PathSearch("billing", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return rst
 	}
 
@@ -262,9 +259,8 @@ func flattenFlavorsBilling(resp interface{}) []interface{} {
 
 func flattenFlavorsGpu(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("gpu", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing gpu from response= %#v", resp)
+	curJson := utils.PathSearch("gpu", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return rst
 	}
 

@@ -7,13 +7,11 @@ package waf
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -185,51 +183,47 @@ The value can be **url**, **ip**, **ipv6**, **params**, **cookie**, **header** o
 }
 
 func resourceRuleCCProtectionCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
 	var (
-		createRuleCCProtectionHttpUrl = "v1/{project_id}/waf/policy/{policy_id}/cc"
-		createRuleCCProtectionProduct = "waf"
+		cfg      = meta.(*config.Config)
+		region   = cfg.GetRegion(d)
+		httpUrl  = "v1/{project_id}/waf/policy/{policy_id}/cc"
+		product  = "waf"
+		policyID = d.Get("policy_id").(string)
 	)
-	createClient, err := cfg.NewServiceClient(createRuleCCProtectionProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating WAF Client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
-	createPath := createClient.Endpoint + createRuleCCProtectionHttpUrl
-	createPath = strings.ReplaceAll(createPath, "{project_id}", createClient.ProjectID)
-	createPath = strings.ReplaceAll(createPath, "{policy_id}", fmt.Sprintf("%v", d.Get("policy_id")))
-	createPath += buildQueryParams(d, cfg)
-
-	createRuleCCProtectionOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{policy_id}", policyID)
+	requestPath += buildQueryParams(d, cfg)
+	requestOpt := golangsdk.RequestOpts{
 		MoreHeaders: map[string]string{
 			"Content-Type": "application/json;charset=utf8",
 		},
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
+		JSONBody:         utils.RemoveNil(buildCreateOrUpdateRuleCCProtectionBodyParams(d)),
 	}
-	createRuleCCProtectionOpt.JSONBody = utils.RemoveNil(buildCreateOrUpdateRuleCCProtectionBodyParams(d))
-	createRuleCCProtectionResp, err := createClient.Request("POST", createPath, &createRuleCCProtectionOpt)
+	resp, err := client.Request("POST", requestPath, &requestOpt)
 	if err != nil {
-		return diag.Errorf("error creating RuleCCProtection: %s", err)
+		return diag.Errorf("error creating WAF rule CC protection: %s", err)
 	}
 
-	createRuleCCProtectionRespBody, err := utils.FlattenResponse(createRuleCCProtectionResp)
+	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("id", createRuleCCProtectionRespBody)
-	if err != nil {
-		return diag.Errorf("error creating RuleCCProtection: ID is not found in API response")
+	protectionId := utils.PathSearch("id", respBody, "").(string)
+	if protectionId == "" {
+		return diag.Errorf("error creating WAF rule CC protection: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(protectionId)
 
 	if d.Get("status").(int) == 0 {
-		if err := updateRuleStatus(createClient, d, cfg, "cc"); err != nil {
+		if err := updateRuleStatus(client, d, cfg, "cc"); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -313,42 +307,38 @@ func buildCCProtectionContents(raw map[string]interface{}) []string {
 }
 
 func resourceRuleCCProtectionRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	var mErr *multierror.Error
-
 	var (
-		getRuleCCProtectionHttpUrl = "v1/{project_id}/waf/policy/{policy_id}/cc/{rule_id}"
-		getRuleCCProtectionProduct = "waf"
+		cfg      = meta.(*config.Config)
+		region   = cfg.GetRegion(d)
+		mErr     *multierror.Error
+		httpUrl  = "v1/{project_id}/waf/policy/{policy_id}/cc/{rule_id}"
+		product  = "waf"
+		policyID = d.Get("policy_id").(string)
 	)
-	getClient, err := cfg.NewServiceClient(getRuleCCProtectionProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating WAF Client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
-	getPath := getClient.Endpoint + getRuleCCProtectionHttpUrl
-	getPath = strings.ReplaceAll(getPath, "{project_id}", getClient.ProjectID)
-	getPath = strings.ReplaceAll(getPath, "{policy_id}", fmt.Sprintf("%v", d.Get("policy_id")))
-	getPath = strings.ReplaceAll(getPath, "{rule_id}", d.Id())
-	getPath += buildQueryParams(d, cfg)
-
-	getOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{policy_id}", policyID)
+	requestPath = strings.ReplaceAll(requestPath, "{rule_id}", d.Id())
+	requestPath += buildQueryParams(d, cfg)
+	requestOpt := golangsdk.RequestOpts{
 		MoreHeaders: map[string]string{
 			"Content-Type": "application/json;charset=utf8",
 		},
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
-	getResp, err := getClient.Request("GET", getPath, &getOpt)
 
+	resp, err := client.Request("GET", requestPath, &requestOpt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving RuleCCProtection")
+		// If the cc rule does not exist, the response HTTP status code of the details API is 404.
+		return common.CheckDeletedDiag(d, err, "error retrieving WAF rule CC protection")
 	}
 
-	getRespBody, err := utils.FlattenResponse(getResp)
+	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -356,23 +346,23 @@ func resourceRuleCCProtectionRead(_ context.Context, d *schema.ResourceData, met
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),
-		d.Set("name", utils.PathSearch("name", getRespBody, nil)),
-		d.Set("policy_id", utils.PathSearch("policyid", getRespBody, nil)),
-		d.Set("status", utils.PathSearch("status", getRespBody, nil)),
-		d.Set("conditions", flattenRuleCCProtectionConditions(getRespBody)),
-		d.Set("protective_action", utils.PathSearch("action.category", getRespBody, nil)),
-		d.Set("block_page_type", utils.PathSearch("action.detail.response.content_type", getRespBody, nil)),
-		d.Set("page_content", utils.PathSearch("action.detail.response.content", getRespBody, nil)),
-		d.Set("rate_limit_mode", utils.PathSearch("tag_type", getRespBody, nil)),
-		d.Set("user_identifier", utils.PathSearch("tag_index", getRespBody, nil)),
-		d.Set("other_user_identifier", utils.PathSearch("tag_condition.contents|[0]", getRespBody, nil)),
-		d.Set("limit_num", utils.PathSearch("limit_num", getRespBody, nil)),
-		d.Set("limit_period", utils.PathSearch("limit_period", getRespBody, nil)),
-		d.Set("unlock_num", utils.PathSearch("unlock_num", getRespBody, nil)),
-		d.Set("lock_time", utils.PathSearch("lock_time", getRespBody, nil)),
-		d.Set("request_aggregation", utils.PathSearch("domain_aggregation", getRespBody, nil)),
-		d.Set("all_waf_instances", utils.PathSearch("region_aggregation", getRespBody, nil)),
-		d.Set("description", utils.PathSearch("description", getRespBody, nil)),
+		d.Set("name", utils.PathSearch("name", respBody, nil)),
+		d.Set("policy_id", utils.PathSearch("policyid", respBody, nil)),
+		d.Set("status", utils.PathSearch("status", respBody, nil)),
+		d.Set("conditions", flattenRuleCCProtectionConditions(respBody)),
+		d.Set("protective_action", utils.PathSearch("action.category", respBody, nil)),
+		d.Set("block_page_type", utils.PathSearch("action.detail.response.content_type", respBody, nil)),
+		d.Set("page_content", utils.PathSearch("action.detail.response.content", respBody, nil)),
+		d.Set("rate_limit_mode", utils.PathSearch("tag_type", respBody, nil)),
+		d.Set("user_identifier", utils.PathSearch("tag_index", respBody, nil)),
+		d.Set("other_user_identifier", utils.PathSearch("tag_condition.contents|[0]", respBody, nil)),
+		d.Set("limit_num", utils.PathSearch("limit_num", respBody, nil)),
+		d.Set("limit_period", utils.PathSearch("limit_period", respBody, nil)),
+		d.Set("unlock_num", utils.PathSearch("unlock_num", respBody, nil)),
+		d.Set("lock_time", utils.PathSearch("lock_time", respBody, nil)),
+		d.Set("request_aggregation", utils.PathSearch("domain_aggregation", respBody, nil)),
+		d.Set("all_waf_instances", utils.PathSearch("region_aggregation", respBody, nil)),
+		d.Set("description", utils.PathSearch("description", respBody, nil)),
 	)
 	return diag.FromErr(mErr.ErrorOrNil())
 }
@@ -400,9 +390,9 @@ func resourceRuleCCProtectionUpdate(ctx context.Context, d *schema.ResourceData,
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
-	updateRuleCCProtectionClient, err := cfg.NewServiceClient("waf", region)
+	client, err := cfg.NewServiceClient("waf", region)
 	if err != nil {
-		return diag.Errorf("error creating WAF Client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
 	updateRuleCCProtectionChanges := []string{
@@ -424,33 +414,32 @@ func resourceRuleCCProtectionUpdate(ctx context.Context, d *schema.ResourceData,
 	}
 
 	if d.HasChanges(updateRuleCCProtectionChanges...) {
-		updateRuleCCProtectionHttpUrl := "v1/{project_id}/waf/policy/{policy_id}/cc/{rule_id}"
+		var (
+			httpUrl  = "v1/{project_id}/waf/policy/{policy_id}/cc/{rule_id}"
+			policyID = d.Get("policy_id").(string)
+		)
 
-		policyID := fmt.Sprintf("%v", d.Get("policy_id"))
-		updatePath := updateRuleCCProtectionClient.Endpoint + updateRuleCCProtectionHttpUrl
-		updatePath = strings.ReplaceAll(updatePath, "{project_id}", updateRuleCCProtectionClient.ProjectID)
-		updatePath = strings.ReplaceAll(updatePath, "{policy_id}", policyID)
-		updatePath = strings.ReplaceAll(updatePath, "{rule_id}", d.Id())
-		updatePath += buildQueryParams(d, cfg)
-
-		updateRuleCCProtectionOpt := golangsdk.RequestOpts{
+		requestPath := client.Endpoint + httpUrl
+		requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+		requestPath = strings.ReplaceAll(requestPath, "{policy_id}", policyID)
+		requestPath = strings.ReplaceAll(requestPath, "{rule_id}", d.Id())
+		requestPath += buildQueryParams(d, cfg)
+		requestOpt := golangsdk.RequestOpts{
 			MoreHeaders: map[string]string{
 				"Content-Type": "application/json;charset=utf8",
 			},
 			KeepResponseBody: true,
-			OkCodes: []int{
-				200,
-			},
+			JSONBody:         utils.RemoveNil(buildCreateOrUpdateRuleCCProtectionBodyParams(d)),
 		}
-		updateRuleCCProtectionOpt.JSONBody = utils.RemoveNil(buildCreateOrUpdateRuleCCProtectionBodyParams(d))
-		_, err := updateRuleCCProtectionClient.Request("PUT", updatePath, &updateRuleCCProtectionOpt)
+
+		_, err := client.Request("PUT", requestPath, &requestOpt)
 		if err != nil {
-			return diag.Errorf("error updating RuleCCProtection: %s", err)
+			return diag.Errorf("error updating WAF rule CC protection: %s", err)
 		}
 	}
 
 	if d.HasChange("status") {
-		if err := updateRuleStatus(updateRuleCCProtectionClient, d, cfg, "cc"); err != nil {
+		if err := updateRuleStatus(client, d, cfg, "cc"); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -458,36 +447,34 @@ func resourceRuleCCProtectionUpdate(ctx context.Context, d *schema.ResourceData,
 }
 
 func resourceRuleCCProtectionDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
 	var (
-		deleteRuleCCProtectionHttpUrl = "v1/{project_id}/waf/policy/{policy_id}/cc/{rule_id}"
-		deleteRuleCCProtectionProduct = "waf"
+		cfg      = meta.(*config.Config)
+		region   = cfg.GetRegion(d)
+		httpUrl  = "v1/{project_id}/waf/policy/{policy_id}/cc/{rule_id}"
+		product  = "waf"
+		policyID = d.Get("policy_id").(string)
 	)
-	deleteRuleCCProtectionClient, err := cfg.NewServiceClient(deleteRuleCCProtectionProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating WAF Client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
-	deletePath := deleteRuleCCProtectionClient.Endpoint + deleteRuleCCProtectionHttpUrl
-	deletePath = strings.ReplaceAll(deletePath, "{project_id}", deleteRuleCCProtectionClient.ProjectID)
-	deletePath = strings.ReplaceAll(deletePath, "{policy_id}", fmt.Sprintf("%v", d.Get("policy_id")))
-	deletePath = strings.ReplaceAll(deletePath, "{rule_id}", d.Id())
-	deletePath += buildQueryParams(d, cfg)
-
-	deleteOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{policy_id}", policyID)
+	requestPath = strings.ReplaceAll(requestPath, "{rule_id}", d.Id())
+	requestPath += buildQueryParams(d, cfg)
+	requestOpt := golangsdk.RequestOpts{
 		MoreHeaders: map[string]string{
 			"Content-Type": "application/json;charset=utf8",
 		},
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
-	_, err = deleteRuleCCProtectionClient.Request("DELETE", deletePath, &deleteOpt)
+
+	_, err = client.Request("DELETE", requestPath, &requestOpt)
 	if err != nil {
-		return diag.Errorf("error deleting RuleCCProtection: %s", err)
+		// If the cc rule does not exist, the response HTTP status code of the deletion API is 404.
+		return common.CheckDeletedDiag(d, err, "error deleting WAF rule CC protection")
 	}
 	return nil
 }

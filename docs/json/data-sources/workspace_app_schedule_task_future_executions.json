@@ -1,0 +1,84 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_workspace_app_schedule_task_future_executions": {
+          "block": {
+            "attributes": {
+              "date_list": {
+                "type": "string",
+                "description": "The days of month when the scheduled task is to be executed.",
+                "optional": true
+              },
+              "day_interval": {
+                "type": "number",
+                "description": "The days of the weeks when the scheduled task is to be executed.",
+                "optional": true
+              },
+              "expire_time": {
+                "type": "string",
+                "description": "The expiration time of the schedule task.",
+                "optional": true
+              },
+              "future_executions": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The list of future execution times of the schedule task.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "month_list": {
+                "type": "string",
+                "description": "The month when the scheduled task is to be executed",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the schedule task is located.",
+                "computed": true
+              },
+              "scheduled_date": {
+                "type": "string",
+                "description": "The fixed date when the scheduled task is to be executed.",
+                "optional": true
+              },
+              "scheduled_time": {
+                "type": "string",
+                "description": "The interval in days for the scheduled task is to be executed.",
+                "required": true
+              },
+              "scheduled_type": {
+                "type": "string",
+                "description": "The type of execution cycle.",
+                "required": true
+              },
+              "time_zone": {
+                "type": "string",
+                "description": "The time zone of the schedule task.",
+                "optional": true,
+                "computed": true
+              },
+              "week_list": {
+                "type": "string",
+                "description": "The days of the week for execution.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

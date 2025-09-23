@@ -1,0 +1,71 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_antiddos_weekly_protection_statistics": {
+          "block": {
+            "attributes": {
+              "ddos_intercept_times": {
+                "type": "number",
+                "description": "The number of DDoS attacks blocked in a week.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "period_start_date": {
+                "type": "string",
+                "description": "The start date of the seven-day period, the value is a timestamp in milliseconds.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "top10": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "floating_ip_address": "string",
+                      "times": "number"
+                    }
+                  ]
+                ],
+                "description": "Top 10 attacked IP addresses.",
+                "computed": true
+              },
+              "weekdata": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "ddos_blackhole_times": "number",
+                      "ddos_intercept_times": "number",
+                      "max_attack_bps": "number",
+                      "max_attack_conns": "number",
+                      "period_start_date": "number"
+                    }
+                  ]
+                ],
+                "description": "The number of attacks in a week.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Anti-DDoS",
+            "name": "Anti-DDoS",
+            "catalog": "Security & Compliance",
+            "name_cn": "Anti-DDoS流量清洗",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

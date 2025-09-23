@@ -1,0 +1,55 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_aad_cc_attack_protection_qps": {
+          "block": {
+            "attributes": {
+              "domains": {
+                "type": "string",
+                "description": "Specified the domain name to query.",
+                "optional": true
+              },
+              "end_time": {
+                "type": "string",
+                "description": "Specified the end time for querying CC attack protection QPS data.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "overseas_type": {
+                "type": "string",
+                "description": "Specified the protection region.",
+                "optional": true
+              },
+              "qps": {
+                "type": "number",
+                "description": "The QPS value of CC attack protection.",
+                "computed": true
+              },
+              "recent": {
+                "type": "string",
+                "description": "Specified the time range for querying CC attack protection QPS data.",
+                "required": true
+              },
+              "start_time": {
+                "type": "string",
+                "description": "Specified the start time for querying CC attack protection QPS data.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "AAD",
+            "name": "Advanced Anti-DDoS",
+            "catalog": "Security & Compliance",
+            "name_cn": "DDoS高防",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

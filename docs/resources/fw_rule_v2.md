@@ -80,6 +80,6 @@ In addition to all arguments above, the following attributes are exported:
 
 Firewall Rules can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_fw_rule_v2.rule_1 8dbc0c28-e49c-463f-b712-5c5d1bbac327
 ```

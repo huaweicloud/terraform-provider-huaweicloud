@@ -8,14 +8,11 @@ package dli
 import (
 	"context"
 	"fmt"
-	"regexp"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -42,6 +39,8 @@ func ResourceDatasourceConnection() *schema.Resource {
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 
+		CustomizeDiff: config.MergeDefaultTags(),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
@@ -54,8 +53,6 @@ func ResourceDatasourceConnection() *schema.Resource {
 				Required:    true,
 				ForceNew:    true,
 				Description: `The name of a datasource connection.`,
-				ValidateFunc: validation.StringMatch(regexp.MustCompile(`^[A-Za-z-_0-9]*$`),
-					"the input is invalid"),
 			},
 			"vpc_id": {
 				Type:        schema.TypeString,
@@ -97,13 +94,7 @@ func ResourceDatasourceConnection() *schema.Resource {
 				Computed:    true,
 				Description: `List of routes.`,
 			},
-			"tags": {
-				Type:        schema.TypeMap,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Optional:    true,
-				ForceNew:    true,
-				Description: `The key/value pairs to associate with the datasource connection.`,
-			},
+			"tags": common.TagsForceNewSchema(),
 			"status": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -135,10 +126,9 @@ func datasourceConnectionRouteSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:         schema.TypeString,
-				Required:     true,
-				Description:  `The route Name`,
-				ValidateFunc: validation.StringLenBetween(1, 64),
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The route Name`,
 			},
 			"cidr": {
 				Type:        schema.TypeString,
@@ -191,11 +181,11 @@ func resourceDatasourceConnectionCreate(ctx context.Context, d *schema.ResourceD
 			utils.PathSearch("message", createDatasourceConnectionRespBody, "Message Not Found"))
 	}
 
-	id, err := jmespath.Search("connection_id", createDatasourceConnectionRespBody)
-	if err != nil {
-		return diag.Errorf("error creating DatasourceConnection: ID is not found in API response")
+	connectionId := utils.PathSearch("connection_id", createDatasourceConnectionRespBody, "").(string)
+	if connectionId == "" {
+		return diag.Errorf("unable to find the connection ID of the DLI Data Source from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(connectionId)
 
 	// add routes
 	if v, ok := d.GetOk("routes"); ok {
@@ -293,6 +283,7 @@ func resourceDatasourceConnectionRead(_ context.Context, d *schema.ResourceData,
 		d.Set("hosts", flattenGetDatasourceConnectionResponseBodyHost(getDatasourceConnectionRespBody)),
 		d.Set("routes", flattenGetDatasourceConnectionResponseBodyRoute(getDatasourceConnectionRespBody)),
 		d.Set("status", utils.PathSearch("status", getDatasourceConnectionRespBody, nil)),
+		d.Set("tags", d.Get("tags")),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())

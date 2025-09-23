@@ -63,20 +63,20 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `name` - (Required, String) Specifies the instance name, which can be the same as an existing instance name. The value
-  must be 4 to 64 characters in length and start with a letter. It is case-sensitive and can contain only letters,
+  must be `4` to `64` characters in length and start with a letter. It is case-sensitive and can contain only letters,
   digits, hyphens (-), and underscores (_).
 
 * `flavor` - (Required, String) Specifies the instance specifications. For details,
   see [DB Instance Specifications](https://support.huaweicloud.com/intl/en-us/productdesc-geminidb/geminidb_01_0006.html)
 
-* `node_num` - (Optional, Int) Specifies the number of nodes, ranges from 3 to 12. Defaults to 3.
+* `node_num` - (Optional, Int) Specifies the number of nodes, ranges from `3` to `200`. Defaults to `3`.
 
 * `volume_size` - (Required, Int) Specifies the storage space in GB. The value must be a multiple of 10. For a GaussDB
   Cassandra DB instance, the minimum storage space is 100 GB, and the maximum storage space is related to the instance
   performance specifications. For details,
   see [DB Instance Specifications](https://support.huaweicloud.com/intl/en-us/productdesc-geminidb/geminidb_01_0006.html)
 
-* `password` - (Required, String) Specifies the database password. The value must be 8 to 32 characters in length,
+* `password` - (Required, String) Specifies the database password. The value must be `8` to `32` characters in length,
   including uppercase and lowercase letters, digits, and special characters, such as ~!@#%^*-_=+? You are advised to
   enter a strong password to improve security, preventing security risks such as brute force cracking.
 
@@ -93,32 +93,33 @@ The following arguments are supported:
 * `dedicated_resource_id` - (Optional, String, ForceNew) Specifies the dedicated resource ID. Changing this parameter
   will create a new resource.
 
-* `dedicated_resource_name` - (Optional, String, ForceNew) Specifies the dedicated resource name. Changing this parameter
-  will create a new resource.
+* `dedicated_resource_name` - (Optional, String, ForceNew) Specifies the dedicated resource name.
+  Changing this parameter will create a new resource.
 
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project id, Only valid for users who
   have enabled the enterprise multi-project service.
 
-* `ssl` - (Optional, Bool, ForceNew) Specifies whether to enable or disable SSL. Defaults to false. Changing this
+* `ssl` - (Optional, Bool, ForceNew) Specifies whether to enable or disable SSL. Defaults to **false**. Changing this
   parameter will create a new resource.
 
 * `force_import` - (Optional, Bool) If specified, try to import the instance instead of creating if the name already
   existed.
 
-* `charging_mode` - (Optional, String) Specifies the charging mode of the instance. Valid values are *prePaid*
-  and *postPaid*, defaults to *postPaid*. Changing this will do nothing.
+* `charging_mode` - (Optional, String) Specifies the charging mode of the instance. Valid values are **prePaid**
+  and **postPaid**, defaults to **postPaid**. Changing this will do nothing.
 
 * `period_unit` - (Optional, String) Specifies the charging period unit of the instance.
-  Valid values are *month* and *year*. This parameter is mandatory if `charging_mode` is set to *prePaid*.
+  Valid values are *month* and *year*. This parameter is mandatory if `charging_mode` is set to **prePaid**.
   Changing this will do nothing.
 
-* `period` - (Optional, Int) Specifies the charging period of the instance.
-  If `period_unit` is set to *month* , the value ranges from 1 to 9. If `period_unit` is set to *year*, the value
-  ranges from 1 to 3. This parameter is mandatory if `charging_mode` is set to *prePaid*. Changing this will
-  do nothing.
+* `period` - (Optional, Int) Specifies the charging period of the instance.  
+  If `period_unit` is set to **month** , the value ranges from `1` to `9`.  
+  If `period_unit` is set to **year**, the value ranges from `1` to `3`.  
+  This parameter is mandatory if `charging_mode` is set to **prePaid**.  
+  Changing this will do nothing.
 
 * `auto_renew` - (Optional, String) Specifies whether auto renew is enabled.
-  Valid values are "true" and "false".
+  Valid values are **true** and **false**.
 
 * `datastore` - (Optional, List, ForceNew) Specifies the database information. Structure is documented below. Changing
   this parameter will create a new resource.
@@ -183,6 +184,6 @@ This resource provides the following timeouts configuration options:
 
 GaussDB Cassandra instance can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_gaussdb_cassandra_instance.instance_1 749112383d5342e9acb6c7825801b452in06
 ```

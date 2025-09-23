@@ -1,0 +1,60 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_apig_certificate_associated_domains": {
+          "block": {
+            "attributes": {
+              "certificate_id": {
+                "type": "string",
+                "description": "The ID of the certificate associated with the domains.",
+                "required": true
+              },
+              "domains": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "api_group_id": "string",
+                      "api_group_name": "string",
+                      "id": "string",
+                      "instance_id": "string",
+                      "min_ssl_version": "string",
+                      "status": "number",
+                      "url_domain": "string",
+                      "verified_client_certificate_enabled": "bool"
+                    }
+                  ]
+                ],
+                "description": "All domains that match the filter parameters.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the domains are located.",
+                "computed": true
+              },
+              "url_domain": {
+                "type": "string",
+                "description": "The associated domain name to be queried.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

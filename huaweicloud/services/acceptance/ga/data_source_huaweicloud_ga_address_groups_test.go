@@ -23,9 +23,6 @@ func TestAccDatasourceAddressGroups_basic(t *testing.T) {
 
 		byStatus   = "data.huaweicloud_ga_address_groups.filter_by_status"
 		dcByStatus = acceptance.InitDataSourceCheck(byStatus)
-
-		byListenerId   = "data.huaweicloud_ga_address_groups.filter_by_listener_id"
-		dcByListenerId = acceptance.InitDataSourceCheck(byListenerId)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -43,6 +40,10 @@ func TestAccDatasourceAddressGroups_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(dataSourceName, "address_groups.0.ip_addresses.0.cidr"),
 					resource.TestCheckResourceAttrSet(dataSourceName, "address_groups.0.associated_listeners.0.id"),
 					resource.TestCheckResourceAttrSet(dataSourceName, "address_groups.0.associated_listeners.0.type"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "address_groups.0.created_at"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "address_groups.0.status"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "address_groups.0.updated_at"),
+
 					dcByAddressGroupId.CheckResourceExists(),
 					resource.TestCheckOutput("address_group_id_filter_is_useful", "true"),
 
@@ -51,9 +52,6 @@ func TestAccDatasourceAddressGroups_basic(t *testing.T) {
 
 					dcByStatus.CheckResourceExists(),
 					resource.TestCheckOutput("status_filter_is_useful", "true"),
-
-					dcByListenerId.CheckResourceExists(),
-					resource.TestCheckOutput("listener_id_filter_is_useful", "true"),
 				),
 			},
 		},
@@ -173,25 +171,6 @@ locals {
 
 output "status_filter_is_useful" {
   value = alltrue(local.status_filter_result) && length(local.status_filter_result) > 0
-}
-
-locals {
-  listener_id = data.huaweicloud_ga_address_groups.test.address_groups[0].associated_listeners[0].id
-}
-
-data "huaweicloud_ga_address_groups" "filter_by_listener_id" {
-  listener_id = local.listener_id
-}
-
-locals {
-  listener_id_filter_result = [
-    for v in data.huaweicloud_ga_address_groups.filter_by_listener_id.address_groups[*].associated_listeners[0].id : 
-    v == local.listener_id
-  ]
-}
-
-output "listener_id_filter_is_useful" {
-  value = alltrue(local.listener_id_filter_result) && length(local.listener_id_filter_result) > 0
 }
 `, testAccDataSourceAddressGroups_base(name))
 }

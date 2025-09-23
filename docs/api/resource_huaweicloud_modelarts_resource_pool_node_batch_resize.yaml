@@ -1,0 +1,19 @@
+info:
+    version: ""
+    title: resource_huaweicloud_modelarts_resource_pool_node_batch_resize
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: ModelArts
+paths:
+    /v1/{project_id}/orders:
+        GET:
+            tag: ModelArts
+    /v1/{project_id}/orders/{order_name}:
+        GET:
+            tag: ModelArts
+    /v2/{project_id}/pools/{pool_name}/nodes/batch-resize:
+        POST:
+            tag: ModelArts

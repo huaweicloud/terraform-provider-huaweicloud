@@ -66,7 +66,7 @@ The `conversion_rules` block supports:
 
 The `local` block supports:
 
-* `username` - (Required, String) Specifies the name of a federated user on the cloud platform.
+* `username` - (Optional, String) Specifies the name of a federated user on the cloud platform.
 
 * `group` - (Optional, String) Specifies the user group to which the federated user belongs on the cloud platform.
 
@@ -94,6 +94,6 @@ In addition to all arguments above, the following attributes are exported:
 
 Identity provider conversion rules are imported using the `provider_id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_identity_provider_conversion.conversion example_com_provider_oidc
 ```

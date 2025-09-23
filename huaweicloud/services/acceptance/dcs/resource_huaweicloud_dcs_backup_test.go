@@ -39,6 +39,7 @@ func getDcsBackupResourceFunc(cfg *config.Config, state *terraform.ResourceState
 
 	getDdmSchemasOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		OkCodes:          []int{200, 204},
 	}
 
 	var currentTotal int
@@ -55,15 +56,8 @@ func getDcsBackupResourceFunc(cfg *config.Config, state *terraform.ResourceState
 		}
 		backups := utils.PathSearch("backup_record_response", getBackupRespBody, make([]interface{}, 0)).([]interface{})
 		total := utils.PathSearch("total_num", getBackupRespBody, 0)
-		for _, backup := range backups {
-			id := utils.PathSearch("backup_id", backup, "")
-			if id != backupID {
-				continue
-			}
-			status := utils.PathSearch("status", backup, "")
-			if status == "deleted" {
-				return nil, fmt.Errorf("error get DCS backup by backup_id (%s)", backupID)
-			}
+		backup := utils.PathSearch(fmt.Sprintf("[?backup_id=='%s']|[0]", backupID), backups, nil)
+		if backup != nil {
 			return backup, nil
 		}
 		currentTotal += len(backups)

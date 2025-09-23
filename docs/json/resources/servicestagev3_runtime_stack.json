@@ -1,0 +1,78 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_servicestagev3_runtime_stack": {
+          "block": {
+            "attributes": {
+              "component_count": {
+                "type": "number",
+                "description": "The number of components associated with the runtime stack.",
+                "computed": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the runtime stack, in RFC3339 format.",
+                "computed": true
+              },
+              "creator": {
+                "type": "string",
+                "description": "The creator name of the runtime stack.",
+                "computed": true
+              },
+              "deploy_mode": {
+                "type": "string",
+                "description": "The deploy mode of the runtime stack.",
+                "required": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the runtime stack.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the runtime stack.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the runtime stack is located.",
+                "computed": true
+              },
+              "spec": {
+                "type": "string",
+                "description": "The configuration of runtime stack, in JSON format.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The current status of the runtime stack.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The type of the runtime stack.",
+                "required": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The latest update time of the runtime stack, in RFC3339 format.",
+                "computed": true
+              },
+              "version": {
+                "type": "string",
+                "description": "The version of the runtime stack.",
+                "required": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

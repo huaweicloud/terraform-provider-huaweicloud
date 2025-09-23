@@ -1,0 +1,18 @@
+info:
+    version: ""
+    title: resource_huaweicloud_workspace_app_nas_storage
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: Workspace
+paths:
+    /v1/{project_id}/persistent-storages:
+        GET:
+            tag: Workspace
+        POST:
+            tag: Workspace
+    /v1/{project_id}/persistent-storages/{storage_id}:
+        DELETE:
+            tag: Workspace

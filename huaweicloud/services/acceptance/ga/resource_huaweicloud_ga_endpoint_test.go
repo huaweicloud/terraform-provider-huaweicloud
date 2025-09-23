@@ -16,39 +16,36 @@ import (
 )
 
 func getEndpointResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	region := acceptance.HW_REGION_NAME
-	// getEndpoint: Query the GA Endpoint detail
 	var (
-		getEndpointHttpUrl = "v1/endpoint-groups/{endpoint_group_id}/endpoints/{id}"
-		getEndpointProduct = "ga"
+		region  = acceptance.HW_REGION_NAME
+		httpUrl = "v1/endpoint-groups/{endpoint_group_id}/endpoints/{id}"
+		product = "ga"
 	)
-	getEndpointClient, err := conf.NewServiceClient(getEndpointProduct, region)
+	client, err := conf.NewServiceClient(product, region)
 	if err != nil {
-		return nil, fmt.Errorf("error creating Endpoint Client: %s", err)
+		return nil, fmt.Errorf("error creating GA client: %s", err)
 	}
 
-	getEndpointPath := getEndpointClient.Endpoint + getEndpointHttpUrl
-	getEndpointPath = strings.ReplaceAll(getEndpointPath, "{endpoint_group_id}", state.Primary.Attributes["endpoint_group_id"])
-	getEndpointPath = strings.ReplaceAll(getEndpointPath, "{id}", state.Primary.ID)
-
-	getEndpointOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{endpoint_group_id}", state.Primary.Attributes["endpoint_group_id"])
+	requestPath = strings.ReplaceAll(requestPath, "{id}", state.Primary.ID)
+	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
-	getEndpointResp, err := getEndpointClient.Request("GET", getEndpointPath, &getEndpointOpt)
+
+	resp, err := client.Request("GET", requestPath, &requestOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving Endpoint: %s", err)
+		return nil, fmt.Errorf("error retrieving GA endpoint: %s", err)
 	}
-	return utils.FlattenResponse(getEndpointResp)
+	return utils.FlattenResponse(resp)
 }
 
 func TestAccEndpoint_basic(t *testing.T) {
-	var obj interface{}
-
-	name := acceptance.RandomAccResourceNameWithDash()
-	rName := "huaweicloud_ga_endpoint.test"
+	var (
+		obj   interface{}
+		name  = acceptance.RandomAccResourceNameWithDash()
+		rName = "huaweicloud_ga_endpoint.test"
+	)
 
 	rc := acceptance.InitResourceCheck(
 		rName,

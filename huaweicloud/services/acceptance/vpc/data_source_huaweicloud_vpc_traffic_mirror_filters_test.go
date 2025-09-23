@@ -10,7 +10,7 @@ import (
 )
 
 func TestAccDataSourceVpcTrafficMirrorFilters_basic(t *testing.T) {
-	dataSource := "data.huaweicloud_vpc_traffic_mirror_filters.test1"
+	dataSource := "data.huaweicloud_vpc_traffic_mirror_filters.test"
 	rName := acceptance.RandomAccResourceName()
 	dc := acceptance.InitDataSourceCheck(dataSource)
 
@@ -33,13 +33,39 @@ func TestAccDataSourceVpcTrafficMirrorFilters_basic(t *testing.T) {
 
 func testDataSourceDataSourceVpcTrafficMirrorFilters_basic(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_vpc_traffic_mirror_filter" "test1" {
+resource "huaweicloud_vpc_traffic_mirror_filter" "test" {
   name        = "%[1]s"
   description = "tf acc test filter"
 }
 
-data "huaweicloud_vpc_traffic_mirror_filters" "test1" {
+resource "huaweicloud_vpc_traffic_mirror_filter_rule" "test1" {
+  traffic_mirror_filter_id = huaweicloud_vpc_traffic_mirror_filter.test.id
+  ethertype                = "IPv4"
+  direction                = "ingress"
+  protocol                 = "tcp"
+  action                   = "accept"
+  priority                 = 1
+  description              = "create VPC traffic mirror filter rule"
+}
+
+resource "huaweicloud_vpc_traffic_mirror_filter_rule" "test2" {
+  traffic_mirror_filter_id = huaweicloud_vpc_traffic_mirror_filter.test.id
+  ethertype                = "IPv4"
+  direction                = "egress"
+  protocol                 = "all"
+  action                   = "accept"
+  priority                 = 20
+  source_cidr_block        = "192.168.1.0/24"
+}
+
+data "huaweicloud_vpc_traffic_mirror_filters" "test" {
   name = "%[1]s"
+
+  depends_on = [
+    huaweicloud_vpc_traffic_mirror_filter.test,
+    huaweicloud_vpc_traffic_mirror_filter_rule.test1,
+    huaweicloud_vpc_traffic_mirror_filter_rule.test2
+  ]
 }
 `, name)
 }

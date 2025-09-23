@@ -1,0 +1,79 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_event_alarm_white_lists": {
+          "block": {
+            "attributes": {
+              "data_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "description": "string",
+                      "enterprise_project_name": "string",
+                      "event_type": "number",
+                      "field_value": "string",
+                      "hash": "string",
+                      "judge_type": "string",
+                      "update_time": "number",
+                      "white_field": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "event_type": {
+                "type": "number",
+                "optional": true
+              },
+              "event_type_list": {
+                "type": [
+                  "list",
+                  "number"
+                ],
+                "computed": true
+              },
+              "hash": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "limit_num": {
+                "type": "number",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "remain_num": {
+                "type": "number",
+                "computed": true
+              },
+              "total_num": {
+                "type": "number",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

@@ -75,6 +75,7 @@ func TestAccResourceArchitectureTableModel_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "is_partition", "false"),
 					resource.TestCheckResourceAttr(resourceName, "compression", "NO"),
 					resource.TestCheckResourceAttr(resourceName, "table_type", "DWS_ROW"),
+					resource.TestCheckResourceAttr(resourceName, "reversed", "false"),
 					resource.TestCheckResourceAttrSet(resourceName, "catalog_path"),
 					resource.TestCheckResourceAttrSet(resourceName, "env_type"),
 					resource.TestCheckResourceAttrSet(resourceName, "extend_info"),
@@ -141,6 +142,8 @@ resource "huaweicloud_dataarts_architecture_table_model" "test" {
   dw_type             = huaweicloud_dataarts_architecture_model.test.dw_type
   compression         = "NO"
   table_type          = "DWS_ROW"
+  reversed            = false
+
   attributes {
     name      = "key"
     name_en   = "key_en"
@@ -171,6 +174,8 @@ resource "huaweicloud_dataarts_architecture_table_model" "test" {
   dw_type             = huaweicloud_dataarts_architecture_model.test.dw_type
   compression         = "NO"
   table_type          = "DWS_ROW"
+  reversed            = false
+
   attributes {
     name      = "key"
     name_en   = "key_en"

@@ -10,9 +10,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDatasourceCacheHistoryTasks_basic(t *testing.T) {
-	rName := "data.huaweicloud_cdn_cache_history_tasks.test"
-	dc := acceptance.InitDataSourceCheck(rName)
+func TestAccDataSourceCacheHistoryTasks_basic(t *testing.T) {
+	var (
+		rName = "data.huaweicloud_cdn_cache_history_tasks.test"
+		dc    = acceptance.InitDataSourceCheck(rName)
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
@@ -22,7 +24,7 @@ func TestAccDatasourceCacheHistoryTasks_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDatasourceCacheHistoryTasks_basic(),
+				Config: testAccDataSourceCacheHistoryTasks_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(rName, "tasks.0.id"),
@@ -52,7 +54,19 @@ func TestAccDatasourceCacheHistoryTasks_basic(t *testing.T) {
 	})
 }
 
-func testAccDatasourceCacheHistoryTasks_basic() string {
+// To test the filtering parameters related to sorting, at least `3` resources need to be created.
+func testDataSourceCacheHistoryTasks_base() string {
+	return fmt.Sprintf(`
+resource "huaweicloud_cdn_cache_preheat" "test" {
+  count = 3
+
+  urls          = ["%s"]
+  zh_url_encode = true
+}
+`, acceptance.HW_CDN_DOMAIN_URL)
+}
+
+func testAccDataSourceCacheHistoryTasks_basic() string {
 	now := time.Now()
 	startDate := now.Add(-1 * time.Hour).UnixMilli()
 	endDate := now.Add(time.Hour).UnixMilli()
@@ -88,7 +102,7 @@ data "huaweicloud_cdn_cache_history_tasks" "status_filter" {
 output "status_filter_is_useful" {
   value = length(data.huaweicloud_cdn_cache_history_tasks.status_filter.tasks) > 0 && alltrue(
     [for v in data.huaweicloud_cdn_cache_history_tasks.status_filter.tasks[*].status : v == local.status]
-  )  
+  )
 }
 
 # Test with start date and end date
@@ -104,15 +118,28 @@ output "date_filter_is_useful" {
 }
 
 # Test with order field and order type
-data "huaweicloud_cdn_cache_history_tasks" "order_filter" {
-  order_field = "succeed"
+data "huaweicloud_cdn_cache_history_tasks" "create_time_asc_filter" {
+  order_field = "create_time"
   order_type  = "asc"
 
   depends_on = [huaweicloud_cdn_cache_preheat.test]
 }
 
+data "huaweicloud_cdn_cache_history_tasks" "create_time_desc_filter" {
+  order_field = "create_time"
+  order_type  = "desc"
+
+  depends_on = [huaweicloud_cdn_cache_preheat.test]
+}
+
+locals {
+  tasks_length = length(data.huaweicloud_cdn_cache_history_tasks.create_time_asc_filter.tasks)
+  asc_first_id = data.huaweicloud_cdn_cache_history_tasks.create_time_asc_filter.tasks[0].id
+  desc_last_id = data.huaweicloud_cdn_cache_history_tasks.create_time_desc_filter.tasks[local.tasks_length - 1].id
+}
+
 output "order_filter_is_useful" {
-  value = length(data.huaweicloud_cdn_cache_history_tasks.order_filter.tasks) > 0
+  value = local.asc_first_id == local.desc_last_id
 }
 
 # Test with file type
@@ -127,7 +154,7 @@ data "huaweicloud_cdn_cache_history_tasks" "file_type_filter" {
 output "file_type_filter_is_useful" {
   value = length(data.huaweicloud_cdn_cache_history_tasks.file_type_filter.tasks) > 0 && alltrue(
     [for v in data.huaweicloud_cdn_cache_history_tasks.file_type_filter.tasks[*].file_type : v == local.file_type]
-  )  
+  )
 }
 
 # Test with task type
@@ -142,7 +169,7 @@ data "huaweicloud_cdn_cache_history_tasks" "task_type_filter" {
 output "task_type_filter_is_useful" {
   value = length(data.huaweicloud_cdn_cache_history_tasks.task_type_filter.tasks) > 0 && alltrue(
     [for v in data.huaweicloud_cdn_cache_history_tasks.task_type_filter.tasks[*].task_type : v == local.task_type]
-  )  
+  )
 }
-`, testCachePreheat_basic(), startDate, endDate)
+`, testDataSourceCacheHistoryTasks_base(), startDate, endDate)
 }

@@ -51,6 +51,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `account_ids` - The array of one or more account IDs bound to the permission set.
 
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the permission set.
+
 ## Import
 
 The Identity Center permission set can be imported using the `instance_id` and `id` separated by a slash, e.g.

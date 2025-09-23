@@ -49,14 +49,26 @@
                 "computed": true,
                 "forcenew": true
               },
-              "transit_ip_address": {
-                "type": "string",
-                "description": "The address of the transit IP",
+              "transit_ip_associations": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "transit_ip_address": "string",
+                      "transit_ip_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The transit IP list associate with the private SNAT rule.",
                 "computed": true
               },
-              "transit_ip_id": {
-                "type": "string",
-                "description": "The ID of the transit IP associated with SNAT rule.",
+              "transit_ip_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The IDs of the transit IPs associated with the private SNAT rule.",
                 "required": true
               },
               "updated_at": {

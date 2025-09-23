@@ -72,9 +72,9 @@ func getRuleListByGroupId(client *golangsdk.ServiceClient, groupId string) ([]ma
 }
 
 func dataSourceNetworkingSecGroupRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	v3Client, err := config.NetworkingV3Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	v3Client, err := cfg.NetworkingV3Client(region)
 	if err != nil {
 		return diag.Errorf("error creating networking v3 client: %s", err)
 	}
@@ -82,7 +82,7 @@ func dataSourceNetworkingSecGroupRead(ctx context.Context, d *schema.ResourceDat
 	listOpts := v3groups.ListOpts{
 		ID:                  d.Get("secgroup_id").(string),
 		Name:                d.Get("name").(string),
-		EnterpriseProjectId: config.DataGetEnterpriseProjectID(d),
+		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d, "all_granted_eps"),
 	}
 
 	allSecGroups, err := v3groups.List(v3Client, listOpts)
@@ -128,15 +128,15 @@ func dataSourceNetworkingSecGroupRead(ctx context.Context, d *schema.ResourceDat
 }
 
 func dataSourceNetworkingSecGroupReadV1(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	v1Client, err := config.NetworkingV1Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	v1Client, err := cfg.NetworkingV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating networking v1 client: %s", err)
 	}
 
 	listOpts := v1groups.ListOpts{
-		EnterpriseProjectId: config.DataGetEnterpriseProjectID(d),
+		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d, "all_granted_eps"),
 	}
 
 	pages, err := v1groups.List(v1Client, listOpts).AllPages()

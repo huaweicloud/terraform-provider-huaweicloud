@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_cc_central_networks_by_tags
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CC
+paths:
+    /v3/{domain_id}/gcn/central-networks/filter:
+        POST:
+            tag: CC

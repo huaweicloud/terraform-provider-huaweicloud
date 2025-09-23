@@ -1,0 +1,70 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_vpn_user": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "The creation time.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the user.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The user name.",
+                "required": true
+              },
+              "password": {
+                "type": "string",
+                "description": "The user password.",
+                "required": true,
+                "sensitive": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The update time.",
+                "computed": true
+              },
+              "user_group_id": {
+                "type": "string",
+                "description": "The user group ID.",
+                "computed": true
+              },
+              "user_group_name": {
+                "type": "string",
+                "description": "The user group name.",
+                "computed": true
+              },
+              "vpn_server_id": {
+                "type": "string",
+                "description": "The VPN server ID.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "VPN",
+            "name": "Virtual Private Network",
+            "catalog": "Networking",
+            "name_cn": "虚拟专用网络",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

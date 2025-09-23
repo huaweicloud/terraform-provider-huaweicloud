@@ -13,7 +13,11 @@ Use this data source to get the list of LTS notification templates.
 ## Example Usage
 
 ```hcl
-data "huaweicloud_lts_notification_templates" "test" {}
+variable "domain_id" {}
+
+data "huaweicloud_lts_notification_templates" "test" {
+  domain_id = var.domain_id
+}
 ```
 
 ## Argument Reference

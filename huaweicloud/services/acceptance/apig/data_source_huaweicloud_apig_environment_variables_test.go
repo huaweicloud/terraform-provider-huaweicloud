@@ -66,7 +66,7 @@ data "huaweicloud_apig_environment_variables" "test" {
 }
 
 locals {
-  env_id = data.huaweicloud_apig_environment_variables.test.variables[0].env_id
+  env_id = huaweicloud_apig_environment_variable.test.env_id
 }
 
 data "huaweicloud_apig_environment_variables" "filter_by_env_id" {
@@ -86,7 +86,7 @@ output "is_env_id_filter_useful" {
 }
 
 locals {
-  variable_name = data.huaweicloud_apig_environment_variables.test.variables[0].name
+  variable_name = huaweicloud_apig_environment_variable.test.name
 }
 
 data "huaweicloud_apig_environment_variables" "filter_by_name" {

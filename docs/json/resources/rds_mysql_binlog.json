@@ -15,8 +15,7 @@
               },
               "instance_id": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "region": {
                 "type": "string",

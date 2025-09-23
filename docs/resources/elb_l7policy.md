@@ -106,7 +106,7 @@ The following arguments are supported:
 
 * `priority` - (Optional, Int) The forwarding policy priority. A smaller value indicates a higher priority. The value
   must be unique for forwarding policies of the same listener. This parameter will take effect only when
-  `enhance_l7policy_enable` of the listener is set to **true**. If `action` is set to **REDIRECT_TO_LISTENER**,
+  `advanced_forwarding_enabled` of the listener is set to **true**. If `action` is set to **REDIRECT_TO_LISTENER**,
   the value can only be 0.
 
 * `description` - (Optional, String) Human-readable description for the L7 Policy.
@@ -152,12 +152,12 @@ The following arguments are supported:
   + Can only be a listener of the same load balancer.
 
 * `redirect_url_config` - (Optional, List) The URL config to which the traffic is redirected.
-  This parameter is mandatory when `action` is set to **REDIRECT_TO_URL**. The `enhance_l7policy_enable` of the
+  This parameter is mandatory when `action` is set to **REDIRECT_TO_URL**. The `advanced_forwarding_enabled` of the
   listener must be set to **true**.
   The [redirect_url_config](#redirect_url_config_object) structure is documented below.
 
 * `fixed_response_config` - (Optional, List) The fixed configuration of the page to which the traffic is
-  redirected. This parameter is mandatory when `action` is set to **FIXED_RESPONSE**. The `enhance_l7policy_enable` of
+  redirected. This parameter is mandatory when `action` is set to **FIXED_RESPONSE**. The `advanced_forwarding_enabled` of
   the listener must be set to **true**.
   The [fixed_response_config](#fixed_response_config_object) structure is documented below.
 
@@ -268,7 +268,7 @@ The `insert_headers_config` block supports:
 <a name="insert_header_configs_object"></a>
 The `insert_header_configs` block supports:
 
-* `key` - (Required, String) The parameter name of the added request header. The value can contain **1** to **40**
+* `key` - (Required, String) The parameter name of the added request header. The value can contain `1` to `40`
   characters, only a-z, digits, hyphens (-) and underscore (_) are allowed, and it can not be the following characters:
   **connection**, **upgrade**, **content-length**, **transfer-encoding**, **keep-alive**, **te**, **host**, **cookie**,
   **remoteip**, **authority**, **x-forwarded-host**, **x-forwarded-for**, **x-forwarded-for-port**,
@@ -279,7 +279,7 @@ The `insert_header_configs` block supports:
 * `value_type` - (Required, String) The value type of the parameter. Value options: **USER_DEFINED**,
   **REFERENCE_HEADER**, **SYSTEM_DEFINED**.
 
-* `value` - (Required, String) The value of the parameter. The value can contain **1** to **128**, only printable
+* `value` - (Required, String) The value of the parameter. The value can contain `1` to `128`, only printable
   characters in the range of ASCII code value 32<=ch<=127, asterisks (*) and question marks (?) are allowed, and it
   cannot start or end with a space characters. If the value of `value_type` is **SYSTEM_DEFINED**, the value options is:
   **CLIENT-PORT**, **CLIENT-IP**, **ELB-PROTOCOL**, **ELB-ID**, **ELB-PORT**, **ELB-EIP**, **ELB-VIP**.
@@ -293,7 +293,7 @@ The `remove_headers_config` block supports:
 <a name="remove_header_configs_object"></a>
 The `remove_header_configs` block supports:
 
-* `key` - (Required, String) The parameter name of the removed request header. The value can contain **1** to **40**
+* `key` - (Required, String) The parameter name of the removed request header. The value can contain `1` to `40`
   characters, only a-z, digits, hyphens (-) and underscore (_) are allowed, and it can not be the following characters:
   **connection**, **upgrade**, **content-length**, **transfer-encoding**, **keep-alive**, **te**, **host**, **cookie**,
   **remoteip**, **authority**, **x-forwarded-host**, **x-forwarded-for**, **x-forwarded-for-port**,
@@ -304,14 +304,17 @@ The `remove_header_configs` block supports:
 <a name="traffic_limit_config_object"></a>
 The `traffic_limit_config` block supports:
 
-* `qps` - (Optional, Int) The overall qps of the policy. Value options: **0-100000**, **0** indicates no limit.
+* `qps` - (Optional, Int) The overall qps of the policy.  
+  The valid value is range form `0` to `100,000`, `0` indicates no limit.
 
-* `per_source_ip_qps` - (Optional, Int) The single source qps of the policy. Value options: **0-100000**, **0**
-  indicates no limit. If the value of `qps` is not **0**, then the value of `per_source_ip_qps` must less than the value
-  of `qps`. If the `protocol` of the listener that the policy associated with is **QUIC**, then `per_source_ip_qps` is
-  not supported, the value should be **0** or empty.
+* `per_source_ip_qps` - (Optional, Int) The single source qps of the policy.  
+  The valid value is range form `0` to `100,000`, `0` indicates no limit.  
+  If the value of `qps` is not `0`, then the value of `per_source_ip_qps` must less than the value of `qps`.
+  If the `protocol` of the listener that the policy associated with is **QUIC**, then `per_source_ip_qps` is not
+  supported, the value should be `0` or empty.
 
-* `burst` - (Optional, Int) The qps buffer. Value options: **0-100000**. When qps exceeds the limit, 503 will not be
+* `burst` - (Optional, Int) The qps buffer.  
+  The valid value is range form `0` to `100,000`. When qps exceeds the limit, 503 will not be
   returned, and requests that allow local burst size increases are supported.
 
 ## Attribute Reference
@@ -322,7 +325,9 @@ In addition to all arguments above, the following attributes are exported:
 
 * `provisioning_status` - The provisioning status of the forwarding policy.
 
-* `created_at` - The create time of the L7 policy.
+* `enterprise_project_id` - The ID of the enterprise project.
+
+* `created_at` - The creation time of the L7 policy.
 
 * `updated_at` - The update time of the L7 policy.
 

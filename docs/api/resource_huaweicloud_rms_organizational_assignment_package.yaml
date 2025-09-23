@@ -16,6 +16,8 @@ paths:
             tag: Config
         GET:
             tag: Config
-    /v1/resource-manager/organizations/{organization_id}/conformance-packs/detailed-statuses:
+        PUT:
+            tag: Config
+    /v1/resource-manager/organizations/{organization_id}/conformance-packs/statuses:
         GET:
             tag: Config

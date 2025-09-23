@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_secmaster_playbook_actions
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: SECMASTER
+paths:
+    /v1/{project_id}/workspaces/{workspace_id}/soc/playbooks/versions/{version_id}/actions:
+        GET:
+            tag: SECMASTER

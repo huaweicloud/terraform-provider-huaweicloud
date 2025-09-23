@@ -9,18 +9,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
-	"net/http"
-	"regexp"
 	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/pagination"
@@ -31,6 +25,7 @@ import (
 )
 
 // @API DDM POST /v1/{project_id}/instances/{instance_id}/users
+// @API DDM GET /v1/{project_id}/instances/{instance_id}
 // @API DDM PUT /v1/{project_id}/instances/{instance_id}/users/{username}
 // @API DDM POST /v2/{project_id}/instances/{instance_id}/users/{username}/password
 // @API DDM GET /v1/{project_id}/instances/{instance_id}/users
@@ -42,7 +37,7 @@ func ResourceDdmAccount() *schema.Resource {
 		ReadContext:   resourceDdmAccountRead,
 		DeleteContext: resourceDdmAccountDelete,
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			StateContext: resourceDdmAccountImportState,
 		},
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
@@ -68,12 +63,6 @@ func ResourceDdmAccount() *schema.Resource {
 				Required:    true,
 				ForceNew:    true,
 				Description: `Specifies the name of the DDM account.`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[A-Za-z]\w*$`),
-						"An account name starts with a letter, consists of 1 to 32 characters,"+
-							"and can contain only letters, digits, and underscores (_)"),
-					validation.StringLenBetween(1, 32),
-				),
 			},
 			"password": {
 				Type:        schema.TypeString,
@@ -82,25 +71,19 @@ func ResourceDdmAccount() *schema.Resource {
 				Description: `Specifies the DDM account password.`,
 			},
 			"permissions": {
-				Type: schema.TypeList,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-					ValidateFunc: validation.StringInSlice([]string{
-						"CREATE", "DROP", "ALTER", "INDEX", "INSERT", "DELETE", "UPDATE", "SELECT",
-					}, false),
-				},
+				Type:        schema.TypeSet,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 				Required:    true,
 				Description: `Specifies the basic permissions of the DDM account.`,
 			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Computed:    true,
 				Description: `Specifies the description of the DDM account.`,
 			},
 			"schemas": {
-				Type:        schema.TypeList,
-				Elem:        AccountSchemaSchema(),
+				Type:        schema.TypeSet,
+				Elem:        accountSchemaSchema(),
 				Optional:    true,
 				Computed:    true,
 				Description: `Specifies the schemas that associated with the account.`,
@@ -114,7 +97,7 @@ func ResourceDdmAccount() *schema.Resource {
 	}
 }
 
-func AccountSchemaSchema() *schema.Resource {
+func accountSchemaSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -144,62 +127,46 @@ func resourceDdmAccountCreate(ctx context.Context, d *schema.ResourceData, meta 
 	)
 	createAccountClient, err := cfg.NewServiceClient(createAccountProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating DDM Client: %s", err)
+		return diag.Errorf("error creating DDM client: %s", err)
 	}
 
 	instanceID := d.Get("instance_id").(string)
 	createAccountPath := createAccountClient.Endpoint + createAccountHttpUrl
 	createAccountPath = strings.ReplaceAll(createAccountPath, "{project_id}", createAccountClient.ProjectID)
-	createAccountPath = strings.ReplaceAll(createAccountPath, "{instance_id}", fmt.Sprintf("%v", instanceID))
+	createAccountPath = strings.ReplaceAll(createAccountPath, "{instance_id}", instanceID)
 
 	createAccountOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
 	createAccountOpt.JSONBody = utils.RemoveNil(buildCreateAccountBodyParams(d))
-
-	var createAccountResp *http.Response
-	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
-		createAccountResp, err = createAccountClient.Request("POST", createAccountPath, &createAccountOpt)
-		isRetry, err := handleOperationError(err, "creating", "account")
-		if isRetry {
-			return resource.RetryableError(err)
-		}
-		if err != nil {
-			return resource.NonRetryableError(err)
-		}
-		return nil
+	retryFunc := func() (interface{}, bool, error) {
+		res, err := createAccountClient.Request("POST", createAccountPath, &createAccountOpt)
+		retry, err := handleOperationError(err, "creating", "account")
+		return res, retry, err
+	}
+	_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     ddmInstanceStatusRefreshFunc(instanceID, createAccountClient),
+		WaitTarget:   []string{"RUNNING"},
+		Timeout:      d.Timeout(schema.TimeoutCreate),
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
 	})
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	createAccountRespBody, err := utils.FlattenResponse(createAccountResp)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	accounts, err := jmespath.Search("users", createAccountRespBody)
-	if err != nil {
-		return diag.Errorf("error creating DDM account, users is not found in API response %s", err)
-	}
-	accountName, err := jmespath.Search("name", accounts.([]interface{})[0])
-	if err != nil {
-		return diag.Errorf("error creating DDM account, name is not found in API response %s", err)
-	}
-
-	d.SetId(instanceID + "/" + accountName.(string))
+	d.SetId(instanceID + "/" + d.Get("name").(string))
 
 	return resourceDdmAccountRead(ctx, d, meta)
 }
 
 func buildCreateAccountBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":           utils.ValueIgnoreEmpty(d.Get("name")),
-		"password":       utils.ValueIgnoreEmpty(d.Get("password")),
-		"base_authority": utils.ValueIgnoreEmpty(d.Get("permissions")),
+		"name":           d.Get("name"),
+		"password":       d.Get("password"),
+		"base_authority": d.Get("permissions").(*schema.Set).List(),
 		"description":    utils.ValueIgnoreEmpty(d.Get("description")),
 		"databases":      buildCreateAccountSchemasChildBody(d),
 	}
@@ -210,12 +177,12 @@ func buildCreateAccountBodyParams(d *schema.ResourceData) map[string]interface{}
 }
 
 func buildCreateAccountSchemasChildBody(d *schema.ResourceData) []map[string]interface{} {
-	rawParams := d.Get("schemas").([]interface{})
-	if len(rawParams) == 0 {
+	rawParams := d.Get("schemas").(*schema.Set)
+	if rawParams.Len() == 0 {
 		return nil
 	}
 	params := make([]map[string]interface{}, 0)
-	for _, param := range rawParams {
+	for _, param := range rawParams.List() {
 		perm := make(map[string]interface{})
 		perm["name"] = utils.PathSearch("name", param, nil)
 		params = append(params, perm)
@@ -226,6 +193,13 @@ func buildCreateAccountSchemasChildBody(d *schema.ResourceData) []map[string]int
 func resourceDdmAccountUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
+	var (
+		product = "ddm"
+	)
+	client, err := cfg.NewServiceClient(product, region)
+	if err != nil {
+		return diag.Errorf("error creating DDM client: %s", err)
+	}
 
 	updateAccountHasChanges := []string{
 		"permissions",
@@ -234,16 +208,14 @@ func resourceDdmAccountUpdate(ctx context.Context, d *schema.ResourceData, meta 
 	}
 
 	if d.HasChanges(updateAccountHasChanges...) {
-		// updateAccount: update DDM account
-		err := updateAccount(ctx, d, cfg, region)
+		err = updateAccount(ctx, d, client)
 		if err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
 	if d.HasChange("password") {
-		// updateAccountPassword: update DDM account password
-		err := updateAccountPassword(ctx, d, cfg, region)
+		err = updateAccountPassword(ctx, d, client)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -251,101 +223,74 @@ func resourceDdmAccountUpdate(ctx context.Context, d *schema.ResourceData, meta 
 	return resourceDdmAccountRead(ctx, d, meta)
 }
 
-func updateAccount(ctx context.Context, d *schema.ResourceData, cfg *config.Config, region string) error {
+func updateAccount(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
 	var (
 		updateAccountHttpUrl = "v1/{project_id}/instances/{instance_id}/users/{username}"
-		updateAccountProduct = "ddm"
 	)
-	updateAccountClient, err := cfg.NewServiceClient(updateAccountProduct, region)
-	if err != nil {
-		return fmt.Errorf("error creating DDM Client: %s", err)
-	}
 
-	parts := strings.SplitN(d.Id(), "/", 2)
-	if len(parts) != 2 {
-		return fmt.Errorf("invalid id format, must be <instance_id>/<account_name>")
-	}
-	instanceID := parts[0]
-	accountName := parts[1]
-	updateAccountPath := updateAccountClient.Endpoint + updateAccountHttpUrl
-	updateAccountPath = strings.ReplaceAll(updateAccountPath, "{project_id}", updateAccountClient.ProjectID)
-	updateAccountPath = strings.ReplaceAll(updateAccountPath, "{instance_id}", fmt.Sprintf("%v", instanceID))
-	updateAccountPath = strings.ReplaceAll(updateAccountPath, "{username}", fmt.Sprintf("%v", accountName))
+	instanceId := d.Get("instance_id").(string)
+	updateAccountPath := client.Endpoint + updateAccountHttpUrl
+	updateAccountPath = strings.ReplaceAll(updateAccountPath, "{project_id}", client.ProjectID)
+	updateAccountPath = strings.ReplaceAll(updateAccountPath, "{instance_id}", instanceId)
+	updateAccountPath = strings.ReplaceAll(updateAccountPath, "{username}", d.Get("name").(string))
 
 	updateAccountOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
 	updateAccountOpt.JSONBody = utils.RemoveNil(buildUpdateAccountBodyParams(d))
-
-	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
-		_, err = updateAccountClient.Request("PUT", updateAccountPath, &updateAccountOpt)
-		isRetry, err := handleOperationError(err, "updating", "account")
-		if isRetry {
-			return resource.RetryableError(err)
-		}
-		if err != nil {
-			return resource.NonRetryableError(err)
-		}
-		return nil
+	retryFunc := func() (interface{}, bool, error) {
+		res, err := client.Request("PUT", updateAccountPath, &updateAccountOpt)
+		retry, err := handleOperationError(err, "updating", "account")
+		return res, retry, err
+	}
+	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     ddmInstanceStatusRefreshFunc(instanceId, client),
+		WaitTarget:   []string{"RUNNING"},
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
 	})
-
 	return err
 }
 
-func updateAccountPassword(ctx context.Context, d *schema.ResourceData, cfg *config.Config, region string) error {
+func updateAccountPassword(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
 	var (
 		updateAccountPasswordHttpUrl = "v2/{project_id}/instances/{instance_id}/users/{username}/password"
-		updateAccountPasswordProduct = "ddm"
 	)
-	updateAccountPasswordClient, err := cfg.NewServiceClient(updateAccountPasswordProduct, region)
-	if err != nil {
-		return fmt.Errorf("error creating DDM Client: %s", err)
-	}
 
-	parts := strings.SplitN(d.Id(), "/", 2)
-	if len(parts) != 2 {
-		return fmt.Errorf("invalid id format, must be <instance_id>/<account_name>")
-	}
-	instanceID := parts[0]
-	accountName := parts[1]
-	updateAccountPasswordPath := updateAccountPasswordClient.Endpoint + updateAccountPasswordHttpUrl
-	updateAccountPasswordPath = strings.ReplaceAll(updateAccountPasswordPath, "{project_id}",
-		updateAccountPasswordClient.ProjectID)
-	updateAccountPasswordPath = strings.ReplaceAll(updateAccountPasswordPath, "{instance_id}",
-		fmt.Sprintf("%v", instanceID))
-	updateAccountPasswordPath = strings.ReplaceAll(updateAccountPasswordPath, "{username}",
-		fmt.Sprintf("%v", accountName))
+	instanceId := d.Get("instance_id").(string)
+	updateAccountPasswordPath := client.Endpoint + updateAccountPasswordHttpUrl
+	updateAccountPasswordPath = strings.ReplaceAll(updateAccountPasswordPath, "{project_id}", client.ProjectID)
+	updateAccountPasswordPath = strings.ReplaceAll(updateAccountPasswordPath, "{instance_id}", instanceId)
+	updateAccountPasswordPath = strings.ReplaceAll(updateAccountPasswordPath, "{username}", d.Get("name").(string))
 
 	updateAccountPasswordOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
 	updateAccountPasswordOpt.JSONBody = utils.RemoveNil(buildUpdateAccountPasswordBodyParams(d))
-
-	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
-		_, err = updateAccountPasswordClient.Request("POST", updateAccountPasswordPath, &updateAccountPasswordOpt)
-		isRetry, err := handleOperationError(err, "updating", "account password")
-		if isRetry {
-			return resource.RetryableError(err)
-		}
-		if err != nil {
-			return resource.NonRetryableError(err)
-		}
-		return nil
+	retryFunc := func() (interface{}, bool, error) {
+		res, err := client.Request("POST", updateAccountPasswordPath, &updateAccountPasswordOpt)
+		retry, err := handleOperationError(err, "updating", "account password")
+		return res, retry, err
+	}
+	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     ddmInstanceStatusRefreshFunc(instanceId, client),
+		WaitTarget:   []string{"RUNNING"},
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
 	})
-
 	return err
 }
 
 func buildUpdateAccountBodyParams(d *schema.ResourceData) map[string]interface{} {
 	params := map[string]interface{}{
-		"base_authority": utils.ValueIgnoreEmpty(d.Get("permissions")),
-		"description":    utils.ValueIgnoreEmpty(d.Get("description")),
+		"base_authority": d.Get("permissions").(*schema.Set).List(),
+		"description":    d.Get("description"),
 		"databases":      buildUpdateAccountSchemasChildBody(d),
 	}
 	bodyParams := map[string]interface{}{
@@ -355,12 +300,12 @@ func buildUpdateAccountBodyParams(d *schema.ResourceData) map[string]interface{}
 }
 
 func buildUpdateAccountSchemasChildBody(d *schema.ResourceData) []map[string]interface{} {
-	rawParams := d.Get("schemas").([]interface{})
-	if len(rawParams) == 0 {
+	rawParams := d.Get("schemas").(*schema.Set)
+	if rawParams.Len() == 0 {
 		return nil
 	}
 	params := make([]map[string]interface{}, 0)
-	for _, param := range rawParams {
+	for _, param := range rawParams.List() {
 		perm := make(map[string]interface{})
 		perm["name"] = utils.PathSearch("name", param, nil)
 		params = append(params, perm)
@@ -370,7 +315,7 @@ func buildUpdateAccountSchemasChildBody(d *schema.ResourceData) []map[string]int
 
 func buildUpdateAccountPasswordBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"password": utils.ValueIgnoreEmpty(d.Get("password")),
+		"password": d.Get("password"),
 	}
 	return bodyParams
 }
@@ -381,25 +326,18 @@ func resourceDdmAccountRead(_ context.Context, d *schema.ResourceData, meta inte
 
 	var mErr *multierror.Error
 
-	// getAccount: Query DDM account
 	var (
 		getAccountHttpUrl = "v1/{project_id}/instances/{instance_id}/users"
 		getAccountProduct = "ddm"
 	)
 	getAccountClient, err := cfg.NewServiceClient(getAccountProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating DDM Client: %s", err)
+		return diag.Errorf("error creating DDM client: %s", err)
 	}
 
-	parts := strings.SplitN(d.Id(), "/", 2)
-	if len(parts) != 2 {
-		return diag.Errorf("invalid id format, must be <instance_id>/<account_name>")
-	}
-	instanceID := parts[0]
-	accountName := parts[1]
 	getAccountPath := getAccountClient.Endpoint + getAccountHttpUrl
 	getAccountPath = strings.ReplaceAll(getAccountPath, "{project_id}", getAccountClient.ProjectID)
-	getAccountPath = strings.ReplaceAll(getAccountPath, "{instance_id}", fmt.Sprintf("%v", instanceID))
+	getAccountPath = strings.ReplaceAll(getAccountPath, "{instance_id}", d.Get("instance_id").(string))
 
 	getAccountResp, err := pagination.ListAllItems(
 		getAccountClient,
@@ -422,30 +360,22 @@ func resourceDdmAccountRead(_ context.Context, d *schema.ResourceData, meta inte
 		return diag.FromErr(err)
 	}
 
-	accounts := utils.PathSearch("users", getAccountRespBody, nil)
-	if accounts == nil {
-		log.Printf("[WARN] failed to get DDM account, user %s is not found in API response", accountName)
+	name := d.Get("name").(string)
+	account := utils.PathSearch(fmt.Sprintf("users|[?name=='%s']|[0]", name), getAccountRespBody, nil)
+	if account == nil {
 		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
 	}
 
-	for _, account := range accounts.([]interface{}) {
-		name := utils.PathSearch("name", account, nil)
-		if accountName != name {
-			continue
-		}
-		mErr = multierror.Append(
-			mErr,
-			d.Set("region", region),
-			d.Set("name", name),
-			d.Set("status", utils.PathSearch("status", account, nil)),
-			d.Set("permissions", utils.PathSearch("base_authority", account, nil)),
-			d.Set("description", utils.PathSearch("description", account, nil)),
-			d.Set("schemas", flattenGetAccountResponseBodyDatabase(account)),
-		)
-		return diag.FromErr(mErr.ErrorOrNil())
-	}
-
-	return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
+	mErr = multierror.Append(
+		mErr,
+		d.Set("region", region),
+		d.Set("name", name),
+		d.Set("status", utils.PathSearch("status", account, nil)),
+		d.Set("permissions", utils.PathSearch("base_authority", account, nil)),
+		d.Set("description", utils.PathSearch("description", account, nil)),
+		d.Set("schemas", flattenGetAccountResponseBodyDatabase(account)),
+	)
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func flattenGetAccountResponseBodyDatabase(resp interface{}) []interface{} {
@@ -475,44 +405,53 @@ func resourceDdmAccountDelete(ctx context.Context, d *schema.ResourceData, meta 
 	)
 	deleteAccountClient, err := cfg.NewServiceClient(deleteAccountProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating DDM Client: %s", err)
+		return diag.Errorf("error creating DDM client: %s", err)
 	}
 
-	parts := strings.SplitN(d.Id(), "/", 2)
-	if len(parts) != 2 {
-		return diag.Errorf("invalid id format, must be <instance_id>/<account_name>")
-	}
-	instanceID := parts[0]
-	accountName := parts[1]
+	instanceId := d.Get("instance_id").(string)
 	deleteAccountPath := deleteAccountClient.Endpoint + deleteAccountHttpUrl
 	deleteAccountPath = strings.ReplaceAll(deleteAccountPath, "{project_id}", deleteAccountClient.ProjectID)
-	deleteAccountPath = strings.ReplaceAll(deleteAccountPath, "{instance_id}", fmt.Sprintf("%v", instanceID))
-	deleteAccountPath = strings.ReplaceAll(deleteAccountPath, "{username}", fmt.Sprintf("%v", accountName))
+	deleteAccountPath = strings.ReplaceAll(deleteAccountPath, "{instance_id}", instanceId)
+	deleteAccountPath = strings.ReplaceAll(deleteAccountPath, "{username}", d.Get("name").(string))
 
 	deleteAccountOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 		MoreHeaders: map[string]string{
 			"Content-Type": "application/json",
 		},
 	}
 
-	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutDelete), func() *resource.RetryError {
-		_, err = deleteAccountClient.Request("DELETE", deleteAccountPath, &deleteAccountOpt)
-		isRetry, err := handleOperationError(err, "deleting", "account")
-		if isRetry {
-			return resource.RetryableError(err)
-		}
-		if err != nil {
-			return resource.NonRetryableError(err)
-		}
-		return nil
+	retryFunc := func() (interface{}, bool, error) {
+		res, err := deleteAccountClient.Request("DELETE", deleteAccountPath, &deleteAccountOpt)
+		retry, err := handleOperationError(err, "deleting", "account")
+		return res, retry, err
+	}
+	_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     ddmInstanceStatusRefreshFunc(instanceId, deleteAccountClient),
+		WaitTarget:   []string{"RUNNING"},
+		Timeout:      d.Timeout(schema.TimeoutDelete),
+		DelayTimeout: 10 * time.Second,
+		PollInterval: 10 * time.Second,
 	})
 	if err != nil {
-		return diag.FromErr(err)
+		return common.CheckDeletedDiag(d, err, "error deleting DDM account")
 	}
 
 	return nil
+}
+
+func resourceDdmAccountImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData,
+	error) {
+	parts := strings.Split(d.Id(), "/")
+	if len(parts) != 2 {
+		return nil, fmt.Errorf("invalid format specified for import id, must be <instance_id>/<name>")
+	}
+
+	mErr := multierror.Append(nil,
+		d.Set("instance_id", parts[0]),
+		d.Set("name", parts[1]),
+	)
+	return []*schema.ResourceData{d}, mErr.ErrorOrNil()
 }

@@ -1,0 +1,56 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cbr_storage_usages": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region where the CBR storage usage is located."
+              },
+              "resource_id": {
+                "type": "string",
+                "description": "Specifies the ID of the resource to filter the storage usage.",
+                "optional": true
+              },
+              "resource_type": {
+                "type": "string",
+                "description": "Specifies the type of the resource to filter the storage usage.",
+                "optional": true
+              },
+              "storage_usages": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "backup_count": "number",
+                      "backup_size": "number",
+                      "backup_size_multiaz": "number",
+                      "resource_id": "string",
+                      "resource_name": "string",
+                      "resource_type": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CBR",
+            "name": "Cloud Backup and Recovery",
+            "catalog": "Storage",
+            "name_cn": "云备份",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}

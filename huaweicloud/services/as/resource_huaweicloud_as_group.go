@@ -2,17 +2,16 @@ package as
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/groups"
@@ -47,6 +46,8 @@ func ResourceASGroup() *schema.Resource {
 			Create: schema.DefaultTimeout(10 * time.Minute),
 			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
+
+		CustomizeDiff: config.MergeDefaultTags(),
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -111,6 +112,10 @@ func ResourceASGroup() *schema.Resource {
 						"protocol_version": {
 							Type:     schema.TypeString,
 							Optional: true,
+							Computed: true,
+						},
+						"listener_id": {
+							Type:     schema.TypeString,
 							Computed: true,
 						},
 					},
@@ -248,6 +253,26 @@ func ResourceASGroup() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"scaling_configuration_name": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"activity_type": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"detail": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"is_scaling": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
+			"create_time": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 
 			// Deprecated
 			"lb_listener_id": {
@@ -365,60 +390,68 @@ func expandGroupsTags(tagMap map[string]interface{}) []tags.ResourceTag {
 	return tagList
 }
 
-func getInstancesInGroup(asClient *golangsdk.ServiceClient, groupID string,
-	opts instances.ListOptsBuilder) ([]instances.Instance, error) {
-	var insList []instances.Instance
-	page, err := instances.List(asClient, groupID, opts).AllPages()
-	if err != nil {
-		return insList, fmt.Errorf("error getting instances in AS group %s: %s", groupID, err)
-	}
-	return page.(instances.InstancePage).Extract()
-}
-
-func getInstancesIDs(allIns []instances.Instance) []string {
-	var allIDs = make([]string, 0, len(allIns))
-	for _, ins := range allIns {
+func getInstancesIDs(allInstances []interface{}) []string {
+	var allIDs = make([]string, 0, len(allInstances))
+	for _, instance := range allInstances {
 		// Maybe the instance is pending, so we can't get the id,
 		// so unable to delete the instance this time, maybe next time to execute
 		// terraform destroy will works
-		if ins.ID != "" {
-			allIDs = append(allIDs, ins.ID)
+		if instanceID := utils.PathSearch("instance_id", instance, "").(string); instanceID != "" {
+			allIDs = append(allIDs, instanceID)
 		}
 	}
 
 	return allIDs
 }
 
-// When the AS group does not exist, the response body example of the details interface is as follows:
-// {"error":{"code":"AS.2007","message":"The AS group does not exist."}}
-func parseGroupResponseError(err error) error {
-	var errCode golangsdk.ErrDefault400
-	if errors.As(err, &errCode) {
-		var apiError interface{}
-		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
-			return err
-		}
-		errorCode, errorCodeErr := jmespath.Search("error.code", apiError)
-		if errorCodeErr != nil || errorCode == nil {
-			return err
-		}
-
-		if errorCode.(string) == "AS.2007" {
-			return golangsdk.ErrDefault404(errCode)
-		}
-	}
-	return err
-}
-
 // isAllInstanceInService Used to determine whether all instances in the scaling group are `INSERVICE`.
 // When the array is empty, return `true` directly.
-func isAllInstanceInService(allIns []instances.Instance) bool {
-	for _, ins := range allIns {
-		if ins.LifeCycleStatus != "INSERVICE" {
+func isAllInstanceInService(allInstances []interface{}) bool {
+	for _, instance := range allInstances {
+		if utils.PathSearch("life_cycle_state", instance, "") != "INSERVICE" {
 			return false
 		}
 	}
+
 	return true
+}
+
+func getAllInstancesInGroup(client *golangsdk.ServiceClient, groupID string) ([]interface{}, error) {
+	var (
+		getHttpUrl   = "autoscaling-api/v1/{project_id}/scaling_group_instance/{scaling_group_id}/list?limit=50"
+		startNumber  = 0
+		allInstances []interface{}
+	)
+
+	listPath := client.Endpoint + getHttpUrl
+	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
+	listPath = strings.ReplaceAll(listPath, "{scaling_group_id}", groupID)
+	listOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	for {
+		listPathWithStartNumber := fmt.Sprintf("%s&start_number=%d", listPath, startNumber)
+		resp, err := client.Request("GET", listPathWithStartNumber, &listOpt)
+		if err != nil {
+			return nil, fmt.Errorf("error retrieving instances in AS group (%s): %s", groupID, err)
+		}
+
+		getRespBody, err := utils.FlattenResponse(resp)
+		if err != nil {
+			return nil, err
+		}
+
+		instancesResp := utils.PathSearch("scaling_group_instances", getRespBody, make([]interface{}, 0)).([]interface{})
+		if len(instancesResp) == 0 {
+			break
+		}
+
+		allInstances = append(allInstances, instancesResp...)
+		startNumber += len(instancesResp)
+	}
+
+	return allInstances, nil
 }
 
 func waitingForAllInstancesInService(ctx context.Context, client *golangsdk.ServiceClient, groupID string, insNum int,
@@ -427,7 +460,7 @@ func waitingForAllInstancesInService(ctx context.Context, client *golangsdk.Serv
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
-			allIns, err := getInstancesInGroup(client, groupID, nil)
+			allIns, err := getAllInstancesInGroup(client, groupID)
 			if err != nil {
 				return nil, "ERROR", err
 			}
@@ -453,7 +486,7 @@ func waitingForAllInstancesRemoved(ctx context.Context, client *golangsdk.Servic
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
-			allIns, err := getInstancesInGroup(client, groupID, nil)
+			allIns, err := getAllInstancesInGroup(client, groupID)
 			if err != nil {
 				return nil, "ERROR", err
 			}
@@ -481,7 +514,7 @@ func waitingForASGroupDeleted(ctx context.Context, client *golangsdk.ServiceClie
 			asGroup, err := groups.Get(client, groupID).Extract()
 			if err != nil {
 				var errDefault404 golangsdk.ErrDefault404
-				if errors.As(parseGroupResponseError(err), &errDefault404) {
+				if errors.As(common.ConvertExpected400ErrInto404Err(err, "error.code", "AS.2007"), &errDefault404) {
 					return "success", "COMPLETED", nil
 				}
 				return nil, "ERROR", err
@@ -586,14 +619,14 @@ func resourceASGroupRead(_ context.Context, d *schema.ResourceData, meta interfa
 	groupID := d.Id()
 	asg, err := groups.Get(asClient, groupID).Extract()
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseGroupResponseError(err), "error retrieving AS group")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error.code", "AS.2007"), "error retrieving AS group")
 	}
 
-	allIns, err := getInstancesInGroup(asClient, groupID, nil)
+	allInstances, err := getAllInstancesInGroup(asClient, groupID)
 	if err != nil {
 		return diag.Errorf("error retrieving the instances in AS Group %s: %s", groupID, err)
 	}
-	allIDs := getInstancesIDs(allIns)
+	allIDs := getInstancesIDs(allInstances)
 
 	// set properties based on the read info
 	mErr := multierror.Append(nil,
@@ -625,6 +658,11 @@ func resourceASGroupRead(_ context.Context, d *schema.ResourceData, meta interfa
 		d.Set("networks", flattenNetworks(asg.Networks)),
 		d.Set("security_groups", flattenSecurityGroups(asg.SecurityGroups)),
 		d.Set("lbaas_listeners", flattenLBaaSListeners(asg.LBaaSListeners)),
+		d.Set("scaling_configuration_name", asg.ConfigurationName),
+		d.Set("detail", asg.Detail),
+		d.Set("is_scaling", asg.IsScaling),
+		d.Set("activity_type", asg.ActivityType),
+		d.Set("create_time", asg.CreateTime),
 	)
 
 	// save group tags
@@ -676,6 +714,7 @@ func flattenLBaaSListeners(listeners []groups.LBaaSListener) []map[string]interf
 			"protocol_port":    item.ProtocolPort,
 			"weight":           item.Weight,
 			"protocol_version": item.ProtocolVersion,
+			"listener_id":      item.ListenerID,
 		}
 	}
 	return res
@@ -775,23 +814,23 @@ func resourceASGroupUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	return resourceASGroupRead(ctx, d, meta)
 }
 
-func forceDeleteASGroup(ctx context.Context, asClient *golangsdk.ServiceClient, d *schema.ResourceData) error {
+func forceDeleteASGroup(ctx context.Context, asClient *golangsdk.ServiceClient, d *schema.ResourceData) diag.Diagnostics {
 	if err := groups.ForceDelete(asClient, d.Id()).ExtractErr(); err != nil {
-		return fmt.Errorf("error deleting AS group %s: %s", d.Id(), err)
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error.code", "AS.2007"), "error deleting AS group")
 	}
 
 	if err := waitingForASGroupDeleted(ctx, asClient, d.Id(), d.Timeout(schema.TimeoutDelete)); err != nil {
-		return fmt.Errorf("error waiting for AS group deleted %s: %s", d.Id(), err)
+		return diag.Errorf("error waiting for AS group deleted %s: %s", d.Id(), err)
 	}
 	return nil
 }
 
 func deleteAllInstancesFromASGroup(ctx context.Context, asClient *golangsdk.ServiceClient, d *schema.ResourceData,
-	allIns []instances.Instance) error {
+	allIns []interface{}) error {
 	for _, ins := range allIns {
-		if ins.LifeCycleStatus != "INSERVICE" {
+		if lifeCycleState := utils.PathSearch("life_cycle_state", ins, "").(string); lifeCycleState != "INSERVICE" {
 			return fmt.Errorf("can't delete the AS group %s: some instances are not in INSERVICE but in %s, "+
-				"please try again latter or use force_delete option", d.Id(), ins.LifeCycleStatus)
+				"please try again latter or use force_delete option", d.Id(), lifeCycleState)
 		}
 	}
 
@@ -823,23 +862,25 @@ func resourceASGroupDelete(ctx context.Context, d *schema.ResourceData, meta int
 	}
 
 	if _, ok := d.GetOk("force_delete"); ok {
-		err := forceDeleteASGroup(ctx, asClient, d)
-		return diag.FromErr(err)
+		return forceDeleteASGroup(ctx, asClient, d)
 	}
 
-	allIns, err := getInstancesInGroup(asClient, d.Id(), nil)
+	allInstances, err := getAllInstancesInGroup(asClient, d.Id())
 	if err != nil {
-		return diag.Errorf("error listing instances of AS group: %s", err)
+		// When the Group ID does not exist, the query instance list interface will also report an error,
+		// and the 404 error judgment also needs to be performed.
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error.code", "AS.2007"), "error getting instances in AS group")
 	}
-	if len(allIns) > 0 {
+
+	if len(allInstances) > 0 {
 		// remove all instances from group
-		if err := deleteAllInstancesFromASGroup(ctx, asClient, d, allIns); err != nil {
+		if err := deleteAllInstancesFromASGroup(ctx, asClient, d, allInstances); err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
 	if delErr := groups.Delete(asClient, d.Id()).ExtractErr(); delErr != nil {
-		return diag.Errorf("error deleting AS group: %s", delErr)
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(delErr, "error.code", "AS.2007"), "error deleting AS group")
 	}
 	return nil
 }

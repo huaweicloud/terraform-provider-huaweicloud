@@ -1,0 +1,75 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dcs_migration_tasks": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "migration_tasks": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "data_source": "string",
+                      "description": "string",
+                      "ecs_tenant_private_ip": "string",
+                      "error_message": "string",
+                      "migration_method": "string",
+                      "migration_type": "string",
+                      "released_at": "string",
+                      "resume_mode": "string",
+                      "source_instance_id": "string",
+                      "source_instance_name": "string",
+                      "source_instance_spec_code": "string",
+                      "source_instance_status": "string",
+                      "source_instance_subnet_id": "string",
+                      "status": "string",
+                      "supported_features": [
+                        "list",
+                        "string"
+                      ],
+                      "target_instance_addrs": "string",
+                      "target_instance_id": "string",
+                      "target_instance_name": "string",
+                      "target_instance_spec_code": "string",
+                      "target_instance_status": "string",
+                      "target_instance_subnet_id": "string",
+                      "task_id": "string",
+                      "task_name": "string",
+                      "version": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the migration task list.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the migration task name.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DCS",
+            "name": "Distributed Cache Service",
+            "catalog": "Middleware",
+            "name_cn": "分布式缓存服务",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

@@ -7,12 +7,12 @@ package dds
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -68,7 +68,6 @@ func ResourceDdsParameterTemplate() *schema.Resource {
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Computed:    true,
 				Description: `Specifies the parameter template description.`,
 			},
 			"parameters": {
@@ -168,11 +167,11 @@ func resourceDdsParameterTemplateCreate(ctx context.Context, d *schema.ResourceD
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("configuration.id", createParameterTemplateRespBody)
-	if err != nil {
-		return diag.Errorf("error creating DDS parameter template: ID is not found in API response")
+	id := utils.PathSearch("configuration.id", createParameterTemplateRespBody, "").(string)
+	if id == "" {
+		return diag.Errorf("unable to find ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	return resourceDdsParameterTemplateRead(ctx, d, meta)
 }
@@ -195,50 +194,41 @@ func buildCreateParameterTemplateBodyParams(d *schema.ResourceData) map[string]i
 func resourceDdsParameterTemplateUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-
-	updateParameterTemplateHasChanges := []string{
-		"name",
-		"parameter_values",
-		"description",
+	client, err := cfg.NewServiceClient("dds", region)
+	if err != nil {
+		return diag.Errorf("error creating DDS Client: %s", err)
 	}
 
-	if d.HasChanges(updateParameterTemplateHasChanges...) {
-		// updateParameterTemplate: update DDS parameter template
-		var (
-			updateParameterTemplateHttpUrl = "v3/{project_id}/configurations/{config_id}"
-			updateParameterTemplateProduct = "dds"
-		)
-		updateParameterTemplateClient, err := cfg.NewServiceClient(updateParameterTemplateProduct, region)
-		if err != nil {
-			return diag.Errorf("error creating DDS Client: %s", err)
-		}
-
-		updateParameterTemplatePath := updateParameterTemplateClient.Endpoint + updateParameterTemplateHttpUrl
-		updateParameterTemplatePath = strings.ReplaceAll(updateParameterTemplatePath, "{project_id}",
-			updateParameterTemplateClient.ProjectID)
-		updateParameterTemplatePath = strings.ReplaceAll(updateParameterTemplatePath, "{config_id}", d.Id())
-
-		updateParameterTemplateOpt := golangsdk.RequestOpts{
-			KeepResponseBody: true,
-			OkCodes: []int{
-				200,
-			},
-		}
-		updateParameterTemplateOpt.JSONBody = utils.RemoveNil(buildUpdateParameterTemplateBodyParams(d))
-		_, err = updateParameterTemplateClient.Request("PUT", updateParameterTemplatePath,
-			&updateParameterTemplateOpt)
-		if err != nil {
-			return diag.Errorf("error updating DDS parameter template: %s", err)
-		}
+	if err := updateParameterTemplate(client, d); err != nil {
+		return diag.FromErr(err)
 	}
+
 	return resourceDdsParameterTemplateRead(ctx, d, meta)
+}
+
+func updateParameterTemplate(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	updateHttpUrl := "v3/{project_id}/configurations/{config_id}"
+	updatePath := client.Endpoint + updateHttpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{config_id}", d.Id())
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	updateOpt.JSONBody = utils.RemoveNil(buildUpdateParameterTemplateBodyParams(d))
+	_, err := client.Request("PUT", updatePath, &updateOpt)
+	if err != nil {
+		return fmt.Errorf("error updating DDS parameter template: %s", err)
+	}
+
+	return nil
 }
 
 func buildUpdateParameterTemplateBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"name":             utils.ValueIgnoreEmpty(d.Get("name")),
 		"parameter_values": utils.ValueIgnoreEmpty(d.Get("parameter_values")),
-		"description":      utils.ValueIgnoreEmpty(d.Get("description")),
+		"description":      d.Get("description"),
 	}
 	return bodyParams
 }
@@ -277,7 +267,8 @@ func resourceDdsParameterTemplateRead(_ context.Context, d *schema.ResourceData,
 		getParameterTemplatePath, &getParameterTemplateOpt)
 
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving DDS parameter template")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", "DBS.200057"),
+			"error retrieving DDS parameter template")
 	}
 
 	getParameterTemplateRespBody, err := utils.FlattenResponse(getParameterTemplateResp)
@@ -353,7 +344,8 @@ func resourceDdsParameterTemplateDelete(_ context.Context, d *schema.ResourceDat
 	_, err = deleteParameterTemplateClient.Request("DELETE", deleteParameterTemplatePath,
 		&deleteParameterTemplateOpt)
 	if err != nil {
-		return diag.Errorf("error deleting DDS parameter template: %s", err)
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", "DBS.200057"),
+			"error deleting DDS parameter template")
 	}
 
 	return nil

@@ -279,10 +279,18 @@ func ResourceASConfiguration() *schema.Resource {
 							ForceNew: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
+						"key_fingerprint": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 					},
 				},
 			},
 			"status": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"create_time": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -464,7 +472,8 @@ func resourceASConfigurationRead(_ context.Context, d *schema.ResourceData, meta
 	configId := d.Id()
 	asConfig, err := configurations.Get(asClient, configId).Extract()
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "AS configuration")
+		// When the resource does not exist, the response HTTP status code of the details API is 404.
+		return common.CheckDeletedDiag(d, err, "error retrieving AS configuration")
 	}
 
 	// update InstanceID if necessary
@@ -478,6 +487,7 @@ func resourceASConfigurationRead(_ context.Context, d *schema.ResourceData, meta
 		d.Set("scaling_configuration_name", asConfig.Name),
 		d.Set("instance_config", flattenInstanceConfig(asConfig.InstanceConfig, d)),
 		d.Set("status", normalizeConfigurationStatus(asConfig.ScalingGroupID)),
+		d.Set("create_time", asConfig.CreateTime),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -505,7 +515,8 @@ func resourceASConfigurationDelete(_ context.Context, d *schema.ResourceData, me
 	}
 
 	if delErr := configurations.Delete(asClient, configId).ExtractErr(); delErr != nil {
-		return diag.Errorf("error deleting AS configuration: %s", delErr)
+		// When the resource does not exist, the response HTTP status code of the delete API is 404.
+		return common.CheckDeletedDiag(d, delErr, "error deleting AS configuration")
 	}
 
 	return nil
@@ -539,13 +550,14 @@ func flattenInstanceConfig(instanceConfig configurations.InstanceConfig, d *sche
 			"ecs_group_id":           instanceConfig.ServerGroupID,
 			"tenancy":                instanceConfig.Tenancy,
 			"dedicated_host_id":      instanceConfig.DedicatedHostID,
-			"user_data":              instanceConfig.UserData,
+			"user_data":              d.Get("instance_config.0.user_data"),
 			"admin_pass":             d.Get("instance_config.0.admin_pass"),
 			"metadata":               d.Get("instance_config.0.metadata"),
 			"disk":                   flattenInstanceDisks(instanceConfig.Disk),
 			"public_ip":              flattenInstancePublicIP(instanceConfig.PublicIp.Eip),
 			"security_group_ids":     flattenSecurityGroupIDs(instanceConfig.SecurityGroups),
 			"personality":            flattenInstancePersonality(instanceConfig.Personality),
+			"key_fingerprint":        instanceConfig.KeyFingerprint,
 		},
 	}
 }

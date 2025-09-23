@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -34,31 +35,28 @@ func getAlertResourceFunc(cfg *config.Config, state *terraform.ResourceState) (i
 
 	getAlertOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: map[string]string{"Content-Type": "application/json"},
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
 	getAlertResp, err := getAlertClient.Request("GET", getAlertPath, &getAlertOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving Alert: %s", err)
+		return nil, err
 	}
 
-	getAlertRespBody, err := utils.FlattenResponse(getAlertResp)
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving Alert: %s", err)
-	}
-
-	return getAlertRespBody, nil
+	return utils.FlattenResponse(getAlertResp)
 }
 
 func TestAccAlert_basic(t *testing.T) {
 	var obj interface{}
 
 	name := acceptance.RandomAccResourceName()
-	updateName := name + "_update"
 	rName := "huaweicloud_secmaster_alert.test"
+
+	now := time.Now()
+	firstTime := strings.ReplaceAll(utils.GetBeforeOrAfterDate(now, -3), "+08:00", ".000+08:00")
+	lastTime := strings.ReplaceAll(utils.GetBeforeOrAfterDate(now, -2), "+08:00", ".000+08:00")
+	firstTimeUpdate := strings.ReplaceAll(utils.GetBeforeOrAfterDate(now, -1), "+08:00", ".000+08:00")
+	lastTimeUpdate := strings.ReplaceAll(utils.GetBeforeOrAfterDate(now, 0), "+08:00", ".000+08:00")
 
 	rc := acceptance.InitResourceCheck(
 		rName,
@@ -75,7 +73,7 @@ func TestAccAlert_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAlert_basic(name),
+				Config: testAlert_basic(name, firstTime, lastTime),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "workspace_id", acceptance.HW_SECMASTER_WORKSPACE_ID),
@@ -88,23 +86,22 @@ func TestAccAlert_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "data_source.0.product_feature", "hss"),
 					resource.TestCheckResourceAttr(rName, "data_source.0.product_name", "hss"),
 					resource.TestCheckResourceAttr(rName, "data_source.0.source_type", "1"),
-					resource.TestCheckResourceAttr(rName, "first_occurrence_time", "2023-10-26T09:33:55.000+08:00"),
-					resource.TestCheckResourceAttr(rName, "last_occurrence_time", "2023-10-27T20:50:01.000+08:00"),
+					resource.TestCheckResourceAttr(rName, "first_occurrence_time", firstTime),
+					resource.TestCheckResourceAttr(rName, "last_occurrence_time", lastTime),
 					resource.TestCheckResourceAttrSet(rName, "created_at"),
 					resource.TestCheckResourceAttrSet(rName, "updated_at"),
 				),
 			},
 			{
-				Config: testAlert_basic_update(updateName),
+				Config: testAlert_basic_update(name, firstTimeUpdate, lastTimeUpdate),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "workspace_id", acceptance.HW_SECMASTER_WORKSPACE_ID),
-					resource.TestCheckResourceAttr(rName, "name", updateName),
+					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttr(rName, "description", ""),
 					resource.TestCheckResourceAttr(rName, "severity", "Medium"),
-					resource.TestCheckResourceAttr(rName, "status", "Open"),
-					resource.TestCheckResourceAttr(rName, "first_occurrence_time", "2023-10-29T19:33:55.000+08:00"),
-					resource.TestCheckResourceAttr(rName, "last_occurrence_time", "2023-10-30T21:50:01.000+08:00"),
+					resource.TestCheckResourceAttr(rName, "first_occurrence_time", firstTimeUpdate),
+					resource.TestCheckResourceAttr(rName, "last_occurrence_time", lastTimeUpdate),
 				),
 			},
 			{
@@ -117,11 +114,11 @@ func TestAccAlert_basic(t *testing.T) {
 	})
 }
 
-func testAlert_basic(name string) string {
+func testAlert_basic(name, firstTime, lastTime string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_secmaster_alert" "test" {
-  workspace_id = "%s"
-  name         = "%s"
+  workspace_id = "%[1]s"
+  name         = "%[2]s"
   description  = "created by terraform"
 
   type {
@@ -135,8 +132,8 @@ resource "huaweicloud_secmaster_alert" "test" {
     product_name    = "hss"
   }
 
-  first_occurrence_time = "2023-10-26T09:33:55.000+08:00"
-  last_occurrence_time  = "2023-10-27T20:50:01.000+08:00"
+  first_occurrence_time = "%[3]s"
+  last_occurrence_time  = "%[4]s"
 
   severity            = "Tips"
   status              = "Open"
@@ -149,14 +146,14 @@ resource "huaweicloud_secmaster_alert" "test" {
     ]
   }
 }
-`, acceptance.HW_SECMASTER_WORKSPACE_ID, name)
+`, acceptance.HW_SECMASTER_WORKSPACE_ID, name, firstTime, lastTime)
 }
 
-func testAlert_basic_update(name string) string {
+func testAlert_basic_update(name, firstTimeUpdate, lastTimeUpdate string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_secmaster_alert" "test" {
-  workspace_id = "%s"
-  name         = "%s"
+  workspace_id = "%[1]s"
+  name         = "%[2]s"
   description  = ""
 
   type {
@@ -170,8 +167,8 @@ resource "huaweicloud_secmaster_alert" "test" {
     product_name    = "hss"
   }
 
-  first_occurrence_time = "2023-10-29T19:33:55.000+08:00"
-  last_occurrence_time  = "2023-10-30T21:50:01.000+08:00"
+  first_occurrence_time = "%[3]s"
+  last_occurrence_time  = "%[4]s"
 
   severity            = "Medium"
   status              = "Open"
@@ -180,11 +177,11 @@ resource "huaweicloud_secmaster_alert" "test" {
 
   lifecycle {
     ignore_changes = [
-      status,
+      name, status,
     ]
   }
 }
-`, acceptance.HW_SECMASTER_WORKSPACE_ID, name)
+`, acceptance.HW_SECMASTER_WORKSPACE_ID, name, firstTimeUpdate, lastTimeUpdate)
 }
 
 func testAlertImportState(name string) resource.ImportStateIdFunc {

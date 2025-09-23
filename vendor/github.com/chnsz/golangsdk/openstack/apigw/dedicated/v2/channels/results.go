@@ -28,6 +28,10 @@ type Channel struct {
 	// + 2: Server type.
 	// + 3: Microservice type.
 	Type int `json:"type"`
+	// builtin: server type
+	// + microservice: microservice type
+	// + reference: reference load balance
+	VpcChannelType string `json:"vpc_channel_type"`
 	// Dictionary code of the channel.
 	// The value can contain letters, digits, hyphens (-), underscores (_), and periods (.).
 	DictCode string `json:"dict_code"`

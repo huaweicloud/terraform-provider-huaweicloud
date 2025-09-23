@@ -8,15 +8,21 @@ host: huaweicloud.com
 tags:
     - name: EIP
 paths:
-    /v1/{project_id}/bandwidths/{ID}/insert:
-        POST:
-            tag: EIP
-    /v1/{project_id}/bandwidths/{ID}/remove:
-        POST:
-            tag: EIP
     /v1/{project_id}/bandwidths/{id}:
         GET:
             tag: EIP
+    /v1/{project_id}/ports:
+        GET:
+            tag: VPC
+    /v1/{project_id}/ports/{portId}:
+        GET:
+            tag: VPC
     /v1/{project_id}/publicips/{id}:
         GET:
+            tag: EIP
+    /v2.0/{project_id}/bandwidths/{bandwidth_id}/insert:
+        POST:
+            tag: EIP
+    /v2.0/{project_id}/bandwidths/{bandwidth_id}/remove:
+        POST:
             tag: EIP

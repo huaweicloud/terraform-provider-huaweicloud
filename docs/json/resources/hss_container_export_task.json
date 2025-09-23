@@ -1,0 +1,147 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_hss_container_export_task": {
+          "block": {
+            "attributes": {
+              "cluster_container": {
+                "type": "string",
+                "description": "Specifies whether the container is in a cluster.",
+                "optional": true
+              },
+              "cluster_name": {
+                "type": "string",
+                "description": "Specifies the name of the cluster to which the container belongs.",
+                "optional": true
+              },
+              "cluster_type": {
+                "type": "string",
+                "description": "Specifies the cluster type.",
+                "optional": true
+              },
+              "container_name": {
+                "type": "string",
+                "description": "Specifies the name of the container to export.",
+                "optional": true
+              },
+              "cpu_limit": {
+                "type": "string",
+                "description": "Specifies the CPU limit for the container.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the ID of the enterprise project to which the resource belongs.",
+                "optional": true
+              },
+              "export_headers": {
+                "type": [
+                  "list",
+                  [
+                    "list",
+                    "string"
+                  ]
+                ],
+                "description": "Specifies the headers for the exported container list.",
+                "required": true
+              },
+              "export_size": {
+                "type": "number",
+                "description": "Specifies the number of containers to export.",
+                "optional": true
+              },
+              "file_id": {
+                "type": "string",
+                "description": "The ID of the exported file.",
+                "computed": true
+              },
+              "file_name": {
+                "type": "string",
+                "description": "The name of the exported file.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "image_name": {
+                "type": "string",
+                "description": "Specifies the name of the container image.",
+                "optional": true
+              },
+              "memory_limit": {
+                "type": "string",
+                "description": "Specifies the memory limit for the container.",
+                "optional": true
+              },
+              "pod_name": {
+                "type": "string",
+                "description": "Specifies the name of the Pod to which the container belongs.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region where the resource is located.",
+                "computed": true
+              },
+              "risky": {
+                "type": "string",
+                "description": "Specifies whether the container has security risks.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the container status.",
+                "optional": true
+              },
+              "task_id": {
+                "type": "string",
+                "description": "The ID of the export task.",
+                "computed": true
+              },
+              "task_name": {
+                "type": "string",
+                "description": "The name of the export task.",
+                "computed": true
+              },
+              "task_status": {
+                "type": "string",
+                "description": "The status of the export task.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "create_time": {
+                "block": {
+                  "attributes": {
+                    "end_time": {
+                      "type": "number",
+                      "description": "Specifies the end time for filtering containers.",
+                      "optional": true
+                    },
+                    "start_time": {
+                      "type": "number",
+                      "description": "Specifies the start time for filtering containers.",
+                      "optional": true
+                    }
+                  },
+                  "description": "Specifies the time range for filtering containers."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

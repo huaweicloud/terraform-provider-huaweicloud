@@ -1,0 +1,46 @@
+info:
+    version: ""
+    title: resource_huaweicloud_codearts_pipeline_action
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CodeArtsPipeline
+paths:
+    /v5/{project_id}/api/pipelines/{pipeline_id}/{pipelineRunId}/cancel-queuing/{id}:
+        POST:
+            tag: CodeArtsPipeline
+    /v5/{project_id}/api/pipelines/{pipeline_id}/pipeline-runs/{pipeline_run_id}/jobs/{job_run_id}/steps/{step_run_id}/pass:
+        POST:
+            tag: CodeArtsPipeline
+    /v5/{project_id}/api/pipelines/{pipeline_id}/pipeline-runs/{pipeline_run_id}/jobs/{job_run_id}/steps/{step_run_id}/refuse:
+        POST:
+            tag: CodeArtsPipeline
+    /v5/{project_id}/api/pipelines/{pipeline_id}/pipeline-runs/{pipeline_run_id}/retry:
+        PUT:
+            tag: CodeArtsPipeline
+    /v5/{project_id}/api/pipelines/{pipeline_id}/pipeline-runs/{pipeline_run_id}/steps/{step_run_id}/manual/pass:
+        POST:
+            tag: CodeArtsPipeline
+    /v5/{project_id}/api/pipelines/{pipeline_id}/pipeline-runs/{pipeline_run_id}/steps/{stepRunId}/manual/refuse:
+        POST:
+            tag: CodeArtsPipeline
+    /v5/{project_id}/api/pipelines/{pipeline_id}/pipeline-runs/{pipeline_run_id}/stop:
+        POST:
+            tag: CodeArtsPipeline
+    /v5/{project_id}/api/pipelines/{pipeline_id}/pipeline-runs/{pipelineRunId}/jobs/{jobRunId}/steps/{stepRunId}/delay:
+        POST:
+            tag: CodeArtsPipeline
+    /v5/{project_id}/api/pipelines/{pipeline_id}/pipeline-runs/{pipelineRunId}/jobs/{jobRunId}/steps/{stepRunId}/delay-pass:
+        POST:
+            tag: CodeArtsPipeline
+    /v5/{project_id}/api/pipelines/{pipeline_id}/pipeline-runs/{pipelineRunId}/jobs/{jobRunId}/steps/{stepRunId}/delay-refuse:
+        POST:
+            tag: CodeArtsPipeline
+    /v5/{project_id}/api/pipelines/{pipeline_id}/pipeline-runs/{pipelineRunId}/jobs/{jobRunId}/steps/{stepRunId}/resume:
+        POST:
+            tag: CodeArtsPipeline
+    /v5/{project_id}/api/pipelines/{pipeline_id}/run:
+        POST:
+            tag: CodeArtsPipeline

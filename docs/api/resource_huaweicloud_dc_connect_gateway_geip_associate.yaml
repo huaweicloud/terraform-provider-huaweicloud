@@ -1,0 +1,18 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dc_connect_gateway_geip_associate
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DC
+paths:
+    /v3/{project_id}/dcaas/connect-gateways/{connect_gateway_id}/binding-global-eips:
+        GET:
+            tag: DC
+        POST:
+            tag: DC
+    /v3/{project_id}/dcaas/connect-gateways/{connect_gateway_id}/unbinding-global-eips:
+        POST:
+            tag: DC

@@ -8,6 +8,12 @@ host: huaweicloud.com
 tags:
     - name: CTS
 paths:
+    /v3/{project_id}/{resource_type}/{resource_id}/tags/create:
+        POST:
+            tag: CTS
+    /v3/{project_id}/{resource_type}/{resource_id}/tags/delete:
+        DELETE:
+            tag: CTS
     /v3/{project_id}/tracker:
         POST:
             tag: CTS

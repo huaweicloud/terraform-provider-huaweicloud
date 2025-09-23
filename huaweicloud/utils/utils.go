@@ -172,6 +172,67 @@ func NormalizeJsonString(jsonString interface{}) (string, error) {
 	return string(bytes[:]), nil
 }
 
+// FindSliceExtraElems returns a list containing the extra keys in source compared to target.
+// In math, means source-target(A-B).
+func FindSliceExtraElems(source, target []interface{}) []interface{} {
+	result := make([]interface{}, 0)
+
+	for _, sv := range source {
+		if !SliceContains(target, sv) {
+			result = append(result, sv)
+		}
+	}
+
+	return result
+}
+
+// FildSliceIntersection returns a list containing the intersection of source and target.
+// In math, means source ∩ target.
+func FildSliceIntersection(source, target []interface{}) []interface{} {
+	result := make([]interface{}, 0)
+
+	for _, sv := range source {
+		if SliceContains(target, sv) {
+			result = append(result, sv)
+		}
+	}
+
+	return result
+}
+
+// FindSliceElementsNotInAnother returns elements from source that are not in target
+// This is equivalent to source - target (set difference)
+func FindSliceElementsNotInAnother(source, target []interface{}) []interface{} {
+	var result []interface{}
+	for _, sv := range source {
+		if !SliceContains(target, sv) {
+			result = append(result, sv)
+		}
+	}
+	return result
+}
+
+func FindStrSliceElementsNotInAnother(source, target []string) []string {
+	var result []string
+	for _, sv := range source {
+		if !StrSliceContains(target, sv) {
+			result = append(result, sv)
+		}
+	}
+	return result
+}
+
+// SliceContains checks if a target object is present in a slice (the type of the elemetes which same as the target
+// object).
+func SliceContains(slice []interface{}, target interface{}) bool {
+	for _, v := range slice {
+		if reflect.DeepEqual(v, target) {
+			return true
+		}
+	}
+	return false
+}
+
 // StrSliceContains checks if a given string is contained in a slice
 // When anybody asks why Go needs generics, here you go.
 func StrSliceContains(haystack []string, needle string) bool {
@@ -551,8 +612,36 @@ func ConvertMemoryUnit(memory interface{}, diffLevel int) int {
 
 // IsUUID is a method used to determine whether a string is in UUID format.
 func IsUUID(uuid string) bool {
-	// Using regular expressions to match UUID formats, with or without underscores.
+	// Using regular expressions to match UUID formats, with or without hyphens.
 	pattern := "[0-9a-fA-F]{8}(-?[0-9a-fA-F]{4}){3}-?[0-9a-fA-F]{12}"
 	match, _ := regexp.MatchString(pattern, uuid)
 	return match
+}
+
+// IsUUIDWithHyphens is a method used to determine whether a string is in UUID format with hyphens.
+func IsUUIDWithHyphens(uuid string) bool {
+	// Use regular expression to match UUID format with hyphens.
+	pattern := "[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}"
+	match, _ := regexp.MatchString(pattern, uuid)
+	return match
+}
+
+// FilterMapWithSameKey using to filter the value of `filterMap` by the key of `rawMap`, and return the filtered map.
+// Example:
+// Parameters rawMap = {"a":"b"}, filterMap = {"a":"d"}; Return {"a":"d"}
+// Parameters rawMap = {"a":"b"}, filterMap = {"a":"d", "m":"n"}; Return {"a":"d"}
+// Parameters rawMap = {"a":"b", "c":"d"}, filterMap = {"a":"d", "m":"n"}; Return {"a":"d"}
+// Parameters rawMap = {"a":"b", "c":"d"}, filterMap = {"a":"d", "c":"a", "m":"n"}; Return {"a":"d", "c":"a"}
+// Parameters rawMap = {"a":"b"}, filterMap = {}; Return {}
+// Parameters rawMap = {}, filterMap = {"m":"n"}; Return {}
+// Parameters rawMap = {}, filterMap = {}; Return {}
+func FilterMapWithSameKey(rawMap, filterMap map[string]interface{}) map[string]interface{} {
+	rst := make(map[string]interface{})
+	for rawKey := range rawMap {
+		if filterValue, ok := filterMap[rawKey]; ok {
+			rst[rawKey] = filterValue
+		}
+	}
+
+	return rst
 }

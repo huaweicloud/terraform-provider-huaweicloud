@@ -1,0 +1,192 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cce_autopilot_clusters": {
+          "block": {
+            "attributes": {
+              "clusters": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "alias": "string",
+                      "annotations": [
+                        "map",
+                        "string"
+                      ],
+                      "authentication": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "mode": "string"
+                          }
+                        ]
+                      ],
+                      "az": "string",
+                      "category": "string",
+                      "configurations_override": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "configurations": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "name": "string",
+                                  "value": "string"
+                                }
+                              ]
+                            ],
+                            "name": "string"
+                          }
+                        ]
+                      ],
+                      "container_network": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "mode": "string"
+                          }
+                        ]
+                      ],
+                      "created_at": "string",
+                      "custom_san": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "string",
+                      "enable_autopilot": "bool",
+                      "enable_snat": "bool",
+                      "enable_swr_image_access": "bool",
+                      "eni_network": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "subnets": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "subnet_id": "string"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "extend_param": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "enterprise_project_id": "string"
+                          }
+                        ]
+                      ],
+                      "flavor": "string",
+                      "host_network": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "subnet": "string",
+                            "vpc": "string"
+                          }
+                        ]
+                      ],
+                      "id": "string",
+                      "ipv6_enable": "bool",
+                      "kube_proxy_mode": "string",
+                      "name": "string",
+                      "platform_version": "string",
+                      "service_network": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "ipv4_cidr": "string"
+                          }
+                        ]
+                      ],
+                      "status": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "endpoints": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "type": "string",
+                                  "url": "string"
+                                }
+                              ]
+                            ],
+                            "phase": "string"
+                          }
+                        ]
+                      ],
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "type": "string",
+                      "updated_at": "string",
+                      "version": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the clusters.",
+                "computed": true
+              },
+              "detail": {
+                "type": "string",
+                "description": "Specifies whether to get the details of the cluster.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the status of the cluster.",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the master node architecture.",
+                "optional": true
+              },
+              "version": {
+                "type": "string",
+                "description": "Specifies the version of the cluster.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CCE",
+            "name": "Cloud Container Engine",
+            "catalog": "Containers",
+            "name_cn": "云容器引擎",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

@@ -73,6 +73,10 @@ func DataSourceElbMonitors() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"http_method": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"url_path": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -109,6 +113,10 @@ func monitorsSchema() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"http_method": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"max_retries": {
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -138,6 +146,14 @@ func monitorsSchema() *schema.Resource {
 				Computed: true,
 			},
 			"url_path": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"updated_at": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -226,6 +242,9 @@ func buildListMonitorsQueryParams(d *schema.ResourceData, enterpriseProjectId st
 	if v, ok := d.GetOk("status_code"); ok {
 		res = fmt.Sprintf("%s&expected_codes=%v", res, v)
 	}
+	if v, ok := d.GetOk("http_method"); ok {
+		res = fmt.Sprintf("%s&http_method=%v", res, v)
+	}
 	if v, ok := d.GetOk("url_path"); ok {
 		res = fmt.Sprintf("%s&url_path=%v", res, v)
 	}
@@ -259,13 +278,17 @@ func flattenListMonitorsBody(resp interface{}, d *schema.ResourceData) []interfa
 			"interval":         utils.PathSearch("delay", v, nil),
 			"domain_name":      utils.PathSearch("domain_name", v, nil),
 			"status_code":      utils.PathSearch("expected_codes", v, nil),
+			"http_method":      utils.PathSearch("http_method", v, nil),
 			"max_retries":      utils.PathSearch("max_retries", v, nil),
 			"max_retries_down": utils.PathSearch("max_retries_down", v, nil),
 			"port":             utils.PathSearch("monitor_port", v, nil),
+			"name":             utils.PathSearch("name", v, nil),
 			"pool_id":          poolId,
 			"timeout":          utils.PathSearch("timeout", v, nil),
 			"protocol":         utils.PathSearch("type", v, nil),
 			"url_path":         utils.PathSearch("url_path", v, nil),
+			"created_at":       utils.PathSearch("created_at", v, nil),
+			"updated_at":       utils.PathSearch("updated_at", v, nil),
 		})
 	}
 	return rst

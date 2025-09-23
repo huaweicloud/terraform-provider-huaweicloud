@@ -1,0 +1,135 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_modelartsv2_node_pool_nodes": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "node_pool_name": {
+                "type": "string",
+                "description": "The node pool name to which the resource nodes belongs.",
+                "required": true
+              },
+              "nodes": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "metadata": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "annotations": "string",
+                            "creation_timestamp": "string",
+                            "labels": "string",
+                            "name": "string"
+                          }
+                        ]
+                      ],
+                      "spec": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "extend_params": "string",
+                            "flavor": "string",
+                            "host_network": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "security_groups": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "subnet": "string",
+                                  "vpc": "string"
+                                }
+                              ]
+                            ],
+                            "os": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "image_id": "string",
+                                  "image_type": "string",
+                                  "name": "string"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "status": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "available_resources": "string",
+                            "az": "string",
+                            "driver": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "phase": "string",
+                                  "version": "string"
+                                }
+                              ]
+                            ],
+                            "os": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "name": "string"
+                                }
+                              ]
+                            ],
+                            "phase": "string",
+                            "plugins": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "name": "string",
+                                  "phase": "string",
+                                  "version": "string"
+                                }
+                              ]
+                            ],
+                            "private_ip": "string",
+                            "resources": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "All queried resource nodes under a specified node pool.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the resource nodes are located.",
+                "computed": true
+              },
+              "resource_pool_name": {
+                "type": "string",
+                "description": "The resource pool name to which the node pool belongs.",
+                "required": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -75,6 +75,6 @@ This resource provides the following timeouts configuration options:
 
 DMS kafka permissions can be imported using the kafka instance ID and topic name separated by a slash, e.g.:
 
-```
+```bash
 terraform import huaweicloud_dms_kafka_permissions.permissions c8057fe5-23a8-46ef-ad83-c0055b4e0c5c/topic_1
 ```

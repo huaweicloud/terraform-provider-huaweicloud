@@ -1,0 +1,112 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dds_slow_logs": {
+          "block": {
+            "attributes": {
+              "collection_keywords": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the fuzzy search for logs based on multiple database table name keywords.",
+                "optional": true
+              },
+              "database_keywords": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the fuzzy search for logs based on multiple database keywords.",
+                "optional": true
+              },
+              "end_time": {
+                "type": "string",
+                "description": "Specifies the end time in the **yyyy-mm-ddThh:mm:ssZ** format.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the instance.",
+                "required": true
+              },
+              "keywords": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the full-text log search based on multiple keywords.",
+                "optional": true
+              },
+              "max_cost_time": {
+                "type": "number",
+                "description": "Specifies the logs can be searched based on the maximum execution duration. Unit is ms.",
+                "optional": true
+              },
+              "min_cost_time": {
+                "type": "number",
+                "description": "Specifies the logs can be searched based on the minimum execution duration. Unit is ms.",
+                "optional": true
+              },
+              "node_id": {
+                "type": "string",
+                "description": "Specifies the node ID.",
+                "optional": true
+              },
+              "operate_type": {
+                "type": "string",
+                "description": "Specifies the statement type.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource.",
+                "computed": true
+              },
+              "slow_logs": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "collection": "string",
+                      "cost_time": "number",
+                      "database": "string",
+                      "docs_returned": "number",
+                      "docs_scanned": "number",
+                      "lock_time": "number",
+                      "log_time": "string",
+                      "node_id": "string",
+                      "node_name": "string",
+                      "operate_type": "string",
+                      "whole_message": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of the slow logs.",
+                "computed": true
+              },
+              "start_time": {
+                "type": "string",
+                "description": "Specifies the start time in the **yyyy-mm-ddThh:mm:ssZ** format.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "DDS",
+            "name": "Document Database Service",
+            "catalog": "Databases",
+            "name_cn": "文档数据库服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

@@ -37,12 +37,12 @@ The following arguments are supported:
   Changing this will create a new resource.
 
 * `name` - (Required, String) Specifies the application name.  
-  The valid length is limited from can contain `3` to `64`, only Chinese and English letters, digits and hyphens (-)
+  The valid length is limited from `3` to `64`, only Chinese characters, English letters, digits and hyphens (-)
   are allowed.  
-  The name must start with a Chinese or English letter.
+  The name must start with a Chinese character or English letter.
 
 * `description` - (Optional, String) Specifies the application description.  
-  The description contain a maximum of 255 characters and the angle brackets (< and >) are not allowed.
+  The description contain a maximum of `255` characters and the angle brackets (< and >) are not allowed.
 
   -> The description does not support updating to an empty value.
 

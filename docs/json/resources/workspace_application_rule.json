@@ -1,0 +1,118 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_workspace_application_rule": {
+          "block": {
+            "attributes": {
+              "description": {
+                "type": "string",
+                "description": "The description of the application rule.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the application rule.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the application rule is located.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "detail": {
+                "block": {
+                  "attributes": {
+                    "scope": {
+                      "type": "string",
+                      "description": "The scope of the application rule.",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "path_rule": {
+                      "block": {
+                        "attributes": {
+                          "path": {
+                            "type": "string",
+                            "description": "The path where the product is installed.",
+                            "required": true
+                          }
+                        },
+                        "description": "The detail of the path rule."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "product_rule": {
+                      "block": {
+                        "attributes": {
+                          "identify_condition": {
+                            "type": "string",
+                            "description": "The identify condition of the product rule.",
+                            "required": true
+                          },
+                          "process_name": {
+                            "type": "string",
+                            "description": "The process name of the product.",
+                            "optional": true
+                          },
+                          "product_name": {
+                            "type": "string",
+                            "description": "The name of the product.",
+                            "optional": true
+                          },
+                          "product_version": {
+                            "type": "string",
+                            "description": "The version of the product.",
+                            "optional": true
+                          },
+                          "publisher": {
+                            "type": "string",
+                            "description": "The publisher of the product.",
+                            "optional": true
+                          },
+                          "support_os": {
+                            "type": "string",
+                            "description": "The list of the supported operating system types.",
+                            "optional": true,
+                            "default": "Windows"
+                          },
+                          "version": {
+                            "type": "string",
+                            "description": "The version of the product rule.",
+                            "optional": true
+                          }
+                        },
+                        "description": "The detail of the product rule."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    }
+                  },
+                  "description": "The detail of the application rule."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

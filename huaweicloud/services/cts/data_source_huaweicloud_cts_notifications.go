@@ -2,15 +2,16 @@ package cts
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	cts "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cts/v3/model"
+	"github.com/chnsz/golangsdk"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -160,6 +161,11 @@ func DataSourceNotifications() *schema.Resource {
 							Computed:    true,
 							Description: "The creation time of the CTS key event notification.",
 						},
+						"agency_name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The cloud service agency name.",
+						},
 					},
 				},
 				Description: "All CTS key event notifications that match the filter parameters.",
@@ -171,36 +177,43 @@ func DataSourceNotifications() *schema.Resource {
 func dataSourceNotificationsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-	ctsClient, err := cfg.HcCtsV3Client(region)
+	ctsClient, err := cfg.NewServiceClient("cts", region)
 	if err != nil {
 		return diag.Errorf("error creating CTS client: %s", err)
 	}
 
-	var notificationType cts.ListNotificationsRequestNotificationType
-	if d.Get("type").(string) == "smn" {
-		notificationType = cts.GetListNotificationsRequestNotificationTypeEnum().SMN
-	} else {
-		notificationType = cts.GetListNotificationsRequestNotificationTypeEnum().FUN
-	}
+	notificationType := d.Get("type").(string)
+	listHttpUrl := "v3/{project_id}/notifications/{notification_type}"
+	listPath := ctsClient.Endpoint + listHttpUrl
+	listPath = strings.ReplaceAll(listPath, "{project_id}", ctsClient.ProjectID)
+	listPath = strings.ReplaceAll(listPath, "{notification_type}", notificationType)
 
-	listOpts := &cts.ListNotificationsRequest{
-		NotificationType: notificationType,
-	}
 	if rawName, nameExist := d.GetOk("name"); nameExist {
-		listOpts.NotificationName = utils.String(rawName.(string))
+		listPath += fmt.Sprintf("?notification_name=%s", rawName.(string))
 	}
 
-	response, err := ctsClient.ListNotifications(listOpts)
-	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving CTS key event notification")
+	listOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
+	response, err := ctsClient.Request("GET", listPath, &listOpts)
+	if err != nil {
+		return diag.Errorf("error retrieving CTS key event notification: %s", err)
+	}
+
+	respBody, err := utils.FlattenResponse(response)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	notifications := utils.PathSearch("notifications", respBody, make([]interface{}, 0)).([]interface{})
+
 	randUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
 	d.SetId(randUUID)
 
-	result := flattenAllNotifications(d, response)
+	result := flattenAllNotifications(d, notifications)
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
@@ -213,77 +226,64 @@ func dataSourceNotificationsRead(_ context.Context, d *schema.ResourceData, meta
 	return nil
 }
 
-func flattenAllNotifications(d *schema.ResourceData, response *cts.ListNotificationsResponse) []map[string]interface{} {
-	if response.Notifications == nil || len(*response.Notifications) == 0 {
+func flattenAllNotifications(d *schema.ResourceData, notifications []interface{}) []map[string]interface{} {
+	if len(notifications) == 0 {
 		return nil
 	}
 
-	allNotifications := *response.Notifications
-
-	var status cts.NotificationsResponseBodyStatus
+	expectStatus := "disabled"
 	rawStatus, statusExist := d.GetOk("status")
-	if statusExist {
-		v := rawStatus.(string)
-		if v == "enabled" {
-			status = cts.GetNotificationsResponseBodyStatusEnum().ENABLED
-		} else {
-			status = cts.GetNotificationsResponseBodyStatusEnum().DISABLED
-		}
+	if statusExist && rawStatus.(string) == "enabled" {
+		expectStatus = "enabled"
 	}
 
-	var operationType cts.NotificationsResponseBodyOperationType
+	expectOperationType := "customized"
 	rawOperationType, operationTypeExist := d.GetOk("operation_type")
-	if operationTypeExist {
-		v := rawOperationType.(string)
-		if v == "complete" {
-			operationType = cts.GetNotificationsResponseBodyOperationTypeEnum().COMPLETE
-		} else {
-			operationType = cts.GetNotificationsResponseBodyOperationTypeEnum().CUSTOMIZED
-		}
+	if operationTypeExist && rawOperationType.(string) == "complete" {
+		expectOperationType = "complete"
 	}
 
-	rawTopicID, topicIDExist := d.GetOk("topic_id")
-	rawNotificationID, notificationIDExist := d.GetOk("notification_id")
+	expectTopicID, topicIDExist := d.GetOk("topic_id")
+	expectNotificationID, notificationIDExist := d.GetOk("notification_id")
 
 	result := make([]map[string]interface{}, 0)
-	for _, notification := range allNotifications {
-		if statusExist && status != *notification.Status {
+	for _, notification := range notifications {
+		actualStatus := utils.PathSearch("status", notification, "").(string)
+		if statusExist && expectStatus != actualStatus {
 			continue
 		}
-		if topicIDExist && rawTopicID.(string) != *notification.TopicId {
+		actualTopicId := utils.PathSearch("topic_id", notification, "").(string)
+		if topicIDExist && expectTopicID.(string) != actualTopicId {
 			continue
 		}
-		if notificationIDExist && rawNotificationID.(string) != *notification.NotificationId {
+		actualNotificationId := utils.PathSearch("notification_id", notification, "").(string)
+		if notificationIDExist && expectNotificationID.(string) != actualNotificationId {
 			continue
 		}
-		if operationTypeExist && operationType != *notification.OperationType {
+		actualOperationType := utils.PathSearch("operation_type", notification, "").(string)
+		if operationTypeExist && expectOperationType != actualOperationType {
 			continue
 		}
+
+		name := utils.PathSearch("notification_name", notification, "").(string)
+		filter := utils.PathSearch("filter", notification, nil)
+		createTime := utils.PathSearch("create_time", notification, float64(0)).(float64)
 
 		notificationMap := map[string]interface{}{
-			"id":         notification.NotificationId,
-			"name":       notification.NotificationName,
-			"topic_id":   notification.TopicId,
-			"filter":     flattenNotificationFilter(notification.Filter),
-			"created_at": utils.FormatTimeStampRFC3339(*notification.CreateTime/1000, false),
+			"id":          actualNotificationId,
+			"name":        name,
+			"topic_id":    actualTopicId,
+			"filter":      flattenNotificationFilter(filter),
+			"created_at":  utils.FormatTimeStampRFC3339(int64(createTime)/1000, false),
+			"agency_name": utils.PathSearch("agency_name", notification, nil),
 		}
 
-		if notification.Operations != nil {
-			notificationMap["operations"] = flattenNotificationOperations(*notification.Operations)
-		}
-
-		if notification.NotifyUserList != nil {
-			notificationMap["operation_users"] = flattenNotificationUsers(*notification.NotifyUserList)
-		}
-
-		if notification.OperationType != nil {
-			notificationMap["operation_type"] = formatValue(notification.OperationType)
-		}
-
-		if notification.Status != nil {
-			notificationMap["status"] = formatValue(notification.Status)
-		}
-
+		operations := utils.PathSearch("operations", notification, make([]interface{}, 0)).([]interface{})
+		notificationMap["operations"] = flattenNotificationOperations(operations)
+		notifyUserList := utils.PathSearch("notify_user_list", notification, make([]interface{}, 0)).([]interface{})
+		notificationMap["operation_users"] = flattenNotificationUsers(notifyUserList)
+		notificationMap["operation_type"] = actualOperationType
+		notificationMap["status"] = actualStatus
 		result = append(result, notificationMap)
 	}
 

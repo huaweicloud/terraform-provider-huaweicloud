@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_antiddos_open_protection
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: ANTI-DDOS
+paths:
+    /v1/{project_id}/antiddos/{floating_ip_id}:
+        POST:
+            tag: ANTI-DDOS

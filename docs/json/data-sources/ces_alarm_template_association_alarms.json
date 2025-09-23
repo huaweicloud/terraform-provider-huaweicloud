@@ -1,0 +1,50 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_ces_alarm_template_association_alarms": {
+          "block": {
+            "attributes": {
+              "alarms": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "alarm_id": "string",
+                      "description": "string",
+                      "name": "string"
+                    }
+                  ]
+                ],
+                "description": "The alarm rules using the given template.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "template_id": {
+                "type": "string",
+                "description": "Specifies the ID of an alarm template.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "CES",
+            "name": "Cloud Eye",
+            "catalog": "Management & Governance",
+            "name_cn": "云监控服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

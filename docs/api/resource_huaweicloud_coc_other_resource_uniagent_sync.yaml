@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_coc_other_resource_uniagent_sync
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: COC
+paths:
+    /v1/other-resources/uniagent/sync:
+        POST:
+            tag: COC

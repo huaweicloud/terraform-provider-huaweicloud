@@ -15,6 +15,11 @@
                 "description": "Specifies the application protocol.",
                 "optional": true
               },
+              "dst_city_name": {
+                "type": "string",
+                "description": "Specifies the destination city name.",
+                "optional": true
+              },
               "dst_ip": {
                 "type": "string",
                 "description": "Specifies the destination IP address.",
@@ -23,6 +28,11 @@
               "dst_port": {
                 "type": "number",
                 "description": "Specifies the destination port.",
+                "optional": true
+              },
+              "dst_province_name": {
+                "type": "string",
+                "description": "Specifies the destination province name.",
                 "optional": true
               },
               "dst_region_name": {
@@ -37,7 +47,7 @@
               },
               "enterprise_project_id": {
                 "type": "string",
-                "description": "Specifies the enterprise project id.",
+                "description": "Specifies the enterprise project ID.",
                 "optional": true
               },
               "fw_instance_id": {
@@ -57,9 +67,13 @@
                     {
                       "action": "string",
                       "app": "string",
+                      "dst_city_id": "string",
+                      "dst_city_name": "string",
                       "dst_host": "string",
                       "dst_ip": "string",
                       "dst_port": "number",
+                      "dst_province_id": "string",
+                      "dst_province_name": "string",
                       "dst_region_id": "string",
                       "dst_region_name": "string",
                       "hit_time": "string",
@@ -67,8 +81,12 @@
                       "protocol": "string",
                       "rule_id": "string",
                       "rule_name": "string",
+                      "src_city_id": "string",
+                      "src_city_name": "string",
                       "src_ip": "string",
                       "src_port": "number",
+                      "src_province_id": "string",
+                      "src_province_name": "string",
                       "src_region_id": "string",
                       "src_region_name": "string"
                     }
@@ -87,6 +105,11 @@
                 "description": "Specifies the rule name.",
                 "optional": true
               },
+              "src_city_name": {
+                "type": "string",
+                "description": "Specifies the source city name.",
+                "optional": true
+              },
               "src_ip": {
                 "type": "string",
                 "description": "Specifies the source IP address.",
@@ -95,6 +118,11 @@
               "src_port": {
                 "type": "number",
                 "description": "Specifies the source port.",
+                "optional": true
+              },
+              "src_province_name": {
+                "type": "string",
+                "description": "Specifies the source province name.",
                 "optional": true
               },
               "src_region_name": {

@@ -108,7 +108,7 @@ resource "huaweicloud_dws_snapshot_policy" "test" {
   type       = "full"
   strategy   = "0 8 6 4 * ?"
 }
-`, testAccDwsCluster_basic(name, 3, cluster.PublicBindTypeNotUse, "cluster123@!", "bar"), name)
+`, testAccDwsCluster_basic_step1(name, 3, cluster.PublicBindTypeNotUse, "cluster123@!"), name)
 }
 
 func testDwsSnapshotPolicyImportState(name string) resource.ImportStateIdFunc {

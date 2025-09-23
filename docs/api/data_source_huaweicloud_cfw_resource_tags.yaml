@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_cfw_resource_tags
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CFW
+paths:
+    /v2/{project_id}/cfw-cfw/{fw_instance_id}/tags:
+        GET:
+            tag: CFW

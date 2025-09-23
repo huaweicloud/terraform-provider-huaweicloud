@@ -60,6 +60,12 @@
                 "type": "string",
                 "computed": true
               },
+              "is_open_fast_clean": {
+                "type": "bool",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "is_sync_re_edit": {
                 "type": "bool",
                 "optional": true
@@ -101,7 +107,17 @@
                 "forcenew": true,
                 "default": "eip"
               },
+              "node_type": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true,
+                "default": "high"
+              },
               "order_id": {
+                "type": "string",
+                "computed": true
+              },
+              "original_job_direction": {
                 "type": "string",
                 "computed": true
               },
@@ -140,9 +156,7 @@
               },
               "start_time": {
                 "type": "string",
-                "optional": true,
-                "computed": true,
-                "forcenew": true
+                "optional": true
               },
               "status": {
                 "type": "string",
@@ -157,7 +171,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "type": {
                 "type": "string",
@@ -232,13 +247,13 @@
                     },
                     "password": {
                       "type": "string",
-                      "required": true,
+                      "optional": true,
                       "forcenew": true,
                       "sensitive": true
                     },
                     "port": {
                       "type": "number",
-                      "required": true,
+                      "optional": true,
                       "forcenew": true
                     },
                     "region": {
@@ -284,7 +299,7 @@
                     },
                     "user": {
                       "type": "string",
-                      "required": true,
+                      "optional": true,
                       "forcenew": true
                     },
                     "vpc_id": {
@@ -292,6 +307,82 @@
                       "optional": true,
                       "computed": true,
                       "forcenew": true
+                    }
+                  },
+                  "block_types": {
+                    "kafka_security_config": {
+                      "block": {
+                        "attributes": {
+                          "delegation_tokens": {
+                            "type": "bool",
+                            "optional": true,
+                            "forcenew": true
+                          },
+                          "enable_key_store": {
+                            "type": "bool",
+                            "optional": true,
+                            "forcenew": true
+                          },
+                          "endpoint_algorithm": {
+                            "type": "string",
+                            "optional": true,
+                            "forcenew": true
+                          },
+                          "key_password": {
+                            "type": "string",
+                            "optional": true,
+                            "forcenew": true
+                          },
+                          "key_store_key": {
+                            "type": "string",
+                            "optional": true,
+                            "forcenew": true
+                          },
+                          "key_store_key_name": {
+                            "type": "string",
+                            "optional": true,
+                            "forcenew": true
+                          },
+                          "key_store_password": {
+                            "type": "string",
+                            "optional": true,
+                            "forcenew": true
+                          },
+                          "sasl_mechanism": {
+                            "type": "string",
+                            "optional": true,
+                            "forcenew": true
+                          },
+                          "set_private_key_password": {
+                            "type": "bool",
+                            "optional": true,
+                            "forcenew": true
+                          },
+                          "trust_store_key": {
+                            "type": "string",
+                            "optional": true,
+                            "forcenew": true
+                          },
+                          "trust_store_key_name": {
+                            "type": "string",
+                            "optional": true,
+                            "forcenew": true
+                          },
+                          "trust_store_password": {
+                            "type": "string",
+                            "optional": true,
+                            "forcenew": true
+                          },
+                          "type": {
+                            "type": "string",
+                            "optional": true,
+                            "forcenew": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "forcenew": true,
+                      "max_items": 1
                     }
                   }
                 },
@@ -330,19 +421,76 @@
                     "conflict_policy": {
                       "type": "string",
                       "optional": true,
-                      "computed": true,
+                      "forcenew": true
+                    },
+                    "export_snapshot": {
+                      "type": "bool",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "file_and_position": {
+                      "type": "string",
+                      "optional": true,
                       "forcenew": true
                     },
                     "filter_ddl_policy": {
                       "type": "string",
                       "optional": true,
-                      "computed": true,
+                      "forcenew": true
+                    },
+                    "gtid_set": {
+                      "type": "string",
+                      "optional": true,
                       "forcenew": true
                     },
                     "index_trans": {
                       "type": "bool",
                       "optional": true,
-                      "computed": true,
+                      "forcenew": true
+                    },
+                    "is_fill_materialized_view": {
+                      "type": "bool",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "kafka_data_format": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "partition_policy": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "partitions_num": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "replication_factor": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "slot_name": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "topic": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "topic_name_format": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "topic_policy": {
+                      "type": "string",
+                      "optional": true,
                       "forcenew": true
                     }
                   }
@@ -350,6 +498,29 @@
                 "nesting_mode": "list",
                 "forcenew": true,
                 "max_items": 1
+              },
+              "public_ip_list": {
+                "block": {
+                  "attributes": {
+                    "id": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "public_ip": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true
               },
               "source_db": {
                 "block": {
@@ -377,13 +548,13 @@
                     },
                     "password": {
                       "type": "string",
-                      "required": true,
+                      "optional": true,
                       "forcenew": true,
                       "sensitive": true
                     },
                     "port": {
                       "type": "number",
-                      "required": true,
+                      "optional": true,
                       "forcenew": true
                     },
                     "region": {
@@ -429,7 +600,7 @@
                     },
                     "user": {
                       "type": "string",
-                      "required": true,
+                      "optional": true,
                       "forcenew": true
                     },
                     "vpc_id": {
@@ -437,6 +608,82 @@
                       "optional": true,
                       "computed": true,
                       "forcenew": true
+                    }
+                  },
+                  "block_types": {
+                    "kafka_security_config": {
+                      "block": {
+                        "attributes": {
+                          "delegation_tokens": {
+                            "type": "bool",
+                            "optional": true,
+                            "forcenew": true
+                          },
+                          "enable_key_store": {
+                            "type": "bool",
+                            "optional": true,
+                            "forcenew": true
+                          },
+                          "endpoint_algorithm": {
+                            "type": "string",
+                            "optional": true,
+                            "forcenew": true
+                          },
+                          "key_password": {
+                            "type": "string",
+                            "optional": true,
+                            "forcenew": true
+                          },
+                          "key_store_key": {
+                            "type": "string",
+                            "optional": true,
+                            "forcenew": true
+                          },
+                          "key_store_key_name": {
+                            "type": "string",
+                            "optional": true,
+                            "forcenew": true
+                          },
+                          "key_store_password": {
+                            "type": "string",
+                            "optional": true,
+                            "forcenew": true
+                          },
+                          "sasl_mechanism": {
+                            "type": "string",
+                            "optional": true,
+                            "forcenew": true
+                          },
+                          "set_private_key_password": {
+                            "type": "bool",
+                            "optional": true,
+                            "forcenew": true
+                          },
+                          "trust_store_key": {
+                            "type": "string",
+                            "optional": true,
+                            "forcenew": true
+                          },
+                          "trust_store_key_name": {
+                            "type": "string",
+                            "optional": true,
+                            "forcenew": true
+                          },
+                          "trust_store_password": {
+                            "type": "string",
+                            "optional": true,
+                            "forcenew": true
+                          },
+                          "type": {
+                            "type": "string",
+                            "optional": true,
+                            "forcenew": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "forcenew": true,
+                      "max_items": 1
                     }
                   }
                 },

@@ -1,0 +1,87 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dms_rabbitmq_exchange": {
+          "block": {
+            "attributes": {
+              "arguments": {
+                "type": "string",
+                "description": "The argument configuration of the exchange, in JSON format.",
+                "optional": true,
+                "forcenew": true
+              },
+              "auto_delete": {
+                "type": "bool",
+                "required": true,
+                "forcenew": true
+              },
+              "bindings": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "destination": "string",
+                      "destination_type": "string",
+                      "properties_key": "string",
+                      "routing_key": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "durable": {
+                "type": "bool",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "internal": {
+                "type": "bool",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "vhost": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "RabbitMQ",
+            "name": "Distributed Message Service for RabbitMQ",
+            "catalog": "Middleware",
+            "name_cn": "分布式消息服务 RabbitMQ",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

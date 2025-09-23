@@ -1,0 +1,242 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_workspace_app_image_server": {
+          "block": {
+            "attributes": {
+              "availability_zone": {
+                "type": "string",
+                "description": "The availability zone of the image server.",
+                "optional": true,
+                "forcenew": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the image server, in RFC3339 format.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the image server.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The ID of the enterprise project to which the image server belong.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "extra_session_size": {
+                "type": "number",
+                "description": "The number of additional sessions for a single server.",
+                "optional": true,
+                "forcenew": true
+              },
+              "extra_session_type": {
+                "type": "string",
+                "description": "The additional session type.",
+                "optional": true,
+                "forcenew": true
+              },
+              "flavor_id": {
+                "type": "string",
+                "description": "The flavor ID of the image server.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "image_id": {
+                "type": "string",
+                "description": "The basic image ID of the image server.",
+                "required": true,
+                "forcenew": true
+              },
+              "image_source_product_id": {
+                "type": "string",
+                "description": "The basic image product ID of the image server.",
+                "optional": true,
+                "forcenew": true
+              },
+              "image_type": {
+                "type": "string",
+                "description": "The basic image type of the image server.",
+                "required": true,
+                "forcenew": true
+              },
+              "is_delete_associated_resources": {
+                "type": "bool",
+                "description": "Whether to delete resources associated with this image server after deleting it.",
+                "optional": true
+              },
+              "is_vdi": {
+                "type": "bool",
+                "description": "The session mode of the image server.",
+                "optional": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the image server.",
+                "required": true
+              },
+              "ou_name": {
+                "type": "string",
+                "description": "The OU name corresponding to the AD server.",
+                "optional": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "spec_code": {
+                "type": "string",
+                "description": "The specification code of the basic image to which the image server belongs.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "description": "The subnet ID to which the image server belongs.",
+                "required": true,
+                "forcenew": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "The key/value pairs to associate with the image server.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "description": "The VPC ID to which the image server belongs.",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "authorize_accounts": {
+                "block": {
+                  "attributes": {
+                    "account": {
+                      "type": "string",
+                      "description": "The name of the account.",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "domain": {
+                      "type": "string",
+                      "description": "The domain name of the Workspace service.",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The type of the account.",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  },
+                  "description": "The list of the management accounts for creating the image."
+                },
+                "nesting_mode": "set",
+                "forcenew": true,
+                "min_items": 1
+              },
+              "root_volume": {
+                "block": {
+                  "attributes": {
+                    "size": {
+                      "type": "number",
+                      "description": "The disk size of the image server, in GB.",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The disk type of the image server.",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  },
+                  "description": "The system disk configuration of the image server."
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "min_items": 1,
+                "max_items": 1
+              },
+              "route_policy": {
+                "block": {
+                  "attributes": {
+                    "cpu_threshold": {
+                      "type": "number",
+                      "description": "The CPU usage of the server.",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "max_session": {
+                      "type": "number",
+                      "description": "The number of session connections of the server.",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "mem_threshold": {
+                      "type": "number",
+                      "description": "The memory usage of the server.",
+                      "optional": true,
+                      "forcenew": true
+                    }
+                  },
+                  "description": "The session scheduling policy of the server associated with the image server."
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              },
+              "scheduler_hints": {
+                "block": {
+                  "attributes": {
+                    "dedicated_host_id": {
+                      "type": "string",
+                      "description": "The ID of the dedicate host.",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "tenancy": {
+                      "type": "string",
+                      "description": "The type of the dedicate host.",
+                      "optional": true,
+                      "forcenew": true
+                    }
+                  },
+                  "description": "The configuration of the dedicate host."
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

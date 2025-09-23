@@ -1,0 +1,64 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_opengauss_recycling_instances": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_name": {
+                "type": "string",
+                "description": "Specifies the GaussDB OpenGauss instance name.",
+                "optional": true
+              },
+              "instances": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "backup_level": "string",
+                      "created_at": "string",
+                      "data_vip": "string",
+                      "deleted_at": "string",
+                      "engine_name": "string",
+                      "engine_version": "string",
+                      "enterprise_project_id": "string",
+                      "enterprise_project_name": "string",
+                      "ha_mode": "string",
+                      "id": "string",
+                      "mode": "string",
+                      "name": "string",
+                      "pay_model": "string",
+                      "recycle_backup_id": "string",
+                      "recycle_status": "string",
+                      "volume_size": "string",
+                      "volume_type": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the information about all instances in the recycle bin.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDB",
+            "name": "GaussDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,25 @@
+info:
+    version: ""
+    title: resource_huaweicloud_codearts_pipeline_rule
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CodeArtsPipeline
+paths:
+    /v2/{domain_id}/rules/{rule_id}/delete:
+        DELETE:
+            tag: CodeArtsPipeline
+    /v2/{domain_id}/rules/{rule_id}/detail:
+        GET:
+            tag: CodeArtsPipeline
+    /v2/{domain_id}/rules/{rule_id}/update:
+        PUT:
+            tag: CodeArtsPipeline
+    /v2/{domain_id}/rules/create:
+        POST:
+            tag: CodeArtsPipeline
+    /v2/{domainId}/rules/{ruleId}/related/query:
+        GET:
+            tag: CodeArtsPipeline

@@ -2,15 +2,12 @@ package dataarts
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
 	"fmt"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -147,11 +144,12 @@ func resourceScriptCreate(ctx context.Context, d *schema.ResourceData, meta inte
 
 func resourceScriptRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg     = meta.(*config.Config)
-		region  = cfg.GetRegion(d)
-		mErr    *multierror.Error
-		httpUrl = "v1/{project_id}/scripts/{script_name}"
-		product = "dataarts-dlf"
+		cfg                      = meta.(*config.Config)
+		region                   = cfg.GetRegion(d)
+		mErr                     *multierror.Error
+		httpUrl                  = "v1/{project_id}/scripts/{script_name}"
+		product                  = "dataarts-dlf"
+		resourceNotFoundErrCodes = []string{"DLF.0819", "DLF.6201"}
 	)
 	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
@@ -167,7 +165,7 @@ func resourceScriptRead(_ context.Context, d *schema.ResourceData, meta interfac
 	}
 	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseScriptError(err),
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "errors|[0].error_code", resourceNotFoundErrCodes...),
 			"error retrieving DataArts script")
 	}
 
@@ -284,23 +282,4 @@ func buildCreateOrUpdateScriptBodyParams(d *schema.ResourceData) map[string]inte
 		"targetStatus":   utils.ValueIgnoreEmpty(d.Get("target_status")),
 		"approvers":      utils.ValueIgnoreEmpty(d.Get("approvers")),
 	}
-}
-
-func parseScriptError(err error) error {
-	var errCode golangsdk.ErrDefault400
-	if errors.As(err, &errCode) {
-		var apiError interface{}
-		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
-			return err
-		}
-		errorCode, errorCodeErr := jmespath.Search("errors|[0].error_code", apiError)
-		if errorCodeErr != nil {
-			return err
-		}
-
-		if errorCode == "DLF.0819" || errorCode == "DLF.6201" {
-			return golangsdk.ErrDefault404(errCode)
-		}
-	}
-	return err
 }

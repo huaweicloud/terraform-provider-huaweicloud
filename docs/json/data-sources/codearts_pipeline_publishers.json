@@ -1,0 +1,52 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_codearts_pipeline_publishers": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the publisher name.",
+                "optional": true
+              },
+              "publishers": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "auth_status": "string",
+                      "description": "string",
+                      "en_name": "string",
+                      "id": "string",
+                      "last_update_time": "string",
+                      "last_update_user_id": "string",
+                      "last_update_user_name": "string",
+                      "logo_url": "string",
+                      "name": "string",
+                      "source_url": "string",
+                      "support_url": "string",
+                      "user_id": "string",
+                      "website": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the publisher list.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

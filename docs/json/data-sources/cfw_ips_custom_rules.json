@@ -1,0 +1,108 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cfw_ips_custom_rules": {
+          "block": {
+            "attributes": {
+              "action_type": {
+                "type": "number",
+                "description": "Specifies the action type.",
+                "optional": true
+              },
+              "affected_os": {
+                "type": "number",
+                "description": "Specifies the affected OS.",
+                "optional": true
+              },
+              "attack_type": {
+                "type": "number",
+                "description": "Specifies the attack type.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID.",
+                "optional": true
+              },
+              "fw_instance_id": {
+                "type": "string",
+                "description": "Specifies the firewall ID.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ips_name": {
+                "type": "string",
+                "description": "Specifies the IPS custom rule name.",
+                "optional": true
+              },
+              "object_id": {
+                "type": "string",
+                "description": "Specifies the protected object ID.",
+                "required": true
+              },
+              "protocol": {
+                "type": "number",
+                "description": "Specifies the protocol.",
+                "optional": true
+              },
+              "records": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "action": "number",
+                      "affected_os": "number",
+                      "attack_type": "number",
+                      "config_status": "number",
+                      "content": "string",
+                      "dst_port_type": "number",
+                      "dst_ports": "string",
+                      "group_id": "string",
+                      "ips_cfw_id": "string",
+                      "ips_id": "string",
+                      "ips_name": "string",
+                      "protocol": "number",
+                      "severity": "number",
+                      "software": "number",
+                      "src_port_type": "number",
+                      "src_ports": "string"
+                    }
+                  ]
+                ],
+                "description": "The customize IPS rule records.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "severity": {
+                "type": "number",
+                "description": "Specifies the severity.",
+                "optional": true
+              },
+              "software": {
+                "type": "number",
+                "description": "Specifies the affected software.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CFW",
+            "name": "Cloud Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "云防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

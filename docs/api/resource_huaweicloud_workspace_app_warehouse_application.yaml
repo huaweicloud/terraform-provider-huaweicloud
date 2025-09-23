@@ -1,0 +1,20 @@
+info:
+    version: ""
+    title: resource_huaweicloud_workspace_app_warehouse_application
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: Workspace
+paths:
+    /v1/{project_id}/app-warehouse/apps:
+        GET:
+            tag: Workspace
+        POST:
+            tag: Workspace
+    /v1/{project_id}/app-warehouse/apps/{id}:
+        DELETE:
+            tag: Workspace
+        PATCH:
+            tag: Workspace

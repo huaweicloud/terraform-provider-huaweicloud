@@ -5,6 +5,16 @@
         "huaweicloud_nat_gateways": {
           "block": {
             "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the NAT gateway.",
+                "optional": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the NAT gateway.",
+                "optional": true
+              },
               "enterprise_project_id": {
                 "type": "string",
                 "description": "The ID of the enterprise project to which the NAT gateways belong.",
@@ -21,11 +31,29 @@
                   [
                     "object",
                     {
+                      "billing_info": "string",
+                      "bps_max": "number",
                       "created_at": "string",
                       "description": "string",
+                      "dnat_rules_limit": "number",
                       "enterprise_project_id": "string",
                       "id": "string",
                       "name": "string",
+                      "ngport_ip_address": "string",
+                      "pps_max": "number",
+                      "session_conf": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "icmp_session_expire_time": "number",
+                            "tcp_session_expire_time": "number",
+                            "tcp_time_wait_time": "number",
+                            "udp_session_expire_time": "number"
+                          }
+                        ]
+                      ],
+                      "snat_rule_public_ip_limit": "number",
                       "spec": "string",
                       "status": "string",
                       "subnet_id": "string",

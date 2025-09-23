@@ -3,8 +3,7 @@ package evs
 import (
 	"context"
 	"errors"
-	"fmt"
-	"log"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -13,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/evs/v2/snapshots"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -24,12 +22,12 @@ import (
 // @API EVS GET /v2/{project_id}/cloudsnapshots/{snapshot_id}
 // @API EVS PUT /v2/{project_id}/cloudsnapshots/{snapshot_id}
 // @API EVS POST /v2/{project_id}/cloudsnapshots
-func ResourceEvsSnapshotV2() *schema.Resource {
+func ResourceEvsSnapshot() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceEvsSnapshotV2Create,
-		ReadContext:   resourceEvsSnapshotV2Read,
-		UpdateContext: resourceEvsSnapshotV2Update,
-		DeleteContext: resourceEvsSnapshotV2Delete,
+		CreateContext: resourceEvsSnapshotCreate,
+		ReadContext:   resourceEvsSnapshotRead,
+		UpdateContext: resourceEvsSnapshotUpdate,
+		DeleteContext: resourceEvsSnapshotDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -55,12 +53,13 @@ func ResourceEvsSnapshotV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			// To avoid triggering changes metadata is not backfilled during read.
 			"metadata": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				ForceNew: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Type:             schema.TypeMap,
+				Optional:         true,
+				Computed:         true,
+				ForceNew:         true,
+				Elem:             &schema.Schema{Type: schema.TypeString},
+				DiffSuppressFunc: utils.SuppressMapDiffs(),
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -79,144 +78,302 @@ func ResourceEvsSnapshotV2() *schema.Resource {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"updated_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"metadata_origin": {
+				Type:             schema.TypeMap,
+				Optional:         true,
+				Computed:         true,
+				Elem:             &schema.Schema{Type: schema.TypeString},
+				DiffSuppressFunc: utils.SuppressDiffAll,
+				Description: utils.SchemaDesc(
+					`The script configuration value of this change is also the original value used for comparison with
+ the new value next time the change is made. The corresponding parameter name is 'metadata'.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
+			},
 		},
 	}
 }
 
-func resourceEvsSnapshotV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	evsClient, err := cfg.BlockStorageV2Client(cfg.GetRegion(d))
+func buildCreateEvsSnapshotBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"volume_id":   d.Get("volume_id"),
+		"name":        utils.ValueIgnoreEmpty(d.Get("name")),
+		"description": utils.ValueIgnoreEmpty(d.Get("description")),
+		"metadata":    utils.ValueIgnoreEmpty(utils.ExpandToStringMap(d.Get("metadata").(map[string]interface{}))),
+	}
+
+	if d.Get("force").(bool) {
+		bodyParams["force"] = true
+	}
+
+	return map[string]interface{}{
+		"snapshot": bodyParams,
+	}
+}
+
+func GetSnapshotDetail(client *golangsdk.ServiceClient, snapshotID string) (interface{}, error) {
+	requestPath := client.Endpoint + "v2/{project_id}/cloudsnapshots/{snapshot_id}"
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{snapshot_id}", snapshotID)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	resp, err := client.Request("GET", requestPath, &requestOpt)
 	if err != nil {
-		return diag.Errorf("error creating EVS storage client: %s", err)
+		return nil, err
 	}
 
-	createOpts := &snapshots.CreateOpts{
-		VolumeID:    d.Get("volume_id").(string),
-		Name:        d.Get("name").(string),
-		Description: d.Get("description").(string),
-		Force:       d.Get("force").(bool),
-		Metadata:    utils.ExpandToStringMap(d.Get("metadata").(map[string]interface{})),
+	return utils.FlattenResponse(resp)
+}
+
+func waitingForSnapshotStatusAvailable(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
+	timeout time.Duration) error {
+	stateConf := &resource.StateChangeConf{
+		Pending: []string{"PENDING"},
+		Target:  []string{"COMPLETED"},
+		Refresh: func() (interface{}, string, error) {
+			respBody, err := GetSnapshotDetail(client, d.Id())
+			if err != nil {
+				return nil, "ERROR", err
+			}
+
+			status := utils.PathSearch("snapshot.status", respBody, "").(string)
+			if status == "" {
+				return respBody, "ERROR", errors.New("status is not found in API response")
+			}
+
+			if status == "available" {
+				return respBody, "COMPLETED", nil
+			}
+
+			if status == "error" {
+				return respBody, status, nil
+			}
+
+			return respBody, "PENDING", nil
+		},
+		Timeout:      timeout,
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
-	v, err := snapshots.Create(evsClient, createOpts).Extract()
+	_, err := stateConf.WaitForStateContext(ctx)
+	return err
+}
+
+func resourceEvsSnapshotCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg          = meta.(*config.Config)
+		region       = cfg.GetRegion(d)
+		httpUrl      = "v2/{project_id}/cloudsnapshots"
+		product      = "evs"
+		mapParamKeys = []string{
+			"metadata",
+		}
+	)
+	client, err := cfg.NewServiceClient(product, region)
+	if err != nil {
+		return diag.Errorf("error creating EVS client: %s", err)
+	}
+
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildCreateEvsSnapshotBodyParams(d)),
+	}
+
+	resp, err := client.Request("POST", requestPath, &requestOpt)
 	if err != nil {
 		return diag.Errorf("error creating EVS snapshot: %s", err)
 	}
 
-	// Wait for the snapshot to become available.
-	log.Printf("[DEBUG] Waiting for volume to become available")
-	err = snapshots.WaitForStatus(evsClient, v.ID, "available", int(d.Timeout(schema.TimeoutCreate)/time.Second))
+	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	// Store the ID now
-	d.SetId(v.ID)
-	return resourceEvsSnapshotV2Read(ctx, d, meta)
+	snapshotID := utils.PathSearch("snapshot.id", respBody, "").(string)
+	if snapshotID == "" {
+		return diag.Errorf("error creating EVS snapshot: ID is not found in API response")
+	}
+	d.SetId(snapshotID)
+
+	if err := waitingForSnapshotStatusAvailable(ctx, client, d, d.Timeout(schema.TimeoutCreate)); err != nil {
+		return diag.Errorf("error waiting for EVS snapshot (%s) creation to available: %s", d.Id(), err)
+	}
+
+	// If the request is successful, obtain the values of all JSON|object parameters first and save them to the
+	// corresponding '_origin' attributes for subsequent determination and construction of the request body during
+	// next updates.
+	// And whether corresponding parameters are changed, the origin values must be refreshed.
+	err = utils.RefreshObjectParamOriginValues(d, mapParamKeys)
+	if err != nil {
+		return diag.Errorf("unable to refresh the origin values: %s", err)
+	}
+
+	return resourceEvsSnapshotRead(ctx, d, meta)
 }
 
-func resourceEvsSnapshotV2Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	evsClient, err := cfg.BlockStorageV2Client(cfg.GetRegion(d))
+func resourceEvsSnapshotRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		product = "evs"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating EVS storage client: %s", err)
+		return diag.Errorf("error creating EVS client: %s", err)
 	}
 
-	v, err := snapshots.Get(evsClient, d.Id()).Extract()
+	respBody, err := GetSnapshotDetail(client, d.Id())
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "snapshot")
+		// When the resource does not exist, calling the query API will return a `404` status code.
+		return common.CheckDeletedDiag(d, err, "error retrieving EVS snapshot")
 	}
 
-	log.Printf("[DEBUG] Retrieved volume %s: %+v", d.Id(), v)
-
-	mErr := multierror.Append(nil,
-		d.Set("volume_id", v.VolumeID),
-		d.Set("name", v.Name),
-		d.Set("description", v.Description),
-		d.Set("status", v.Status),
-		d.Set("size", v.Size),
+	mErr := multierror.Append(
+		d.Set("region", region),
+		d.Set("volume_id", utils.PathSearch("snapshot.volume_id", respBody, nil)),
+		d.Set("name", utils.PathSearch("snapshot.name", respBody, nil)),
+		d.Set("metadata", utils.PathSearch("snapshot.metadata", respBody, nil)),
+		d.Set("description", utils.PathSearch("snapshot.description", respBody, nil)),
+		d.Set("status", utils.PathSearch("snapshot.status", respBody, nil)),
+		d.Set("size", utils.PathSearch("snapshot.size", respBody, nil)),
+		d.Set("created_at", utils.PathSearch("snapshot.created_at", respBody, nil)),
+		d.Set("updated_at", utils.PathSearch("snapshot.updated_at", respBody, nil)),
 	)
 
-	if mErr.ErrorOrNil() != nil {
-		diag.FromErr(mErr)
-	}
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func resourceEvsSnapshotV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	evsClient, err := cfg.BlockStorageV2Client(cfg.GetRegion(d))
+func buildUpdateSnapshotBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"name":        utils.ValueIgnoreEmpty(d.Get("name")),
+		"description": utils.ValueIgnoreEmpty(d.Get("description")),
+	}
+
+	return map[string]interface{}{
+		"snapshot": bodyParams,
+	}
+}
+
+func resourceEvsSnapshotUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg          = meta.(*config.Config)
+		region       = cfg.GetRegion(d)
+		httpUrl      = "v2/{project_id}/cloudsnapshots/{snapshot_id}"
+		product      = "evs"
+		mapParamKeys = []string{
+			"metadata",
+		}
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating EVS storage client: %s", err)
+		return diag.Errorf("error creating EVS client: %s", err)
 	}
 
-	updateOpts := snapshots.UpdateOpts{
-		Name:        d.Get("name").(string),
-		Description: d.Get("description").(string),
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{snapshot_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildUpdateSnapshotBodyParams(d)),
 	}
 
-	_, err = snapshots.Update(evsClient, d.Id(), updateOpts).Extract()
+	_, err = client.Request("PUT", requestPath, &requestOpt)
 	if err != nil {
 		return diag.Errorf("error updating EVS snapshot: %s", err)
 	}
 
-	return resourceEvsSnapshotV2Read(ctx, d, meta)
+	// If the request is successful, obtain the values of all JSON|object parameters first and save them to the
+	// corresponding '_origin' attributes for subsequent determination and construction of the request body during
+	// next updates.
+	// And whether corresponding parameters are changed, the origin values must be refreshed.
+	err = utils.RefreshObjectParamOriginValues(d, mapParamKeys)
+	if err != nil {
+		return diag.Errorf("unable to refresh the origin values: %s", err)
+	}
+
+	return resourceEvsSnapshotRead(ctx, d, meta)
 }
 
-func resourceEvsSnapshotV2Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	evsClient, err := cfg.BlockStorageV2Client(cfg.GetRegion(d))
-	if err != nil {
-		return diag.Errorf("error creating EVS storage client: %s", err)
-	}
-
-	if err := snapshots.Delete(evsClient, d.Id()).ExtractErr(); err != nil {
-		return common.CheckDeletedDiag(d, err, "snapshot")
-	}
-
-	// Wait for the snapshot to delete before moving on.
-	log.Printf("[DEBUG] Waiting for snapshot (%s) to delete", d.Id())
-
+func waitingForSnapshotDeleted(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
+	timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
-		Pending:    []string{"available", "deleting"},
-		Target:     []string{"deleted"},
-		Refresh:    snapshotStateRefreshFunc(evsClient, d.Id()),
-		Timeout:    d.Timeout(schema.TimeoutDelete),
-		Delay:      2 * time.Second,
-		MinTimeout: 3 * time.Second,
+		Pending: []string{"PENDING"},
+		Target:  []string{"COMPLETED"},
+		Refresh: func() (interface{}, string, error) {
+			respBody, err := GetSnapshotDetail(client, d.Id())
+			if err != nil {
+				var errDefault404 golangsdk.ErrDefault404
+				if errors.As(err, &errDefault404) {
+					return "success deleted", "COMPLETED", nil
+				}
+				return nil, "ERROR", err
+			}
+
+			status := utils.PathSearch("snapshot.status", respBody, "").(string)
+			if status == "" {
+				return respBody, "ERROR", errors.New("status is not found in API response")
+			}
+
+			if status == "error_deleting" {
+				return respBody, status, errors.New("an error occurred while deleting the EVS snapshot. " +
+					"Please check with your cloud admin or check the API logs " +
+					"to see why this error occurred")
+			}
+
+			return respBody, "PENDING", nil
+		},
+		Timeout:      timeout,
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
 	}
 
-	_, err = stateConf.WaitForStateContext(ctx)
-	if err != nil {
-		return diag.Errorf(
-			"error waiting for snapshot (%s) to delete: %s",
-			d.Id(), err)
-	}
-
-	d.SetId("")
-	return nil
+	_, err := stateConf.WaitForStateContext(ctx)
+	return err
 }
 
-// snapshotStateRefreshFunc returns a resource.StateRefreshFunc that is used to watch
-// an snapshot.
-func snapshotStateRefreshFunc(client *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		v, err := snapshots.Get(client, id).Extract()
-		if err != nil {
-			var errDefault404 golangsdk.ErrDefault404
-			if errors.As(err, &errDefault404) {
-				return v, "deleted", nil
-			}
-			return nil, "", err
-		}
-
-		if v.Status == "error" || v.Status == "error_deleting" {
-			return v, v.Status, fmt.Errorf("there was an error creating or deleting the snapshot. " +
-				"Please check with your cloud admin or check the API logs " +
-				"to see why this error occurred")
-		}
-
-		return v, v.Status, nil
+func resourceEvsSnapshotDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v2/{project_id}/cloudsnapshots/{snapshot_id}"
+		product = "evs"
+	)
+	client, err := cfg.NewServiceClient(product, region)
+	if err != nil {
+		return diag.Errorf("error creating EVS client: %s", err)
 	}
+
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{snapshot_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	_, err = client.Request("DELETE", requestPath, &requestOpt)
+	if err != nil {
+		// When the resource does not exist, calling the delete API will return a `404` status code.
+		return common.CheckDeletedDiag(d, err, "error deleting EVS snapshot")
+	}
+
+	if err := waitingForSnapshotDeleted(ctx, client, d, d.Timeout(schema.TimeoutDelete)); err != nil {
+		return diag.Errorf("error waiting for EVS snapshot (%s) deleted: %s", d.Id(), err)
+	}
+
+	return nil
 }

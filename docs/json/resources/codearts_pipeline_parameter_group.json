@@ -1,0 +1,121 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_codearts_pipeline_parameter_group": {
+          "block": {
+            "attributes": {
+              "create_time": {
+                "type": "number",
+                "description": "Indicates the create time.",
+                "computed": true
+              },
+              "creator_id": {
+                "type": "string",
+                "description": "Indicates the creator ID.",
+                "computed": true
+              },
+              "creator_name": {
+                "type": "string",
+                "description": "Indicates the creator name.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the parameter group description.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the parameter group name.",
+                "required": true
+              },
+              "project_id": {
+                "type": "string",
+                "description": "Specifies the CodeArts project ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "related_pipelines": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "string",
+                      "name": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the associated pipeline.",
+                "computed": true
+              },
+              "update_time": {
+                "type": "number",
+                "description": "Indicates the update time.",
+                "computed": true
+              },
+              "updater_id": {
+                "type": "string",
+                "description": "Indicates the updater ID.",
+                "computed": true
+              },
+              "updater_name": {
+                "type": "string",
+                "description": "Indicates the updater name.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "variables": {
+                "block": {
+                  "attributes": {
+                    "description": {
+                      "type": "string",
+                      "description": "Specifies the parameter description.",
+                      "optional": true
+                    },
+                    "is_secret": {
+                      "type": "bool",
+                      "description": "Specifies whether it is a private parameter.",
+                      "optional": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Specifies the custom variable name.",
+                      "optional": true
+                    },
+                    "sequence": {
+                      "type": "number",
+                      "description": "Specifies the parameter sequence, starting from 1.",
+                      "optional": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Specifies the custom parameter type.",
+                      "optional": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "description": "Specifies the custom parameter default value.",
+                      "optional": true
+                    }
+                  },
+                  "description": "Specifies the parameter list."
+                },
+                "nesting_mode": "set"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

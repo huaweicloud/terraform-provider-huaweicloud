@@ -1,0 +1,132 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_workspace_app_schedule_task": {
+          "block": {
+            "attributes": {
+              "date_list": {
+                "type": "string",
+                "description": "The days of month of the schedule task.",
+                "optional": true
+              },
+              "day_interval": {
+                "type": "number",
+                "description": "The execution interval of the scheduled task, in days.",
+                "optional": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the schedule task.",
+                "optional": true
+              },
+              "expire_time": {
+                "type": "string",
+                "description": "The expiration time of the schedule task, in UTC format.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_enable": {
+                "type": "bool",
+                "description": "Whether to enable the schedule task.",
+                "optional": true,
+                "default": true
+              },
+              "month_list": {
+                "type": "string",
+                "description": "The months of the schedule task.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the schedule task is located.",
+                "computed": true
+              },
+              "scheduled_date": {
+                "type": "string",
+                "description": "The fixed date of the schedule task.",
+                "optional": true
+              },
+              "scheduled_time": {
+                "type": "string",
+                "description": "The execution time of the schedule task.",
+                "required": true
+              },
+              "scheduled_type": {
+                "type": "string",
+                "description": "The execution cycle of the schedule task.",
+                "required": true
+              },
+              "task_name": {
+                "type": "string",
+                "description": "The name of the schedule task.",
+                "required": true
+              },
+              "task_type": {
+                "type": "string",
+                "description": "The type of the schedule task.",
+                "required": true
+              },
+              "time_zone": {
+                "type": "string",
+                "description": "The time zone of the schedule task.",
+                "optional": true,
+                "computed": true
+              },
+              "week_list": {
+                "type": "string",
+                "description": "The days of week of the schedule task.",
+                "optional": true
+              }
+            },
+            "block_types": {
+              "schedule_task_policy": {
+                "block": {
+                  "attributes": {
+                    "enforcement_enable": {
+                      "type": "bool",
+                      "description": "Whether to forcefully execute the task when there are active sessions.",
+                      "required": true
+                    }
+                  },
+                  "description": "The policy of the schedule task."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "target_infos": {
+                "block": {
+                  "attributes": {
+                    "target_id": {
+                      "type": "string",
+                      "description": "The ID of the target object.",
+                      "required": true
+                    },
+                    "target_type": {
+                      "type": "string",
+                      "description": "The type of the target object.",
+                      "required": true
+                    }
+                  },
+                  "description": "The target object list of the schedule task."
+                },
+                "nesting_mode": "set",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

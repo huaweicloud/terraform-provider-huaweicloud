@@ -2,6 +2,7 @@ package identitycenter
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -74,6 +75,31 @@ func TestAccIdentityCenterUser_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "given_name", "test_given_name"),
 					resource.TestCheckResourceAttr(rName, "display_name", "test_display_name"),
 					resource.TestCheckResourceAttr(rName, "email", "email@example.com"),
+					resource.TestCheckResourceAttr(rName, "phone_number", "13600000000"),
+					resource.TestCheckResourceAttr(rName, "user_type", "test_user_type"),
+					resource.TestCheckResourceAttr(rName, "title", "test_title"),
+					resource.TestCheckResourceAttr(rName, "addresses.#", "1"),
+					resource.TestCheckResourceAttr(rName, "addresses.0.country", "test_country"),
+					resource.TestCheckResourceAttr(rName, "addresses.0.formatted", "test_formatted"),
+					resource.TestCheckResourceAttr(rName, "addresses.0.locality", "test_locality"),
+					resource.TestCheckResourceAttr(rName, "addresses.0.postal_code", "test_postal_code"),
+					resource.TestCheckResourceAttr(rName, "addresses.0.region", "test_region"),
+					resource.TestCheckResourceAttr(rName, "addresses.0.street_address", "test_street_address"),
+					resource.TestCheckResourceAttr(rName, "enterprise.#", "1"),
+					resource.TestCheckResourceAttr(rName, "enterprise.0.cost_center", "test_cost_center"),
+					resource.TestCheckResourceAttr(rName, "enterprise.0.department", "test_department"),
+					resource.TestCheckResourceAttr(rName, "enterprise.0.division", "test_division"),
+					resource.TestCheckResourceAttr(rName, "enterprise.0.employee_number", "test_employee_number"),
+					resource.TestCheckResourceAttr(rName, "enterprise.0.organization", "test_organization"),
+					resource.TestCheckResourceAttr(rName, "enterprise.0.manager", "test_manager"),
+					resource.TestMatchResourceAttr(rName, "created_at",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
+					resource.TestMatchResourceAttr(rName, "updated_at",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
+					resource.TestCheckResourceAttrSet(rName, "created_by"),
+					resource.TestCheckResourceAttrSet(rName, "updated_by"),
+					resource.TestCheckResourceAttrSet(rName, "email_verified"),
+					resource.TestCheckResourceAttrSet(rName, "enabled"),
 				),
 			},
 			{
@@ -87,6 +113,31 @@ func TestAccIdentityCenterUser_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "given_name", "test_given_name_update"),
 					resource.TestCheckResourceAttr(rName, "display_name", "test_display_name_update"),
 					resource.TestCheckResourceAttr(rName, "email", "email_update@example.com"),
+					resource.TestCheckResourceAttr(rName, "phone_number", "13600000001"),
+					resource.TestCheckResourceAttr(rName, "user_type", "test_user_type_update"),
+					resource.TestCheckResourceAttr(rName, "title", "test_title_update"),
+					resource.TestCheckResourceAttr(rName, "addresses.#", "1"),
+					resource.TestCheckResourceAttr(rName, "addresses.0.country", "test_country_update"),
+					resource.TestCheckResourceAttr(rName, "addresses.0.formatted", "test_formatted_update"),
+					resource.TestCheckResourceAttr(rName, "addresses.0.locality", "test_locality_update"),
+					resource.TestCheckResourceAttr(rName, "addresses.0.postal_code", "test_postal_code_update"),
+					resource.TestCheckResourceAttr(rName, "addresses.0.region", "test_region_update"),
+					resource.TestCheckResourceAttr(rName, "addresses.0.street_address", "test_street_address_update"),
+					resource.TestCheckResourceAttr(rName, "enterprise.#", "1"),
+					resource.TestCheckResourceAttr(rName, "enterprise.0.cost_center", "test_cost_center_update"),
+					resource.TestCheckResourceAttr(rName, "enterprise.0.department", "test_department_update"),
+					resource.TestCheckResourceAttr(rName, "enterprise.0.division", "test_division_update"),
+					resource.TestCheckResourceAttr(rName, "enterprise.0.employee_number", "test_employee_number_update"),
+					resource.TestCheckResourceAttr(rName, "enterprise.0.organization", "test_organization_update"),
+					resource.TestCheckResourceAttr(rName, "enterprise.0.manager", "test_manager_update"),
+					resource.TestMatchResourceAttr(rName, "created_at",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
+					resource.TestMatchResourceAttr(rName, "updated_at",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
+					resource.TestCheckResourceAttrSet(rName, "created_by"),
+					resource.TestCheckResourceAttrSet(rName, "updated_by"),
+					resource.TestCheckResourceAttrSet(rName, "email_verified"),
+					resource.TestCheckResourceAttrSet(rName, "enabled"),
 				),
 			},
 			{
@@ -112,6 +163,28 @@ resource "huaweicloud_identitycenter_user" "test" {
   given_name        = "test_given_name"
   display_name      = "test_display_name"
   email             = "email@example.com"
+  phone_number      = "13600000000"
+  user_type         = "test_user_type"
+  title             = "test_title"
+
+  addresses {
+    country        = "test_country"
+    formatted      = "test_formatted"
+    locality       = "test_locality"
+    postal_code    = "test_postal_code"
+    region         = "test_region"
+    street_address = "test_street_address"
+  }
+
+  enterprise {
+    cost_center     = "test_cost_center"
+    department      = "test_department"
+    division        = "test_division"
+    employee_number = "test_employee_number"
+    organization    = "test_organization"
+    manager         = "test_manager"
+  }
+
 }
 `, testAccDatasourceIdentityCenter_basic(), name)
 }
@@ -128,6 +201,27 @@ resource "huaweicloud_identitycenter_user" "test" {
   given_name        = "test_given_name_update"
   display_name      = "test_display_name_update"
   email             = "email_update@example.com"
+  phone_number      = "13600000001"
+  user_type         = "test_user_type_update"
+  title             = "test_title_update"
+
+  addresses {
+    country        = "test_country_update"
+    formatted      = "test_formatted_update"
+    locality       = "test_locality_update"
+    postal_code    = "test_postal_code_update"
+    region         = "test_region_update"
+    street_address = "test_street_address_update"
+  }
+
+  enterprise {
+    cost_center     = "test_cost_center_update"
+    department      = "test_department_update"
+    division        = "test_division_update"
+    employee_number = "test_employee_number_update"
+    organization    = "test_organization_update"
+    manager         = "test_manager_update"
+  }
 }
 `, testAccDatasourceIdentityCenter_basic(), name)
 }

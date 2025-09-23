@@ -1,0 +1,117 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_opengauss_sql_throttling_tasks": {
+          "block": {
+            "attributes": {
+              "end_time": {
+                "type": "string",
+                "description": "Specifies the end time of the throttling task in the format of **yyy-mm-ddThh:mm:ss+0000**.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the GaussDB OpenGauss instance.",
+                "required": true
+              },
+              "limit_task_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cpu_utilization": "number",
+                      "created_at": "string",
+                      "creator": "string",
+                      "databases": "string",
+                      "end_time": "string",
+                      "instance_id": "string",
+                      "key_words": "string",
+                      "limit_type": "string",
+                      "limit_type_value": "string",
+                      "memory_utilization": "number",
+                      "modifier": "string",
+                      "node_infos": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "node_id": "string",
+                            "sql_id": "string"
+                          }
+                        ]
+                      ],
+                      "parallel_size": "number",
+                      "rule_name": "string",
+                      "sql_model": "string",
+                      "start_time": "string",
+                      "status": "string",
+                      "task_id": "string",
+                      "task_name": "string",
+                      "task_scope": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of throttling tasks.",
+                "computed": true
+              },
+              "limit_type": {
+                "type": "string",
+                "description": "Specifies the throttling type.",
+                "optional": true
+              },
+              "limit_type_value": {
+                "type": "string",
+                "description": "Specifies the throttling type value. Fuzzy match is supported.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "rule_name": {
+                "type": "string",
+                "description": "Specifies the rule name.",
+                "optional": true
+              },
+              "sql_model": {
+                "type": "string",
+                "description": "Specifies the SQL template. Fuzzy match is supported.",
+                "optional": true
+              },
+              "start_time": {
+                "type": "string",
+                "description": "Specifies the start time of the throttling task in the format of **yyy-mm-ddThh:mm:ss+0000**.",
+                "optional": true
+              },
+              "task_name": {
+                "type": "string",
+                "description": "Specifies the throttling task name. Fuzzy match is supported.",
+                "optional": true
+              },
+              "task_scope": {
+                "type": "string",
+                "description": "Specifies the throttling task scope.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDB",
+            "name": "GaussDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

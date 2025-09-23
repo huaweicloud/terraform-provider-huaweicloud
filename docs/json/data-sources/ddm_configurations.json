@@ -1,0 +1,47 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_ddm_configurations": {
+          "block": {
+            "attributes": {
+              "configurations": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created": "string",
+                      "datastore_name": "string",
+                      "description": "string",
+                      "id": "string",
+                      "name": "string",
+                      "updated": "string",
+                      "user_defined": "bool"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DDM",
+            "name": "Distributed Database Middleware",
+            "catalog": "Databases",
+            "name_cn": "分布式数据库中间件",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

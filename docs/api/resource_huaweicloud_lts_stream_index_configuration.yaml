@@ -1,0 +1,15 @@
+info:
+    version: ""
+    title: resource_huaweicloud_lts_stream_index_configuration
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: LTS
+paths:
+    /v1.0/{project_id}/groups/{group_id}/stream/{stream_id}/index/config:
+        GET:
+            tag: LTS
+        POST:
+            tag: LTS

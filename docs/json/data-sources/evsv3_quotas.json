@@ -1,0 +1,217 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_evsv3_quotas": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "quota_set": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "backup_gigabytes": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "in_use": "number",
+                            "limit": "number"
+                          }
+                        ]
+                      ],
+                      "backups": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "in_use": "number",
+                            "limit": "number"
+                          }
+                        ]
+                      ],
+                      "gigabytes": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "in_use": "number",
+                            "limit": "number"
+                          }
+                        ]
+                      ],
+                      "gigabytes_gpssd": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "in_use": "number",
+                            "limit": "number"
+                          }
+                        ]
+                      ],
+                      "gigabytes_sas": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "in_use": "number",
+                            "limit": "number"
+                          }
+                        ]
+                      ],
+                      "gigabytes_sata": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "in_use": "number",
+                            "limit": "number"
+                          }
+                        ]
+                      ],
+                      "gigabytes_ssd": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "in_use": "number",
+                            "limit": "number"
+                          }
+                        ]
+                      ],
+                      "per_volume_gigabytes": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "in_use": "number",
+                            "limit": "number"
+                          }
+                        ]
+                      ],
+                      "snapshots": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "in_use": "number",
+                            "limit": "number"
+                          }
+                        ]
+                      ],
+                      "snapshots_gpssd": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "in_use": "number",
+                            "limit": "number"
+                          }
+                        ]
+                      ],
+                      "snapshots_sas": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "in_use": "number",
+                            "limit": "number"
+                          }
+                        ]
+                      ],
+                      "snapshots_sata": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "in_use": "number",
+                            "limit": "number"
+                          }
+                        ]
+                      ],
+                      "snapshots_ssd": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "in_use": "number",
+                            "limit": "number"
+                          }
+                        ]
+                      ],
+                      "volumes": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "in_use": "number",
+                            "limit": "number"
+                          }
+                        ]
+                      ],
+                      "volumes_gpssd": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "in_use": "number",
+                            "limit": "number"
+                          }
+                        ]
+                      ],
+                      "volumes_sas": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "in_use": "number",
+                            "limit": "number"
+                          }
+                        ]
+                      ],
+                      "volumes_sata": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "in_use": "number",
+                            "limit": "number"
+                          }
+                        ]
+                      ],
+                      "volumes_ssd": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "in_use": "number",
+                            "limit": "number"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "usage": {
+                "type": "bool",
+                "required": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

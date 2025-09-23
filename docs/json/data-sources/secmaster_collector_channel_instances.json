@@ -1,0 +1,122 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_secmaster_collector_channel_instances": {
+          "block": {
+            "attributes": {
+              "channel_id": {
+                "type": "string",
+                "description": "Specifies the channel ID.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "node_id": {
+                "type": "string",
+                "description": "Specifies the node ID.",
+                "optional": true
+              },
+              "node_name": {
+                "type": "string",
+                "description": "Specifies the node name.",
+                "optional": true
+              },
+              "records": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "channel_name": "string",
+                      "config_status": "string",
+                      "create_by": "string",
+                      "mini_on_online": "bool",
+                      "monitor": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "cpu_idle": "string",
+                            "cpu_usage": "string",
+                            "disk_count": "string",
+                            "disk_usage": "string",
+                            "down_pps": "string",
+                            "health_status": "string",
+                            "heart_beat": "string",
+                            "heart_beat_time": "string",
+                            "memory_cache": "string",
+                            "memory_count": "string",
+                            "memory_free": "string",
+                            "memory_shared": "string",
+                            "memory_usage": "string",
+                            "mini_on_online": "string",
+                            "read_rate": "string",
+                            "up_pps": "string",
+                            "write_rate": "string"
+                          }
+                        ]
+                      ],
+                      "node_name": "string",
+                      "private_ip_address": "string",
+                      "public_ip_address": "string",
+                      "read_write": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "accept_count": "number",
+                            "accept_rate": "number",
+                            "channel_id": "string",
+                            "channel_instance_count": "number",
+                            "heart_beat": "string",
+                            "heart_beat_time": "string",
+                            "latest_transmission_time": "string",
+                            "minion_id": "string",
+                            "send_count": "number",
+                            "send_rate": "number"
+                          }
+                        ]
+                      ],
+                      "region": "string"
+                    }
+                  ]
+                ],
+                "description": "The collector channel instances list.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "sort_dir": {
+                "type": "string",
+                "description": "Specifies the sort direction. Supported values are **asc** and **desc**.",
+                "optional": true
+              },
+              "sort_key": {
+                "type": "string",
+                "description": "Specifies the sort key.",
+                "optional": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "Specifies the workspace ID.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

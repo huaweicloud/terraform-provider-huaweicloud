@@ -9,8 +9,20 @@
                 "type": "number",
                 "optional": true
               },
+              "category": {
+                "type": "number",
+                "optional": true
+              },
               "cps": {
                 "type": "number",
+                "optional": true
+              },
+              "flavor_id": {
+                "type": "string",
+                "optional": true
+              },
+              "flavor_sold_out": {
+                "type": "string",
                 "optional": true
               },
               "flavors": {
@@ -20,11 +32,17 @@
                     "object",
                     {
                       "bandwidth": "number",
+                      "category": "number",
                       "cps": "number",
+                      "flavor_sold_out": "bool",
+                      "https_cps": "number",
                       "id": "string",
+                      "lcu": "number",
                       "max_connections": "number",
                       "name": "string",
+                      "public_border_group": "string",
                       "qps": "number",
+                      "shared": "bool",
                       "type": "string"
                     }
                   ]
@@ -42,11 +60,19 @@
                 ],
                 "computed": true
               },
+              "list_all": {
+                "type": "string",
+                "optional": true
+              },
               "max_connections": {
                 "type": "number",
                 "optional": true
               },
               "name": {
+                "type": "string",
+                "optional": true
+              },
+              "public_border_group": {
                 "type": "string",
                 "optional": true
               },
@@ -57,6 +83,10 @@
               "region": {
                 "type": "string",
                 "computed": true
+              },
+              "shared": {
+                "type": "string",
+                "optional": true
               },
               "type": {
                 "type": "string",

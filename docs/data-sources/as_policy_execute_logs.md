@@ -2,12 +2,15 @@
 subcategory: "Auto Scaling"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_as_policy_execute_logs"
-description: ""
+description: |
+  Use this data source to get a list of AS policy execution logs within HuaweiCloud.
 ---
 
 # huaweicloud_as_policy_execute_logs
 
 Use this data source to get a list of AS policy execution logs within HuaweiCloud.
+
+-> Currently, only the latest up to `20` logs can be queried.
 
 ## Example Usage
 

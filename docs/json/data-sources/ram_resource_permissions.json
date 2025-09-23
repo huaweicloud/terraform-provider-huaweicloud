@@ -14,6 +14,11 @@
                 "description": "Specifies the name of RAM permission.",
                 "optional": true
               },
+              "permission_type": {
+                "type": "string",
+                "description": "Specifies the type of the permission.",
+                "optional": true
+              },
               "permissions": {
                 "type": [
                   "list",
@@ -21,11 +26,16 @@
                     "object",
                     {
                       "created_at": "string",
+                      "default_version": "bool",
                       "id": "string",
                       "is_resource_type_default": "bool",
                       "name": "string",
+                      "permission_type": "string",
+                      "permission_urn": "string",
                       "resource_type": "string",
-                      "updated_at": "string"
+                      "status": "string",
+                      "updated_at": "string",
+                      "version": "number"
                     }
                   ]
                 ],
@@ -34,7 +44,7 @@
               },
               "resource_type": {
                 "type": "string",
-                "description": "Specifies the resource type of RAM permission. Valid values are **vpc:subnets**, \n**dns:zone** and **dns:resolverRule**.",
+                "description": "Specifies the resource type of RAM permission.",
                 "optional": true
               }
             }

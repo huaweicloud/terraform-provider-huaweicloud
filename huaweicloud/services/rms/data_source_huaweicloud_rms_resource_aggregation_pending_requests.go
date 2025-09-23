@@ -95,7 +95,7 @@ func (w *AggregationPendingRequestsDSWrapper) ListPendingAggregationRequests() (
 		Method("GET").
 		URI(uri).
 		Query(params).
-		MarkerPager("", "page_info.next_marker", "").
+		MarkerPager("pending_aggregation_requests", "page_info.next_marker", "marker").
 		OkCode(200).
 		Request().
 		Result()
@@ -105,9 +105,9 @@ func (w *AggregationPendingRequestsDSWrapper) listPendingAggregationRequestsToSc
 	d := w.ResourceData
 	mErr := multierror.Append(nil,
 		d.Set("pending_aggregation_requests", schemas.SliceToList(body.Get("pending_aggregation_requests"),
-			func(penAggReq gjson.Result) any {
+			func(penAggRequests gjson.Result) any {
 				return map[string]any{
-					"requester_account_id": penAggReq.Get("requester_account_id").Value(),
+					"requester_account_id": penAggRequests.Get("requester_account_id").Value(),
 				}
 			},
 		)),

@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -91,21 +90,22 @@ func ResourceRuleLeakagePrevention() *schema.Resource {
 
 func resourceRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg     = meta.(*config.Config)
-		region  = cfg.GetRegion(d)
-		httpUrl = "v1/{project_id}/waf/policy/{policy_id}/antileakage"
-		product = "waf"
+		cfg      = meta.(*config.Config)
+		region   = cfg.GetRegion(d)
+		httpUrl  = "v1/{project_id}/waf/policy/{policy_id}/antileakage"
+		product  = "waf"
+		policyID = d.Get("policy_id").(string)
 	)
 	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating WAF Client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
-	createPath := client.Endpoint + httpUrl
-	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
-	createPath = strings.ReplaceAll(createPath, "{policy_id}", d.Get("policy_id").(string))
-	createPath += buildQueryParams(d, cfg)
-	createOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{policy_id}", policyID)
+	requestPath += buildQueryParams(d, cfg)
+	requestOpt := golangsdk.RequestOpts{
 		MoreHeaders: map[string]string{
 			"Content-Type": "application/json;charset=utf8",
 		},
@@ -113,22 +113,21 @@ func resourceRuleCreate(ctx context.Context, d *schema.ResourceData, meta interf
 		JSONBody:         buildCreateRuleBodyParams(d),
 	}
 
-	createResp, err := client.Request("POST", createPath, &createOpt)
+	resp, err := client.Request("POST", requestPath, &requestOpt)
 	if err != nil {
 		return diag.Errorf("error creating WAF information leakage prevention rule: %s", err)
 	}
 
-	createRespBody, err := utils.FlattenResponse(createResp)
+	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("id", createRespBody)
-	if err != nil {
-		return diag.Errorf("error creating WAF information leakage prevention rule: ID is not found in" +
-			" API response")
+	ruleId := utils.PathSearch("id", respBody, "").(string)
+	if ruleId == "" {
+		return diag.Errorf("error creating WAF information leakage prevention rule: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(ruleId)
 
 	return resourceRuleRead(ctx, d, meta)
 }
@@ -147,35 +146,38 @@ func buildCreateRuleBodyParams(d *schema.ResourceData) map[string]interface{} {
 
 func resourceRuleRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg     = meta.(*config.Config)
-		region  = cfg.GetRegion(d)
-		mErr    *multierror.Error
-		httpUrl = "v1/{project_id}/waf/policy/{policy_id}/antileakage/{rule_id}"
-		product = "waf"
+		cfg      = meta.(*config.Config)
+		region   = cfg.GetRegion(d)
+		mErr     *multierror.Error
+		httpUrl  = "v1/{project_id}/waf/policy/{policy_id}/antileakage/{rule_id}"
+		product  = "waf"
+		policyID = d.Get("policy_id").(string)
 	)
 	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating WAF Client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
-	getPath := client.Endpoint + httpUrl
-	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
-	getPath = strings.ReplaceAll(getPath, "{policy_id}", d.Get("policy_id").(string))
-	getPath = strings.ReplaceAll(getPath, "{rule_id}", d.Id())
-	getPath += buildQueryParams(d, cfg)
-	getOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{policy_id}", policyID)
+	requestPath = strings.ReplaceAll(requestPath, "{rule_id}", d.Id())
+	requestPath += buildQueryParams(d, cfg)
+	requestOpt := golangsdk.RequestOpts{
 		MoreHeaders: map[string]string{
 			"Content-Type": "application/json;charset=utf8",
 		},
 		KeepResponseBody: true,
 	}
 
-	getResp, err := client.Request("GET", getPath, &getOpt)
+	resp, err := client.Request("GET", requestPath, &requestOpt)
 	if err != nil {
+		// If the information leakage prevention rule does not exist, the response HTTP status code of
+		// the details API is 404.
 		return common.CheckDeletedDiag(d, err, "error retrieving WAF information leakage prevention rule")
 	}
 
-	getRespBody, err := utils.FlattenResponse(getResp)
+	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -183,13 +185,13 @@ func resourceRuleRead(_ context.Context, d *schema.ResourceData, meta interface{
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),
-		d.Set("policy_id", utils.PathSearch("policyid", getRespBody, nil)),
-		d.Set("path", utils.PathSearch("url", getRespBody, nil)),
-		d.Set("type", utils.PathSearch("category", getRespBody, nil)),
-		d.Set("contents", utils.PathSearch("contents", getRespBody, nil)),
-		d.Set("protective_action", utils.PathSearch("action.category", getRespBody, nil)),
-		d.Set("description", utils.PathSearch("description", getRespBody, nil)),
-		d.Set("status", utils.PathSearch("status", getRespBody, nil)),
+		d.Set("policy_id", utils.PathSearch("policyid", respBody, nil)),
+		d.Set("path", utils.PathSearch("url", respBody, nil)),
+		d.Set("type", utils.PathSearch("category", respBody, nil)),
+		d.Set("contents", utils.PathSearch("contents", respBody, nil)),
+		d.Set("protective_action", utils.PathSearch("action.category", respBody, nil)),
+		d.Set("description", utils.PathSearch("description", respBody, nil)),
+		d.Set("status", utils.PathSearch("status", respBody, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -197,22 +199,23 @@ func resourceRuleRead(_ context.Context, d *schema.ResourceData, meta interface{
 
 func resourceRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg     = meta.(*config.Config)
-		region  = cfg.GetRegion(d)
-		httpUrl = "v1/{project_id}/waf/policy/{policy_id}/antileakage/{rule_id}"
-		product = "waf"
+		cfg      = meta.(*config.Config)
+		region   = cfg.GetRegion(d)
+		httpUrl  = "v1/{project_id}/waf/policy/{policy_id}/antileakage/{rule_id}"
+		product  = "waf"
+		policyID = d.Get("policy_id").(string)
 	)
 	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating WAF Client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
-	updatePath := client.Endpoint + httpUrl
-	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
-	updatePath = strings.ReplaceAll(updatePath, "{policy_id}", d.Get("policy_id").(string))
-	updatePath = strings.ReplaceAll(updatePath, "{rule_id}", d.Id())
-	updatePath += buildQueryParams(d, cfg)
-	updateOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{policy_id}", policyID)
+	requestPath = strings.ReplaceAll(requestPath, "{rule_id}", d.Id())
+	requestPath += buildQueryParams(d, cfg)
+	requestOpt := golangsdk.RequestOpts{
 		MoreHeaders: map[string]string{
 			"Content-Type": "application/json;charset=utf8",
 		},
@@ -220,7 +223,7 @@ func resourceRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interf
 		JSONBody:         buildCreateRuleBodyParams(d),
 	}
 
-	_, err = client.Request("PUT", updatePath, &updateOpt)
+	_, err = client.Request("PUT", requestPath, &requestOpt)
 	if err != nil {
 		return diag.Errorf("error updating WAF information leakage prevention rule: %s", err)
 	}
@@ -229,31 +232,34 @@ func resourceRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interf
 
 func resourceRuleDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg     = meta.(*config.Config)
-		region  = cfg.GetRegion(d)
-		httpUrl = "v1/{project_id}/waf/policy/{policy_id}/antileakage/{rule_id}"
-		product = "waf"
+		cfg      = meta.(*config.Config)
+		region   = cfg.GetRegion(d)
+		httpUrl  = "v1/{project_id}/waf/policy/{policy_id}/antileakage/{rule_id}"
+		product  = "waf"
+		policyID = d.Get("policy_id").(string)
 	)
 	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating WAF Client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
-	deletePath := client.Endpoint + httpUrl
-	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
-	deletePath = strings.ReplaceAll(deletePath, "{policy_id}", d.Get("policy_id").(string))
-	deletePath = strings.ReplaceAll(deletePath, "{rule_id}", d.Id())
-	deletePath += buildQueryParams(d, cfg)
-	deleteOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{policy_id}", policyID)
+	requestPath = strings.ReplaceAll(requestPath, "{rule_id}", d.Id())
+	requestPath += buildQueryParams(d, cfg)
+	requestOpt := golangsdk.RequestOpts{
 		MoreHeaders: map[string]string{
 			"Content-Type": "application/json;charset=utf8",
 		},
 		KeepResponseBody: true,
 	}
 
-	_, err = client.Request("DELETE", deletePath, &deleteOpt)
+	_, err = client.Request("DELETE", requestPath, &requestOpt)
 	if err != nil {
-		return diag.Errorf("error deleting WAF information leakage prevention rule: %s", err)
+		// If the information leakage prevention rule does not exist, the response HTTP status code of
+		// the deletion API is 404.
+		return common.CheckDeletedDiag(d, err, "error deleting WAF information leakage prevention rule")
 	}
 	return nil
 }

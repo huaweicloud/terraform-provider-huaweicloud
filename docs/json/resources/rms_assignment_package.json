@@ -24,8 +24,7 @@
               "name": {
                 "type": "string",
                 "description": "Specifies the assignment package name.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "stack_id": {
                 "type": "string",
@@ -83,8 +82,7 @@
                   },
                   "description": "Specifies the parameters of an assignment package."
                 },
-                "nesting_mode": "set",
-                "forcenew": true
+                "nesting_mode": "set"
               }
             }
           },

@@ -29,8 +29,10 @@
                         "map",
                         "string"
                       ],
+                      "iops": "number",
                       "kms_key_id": "string",
                       "size": "number",
+                      "throughput": "number",
                       "volumetype": "string"
                     }
                   ]
@@ -43,6 +45,22 @@
               },
               "ecs_group_id": {
                 "type": "string",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "computed": true
+              },
+              "extension_nics": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "subnet_id": "string"
+                    }
+                  ]
+                ],
                 "computed": true
               },
               "flavor_id": {
@@ -130,8 +148,10 @@
                         "map",
                         "string"
                       ],
+                      "iops": "number",
                       "kms_key_id": "string",
                       "size": "number",
+                      "throughput": "number",
                       "volumetype": "string"
                     }
                   ]
@@ -165,10 +185,25 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               }
             },
             "block_types": {
+              "hostname_config": {
+                "block": {
+                  "attributes": {
+                    "type": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              },
               "storage": {
                 "block": {
                   "block_types": {

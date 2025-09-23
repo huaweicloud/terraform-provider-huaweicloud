@@ -16,95 +16,43 @@ import (
 )
 
 func getAddressGroupResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	region := acceptance.HW_REGION_NAME
-	// getWAFAddressGroup: Query WAF address group
 	var (
-		getWAFAddressGroupHttpUrl = "v1/{project_id}/waf/ip-group/{id}"
-		getWAFAddressGroupProduct = "waf"
+		region  = acceptance.HW_REGION_NAME
+		httpUrl = "v1/{project_id}/waf/ip-group/{id}"
+		product = "waf"
 	)
-	getWAFAddressGroupClient, err := cfg.NewServiceClient(getWAFAddressGroupProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return nil, fmt.Errorf("error creating WAF Client: %s", err)
+		return nil, fmt.Errorf("error creating WAF client: %s", err)
 	}
 
-	getWAFAddressGroupPath := getWAFAddressGroupClient.Endpoint + getWAFAddressGroupHttpUrl
-	getWAFAddressGroupPath = strings.ReplaceAll(getWAFAddressGroupPath, "{project_id}",
-		getWAFAddressGroupClient.ProjectID)
-	getWAFAddressGroupPath = strings.ReplaceAll(getWAFAddressGroupPath, "{id}", state.Primary.ID)
-
-	enterpriseProjectID := state.Primary.Attributes["enterprise_project_id"]
-	if enterpriseProjectID != "" {
-		getWAFAddressGroupPath += fmt.Sprintf("?enterprise_project_id=%s", enterpriseProjectID)
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{id}", state.Primary.ID)
+	if enterpriseProjectID := state.Primary.Attributes["enterprise_project_id"]; enterpriseProjectID != "" {
+		requestPath += fmt.Sprintf("?enterprise_project_id=%s", enterpriseProjectID)
 	}
 
-	getWAFAddressGroupOpt := golangsdk.RequestOpts{
+	requestOpt := golangsdk.RequestOpts{
 		MoreHeaders: map[string]string{
 			"Content-Type": "application/json;charset=utf8",
 		},
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
-	getWAFAddressGroupResp, err := getWAFAddressGroupClient.Request("GET", getWAFAddressGroupPath,
-		&getWAFAddressGroupOpt)
+	resp, err := client.Request("GET", requestPath, &requestOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving address group: %s", err)
+		return nil, fmt.Errorf("error retrieving WAF address group: %s", err)
 	}
-	return utils.FlattenResponse(getWAFAddressGroupResp)
+	return utils.FlattenResponse(resp)
 }
 
+// Before running the test case, please ensure that there is at least one WAF instance in the current region.
 func TestAccAddressGroup_basic(t *testing.T) {
-	var obj interface{}
-
-	name := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_waf_address_group.test"
-
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&obj,
-		getAddressGroupResourceFunc,
+	var (
+		obj   interface{}
+		name  = acceptance.RandomAccResourceName()
+		rName = "huaweicloud_waf_address_group.test"
 	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testAddressGroup_basic(name),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "description", "example_description"),
-					resource.TestCheckResourceAttr(rName, "ip_addresses.0", "192.168.1.0/24"),
-					resource.TestCheckResourceAttrSet(rName, "rules.#"),
-				),
-			},
-			{
-				Config: testAddressGroup_basic_update(name),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "name", fmt.Sprintf("%s_update", name)),
-					resource.TestCheckResourceAttr(rName, "description", "example_description_update"),
-					resource.TestCheckResourceAttr(rName, "ip_addresses.0", "192.168.1.0"),
-					resource.TestCheckResourceAttr(rName, "ip_addresses.1", "192.168.2.0/12"),
-				),
-			},
-			{
-				ResourceName:      rName,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
-func TestAccAddressGroup_withEpsId(t *testing.T) {
-	var obj interface{}
-
-	name := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_waf_address_group.test"
 
 	rc := acceptance.InitResourceCheck(
 		rName,
@@ -115,19 +63,32 @@ func TestAccAddressGroup_withEpsId(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPrecheckWafInstance(t)
 			acceptance.TestAccPreCheckEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAddressGroup_withEpsId(name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+				Config: testAddressGroup_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(rName, "description", "example_description"),
 					resource.TestCheckResourceAttr(rName, "ip_addresses.0", "192.168.1.0/24"),
 					resource.TestCheckResourceAttrSet(rName, "rules.#"),
+				),
+			},
+			{
+				Config: testAddressGroup_basic_update(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", fmt.Sprintf("%s_update", name)),
+					resource.TestCheckResourceAttr(rName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttr(rName, "description", "example_description_update"),
+					resource.TestCheckResourceAttr(rName, "ip_addresses.0", "192.168.1.0"),
+					resource.TestCheckResourceAttr(rName, "ip_addresses.1", "192.168.2.0/12"),
 				),
 			},
 			{
@@ -142,45 +103,24 @@ func TestAccAddressGroup_withEpsId(t *testing.T) {
 
 func testAddressGroup_basic(name string) string {
 	return fmt.Sprintf(`
-%s
-
 resource "huaweicloud_waf_address_group" "test" {
-  name         = "%s"
-  description  = "example_description"
-  ip_addresses = ["192.168.1.0/24"]
-
-  depends_on   = [huaweicloud_waf_dedicated_instance.instance_1]
+  name                  = "%[1]s"
+  description           = "example_description"
+  ip_addresses          = ["192.168.1.0/24"]
+  enterprise_project_id = "%[2]s"
 }
-`, testAccWafDedicatedInstanceV1_conf(name), name)
+`, name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testAddressGroup_basic_update(name string) string {
 	return fmt.Sprintf(`
-%s
-
 resource "huaweicloud_waf_address_group" "test" {
-  name         = "%s_update"
-  description  = "example_description_update"
-  ip_addresses = ["192.168.1.0", "192.168.2.0/12"]
-
-  depends_on   = [huaweicloud_waf_dedicated_instance.instance_1]
+  name                  = "%[1]s_update"
+  description           = "example_description_update"
+  ip_addresses          = ["192.168.1.0", "192.168.2.0/12"]
+  enterprise_project_id = "%[2]s"
 }
-`, testAccWafDedicatedInstanceV1_conf(name), name)
-}
-
-func testAddressGroup_withEpsId(name, enterpriseProjectID string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_waf_address_group" "test" {
-  name                  = "%s"
-  description           = "example_description"
-  ip_addresses          = ["192.168.1.0/24"]
-  enterprise_project_id = "%s"
-
-  depends_on = [huaweicloud_waf_dedicated_instance.instance_1]
-}
-`, testAccWafDedicatedInstance_epsId(name, enterpriseProjectID), name, enterpriseProjectID)
+`, name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 // testWAFResourceImportState use to return an id with format <id> or <id>/<enterprise_project_id>

@@ -1,0 +1,21 @@
+info:
+    version: ""
+    title: resource_huaweicloud_compute_template
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: ECS
+paths:
+    /v3/{project_id}/launch-template-versions:
+        GET:
+            tag: ECS
+    /v3/{project_id}/launch-templates:
+        GET:
+            tag: ECS
+        POST:
+            tag: ECS
+    /v3/{project_id}/launch-templates/{launch_template_id}:
+        DELETE:
+            tag: ECS

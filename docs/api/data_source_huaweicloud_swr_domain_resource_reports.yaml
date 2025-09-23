@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_swr_domain_resource_reports
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: SWR
+paths:
+    /v2/manage/reports/{resource_type}/{frequency}:
+        GET:
+            tag: SWR

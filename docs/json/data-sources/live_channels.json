@@ -1,0 +1,506 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_live_channels": {
+          "block": {
+            "attributes": {
+              "app_name": {
+                "type": "string",
+                "description": "Specifies the group name or application name.",
+                "optional": true
+              },
+              "channel_id": {
+                "type": "string",
+                "description": "Specifies the channel ID.",
+                "optional": true
+              },
+              "channels": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "app_name": "string",
+                      "domain_name": "string",
+                      "encoder_settings": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "template_id": "string"
+                          }
+                        ]
+                      ],
+                      "encoder_settings_expand": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "audio_descriptions": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "audio_selector_name": "string",
+                                  "language_code": "string",
+                                  "language_code_control": "string",
+                                  "name": "string",
+                                  "stream_name": "string"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "endpoints": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "dash_package": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "ad_marker": "string",
+                                  "encryption": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "encryption_method": "string",
+                                        "http_headers": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "key": "string",
+                                              "value": "string"
+                                            }
+                                          ]
+                                        ],
+                                        "key_rotation_interval_seconds": "number",
+                                        "level": "string",
+                                        "request_mode": "string",
+                                        "resource_id": "string",
+                                        "speke_version": "string",
+                                        "system_ids": [
+                                          "list",
+                                          "string"
+                                        ],
+                                        "url": "string",
+                                        "urn": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "playlist_window_seconds": "number",
+                                  "request_args": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "live": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "delay": "string",
+                                              "unit": "string"
+                                            }
+                                          ]
+                                        ],
+                                        "record": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "end_time": "string",
+                                              "format": "string",
+                                              "start_time": "string",
+                                              "unit": "string"
+                                            }
+                                          ]
+                                        ],
+                                        "timeshift": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "back_time": "string",
+                                              "unit": "string"
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    ]
+                                  ],
+                                  "segment_duration_seconds": "number",
+                                  "stream_selection": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "key": "string",
+                                        "max_bandwidth": "number",
+                                        "min_bandwidth": "number"
+                                      }
+                                    ]
+                                  ],
+                                  "url": "string"
+                                }
+                              ]
+                            ],
+                            "hls_package": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "ad_marker": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "encryption": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "encryption_method": "string",
+                                        "http_headers": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "key": "string",
+                                              "value": "string"
+                                            }
+                                          ]
+                                        ],
+                                        "key_rotation_interval_seconds": "number",
+                                        "level": "string",
+                                        "request_mode": "string",
+                                        "resource_id": "string",
+                                        "speke_version": "string",
+                                        "system_ids": [
+                                          "list",
+                                          "string"
+                                        ],
+                                        "url": "string",
+                                        "urn": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "hls_version": "string",
+                                  "playlist_window_seconds": "number",
+                                  "request_args": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "live": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "delay": "string",
+                                              "unit": "string"
+                                            }
+                                          ]
+                                        ],
+                                        "record": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "end_time": "string",
+                                              "format": "string",
+                                              "start_time": "string",
+                                              "unit": "string"
+                                            }
+                                          ]
+                                        ],
+                                        "timeshift": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "back_time": "string",
+                                              "unit": "string"
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    ]
+                                  ],
+                                  "segment_duration_seconds": "number",
+                                  "stream_selection": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "key": "string",
+                                        "max_bandwidth": "number",
+                                        "min_bandwidth": "number"
+                                      }
+                                    ]
+                                  ],
+                                  "url": "string"
+                                }
+                              ]
+                            ],
+                            "mss_package": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "delay_segment": "number",
+                                  "encryption": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "encryption_method": "string",
+                                        "http_headers": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "key": "string",
+                                              "value": "string"
+                                            }
+                                          ]
+                                        ],
+                                        "key_rotation_interval_seconds": "number",
+                                        "level": "string",
+                                        "request_mode": "string",
+                                        "resource_id": "string",
+                                        "speke_version": "string",
+                                        "system_ids": [
+                                          "list",
+                                          "string"
+                                        ],
+                                        "url": "string",
+                                        "urn": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "playlist_window_seconds": "number",
+                                  "request_args": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "live": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "delay": "string",
+                                              "unit": "string"
+                                            }
+                                          ]
+                                        ],
+                                        "record": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "end_time": "string",
+                                              "format": "string",
+                                              "start_time": "string",
+                                              "unit": "string"
+                                            }
+                                          ]
+                                        ],
+                                        "timeshift": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "back_time": "string",
+                                              "unit": "string"
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    ]
+                                  ],
+                                  "segment_duration_seconds": "number",
+                                  "stream_selection": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "key": "string",
+                                        "max_bandwidth": "number",
+                                        "min_bandwidth": "number"
+                                      }
+                                    ]
+                                  ],
+                                  "url": "string"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "id": "string",
+                      "input": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "ad_triggers": [
+                              "list",
+                              "string"
+                            ],
+                            "audio_selectors": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "name": "string",
+                                  "selector_settings": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "audio_hls_selection": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "group_id": "string",
+                                              "name": "string"
+                                            }
+                                          ]
+                                        ],
+                                        "audio_language_selection": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "language_code": "string",
+                                              "language_selection_policy": "string"
+                                            }
+                                          ]
+                                        ],
+                                        "audio_pid_selection": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "pid": "number"
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ],
+                            "failover_conditions": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "input_loss_threshold_msec": "number",
+                                  "input_preference": "string"
+                                }
+                              ]
+                            ],
+                            "input_protocol": "string",
+                            "ip_port_mode": "bool",
+                            "ip_whitelist": "string",
+                            "max_bandwidth_limit": "number",
+                            "scte35_source": "string",
+                            "secondary_sources": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "backup_urls": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "bitrate": "number",
+                                  "bitrate_for3u8": "bool",
+                                  "height": "number",
+                                  "latency": "number",
+                                  "passphrase": "string",
+                                  "stream_id": "string",
+                                  "url": "string",
+                                  "width": "number"
+                                }
+                              ]
+                            ],
+                            "sources": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "backup_urls": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "bitrate": "number",
+                                  "bitrate_for3u8": "bool",
+                                  "enable_snapshot": "bool",
+                                  "height": "number",
+                                  "latency": "number",
+                                  "passphrase": "string",
+                                  "stream_id": "string",
+                                  "url": "string",
+                                  "width": "number"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "name": "string",
+                      "record_settings": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "rollingbuffer_duration": "number"
+                          }
+                        ]
+                      ],
+                      "state": "string"
+                    }
+                  ]
+                ],
+                "description": "The channel information.",
+                "computed": true
+              },
+              "domain_name": {
+                "type": "string",
+                "description": "Specifies the channel streaming domain name.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Live",
+            "name": "Live",
+            "catalog": "Media Services",
+            "name_cn": "视频直播",
+            "catalog_cn": "视频"
+          }
+        }
+      }
+    }
+  }
+}

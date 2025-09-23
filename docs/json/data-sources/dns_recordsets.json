@@ -11,17 +11,17 @@
               },
               "line_id": {
                 "type": "string",
-                "description": "Specifies the resolution line ID.",
+                "description": "The resolution line ID.",
                 "optional": true
               },
               "name": {
                 "type": "string",
-                "description": "Specifies the name of the recordset to be queried. Fuzzy matching will work.",
+                "description": "The name of the recordset to be queried. Fuzzy matching will work.",
                 "optional": true
               },
               "recordset_id": {
                 "type": "string",
-                "description": "Specifies the ID of the recordset to be queried. Fuzzy matching will work.",
+                "description": "The ID of the recordset to be queried. Fuzzy matching will work.",
                 "optional": true
               },
               "recordsets": {
@@ -30,6 +30,7 @@
                   [
                     "object",
                     {
+                      "created_at": "string",
                       "default": "bool",
                       "description": "string",
                       "id": "string",
@@ -42,6 +43,7 @@
                       "status": "string",
                       "ttl": "number",
                       "type": "string",
+                      "updated_at": "string",
                       "weight": "number",
                       "zone_id": "string",
                       "zone_name": "string"
@@ -57,27 +59,37 @@
               },
               "search_mode": {
                 "type": "string",
-                "description": "Specifies the query criteria search mode.",
+                "description": "The query criteria search mode.",
+                "optional": true
+              },
+              "sort_dir": {
+                "type": "string",
+                "description": "The sorting mode for the list of the recordsets to be queried.",
+                "optional": true
+              },
+              "sort_key": {
+                "type": "string",
+                "description": "The sorting field for the list of the recordsets to be queried.",
                 "optional": true
               },
               "status": {
                 "type": "string",
-                "description": "Specifies the status of the recordset to be queried.",
+                "description": "The status of the recordset to be queried.",
                 "optional": true
               },
               "tags": {
                 "type": "string",
-                "description": "Specifies the resource tag.",
+                "description": "The resource tag.",
                 "optional": true
               },
               "type": {
                 "type": "string",
-                "description": "Specifies the recordset type.",
+                "description": "The recordset type.",
                 "optional": true
               },
               "zone_id": {
                 "type": "string",
-                "description": "Specifies the zone ID.",
+                "description": "The zone ID.",
                 "required": true
               }
             }
@@ -85,9 +97,9 @@
           "product": {
             "short": "DNS",
             "name": "Domain Name Service",
-            "catalog": "Business Applications",
+            "catalog": "Networking",
             "name_cn": "云解析服务",
-            "catalog_cn": "企业应用"
+            "catalog_cn": "网络"
           }
         }
       }

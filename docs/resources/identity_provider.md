@@ -62,7 +62,7 @@ resource "huaweicloud_identity_provider" "provider_2" {
 The following arguments are supported:
 
 * `name` - (Required, String, ForceNew) Specifies the name of the identity provider to be registered.
-  The maximum length is 64 characters. Only letters, digits, underscores (_), and hyphens (-) are allowed.
+  The maximum length is `64` characters. Only letters, digits, underscores (_), and hyphens (-) are allowed.
   The name is unique, it is recommended to include domain name information.
   Changing this creates a new resource.
 
@@ -175,6 +175,6 @@ The `remote` block supports:
 
 Identity provider can be imported using the `name`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_identity_provider.provider_1 example_com_provider_saml
 ```

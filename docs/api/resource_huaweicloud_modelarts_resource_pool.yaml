@@ -8,6 +8,12 @@ host: huaweicloud.com
 tags:
     - name: ModelArts
 paths:
+    /v1/{project_id}/orders:
+        GET:
+            tag: ModelArts
+    /v1/{project_id}/orders/{order_name}:
+        GET:
+            tag: ModelArts
     /v2/{project_id}/pools:
         POST:
             tag: ModelArts
@@ -17,4 +23,7 @@ paths:
         GET:
             tag: ModelArts
         PATCH:
+            tag: ModelArts
+    /v2/{project_id}/pools/{pool_name}/nodes:
+        GET:
             tag: ModelArts

@@ -110,6 +110,6 @@ This resource provides the following timeouts configuration options:
 
 Security Groups can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_networking_secgroup.secgroup_1 38809219-5e8a-4852-9139-6f461c90e8bc
 ```

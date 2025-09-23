@@ -7,7 +7,7 @@ import (
 
 type DataStore struct {
 	Type          string `json:"type" required:"true"`
-	Version       string `json:"version" required:"true"`
+	Version       string `json:"version"`
 	StorageEngine string `json:"storage_engine" required:"true"`
 }
 

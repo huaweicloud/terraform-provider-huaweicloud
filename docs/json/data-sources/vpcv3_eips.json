@@ -1,0 +1,360 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_vpcv3_eips": {
+          "block": {
+            "attributes": {
+              "alias": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the alias of the EIP.",
+                "optional": true
+              },
+              "alias_like": {
+                "type": "string",
+                "description": "Specifies the fuzzy search based on alias.",
+                "optional": true
+              },
+              "allow_share_bandwidth_type_any": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the shared bandwidth type of the EIP.",
+                "optional": true
+              },
+              "associate_instance_id": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the associate instance ID of the EIP.",
+                "optional": true
+              },
+              "associate_instance_type": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the associate instance type of the EIP.",
+                "optional": true
+              },
+              "bandwidth_charge_mode": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the charge mode of the EIP.",
+                "optional": true
+              },
+              "bandwidth_id": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the ID of bandwidth.",
+                "optional": true
+              },
+              "bandwidth_name": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the name of bandwidth.",
+                "optional": true
+              },
+              "bandwidth_name_like": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the fuzzy search based on bandwidth name.",
+                "optional": true
+              },
+              "bandwidth_share_type": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the share type of the EIP.",
+                "optional": true
+              },
+              "bandwidth_size": {
+                "type": [
+                  "list",
+                  "number"
+                ],
+                "description": "Specifies the size of bandwidth.",
+                "optional": true
+              },
+              "billing_info": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the billing info of the EIP.",
+                "optional": true
+              },
+              "billing_mode": {
+                "type": "string",
+                "description": "Specifies the billing mode of the EIP.",
+                "optional": true
+              },
+              "description": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the description of the EIP.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the enterprise project ID of the EIP.",
+                "optional": true
+              },
+              "fields": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the display fields.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ip_version": {
+                "type": [
+                  "list",
+                  "number"
+                ],
+                "description": "Specifies the IP version of the EIP.",
+                "optional": true
+              },
+              "public_border_group": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the public border group of the EIP.",
+                "optional": true
+              },
+              "public_ip_address": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the public IP address of the EIP.",
+                "optional": true
+              },
+              "public_ip_address_like": {
+                "type": "string",
+                "description": "Specifies the fuzzy search based on public IP address.",
+                "optional": true
+              },
+              "public_ipv6_address": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the public IP v6 address  of the EIP.",
+                "optional": true
+              },
+              "public_ipv6_address_like": {
+                "type": "string",
+                "description": "Specifies the fuzzy search based on public IP v6 address.",
+                "optional": true
+              },
+              "publicip_pool_name": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the public IP pool name of the EIP.",
+                "optional": true
+              },
+              "publicips": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "alias": "string",
+                      "allow_share_bandwidth_types": [
+                        "list",
+                        "string"
+                      ],
+                      "associate_instance_id": "string",
+                      "associate_instance_type": "string",
+                      "bandwidth": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "billing_info": "string",
+                            "charge_mode": "string",
+                            "id": "string",
+                            "name": "string",
+                            "share_type": "string",
+                            "size": "number"
+                          }
+                        ]
+                      ],
+                      "billing_info": "string",
+                      "cascade_delete_by_instance": "bool",
+                      "created_at": "string",
+                      "description": "string",
+                      "enterprise_project_id": "string",
+                      "id": "string",
+                      "ip_version": "number",
+                      "lock_status": "string",
+                      "project_id": "string",
+                      "public_border_group": "string",
+                      "public_ip_address": "string",
+                      "public_ipv6_address": "string",
+                      "publicip_pool_id": "string",
+                      "publicip_pool_name": "string",
+                      "status": "string",
+                      "tags": [
+                        "list",
+                        "string"
+                      ],
+                      "type": "string",
+                      "updated_at": "string",
+                      "vnic": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "device_id": "string",
+                            "device_owner": "string",
+                            "instance_id": "string",
+                            "instance_type": "string",
+                            "mac": "string",
+                            "port_id": "string",
+                            "port_profile": "string",
+                            "private_ip_address": "string",
+                            "vni": "string",
+                            "vpc_id": "string",
+                            "vtep": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of EIPs.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "sort_dir": {
+                "type": "string",
+                "description": "Specifies the sort direction.",
+                "optional": true
+              },
+              "sort_key": {
+                "type": "string",
+                "description": "Specifies the sort key.",
+                "optional": true
+              },
+              "status": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the status of the EIP.",
+                "optional": true
+              },
+              "type": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the type of the EIP.",
+                "optional": true
+              },
+              "vnic_device_id": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the device ID of vnic.",
+                "optional": true
+              },
+              "vnic_device_owner": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the device owner of vnic.",
+                "optional": true
+              },
+              "vnic_device_owner_prefixlike": {
+                "type": "string",
+                "description": "Specifies the fuzzy search based on device owner prefixlike.",
+                "optional": true
+              },
+              "vnic_instance_id": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the instance ID of vnic.",
+                "optional": true
+              },
+              "vnic_instance_type": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the instance type of vnic.",
+                "optional": true
+              },
+              "vnic_port_id": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the port ID of vnic.",
+                "optional": true
+              },
+              "vnic_private_ip_address": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the private IP address of the EIP.",
+                "optional": true
+              },
+              "vnic_private_ip_address_like": {
+                "type": "string",
+                "description": "Specifies the fuzzy search based on private IP address",
+                "optional": true
+              },
+              "vnic_vpc_id": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the vpc ID of vnic.",
+                "optional": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

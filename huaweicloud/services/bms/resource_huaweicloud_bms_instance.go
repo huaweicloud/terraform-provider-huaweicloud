@@ -14,7 +14,6 @@ import (
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/bms/v1/baremetalservers"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/ports"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -49,6 +48,8 @@ func ResourceBmsInstance() *schema.Resource {
 			Update: schema.DefaultTimeout(30 * time.Minute),
 			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
+
+		CustomizeDiff: config.MergeDefaultTags(),
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -441,6 +442,7 @@ func resourceBmsInstanceRead(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("enterprise_project_id", server.EnterpriseProjectID),
 		d.Set("disk_ids", diskIds),
 		utils.SetResourceTagsToState(d, bmsClient, "baremetalservers", d.Id()),
+		d.Set("tags", d.Get("tags")),
 	)
 
 	// Set fixed and floating ip
@@ -543,13 +545,13 @@ func resourceBmsInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 	}
 
 	if d.HasChange("enterprise_project_id") {
-		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+		migrateOpts := config.MigrateResourceOpts{
 			ResourceId:   instanceId,
 			ResourceType: "bms_server",
 			RegionId:     region,
 			ProjectId:    cfg.GetProjectID(region),
 		}
-		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
+		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
 	}

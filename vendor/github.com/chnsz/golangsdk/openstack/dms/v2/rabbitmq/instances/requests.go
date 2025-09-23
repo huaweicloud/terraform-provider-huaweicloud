@@ -40,7 +40,7 @@ type CreateOps struct {
 	// Indicates a username.
 	// A username consists of 1 to 64 characters
 	// and supports only letters, digits, and hyphens (-).
-	AccessUser string `json:"access_user" required:"true"`
+	AccessUser string `json:"access_user,omitempty"`
 
 	// Indicates the password of an instance.
 	// An instance password must meet the following complexity requirements:
@@ -50,7 +50,7 @@ type CreateOps struct {
 	// Uppercase letters
 	// Digits
 	// Special characters (`~!@#$%^&*()-_=+\|[{}]:'",<.>/?)
-	Password string `json:"password" required:"true"`
+	Password string `json:"password,omitempty"`
 
 	// Indicates the ID of a VPC.
 	VPCID string `json:"vpc_id" required:"true"`
@@ -99,6 +99,9 @@ type CreateOps struct {
 
 	// Indicates the parameter related to the yearly/monthly billing mode.
 	BssParam *BssParam `json:"bss_param,omitempty"`
+
+	// Whether to enable ACL
+	EnableAcl bool `json:"enable_acl,omitempty"`
 }
 
 type BssParam struct {
@@ -197,6 +200,9 @@ type UpdateOpts struct {
 
 	// Indicates the enterprise project ID.
 	EnterpriseProjectID string `json:"enterprise_project_id,omitempty"`
+
+	// Whether to enable ACL
+	EnableAcl *bool `json:"enable_acl,omitempty"`
 }
 
 // ToInstanceUpdateMap is used for type convert

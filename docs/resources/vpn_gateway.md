@@ -160,23 +160,23 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `name` - (Required, String) The name of the VPN gateway. Only letters, digits, underscores(_) and hypens(-) are supported.
+* `name` - (Required, String) The name of the VPN gateway.  
+  The valid length is limited from `1` to `64`, only letters, digits, hyphens (-) and underscores (_) are allowed.
 
 * `availability_zones` - (Required, List, ForceNew) The list of availability zone IDs.
 
   Changing this parameter will create a new resource.
 
-* `flavor` - (Optional, String, ForceNew) The flavor of the VPN gateway.
-  The value can be **Basic**, **Professional1**, **Professional2** and **GM**. Defaults to **Professional1**.
+* `flavor` - (Optional, String) The flavor of the VPN gateway.
+  + The value at creation can be **Basic**, **Professional1**, **Professional2** or **GM**. Defaults to **Professional1**.
+  + The value during update can be **Basic**, **Professional1** or **Professional2**.
 
-  Changing this parameter will create a new resource.
-
-* `attachment_type` - (Optional, String, ForceNew) The attachment type. The value can be **vpc** and **er**.
+* `attachment_type` - (Optional, String, ForceNew) The attachment type. The value can be **vpc** or **er**.
   Defaults to **vpc**.
 
   Changing this parameter will create a new resource.
 
-* `network_type` - (Optional, String, ForceNew) The network type. The value can be **public** and **private**.
+* `network_type` - (Optional, String, ForceNew) The network type. The value can be **public** or **private**.
   Defaults to **public**.
 
   Changing this parameter will create a new resource.
@@ -238,12 +238,20 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `asn` - (Optional, Int, ForceNew) The ASN number of BGP. The value ranges from **1** to **4294967295**.
-  Defaults to **64512**
+* `asn` - (Optional, Int, ForceNew) The ASN number of BGP. The value ranges from `1` to `4,294,967,295`.
+  Defaults to `64,512`.
 
   Changing this parameter will create a new resource.
 
 * `enterprise_project_id` - (Optional, String) The enterprise project ID.
+
+* `certificate` - (Optional, List) The GM certificate of the **GM** flavor gateway.
+  The [object](#Gateway_certificate) structure is documented below.
+
+* `tags` - (Optional, Map) Specifies the tags of the VPN gateway.
+
+* `delete_eip_on_termination` - (Optional, Bool) Whether to delete the EIP when the VPN gateway is deleted.
+  Defaults to **true**.
 
 <a name="Gateway_CreateRequestEip"></a>
 The `eip1` or `eip2` block supports:
@@ -256,13 +264,14 @@ The `eip1` or `eip2` block supports:
 
   Changing this parameter will create a new resource.
 
-* `bandwidth_name` - (Optional, String, ForceNew) The bandwidth name.
+* `bandwidth_name` - (Optional, String, ForceNew) The bandwidth name.  
+  The valid length is limited from `1` to `64`, only letters, digits, hyphens (-) and underscores (_) are allowed.
 
   Changing this parameter will create a new resource.
 
 * `bandwidth_size` - (Optional, Int, ForceNew) Bandwidth size in Mbit/s. When the `flavor` is **Basic**, the value
-  cannot be greater than **100**. When the `flavor` is **Professional1**, the value cannot be greater than **300**.
-  When the `flavor` is **Professional2**, the value cannot be greater than **1000**.
+  cannot be greater than `100`. When the `flavor` is **Professional1**, the value cannot be greater than `300`.
+  When the `flavor` is **Professional2**, the value cannot be greater than `1,000`.
 
   Changing this parameter will create a new resource.
 
@@ -273,12 +282,7 @@ The `eip1` or `eip2` block supports:
   ~> You can use `id` to specify an existing EIP or use `type`, `bandwidth_name`, `bandwidth_size` and `charge_mode` to
     create a new EIP.
 
-* `certificate` - (Optional, List) The GM certificate of the **GM** flavor gateway.
-  The [object](#Gateway_certificate_attr) structure is documented below.
-
-* `tags` - (Optional, Map) Specifies the tags of the VPN gateway.
-
-<a name="Gateway_certificate_attr"></a>
+<a name="Gateway_certificate"></a>
 The `certificate` block supports:
 
 * `name` - (Required, String) The name of the gateway certificate.
@@ -317,6 +321,9 @@ In addition to all arguments above, the following attributes are exported:
 * `eip2` - The master 2 IP in active-active VPN gateway or the slave IP in active-standby VPN gateway.
   The [object](#Gateway_GetResponseEip) structure is documented below.
 
+* `certificate` - The GM certificate of the **GM** flavor gateway.
+  The [object](#Gateway_certificate_attr) structure is documented below.
+
 <a name="Gateway_GetResponseEip"></a>
 The `eip1` or `eip2` block supports:
 
@@ -325,9 +332,6 @@ The `eip1` or `eip2` block supports:
 * `ip_address` - The public IP address.
 
 * `ip_version` - The public IP version.
-
-* `certificate` - The GM certificate of the **GM** flavor gateway.
-  The [object](#Gateway_certificate_attr) structure is documented below.
 
 <a name="Gateway_certificate_attr"></a>
 The `certificate` block supports:
@@ -376,4 +380,22 @@ The gateway can be imported using the `id`, e.g.
 
 ```bash
 $ terraform import huaweicloud_vpn_gateway.test <id>
+```
+
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
+API response, security or some other reason. The missing attribute is `delete_eip_on_termination`. It is generally
+recommended running `terraform plan` after importing the resource. You can then decide if changes should be applied
+to the gateway, or the resource definition should be updated to align with the gateway.
+Also you can ignore changes as below.
+
+```hcl
+resource "huaweicloud_vpn_gateway" "test" {
+    ...
+
+  lifecycle {
+    ignore_changes = [
+      delete_eip_on_termination
+    ]
+  }
+}
 ```

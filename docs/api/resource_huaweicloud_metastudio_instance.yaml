@@ -1,0 +1,28 @@
+info:
+    version: ""
+    title: resource_huaweicloud_metastudio_instance
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: MetaStudio
+paths:
+    /V2/orders/customer-orders/details/{order_id}:
+        GET:
+            tag: BSS
+    /v1/{project_id}/mss/public/orders:
+        POST:
+            tag: MetaStudio
+    /v1/{project_id}/tenants/resources:
+        GET:
+            tag: MetaStudio
+    /v1/{project_id}/tenants/special-agreements/signed:
+        POST:
+            tag: MetaStudio
+    /v2/orders/subscriptions/resources/unsubscribe:
+        POST:
+            tag: BSS
+    /v2/orders/suscriptions/resources/query:
+        POST:
+            tag: BSS

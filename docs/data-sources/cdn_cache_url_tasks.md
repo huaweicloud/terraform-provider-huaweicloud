@@ -2,12 +2,13 @@
 subcategory: Content Delivery Network (CDN)
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_cdn_cache_url_tasks"
-description: ""
+description: |-
+  Use this data source to get the list of CDN cache url tasks within HuaweiCloud.
 ---
 
 # huaweicloud_cdn_cache_url_tasks
 
-Use this data source to get CDN cache url tasks.
+Use this data source to get the list of CDN cache url tasks within HuaweiCloud.
 
 ## Example Usage
 

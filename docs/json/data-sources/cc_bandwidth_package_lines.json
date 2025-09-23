@@ -1,0 +1,68 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cc_bandwidth_package_lines": {
+          "block": {
+            "attributes": {
+              "bandwidth_package_lines": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "local_region_id": "string",
+                      "local_site_code": "string",
+                      "remote_region_id": "string",
+                      "remote_site_code": "string",
+                      "spec_codes": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "level": "string",
+                            "max_bandwidth": "number",
+                            "min_bandwidth": "number",
+                            "name_cn": "string",
+                            "name_en": "string",
+                            "spec_code": "string",
+                            "support_billing_modes": [
+                              "list",
+                              "number"
+                            ]
+                          }
+                        ]
+                      ],
+                      "support_levels": [
+                        "list",
+                        "string"
+                      ]
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of bandwidth package lines.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CC",
+            "name": "Cloud Connect",
+            "catalog": "Networking",
+            "name_cn": "云连接",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

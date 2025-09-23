@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_sfs_turbo_cold_data_eviction
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: SFSTurbo
+paths:
+    /v1/{project_id}/sfs-turbo/shares/{share_id}:
+        PUT:
+            tag: SFSTurbo

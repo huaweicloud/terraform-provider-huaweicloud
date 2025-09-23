@@ -3,14 +3,13 @@ package cpts
 import (
 	"context"
 	"strconv"
-	"time"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cpts/v1/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -40,15 +39,13 @@ func ResourceProject() *schema.Resource {
 			},
 
 			"name": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: validation.StringLenBetween(1, 42),
+				Type:     schema.TypeString,
+				Required: true,
 			},
 
 			"description": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringLenBetween(0, 50),
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 
 			"created_at": {
@@ -64,123 +61,167 @@ func ResourceProject() *schema.Resource {
 	}
 }
 
+func buildCreateProjectBodyParams(d *schema.ResourceData) map[string]interface{} {
+	return map[string]interface{}{
+		"name":        d.Get("name"),
+		"description": d.Get("description"),
+	}
+}
+
 func resourceProjectCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	region := c.GetRegion(d)
-	client, err := c.HcCptsV1Client(region)
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1/{project_id}/test-suites"
+		product = "cpts"
+	)
+
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating CPTS v1 client: %s", err)
+		return diag.Errorf("error creating CPTS client: %s", err)
 	}
 
-	createOpts := &model.CreateProjectRequest{
-		Body: &model.CreateProjectRequestBody{
-			Name:        d.Get("name").(string),
-			Description: utils.String(d.Get("description").(string)),
-		},
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         buildCreateProjectBodyParams(d),
 	}
-	response, err := client.CreateProject(createOpts)
+
+	resp, err := client.Request("POST", requestPath, &requestOpt)
 	if err != nil {
 		return diag.Errorf("error creating CPTS project: %s", err)
 	}
 
-	if response.ProjectId == nil {
-		return diag.Errorf("error creating CPTS project: id not found in api response")
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
-	d.SetId(strconv.Itoa(int(*response.ProjectId)))
+	projectID := utils.PathSearch("project_id", respBody, nil)
+	if projectID == nil {
+		return diag.Errorf("error creating CPTS project: ID is not found in API response")
+	}
+
+	// The `project_id` field is a numeric type.
+	d.SetId(strconv.Itoa(int(projectID.(float64))))
 	return resourceProjectRead(ctx, d, meta)
 }
 
 func resourceProjectRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	region := c.GetRegion(d)
-	client, err := c.HcCptsV1Client(region)
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1/{project_id}/test-suites/{test_suite_id}"
+		product = "cpts"
+	)
+
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating CPTS v1 client: %s", err)
+		return diag.Errorf("error creating CPTS client: %s", err)
 	}
 
-	id, err := strconv.ParseInt(d.Id(), 10, 32)
-	if err != nil {
-		return diag.Errorf("the project ID must be integer: %s", err)
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{test_suite_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
 
-	response, err := client.ShowProject(&model.ShowProjectRequest{
-		TestSuiteId: int32(id),
-	})
+	resp, err := client.Request("GET", requestPath, &requestOpt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "the project is not found")
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected403ErrInto404Err(err, "code", "SVCSTG.CPTS.4032002"),
+			"error retrieving CPTS project")
 	}
 
-	layout := "2006-01-02T15:04:05-07:00"
-	createTime, err := time.Parse(layout, *response.Project.CreateTime)
+	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
-		return diag.Errorf("error parsing the time: %s", err)
+		return diag.FromErr(err)
 	}
-	updateTime, err := time.Parse(layout, *response.Project.UpdateTime)
-	if err != nil {
-		return diag.Errorf("error parsing the time: %s", err)
-	}
+
+	createTime := utils.PathSearch("project.create_time", respBody, "").(string)
+	updateTime := utils.PathSearch("project.update_time", respBody, "").(string)
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("name", response.Project.Name),
-		d.Set("description", response.Project.Description),
-		d.Set("created_at", utils.FormatTimeStampUTC(createTime.Unix())),
-		d.Set("updated_at", utils.FormatTimeStampUTC(updateTime.Unix())),
+		d.Set("name", utils.PathSearch("project.name", respBody, nil)),
+		d.Set("description", utils.PathSearch("project.description", respBody, nil)),
+		d.Set("created_at", utils.FormatTimeStampUTC(utils.ConvertTimeStrToNanoTimestamp(createTime)/1000)),
+		d.Set("updated_at", utils.FormatTimeStampUTC(utils.ConvertTimeStrToNanoTimestamp(updateTime)/1000)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
+func buildUpdateProjectBodyParams(d *schema.ResourceData, idInt64 int64) map[string]interface{} {
+	return map[string]interface{}{
+		"id":          idInt64,
+		"name":        d.Get("name"),
+		"description": d.Get("description"),
+	}
+}
+
 func resourceProjectUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	region := c.GetRegion(d)
-	client, err := c.HcCptsV1Client(region)
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1/{project_id}/test-suites/{test_suite_id}"
+		product = "cpts"
+	)
+
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating CPTS v1 client: %s", err)
+		return diag.Errorf("error creating CPTS client: %s", err)
 	}
 
-	id, err := strconv.ParseInt(d.Id(), 10, 32)
+	idInt64, err := strconv.ParseInt(d.Id(), 10, 32)
 	if err != nil {
 		return diag.Errorf("the project ID must be integer: %s", err)
 	}
 
-	_, err = client.UpdateProject(&model.UpdateProjectRequest{
-		TestSuiteId: int32(id),
-		Body: &model.UpdateProjectRequestBody{
-			Id:          int32(id),
-			Name:        d.Get("name").(string),
-			Description: utils.String(d.Get("description").(string)),
-		},
-	})
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{test_suite_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes:          []int{200, 201, 204},
+		JSONBody:         buildUpdateProjectBodyParams(d, idInt64),
+	}
 
+	_, err = client.Request("PUT", requestPath, &requestOpt)
 	if err != nil {
-		return diag.Errorf("error updating the project %q: %s", id, err)
+		return diag.Errorf("error updating CPTS project: %s", err)
 	}
 
 	return resourceProjectRead(ctx, d, meta)
 }
 
 func resourceProjectDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	region := c.GetRegion(d)
-	client, err := c.HcCptsV1Client(region)
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1/{project_id}/test-suites/{test_suite_id}"
+		product = "cpts"
+	)
+
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating CPTS v1 client: %s", err)
+		return diag.Errorf("error creating CPTS client: %s", err)
 	}
 
-	id, err := strconv.ParseInt(d.Id(), 10, 32)
-	if err != nil {
-		return diag.Errorf("the project ID must be integer: %s", err)
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{test_suite_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
 
-	deleteOpts := &model.DeleteProjectRequest{
-		TestSuiteId: int32(id),
-	}
-
-	_, err = client.DeleteProject(deleteOpts)
+	_, err = client.Request("DELETE", requestPath, &requestOpt)
 	if err != nil {
-		return diag.Errorf("error deleting CPTS project %q: %s", id, err)
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected403ErrInto404Err(err, "code", "SVCSTG.CPTS.4032002"),
+			"error deleting CPTS project")
 	}
 
 	return nil

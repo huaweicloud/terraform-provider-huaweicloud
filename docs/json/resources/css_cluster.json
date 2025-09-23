@@ -130,7 +130,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "updated_at": {
                 "type": "string",
@@ -247,6 +248,10 @@
                         "string"
                       ],
                       "optional": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "optional": true
                     }
                   },
                   "block_types": {
@@ -289,6 +294,10 @@
                         "list",
                         "string"
                       ],
+                      "optional": true
+                    },
+                    "type": {
+                      "type": "string",
                       "optional": true
                     }
                   },

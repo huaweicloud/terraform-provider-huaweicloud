@@ -2,21 +2,18 @@ package lb
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	"github.com/chnsz/golangsdk/openstack/elb/v2/certificates"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
 
 // @API ELB POST /v2/{project_id}/elb/certificates
@@ -46,63 +43,64 @@ func ResourceCertificateV2() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-
 			"type": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
-				Default:  "server",
-				ValidateFunc: validation.StringInSlice([]string{
-					"server", "client",
-				}, true),
 			},
-
 			"domain": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-
 			"private_key": {
 				Type:             schema.TypeString,
 				Optional:         true,
 				DiffSuppressFunc: utils.SuppressNewLineDiffs,
 				Sensitive:        true,
 			},
-
 			"certificate": {
 				Type:             schema.TypeString,
 				Required:         true,
 				DiffSuppressFunc: utils.SuppressNewLineDiffs,
 				Sensitive:        true,
 			},
-
+			"protection_status": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"protection_reason": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"source": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
 			},
-
 			"update_time": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-
 			"create_time": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-
 			"expire_time": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -112,136 +110,179 @@ func ResourceCertificateV2() *schema.Resource {
 }
 
 func resourceCertificateV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	elbClient, err := config.LoadBalancerClient(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	var (
+		httpUrl = "v2/{project_id}/elb/certificates"
+		product = "elb"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
-	createOpts := certificates.CreateOpts{
-		Name:                d.Get("name").(string),
-		Description:         d.Get("description").(string),
-		Type:                d.Get("type").(string),
-		Domain:              d.Get("domain").(string),
-		EnterpriseProjectID: common.GetEnterpriseProjectID(d, config),
+	createPath := client.Endpoint + httpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
-
-	logp.Printf("[DEBUG] Create Options: %#v", createOpts)
-
-	// Add certificate and private_key here so they wouldn't go in the above log entry
-	createOpts.Certificate = d.Get("certificate").(string)
-	createOpts.PrivateKey = d.Get("private_key").(string)
-
-	c, err := certificates.Create(elbClient, createOpts).Extract()
+	createOpt.JSONBody = utils.RemoveNil(buildCreateCertificateBodyParams(d, cfg))
+	createResp, err := client.Request("POST", createPath, &createOpt)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating Certificate: %s", err)
+		return diag.Errorf("error creating ELB certificate: %s", err)
 	}
 
-	// If all has been successful, set the ID on the resource
-	d.SetId(c.Id)
+	createRespBody, err := utils.FlattenResponse(createResp)
+	if err != nil {
+		return diag.Errorf("error retrieving ELB certificate: %s", err)
+	}
+	certificateId := utils.PathSearch("id", createRespBody, "").(string)
+	if certificateId == "" {
+		return diag.Errorf("error creating ELB certificate: ID is not found in API response")
+	}
+
+	d.SetId(certificateId)
 
 	return resourceCertificateV2Read(ctx, d, meta)
+}
+
+func buildCreateCertificateBodyParams(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"name":                  utils.ValueIgnoreEmpty(d.Get("name")),
+		"description":           utils.ValueIgnoreEmpty(d.Get("description")),
+		"type":                  utils.ValueIgnoreEmpty(d.Get("type")),
+		"domain":                utils.ValueIgnoreEmpty(d.Get("domain")),
+		"private_key":           utils.ValueIgnoreEmpty(d.Get("private_key")),
+		"certificate":           utils.ValueIgnoreEmpty(d.Get("certificate")),
+		"protection_reason":     utils.ValueIgnoreEmpty(d.Get("protection_reason")),
+		"protection_status":     utils.ValueIgnoreEmpty(d.Get("protection_status")),
+		"source":                utils.ValueIgnoreEmpty(d.Get("source")),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
+	}
+	return bodyParams
 }
 
 func resourceCertificateV2Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	elbClient, err := config.LoadBalancerClient(config.GetRegion(d))
-	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
-	}
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
-	c, err := certificates.Get(elbClient, d.Id()).Extract()
-	if err != nil {
-		return common.CheckDeletedDiag(d, err, "Error retrieving certificate")
-	}
-	logp.Printf("[DEBUG] Retrieved certificate %s: %#v", d.Id(), c)
+	var mErr *multierror.Error
 
-	mErr := multierror.Append(nil,
-		d.Set("region", config.GetRegion(d)),
-		d.Set("name", c.Name),
-		d.Set("description", c.Description),
-		d.Set("type", c.Type),
-		d.Set("domain", c.Domain),
-		d.Set("certificate", c.Certificate),
-		d.Set("private_key", c.PrivateKey),
-		d.Set("create_time", c.CreateTime),
-		d.Set("update_time", c.UpdateTime),
-		d.Set("expire_time", c.ExpireTime),
+	var (
+		httpUrl = "v2/{project_id}/elb/certificates/{certificate_id}"
+		product = "elb"
 	)
-	if err = mErr.ErrorOrNil(); err != nil {
-		return fmtp.DiagErrorf("Error setting certificate fields: %s", err)
+	client, err := cfg.NewServiceClient(product, region)
+	if err != nil {
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
-	return nil
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{certificate_id}", d.Id())
+
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, "error retrieving ELB certificate")
+	}
+
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	mErr = multierror.Append(
+		mErr,
+		d.Set("region", region),
+		d.Set("name", utils.PathSearch("name", getRespBody, nil)),
+		d.Set("description", utils.PathSearch("description", getRespBody, nil)),
+		d.Set("type", utils.PathSearch("type", getRespBody, nil)),
+		d.Set("domain", utils.PathSearch("domain", getRespBody, nil)),
+		d.Set("certificate", utils.PathSearch("certificate", getRespBody, nil)),
+		d.Set("protection_reason", utils.PathSearch("protection_reason", getRespBody, nil)),
+		d.Set("protection_status", utils.PathSearch("protection_status", getRespBody, nil)),
+		d.Set("source", utils.PathSearch("source", getRespBody, nil)),
+		d.Set("create_time", utils.PathSearch("create_time", getRespBody, nil)),
+		d.Set("update_time", utils.PathSearch("update_time", getRespBody, nil)),
+		d.Set("expire_time", utils.PathSearch("expire_time", getRespBody, nil)),
+	)
+
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func resourceCertificateV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	elbClient, err := config.LoadBalancerClient(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	var (
+		httpUrl = "v2/{project_id}/elb/certificates/{certificate_id}"
+		product = "elb"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
-	var updateOpts certificates.UpdateOpts
-	if d.HasChange("name") {
-		updateOpts.Name = d.Get("name").(string)
-	}
-	if d.HasChange("description") {
-		updateOpts.Description = d.Get("description").(string)
-	}
-	if d.HasChange("domain") {
-		updateOpts.Domain = d.Get("domain").(string)
-	}
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{certificate_id}", d.Id())
 
-	logp.Printf("[DEBUG] Updating certificate %s with options: %#v", d.Id(), updateOpts)
-
-	// Add certificate and private_key here so they wouldn't go in the above log entry
-	if d.HasChange("private_key") {
-		updateOpts.PrivateKey = d.Get("private_key").(string)
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
-	if d.HasChange("certificate") {
-		updateOpts.Certificate = d.Get("certificate").(string)
-	}
-
-	timeout := d.Timeout(schema.TimeoutUpdate)
-	//lintignore:R006
-	err = resource.RetryContext(ctx, timeout, func() *resource.RetryError {
-		_, err := certificates.Update(elbClient, d.Id(), updateOpts).Extract()
-		if err != nil {
-			return common.CheckForRetryableError(err)
-		}
-		return nil
-	})
+	updateOpt.JSONBody = utils.RemoveNil(buildUpdateCertificateBodyParams(d))
+	_, err = client.Request("PUT", updatePath, &updateOpt)
 	if err != nil {
-		return fmtp.DiagErrorf("Error updating certificate %s: %s", d.Id(), err)
+		return diag.Errorf("error updating ELB certificate: %s", err)
 	}
 
 	return resourceCertificateV2Read(ctx, d, meta)
 }
 
+func buildUpdateCertificateBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"name":              d.Get("name"),
+		"description":       d.Get("description"),
+		"domain":            d.Get("domain"),
+		"private_key":       d.Get("private_key"),
+		"certificate":       d.Get("certificate"),
+		"protection_reason": d.Get("protection_reason"),
+		"protection_status": d.Get("protection_status"),
+		"source":            d.Get("source"),
+	}
+	return bodyParams
+}
+
 func resourceCertificateV2Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	elbClient, err := config.LoadBalancerClient(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	var (
+		httpUrl = "v2/{project_id}/elb/certificates/{certificate_id}"
+		product = "elb"
+	)
+
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating HuaweiCloud elb client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
-	logp.Printf("[DEBUG] Deleting certificate %s", d.Id())
-	timeout := d.Timeout(schema.TimeoutDelete)
-	//lintignore:R006
-	err = resource.RetryContext(ctx, timeout, func() *resource.RetryError {
-		err := certificates.Delete(elbClient, d.Id()).ExtractErr()
-		if err != nil {
-			return common.CheckForRetryableError(err)
-		}
-		return nil
-	})
+	deletePath := client.Endpoint + httpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = strings.ReplaceAll(deletePath, "{certificate_id}", d.Id())
+
+	deleteOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	_, err = client.Request("DELETE", deletePath, &deleteOpt)
 	if err != nil {
-		if utils.IsResourceNotFound(err) {
-			logp.Printf("[INFO] deleting an unavailable certificate: %s", d.Id())
-			return nil
-		}
-		return fmtp.DiagErrorf("Error deleting certificate %s: %s", d.Id(), err)
+		return common.CheckDeletedDiag(d, err, "error deleting ELB certificate")
 	}
 
 	return nil

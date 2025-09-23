@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/pagination"
@@ -24,6 +25,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
+
+var mysqlDatabaseNonUpdatableParams = []string{"instance_id", "name", "character_set"}
 
 // @API RDS POST /v3/{project_id}/instances/{instance_id}/database
 // @API RDS GET /v3/{project_id}/instances
@@ -36,9 +39,12 @@ func ResourceMysqlDatabase() *schema.Resource {
 		UpdateContext: resourceMysqlDatabaseUpdate,
 		ReadContext:   resourceMysqlDatabaseRead,
 		DeleteContext: resourceMysqlDatabaseDelete,
+
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+
+		CustomizeDiff: config.FlexibleForceNew(mysqlDatabaseNonUpdatableParams),
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
@@ -56,25 +62,28 @@ func ResourceMysqlDatabase() *schema.Resource {
 			"instance_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the ID of the RDS Mysql instance.`,
 			},
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the database name.`,
 			},
 			"character_set": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the character set used by the database.`,
 			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `Specifies the database description.`,
+			},
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
 			},
 		},
 	}
@@ -194,12 +203,14 @@ func resourceMysqlDatabaseRead(_ context.Context, d *schema.ResourceData, meta i
 		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
 	}
 
+	characterSet := utils.PathSearch("character_set", database, "").(string)
+	characterSet = strings.TrimSuffix(characterSet, "mb3")
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),
 		d.Set("instance_id", instanceId),
 		d.Set("name", utils.PathSearch("name", database, nil)),
-		d.Set("character_set", utils.PathSearch("character_set", database, nil)),
+		d.Set("character_set", characterSet),
 		d.Set("description", utils.PathSearch("comment", database, nil)),
 	)
 

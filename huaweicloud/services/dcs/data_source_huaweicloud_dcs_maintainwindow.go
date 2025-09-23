@@ -2,14 +2,14 @@ package dcs
 
 import (
 	"context"
-	"log"
-	"strconv"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/chnsz/golangsdk/openstack/dcs/v2/maintainwindows"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -53,40 +53,88 @@ func DataSourceDcsMaintainWindow() *schema.Resource {
 func dataSourceDcsMaintainWindowRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-	dcsV2Client, err := cfg.DcsV2Client(region)
+
+	var mErr *multierror.Error
+
+	var (
+		httpUrl = "v2/instances/maintain-windows"
+		product = "dcs"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating DCS client: %s", err)
 	}
 
-	v, err := maintainwindows.Get(dcsV2Client).Extract()
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return diag.Errorf("error retrieving DCS maintain windows: %s", err)
+	}
+
+	getRespBody, err := utils.FlattenResponse(getResp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	filteredMVs, err := utils.FilterSliceWithField(v.MaintainWindows, map[string]interface{}{
-		"ID":      d.Get("seq").(int),
-		"Begin":   d.Get("begin").(string),
-		"End":     d.Get("end").(string),
-		"Default": d.Get("default").(bool),
-	})
+	dataSourceId, err := uuid.GenerateUUID()
 	if err != nil {
-		return diag.Errorf("error while filtering data : %s", err)
+		return diag.Errorf("unable to generate ID: %s", err)
+	}
+	d.SetId(dataSourceId)
+
+	filerMaintainWindow := filterMaintainWindow(d, getRespBody)
+	if len(filerMaintainWindow) < 1 {
+		return diag.Errorf("your query returned no results. Please change your search criteria and try again.")
 	}
 
-	if len(filteredMVs) < 1 {
-		return diag.Errorf("your query returned no results. " +
-			"Please change your search criteria and try again.")
-	}
-	mw := filteredMVs[0].(maintainwindows.MaintainWindow)
-	d.SetId(strconv.Itoa(mw.ID))
-
-	mErr := multierror.Append(nil,
+	mErr = multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("begin", mw.Begin),
-		d.Set("end", mw.End),
-		d.Set("default", mw.Default),
+		d.Set("seq", utils.PathSearch("[0].seq", filerMaintainWindow, nil)),
+		d.Set("begin", utils.PathSearch("[0].begin", filerMaintainWindow, nil)),
+		d.Set("end", utils.PathSearch("[0].end", filerMaintainWindow, nil)),
+		d.Set("default", utils.PathSearch("[0].default", filerMaintainWindow, nil)),
 	)
-	log.Printf("[DEBUG] Dcs MaintainWindow : %+v", mw)
 
 	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func filterMaintainWindow(d *schema.ResourceData, getRespBody interface{}) []interface{} {
+	maintainWindows := utils.PathSearch("maintain_windows", getRespBody, make([]interface{}, 0)).([]interface{})
+	if len(maintainWindows) < 1 {
+		return nil
+	}
+
+	result := make([]interface{}, 0)
+
+	rawSeq, rawSeqOK := d.GetOk("seq")
+	rawBegin, rawBeginOK := d.GetOk("begin")
+	rawEnd, rawEndOk := d.GetOk("end")
+	rawDefault, rawDefaultOK := d.GetOk("default")
+
+	for _, backupRecord := range maintainWindows {
+		seq := utils.PathSearch("seq", backupRecord, float64(0)).(float64)
+		begin := utils.PathSearch("begin", backupRecord, nil)
+		end := utils.PathSearch("end", backupRecord, nil)
+		isDefault := utils.PathSearch("default", backupRecord, nil)
+		if rawSeqOK && rawSeq.(int) != int(seq) {
+			continue
+		}
+		if rawBeginOK && rawBegin != begin {
+			continue
+		}
+		if rawEndOk && rawEnd != end {
+			continue
+		}
+		if rawDefaultOK && rawDefault != isDefault {
+			continue
+		}
+		result = append(result, backupRecord)
+	}
+
+	return result
 }

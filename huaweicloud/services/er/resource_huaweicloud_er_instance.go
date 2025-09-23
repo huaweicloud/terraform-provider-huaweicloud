@@ -8,7 +8,6 @@ package er
 import (
 	"context"
 	"fmt"
-	"regexp"
 	"strings"
 	"time"
 
@@ -16,11 +15,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -50,6 +46,8 @@ func ResourceInstance() *schema.Resource {
 			Delete: schema.DefaultTimeout(5 * time.Minute),
 		},
 
+		CustomizeDiff: config.MergeDefaultTags(),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
@@ -61,11 +59,6 @@ func ResourceInstance() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: `The router name.`,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(1, 64),
-					validation.StringMatch(regexp.MustCompile("^[\u4e00-\u9fa5\\w.-]*$"), "The name only english and "+
-						"chinese letters, digits, underscore (_) and hyphens (-) are allowed."),
-				),
 			},
 			"availability_zones": {
 				Type:        schema.TypeList,
@@ -83,11 +76,6 @@ func ResourceInstance() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `The description of the Enterprise router.`,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(0, 255),
-					validation.StringMatch(regexp.MustCompile(`^[^<>]*$`),
-						"The angle brackets (< and >) are not allowed."),
-				),
 			},
 			"enterprise_project_id": {
 				Type:        schema.TypeString,
@@ -170,11 +158,11 @@ func resourceInstanceCreate(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("instance.id", createInstanceRespBody)
-	if err != nil {
-		return diag.Errorf("the resource ID is not found in the API response")
+	instanceId := utils.PathSearch("instance.id", createInstanceRespBody, "").(string)
+	if instanceId == "" {
+		return diag.Errorf("unable to find the ER instance ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(instanceId)
 
 	err = instanceWaitingForStateCompleted(ctx, client, d, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
@@ -204,7 +192,7 @@ func buildCreateInstanceInstanceChildBody(d *schema.ResourceData, cfg *config.Co
 		"availability_zone_ids":          utils.ValueIgnoreEmpty(d.Get("availability_zones")),
 		"asn":                            utils.ValueIgnoreEmpty(d.Get("asn")),
 		"description":                    utils.ValueIgnoreEmpty(d.Get("description")),
-		"enterprise_project_id":          utils.ValueIgnoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
+		"enterprise_project_id":          utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
 		"enable_default_propagation":     utils.ValueIgnoreEmpty(d.Get("enable_default_propagation")),
 		"enable_default_association":     utils.ValueIgnoreEmpty(d.Get("enable_default_association")),
 		"auto_accept_shared_attachments": utils.ValueIgnoreEmpty(d.Get("auto_accept_shared_attachments")),
@@ -237,16 +225,13 @@ func instanceWaitingForStateCompleted(ctx context.Context, client *golangsdk.Ser
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			status, err := jmespath.Search(`instance.state`, createInstanceWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `instance.state`)
+			status := utils.PathSearch(`instance.state`, createInstanceWaitingRespBody, "").(string)
+
+			if utils.StrSliceContains([]string{"fail"}, status) {
+				return createInstanceWaitingRespBody, "", fmt.Errorf("unexpected status '%s'", status)
 			}
 
-			if utils.StrSliceContains([]string{"fail"}, status.(string)) {
-				return createInstanceWaitingRespBody, "", fmt.Errorf("unexpected status '%s'", status.(string))
-			}
-
-			if utils.StrSliceContains([]string{"available"}, status.(string)) {
+			if utils.StrSliceContains([]string{"available"}, status) {
 				return createInstanceWaitingRespBody, "COMPLETED", nil
 			}
 
@@ -395,13 +380,13 @@ func resourceInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta in
 	}
 
 	if d.HasChange("enterprise_project_id") {
-		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+		migrateOpts := config.MigrateResourceOpts{
 			ResourceId:   instanceId,
 			ResourceType: "instance",
 			RegionId:     region,
 			ProjectId:    client.ProjectID,
 		}
-		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
+		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -502,13 +487,10 @@ func deleteInstanceWaitingForStateCompleted(ctx context.Context, client *golangs
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			status, err := jmespath.Search(`instance.state`, deleteInstanceWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `instance.state`)
-			}
+			status := utils.PathSearch(`instance.state`, deleteInstanceWaitingRespBody, "").(string)
 
-			if utils.StrSliceContains([]string{"fail"}, status.(string)) {
-				return deleteInstanceWaitingRespBody, "", fmt.Errorf("unexpected status '%s'", status.(string))
+			if utils.StrSliceContains([]string{"fail"}, status) {
+				return deleteInstanceWaitingRespBody, "", fmt.Errorf("unexpected status '%s'", status)
 			}
 
 			return deleteInstanceWaitingRespBody, "PENDING", nil

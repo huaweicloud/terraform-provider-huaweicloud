@@ -1,0 +1,18 @@
+info:
+    version: ""
+    title: resource_huaweicloud_sfs_turbo_data_task
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: SFSTurbo
+paths:
+    /v1/{project_id}/sfs-turbo/{share_id}/hpc-cache/task:
+        POST:
+            tag: SFSTurbo
+    /v1/{project_id}/sfs-turbo/{share_id}/hpc-cache/task/{task_id}:
+        DELETE:
+            tag: SFSTurbo
+        GET:
+            tag: SFSTurbo

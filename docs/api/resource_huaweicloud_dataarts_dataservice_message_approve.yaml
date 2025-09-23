@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dataarts_dataservice_message_approve
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DataArtsStudio
+paths:
+    /v1/{project_id}/service/messages:
+        POST:
+            tag: DataArtsStudio

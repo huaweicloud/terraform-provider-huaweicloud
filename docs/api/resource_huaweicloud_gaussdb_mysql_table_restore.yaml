@@ -1,0 +1,19 @@
+info:
+    version: ""
+    title: resource_huaweicloud_gaussdb_mysql_table_restore
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: GaussDBforMySQL
+paths:
+    /v3/{project_id}/instances/{instance_id}:
+        GET:
+            tag: GaussDBforMySQL
+    /v3/{project_id}/instances/{instance_id}/backups/restore/tables:
+        POST:
+            tag: GaussDBforMySQL
+    /v3/{project_id}/jobs:
+        GET:
+            tag: GaussDBforMySQL

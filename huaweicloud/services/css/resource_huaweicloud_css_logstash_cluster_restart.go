@@ -45,17 +45,13 @@ func resourceLogstashClusterRestartCreate(ctx context.Context, d *schema.Resourc
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
 	clusterID := d.Get("cluster_id").(string)
-	cssV1Client, err := conf.HcCssV1Client(region)
-	if err != nil {
-		return diag.Errorf("error creating CSS client: %s", err)
-	}
 	client, err := conf.CssV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CSS client: %s", err)
 	}
 
 	// Check whether the logstash cluster status is available.
-	err = checkClusterOperationCompleted(ctx, cssV1Client, clusterID, d.Timeout(schema.TimeoutCreate))
+	err = checkClusterOperationResult(ctx, client, clusterID, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -76,7 +72,7 @@ func resourceLogstashClusterRestartCreate(ctx context.Context, d *schema.Resourc
 	}
 
 	// Check whether the logstash cluster restart is complete
-	err = checkClusterOperationCompleted(ctx, cssV1Client, clusterID, d.Timeout(schema.TimeoutCreate))
+	err = checkClusterOperationResult(ctx, client, clusterID, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.FromErr(err)
 	}

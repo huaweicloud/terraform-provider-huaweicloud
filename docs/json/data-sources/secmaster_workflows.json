@@ -1,0 +1,96 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_secmaster_workflows": {
+          "block": {
+            "attributes": {
+              "data_class_id": {
+                "type": "string",
+                "description": "Specifies the data class ID.",
+                "optional": true
+              },
+              "data_class_name": {
+                "type": "string",
+                "description": "Specifies the data class name.",
+                "optional": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the workflow description.",
+                "optional": true
+              },
+              "enabled": {
+                "type": "string",
+                "description": "Specifies whether the version is enabled. The value can be **true** and **false**.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "last_version": {
+                "type": "string",
+                "description": "Specifies whether the version is the latest. The value can be **true** and **false**.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the workflow name.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the workflow type.",
+                "optional": true
+              },
+              "workflows": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "approve_role": "string",
+                      "current_approval_version_id": "string",
+                      "current_rejected_version_id": "string",
+                      "data_class_id": "string",
+                      "description": "string",
+                      "edit_role": "string",
+                      "enabled": "bool",
+                      "engine_type": "string",
+                      "id": "string",
+                      "name": "string",
+                      "type": "string",
+                      "use_role": "string",
+                      "version_id": "string",
+                      "workspace_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The workflow list.",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "Specifies the workspace ID.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

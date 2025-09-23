@@ -7,41 +7,32 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	mpc "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/mpc/v1/model"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/mpc"
 )
 
-func getTemplateGroupResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	c, err := conf.HcMpcV1Client(acceptance.HW_REGION_NAME)
+func getTemplateGroupResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	region := acceptance.HW_REGION_NAME
+	client, err := cfg.NewServiceClient("mpc", region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating MPC client: %s", err)
 	}
 
-	resp, err := c.ListTemplateGroup(&mpc.ListTemplateGroupRequest{GroupId: &[]string{state.Primary.ID}})
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving MPC transcoding template group: %s", err)
-	}
-
-	templateGroupList := *resp.TemplateGroupList
-
-	if len(templateGroupList) == 0 {
-		return nil, fmt.Errorf("unable to retrieve MPC transcoding template group: %s", state.Primary.ID)
-	}
-
-	return templateGroupList[0], nil
+	return mpc.GetTranscodingTemplateGroup(client, state.Primary.ID)
 }
 
 func TestAccTranscodingTemplateGroup_basic(t *testing.T) {
-	var templateGroup mpc.TemplateGroup
-	rName := acceptance.RandomAccResourceNameWithDash()
-	rNameUpdate := rName + "-update"
-	resourceName := "huaweicloud_mpc_transcoding_template_group.test"
+	var (
+		templateGroupObj interface{}
+		rName            = acceptance.RandomAccResourceNameWithDash()
+		rNameUpdate      = rName + "-update"
+		resourceName     = "huaweicloud_mpc_transcoding_template_group.test"
+	)
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
-		&templateGroup,
+		&templateGroupObj,
 		getTemplateGroupResourceFunc,
 	)
 
@@ -66,11 +57,6 @@ func TestAccTranscodingTemplateGroup_basic(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
 				Config: testTranscodingTemplateGroup_update(rNameUpdate),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
@@ -82,6 +68,11 @@ func TestAccTranscodingTemplateGroup_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "videos.0.width", "3840"),
 					resource.TestCheckResourceAttr(resourceName, "videos.1.width", "2560"),
 				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 		},
 	})

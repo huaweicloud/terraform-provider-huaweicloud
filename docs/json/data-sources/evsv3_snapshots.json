@@ -1,0 +1,57 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_evsv3_snapshots": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "snapshots": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "description": "string",
+                      "id": "string",
+                      "metadata": [
+                        "map",
+                        "string"
+                      ],
+                      "name": "string",
+                      "size": "number",
+                      "status": "string",
+                      "updated_at": "string",
+                      "volume_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "optional": true
+              },
+              "volume_id": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

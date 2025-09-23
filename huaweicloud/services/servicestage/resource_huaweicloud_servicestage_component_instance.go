@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"regexp"
 	"strings"
 	"time"
 
@@ -226,12 +225,6 @@ func ResourceComponentInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[a-z]([a-z0-9-]*[a-z0-9])?$`),
-						"The name must start with a lowercase letter and end with a lowercase letter or digit, and "+
-							"can only contain lowercase letters, digits and hyphens (-)."),
-					validation.StringLenBetween(2, 63),
-				),
 			},
 			"version": {
 				Type:     schema.TypeString,
@@ -343,9 +336,8 @@ func ResourceComponentInstance() *schema.Resource {
 				},
 			},
 			"description": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringLenBetween(0, 128),
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"configuration": {
 				Type:     schema.TypeList,
@@ -363,12 +355,6 @@ func ResourceComponentInstance() *schema.Resource {
 									"name": {
 										Type:     schema.TypeString,
 										Required: true,
-										ValidateFunc: validation.All(
-											validation.StringMatch(regexp.MustCompile(`^[A-Za-z-_.]([\w-.]*)?$`),
-												"The name can only contain letters, digits, underscores (_), "+
-													"hyphens (-) and dots (.), and cannot start with a digit."),
-											validation.StringLenBetween(1, 64),
-										),
 									},
 									"value": {
 										Type:     schema.TypeString,

@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
@@ -16,13 +17,18 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+var dbLogsShrinkingNonUpdatableParams = []string{"instance_id", "db_name"}
+
 // @API RDS POST /v3.1/{project_id}/instances/{instance_id}/db-shrink
 // @API RDS GET /v3/{project_id}/instances
 func ResourceRdsDbLogsShrinking() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceRdsDbLogsShrinkingCreate,
 		ReadContext:   resourceRdsDbLogsShrinkingRead,
+		UpdateContext: resourceRdsDbLogsShrinkingUpdate,
 		DeleteContext: resourceRdsDbLogsShrinkingDelete,
+
+		CustomizeDiff: config.FlexibleForceNew(dbLogsShrinkingNonUpdatableParams),
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -33,14 +39,18 @@ func ResourceRdsDbLogsShrinking() *schema.Resource {
 			"instance_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the ID of instance.`,
 			},
 			"db_name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the name of the database.`,
+			},
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
 			},
 		},
 	}
@@ -112,6 +122,10 @@ func buildCreateDbLogsShrinkingBodyParams(d *schema.ResourceData) map[string]int
 }
 
 func resourceRdsDbLogsShrinkingRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+	return nil
+}
+
+func resourceRdsDbLogsShrinkingUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	return nil
 }
 

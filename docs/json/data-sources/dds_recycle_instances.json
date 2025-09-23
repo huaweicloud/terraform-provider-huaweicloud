@@ -1,0 +1,61 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dds_recycle_instances": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instances": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "backup_id": "string",
+                      "charging_mode": "string",
+                      "created_at": "string",
+                      "datastore": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "type": "string",
+                            "version": "string"
+                          }
+                        ]
+                      ],
+                      "deleted_at": "string",
+                      "enterprise_project_id": "string",
+                      "id": "string",
+                      "mode": "string",
+                      "name": "string",
+                      "retained_until": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the instances.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DDS",
+            "name": "Document Database Service",
+            "catalog": "Databases",
+            "name_cn": "文档数据库服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

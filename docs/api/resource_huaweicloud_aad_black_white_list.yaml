@@ -1,0 +1,18 @@
+info:
+    version: ""
+    title: resource_huaweicloud_aad_black_white_list
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: AAD
+paths:
+    /v1/{project_id}/aad/external/bwlist:
+        DELETE:
+            tag: AAD
+        POST:
+            tag: AAD
+    /v2/aad/policies/ddos/blackwhite-list:
+        GET:
+            tag: AAD

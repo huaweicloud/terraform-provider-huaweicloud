@@ -28,58 +28,12 @@ func getRuleWebTamperProtectionResourceFunc(cfg *config.Config, state *terraform
 	return rules.GetWithEpsID(wafClient, policyID, state.Primary.ID, epsID).Extract()
 }
 
-func TestAccWafRuleWebTamperProtection_basic(t *testing.T) {
+// Before running the test case, please ensure that there is at least one WAF instance in the current region.
+func TestAccRuleWebTamperProtection_basic(t *testing.T) {
 	var obj interface{}
 
 	name := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_waf_rule_web_tamper_protection.rule_1"
-
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&obj,
-		getRuleWebTamperProtectionResourceFunc,
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPrecheckWafInstance(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccWafRuleWebTamperProtection_basic(name),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "domain", "www.abc.com"),
-					resource.TestCheckResourceAttr(rName, "path", "/a"),
-					resource.TestCheckResourceAttr(rName, "description", "test description"),
-					resource.TestCheckResourceAttr(rName, "status", "0"),
-				),
-			},
-			{
-				Config: testAccWafRuleWebTamperProtection_basic_update(name),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "status", "1"),
-				),
-			},
-			{
-				ResourceName:      rName,
-				ImportState:       true,
-				ImportStateVerify: true,
-				ImportStateIdFunc: testWAFRuleImportState(rName),
-			},
-		},
-	})
-}
-
-func TestAccWafRuleWebTamperProtection_withEpsID(t *testing.T) {
-	var obj interface{}
-
-	name := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_waf_rule_web_tamper_protection.rule_1"
+	rName := "huaweicloud_waf_rule_web_tamper_protection.test"
 
 	rc := acceptance.InitResourceCheck(
 		rName,
@@ -97,13 +51,20 @@ func TestAccWafRuleWebTamperProtection_withEpsID(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccWafRuleWebTamperProtection_basic_withEpsID(name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+				Config: testAccDataSourceWebTamperProtection_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(rName, "domain", "www.abc.com"),
 					resource.TestCheckResourceAttr(rName, "path", "/a"),
 					resource.TestCheckResourceAttr(rName, "description", "test description"),
+					resource.TestCheckResourceAttr(rName, "status", "0"),
+				),
+			},
+			{
+				Config: testAccDataSourceWebTamperProtectionn_basic_update(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "status", "1"),
 				),
 			},
 			{
@@ -116,44 +77,32 @@ func TestAccWafRuleWebTamperProtection_withEpsID(t *testing.T) {
 	})
 }
 
-func testAccWafRuleWebTamperProtection_basic(name string) string {
+func testAccDataSourceWebTamperProtection_basic(name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
-resource "huaweicloud_waf_rule_web_tamper_protection" "rule_1" {
-  policy_id   = huaweicloud_waf_policy.policy_1.id
-  domain      = "www.abc.com"
-  path        = "/a"
-  description = "test description"
-  status      = 0
-}
-`, testAccWafPolicyV1_basic(name))
-}
-
-func testAccWafRuleWebTamperProtection_basic_update(name string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_waf_rule_web_tamper_protection" "rule_1" {
-  policy_id   = huaweicloud_waf_policy.policy_1.id
-  domain      = "www.abc.com"
-  path        = "/a"
-  description = "test description"
-  status      = 1
-}
-`, testAccWafPolicyV1_basic(name))
-}
-
-func testAccWafRuleWebTamperProtection_basic_withEpsID(name, epsID string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_waf_rule_web_tamper_protection" "rule_1" {
-  policy_id             = huaweicloud_waf_policy.policy_1.id
+resource "huaweicloud_waf_rule_web_tamper_protection" "test" {
+  policy_id             = huaweicloud_waf_policy.test.id
   domain                = "www.abc.com"
   path                  = "/a"
   description           = "test description"
-  enterprise_project_id = "%s"
+  status                = 0
+  enterprise_project_id = "%[2]s"
 }
-`, testAccWafPolicyV1_basic_withEpsID(name, epsID), epsID)
+`, testAccWafPolicy_basic(name), acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+}
+
+func testAccDataSourceWebTamperProtectionn_basic_update(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_waf_rule_web_tamper_protection" "test" {
+  policy_id             = huaweicloud_waf_policy.test.id
+  domain                = "www.abc.com"
+  path                  = "/a"
+  description           = "test description"
+  status                = 1
+  enterprise_project_id = "%[2]s"
+}
+`, testAccWafPolicy_basic(name), acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }

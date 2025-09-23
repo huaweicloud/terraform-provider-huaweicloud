@@ -1,0 +1,50 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_evsv3_volume_type_detail": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "type_id": {
+                "type": "string",
+                "required": true
+              },
+              "volume_type": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "description": "string",
+                      "extra_specs": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "os_vendor_extended_sold_out_availability_zones": "string",
+                            "reskey_availability_zones": "string"
+                          }
+                        ]
+                      ],
+                      "id": "string",
+                      "name": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

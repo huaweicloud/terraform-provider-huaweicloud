@@ -1,0 +1,52 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_rms_assignment_package_results": {
+          "block": {
+            "attributes": {
+              "assignment_package_id": {
+                "type": "string",
+                "description": "Specifies the assignment package name.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "policy_assignment_name": {
+                "type": "string",
+                "description": "Specifies the policy assignment name. Fuzzy search is supported.",
+                "optional": true
+              },
+              "value": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "compliance_state": "string",
+                      "evaluation_time": "string",
+                      "policy_assignment_id": "string",
+                      "policy_assignment_name": "string",
+                      "resource_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The details about compliance results of assignments in an assignment package.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Config",
+            "name": "Config",
+            "catalog": "Management & Governance",
+            "name_cn": "配置审计",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

@@ -10,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -279,10 +278,7 @@ func getLogBackupJob(client *golangsdk.ServiceClient, clusterID, expression stri
 		if err != nil {
 			return getLogBackupJobRespBody, err
 		}
-		logBackupJob, err := jmespath.Search(expression, getLogBackupJobRespBody)
-		if err != nil {
-			return nil, err
-		}
+		logBackupJob := utils.PathSearch(expression, getLogBackupJobRespBody, nil)
 		if logBackupJob != nil {
 			return logBackupJob, nil
 		}

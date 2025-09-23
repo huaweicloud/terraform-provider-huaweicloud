@@ -3,7 +3,6 @@ package swr
 import (
 	"context"
 	"fmt"
-	"regexp"
 	"strings"
 	"time"
 
@@ -55,18 +54,6 @@ func ResourceSWRRepository() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(1, 128),
-					validation.StringMatch(
-						regexp.MustCompile(`^[a-z0-9][a-z0-9._-]+[a-z0-9]+$`),
-						"Only lowercase letters, digits, periods (.), underscores (_), and hyphens (-) are allowed.",
-					),
-					validation.StringDoesNotMatch(
-						regexp.MustCompile(`_{3,}?|\.{2,}?|-{2,}?`),
-						"Periods, underscores, and hyphens cannot be placed next to each other. "+
-							"A maximum of two consecutive underscores are allowed.",
-					),
-				),
 			},
 			"is_public": {
 				Type:     schema.TypeBool,
@@ -200,7 +187,7 @@ func resourceSWRRepositoryDelete(_ context.Context, d *schema.ResourceData, meta
 	organization := d.Get("organization").(string)
 	err = repositories.Delete(client, organization, d.Id()).ExtractErr()
 	if err != nil {
-		diag.Errorf("error deleting SWR repository: %s", err)
+		return common.CheckDeletedDiag(d, err, "error deleting SWR repository")
 	}
 
 	return nil

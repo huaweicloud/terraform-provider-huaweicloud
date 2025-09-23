@@ -22,6 +22,9 @@ paths:
     /v2/orders/suscriptions/resources/query:
         POST:
             tag: BSS
+    /v3.1/{project_id}/instances/{instance_id}/configurations:
+        PUT:
+            tag: RDS
     /v3/{project_id}/instances:
         GET:
             tag: RDS

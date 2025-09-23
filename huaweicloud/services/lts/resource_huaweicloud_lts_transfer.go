@@ -8,13 +8,11 @@ package lts
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -67,6 +65,11 @@ func ResourceLtsTransfer() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Log group name.`,
+			},
+			"created_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The creation time of the log transfer, in RFC3339 format.`,
 			},
 		},
 	}
@@ -262,12 +265,45 @@ func ltsTransferLogDetailSchema() *schema.Resource {
 				Computed:    true,
 				Description: `Kafka topic.`,
 			},
+			"lts_tags": {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `The list of built-in fields and custom tags to be transferred.`,
+			},
+			"stream_tags": {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `The list of stream tag fields to be transferred.`,
+			},
+			"struct_fields": {
+				Type:        schema.TypeSet,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `The list of structured fields to be transferred.`,
+			},
+			"invalid_field_value": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The value of the invalid field fill.`,
+			},
 			"delivery_tags": {
 				Type:        schema.TypeList,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Optional:    true,
 				Computed:    true,
 				Description: `The list of tag fields will be delivered when transferring.`,
+			},
+			"cloud_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The cloud project ID.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					}),
 			},
 		},
 	}
@@ -310,11 +346,11 @@ func resourceLtsTransferCreate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("log_transfer_id", createTransferRespBody)
-	if err != nil {
-		return diag.Errorf("error creating LTS transfer: ID is not found in API response")
+	transferId := utils.PathSearch("log_transfer_id", createTransferRespBody, "").(string)
+	if transferId == "" {
+		return diag.Errorf("unable to find the LTS transfer ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(transferId)
 
 	return resourceLtsTransferRead(ctx, d, meta)
 }
@@ -407,7 +443,12 @@ func buildLogTransferInfoLogTransferDetail(rawParams interface{}) map[string]int
 			"dis_name":             utils.ValueIgnoreEmpty(raw["dis_name"]),
 			"kafka_id":             utils.ValueIgnoreEmpty(raw["kafka_id"]),
 			"kafka_topic":          utils.ValueIgnoreEmpty(raw["kafka_topic"]),
+			"lts_tags":             raw["lts_tags"].(*schema.Set).List(),
+			"stream_tags":          raw["stream_tags"].(*schema.Set).List(),
+			"struct_fields":        raw["struct_fields"].(*schema.Set).List(),
+			"invalid_field_value":  utils.ValueIgnoreEmpty(raw["invalid_field_value"]),
 			"tags":                 utils.ValueIgnoreEmpty(raw["delivery_tags"]),
+			"cloud_project_id":     utils.ValueIgnoreEmpty(raw["cloud_project_id"]),
 		}
 		return params
 	}
@@ -464,7 +505,9 @@ func resourceLtsTransferRead(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("log_group_id", utils.PathSearch("log_group_id", getTransferRespBody, nil)),
 		d.Set("log_group_name", utils.PathSearch("log_group_name", getTransferRespBody, nil)),
 		d.Set("log_streams", flattenGetTransferResponseBodyLogStreams(getTransferRespBody)),
-		d.Set("log_transfer_info", flattenGetTransferResponseBodyLogTransferInfo(getTransferRespBody)),
+		d.Set("log_transfer_info", flattenGetTransferResponseBodyLogTransferInfo(getTransferRespBody, d)),
+		d.Set("created_at", utils.FormatTimeStampRFC3339(
+			int64(utils.PathSearch("log_transfer_info.log_create_time", getTransferRespBody, float64(0)).(float64))/1000, false)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -486,11 +529,10 @@ func flattenGetTransferResponseBodyLogStreams(resp interface{}) []interface{} {
 	return rst
 }
 
-func flattenGetTransferResponseBodyLogTransferInfo(resp interface{}) []interface{} {
+func flattenGetTransferResponseBodyLogTransferInfo(resp interface{}, d *schema.ResourceData) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("log_transfer_info", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing log_transfer_info from response= %#v", resp)
+	curJson := utils.PathSearch("log_transfer_info", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return rst
 	}
 
@@ -501,7 +543,7 @@ func flattenGetTransferResponseBodyLogTransferInfo(resp interface{}) []interface
 			"log_storage_format":  utils.PathSearch("log_storage_format", curJson, nil),
 			"log_transfer_status": utils.PathSearch("log_transfer_status", curJson, nil),
 			"log_agency_transfer": flattenLogTransferInfoLogAgency(curJson),
-			"log_transfer_detail": flattenLogTransferInfoLogTransferDetail(curJson),
+			"log_transfer_detail": flattenLogTransferInfoLogTransferDetail(curJson, d),
 		},
 	}
 	return rst
@@ -509,9 +551,8 @@ func flattenGetTransferResponseBodyLogTransferInfo(resp interface{}) []interface
 
 func flattenLogTransferInfoLogAgency(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("log_agency_transfer", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing log_agency_transfer from response= %#v", resp)
+	curJson := utils.PathSearch("log_agency_transfer", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return rst
 	}
 
@@ -526,33 +567,43 @@ func flattenLogTransferInfoLogAgency(resp interface{}) []interface{} {
 	return rst
 }
 
-func flattenLogTransferInfoLogTransferDetail(resp interface{}) []interface{} {
+func flattenLogTransferInfoLogTransferDetail(resp interface{}, d *schema.ResourceData) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("log_transfer_detail", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing log_transfer_detail from response= %#v", resp)
+	curJson := utils.PathSearch("log_transfer_detail", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return rst
 	}
 
+	logTransferDetail := map[string]interface{}{
+		"obs_period":           utils.PathSearch("obs_period", curJson, nil),
+		"obs_period_unit":      utils.PathSearch("obs_period_unit", curJson, nil),
+		"obs_bucket_name":      utils.PathSearch("obs_bucket_name", curJson, nil),
+		"obs_transfer_path":    utils.PathSearch("obs_transfer_path", curJson, nil),
+		"obs_dir_prefix_name":  utils.PathSearch("obs_dir_pre_fix_name", curJson, nil),
+		"obs_prefix_name":      utils.PathSearch("obs_prefix_name", curJson, nil),
+		"obs_eps_id":           utils.PathSearch("obs_eps_id", curJson, nil),
+		"obs_encrypted_enable": utils.PathSearch("obs_encrypted_enable", curJson, nil),
+		"obs_encrypted_id":     utils.PathSearch("obs_encrypted_id", curJson, nil),
+		"obs_time_zone":        utils.PathSearch("obs_time_zone", curJson, nil),
+		"obs_time_zone_id":     utils.PathSearch("obs_time_zone_id", curJson, nil),
+		"dis_id":               utils.PathSearch("dis_id", curJson, nil),
+		"dis_name":             utils.PathSearch("dis_name", curJson, nil),
+		"kafka_id":             utils.PathSearch("kafka_id", curJson, nil),
+		"kafka_topic":          utils.PathSearch("kafka_topic", curJson, nil),
+		"lts_tags":             utils.PathSearch("lts_tags", curJson, nil),
+		"stream_tags":          utils.PathSearch("stream_tags", curJson, nil),
+		"struct_fields":        utils.PathSearch("struct_fields", curJson, nil),
+		"delivery_tags":        utils.PathSearch("tags", curJson, nil),
+		"cloud_project_id":     utils.PathSearch("cloud_project_id", curJson, nil),
+	}
+
+	invalidFieldValue, ok := d.GetOk("log_transfer_info.0.log_transfer_detail.0.invalid_field_value")
+	if ok {
+		logTransferDetail["invalid_field_value"] = invalidFieldValue
+	}
+
 	rst = []interface{}{
-		map[string]interface{}{
-			"obs_period":           utils.PathSearch("obs_period", curJson, nil),
-			"obs_period_unit":      utils.PathSearch("obs_period_unit", curJson, nil),
-			"obs_bucket_name":      utils.PathSearch("obs_bucket_name", curJson, nil),
-			"obs_transfer_path":    utils.PathSearch("obs_transfer_path", curJson, nil),
-			"obs_dir_prefix_name":  utils.PathSearch("obs_dir_pre_fix_name", curJson, nil),
-			"obs_prefix_name":      utils.PathSearch("obs_prefix_name", curJson, nil),
-			"obs_eps_id":           utils.PathSearch("obs_eps_id", curJson, nil),
-			"obs_encrypted_enable": utils.PathSearch("obs_encrypted_enable", curJson, nil),
-			"obs_encrypted_id":     utils.PathSearch("obs_encrypted_id", curJson, nil),
-			"obs_time_zone":        utils.PathSearch("obs_time_zone", curJson, nil),
-			"obs_time_zone_id":     utils.PathSearch("obs_time_zone_id", curJson, nil),
-			"dis_id":               utils.PathSearch("dis_id", curJson, nil),
-			"dis_name":             utils.PathSearch("dis_name", curJson, nil),
-			"kafka_id":             utils.PathSearch("kafka_id", curJson, nil),
-			"kafka_topic":          utils.PathSearch("kafka_topic", curJson, nil),
-			"delivery_tags":        utils.PathSearch("tags", curJson, nil),
-		},
+		logTransferDetail,
 	}
 	return rst
 }
@@ -620,26 +671,13 @@ func buildUpdateTransferRequestBodyLogTransferInfoUpdate(rawParams interface{}) 
 	return nil
 }
 
-func resourceLtsTransferDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
+func DeleteTransferById(client *golangsdk.ServiceClient, transferId string) error {
+	httpUrl := "v2/{project_id}/transfers?log_transfer_id={log_transfer_id}"
+	deletePath := client.Endpoint + httpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = strings.ReplaceAll(deletePath, "{log_transfer_id}", transferId)
 
-	// deleteTransfer: delete log transfer task
-	var (
-		deleteTransferHttpUrl = "v2/{project_id}/transfers"
-		deleteTransferProduct = "lts"
-	)
-	deleteTransferClient, err := cfg.NewServiceClient(deleteTransferProduct, region)
-	if err != nil {
-		return diag.Errorf("error creating LTS client: %s", err)
-	}
-
-	deleteTransferPath := deleteTransferClient.Endpoint + deleteTransferHttpUrl
-	deleteTransferPath = strings.ReplaceAll(deleteTransferPath, "{project_id}", deleteTransferClient.ProjectID)
-
-	deleteTransferPath += fmt.Sprintf("?log_transfer_id=%s", d.Id())
-
-	deleteTransferOpt := golangsdk.RequestOpts{
+	opt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		OkCodes: []int{
 			200,
@@ -647,10 +685,26 @@ func resourceLtsTransferDelete(_ context.Context, d *schema.ResourceData, meta i
 		MoreHeaders: map[string]string{"Content-Type": "application/json"},
 	}
 
-	_, err = deleteTransferClient.Request("DELETE", deleteTransferPath, &deleteTransferOpt)
+	_, err := client.Request("DELETE", deletePath, &opt)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func resourceLtsTransferDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	client, err := cfg.NewServiceClient("lts", region)
+	if err != nil {
+		return diag.Errorf("error creating LTS client: %s", err)
+	}
+
+	err = DeleteTransferById(client, d.Id())
 	if err != nil {
 		return diag.Errorf("error deleting LTS transfer: %s", err)
 	}
-
 	return nil
 }

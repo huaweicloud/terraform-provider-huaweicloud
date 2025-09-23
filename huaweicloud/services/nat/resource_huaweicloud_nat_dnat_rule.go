@@ -3,6 +3,7 @@ package nat
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -11,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/nat/v2/dnats"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -111,7 +111,6 @@ func ResourcePublicDnatRule() *schema.Resource {
 				Computed:    true,
 				Description: "The private IP address of a user.",
 			},
-
 			"created_at": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -136,186 +135,252 @@ func ResourcePublicDnatRule() *schema.Resource {
 	}
 }
 
-func buildPublicDnatRuleCreateOpts(d *schema.ResourceData) dnats.CreateOpts {
-	return dnats.CreateOpts{
-		GatewayId:                d.Get("nat_gateway_id").(string),
-		FloatingIpId:             d.Get("floating_ip_id").(string),
-		GlobalEipId:              d.Get("global_eip_id").(string),
-		Protocol:                 d.Get("protocol").(string),
-		InternalServicePort:      utils.Int(d.Get("internal_service_port").(int)),
-		ExternalServicePort:      utils.Int(d.Get("external_service_port").(int)),
-		InternalServicePortRange: d.Get("internal_service_port_range").(string),
-		EXternalServicePortRange: d.Get("external_service_port_range").(string),
-		Description:              d.Get("description").(string),
-		PortId:                   d.Get("port_id").(string),
-		PrivateIp:                d.Get("private_ip").(string),
+func buildCreateDnatRuleBodyParams(d *schema.ResourceData) map[string]interface{} {
+	dnatRuleBodyParams := map[string]interface{}{
+		"nat_gateway_id":              d.Get("nat_gateway_id"),
+		"protocol":                    d.Get("protocol"),
+		"internal_service_port":       d.Get("internal_service_port"),
+		"external_service_port":       d.Get("external_service_port"),
+		"floating_ip_id":              utils.ValueIgnoreEmpty(d.Get("floating_ip_id")),
+		"global_eip_id":               utils.ValueIgnoreEmpty(d.Get("global_eip_id")),
+		"internal_service_port_range": utils.ValueIgnoreEmpty(d.Get("internal_service_port_range")),
+		"external_service_port_range": utils.ValueIgnoreEmpty(d.Get("external_service_port_range")),
+		"description":                 utils.ValueIgnoreEmpty(d.Get("description")),
+		"port_id":                     utils.ValueIgnoreEmpty(d.Get("port_id")),
+		"private_ip":                  utils.ValueIgnoreEmpty(d.Get("private_ip")),
+	}
+
+	return map[string]interface{}{
+		"dnat_rule": dnatRuleBodyParams,
 	}
 }
 
-func publicDnatRuleStateRefreshFunc(client *golangsdk.ServiceClient, ruleId string,
-	targets []string) resource.StateRefreshFunc {
+func waitingForDnatRuleStateRefresh(client *golangsdk.ServiceClient, ruleId string, targets []string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		resp, err := dnats.Get(client, ruleId)
+		resp, err := GetDnatRule(client, ruleId)
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				return resp, "COMPLETED", nil
+				return "Resource Not Found", "COMPLETED", nil
 			}
+
 			return resp, "", err
 		}
 
-		if utils.StrSliceContains([]string{"INACTIVE", "EIP_FREEZED"}, resp.Status) {
-			return resp, "", fmt.Errorf("unexpect status (%s)", resp.Status)
+		status := utils.PathSearch("dnat_rule.status", resp, "").(string)
+
+		if utils.StrSliceContains([]string{"INACTIVE", "EIP_FREEZED"}, status) {
+			return resp, "", fmt.Errorf("unexpect status (%s)", status)
 		}
-		if utils.StrSliceContains(targets, resp.Status) {
+
+		if utils.StrSliceContains(targets, status) {
 			return resp, "COMPLETED", nil
 		}
+
 		return resp, "PENDING", nil
 	}
 }
 
 func resourcePublicDnatRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	client, err := cfg.NatGatewayClient(region)
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v2/{project_id}/dnat_rules"
+	)
+
+	client, err := cfg.NewServiceClient("nat", region)
 	if err != nil {
 		return diag.Errorf("error creating NAT v2 client: %s", err)
 	}
 
-	resp, err := dnats.Create(client, buildPublicDnatRuleCreateOpts(d))
+	createPath := client.Endpoint + httpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildCreateDnatRuleBodyParams(d)),
+	}
+
+	resp, err := client.Request("POST", createPath, &createOpt)
 	if err != nil {
 		return diag.Errorf("error creating DNAT rule: %s", err)
 	}
-	d.SetId(resp.ID)
 
-	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"PENDING"},
-		Target:       []string{"COMPLETED"},
-		Refresh:      publicDnatRuleStateRefreshFunc(client, d.Id(), []string{"ACTIVE"}),
-		Timeout:      d.Timeout(schema.TimeoutCreate),
-		Delay:        3 * time.Second,
-		PollInterval: 10 * time.Second,
-	}
-	_, err = stateConf.WaitForStateContext(ctx)
+	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
 		return diag.FromErr(err)
+	}
+
+	ruleId := utils.PathSearch("dnat_rule.id", respBody, "").(string)
+	if ruleId == "" {
+		return diag.Errorf("error creating DNAT rule: ID is not found in API response")
+	}
+
+	d.SetId(ruleId)
+
+	err = waitingForDnatRuleStateCompleted(ctx, client, d.Timeout(schema.TimeoutCreate), ruleId, []string{"ACTIVE"})
+	if err != nil {
+		return diag.Errorf("error waiting for the DNAT rule (%s) creation to complete: %s", ruleId, err)
 	}
 
 	return resourcePublicDnatRuleRead(ctx, d, meta)
 }
 
+func GetDnatRule(client *golangsdk.ServiceClient, ruleId string) (interface{}, error) {
+	httpUrl := "v2/{project_id}/dnat_rules/{dnat_rule_id}"
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{dnat_rule_id}", ruleId)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(getResp)
+}
+
 func resourcePublicDnatRuleRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	client, err := cfg.NatGatewayClient(region)
+	var (
+		cfg    = meta.(*config.Config)
+		region = cfg.GetRegion(d)
+	)
+
+	client, err := cfg.NewServiceClient("nat", region)
 	if err != nil {
 		return diag.Errorf("error creating NAT v2 client: %s", err)
 	}
 
-	ruleId := d.Id()
-	resp, err := dnats.Get(client, ruleId)
+	respBody, err := GetDnatRule(client, d.Id())
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "DNAT rule")
+		// If the DNAT rule does not exist, the response HTTP status code of the details API is 404.
+		return common.CheckDeletedDiag(d, err, "error retrieving DNAT rule")
 	}
 
-	mErr := multierror.Append(nil,
+	mErr := multierror.Append(
 		d.Set("region", region),
-		d.Set("nat_gateway_id", resp.GatewayId),
-		d.Set("floating_ip_id", resp.FloatingIpId),
-		d.Set("global_eip_id", resp.GlobalEipId),
-		d.Set("protocol", resp.Protocol),
-		d.Set("internal_service_port", resp.InternalServicePort),
-		d.Set("external_service_port", resp.ExternalServicePort),
-		d.Set("internal_service_port_range", resp.InternalServicePortRange),
-		d.Set("external_service_port_range", resp.EXternalServicePortRange),
-		d.Set("description", resp.Description),
-		d.Set("port_id", resp.PortId),
-		d.Set("private_ip", resp.PrivateIp),
-		d.Set("created_at", resp.CreatedAt),
-		d.Set("floating_ip_address", resp.FloatingIpAddress),
-		d.Set("global_eip_address", resp.GlobalEipAddress),
-		d.Set("status", resp.Status),
+		d.Set("nat_gateway_id", utils.PathSearch("dnat_rule.nat_gateway_id", respBody, nil)),
+		d.Set("floating_ip_id", utils.PathSearch("dnat_rule.floating_ip_id", respBody, nil)),
+		d.Set("global_eip_id", utils.PathSearch("dnat_rule.global_eip_id", respBody, nil)),
+		d.Set("protocol", utils.PathSearch("dnat_rule.protocol", respBody, nil)),
+		d.Set("internal_service_port", utils.PathSearch("dnat_rule.internal_service_port", respBody, nil)),
+		d.Set("external_service_port", utils.PathSearch("dnat_rule.external_service_port", respBody, nil)),
+		d.Set("internal_service_port_range", utils.PathSearch("dnat_rule.internal_service_port_range", respBody, nil)),
+		d.Set("external_service_port_range", utils.PathSearch("dnat_rule.external_service_port_range", respBody, nil)),
+		d.Set("description", utils.PathSearch("dnat_rule.description", respBody, nil)),
+		d.Set("port_id", utils.PathSearch("dnat_rule.port_id", respBody, nil)),
+		d.Set("private_ip", utils.PathSearch("dnat_rule.private_ip", respBody, nil)),
+		d.Set("created_at", utils.PathSearch("dnat_rule.created_at", respBody, nil)),
+		d.Set("floating_ip_address", utils.PathSearch("dnat_rule.floating_ip_address", respBody, nil)),
+		d.Set("global_eip_address", utils.PathSearch("dnat_rule.global_eip_address", respBody, nil)),
+		d.Set("status", utils.PathSearch("dnat_rule.status", respBody, nil)),
 	)
-	if err = mErr.ErrorOrNil(); err != nil {
-		return diag.Errorf("error saving DNAT rule fields: %s", err)
-	}
-	return nil
+
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func buildPublicDnatRuleUpdateOpts(d *schema.ResourceData) dnats.UpdateOpts {
-	return dnats.UpdateOpts{
-		GatewayId:                d.Get("nat_gateway_id").(string),
-		FloatingIpId:             d.Get("floating_ip_id").(string),
-		GlobalEipId:              d.Get("global_eip_id").(string),
-		Protocol:                 d.Get("protocol").(string),
-		InternalServicePort:      utils.Int(d.Get("internal_service_port").(int)),
-		ExternalServicePort:      utils.Int(d.Get("external_service_port").(int)),
-		InternalServicePortRange: d.Get("internal_service_port_range").(string),
-		ExternalServicePortRange: d.Get("external_service_port_range").(string),
-		Description:              utils.String(d.Get("description").(string)),
-		PortId:                   d.Get("port_id").(string),
-		PrivateIp:                d.Get("private_ip").(string),
+func buildUpdateDnatRuleBodyParams(d *schema.ResourceData) map[string]interface{} {
+	dnatRuleBodyParams := map[string]interface{}{
+		"nat_gateway_id":              d.Get("nat_gateway_id"),
+		"protocol":                    d.Get("protocol"),
+		"internal_service_port":       d.Get("internal_service_port"),
+		"external_service_port":       d.Get("external_service_port"),
+		"description":                 d.Get("description"),
+		"floating_ip_id":              utils.ValueIgnoreEmpty(d.Get("floating_ip_id")),
+		"global_eip_id":               utils.ValueIgnoreEmpty(d.Get("global_eip_id")),
+		"internal_service_port_range": utils.ValueIgnoreEmpty(d.Get("internal_service_port_range")),
+		"external_service_port_range": utils.ValueIgnoreEmpty(d.Get("external_service_port_range")),
+		"port_id":                     utils.ValueIgnoreEmpty(d.Get("port_id")),
+		"private_ip":                  utils.ValueIgnoreEmpty(d.Get("private_ip")),
+	}
+
+	return map[string]interface{}{
+		"dnat_rule": dnatRuleBodyParams,
 	}
 }
 
 func resourcePublicDnatRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	client, err := cfg.NatGatewayClient(region)
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		ruleId  = d.Id()
+		httpUrl = "v2/{project_id}/dnat_rules/{dnat_rule_id}"
+	)
+
+	client, err := cfg.NewServiceClient("nat", region)
 	if err != nil {
 		return diag.Errorf("error creating NAT v2 client: %s", err)
 	}
 
-	ruleId := d.Id()
-	_, err = dnats.Update(client, ruleId, buildPublicDnatRuleUpdateOpts(d))
-	if err != nil {
-		return diag.Errorf("error updating DNAT rule (%s): %s", ruleId, err)
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{dnat_rule_id}", ruleId)
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildUpdateDnatRuleBodyParams(d)),
 	}
 
-	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"PENDING"},
-		Target:       []string{"COMPLETED"},
-		Refresh:      publicDnatRuleStateRefreshFunc(client, ruleId, []string{"ACTIVE"}),
-		Timeout:      d.Timeout(schema.TimeoutUpdate),
-		Delay:        3 * time.Second,
-		PollInterval: 10 * time.Second,
-	}
-	_, err = stateConf.WaitForStateContext(ctx)
+	_, err = client.Request("PUT", updatePath, &updateOpt)
 	if err != nil {
-		return diag.FromErr(err)
+		return diag.Errorf("error updating DNAT rule: %s", err)
+	}
+
+	err = waitingForDnatRuleStateCompleted(ctx, client, d.Timeout(schema.TimeoutUpdate), ruleId, []string{"ACTIVE"})
+	if err != nil {
+		return diag.Errorf("error waiting for the DNAT rule (%s) update to complete: %s", ruleId, err)
 	}
 
 	return resourcePublicDnatRuleRead(ctx, d, meta)
 }
 
 func resourcePublicDnatRuleDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	client, err := cfg.NatGatewayClient(region)
+	var (
+		cfg       = meta.(*config.Config)
+		region    = cfg.GetRegion(d)
+		ruleId    = d.Id()
+		gatewayId = d.Get("nat_gateway_id").(string)
+		httpUrl   = "v2/{project_id}/nat_gateways/{nat_gateway_id}/dnat_rules/{dnat_rule_id}"
+	)
+
+	client, err := cfg.NewServiceClient("nat", region)
 	if err != nil {
 		return diag.Errorf("error creating NAT v2 client: %s", err)
 	}
 
-	var (
-		gatewayId = d.Get("nat_gateway_id").(string)
-		ruleId    = d.Id()
-	)
-	err = dnats.Delete(client, gatewayId, ruleId)
-	if err != nil {
-		return diag.Errorf("error deleting DNAT rule (%s): %s", ruleId, err)
+	deletePath := client.Endpoint + httpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = strings.ReplaceAll(deletePath, "{nat_gateway_id}", gatewayId)
+	deletePath = strings.ReplaceAll(deletePath, "{dnat_rule_id}", ruleId)
+	deleteOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
 
-	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"PENDING"},
-		Target:       []string{"COMPLETED"},
-		Refresh:      publicDnatRuleStateRefreshFunc(client, ruleId, nil),
-		Timeout:      d.Timeout(schema.TimeoutDelete),
-		Delay:        3 * time.Second,
-		PollInterval: 10 * time.Second,
-	}
-	_, err = stateConf.WaitForStateContext(ctx)
+	_, err = client.Request("DELETE", deletePath, &deleteOpts)
 	if err != nil {
-		return diag.FromErr(err)
+		// If the DNAT rule does not exist, the response HTTP status code of the details API is 404.
+		return common.CheckDeletedDiag(d, err, "error deleting DNAT rule")
+	}
+
+	err = waitingForDnatRuleStateCompleted(ctx, client, d.Timeout(schema.TimeoutCreate), ruleId, nil)
+	if err != nil {
+		return diag.Errorf("error waiting for the DNAT rule (%s) deletion to complete: %s", ruleId, err)
 	}
 
 	return nil
+}
+
+func waitingForDnatRuleStateCompleted(ctx context.Context, client *golangsdk.ServiceClient, t time.Duration,
+	ruleId string, targets []string) error {
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      waitingForDnatRuleStateRefresh(client, ruleId, targets),
+		Timeout:      t,
+		Delay:        3 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+
+	_, err := stateConf.WaitForStateContext(ctx)
+	return err
 }

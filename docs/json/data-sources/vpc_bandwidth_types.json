@@ -1,0 +1,70 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_vpc_bandwidth_types": {
+          "block": {
+            "attributes": {
+              "bandwidth_type": {
+                "type": "string",
+                "description": "Specifies the bandwidth type.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name_en": {
+                "type": "string",
+                "description": "Specifies the English description of the bandwidth type.",
+                "optional": true
+              },
+              "name_zh": {
+                "type": "string",
+                "description": "Specifies the Chinese description of the bandwidth type.",
+                "optional": true
+              },
+              "public_border_group": {
+                "type": "string",
+                "description": "Specifies the location of the bandwidth type.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "share_bandwidth_types": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "bandwidth_type": "string",
+                      "created_at": "string",
+                      "description": "string",
+                      "id": "string",
+                      "name_en": "string",
+                      "name_zh": "string",
+                      "public_border_group": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the shared bandwidth types.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "EIP",
+            "name": "Elastic IP",
+            "catalog": "Networking",
+            "name_cn": "弹性公网IP",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

@@ -47,6 +47,12 @@
                 "computed": true,
                 "forcenew": true
               },
+              "cloud_type": {
+                "type": "string",
+                "description": "The cloud type of the vault.",
+                "required": true,
+                "forcenew": true
+              },
               "consistent_level": {
                 "type": "string",
                 "description": "The consistent level (specification) of the vault.",
@@ -70,9 +76,15 @@
                 "computed": true,
                 "forcenew": true
               },
+              "locked": {
+                "type": "bool",
+                "description": "Locked status of the vault.",
+                "optional": true,
+                "computed": true
+              },
               "name": {
                 "type": "string",
-                "description": "The vault name.",
+                "description": "The name of the vault.",
                 "required": true
               },
               "period": {
@@ -87,7 +99,7 @@
               },
               "protection_type": {
                 "type": "string",
-                "description": "The protection type.",
+                "description": "The protection type of the vault.",
                 "required": true,
                 "forcenew": true
               },
@@ -121,11 +133,12 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "type": {
                 "type": "string",
-                "description": "The vault type.",
+                "description": "The type of the vault.",
                 "required": true,
                 "forcenew": true
               },

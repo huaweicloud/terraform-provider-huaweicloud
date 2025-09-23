@@ -39,10 +39,10 @@ The following arguments are supported:
   The valid values are **tcp** and **udp**.
 
 * `forward_port` - (Required, Int) Specifies the forward port.
-  The valid value is range from **1** to **65535**.
+  The valid value is range from `1` to `65,535`.
 
 * `source_port` - (Required, Int) Specifies the source port.
-  The valid value is range from **1** to **65535**.
+  The valid value is range from `1` to `65,535`.
 
 * `source_ip` - (Required, String) Specifies the source IP addresses, separated by commas (,).
 
@@ -61,6 +61,6 @@ In addition to all arguments above, the following attributes are exported:
 Rule can be imported using the `id` (combination of `instance_id`, `ip`, `forward_protocol` and `forward_port`),
 separated by slashes (/), e.g.
 
-```
-terraform import huaweicloud_dds_database_user.test &ltinstance_id&gt/&ltip&gt/&ltforward_protocol&gt/&ltforward_port&gt
+```bash
+terraform import huaweicloud_dds_database_user.test <instance_id>/<ip>/<forward_protocol>/<forward_port>
 ```

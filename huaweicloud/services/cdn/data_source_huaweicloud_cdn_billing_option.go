@@ -7,13 +7,14 @@ package cdn
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v2/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -22,7 +23,7 @@ import (
 // @API CDN GET /v1.0/cdn/charge/charge-modes
 func DataSourceBillingOption() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataBillingOptionRead,
+		ReadContext: dataSourceBillingOptionRead,
 		Schema: map[string]*schema.Schema{
 			"product_type": {
 				Type:        schema.TypeString,
@@ -33,7 +34,7 @@ func DataSourceBillingOption() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				Description: `Specifies the service area`,
+				Description: `Specifies the service area.`,
 			},
 			"status": {
 				Type:        schema.TypeString,
@@ -60,30 +61,50 @@ func DataSourceBillingOption() *schema.Resource {
 	}
 }
 
-func dataBillingOptionRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	hcCdnClient, err := cfg.HcCdnV2Client(region)
+func buildDataSourceBillingOptionQueryParams(d *schema.ResourceData) string {
+	queryParams := fmt.Sprintf("?product_type=%v", d.Get("product_type"))
+	if v, ok := d.GetOk("service_area"); ok {
+		queryParams = fmt.Sprintf("%s&service_area=%v", queryParams, v)
+	}
+	if v, ok := d.GetOk("status"); ok {
+		queryParams = fmt.Sprintf("%s&status=%v", queryParams, v)
+	}
+
+	return queryParams
+}
+
+func dataSourceBillingOptionRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		product = "cdn"
+		mErr    *multierror.Error
+	)
+
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating CDN v2 client: %s", err)
+		return diag.Errorf("error creating CDN client: %s", err)
 	}
 
-	request := model.ShowChargeModesRequest{
-		ProductType: d.Get("product_type").(string),
-		Status:      utils.StringIgnoreEmpty(d.Get("status").(string)),
-		ServiceArea: utils.StringIgnoreEmpty(d.Get("service_area").(string)),
+	getPath := client.Endpoint + "v1.0/cdn/charge/charge-modes"
+	getPath += buildDataSourceBillingOptionQueryParams(d)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
-	resp, err := hcCdnClient.ShowChargeModes(&request)
+	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
 		return diag.Errorf("error retrieving CDN billing option: %s", err)
 	}
 
-	if resp == nil || resp.Result == nil {
-		return diag.Errorf("error retrieving CDN billing option: Result is not found in API response")
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
-	if len(*resp.Result) == 0 {
+	result := utils.PathSearch("result[0]", getRespBody, nil)
+	if result == nil {
 		return diag.Errorf("Your query returned no results. Please change your search criteria and try again.")
 	}
 
@@ -91,19 +112,18 @@ func dataBillingOptionRead(_ context.Context, d *schema.ResourceData, meta inter
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
+
 	d.SetId(generateUUID)
 
-	resultArray := *resp.Result
-	resultMap := resultArray[0]
-	var mErr *multierror.Error
 	mErr = multierror.Append(
 		mErr,
-		d.Set("product_type", resultMap["product_type"]),
-		d.Set("service_area", resultMap["service_area"]),
-		d.Set("status", resultMap["status"]),
-		d.Set("charge_mode", resultMap["charge_mode"]),
-		d.Set("created_at", flattenTimeStamp(resultMap["create_time"])),
-		d.Set("effective_time", flattenTimeStamp(resultMap["effective_time"])),
+		d.Set("product_type", utils.PathSearch("product_type", result, nil)),
+		d.Set("service_area", utils.PathSearch("service_area", result, nil)),
+		d.Set("status", utils.PathSearch("status", result, nil)),
+		d.Set("charge_mode", utils.PathSearch("charge_mode", result, nil)),
+		d.Set("created_at", flattenCreatedAt(result)),
+		d.Set("effective_time", flattenEffectiveTime(result)),
 	)
+
 	return diag.FromErr(mErr.ErrorOrNil())
 }

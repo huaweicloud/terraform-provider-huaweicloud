@@ -2,7 +2,8 @@
 subcategory: "Auto Scaling"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_as_configuration"
-description: ""
+description: |-
+  Manages an AS configuration resource within HuaweiCloud.
 ---
 
 # huaweicloud_as_configuration
@@ -397,26 +398,42 @@ The `personality` block supports:
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID in UUID format.
+
 * `status` - The AS configuration status, the value can be **Bound** or **Unbound**.
+
+* `create_time` - The creation time of the AS configuration, in UTC format.
+
+* `instance_config` - The list of information about instance configurations.
+  The [instance_config](#as_instance_config_attr) structure is documented below.
+
+<a name="as_instance_config_attr"></a>
+The `instance_config` block supports:
+
+* `key_fingerprint` - The fingerprint of the SSH key pair used to log in to the instance.
 
 ## Import
 
 AS configurations can be imported by their `id`, e.g.
 
-```
-$ terraform import huaweicloud_as_configuration.test 18518c8a-9d15-416b-8add-2ee874751d18
+```bash
+$ terraform import huaweicloud_as_configuration.test <id>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to `instance_config.0.instance_id`,
-`instance_config.0.admin_pass`, and `instance_config.0.metadata` are missing from the API response.
-You can ignore changes after importing an AS configuration as below.
+`instance_config.0.admin_pass`, `instance_config.0.user_data`, and `instance_config.0.metadata` are missing from the
+API response. You can ignore changes after importing an AS configuration as below.
 
-```
+```hcl
 resource "huaweicloud_as_configuration" "test" {
   ...
 
   lifecycle {
-    ignore_changes = [ instance_config.0.instance_id, instance_config.0.admin_pass, instance_config.0.metadata ]
+    ignore_changes = [
+      instance_config.0.instance_id,
+      instance_config.0.admin_pass,
+      instance_config.0.user_data,
+      instance_config.0.metadata,
+    ]
   }
 }
 ```

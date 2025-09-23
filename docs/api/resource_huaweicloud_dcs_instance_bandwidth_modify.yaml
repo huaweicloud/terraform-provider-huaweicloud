@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dcs_instance_bandwidth_modify
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DCS
+paths:
+    /v2/{project_id}/instances/{instance_id}:
+        GET:
+            tag: DCS
+    /v2/{project_id}/instances/{instance_id}/bandwidth:
+        PUT:
+            tag: DCS

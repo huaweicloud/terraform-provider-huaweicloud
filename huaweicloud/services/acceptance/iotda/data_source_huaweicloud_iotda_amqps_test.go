@@ -19,38 +19,6 @@ func TestAccDataSourceAMQPQueues_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccDataSourceAMQPQueues_basic(name),
-				Check: resource.ComposeTestCheckFunc(
-					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttrSet(dataSourceName, "queues.#"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "queues.0.id"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "queues.0.name"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "queues.0.created_at"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "queues.0.updated_at"),
-
-					resource.TestCheckOutput("queue_id_filter_is_useful", "true"),
-					resource.TestCheckOutput("name_filter_is_useful", "true"),
-					resource.TestCheckOutput("not_found_validation_pass", "true"),
-				),
-			},
-		},
-	})
-}
-
-func TestAccDataSourceAMQPQueues_derived(t *testing.T) {
-	var (
-		dataSourceName = "data.huaweicloud_iotda_amqps.test"
-		dc             = acceptance.InitDataSourceCheck(dataSourceName)
-		name           = acceptance.RandomAccResourceName()
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckHWIOTDAAccessAddress(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
@@ -66,6 +34,7 @@ func TestAccDataSourceAMQPQueues_derived(t *testing.T) {
 					resource.TestCheckResourceAttrSet(dataSourceName, "queues.0.updated_at"),
 
 					resource.TestCheckOutput("queue_id_filter_is_useful", "true"),
+					resource.TestCheckOutput("name_filter_is_useful", "true"),
 					resource.TestCheckOutput("not_found_validation_pass", "true"),
 				),
 			},

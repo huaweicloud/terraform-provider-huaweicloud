@@ -1,0 +1,1285 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cciv2_deployment": {
+          "block": {
+            "attributes": {
+              "annotations": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "computed": true
+              },
+              "api_version": {
+                "type": "string",
+                "computed": true
+              },
+              "creation_timestamp": {
+                "type": "string",
+                "computed": true
+              },
+              "generation": {
+                "type": "number",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "kind": {
+                "type": "string",
+                "computed": true
+              },
+              "min_ready_seconds": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "namespace": {
+                "type": "string",
+                "required": true
+              },
+              "progress_deadline_seconds": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "replicas": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "resource_version": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "conditions": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "last_transition_time": "string",
+                            "last_update_time": "string",
+                            "message": "string",
+                            "reason": "string",
+                            "status": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "observed_generation": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "uid": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "selector": {
+                "block": {
+                  "attributes": {
+                    "match_labels": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "block_types": {
+                    "match_expressions": {
+                      "block": {
+                        "attributes": {
+                          "key": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "operator": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "values": {
+                            "type": [
+                              "set",
+                              "string"
+                            ],
+                            "optional": true,
+                            "computed": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "set"
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "strategy": {
+                "block": {
+                  "attributes": {
+                    "rolling_update": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "optional": true,
+                      "computed": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "template": {
+                "block": {
+                  "block_types": {
+                    "metadata": {
+                      "block": {
+                        "attributes": {
+                          "annotations": {
+                            "type": [
+                              "map",
+                              "string"
+                            ],
+                            "optional": true,
+                            "computed": true
+                          },
+                          "labels": {
+                            "type": [
+                              "map",
+                              "string"
+                            ],
+                            "optional": true,
+                            "computed": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "spec": {
+                      "block": {
+                        "attributes": {
+                          "active_deadline_seconds": {
+                            "type": "number",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "dns_policy": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "hostname": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "node_name": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "overhead": {
+                            "type": [
+                              "map",
+                              "string"
+                            ],
+                            "optional": true,
+                            "computed": true
+                          },
+                          "restart_policy": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "scheduler_name": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "set_hostname_as_pqdn": {
+                            "type": "bool",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "share_process_namespace": {
+                            "type": "bool",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "termination_grace_period_seconds": {
+                            "type": "number",
+                            "optional": true,
+                            "computed": true
+                          }
+                        },
+                        "block_types": {
+                          "affinity": {
+                            "block": {
+                              "block_types": {
+                                "node_affinity": {
+                                  "block": {
+                                    "block_types": {
+                                      "required_during_scheduling_ignored_during_execution": {
+                                        "block": {
+                                          "block_types": {
+                                            "node_selector_terms": {
+                                              "block": {
+                                                "block_types": {
+                                                  "match_expressions": {
+                                                    "block": {
+                                                      "attributes": {
+                                                        "key": {
+                                                          "type": "string",
+                                                          "required": true
+                                                        },
+                                                        "operator": {
+                                                          "type": "string",
+                                                          "required": true
+                                                        },
+                                                        "values": {
+                                                          "type": [
+                                                            "set",
+                                                            "string"
+                                                          ],
+                                                          "optional": true,
+                                                          "computed": true
+                                                        }
+                                                      }
+                                                    },
+                                                    "nesting_mode": "set"
+                                                  }
+                                                }
+                                              },
+                                              "nesting_mode": "set",
+                                              "min_items": 1
+                                            }
+                                          }
+                                        },
+                                        "nesting_mode": "list",
+                                        "max_items": 1
+                                      }
+                                    }
+                                  },
+                                  "nesting_mode": "list",
+                                  "max_items": 1
+                                },
+                                "pod_anti_affinity": {
+                                  "block": {
+                                    "block_types": {
+                                      "preferred_during_scheduling_ignored_during_execution": {
+                                        "block": {
+                                          "attributes": {
+                                            "weight": {
+                                              "type": "number",
+                                              "required": true
+                                            }
+                                          },
+                                          "block_types": {
+                                            "pod_affinity_term": {
+                                              "block": {
+                                                "attributes": {
+                                                  "namespaces": {
+                                                    "type": [
+                                                      "set",
+                                                      "string"
+                                                    ],
+                                                    "optional": true,
+                                                    "computed": true
+                                                  },
+                                                  "topology_key": {
+                                                    "type": "string",
+                                                    "required": true
+                                                  }
+                                                },
+                                                "block_types": {
+                                                  "label_selector": {
+                                                    "block": {
+                                                      "attributes": {
+                                                        "match_labels": {
+                                                          "type": [
+                                                            "map",
+                                                            "string"
+                                                          ],
+                                                          "optional": true,
+                                                          "computed": true
+                                                        }
+                                                      },
+                                                      "block_types": {
+                                                        "match_expressions": {
+                                                          "block": {
+                                                            "attributes": {
+                                                              "key": {
+                                                                "type": "string",
+                                                                "required": true
+                                                              },
+                                                              "operator": {
+                                                                "type": "string",
+                                                                "required": true
+                                                              },
+                                                              "values": {
+                                                                "type": [
+                                                                  "set",
+                                                                  "string"
+                                                                ],
+                                                                "optional": true,
+                                                                "computed": true
+                                                              }
+                                                            }
+                                                          },
+                                                          "nesting_mode": "set"
+                                                        }
+                                                      }
+                                                    },
+                                                    "nesting_mode": "list",
+                                                    "max_items": 1
+                                                  }
+                                                }
+                                              },
+                                              "nesting_mode": "list",
+                                              "min_items": 1,
+                                              "max_items": 1
+                                            }
+                                          }
+                                        },
+                                        "nesting_mode": "set"
+                                      },
+                                      "required_during_scheduling_ignored_during_execution": {
+                                        "block": {
+                                          "attributes": {
+                                            "namespaces": {
+                                              "type": [
+                                                "set",
+                                                "string"
+                                              ],
+                                              "optional": true,
+                                              "computed": true
+                                            },
+                                            "topology_key": {
+                                              "type": "string",
+                                              "required": true
+                                            }
+                                          },
+                                          "block_types": {
+                                            "label_selector": {
+                                              "block": {
+                                                "attributes": {
+                                                  "match_labels": {
+                                                    "type": [
+                                                      "map",
+                                                      "string"
+                                                    ],
+                                                    "optional": true,
+                                                    "computed": true
+                                                  }
+                                                },
+                                                "block_types": {
+                                                  "match_expressions": {
+                                                    "block": {
+                                                      "attributes": {
+                                                        "key": {
+                                                          "type": "string",
+                                                          "required": true
+                                                        },
+                                                        "operator": {
+                                                          "type": "string",
+                                                          "required": true
+                                                        },
+                                                        "values": {
+                                                          "type": [
+                                                            "set",
+                                                            "string"
+                                                          ],
+                                                          "optional": true,
+                                                          "computed": true
+                                                        }
+                                                      }
+                                                    },
+                                                    "nesting_mode": "set"
+                                                  }
+                                                }
+                                              },
+                                              "nesting_mode": "list",
+                                              "max_items": 1
+                                            }
+                                          }
+                                        },
+                                        "nesting_mode": "set"
+                                      }
+                                    }
+                                  },
+                                  "nesting_mode": "list",
+                                  "max_items": 1
+                                }
+                              }
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          },
+                          "containers": {
+                            "block": {
+                              "attributes": {
+                                "args": {
+                                  "type": [
+                                    "set",
+                                    "string"
+                                  ],
+                                  "description": "Specifies the arguments to the entrypoint of the container.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "command": {
+                                  "type": [
+                                    "set",
+                                    "string"
+                                  ],
+                                  "description": "Specifies the command of the container.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "image": {
+                                  "type": "string",
+                                  "description": "Specifies the image name of the CCI Pod container.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "Specifies the name of the container.",
+                                  "required": true
+                                },
+                                "stdin": {
+                                  "type": "bool",
+                                  "description": "Specifies whether this container should allocate a buffer for stdin in the container runtime.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "stdin_once": {
+                                  "type": "bool",
+                                  "description": "Specifies whether this container runtime should close the stdin channel.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "termination_message_path": {
+                                  "type": "string",
+                                  "description": "Specifies the termination message path of the CCI Pod container.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "termination_message_policy": {
+                                  "type": "string",
+                                  "description": "Specifies the termination message policy of the CCI Pod container.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "tty": {
+                                  "type": "bool",
+                                  "description": "Specifies whether this container should allocate a TTY for itself.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "working_dir": {
+                                  "type": "string",
+                                  "description": "Specifies the working directory of the CCI Pod container.",
+                                  "optional": true,
+                                  "computed": true
+                                }
+                              },
+                              "block_types": {
+                                "env": {
+                                  "block": {
+                                    "attributes": {
+                                      "name": {
+                                        "type": "string",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "value": {
+                                        "type": "string",
+                                        "optional": true,
+                                        "computed": true
+                                      }
+                                    }
+                                  },
+                                  "nesting_mode": "set"
+                                },
+                                "env_from": {
+                                  "block": {
+                                    "attributes": {
+                                      "prefix": {
+                                        "type": "string",
+                                        "description": "Specifies the prefix.",
+                                        "optional": true,
+                                        "computed": true
+                                      }
+                                    },
+                                    "block_types": {
+                                      "config_map_ref": {
+                                        "block": {
+                                          "attributes": {
+                                            "name": {
+                                              "type": "string",
+                                              "description": "Specifies the name.",
+                                              "optional": true,
+                                              "computed": true
+                                            },
+                                            "optional": {
+                                              "type": "bool",
+                                              "description": "Specifies whether to be defined.",
+                                              "optional": true,
+                                              "computed": true
+                                            }
+                                          },
+                                          "description": "Specifies the config map."
+                                        },
+                                        "nesting_mode": "list",
+                                        "max_items": 1
+                                      },
+                                      "secret_ref": {
+                                        "block": {
+                                          "attributes": {
+                                            "name": {
+                                              "type": "string",
+                                              "description": "Specifies the name.",
+                                              "optional": true,
+                                              "computed": true
+                                            },
+                                            "optional": {
+                                              "type": "bool",
+                                              "description": "Specifies whether to be defined.",
+                                              "optional": true,
+                                              "computed": true
+                                            }
+                                          },
+                                          "description": "Specifies the secret."
+                                        },
+                                        "nesting_mode": "list",
+                                        "max_items": 1
+                                      }
+                                    },
+                                    "description": "The sources to populate environment variables of the container."
+                                  },
+                                  "nesting_mode": "set"
+                                },
+                                "lifecycle": {
+                                  "block": {
+                                    "block_types": {
+                                      "post_start": {
+                                        "block": {
+                                          "block_types": {
+                                            "exec": {
+                                              "block": {
+                                                "attributes": {
+                                                  "command": {
+                                                    "type": [
+                                                      "set",
+                                                      "string"
+                                                    ],
+                                                    "description": "The command line to execute inside the container.",
+                                                    "optional": true,
+                                                    "computed": true
+                                                  }
+                                                },
+                                                "description": "The lifecycle post start of the CCI Pod container."
+                                              },
+                                              "nesting_mode": "list",
+                                              "max_items": 1
+                                            },
+                                            "http_get": {
+                                              "block": {
+                                                "attributes": {
+                                                  "host": {
+                                                    "type": "string",
+                                                    "description": "The host name.",
+                                                    "optional": true,
+                                                    "computed": true
+                                                  },
+                                                  "path": {
+                                                    "type": "string",
+                                                    "description": "The path to access on the HTTP server.",
+                                                    "optional": true,
+                                                    "computed": true
+                                                  },
+                                                  "port": {
+                                                    "type": "string",
+                                                    "description": "The port to access on the HTTP server.",
+                                                    "optional": true,
+                                                    "computed": true
+                                                  },
+                                                  "scheme": {
+                                                    "type": "string",
+                                                    "description": "The scheme to use for connecting to the host.",
+                                                    "optional": true,
+                                                    "computed": true
+                                                  }
+                                                },
+                                                "block_types": {
+                                                  "http_headers": {
+                                                    "block": {
+                                                      "attributes": {
+                                                        "name": {
+                                                          "type": "string",
+                                                          "description": "The name of the custom HTTP headers.",
+                                                          "optional": true,
+                                                          "computed": true
+                                                        },
+                                                        "value": {
+                                                          "type": "string",
+                                                          "description": "The value of the custom HTTP headers.",
+                                                          "optional": true,
+                                                          "computed": true
+                                                        }
+                                                      },
+                                                      "description": "The custom headers to set in the request."
+                                                    },
+                                                    "nesting_mode": "set"
+                                                  }
+                                                },
+                                                "description": "The lifecycle pre stop of the CCI Pod container."
+                                              },
+                                              "nesting_mode": "list",
+                                              "max_items": 1
+                                            }
+                                          },
+                                          "description": "The lifecycle post start of the CCI Pod container."
+                                        },
+                                        "nesting_mode": "list",
+                                        "max_items": 1
+                                      },
+                                      "pre_stop": {
+                                        "block": {
+                                          "block_types": {
+                                            "exec": {
+                                              "block": {
+                                                "attributes": {
+                                                  "command": {
+                                                    "type": [
+                                                      "set",
+                                                      "string"
+                                                    ],
+                                                    "description": "The command line to execute inside the container.",
+                                                    "optional": true,
+                                                    "computed": true
+                                                  }
+                                                },
+                                                "description": "The lifecycle post start of the CCI Pod container."
+                                              },
+                                              "nesting_mode": "list",
+                                              "max_items": 1
+                                            },
+                                            "http_get": {
+                                              "block": {
+                                                "attributes": {
+                                                  "host": {
+                                                    "type": "string",
+                                                    "description": "The host name.",
+                                                    "optional": true,
+                                                    "computed": true
+                                                  },
+                                                  "path": {
+                                                    "type": "string",
+                                                    "description": "The path to access on the HTTP server.",
+                                                    "optional": true,
+                                                    "computed": true
+                                                  },
+                                                  "port": {
+                                                    "type": "string",
+                                                    "description": "The port to access on the HTTP server.",
+                                                    "optional": true,
+                                                    "computed": true
+                                                  },
+                                                  "scheme": {
+                                                    "type": "string",
+                                                    "description": "The scheme to use for connecting to the host.",
+                                                    "optional": true,
+                                                    "computed": true
+                                                  }
+                                                },
+                                                "block_types": {
+                                                  "http_headers": {
+                                                    "block": {
+                                                      "attributes": {
+                                                        "name": {
+                                                          "type": "string",
+                                                          "description": "The name of the custom HTTP headers.",
+                                                          "optional": true,
+                                                          "computed": true
+                                                        },
+                                                        "value": {
+                                                          "type": "string",
+                                                          "description": "The value of the custom HTTP headers.",
+                                                          "optional": true,
+                                                          "computed": true
+                                                        }
+                                                      },
+                                                      "description": "The custom headers to set in the request."
+                                                    },
+                                                    "nesting_mode": "set"
+                                                  }
+                                                },
+                                                "description": "The lifecycle pre stop of the CCI Pod container."
+                                              },
+                                              "nesting_mode": "list",
+                                              "max_items": 1
+                                            }
+                                          },
+                                          "description": "The lifecycle pre stop of the CCI Pod container."
+                                        },
+                                        "nesting_mode": "list",
+                                        "max_items": 1
+                                      }
+                                    },
+                                    "description": "Specifies the lifecycle of the container."
+                                  },
+                                  "nesting_mode": "list",
+                                  "max_items": 1
+                                },
+                                "liveness_probe": {
+                                  "block": {
+                                    "attributes": {
+                                      "failure_threshold": {
+                                        "type": "number",
+                                        "description": "Specifies the minimum consecutive failures for the probe to be considered failed after having succeeded.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "initial_delay_seconds": {
+                                        "type": "number",
+                                        "description": "The number of seconds after the container has started before liveness probes are initialed.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "period_seconds": {
+                                        "type": "number",
+                                        "description": "Specifies how often to perform the probe.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "success_threshold": {
+                                        "type": "number",
+                                        "description": "The minimum consecutive successes for the probe to be considered failed after having succeeded.",
+                                        "computed": true
+                                      },
+                                      "termination_grace_period_seconds": {
+                                        "type": "number",
+                                        "optional": true,
+                                        "computed": true
+                                      }
+                                    },
+                                    "block_types": {
+                                      "exec": {
+                                        "block": {
+                                          "attributes": {
+                                            "command": {
+                                              "type": [
+                                                "set",
+                                                "string"
+                                              ],
+                                              "description": "The command line to execute inside the container.",
+                                              "optional": true,
+                                              "computed": true
+                                            }
+                                          },
+                                          "description": "Specifies the exec."
+                                        },
+                                        "nesting_mode": "list",
+                                        "max_items": 1
+                                      },
+                                      "http_get": {
+                                        "block": {
+                                          "attributes": {
+                                            "host": {
+                                              "type": "string",
+                                              "description": "The host name.",
+                                              "optional": true,
+                                              "computed": true
+                                            },
+                                            "path": {
+                                              "type": "string",
+                                              "description": "The path to access on the HTTP server.",
+                                              "optional": true,
+                                              "computed": true
+                                            },
+                                            "port": {
+                                              "type": "string",
+                                              "description": "The port to access on the HTTP server.",
+                                              "optional": true,
+                                              "computed": true
+                                            },
+                                            "scheme": {
+                                              "type": "string",
+                                              "description": "The scheme to use for connecting to the host.",
+                                              "optional": true,
+                                              "computed": true
+                                            }
+                                          },
+                                          "block_types": {
+                                            "http_headers": {
+                                              "block": {
+                                                "attributes": {
+                                                  "name": {
+                                                    "type": "string",
+                                                    "description": "The name of the custom HTTP headers.",
+                                                    "optional": true,
+                                                    "computed": true
+                                                  },
+                                                  "value": {
+                                                    "type": "string",
+                                                    "description": "The value of the custom HTTP headers.",
+                                                    "optional": true,
+                                                    "computed": true
+                                                  }
+                                                },
+                                                "description": "The custom headers to set in the request."
+                                              },
+                                              "nesting_mode": "set"
+                                            }
+                                          },
+                                          "description": "Specifies the HTTP get."
+                                        },
+                                        "nesting_mode": "list"
+                                      }
+                                    },
+                                    "description": "Specifies the liveness probe of the container."
+                                  },
+                                  "nesting_mode": "list",
+                                  "max_items": 1
+                                },
+                                "ports": {
+                                  "block": {
+                                    "attributes": {
+                                      "container_port": {
+                                        "type": "number",
+                                        "description": "Specifies the number of port to expose on the IP address of pod.",
+                                        "required": true
+                                      },
+                                      "name": {
+                                        "type": "string",
+                                        "description": "Specifies the port name of the container.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "protocol": {
+                                        "type": "string",
+                                        "description": "Specifies the protocol for container port.",
+                                        "optional": true,
+                                        "computed": true
+                                      }
+                                    },
+                                    "description": "Specifies the ports of the container."
+                                  },
+                                  "nesting_mode": "set"
+                                },
+                                "readiness_probe": {
+                                  "block": {
+                                    "attributes": {
+                                      "failure_threshold": {
+                                        "type": "number",
+                                        "description": "Specifies the minimum consecutive failures for the probe to be considered failed after having succeeded.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "initial_delay_seconds": {
+                                        "type": "number",
+                                        "description": "The number of seconds after the container has started before liveness probes are initialed.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "period_seconds": {
+                                        "type": "number",
+                                        "description": "Specifies how often to perform the probe.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "success_threshold": {
+                                        "type": "number",
+                                        "description": "The minimum consecutive successes for the probe to be considered failed after having succeeded.",
+                                        "computed": true
+                                      },
+                                      "termination_grace_period_seconds": {
+                                        "type": "number",
+                                        "optional": true,
+                                        "computed": true
+                                      }
+                                    },
+                                    "block_types": {
+                                      "exec": {
+                                        "block": {
+                                          "attributes": {
+                                            "command": {
+                                              "type": [
+                                                "set",
+                                                "string"
+                                              ],
+                                              "description": "The command line to execute inside the container.",
+                                              "optional": true,
+                                              "computed": true
+                                            }
+                                          },
+                                          "description": "Specifies the exec."
+                                        },
+                                        "nesting_mode": "list",
+                                        "max_items": 1
+                                      },
+                                      "http_get": {
+                                        "block": {
+                                          "attributes": {
+                                            "host": {
+                                              "type": "string",
+                                              "description": "The host name.",
+                                              "optional": true,
+                                              "computed": true
+                                            },
+                                            "path": {
+                                              "type": "string",
+                                              "description": "The path to access on the HTTP server.",
+                                              "optional": true,
+                                              "computed": true
+                                            },
+                                            "port": {
+                                              "type": "string",
+                                              "description": "The port to access on the HTTP server.",
+                                              "optional": true,
+                                              "computed": true
+                                            },
+                                            "scheme": {
+                                              "type": "string",
+                                              "description": "The scheme to use for connecting to the host.",
+                                              "optional": true,
+                                              "computed": true
+                                            }
+                                          },
+                                          "block_types": {
+                                            "http_headers": {
+                                              "block": {
+                                                "attributes": {
+                                                  "name": {
+                                                    "type": "string",
+                                                    "description": "The name of the custom HTTP headers.",
+                                                    "optional": true,
+                                                    "computed": true
+                                                  },
+                                                  "value": {
+                                                    "type": "string",
+                                                    "description": "The value of the custom HTTP headers.",
+                                                    "optional": true,
+                                                    "computed": true
+                                                  }
+                                                },
+                                                "description": "The custom headers to set in the request."
+                                              },
+                                              "nesting_mode": "set"
+                                            }
+                                          },
+                                          "description": "Specifies the HTTP get."
+                                        },
+                                        "nesting_mode": "list"
+                                      }
+                                    },
+                                    "description": "Specifies the readiness probe of the container."
+                                  },
+                                  "nesting_mode": "list",
+                                  "max_items": 1
+                                },
+                                "resources": {
+                                  "block": {
+                                    "attributes": {
+                                      "limits": {
+                                        "type": [
+                                          "map",
+                                          "string"
+                                        ],
+                                        "description": "Specifies the limits of resource.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "requests": {
+                                        "type": [
+                                          "map",
+                                          "string"
+                                        ],
+                                        "description": "Specifies the requests of the resource.",
+                                        "optional": true,
+                                        "computed": true
+                                      }
+                                    },
+                                    "description": "Specifies the resources of the container."
+                                  },
+                                  "nesting_mode": "list",
+                                  "max_items": 1
+                                },
+                                "security_context": {
+                                  "block": {
+                                    "attributes": {
+                                      "proc_mount": {
+                                        "type": "string",
+                                        "description": "Specifies the denotes the type of proc mount to use for the containers.",
+                                        "optional": true
+                                      },
+                                      "read_only_root_file_system": {
+                                        "type": "bool",
+                                        "description": "Whether this container has a read-only root file system.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "run_as_group": {
+                                        "type": "number",
+                                        "description": "The GID TO run the entrypoint of the container process.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "run_as_non_root": {
+                                        "type": "bool",
+                                        "description": "The container must run as a non-root user.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "run_as_user": {
+                                        "type": "number",
+                                        "description": "The UID to run the entrypoint of the container process.",
+                                        "optional": true,
+                                        "computed": true
+                                      }
+                                    },
+                                    "block_types": {
+                                      "capabilities": {
+                                        "block": {
+                                          "attributes": {
+                                            "add": {
+                                              "type": [
+                                                "set",
+                                                "string"
+                                              ],
+                                              "optional": true,
+                                              "computed": true
+                                            },
+                                            "drop": {
+                                              "type": [
+                                                "set",
+                                                "string"
+                                              ],
+                                              "optional": true,
+                                              "computed": true
+                                            }
+                                          },
+                                          "description": "Specifies the capabilities of the security context."
+                                        },
+                                        "nesting_mode": "list",
+                                        "max_items": 1
+                                      }
+                                    },
+                                    "description": "Specifies the security context of the container."
+                                  },
+                                  "nesting_mode": "list",
+                                  "max_items": 1
+                                },
+                                "startup_probe": {
+                                  "block": {
+                                    "attributes": {
+                                      "failure_threshold": {
+                                        "type": "number",
+                                        "description": "Specifies the minimum consecutive failures for the probe to be considered failed after having succeeded.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "initial_delay_seconds": {
+                                        "type": "number",
+                                        "description": "The number of seconds after the container has started before liveness probes are initialed.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "period_seconds": {
+                                        "type": "number",
+                                        "description": "Specifies how often to perform the probe.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "success_threshold": {
+                                        "type": "number",
+                                        "description": "The minimum consecutive successes for the probe to be considered failed after having succeeded.",
+                                        "computed": true
+                                      },
+                                      "termination_grace_period_seconds": {
+                                        "type": "number",
+                                        "optional": true,
+                                        "computed": true
+                                      }
+                                    },
+                                    "block_types": {
+                                      "exec": {
+                                        "block": {
+                                          "attributes": {
+                                            "command": {
+                                              "type": [
+                                                "set",
+                                                "string"
+                                              ],
+                                              "description": "The command line to execute inside the container.",
+                                              "optional": true,
+                                              "computed": true
+                                            }
+                                          },
+                                          "description": "Specifies the exec."
+                                        },
+                                        "nesting_mode": "list",
+                                        "max_items": 1
+                                      },
+                                      "http_get": {
+                                        "block": {
+                                          "attributes": {
+                                            "host": {
+                                              "type": "string",
+                                              "description": "The host name.",
+                                              "optional": true,
+                                              "computed": true
+                                            },
+                                            "path": {
+                                              "type": "string",
+                                              "description": "The path to access on the HTTP server.",
+                                              "optional": true,
+                                              "computed": true
+                                            },
+                                            "port": {
+                                              "type": "string",
+                                              "description": "The port to access on the HTTP server.",
+                                              "optional": true,
+                                              "computed": true
+                                            },
+                                            "scheme": {
+                                              "type": "string",
+                                              "description": "The scheme to use for connecting to the host.",
+                                              "optional": true,
+                                              "computed": true
+                                            }
+                                          },
+                                          "block_types": {
+                                            "http_headers": {
+                                              "block": {
+                                                "attributes": {
+                                                  "name": {
+                                                    "type": "string",
+                                                    "description": "The name of the custom HTTP headers.",
+                                                    "optional": true,
+                                                    "computed": true
+                                                  },
+                                                  "value": {
+                                                    "type": "string",
+                                                    "description": "The value of the custom HTTP headers.",
+                                                    "optional": true,
+                                                    "computed": true
+                                                  }
+                                                },
+                                                "description": "The custom headers to set in the request."
+                                              },
+                                              "nesting_mode": "set"
+                                            }
+                                          },
+                                          "description": "Specifies the HTTP get."
+                                        },
+                                        "nesting_mode": "list"
+                                      }
+                                    },
+                                    "description": "Specifies the startup probe of the container."
+                                  },
+                                  "nesting_mode": "list",
+                                  "max_items": 1
+                                },
+                                "volume_mounts": {
+                                  "block": {
+                                    "attributes": {
+                                      "extend_path_mode": {
+                                        "type": "string",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "mount_path": {
+                                        "type": "string",
+                                        "required": true
+                                      },
+                                      "name": {
+                                        "type": "string",
+                                        "required": true
+                                      },
+                                      "read_only": {
+                                        "type": "bool",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "sub_path": {
+                                        "type": "string",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "sub_path_expr": {
+                                        "type": "string",
+                                        "optional": true,
+                                        "computed": true
+                                      }
+                                    }
+                                  },
+                                  "nesting_mode": "set"
+                                }
+                              }
+                            },
+                            "nesting_mode": "list",
+                            "min_items": 1
+                          },
+                          "image_pull_secrets": {
+                            "block": {
+                              "attributes": {
+                                "name": {
+                                  "type": "string",
+                                  "optional": true,
+                                  "computed": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "set"
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

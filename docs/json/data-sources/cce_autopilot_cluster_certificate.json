@@ -1,0 +1,120 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cce_autopilot_cluster_certificate": {
+          "block": {
+            "attributes": {
+              "cluster_id": {
+                "type": "string",
+                "description": "Specifies the cluster ID to which the cluster certificate belongs.",
+                "required": true
+              },
+              "clusters": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cluster": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "certificate_authority_data": "string",
+                            "insecure_skip_tls_verify": "bool",
+                            "server": "string"
+                          }
+                        ]
+                      ],
+                      "name": "string"
+                    }
+                  ]
+                ],
+                "description": "The clusters information of the cluster certificate.",
+                "computed": true
+              },
+              "contexts": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "context": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "cluster": "string",
+                            "user": "string"
+                          }
+                        ]
+                      ],
+                      "name": "string"
+                    }
+                  ]
+                ],
+                "description": "The contexts information of the cluster certificate.",
+                "computed": true
+              },
+              "current_context": {
+                "type": "string",
+                "description": "The current context of the cluster certificate.",
+                "computed": true
+              },
+              "duration": {
+                "type": "number",
+                "description": "Specifies the duration of the cluster certificate.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "kube_config_raw": {
+                "type": "string",
+                "description": "Raw Kubernetes config to be used by kubectl and other compatible tools.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "users": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "name": "string",
+                      "user": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "client_certificate_data": "string",
+                            "client_key_data": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The users information of cluster the certificate.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CCE",
+            "name": "Cloud Container Engine",
+            "catalog": "Containers",
+            "name_cn": "云容器引擎",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

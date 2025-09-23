@@ -1,0 +1,23 @@
+info:
+    version: ""
+    title: resource_huaweicloud_sms_migration_project
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: SMS
+paths:
+    /v3/migprojects:
+        POST:
+            tag: SMS
+    /v3/migprojects/{mig_project_id}:
+        DELETE:
+            tag: SMS
+        GET:
+            tag: SMS
+        PUT:
+            tag: SMS
+    /v3/migprojects/{mig_project_id}/default:
+        PUT:
+            tag: SMS

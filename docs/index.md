@@ -5,6 +5,9 @@ configured with the proper credentials before it can be used.
 
 Use the navigation to the left to read about the available resources.
 
+-> **NOTE:** You can also use this provider to interact with resources supported by HCSO if the API is compatible
+with HuaweiCloud.
+
 ## Example Usage
 
 Terraform 0.13 and later:
@@ -60,6 +63,8 @@ supported, in this order, and explained below:
 * Environment variables
 * Shared configuration file
 * ECS Instance Metadata Service
+* Assume Role
+* Assume Role with OIDC
 
 The Huawei Cloud Provider supports assuming role with IAM agency, either in the provider configuration
 block parameter assume_role or shared configuration file.
@@ -82,10 +87,25 @@ provider "huaweicloud" {
 }
 ```
 
+Temporary security credentials can be provided by adding an `security_token` with `access_key` and `secret_key`
+in-line in the provider block:
+
+Usage:
+
+```hcl
+provider "huaweicloud" {
+  region         = "cn-north-4"
+  access_key     = "my-access-key"
+  secret_key     = "my-secret-key"
+  security_token = "my-security-token"
+}
+```
+
 ### Environment variables
 
 You can provide your credentials via the `HW_ACCESS_KEY` and
 `HW_SECRET_KEY` environment variables, representing your Huawei Cloud Access Key and Secret Key, respectively.
+For temporary security credentials, need to add one more environment variable `HW_SECURITY_TOKEN`.
 
 ```hcl
 provider "huaweicloud" {}
@@ -105,11 +125,15 @@ $ terraform plan
 You can use a
 [HuaweiCloud CLI configuration file](https://support.huaweicloud.com/intl/en-us/usermanual-hcli/hcli_03_002.html)
 to specify your credentials. You need to specify a location in the Terraform configuration by providing the
-`shared_configuration_file` argument or using the `HW_SHARED_CONFIGURATION_FILE` environment variable.
+`shared_config_file` argument or using the `HW_SHARED_CONFIG_FILE` environment variable.
 This method also supports a `profile` configuration and matching `HW_PROFILE` environment variable:
 
-!> **NOTE:** The CLI configuration file can not be used directly by terraform, you need to copy it to another
-path and replace the AccessKey and SecretKey with yours as they are encrypted which terraform can not read.
+-> **NOTE:** The CLI configuration file can not be used directly by terraform, you need to skip encrypting
+authentication information in the configuration file by running the following command:
+
+```sh
+hcloud configure set --cli-auth-encrypt=false
+```
 
 Usage:
 
@@ -157,6 +181,46 @@ provider "huaweicloud" {
 }
 ```
 
+Role Chain:
+
+```hcl
+provider "huaweicloud" {
+  region     = "cn-north-4"
+  access_key = "my-access-key"
+  secret_key = "my-secret-key"
+
+  assume_role {
+    agency_name = "initial_agency"
+    domain_name = "initial_agency_domain"
+  }
+
+  assume_role {
+    agency_name = "final_agency"
+    domain_name = "final_agency_domain"
+  }
+}
+```
+
+### Assume role with OIDC
+
+If provided with an IAM agency and token from an identity provider, Terraform will attempt to assume this role
+using the supplied credentials.
+
+Usage:
+
+```hcl
+provider "huaweicloud" {
+  region = "cn-north-4"
+
+  assume_role_with_oidc {
+    agency_name   = "agency"
+    domain_id     = "agency_domain"
+    idp_id        = "idp_id"
+    id_token_file = "/Users/tf_user/secrets/oidc-token"
+  }
+}
+```
+
 ## Configuration Reference
 
 The following arguments are supported:
@@ -176,8 +240,10 @@ The following arguments are supported:
 * `profile` - (Optional) The profile name as set in the shared config file. If omitted, the `HW_PROFILE` environment
   variable is used. Defaults to the `current` profile in the shared config file.
 
-* `assume_role` - (Optional) Configuration block for an assumed role. See below. Only one assume_role
-  block may be in the configuration.
+* `assume_role` - (Optional) Configuration block for an assumed role. See below.
+
+* `assume_role_with_oidc` - (Optional) Configuration block for an assumed role with oidc.
+  The [assume_role_with_oidc](#block--assumeroleoidc) structure is documented below.
 
 * `project_name` - (Optional) The Name of the project to login with. If omitted, the `HW_PROJECT_NAME` environment
   variable or `region` is used.
@@ -207,11 +273,19 @@ The following arguments are supported:
   at [EPS](https://registry.terraform.io/providers/huaweicloud/huaweicloud/latest/docs/data-sources/enterprise_project).
   If omitted, the `HW_ENTERPRISE_PROJECT_ID` environment variable is used.
 
+* `signing_algorithm` - (Optional) The signing algorithm for authentication. Valid values are **HmacSHA256**,
+  **HmacSM3**, **EcdsaP256SHA256**, **SM2SM3**.
+  If omitted, the `HW_SIGNING_ALGORITHM` environment variable is used.
+
 * `regional` - (Optional) Whether the service endpoints are regional. The default value is `false`.
 
-* `endpoints` - (Optional) Configuration block in key/value pairs for customizing service endpoints. The following
-  endpoints support to be customized: autoscaling, ecs, ims, vpc, nat, evs, obs, sfs, cce, rds, dds, iam. An example
-  provider configuration:
+* `skip_check_website_type` - (Optional) Whether to skip website type check. The default value is `false`.
+
+* `skip_check_upgrade` - (Optional) Whether to skip upgrade check. The default value is `true`.
+
+* `endpoints` - (Optional) Configuration block in key/value pairs for customizing service endpoints.
+  The [endpoints](#block--endpoints) block to support custom endpoints is documented below.
+  An example provider configuration:
 
 ```hcl
 provider "huaweicloud" {
@@ -222,6 +296,10 @@ provider "huaweicloud" {
 }
 ```
 
+* `default_tags` - (Optional) The default tags of resources managed by this provider.
+  The `default_tags` only works in resources that support the `tags` argument.
+  The `default_tags` can be overridden if `tags` in the resource has new values for matching keys.
+
 The `assume_role` block supports:
 
 * `agency_name` - (Required) The name of the agency for assume role.
@@ -229,6 +307,254 @@ The `assume_role` block supports:
 
 * `domain_name` - (Required) The name of the agency domain for assume role.
   If omitted, the `HW_ASSUME_ROLE_DOMAIN_NAME` environment variable is used.
+
+<a name="block--assumeroleoidc"></a>
+The `assume_role_with_oidc` block supports:
+
+* `agency_name` - (Required) The name of the agency for assume role.
+  If omitted, the `HW_ASSUME_ROLE_AGENCY_NAME` environment variable is used.
+
+* `domain_id` - (Required) The id of the agency domain(account) for assume role.
+  If omitted, the `HW_ASSUME_ROLE_DOMAIN_ID` environment variable is used.
+
+* `duration` - (Optional) The duration for v5 assume role.
+  If omitted, the `HW_ASSUME_ROLE_DURATION` environment variable is used.
+
+* `idp_id` - (Required) The ID of the external IdP for assume role.
+  If omitted, the `HW_ASSUME_ROLE_IDP_ID` environment variable is used.
+
+* `id_token` - (Optional) The Id token that is issued by the external IdP.
+  If omitted, the `HW_ASSUME_ROLE_ID_TOKEN` environment variable is used.
+
+* `id_token_file` - (Optional) The file path of Id token that is issued by the external IdP.
+  If omitted, the `HW_ASSUME_ROLE_ID_TOKEN_FILE` environment variable is used.
+
+<a name="block--endpoints"></a>
+The `endpoints` block supports:
+
+* `aad` - (Optional) Use this to override the default endpoint URL. It's used to customize **AAD** endpoints.
+
+* `accessanalyzer` - (Optional) Use this to override the default endpoint URL. It's used to customize **AccessAnalyzer**
+  endpoints.
+
+* `anti-ddos` - (Optional) Use this to override the default endpoint URL. It's used to customize **Anti-DDoS** endpoints.
+
+* `aom` - (Optional) Use this to override the default endpoint URL. It's used to customize **AOM** endpoints.
+
+* `apig` - (Optional) Use this to override the default endpoint URL. It's used to customize **APIG** endpoints.
+
+* `apm` - (Optional) Use this to override the default endpoint URL. It's used to customize **APM** endpoints.
+
+* `appstream` - (Optional) Use this to override the default endpoint URL. It's used to customize **WorkspaceApp** endpoints.
+
+* `asm` - (Optional) Use this to override the default endpoint URL. It's used to customize **ASM** endpoints.
+
+* `autoscaling` - (Optional) Use this to override the default endpoint URL. It's used to customize **AS** endpoints.
+
+* `bcs` - (Optional) Use this to override the default endpoint URL. It's used to customize **BCS** endpoints.
+
+* `bms` - (Optional) Use this to override the default endpoint URL. It's used to customize **BMS** endpoints.
+
+* `bss` - (Optional) Use this to override the default endpoint URL. It's used to customize **CBC** endpoints.
+
+* `cae` - (Optional) Use this to override the default endpoint URL. It's used to customize **CAE** endpoints.
+
+* `cbh` - (Optional) Use this to override the default endpoint URL. It's used to customize **CBH** endpoints.
+
+* `cbr` - (Optional) Use this to override the default endpoint URL. It's used to customize **CBR** endpoints.
+
+* `cc` - (Optional) Use this to override the default endpoint URL. It's used to customize **CC** endpoints.
+
+* `cce` - (Optional) Use this to override the default endpoint URL. It's used to customize **CCE** endpoints.
+
+* `cci` - (Optional) Use this to override the default endpoint URL. It's used to customize **CCI** endpoints.
+
+* `ccm` - (Optional) Use this to override the default endpoint URL. It's used to customize **CCM** endpoints.
+
+* `cdm` - (Optional) Use this to override the default endpoint URL. It's used to customize **CDM** endpoints.
+
+* `cdn` - (Optional) Use this to override the default endpoint URL. It's used to customize **CDN** endpoints.
+
+* `ces` - (Optional) Use this to override the default endpoint URL. It's used to customize **CES** endpoints.
+
+* `cfw` - (Optional) Use this to override the default endpoint URL. It's used to customize **CFW** endpoints.
+
+* `cloudtable` - (Optional) Use this to override the default endpoint URL. It's used to customize **CloudTable**
+  endpoints.
+
+* `cms` - (Optional) Use this to override the default endpoint URL. It's used to customize **CMS** endpoints.
+
+* `coc` - (Optional) Use this to override the default endpoint URL. It's used to customize **COC** endpoints.
+
+* `codearts_build` - (Optional) Use this to override the default endpoint URL. It's used to customize **CodeArtsBuild**
+  endpoints.
+
+* `codearts_deploy` - (Optional) Use this to override the default endpoint URL. It's used to customize **CodeArtsDeploy**
+  endpoints.
+
+* `codearts_pipeline` - (Optional) Use this to override the default endpoint URL. It's used to customize
+  **CodeArtsPipeline** endpoints.
+
+* `codehub` - (Optional) Use this to override the default endpoint URL. It's used to customize **CodeHub** endpoints.
+
+* `cph` - (Optional) Use this to override the default endpoint URL. It's used to customize **CPH** endpoints.
+
+* `cpts` - (Optional) Use this to override the default endpoint URL. It's used to customize **CPTS** endpoints.
+
+* `cse` - (Optional) Use this to override the default endpoint URL. It's used to customize **CSE** endpoints.
+
+* `css` - (Optional) Use this to override the default endpoint URL. It's used to customize **CSS** endpoints.
+
+* `cts` - (Optional) Use this to override the default endpoint URL. It's used to customize **CTS** endpoints.
+
+* `dataarts` - (Optional) Use this to override the default endpoint URL. It's used to customize **DataArtsStudio**
+  endpoints.
+
+* `dbss` - (Optional) Use this to override the default endpoint URL. It's used to customize **DBSS** endpoints.
+
+* `dc` - (Optional) Use this to override the default endpoint URL. It's used to customize **DC** endpoints.
+
+* `dcs` - (Optional) Use this to override the default endpoint URL. It's used to customize **DCS** endpoints.
+
+* `ddm` - (Optional) Use this to override the default endpoint URL. It's used to customize **DDM** endpoints.
+
+* `dds` - (Optional) Use this to override the default endpoint URL. It's used to customize **DDS** endpoints.
+
+* `deh` - (Optional) Use this to override the default endpoint URL. It's used to customize **DEH** endpoints.
+
+* `dis` - (Optional) Use this to override the default endpoint URL. It's used to customize **DIS** endpoints.
+
+* `dli` - (Optional) Use this to override the default endpoint URL. It's used to customize **DLI** endpoints.
+
+* `dms` - (Optional) Use this to override the default endpoint URL. It's used to customize **DMS** endpoints.
+
+* `dns` - (Optional) Use this to override the default endpoint URL. It's used to customize **DNS** endpoints.
+
+* `drs` - (Optional) Use this to override the default endpoint URL. It's used to customize **DRS** endpoints.
+
+* `dsc` - (Optional) Use this to override the default endpoint URL. It's used to customize **DSC** endpoints.
+
+* `dws` - (Optional) Use this to override the default endpoint URL. It's used to customize **DWS** endpoints.
+
+* `ecs` - (Optional) Use this to override the default endpoint URL. It's used to customize **ECS** endpoints.
+
+* `eg` - (Optional) Use this to override the default endpoint URL. It's used to customize **EG** endpoints.
+
+* `elb` - (Optional) Use this to override the default endpoint URL. It's used to customize **ELB** endpoints.
+
+* `eps` - (Optional) Use this to override the default endpoint URL. It's used to customize **EPS** endpoints.
+
+* `er` - (Optional) Use this to override the default endpoint URL. It's used to customize **ER** endpoints.
+
+* `evs` - (Optional) Use this to override the default endpoint URL. It's used to customize **EVS** endpoints.
+
+* `fgs` - (Optional) Use this to override the default endpoint URL. It's used to customize **FunctionGraph**
+  endpoints.
+
+* `ga` - (Optional) Use this to override the default endpoint URL. It's used to customize **GA** endpoints.
+
+* `gaussdb` - (Optional) Use this to override the default endpoint URL. It's used to customize **GaussDBforMySQL**
+  endpoints.
+
+* `geip` - (Optional) Use this to override the default endpoint URL. It's used to customize **GEIP** endpoints.
+
+* `geminidb` - (Optional) Use this to override the default endpoint URL. It's used to customize **GaussDBforNoSQL**
+  endpoints.
+
+* `ges` - (Optional) Use this to override the default endpoint URL. It's used to customize **GES** endpoints.
+
+* `hss` - (Optional) Use this to override the default endpoint URL. It's used to customize **HSS** endpoints.
+
+* `iam` - (Optional) Use this to override the default endpoint URL. It's used to customize **IAM** endpoints.
+
+* `identitycenter` - (Optional) Use this to override the default endpoint URL. It's used to customize **IdentityCenter**
+  endpoints.
+
+* `identitystore` - (Optional) Use this to override the default endpoint URL. It's used to customize **IdentityCenter**
+  endpoints.
+
+* `iec` - (Optional) Use this to override the default endpoint URL. It's used to customize **IEC** endpoints.
+
+* `ims` - (Optional) Use this to override the default endpoint URL. It's used to customize **IMS** endpoints.
+
+* `iotda` - (Optional) Use this to override the default endpoint URL. It's used to customize **IoTDA** endpoints.
+
+* `kms` - (Optional) Use this to override the default endpoint URL. It's used to customize **DEW** endpoints.
+
+* `live` - (Optional) Use this to override the default endpoint URL. It's used to customize **Live** endpoints.
+
+* `lts` - (Optional) Use this to override the default endpoint URL. It's used to customize **LTS** endpoints.
+
+* `meeting` - (Optional) Use this to override the default endpoint URL. It's used to customize **Meeting** endpoints.
+
+* `mkt` - (Optional) Use this to override the default endpoint URL. It's used to customize **KooGallery** endpoints.
+
+* `modelarts` - (Optional) Use this to override the default endpoint URL. It's used to customize **ModelArts** endpoints.
+
+* `mpc` - (Optional) Use this to override the default endpoint URL. It's used to customize **MPC** endpoints.
+
+* `mrs` - (Optional) Use this to override the default endpoint URL. It's used to customize **MRS** endpoints.
+
+* `nat` - (Optional) Use this to override the default endpoint URL. It's used to customize **NAT** endpoints.
+
+* `oms` - (Optional) Use this to override the default endpoint URL. It's used to customize **OMS** endpoints.
+
+* `opengauss` - (Optional) Use this to override the default endpoint URL. It's used to customize **GaussDB** endpoints.
+
+* `organizations` - (Optional) Use this to override the default endpoint URL. It's used to customize **Organizations**
+  endpoints.
+
+* `projectman` - (Optional) Use this to override the default endpoint URL. It's used to customize **ProjectMan** endpoints.
+
+* `ram` - (Optional) Use this to override the default endpoint URL. It's used to customize **RAM** endpoints.
+
+* `rds` - (Optional) Use this to override the default endpoint URL. It's used to customize **RDS** endpoints.
+
+* `rfs` - (Optional) Use this to override the default endpoint URL. It's used to customize **RFS** endpoints.
+
+* `rgc` - (Optional) Use this to override the default endpoint URL. It's used to customize **RGC** endpoints.
+
+* `rts` - (Optional) Use this to override the default endpoint URL. It's used to customize **RTS** endpoints.
+
+* `scm` - (Optional) Use this to override the default endpoint URL. It's used to customize **CCM** endpoints.
+
+* `sdrs` - (Optional) Use this to override the default endpoint URL. It's used to customize **SDRS** endpoints.
+
+* `secmaster` - (Optional) Use this to override the default endpoint URL. It's used to customize **SecMaster** endpoints.
+
+* `servicestage` - (Optional) Use this to override the default endpoint URL. It's used to customize **ServiceStage**
+  endpoints.
+
+* `sfs` - (Optional) Use this to override the default endpoint URL. It's used to customize **SFS** endpoints.
+
+* `sfs-turbo` - (Optional) Use this to override the default endpoint URL. It's used to customize **SFSTurbo** endpoints.
+
+* `smn` - (Optional) Use this to override the default endpoint URL. It's used to customize **SMN** endpoints.
+
+* `sts` - (Optional) Use this to override the default endpoint URL. It's used to customize **IAM** endpoints.
+
+* `swr` - (Optional) Use this to override the default endpoint URL. It's used to customize **SWR** endpoints.
+
+* `tms` - (Optional) Use this to override the default endpoint URL. It's used to customize **TMS** endpoints.
+
+* `ucs` - (Optional) Use this to override the default endpoint URL. It's used to customize **UCS** endpoints.
+
+* `vbs` - (Optional) Use this to override the default endpoint URL. It's used to customize **VBS** endpoints.
+
+* `vod` - (Optional) Use this to override the default endpoint URL. It's used to customize **VOD** endpoints.
+
+* `vpc` - (Optional) Use this to override the default endpoint URL. It's used to customize **VPC** endpoints.
+
+* `vpcep` - (Optional) Use this to override the default endpoint URL. It's used to customize **VPCEP** endpoints.
+
+* `vpn` - (Optional) Use this to override the default endpoint URL. It's used to customize **VPN** endpoints.
+
+* `vss` - (Optional) Use this to override the default endpoint URL. It's used to customize **CodeArtsInspector**
+  endpoints.
+
+* `waf` - (Optional) Use this to override the default endpoint URL. It's used to customize **WAF** endpoints.
+
+* `workspace` - (Optional) Use this to override the default endpoint URL. It's used to customize **WorkspaceDesktop** endpoints.
 
 ## Testing and Development
 

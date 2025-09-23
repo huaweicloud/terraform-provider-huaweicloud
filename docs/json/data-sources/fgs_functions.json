@@ -7,6 +7,7 @@
             "attributes": {
               "enterprise_project_id": {
                 "type": "string",
+                "description": "The ID of the enterprise project to which the functions belong.",
                 "optional": true
               },
               "functions": {
@@ -43,6 +44,7 @@
                     }
                   ]
                 ],
+                "description": "All functions that match the filter parameters.",
                 "computed": true
               },
               "id": {
@@ -51,22 +53,27 @@
               },
               "name": {
                 "type": "string",
+                "description": "The function name used to query the specified function.",
                 "optional": true
               },
               "package_name": {
                 "type": "string",
+                "description": "The package name used to query the functions.",
                 "optional": true
               },
               "region": {
                 "type": "string",
+                "description": "The region where the functions are located.",
                 "computed": true
               },
               "runtime": {
                 "type": "string",
+                "description": "The dependency package runtime used to query the functions.",
                 "optional": true
               },
               "urn": {
                 "type": "string",
+                "description": "The function URN used to query the specified function.",
                 "optional": true
               }
             }

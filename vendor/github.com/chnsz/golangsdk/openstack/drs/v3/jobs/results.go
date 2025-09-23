@@ -53,6 +53,7 @@ type JobDetail struct {
 	FullTransferCompleteTime string             `json:"full_transfer_complete_time"`
 	UpdateTime               string             `json:"update_time"`
 	JobDirection             string             `json:"job_direction"`
+	OriginalJobDirection     string             `json:"original_job_direction"`
 	DbUseType                string             `json:"db_use_type"`
 	NeedRestart              bool               `json:"need_restart"`
 	IsTargetReadonly         bool               `json:"is_target_readonly"`
@@ -87,6 +88,7 @@ type JobDetail struct {
 	IncreStartPosition       string             `json:"incre_start_position"`
 	Tags                     []tags.ResourceTag `json:"tags"`
 	PeriodOrder              OrderInfo          `json:"period_order"`
+	IsOpenFastClean          bool               `json:"is_open_fast_clean"`
 }
 
 type InstInfo struct {
@@ -204,6 +206,7 @@ type JobInfo struct {
 	TaskType         string            `json:"task_type"`
 	Children         []ChildrenJobInfo `json:"children"`
 	NodeNewFramework bool              `json:"node_newFramework"`
+	JobAction        JobAction         `json:"job_action"`
 }
 
 type ChildrenJobInfo struct {
@@ -220,6 +223,12 @@ type ChildrenJobInfo struct {
 	NodeNewFramework bool   `json:"node_newFramework"`
 	Status           string `json:"status"`
 	TaskType         string `json:"task_type"`
+}
+
+type JobAction struct {
+	AvailableActions   []string `json:"available_actions"`
+	UnavailableActions []string `json:"unavailable_actions"`
+	CurrentAction      string   `json:"current_action"`
 }
 
 type ProgressResp struct {

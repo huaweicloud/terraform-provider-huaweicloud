@@ -7,12 +7,12 @@ package dsc
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -63,71 +63,56 @@ func ResourceAssetObs() *schema.Resource {
 	}
 }
 
+func queryAssetObsBucket(client *golangsdk.ServiceClient) (interface{}, error) {
+	requestPath := client.Endpoint + "v1/{project_id}/sdg/asset/obs/buckets"
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath += "?added=true"
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	resp, err := client.Request("GET", requestPath, &requestOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(resp)
+}
+
 func resourceAssetObsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// createAssetObs: create an OBS asset.
 	var (
-		createAssetObsHttpUrl = "v1/{project_id}/sdg/asset/obs/buckets"
-		createAssetObsProduct = "dsc"
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1/{project_id}/sdg/asset/obs/buckets"
+		product = "dsc"
+		name    = d.Get("name").(string)
 	)
-	createAssetObsClient, err := cfg.NewServiceClient(createAssetObsProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating AssetObs Client: %s", err)
+		return diag.Errorf("error creating DSC client: %s", err)
 	}
 
-	createAssetObsPath := createAssetObsClient.Endpoint + createAssetObsHttpUrl
-	createAssetObsPath = strings.ReplaceAll(createAssetObsPath, "{project_id}", createAssetObsClient.ProjectID)
-
-	createAssetObsOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
+		JSONBody:         utils.RemoveNil(buildCreateAssetObsBodyParams(d, cfg)),
 	}
-	createAssetObsOpt.JSONBody = utils.RemoveNil(buildCreateAssetObsBodyParams(d, cfg))
-	_, err = createAssetObsClient.Request("POST", createAssetObsPath, &createAssetObsOpt)
+	_, err = client.Request("POST", requestPath, &requestOpt)
 	if err != nil {
-		return diag.Errorf("error creating AssetObs: %s", err)
+		return diag.Errorf("error adding DSC asset OBS bucket: %s", err)
 	}
 
-	// getAssetObs: Query the asset OBS
-	var (
-		getAssetObsHttpUrl = "v1/{project_id}/sdg/asset/obs/buckets"
-		getAssetObsProduct = "dsc"
-	)
-	getAssetObsClient, err := cfg.NewServiceClient(getAssetObsProduct, region)
+	respBody, err := queryAssetObsBucket(client)
 	if err != nil {
-		return diag.Errorf("error creating AssetObs Client: %s", err)
+		return diag.Errorf("error retrieving DSC asset OBS buckets: %s", err)
 	}
 
-	getAssetObsPath := getAssetObsClient.Endpoint + getAssetObsHttpUrl
-	getAssetObsPath = strings.ReplaceAll(getAssetObsPath, "{project_id}", getAssetObsClient.ProjectID)
-	getAssetObsPath += "?added=true"
-
-	getAssetObsOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
+	expression := fmt.Sprintf("buckets[?asset_name=='%s']|[0].id", name)
+	assetObsId := utils.PathSearch(expression, respBody, "").(string)
+	if assetObsId == "" {
+		return diag.Errorf("error adding DSC asset OBS bucket: ID is not found in API response")
 	}
-	getAssetObsResp, err := getAssetObsClient.Request("GET", getAssetObsPath, &getAssetObsOpt)
-	if err != nil {
-		return diag.Errorf("error creating AssetObs: %s", err)
-	}
-
-	getAssetObsRespBody, err := utils.FlattenResponse(getAssetObsResp)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	name := d.Get("name").(string)
-	id, err := jmespath.Search("id", FilterAssetObs(getAssetObsRespBody, name, "asset_name"))
-	if err != nil {
-		return diag.Errorf("error creating AssetObs: ID is not found in API response")
-	}
-	d.SetId(id.(string))
+	d.SetId(assetObsId)
 
 	return resourceAssetObsRead(ctx, d, meta)
 }
@@ -146,44 +131,24 @@ func buildCreateAssetObsBodyParams(d *schema.ResourceData, cfg *config.Config) m
 }
 
 func resourceAssetObsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	var mErr *multierror.Error
-
-	// getAssetObs: Query the asset OBS
 	var (
-		getAssetObsHttpUrl = "v1/{project_id}/sdg/asset/obs/buckets"
-		getAssetObsProduct = "dsc"
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		mErr    *multierror.Error
+		product = "dsc"
 	)
-	getAssetObsClient, err := cfg.NewServiceClient(getAssetObsProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating AssetObs Client: %s", err)
+		return diag.Errorf("error creating DSC client: %s", err)
 	}
 
-	getAssetObsPath := getAssetObsClient.Endpoint + getAssetObsHttpUrl
-	getAssetObsPath = strings.ReplaceAll(getAssetObsPath, "{project_id}", getAssetObsClient.ProjectID)
-	getAssetObsPath += "?added=true"
-
-	getAssetObsOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-	}
-	getAssetObsResp, err := getAssetObsClient.Request("GET", getAssetObsPath, &getAssetObsOpt)
-
+	respBody, err := queryAssetObsBucket(client)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving AssetObs")
+		return common.CheckDeletedDiag(d, err, "error retrieving DSC asset OBS buckets")
 	}
 
-	getAssetObsRespBody, err := utils.FlattenResponse(getAssetObsResp)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	assetObs := FilterAssetObs(getAssetObsRespBody, d.Id(), "id")
-
+	expression := fmt.Sprintf("buckets[?id=='%s']|[0]", d.Id())
+	assetObs := utils.PathSearch(expression, respBody, nil)
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),
@@ -195,54 +160,30 @@ func resourceAssetObsRead(_ context.Context, d *schema.ResourceData, meta interf
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func FilterAssetObs(resp interface{}, val string, path string) interface{} {
-	if resp == nil {
-		return nil
-	}
-
-	curJson := utils.PathSearch("buckets", resp, make([]interface{}, 0))
-	curArray := curJson.([]interface{})
-	for _, v := range curArray {
-		if val == utils.PathSearch(path, v, nil) {
-			return v
-		}
-	}
-	return nil
-}
-
 func resourceAssetObsUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
-	updateAssetObshasChanges := []string{
-		"name",
-	}
-
-	if d.HasChanges(updateAssetObshasChanges...) {
-		// updateAssetObs: update the OBS asset name.
+	if d.HasChange("name") {
 		var (
-			updateAssetObsHttpUrl = "v1/{project_id}/sdg/asset/{id}/name"
-			updateAssetObsProduct = "dsc"
+			httpUrl = "v1/{project_id}/sdg/asset/{id}/name"
+			product = "dsc"
 		)
-		updateAssetObsClient, err := cfg.NewServiceClient(updateAssetObsProduct, region)
+		client, err := cfg.NewServiceClient(product, region)
 		if err != nil {
-			return diag.Errorf("error creating AssetObs Client: %s", err)
+			return diag.Errorf("error creating DSC client: %s", err)
 		}
 
-		updateAssetObsPath := updateAssetObsClient.Endpoint + updateAssetObsHttpUrl
-		updateAssetObsPath = strings.ReplaceAll(updateAssetObsPath, "{project_id}", updateAssetObsClient.ProjectID)
-		updateAssetObsPath = strings.ReplaceAll(updateAssetObsPath, "{id}", d.Id())
-
-		updateAssetObsOpt := golangsdk.RequestOpts{
+		requestPath := client.Endpoint + httpUrl
+		requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+		requestPath = strings.ReplaceAll(requestPath, "{id}", d.Id())
+		requestOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
-			OkCodes: []int{
-				200,
-			},
+			JSONBody:         utils.RemoveNil(buildUpdateAssetObsBodyParams(d, cfg)),
 		}
-		updateAssetObsOpt.JSONBody = utils.RemoveNil(buildUpdateAssetObsBodyParams(d, cfg))
-		_, err = updateAssetObsClient.Request("PUT", updateAssetObsPath, &updateAssetObsOpt)
+		_, err = client.Request("PUT", requestPath, &requestOpt)
 		if err != nil {
-			return diag.Errorf("error updating AssetObs: %s", err)
+			return diag.Errorf("error updating DSC asset name: %s", err)
 		}
 	}
 	return resourceAssetObsRead(ctx, d, meta)
@@ -256,31 +197,26 @@ func buildUpdateAssetObsBodyParams(d *schema.ResourceData, _ *config.Config) map
 }
 
 func resourceAssetObsDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
 	var (
-		deleteAssetObsHttpUrl = "v1/{project_id}/sdg/asset/obs/bucket/{id}"
-		deleteAssetObsProduct = "dsc"
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1/{project_id}/sdg/asset/obs/bucket/{id}"
+		product = "dsc"
 	)
-	deleteAssetObsClient, err := cfg.NewServiceClient(deleteAssetObsProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating AssetObs Client: %s", err)
+		return diag.Errorf("error creating DSC client: %s", err)
 	}
 
-	deleteAssetObsPath := deleteAssetObsClient.Endpoint + deleteAssetObsHttpUrl
-	deleteAssetObsPath = strings.ReplaceAll(deleteAssetObsPath, "{project_id}", deleteAssetObsClient.ProjectID)
-	deleteAssetObsPath = strings.ReplaceAll(deleteAssetObsPath, "{id}", d.Id())
-
-	deleteAssetObsOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
-	_, err = deleteAssetObsClient.Request("DELETE", deleteAssetObsPath, &deleteAssetObsOpt)
+	_, err = client.Request("DELETE", requestPath, &requestOpt)
 	if err != nil {
-		return diag.Errorf("error deleting AssetObs: %s", err)
+		return diag.Errorf("error deleting DSC asset OBS bucket: %s", err)
 	}
 
 	return nil

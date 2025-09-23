@@ -7,20 +7,24 @@
             "attributes": {
               "address": {
                 "type": "string",
+                "description": "The address of the FloatingIP/EIP.",
                 "computed": true
               },
               "description": {
                 "type": "string",
+                "description": "The description of the PTR record.",
                 "optional": true
               },
               "enterprise_project_id": {
                 "type": "string",
+                "description": "The enterprise project ID of the PTR record.",
                 "optional": true,
                 "computed": true,
                 "forcenew": true
               },
               "floatingip_id": {
                 "type": "string",
+                "description": "The ID of the FloatingIP/EIP.",
                 "required": true,
                 "forcenew": true
               },
@@ -30,6 +34,7 @@
               },
               "name": {
                 "type": "string",
+                "description": "The domain name of the PTR record.",
                 "required": true
               },
               "region": {
@@ -41,20 +46,24 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "description": "The key/value pairs to associate with the PTR record.",
+                "optional": true,
+                "computed": true
               },
               "ttl": {
                 "type": "number",
-                "optional": true
+                "description": "The time to live (TTL) of the record set (in seconds).",
+                "optional": true,
+                "computed": true
               }
             }
           },
           "product": {
             "short": "DNS",
             "name": "Domain Name Service",
-            "catalog": "Business Applications",
+            "catalog": "Networking",
             "name_cn": "云解析服务",
-            "catalog_cn": "企业应用"
+            "catalog_cn": "网络"
           }
         }
       }

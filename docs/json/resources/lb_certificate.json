@@ -45,15 +45,29 @@
                 "optional": true,
                 "sensitive": true
               },
+              "protection_reason": {
+                "type": "string",
+                "optional": true
+              },
+              "protection_status": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "region": {
                 "type": "string",
+                "computed": true
+              },
+              "source": {
+                "type": "string",
+                "optional": true,
                 "computed": true
               },
               "type": {
                 "type": "string",
                 "optional": true,
-                "forcenew": true,
-                "default": "server"
+                "computed": true,
+                "forcenew": true
               },
               "update_time": {
                 "type": "string",

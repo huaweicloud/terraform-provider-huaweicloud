@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_access_analyzers
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: AccessAnalyzer
+paths:
+    /v5/analyzers:
+        GET:
+            tag: AccessAnalyzer

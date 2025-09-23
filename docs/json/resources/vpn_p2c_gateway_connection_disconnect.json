@@ -1,0 +1,39 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_vpn_p2c_gateway_connection_disconnect": {
+          "block": {
+            "attributes": {
+              "connection_id": {
+                "type": "string",
+                "description": "Specifies the connection ID of a P2C VPN gateway.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "p2c_vgw_id": {
+                "type": "string",
+                "description": "Specifies the instance ID of a P2C VPN gateway.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "VPN",
+            "name": "Virtual Private Network",
+            "catalog": "Networking",
+            "name_cn": "虚拟专用网络",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

@@ -7,6 +7,7 @@ package rms
 
 import (
 	"context"
+	"encoding/json"
 	"log"
 	"strings"
 	"time"
@@ -15,7 +16,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -27,10 +27,12 @@ import (
 // @API Config POST /v1/resource-manager/domains/{domain_id}/conformance-packs
 // @API Config DELETE /v1/resource-manager/domains/{domain_id}/conformance-packs/{id}
 // @API Config GET /v1/resource-manager/domains/{domain_id}/conformance-packs/{id}
+// @API Config PUT /v1/resource-manager/domains/{domain_id}/conformance-packs/{id}
 func ResourceAssignmentPackage() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceAssignmentPackageCreate,
 		ReadContext:   resourceAssignmentPackageRead,
+		UpdateContext: resourceAssignmentPackageUpdate,
 		DeleteContext: resourceAssignmentPackageDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -38,6 +40,7 @@ func ResourceAssignmentPackage() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
+			Update: schema.DefaultTimeout(30 * time.Minute),
 			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
 
@@ -45,7 +48,6 @@ func ResourceAssignmentPackage() *schema.Resource {
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the assignment package name.`,
 			},
 			"agency_name": {
@@ -82,7 +84,6 @@ func ResourceAssignmentPackage() *schema.Resource {
 				Elem:        assignmentPackageParameterSchema(),
 				Optional:    true,
 				Computed:    true,
-				ForceNew:    true,
 				Description: `Specifies the parameters of an assignment package.`,
 			},
 			"stack_id": {
@@ -150,7 +151,12 @@ func resourceAssignmentPackageCreate(ctx context.Context, d *schema.ResourceData
 		KeepResponseBody: true,
 	}
 
-	createAssignmentPackageOpt.JSONBody = utils.RemoveNil(buildCreateAssignmentPackageBodyParams(d))
+	createOpts, err := buildCreateAssignmentPackageBodyParams(d)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	createAssignmentPackageOpt.JSONBody = utils.RemoveNil(createOpts)
 	log.Printf("[DEBUG] Create RMS assignment package options: %#v", createAssignmentPackageOpt)
 	createAssignmentPackageResp, err := createAssignmentPackageClient.Request("POST",
 		createAssignmentPackagePath, &createAssignmentPackageOpt)
@@ -163,11 +169,11 @@ func resourceAssignmentPackageCreate(ctx context.Context, d *schema.ResourceData
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("id", createAssignmentPackageRespBody)
-	if err != nil {
+	id := utils.PathSearch("id", createAssignmentPackageRespBody, "").(string)
+	if id == "" {
 		return diag.Errorf("error creating RMS assignment package: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	stateConf := &resource.StateChangeConf{
 		Target:       []string{"CREATE_SUCCESSFUL", "ROLLBACK_SUCCESSFUL"},
@@ -179,40 +185,50 @@ func resourceAssignmentPackageCreate(ctx context.Context, d *schema.ResourceData
 	}
 
 	if _, err = stateConf.WaitForStateContext(ctx); err != nil {
-		return diag.Errorf("error waiting for RMS assignment Package (%s) to be created: %s", id.(string), err)
+		return diag.Errorf("error waiting for RMS assignment Package (%s) to be created: %s", id, err)
 	}
 
 	return resourceAssignmentPackageRead(ctx, d, meta)
 }
 
-func buildCreateAssignmentPackageBodyParams(d *schema.ResourceData) map[string]interface{} {
+func buildCreateAssignmentPackageBodyParams(d *schema.ResourceData) (map[string]interface{}, error) {
+	varsStructure, err := buildAssignmentPackageRequestBodyParameter(d.Get("vars_structure"))
+	if err != nil {
+		return nil, err
+	}
+
 	bodyParams := map[string]interface{}{
 		"name":           d.Get("name"),
 		"agency_name":    utils.ValueIgnoreEmpty(d.Get("agency_name")),
 		"template_key":   utils.ValueIgnoreEmpty(d.Get("template_key")),
 		"template_body":  utils.ValueIgnoreEmpty(d.Get("template_body")),
 		"template_uri":   utils.ValueIgnoreEmpty(d.Get("template_uri")),
-		"vars_structure": buildCreateAssignmentPackageRequestBodyParameter(d.Get("vars_structure")),
+		"vars_structure": varsStructure,
 	}
-	return bodyParams
+	return bodyParams, err
 }
 
-func buildCreateAssignmentPackageRequestBodyParameter(rawParams interface{}) []map[string]interface{} {
+func buildAssignmentPackageRequestBodyParameter(rawParams interface{}) ([]map[string]interface{}, error) {
 	rawArray := rawParams.(*schema.Set).List()
 	if len(rawArray) == 0 {
-		return nil
+		return nil, nil
 	}
 
 	rst := make([]map[string]interface{}, len(rawArray))
 	for i, v := range rawArray {
 		if raw, ok := v.(map[string]interface{}); ok {
+			var value interface{}
+			err := json.Unmarshal([]byte(raw["var_value"].(string)), &value)
+			if err != nil {
+				return nil, err
+			}
 			rst[i] = map[string]interface{}{
 				"var_key":   utils.ValueIgnoreEmpty(raw["var_key"]),
-				"var_value": utils.ValueIgnoreEmpty(raw["var_value"]),
+				"var_value": value,
 			}
 		}
 	}
-	return rst
+	return rst, nil
 }
 
 func resourceAssignmentPackageRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -258,10 +274,74 @@ func flattenGetAssignmentPackageResponseBodyParameter(resp interface{}) []interf
 	for _, v := range curArray {
 		rst = append(rst, map[string]interface{}{
 			"var_key":   utils.PathSearch("var_key", v, nil),
-			"var_value": utils.PathSearch("var_value", v, nil),
+			"var_value": utils.JsonToString(utils.PathSearch("var_value", v, nil)),
 		})
 	}
 	return rst
+}
+
+func resourceAssignmentPackageUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	assignmentPackageId := d.Id()
+
+	// updateAssignmentPackage: Update an existing RMS assignment package
+	var (
+		updateAssignmentPackageHttpUrl = "v1/resource-manager/domains/{domain_id}/conformance-packs/{id}"
+		updateAssignmentPackageProduct = "rms"
+	)
+	updateAssignmentPackageClient, err := cfg.NewServiceClient(updateAssignmentPackageProduct, region)
+	if err != nil {
+		return diag.Errorf("error creating RMS client: %s", err)
+	}
+
+	updateAssignmentPackagePath := updateAssignmentPackageClient.Endpoint + updateAssignmentPackageHttpUrl
+	updateAssignmentPackagePath = strings.ReplaceAll(updateAssignmentPackagePath, "{domain_id}", cfg.DomainID)
+	updateAssignmentPackagePath = strings.ReplaceAll(updateAssignmentPackagePath, "{id}", assignmentPackageId)
+
+	updateAssignmentPackageOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	updateOpts, err := buildUpdateAssignmentPackageBodyParams(d)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	updateAssignmentPackageOpt.JSONBody = utils.RemoveNil(updateOpts)
+	log.Printf("[DEBUG] Update RMS assignment package options: %#v", updateAssignmentPackageOpt)
+	_, err = updateAssignmentPackageClient.Request("PUT", updateAssignmentPackagePath, &updateAssignmentPackageOpt)
+	if err != nil {
+		return diag.Errorf("error updating RMS assignment package: %s", err)
+	}
+
+	stateConf := &resource.StateChangeConf{
+		Target:       []string{"UPDATE_SUCCESSFUL", "ROLLBACK_SUCCESSFUL"},
+		Pending:      []string{"UPDATE_IN_PROGRESS"},
+		Refresh:      rmsAssignmentPackageStateRefreshFunc(updateAssignmentPackageClient, cfg, assignmentPackageId),
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+
+	if _, err = stateConf.WaitForStateContext(ctx); err != nil {
+		return diag.Errorf("error waiting for RMS assignment Package (%s) to be updated: %s", assignmentPackageId, err)
+	}
+
+	return resourceAssignmentPackageRead(ctx, d, meta)
+}
+
+func buildUpdateAssignmentPackageBodyParams(d *schema.ResourceData) (map[string]interface{}, error) {
+	varsStructure, err := buildAssignmentPackageRequestBodyParameter(d.Get("vars_structure"))
+	if err != nil {
+		return nil, err
+	}
+
+	bodyParams := map[string]interface{}{
+		"name":           d.Get("name"),
+		"vars_structure": varsStructure,
+	}
+	return bodyParams, err
 }
 
 func resourceAssignmentPackageDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

@@ -1,0 +1,62 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_swr_enterprise_private_network_access_controls": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the enterprise instance ID.",
+                "required": true
+              },
+              "internal_endpoints": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "description": "string",
+                      "endpoint_ip": "string",
+                      "id": "string",
+                      "project_id": "string",
+                      "project_name": "string",
+                      "status": "string",
+                      "status_text": "string",
+                      "subnet_cidr": "string",
+                      "subnet_id": "string",
+                      "subnet_name": "string",
+                      "vpc_cidr": "string",
+                      "vpc_id": "string",
+                      "vpc_name": "string",
+                      "vpcep_endpoint_id": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the private network access control list.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "SWR",
+            "name": "Software Repository for Container",
+            "catalog": "Containers",
+            "name_cn": "容器镜像服务",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

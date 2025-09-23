@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 const (
@@ -26,7 +27,12 @@ type VersionConfig struct {
 	Message string                   `json:"message"`
 }
 
-func CheckUpgrade(version string) diag.Diagnostics {
+func CheckUpgrade(d *schema.ResourceData, version string) diag.Diagnostics {
+	if d.Get("skip_check_upgrade").(bool) {
+		log.Printf("[WARN] check upgrade skipped")
+		return nil
+	}
+
 	log.Printf("[DEBUG] current version: %s", version)
 	if version == "" {
 		return nil

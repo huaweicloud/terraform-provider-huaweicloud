@@ -1,0 +1,90 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_hss_event_alarm_white_list_delete": {
+          "block": {
+            "attributes": {
+              "delete_all": {
+                "type": "bool",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "required": true
+              },
+              "event_type": {
+                "type": "number",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "restore_alarm": {
+                "type": "bool",
+                "optional": true
+              }
+            },
+            "block_types": {
+              "data_list": {
+                "block": {
+                  "attributes": {
+                    "delete_white_rule": {
+                      "type": "bool",
+                      "optional": true
+                    },
+                    "description": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "event_type": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "field_value": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "file_hash": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "file_path": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "hash": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "judge_type": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "white_field": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

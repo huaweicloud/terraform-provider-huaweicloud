@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -26,7 +25,14 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-var DefaultVersion = "CSE2"
+var (
+	DefaultVersion = "CSE2"
+
+	engineNotFoundCodes = []string{
+		"SVCSTG.00501116",
+		"SVCSTG.00501125",
+	}
+)
 
 // @API CSE DELETE /v2/{project_id}/enginemgr/engines/{engineId}
 // @API CSE GET /v2/{project_id}/enginemgr/engines/{engineId}
@@ -58,12 +64,6 @@ func ResourceMicroserviceEngine() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[A-Za-z]([A-Za-z0-9-]*[A-Za-z0-9])?$`),
-						"The name must start a letter and cannot end with a hyphen (-), and can only contain "+
-							"letters, digits and hyphens (-)."),
-					validation.StringLenBetween(3, 24),
-				),
 			},
 			"flavor": {
 				Type:     schema.TypeString,
@@ -109,10 +109,9 @@ func ResourceMicroserviceEngine() *schema.Resource {
 				ForceNew: true,
 			},
 			"description": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.StringLenBetween(0, 255),
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
 			},
 			"eip_id": {
 				Type:     schema.TypeString,
@@ -333,14 +332,14 @@ func resourceMicroserviceEngineRead(_ context.Context, d *schema.ResourceData, m
 }
 
 func resourceMicroserviceEngineDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	region := conf.GetRegion(d)
-	client, err := conf.CseV2Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.CseV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CSE v2 client: %s", err)
 	}
 
-	epsId := common.GetEnterpriseProjectID(d, conf)
+	epsId := cfg.GetEnterpriseProjectID(d)
 	resp, err := engines.Delete(client, d.Id(), epsId)
 	if err != nil {
 		return diag.Errorf("error getting Microservice engine: %s", err)
@@ -367,15 +366,8 @@ func resourceMicroserviceEngineDelete(ctx context.Context, d *schema.ResourceDat
 
 func parseEngineJobError(respErr error) error {
 	var apiErr engines.ErrorResponse
-	if errCode, ok := respErr.(golangsdk.ErrDefault400); ok {
-		pErr := json.Unmarshal(errCode.Body, &apiErr)
-		if pErr == nil && (apiErr.ErrCode == "SVCSTG.00501116") {
-			return golangsdk.ErrDefault404{
-				ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
-					Body: []byte("the microservice engine has been deleted"),
-				},
-			}
-		}
+	if _, ok := respErr.(golangsdk.ErrDefault400); ok {
+		return common.ConvertExpected400ErrInto404Err(respErr, "error_code", engineNotFoundCodes...)
 	}
 	if errCode, ok := respErr.(golangsdk.ErrDefault401); ok {
 		pErr := json.Unmarshal(errCode.Body, &apiErr)

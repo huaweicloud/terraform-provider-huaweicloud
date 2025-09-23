@@ -8,11 +8,16 @@ host: huaweicloud.com
 tags:
     - name: ECS
 paths:
+    /v1/{project_id}/cloudservers/{server_id}:
+        GET:
+            tag: ECS
     /v1/{project_id}/cloudservers/{server_id}/attachvolume:
         POST:
             tag: ECS
     /v1/{project_id}/cloudservers/{server_id}/block_device/{volume_id}:
         GET:
+            tag: ECS
+        PUT:
             tag: ECS
     /v1/{project_id}/cloudservers/{server_id}/detachvolume/{volume_id}:
         DELETE:

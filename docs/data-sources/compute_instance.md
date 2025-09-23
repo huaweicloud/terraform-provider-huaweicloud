@@ -34,6 +34,8 @@ The following arguments are supported:
 
 * `flavor_id` - (Optional, String) Specifies the flavor ID.
 
+* `tags` - (Optional, Map) Specifies the tags to qurey the instance.
+
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project id.
 
 ## Attribute Reference
@@ -57,8 +59,9 @@ In addition to all arguments above, the following attributes are exported:
   The [volume attached object](#compute_instance_volume_object) structure is documented below.
 * `scheduler_hints` - The scheduler with hints on how the instance should be launched.
   The [scheduler hints](#compute_instance_scheduler_hint_object) structure is documented below.
-* `tags` - The key/value pairs to associate with the instance.
 * `status` - The status of the instance.
+* `charging_mode` - The charging mode of the instance. Valid values are **prePaid**, **postPaid** and **spot**.
+* `expired_time` - The expired time of prePaid instance, in UTC format.
 
 <a name="compute_instance_network_object"></a>
 The `network` block supports:

@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk/openstack/elb/v2/l7policies"
 	"github.com/chnsz/golangsdk/openstack/elb/v2/listeners"
@@ -16,7 +15,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
@@ -76,9 +74,6 @@ func ResourceL7PolicyV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"REDIRECT_TO_POOL", "REDIRECT_TO_LISTENER",
-				}, true),
 			},
 
 			"listener_id": {
@@ -106,10 +101,9 @@ func ResourceL7PolicyV2() *schema.Resource {
 			},
 
 			"admin_state_up": {
-				Type:         schema.TypeBool,
-				Default:      true,
-				Optional:     true,
-				ValidateFunc: utils.ValidateTrueOnly,
+				Type:     schema.TypeBool,
+				Default:  true,
+				Optional: true,
 			},
 		},
 	}

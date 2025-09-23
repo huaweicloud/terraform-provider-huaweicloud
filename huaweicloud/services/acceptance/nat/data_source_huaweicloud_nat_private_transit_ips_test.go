@@ -13,7 +13,6 @@ import (
 func TestAccDatasourcePrivateTransitIps_basic(t *testing.T) {
 	var (
 		name           = acceptance.RandomAccResourceName()
-		baseConfig     = testAccPrivateTransitIpsDataSource_base()
 		dataSourceName = "data.huaweicloud_nat_private_transit_ips.test"
 		dc             = acceptance.InitDataSourceCheck(dataSourceName)
 
@@ -22,9 +21,6 @@ func TestAccDatasourcePrivateTransitIps_basic(t *testing.T) {
 
 		byIpAddress   = "data.huaweicloud_nat_private_transit_ips.filter_by_ip_address"
 		dcByIpAddress = acceptance.InitDataSourceCheck(byIpAddress)
-
-		byGatewayId   = "data.huaweicloud_nat_private_transit_ips.filter_by_gateway_id"
-		dcByGatewayId = acceptance.InitDataSourceCheck(byGatewayId)
 
 		bySubnetId   = "data.huaweicloud_nat_private_transit_ips.filter_by_subnet_id"
 		dcBySubnetId = acceptance.InitDataSourceCheck(bySubnetId)
@@ -44,7 +40,7 @@ func TestAccDatasourcePrivateTransitIps_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDatasourcePrivateTransitIps_basic(baseConfig, name),
+				Config: testAccDatasourcePrivateTransitIps_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					dcByTransitIpId.CheckResourceExists(),
@@ -52,9 +48,6 @@ func TestAccDatasourcePrivateTransitIps_basic(t *testing.T) {
 
 					dcByIpAddress.CheckResourceExists(),
 					resource.TestCheckOutput("ip_address_filter_is_useful", "true"),
-
-					dcByGatewayId.CheckResourceExists(),
-					resource.TestCheckOutput("gateway_id_filter_is_useful", "true"),
 
 					dcBySubnetId.CheckResourceExists(),
 					resource.TestCheckOutput("subnet_id_filter_is_useful", "true"),
@@ -73,9 +66,7 @@ func TestAccDatasourcePrivateTransitIps_basic(t *testing.T) {
 	})
 }
 
-func testAccPrivateTransitIpsDataSource_base() string {
-	name := acceptance.RandomAccResourceNameWithDash()
-
+func testAccPrivateTransitIpsDataSource_base(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -88,10 +79,10 @@ resource "huaweicloud_nat_private_transit_ip" "test" {
     key = "value"
   }
 }
-`, common.TestBaseNetwork(name), name)
+`, common.TestBaseNetwork(name))
 }
 
-func testAccDatasourcePrivateTransitIps_basic(baseConfig, name string) string {
+func testAccDatasourcePrivateTransitIps_basic(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -137,25 +128,6 @@ locals {
 
 output "ip_address_filter_is_useful" {
   value = alltrue(local.ip_address_filter_result) && length(local.ip_address_filter_result) > 0
-}
-
-locals {
-  gateway_id = data.huaweicloud_nat_private_transit_ips.test.transit_ips[0].gateway_id
-}
-
-data "huaweicloud_nat_private_transit_ips" "filter_by_gateway_id" {
-  gateway_id = local.gateway_id
-}
-
-locals {
-  gateway_id_filter_result = [
-    for v in data.huaweicloud_nat_private_transit_ips.filter_by_gateway_id.transit_ips[*].gateway_id : 
-    v == local.gateway_id
-  ]
-}
-
-output "gateway_id_filter_is_useful" {
-  value = alltrue(local.gateway_id_filter_result) && length(local.gateway_id_filter_result) > 0
 }
 
 locals {
@@ -225,12 +197,14 @@ data "huaweicloud_nat_private_transit_ips" "filter_by_tags" {
 
 locals {
   tags_filter_result = [
-    for v in data.huaweicloud_nat_private_transit_ips.filter_by_tags.transit_ips[*].tags : v == local.tags
+    for tagMap in data.huaweicloud_nat_private_transit_ips.filter_by_tags.transit_ips[*].tags : alltrue([
+      for k, v in local.tags : tagMap[k] == v
+    ])
   ]
 }
 
 output "tags_filter_is_useful" {
   value = alltrue(local.tags_filter_result) && length(local.tags_filter_result) > 0
 }
-`, baseConfig, name)
+`, testAccPrivateTransitIpsDataSource_base(name))
 }

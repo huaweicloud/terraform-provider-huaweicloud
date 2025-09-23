@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_smn_topic_subscriptions
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: SMN
+paths:
+    /v2/{project_id}/notifications/topics/{topic_urn}/subscriptions:
+        GET:
+            tag: SMN

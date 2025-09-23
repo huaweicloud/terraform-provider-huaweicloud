@@ -1,0 +1,64 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_antiddos_open_protection": {
+          "block": {
+            "attributes": {
+              "antiddos_config_id": {
+                "type": "string",
+                "description": "Specifies the anti-DDoS configuration ID.",
+                "optional": true
+              },
+              "app_type_id": {
+                "type": "number",
+                "description": "Specifies the application type ID.",
+                "required": true
+              },
+              "cleaning_access_pos_id": {
+                "type": "number",
+                "description": "Specifies the cleaning access position ID.",
+                "required": true
+              },
+              "enable_l7": {
+                "type": "bool",
+                "description": "Specifies whether to enable L7 protection.",
+                "required": true
+              },
+              "floating_ip_id": {
+                "type": "string",
+                "description": "Specifies the EIP ID.",
+                "required": true
+              },
+              "http_request_pos_id": {
+                "type": "number",
+                "description": "Specifies the HTTP request position ID.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to create the resource. If omitted, the provider-level region will be used."
+              },
+              "traffic_pos_id": {
+                "type": "number",
+                "description": "Specifies the traffic position ID.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "Anti-DDoS",
+            "name": "Anti-DDoS",
+            "catalog": "Security & Compliance",
+            "name_cn": "Anti-DDoS流量清洗",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

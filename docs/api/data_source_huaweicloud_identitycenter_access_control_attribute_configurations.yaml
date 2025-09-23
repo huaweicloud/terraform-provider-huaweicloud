@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_identitycenter_access_control_attribute_configurations
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: IDENTITYCENTER
+paths:
+    /v1/instances/{instance_id}/access-control-attribute-configuration:
+        GET:
+            tag: IDENTITYCENTER

@@ -2,7 +2,8 @@
 subcategory: "Web Application Firewall (WAF)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_waf_rule_web_tamper_protection"
-description: ""
+description: |-
+  Manages a WAF web tamper protection rule resource within HuaweiCloud.
 ---
 
 # huaweicloud_waf_rule_web_tamper_protection
@@ -10,7 +11,7 @@ description: ""
 Manages a WAF web tamper protection rule resource within HuaweiCloud.
 
 -> **NOTE:** All WAF resources depend on WAF instances, and the WAF instances need to be purchased before they can be
-used. The web tamper protection rule resource can be used in Cloud Mode, Dedicated Mode and ELB Mode.
+used. The web tamper protection rule resource can be used in Cloud Mode and Dedicated Mode.
 
 ## Example Usage
 
@@ -18,7 +19,7 @@ used. The web tamper protection rule resource can be used in Cloud Mode, Dedicat
 variable "enterprise_project_id" {}
 variable "policy_id" {}
 
-resource "huaweicloud_waf_rule_web_tamper_protection" "rule_1" {
+resource "huaweicloud_waf_rule_web_tamper_protection" "test" {
   policy_id             = var.policy_id
   enterprise_project_id = var.enterprise_project_id
   domain                = "www.your-domain.com"
@@ -31,8 +32,8 @@ resource "huaweicloud_waf_rule_web_tamper_protection" "rule_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) The region in which to create the WAF web tamper protection rules resource. If
-  omitted, the provider-level region will be used. Changing this creates a new rule.
+* `region` - (Optional, String, ForceNew) Specifies the region in which to create the WAF web tamper protection rules
+  resource. If omitted, the provider-level region will be used. Changing this creates a new rule.
 
 * `policy_id` - (Required, String, ForceNew) Specifies the WAF policy ID. Changing this creates a new rule.
 
@@ -42,17 +43,18 @@ The following arguments are supported:
   domain name. Changing this creates a new rule.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID of WAF tamper protection
-  rule. Changing this parameter will create a new resource.
+  rule. For enterprise users, if omitted, default enterprise project will be used.
+  Changing this parameter will create a new resource.
 
 * `description` - (Optional, String, ForceNew) Specifies the description of WAF web tamper protection rule.
   Changing this creates a new rule.
 
 * `status` - (Optional, Int) Specifies the status of WAF web tamper protection rule.
   Valid values are as follows:
-  + **0**: Disabled.
-  + **1**: Enabled.
+  + `0`: Disabled.
+  + `1`: Enabled.
 
-  The default value is **1**.
+  The default value is `1`.
 
 ## Attribute Reference
 

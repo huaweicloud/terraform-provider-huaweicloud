@@ -32,9 +32,7 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `instance_id` - (Required, String, ForceNew) Specifies the ID of the RDS instance.
-
-  Changing this parameter will create a new resource.
+* `instance_id` - (Required, String, NonUpdatable) Specifies the ID of the RDS instance.
 
 * `backup_type` - (Required, String) Specifies the backup type. Value options:
     + **auto**: open automated full backup.
@@ -43,16 +41,12 @@ The following arguments are supported:
   Only **all** is supported for SQL server.
 
 * `keep_days` - (Required, Int) Specifies the number of days to retain the generated backup files.
-  Value ranges from `1` to `1825`.
+  Value ranges from `1` to `1,825`.
 
-* `destination_region` - (Required, String, ForceNew) Specifies the target region ID for the cross-region backup policy.
+* `destination_region` - (Required, String, NonUpdatable) Specifies the target region ID for the cross-region backup policy.
 
-  Changing this parameter will create a new resource.
-
-* `destination_project_id` - (Required, String, ForceNew) Specifies the target project ID for the cross-region backup
+* `destination_project_id` - (Required, String, NonUpdatable) Specifies the target project ID for the cross-region backup
   policy.
-
-  Changing this parameter will create a new resource.
 
 ## Attribute Reference
 

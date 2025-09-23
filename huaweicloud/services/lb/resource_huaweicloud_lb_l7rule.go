@@ -9,7 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk/openstack/elb/v2/l7policies"
 	"github.com/chnsz/golangsdk/openstack/elb/v2/listeners"
@@ -66,17 +65,11 @@ func ResourceL7RuleV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"HOST_NAME", "PATH",
-				}, true),
 			},
 
 			"compare_type": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"STARTS_WITH", "EQUAL_TO", "REGEX",
-				}, true),
 			},
 
 			"l7policy_id": {
@@ -93,12 +86,6 @@ func ResourceL7RuleV2() *schema.Resource {
 			"value": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
-					if len(v.(string)) == 0 {
-						errors = append(errors, fmtp.Errorf("'value' field should not be empty"))
-					}
-					return
-				},
 			},
 
 			"key": {
@@ -108,10 +95,9 @@ func ResourceL7RuleV2() *schema.Resource {
 			},
 
 			"admin_state_up": {
-				Type:         schema.TypeBool,
-				Default:      true,
-				Optional:     true,
-				ValidateFunc: utils.ValidateTrueOnly,
+				Type:     schema.TypeBool,
+				Default:  true,
+				Optional: true,
 			},
 		},
 	}

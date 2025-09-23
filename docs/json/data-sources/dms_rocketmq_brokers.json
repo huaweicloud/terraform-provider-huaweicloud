@@ -1,0 +1,43 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dms_rocketmq_brokers": {
+          "block": {
+            "attributes": {
+              "brokers": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Indicates the list of the brokers.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the rocketMQ instance.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the RocketMQ brokers are located.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "RocketMQ",
+            "name": "Distributed Message Service for RocketMQ",
+            "catalog": "Middleware",
+            "name_cn": "分布式消息服务 RocketMQ",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

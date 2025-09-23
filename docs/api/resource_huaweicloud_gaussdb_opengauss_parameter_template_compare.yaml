@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_gaussdb_opengauss_parameter_template_compare
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: GaussDB
+paths:
+    /v3/{project_id}/configurations/comparison:
+        POST:
+            tag: GaussDB

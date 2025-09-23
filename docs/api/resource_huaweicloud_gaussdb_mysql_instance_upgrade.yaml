@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_gaussdb_mysql_instance_upgrade
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: GaussDBforMySQL
+paths:
+    /v3/{project_id}/instances/{instance_id}/db-upgrade:
+        POST:
+            tag: GaussDBforMySQL
+    /v3/{project_id}/jobs:
+        GET:
+            tag: GaussDBforMySQL

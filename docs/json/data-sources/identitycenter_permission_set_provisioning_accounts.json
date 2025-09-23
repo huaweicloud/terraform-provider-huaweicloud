@@ -1,0 +1,46 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_identitycenter_permission_set_provisioning_accounts": {
+          "block": {
+            "attributes": {
+              "account_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The account ID list.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of an IAM Identity Center instance.",
+                "required": true
+              },
+              "permission_set_id": {
+                "type": "string",
+                "description": "Specifies the ID of a permission set.",
+                "required": true
+              },
+              "provisioning_status": {
+                "type": "string",
+                "description": "Specifies the provisioning status of a permission set.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

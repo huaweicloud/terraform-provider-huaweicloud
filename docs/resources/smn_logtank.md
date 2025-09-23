@@ -65,12 +65,12 @@ In addition to all arguments above, the following attributes are exported:
 
 SMN logtank can be imported using the `topic_urn` or using the `topic_urn` and `logtank_id` separated by a slash e.g.
 
-```
+```bash
 $ terraform import huaweicloud_smn_logtank.logtank_test urn:smn:cn-south-1:09f960944c80f4802f85c003e0ed1d98:logtank_test
 ```
 
 or
 
-```
+```bash
 $ terraform import huaweicloud_smn_logtank.logtank_test urn:smn:cn-south-1:09f960944c80f4802f85c003e0ed1d98:logtank_test/d9dbc3baee5c43d18a79b3fe29292003
 ```

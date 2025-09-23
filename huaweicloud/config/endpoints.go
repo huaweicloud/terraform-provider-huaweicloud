@@ -52,6 +52,7 @@ var multiCatalogKeys = map[string][]string{
 	"config":       {"rms"}, // config is named as Resource Management Service(RMS) before
 	"tms":          {"tmsv2"},
 	"anti-ddos":    {"anti-ddosv2"},
+	"css":          {"cssv2"},
 }
 
 // GetServiceDerivedCatalogKeys returns the derived catalog keys of a service.
@@ -234,10 +235,9 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Product:          "UCS",
 	},
 	"asm": {
-		Name:             "asm",
-		Version:          "v1",
-		WithOutProjectID: true,
-		Product:          "ASM",
+		Name:    "asm",
+		Version: "v1",
+		Product: "ASM",
 	},
 
 	"aom": {
@@ -261,10 +261,10 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version: "v1",
 		Product: "BMS",
 	},
-	"aos": {
-		Name:    "aos",
+	"rfs": {
+		Name:    "rfs",
 		Version: "v1",
-		Product: "AOS",
+		Product: "RFS",
 	},
 
 	// ******* catalog for storage ******
@@ -410,6 +410,11 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version: "v2",
 		Product: "Workspace",
 	},
+	"appstream": {
+		Name:    "appstream",
+		Version: "v1",
+		Product: "Workspace",
+	},
 	"er": {
 		Name:    "er",
 		Version: "v3",
@@ -470,6 +475,11 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Name:    "dds",
 		Version: "v3.1",
 		Product: "DDS",
+	},
+	"deh": {
+		Name:    "deh",
+		Version: "v1.0",
+		Product: "DEH",
 	},
 	"geminidb": {
 		Name:    "gaussdb-nosql",
@@ -540,8 +550,15 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version: "v2",
 		Product: "SMN",
 	},
+	"sms-intl": {
+		Name:             "sms.ap-southeast-3",
+		Version:          "v3",
+		Scope:            "global",
+		WithOutProjectID: true,
+		Product:          "SMS",
+	},
 	"sms": {
-		Name:             "sms.ap-southeast-1",
+		Name:             "sms.cn-north-4",
 		Version:          "v3",
 		Scope:            "global",
 		WithOutProjectID: true,
@@ -569,6 +586,12 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Version:          "v1",
 		WithOutProjectID: true,
 		Product:          "Config",
+	},
+	"rgc": {
+		Name:             "rgc",
+		Version:          "v1",
+		WithOutProjectID: true,
+		Product:          "RGC",
 	},
 	"organizations": {
 		Name:             "organizations",
@@ -722,6 +745,12 @@ var allServiceCatalog = map[string]ServiceCatalog{
 
 		Name:    "css",
 		Version: "v1.0",
+		Product: "CSS",
+	},
+	"cssv2": {
+
+		Name:    "css",
+		Version: "v2.0",
 		Product: "CSS",
 	},
 	"cs": {
@@ -921,6 +950,18 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Product: "CodeArtsInspector",
 	},
 
+	"codearts_pipeline": {
+		Name:    "cloudpipeline-ext",
+		Version: "v5",
+		Product: "CodeArtsPipeline",
+	},
+
+	"codearts_build": {
+		Name:    "cloudbuild-ext",
+		Version: "v1",
+		Product: "CodeArtsBuild",
+	},
+
 	// catalog for Data Security Center
 	"dsc": {
 		Name:    "sdg",
@@ -954,6 +995,13 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		Scope:            "global",
 		WithOutProjectID: true,
 		Product:          "KooGallery",
+	},
+
+	// catalog for MetaStudio
+	"metastudio": {
+		Name:    "metastudio",
+		Version: "v1",
+		Product: "MetaStudio",
 	},
 }
 

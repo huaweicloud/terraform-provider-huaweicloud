@@ -361,7 +361,7 @@ func flattenAssociatedThrottlingPolicies(client *golangsdk.ServiceClient, instan
 		policyDetail := map[string]interface{}{
 			"id":                policyId,
 			"name":              utils.PathSearch("name", policy, nil),
-			"type":              *analyseThrottlingPolicyType(int(utils.PathSearch("type", policy, 0).(float64))),
+			"type":              *analyseThrottlingPolicyType(int(utils.PathSearch("type", policy, float64(0)).(float64))),
 			"period_unit":       utils.PathSearch("time_unit", policy, nil),
 			"period":            utils.PathSearch("time_interval", policy, nil),
 			"max_api_requests":  utils.PathSearch("api_call_limits", policy, nil),
@@ -375,7 +375,7 @@ func flattenAssociatedThrottlingPolicies(client *golangsdk.ServiceClient, instan
 			"created_at":        utils.PathSearch("create_time", policy, nil), // Already in RFC3339 format.
 		}
 
-		if int(utils.PathSearch("is_inclu_special_throttle", policy, 0).(float64)) == includeSpecialThrottle {
+		if int(utils.PathSearch("is_inclu_special_throttle", policy, float64(0)).(float64)) == includeSpecialThrottle {
 			// Get related special throttling policies.
 			specResp, err := querySpecialThrottlingPolicies(client, instanceId, policyId)
 			if err != nil {

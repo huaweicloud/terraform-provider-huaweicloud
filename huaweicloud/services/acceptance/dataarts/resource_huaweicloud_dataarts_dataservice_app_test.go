@@ -39,7 +39,7 @@ func getDataServiceAppResourceFunc(cfg *config.Config, state *terraform.Resource
 		MoreHeaders: map[string]string{
 			"Content-Type": "application/json",
 			"workspace":    state.Primary.Attributes["workspace_id"],
-			"dlm_type":     state.Primary.Attributes["dlm_type"],
+			"dlm-type":     state.Primary.Attributes["dlm_type"],
 		},
 	}
 
@@ -57,69 +57,23 @@ func getDataServiceAppResourceFunc(cfg *config.Config, state *terraform.Resource
 }
 
 func TestAccDataServiceApp_basic(t *testing.T) {
-	var obj interface{}
+	var (
+		obj interface{}
 
-	name := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_dataarts_dataservice_app.test"
+		name       = acceptance.RandomAccResourceName()
+		updateName = acceptance.RandomAccResourceName()
 
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&obj,
-		getDataServiceAppResourceFunc,
-	)
+		sharedForAPP   = "huaweicloud_dataarts_dataservice_app.shared_type_app"
+		rcSharedForAPP = acceptance.InitResourceCheck(sharedForAPP, &obj, getDataServiceAppResourceFunc)
 
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckDataArtsWorkSpaceID(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testDataServiceApp_basic(name),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "workspace_id", acceptance.HW_DATAARTS_WORKSPACE_ID),
-					resource.TestCheckResourceAttr(rName, "dlm_type", "SHARED"),
-					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "app_type", "APP"),
-					resource.TestCheckResourceAttrSet(rName, "description"),
-					resource.TestCheckResourceAttrSet(rName, "app_key"),
-					resource.TestCheckResourceAttrSet(rName, "app_secret"),
-				),
-			},
-			{
-				Config: testDataServiceApp_basic_update(name + "update"),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "workspace_id", acceptance.HW_DATAARTS_WORKSPACE_ID),
-					resource.TestCheckResourceAttr(rName, "dlm_type", "SHARED"),
-					resource.TestCheckResourceAttr(rName, "name", name+"update"),
-					resource.TestCheckResourceAttr(rName, "app_type", "APP"),
-					resource.TestCheckResourceAttr(rName, "description", ""),
-					resource.TestCheckResourceAttrSet(rName, "app_key"),
-					resource.TestCheckResourceAttrSet(rName, "app_secret"),
-				),
-			},
-			{
-				ResourceName:      rName,
-				ImportState:       true,
-				ImportStateVerify: true,
-				ImportStateIdFunc: testDataServiceAppImportState(rName),
-			},
-		},
-	})
-}
+		exclusiveForAPP   = "huaweicloud_dataarts_dataservice_app.exclusive_type_app"
+		rcExclusiveForAPP = acceptance.InitResourceCheck(exclusiveForAPP, &obj, getDataServiceAppResourceFunc)
 
-func TestAccDataServiceApp_iam(t *testing.T) {
-	var obj interface{}
-	rName := "huaweicloud_dataarts_dataservice_app.test"
+		exclusiveForDLM   = "huaweicloud_dataarts_dataservice_app.exclusive_type_dlm"
+		rcExclusiveForDLM = acceptance.InitResourceCheck(exclusiveForDLM, &obj, getDataServiceAppResourceFunc)
 
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&obj,
-		getDataServiceAppResourceFunc,
+		exclusiveForIAM   = "huaweicloud_dataarts_dataservice_app.exclusive_type_iam"
+		rcExclusiveForIAM = acceptance.InitResourceCheck(exclusiveForIAM, &obj, getDataServiceAppResourceFunc)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -129,62 +83,193 @@ func TestAccDataServiceApp_iam(t *testing.T) {
 			acceptance.TestAccPreCheckDataArtsWorkSpaceID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			rcSharedForAPP.CheckResourceDestroy(),
+			rcExclusiveForAPP.CheckResourceDestroy(),
+			rcExclusiveForDLM.CheckResourceDestroy(),
+		),
 		Steps: []resource.TestStep{
 			{
-				Config: testDataServiceApp_iam(),
+				Config: testDataServiceApp_basic_step1(name),
 				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "workspace_id", acceptance.HW_DATAARTS_WORKSPACE_ID),
-					resource.TestCheckResourceAttr(rName, "name", acceptance.HW_DOMAIN_NAME),
-					resource.TestCheckResourceAttr(rName, "dlm_type", "EXCLUSIVE"),
-					resource.TestCheckResourceAttr(rName, "app_type", "IAM"),
-					resource.TestCheckResourceAttr(rName, "app_key", "NO DATA"),
-					resource.TestCheckResourceAttr(rName, "app_secret", "NO DATA"),
-					resource.TestCheckResourceAttrSet(rName, "description"),
+					rcSharedForAPP.CheckResourceExists(),
+					resource.TestCheckResourceAttr(sharedForAPP, "workspace_id", acceptance.HW_DATAARTS_WORKSPACE_ID),
+					resource.TestCheckResourceAttr(sharedForAPP, "dlm_type", "SHARED"),
+					resource.TestCheckResourceAttr(sharedForAPP, "name", name+"_shared_type_app"),
+					resource.TestCheckResourceAttrSet(sharedForAPP, "description"),
+					resource.TestCheckResourceAttrSet(sharedForAPP, "app_key"),
+					resource.TestCheckResourceAttrSet(sharedForAPP, "app_secret"),
+					rcExclusiveForAPP.CheckResourceExists(),
+					resource.TestCheckResourceAttr(exclusiveForAPP, "workspace_id", acceptance.HW_DATAARTS_WORKSPACE_ID),
+					resource.TestCheckResourceAttr(exclusiveForAPP, "dlm_type", "EXCLUSIVE"),
+					resource.TestCheckResourceAttr(exclusiveForAPP, "name", name+"_exclusive_type_app"),
+					resource.TestCheckResourceAttr(exclusiveForAPP, "app_type", "APP"),
+					resource.TestCheckResourceAttrSet(exclusiveForAPP, "description"),
+					resource.TestCheckResourceAttrSet(exclusiveForAPP, "app_key"),
+					resource.TestCheckResourceAttrSet(exclusiveForAPP, "app_secret"),
+					rcExclusiveForDLM.CheckResourceExists(),
+					resource.TestCheckResourceAttr(exclusiveForDLM, "workspace_id", acceptance.HW_DATAARTS_WORKSPACE_ID),
+					resource.TestCheckResourceAttr(exclusiveForDLM, "dlm_type", "EXCLUSIVE"),
+					resource.TestCheckResourceAttr(exclusiveForDLM, "name", name+"_exclusive_type_dlm"),
+					resource.TestCheckResourceAttr(exclusiveForDLM, "app_type", "DLM"),
+					resource.TestCheckResourceAttrSet(exclusiveForDLM, "description"),
+					resource.TestCheckResourceAttrSet(exclusiveForDLM, "app_key"),
+					resource.TestCheckResourceAttrSet(exclusiveForDLM, "app_secret"),
+					rcExclusiveForIAM.CheckResourceExists(),
+					resource.TestCheckResourceAttr(exclusiveForIAM, "workspace_id", acceptance.HW_DATAARTS_WORKSPACE_ID),
+					resource.TestCheckResourceAttr(exclusiveForIAM, "dlm_type", "EXCLUSIVE"),
+					resource.TestCheckResourceAttr(exclusiveForIAM, "name", acceptance.HW_DOMAIN_NAME),
+					resource.TestCheckResourceAttr(exclusiveForIAM, "app_type", "IAM"),
+					resource.TestCheckResourceAttrSet(exclusiveForIAM, "description"),
+					resource.TestCheckResourceAttr(exclusiveForIAM, "app_key", "NO DATA"),
+					resource.TestCheckResourceAttr(exclusiveForIAM, "app_secret", "NO DATA"),
 				),
 			},
 			{
-				ResourceName:      rName,
+				ResourceName:      sharedForAPP,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testDataServiceAppImportState(rName),
+				ImportStateIdFunc: testDataServiceAppImportState(sharedForAPP),
+				ImportStateVerifyIgnore: []string{
+					"app_type",
+				},
+			},
+			{
+				ResourceName:      exclusiveForAPP,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testDataServiceAppImportState(exclusiveForAPP),
+				ImportStateVerifyIgnore: []string{
+					"app_type",
+				},
+			},
+			{
+				ResourceName:      exclusiveForDLM,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testDataServiceAppImportState(exclusiveForDLM),
+				ImportStateVerifyIgnore: []string{
+					"app_type",
+				},
+			},
+			{
+				ResourceName:      exclusiveForIAM,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testDataServiceAppImportState(exclusiveForIAM),
+				ImportStateVerifyIgnore: []string{
+					"app_type",
+				},
+			},
+			{
+				Config: testDataServiceApp_basic_step2(updateName),
+				Check: resource.ComposeTestCheckFunc(
+					rcSharedForAPP.CheckResourceExists(),
+					resource.TestCheckResourceAttr(sharedForAPP, "workspace_id", acceptance.HW_DATAARTS_WORKSPACE_ID),
+					resource.TestCheckResourceAttr(sharedForAPP, "dlm_type", "SHARED"),
+					resource.TestCheckResourceAttr(sharedForAPP, "name", updateName+"_shared_type_app"),
+					resource.TestCheckResourceAttr(sharedForAPP, "description", ""),
+					resource.TestCheckResourceAttrSet(sharedForAPP, "app_key"),
+					resource.TestCheckResourceAttrSet(sharedForAPP, "app_secret"),
+					rcExclusiveForAPP.CheckResourceExists(),
+					resource.TestCheckResourceAttr(exclusiveForAPP, "workspace_id", acceptance.HW_DATAARTS_WORKSPACE_ID),
+					resource.TestCheckResourceAttr(exclusiveForAPP, "dlm_type", "EXCLUSIVE"),
+					resource.TestCheckResourceAttr(exclusiveForAPP, "name", updateName+"_exclusive_type_app"),
+					resource.TestCheckResourceAttr(exclusiveForAPP, "app_type", "APP"),
+					resource.TestCheckResourceAttr(exclusiveForAPP, "description", ""),
+					resource.TestCheckResourceAttrSet(exclusiveForAPP, "app_key"),
+					resource.TestCheckResourceAttrSet(exclusiveForAPP, "app_secret"),
+					rcExclusiveForDLM.CheckResourceExists(),
+					resource.TestCheckResourceAttr(exclusiveForDLM, "workspace_id", acceptance.HW_DATAARTS_WORKSPACE_ID),
+					resource.TestCheckResourceAttr(exclusiveForDLM, "dlm_type", "EXCLUSIVE"),
+					resource.TestCheckResourceAttr(exclusiveForDLM, "name", updateName+"_exclusive_type_dlm"),
+					resource.TestCheckResourceAttr(exclusiveForDLM, "app_type", "DLM"),
+					resource.TestCheckResourceAttr(exclusiveForDLM, "description", ""),
+					resource.TestCheckResourceAttrSet(exclusiveForDLM, "app_key"),
+					resource.TestCheckResourceAttrSet(exclusiveForDLM, "app_secret"),
+					rcExclusiveForIAM.CheckResourceExists(),
+					resource.TestCheckResourceAttr(exclusiveForIAM, "workspace_id", acceptance.HW_DATAARTS_WORKSPACE_ID),
+					resource.TestCheckResourceAttr(exclusiveForIAM, "dlm_type", "EXCLUSIVE"),
+					resource.TestCheckResourceAttr(exclusiveForIAM, "name", acceptance.HW_DOMAIN_NAME),
+					resource.TestCheckResourceAttr(exclusiveForIAM, "app_type", "IAM"),
+					resource.TestCheckResourceAttr(exclusiveForIAM, "description", ""),
+					resource.TestCheckResourceAttr(exclusiveForIAM, "app_key", "NO DATA"),
+					resource.TestCheckResourceAttr(exclusiveForIAM, "app_secret", "NO DATA"),
+				),
 			},
 		},
 	})
 }
 
-func testDataServiceApp_basic(name string) string {
+// The enum 'APP' includes these type:
+// + APIG
+// + APIGW
+// + DLM (Exclusive application)
+// + ROMA_APIC
+func testDataServiceApp_basic_step1(name string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_dataarts_dataservice_app" "test" {
+resource "huaweicloud_dataarts_dataservice_app" "shared_type_app" {
   workspace_id = "%[1]s"
   dlm_type     = "SHARED"
-  name         = "%[2]s"
+  name         = "%[2]s_shared_type_app"
   description  = "created by acceptance"
 }
-`, acceptance.HW_DATAARTS_WORKSPACE_ID, name)
+
+resource "huaweicloud_dataarts_dataservice_app" "exclusive_type_app" {
+  workspace_id = "%[1]s"
+  dlm_type     = "EXCLUSIVE"
+  app_type     = "APP"
+  name         = "%[2]s_exclusive_type_app"
+  description  = "created by acceptance"
 }
 
-func testDataServiceApp_basic_update(name string) string {
-	return fmt.Sprintf(`
-resource "huaweicloud_dataarts_dataservice_app" "test" {
+resource "huaweicloud_dataarts_dataservice_app" "exclusive_type_dlm" {
   workspace_id = "%[1]s"
-  dlm_type     = "SHARED"
-  name         = "%[2]s"
-}
-`, acceptance.HW_DATAARTS_WORKSPACE_ID, name)
+  dlm_type     = "EXCLUSIVE"
+  app_type     = "DLM"
+  name         = "%[2]s_exclusive_type_dlm"
+  description  = "created by acceptance"
 }
 
-func testDataServiceApp_iam() string {
-	return fmt.Sprintf(`
-resource "huaweicloud_dataarts_dataservice_app" "test" {
+resource "huaweicloud_dataarts_dataservice_app" "exclusive_type_iam" {
   workspace_id = "%[1]s"
-  name         = "%[2]s"
   dlm_type     = "EXCLUSIVE"
   app_type     = "IAM"
-  description  = "IAM authentication with EXCLUSIVE DLM engine"
+  name         = "%[3]s"
+  description  = "created by acceptance"
 }
-`, acceptance.HW_DATAARTS_WORKSPACE_ID, acceptance.HW_DOMAIN_NAME)
+`, acceptance.HW_DATAARTS_WORKSPACE_ID, name, acceptance.HW_DOMAIN_NAME)
+}
+
+func testDataServiceApp_basic_step2(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_dataarts_dataservice_app" "shared_type_app" {
+  workspace_id = "%[1]s"
+  dlm_type     = "SHARED"
+  name         = "%[2]s_shared_type_app"
+}
+
+resource "huaweicloud_dataarts_dataservice_app" "exclusive_type_app" {
+  workspace_id = "%[1]s"
+  dlm_type     = "EXCLUSIVE"
+  app_type     = "APP" # Required if the value of the DLM type is exclusive.
+  name         = "%[2]s_exclusive_type_app"
+}
+
+resource "huaweicloud_dataarts_dataservice_app" "exclusive_type_dlm" {
+  workspace_id = "%[1]s"
+  dlm_type     = "EXCLUSIVE"
+  app_type     = "DLM"
+  name         = "%[2]s_exclusive_type_dlm"
+}
+
+resource "huaweicloud_dataarts_dataservice_app" "exclusive_type_iam" {
+  workspace_id = "%[1]s"
+  dlm_type     = "EXCLUSIVE"
+  app_type     = "IAM"
+  name         = "%[3]s"
+}
+`, acceptance.HW_DATAARTS_WORKSPACE_ID, name, acceptance.HW_DOMAIN_NAME)
 }
 
 func testDataServiceAppImportState(name string) resource.ImportStateIdFunc {

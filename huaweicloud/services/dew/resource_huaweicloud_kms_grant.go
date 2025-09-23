@@ -8,14 +8,12 @@ package dew
 import (
 	"context"
 	"fmt"
-	"regexp"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -56,7 +54,7 @@ func ResourceKmsGrant() *schema.Resource {
 				Description: `The ID of the authorized user or account.`,
 			},
 			"operations": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Required: true,
 				ForceNew: true,
@@ -69,11 +67,6 @@ func ResourceKmsGrant() *schema.Resource {
 				Computed:    true,
 				ForceNew:    true,
 				Description: `Grant name.`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[a-zA-Z0-9:/_-]*$`),
-						"the input is invalid"),
-					validation.StringLenBetween(1, 255),
-				),
 			},
 			"type": {
 				Type:        schema.TypeString,
@@ -135,11 +128,11 @@ func resourceKmsGrantCreate(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("grant_id", createGrantRespBody)
-	if err != nil {
-		return diag.Errorf("error creating KMS grant: ID is not found in API response")
+	grantId := utils.PathSearch("grant_id", createGrantRespBody, "").(string)
+	if grantId == "" {
+		return diag.Errorf("unable to find the KMS grant ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(grantId)
 
 	return resourceKmsGrantRead(ctx, d, meta)
 }
@@ -150,7 +143,7 @@ func buildCreateGrantBodyParams(d *schema.ResourceData, _ *config.Config) map[st
 		"key_id":                 utils.ValueIgnoreEmpty(d.Get("key_id")),
 		"grantee_principal_type": utils.ValueIgnoreEmpty(d.Get("type")),
 		"grantee_principal":      utils.ValueIgnoreEmpty(d.Get("grantee_principal")),
-		"operations":             utils.ValueIgnoreEmpty(d.Get("operations")),
+		"operations":             utils.ValueIgnoreEmpty(d.Get("operations").(*schema.Set).List()),
 		"retiring_principal":     utils.ValueIgnoreEmpty(d.Get("retiring_principal")),
 	}
 	return bodyParams

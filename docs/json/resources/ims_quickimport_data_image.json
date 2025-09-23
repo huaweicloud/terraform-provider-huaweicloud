@@ -1,0 +1,275 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_ims_quickimport_data_image": {
+          "block": {
+            "attributes": {
+              "__account_code": {
+                "type": "string",
+                "computed": true
+              },
+              "__backup_id": {
+                "type": "string",
+                "computed": true
+              },
+              "__data_origin": {
+                "type": "string",
+                "computed": true
+              },
+              "__image_displayname": {
+                "type": "string",
+                "computed": true
+              },
+              "__image_size": {
+                "type": "string",
+                "computed": true
+              },
+              "__image_source_type": {
+                "type": "string",
+                "computed": true
+              },
+              "__imagetype": {
+                "type": "string",
+                "computed": true
+              },
+              "__is_offshelved": {
+                "type": "string",
+                "computed": true
+              },
+              "__isregistered": {
+                "type": "string",
+                "computed": true
+              },
+              "__lazyloading": {
+                "type": "string",
+                "computed": true
+              },
+              "__originalimagename": {
+                "type": "string",
+                "computed": true
+              },
+              "__os_bit": {
+                "type": "string",
+                "computed": true
+              },
+              "__os_feature_list": {
+                "type": "string",
+                "computed": true
+              },
+              "__os_version": {
+                "type": "string",
+                "computed": true
+              },
+              "__platform": {
+                "type": "string",
+                "computed": true
+              },
+              "__productcode": {
+                "type": "string",
+                "computed": true
+              },
+              "__root_origin": {
+                "type": "string",
+                "computed": true
+              },
+              "__sequence_num": {
+                "type": "string",
+                "computed": true
+              },
+              "__support_agent_list": {
+                "type": "string",
+                "computed": true
+              },
+              "__support_amd": {
+                "type": "string",
+                "computed": true
+              },
+              "__support_arm": {
+                "type": "string",
+                "computed": true
+              },
+              "__support_diskintensive": {
+                "type": "string",
+                "computed": true
+              },
+              "__support_fc_inject": {
+                "type": "string",
+                "computed": true
+              },
+              "__support_highperformance": {
+                "type": "string",
+                "computed": true
+              },
+              "__support_kvm": {
+                "type": "string",
+                "computed": true
+              },
+              "__support_kvm_gpu_type": {
+                "type": "string",
+                "computed": true
+              },
+              "__support_kvm_hi1822_hisriov": {
+                "type": "string",
+                "computed": true
+              },
+              "__support_kvm_hi1822_hivirtionet": {
+                "type": "string",
+                "computed": true
+              },
+              "__support_kvm_infiniband": {
+                "type": "string",
+                "computed": true
+              },
+              "__support_largememory": {
+                "type": "string",
+                "computed": true
+              },
+              "__support_xen": {
+                "type": "string",
+                "computed": true
+              },
+              "__support_xen_gpu_type": {
+                "type": "string",
+                "computed": true
+              },
+              "__support_xen_hana": {
+                "type": "string",
+                "computed": true
+              },
+              "__system__cmkid": {
+                "type": "string",
+                "computed": true
+              },
+              "__system_support_market": {
+                "type": "bool",
+                "computed": true
+              },
+              "active_at": {
+                "type": "string",
+                "computed": true
+              },
+              "container_format": {
+                "type": "string",
+                "computed": true
+              },
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "disk_format": {
+                "type": "string",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "file": {
+                "type": "string",
+                "computed": true
+              },
+              "hw_firmware_type": {
+                "type": "string",
+                "computed": true
+              },
+              "hw_vif_multiqueue_enabled": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "image_url": {
+                "type": "string",
+                "required": true
+              },
+              "max_ram": {
+                "type": "string",
+                "computed": true
+              },
+              "min_disk": {
+                "type": "number",
+                "required": true
+              },
+              "min_ram": {
+                "type": "number",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "os_shutdown_timeout": {
+                "type": "string",
+                "computed": true
+              },
+              "os_type": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "protected": {
+                "type": "bool",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "schema": {
+                "type": "string",
+                "computed": true
+              },
+              "self": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "required": true
+              },
+              "updated_at": {
+                "type": "string",
+                "computed": true
+              },
+              "virtual_env_type": {
+                "type": "string",
+                "computed": true
+              },
+              "visibility": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "IMS",
+            "name": "Image Management Service",
+            "catalog": "Compute",
+            "name_cn": "镜像服务",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

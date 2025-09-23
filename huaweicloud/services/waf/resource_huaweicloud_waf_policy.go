@@ -22,12 +22,12 @@ import (
 // @API WAF GET /v1/{project_id}/waf/policy/{policy_id}
 // @API WAF PATCH /v1/{project_id}/waf/policy/{policy_id}
 // @API WAF POST /v1/{project_id}/waf/policy
-func ResourceWafPolicyV1() *schema.Resource {
+func ResourceWafPolicy() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceWafPolicyV1Create,
-		ReadContext:   resourceWafPolicyV1Read,
-		UpdateContext: resourceWafPolicyV1Update,
-		DeleteContext: resourceWafPolicyV1Delete,
+		CreateContext: resourceWafPolicyCreate,
+		ReadContext:   resourceWafPolicyRead,
+		UpdateContext: resourceWafPolicyUpdate,
+		DeleteContext: resourceWafPolicyDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceWAFImportState,
 		},
@@ -72,6 +72,21 @@ func ResourceWafPolicyV1() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"deep_inspection": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+			"header_inspection": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+			"shiro_decryption_check": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
 			"options": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -82,18 +97,6 @@ func ResourceWafPolicyV1() *schema.Resource {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem:     policyBindHostSchema(),
-			},
-			"deep_inspection": {
-				Type:     schema.TypeBool,
-				Computed: true,
-			},
-			"header_inspection": {
-				Type:     schema.TypeBool,
-				Computed: true,
-			},
-			"shiro_decryption_check": {
-				Type:     schema.TypeBool,
-				Computed: true,
 			},
 		},
 	}
@@ -208,7 +211,7 @@ func policyBindHostSchema() *schema.Resource {
 	return &sc
 }
 
-func resourceWafPolicyV1Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceWafPolicyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	wafClient, err := cfg.WafV1Client(cfg.GetRegion(d))
 	if err != nil {
@@ -230,7 +233,7 @@ func resourceWafPolicyV1Create(ctx context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(err)
 	}
 
-	return resourceWafPolicyV1Read(ctx, d, meta)
+	return resourceWafPolicyRead(ctx, d, meta)
 }
 
 func updatePolicy(client *golangsdk.ServiceClient, d *schema.ResourceData, cfg *config.Config) error {
@@ -240,6 +243,7 @@ func updatePolicy(client *golangsdk.ServiceClient, d *schema.ResourceData, cfg *
 		FullDetection:       utils.Bool(d.Get("full_detection").(bool)),
 		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 		Options:             buildUpdatePolicyOption(d),
+		Extend:              buildExtend(d),
 	}
 
 	if v, ok := d.GetOk("protection_mode"); ok {
@@ -255,6 +259,24 @@ func updatePolicy(client *golangsdk.ServiceClient, d *schema.ResourceData, cfg *
 	}
 	_, err := policies.Update(client, d.Id(), updateOpts).Extract()
 	return err
+}
+
+// Due to API reasons, these three fields need to be edited through the `extend` structure.
+func buildExtend(d *schema.ResourceData) map[string]string {
+	extendObj := map[string]interface{}{
+		"deep_decode":             d.Get("deep_inspection"),
+		"check_all_headers":       d.Get("header_inspection"),
+		"shiro_rememberMe_enable": d.Get("shiro_decryption_check"),
+	}
+
+	extendJsonString := utils.JsonToString(extendObj)
+	if extendJsonString == "" {
+		return nil
+	}
+
+	return map[string]string{
+		"extend": extendJsonString,
+	}
 }
 
 func buildUpdatePolicyOption(d *schema.ResourceData) *policies.PolicyOption {
@@ -290,7 +312,7 @@ func buildUpdatePolicyOption(d *schema.ResourceData) *policies.PolicyOption {
 	}
 }
 
-func resourceWafPolicyV1Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceWafPolicyRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	wafClient, err := cfg.WafV1Client(region)
@@ -300,6 +322,7 @@ func resourceWafPolicyV1Read(_ context.Context, d *schema.ResourceData, meta int
 
 	n, err := policies.GetWithEpsID(wafClient, d.Id(), cfg.GetEnterpriseProjectID(d)).Extract()
 	if err != nil {
+		// If the policy does not exist, the response HTTP status code of the details API is 404.
 		return common.CheckDeletedDiag(d, err, "error retrieving WAF policy")
 	}
 
@@ -365,7 +388,7 @@ func flattenBindHosts(bindHosts []policies.BindHost) []map[string]interface{} {
 	return rst
 }
 
-func resourceWafPolicyV1Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceWafPolicyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	wafClient, err := cfg.WafV1Client(cfg.GetRegion(d))
 	if err != nil {
@@ -375,10 +398,10 @@ func resourceWafPolicyV1Update(ctx context.Context, d *schema.ResourceData, meta
 	if err := updatePolicy(wafClient, d, cfg); err != nil {
 		return diag.Errorf("error updating WAF policy: %s", err)
 	}
-	return resourceWafPolicyV1Read(ctx, d, meta)
+	return resourceWafPolicyRead(ctx, d, meta)
 }
 
-func resourceWafPolicyV1Delete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceWafPolicyDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	wafClient, err := cfg.WafV1Client(cfg.GetRegion(d))
 	if err != nil {
@@ -387,7 +410,8 @@ func resourceWafPolicyV1Delete(_ context.Context, d *schema.ResourceData, meta i
 
 	err = policies.DeleteWithEpsID(wafClient, d.Id(), cfg.GetEnterpriseProjectID(d)).ExtractErr()
 	if err != nil {
-		return diag.Errorf("error deleting WAF policy: %s", err)
+		// If the policy does not exist, the response HTTP status code of the deletion API is 404.
+		return common.CheckDeletedDiag(d, err, "error deleting WAF policy")
 	}
 	return nil
 }

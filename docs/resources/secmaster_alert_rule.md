@@ -2,14 +2,13 @@
 subcategory: "SecMaster"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_secmaster_alert_rule"
-description: ""
+description: |-
+  Manages a SecMaster alert rule resource within HuaweiCloud.
 ---
 
 # huaweicloud_secmaster_alert_rule
 
 Manages a SecMaster alert rule resource within HuaweiCloud.
-
-~> This resource can only be used in region **cn-east-3** for now.
 
 ## Example Usage
 
@@ -104,17 +103,17 @@ The following arguments are supported:
 The `query_plan` block supports:
 
 * `query_interval` - (Required, Int) Specifies the query interval.
-  + When `query_interval_unit` is **MINUTE**: the value range is **5** to **59**;
-  + When `query_interval_unit` is **HOUR**: the value range is **1** to **23**;
-  + When `query_interval_unit` is **DAY**: the value range is **1** to **14**;
+  + When `query_interval_unit` is **MINUTE**: the value range is `5` to `59`;
+  + When `query_interval_unit` is **HOUR**: the value range is `1` to `23`;
+  + When `query_interval_unit` is **DAY**: the value range is `1` to `14`;
 
 * `query_interval_unit` - (Required, String) Specifies the query interval unit.
   The value can be: **MINUTE**, **HOUR** and **DAY**.
 
 * `time_window` - (Required, Int) Specifies the time window.
-  + When `time_window_unit` is **MINUTE**: the value range is **5** to **59**;
-  + When `time_window_unit` is **HOUR**: the value range is **1** to **23**;
-  + When `time_window_unit` is **DAY**: the value range is **1** to **14**;
+  + When `time_window_unit` is **MINUTE**: the value range is `5` to `59`;
+  + When `time_window_unit` is **HOUR**: the value range is `1` to `23`;
+  + When `time_window_unit` is **DAY**: the value range is `1` to `14`;
 
 * `time_window_unit` - (Required, String) Specifies the time window unit.
   The value can be: **MINUTE**, **HOUR** and **DAY**.

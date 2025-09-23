@@ -1,0 +1,53 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_vpn_quotas": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "quotas": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "resources": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "quota": "number",
+                            "type": "string",
+                            "used": "number"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The quota information.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "VPN",
+            "name": "Virtual Private Network",
+            "catalog": "Networking",
+            "name_cn": "虚拟专用网络",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

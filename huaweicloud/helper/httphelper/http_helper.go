@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/http"
 	"net/url"
 	"reflect"
 	"strconv"
@@ -34,6 +35,7 @@ type HttpHelper struct {
 
 	responseBody []byte
 	result       golangsdk.Result
+	Response     *http.Response
 }
 
 func New(client *golangsdk.ServiceClient) *HttpHelper {
@@ -199,6 +201,23 @@ func (c *HttpHelper) Request() *HttpHelper {
 	return c
 }
 
+func (c *HttpHelper) Send() (*gjson.Result, error) {
+	if c.result.Err != nil {
+		return nil, c.result.Err
+	}
+	if c.method == "" {
+		return nil, fmt.Errorf("`method` is empty, please specify the client through Client(method string)")
+	}
+
+	c.buildURL()
+	c.appendQueryParams()
+	c.requestOpts.JSONBody = c.body
+
+	response, err := c.client.Request(c.method, c.url, c.requestOpts)
+	c.Response = response
+	return nil, err
+}
+
 func (c *HttpHelper) buildURL() *HttpHelper {
 	endpoint := strings.TrimRight(c.client.Endpoint, "/")
 	c.url = fmt.Sprintf("%s/%s", endpoint, strings.TrimLeft(c.url, "/"))
@@ -287,23 +306,24 @@ func (c *HttpHelper) requestWithPage() {
 
 func (c *HttpHelper) requestNoPage() {
 	var err error
-
+	var response *http.Response
 	switch c.method {
 	case "HEAD":
-		_, err = c.client.Head(c.url, c.requestOpts)
+		response, err = c.client.Head(c.url, c.requestOpts)
 	case "GET":
-		_, err = c.client.Get(c.url, &c.result.Body, c.requestOpts)
+		response, err = c.client.Get(c.url, &c.result.Body, c.requestOpts)
 	case "POST":
-		_, err = c.client.Post(c.url, c.body, &c.result.Body, c.requestOpts)
+		response, err = c.client.Post(c.url, c.body, &c.result.Body, c.requestOpts)
 	case "PUT":
-		_, err = c.client.Put(c.url, c.body, &c.result.Body, c.requestOpts)
+		response, err = c.client.Put(c.url, c.body, &c.result.Body, c.requestOpts)
 	case "PATCH":
-		_, err = c.client.Patch(c.url, c.body, &c.result.Body, c.requestOpts)
+		response, err = c.client.Patch(c.url, c.body, &c.result.Body, c.requestOpts)
 	case "DELETE":
-		_, err = c.client.DeleteWithBodyResp(c.url, c.body, &c.result.Body, c.requestOpts)
+		response, err = c.client.DeleteWithBodyResp(c.url, c.body, &c.result.Body, c.requestOpts)
 	}
 
 	c.result.Err = err
+	c.Response = response
 	c.parseRspBody()
 }
 

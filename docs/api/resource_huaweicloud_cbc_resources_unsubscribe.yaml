@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cbc_resources_unsubscribe
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: BSS
+paths:
+    /v2/orders/subscriptions/resources/unsubscribe:
+        POST:
+            tag: BSS
+    /v2/orders/suscriptions/resources/query:
+        POST:
+            tag: BSS

@@ -1,0 +1,80 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dc_global_gateway_route_tables": {
+          "block": {
+            "attributes": {
+              "address_family": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the address families to filter the routes.",
+                "optional": true
+              },
+              "destination": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the destination addresses to filter the routes.",
+                "optional": true
+              },
+              "gdgw_id": {
+                "type": "string",
+                "description": "Specifies the global gateway ID.",
+                "required": true
+              },
+              "gdgw_routetables": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "address_family": "string",
+                      "description": "string",
+                      "destination": "string",
+                      "gateway_id": "string",
+                      "id": "string",
+                      "nexthop": "string",
+                      "obtain_mode": "string",
+                      "status": "string",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of global gateway route tables.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "nexthop": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the nexthop IDs to filter the routes.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DC",
+            "name": "Direct Connect",
+            "catalog": "Networking",
+            "name_cn": "云专线",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

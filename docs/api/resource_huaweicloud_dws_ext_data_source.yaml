@@ -17,7 +17,7 @@ paths:
         DELETE:
             tag: DWS
         PUT:
-            tag: AWS
+            tag: DWS
     /v1.0/{project_id}/job/{job_id}:
         GET:
             tag: DWS

@@ -30,6 +30,10 @@ type AKSKAuthOptions struct {
 	SecretKey     string //Secret key
 	SecurityToken string //Security Token for temporary Access Key
 
+	IsDerived bool // Whether to enable the derivative algorithm
+
+	DerivedAuthServiceName string // Derivative algorithm service name. Required for derivative algorithm.
+
 	// AgencyNmae is the name of agnecy
 	AgencyName string
 
@@ -41,6 +45,9 @@ type AKSKAuthOptions struct {
 
 	// whether using the customer catalog, defaults to false
 	WithUserCatalog bool
+
+	// SigningAlgorithm is used to select encryption algorithm
+	SigningAlgorithm string
 }
 
 // GetIdentityEndpoint implements the method of AuthOptionsProvider

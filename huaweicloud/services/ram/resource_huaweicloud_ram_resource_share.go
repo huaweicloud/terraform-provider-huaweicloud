@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -41,6 +40,8 @@ func ResourceRAMShare() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+
+		CustomizeDiff: config.MergeDefaultTags(),
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -71,6 +72,12 @@ func ResourceRAMShare() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				Description: `Specifies the description of the resource share.`,
+			},
+			"allow_external_principals": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     true,
+				Description: `Specifies whether resources can be shared with any accounts outside the organization.`,
 			},
 			"tags": common.TagsSchema(),
 			"owning_account_id": {
@@ -160,11 +167,11 @@ func resourceRAMShareCreate(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("resource_share.id", createRAMShareRespBody)
-	if err != nil {
-		return diag.Errorf("error creating RAM share: ID is not found in API response")
+	shareId := utils.PathSearch("resource_share.id", createRAMShareRespBody, "").(string)
+	if shareId == "" {
+		return diag.Errorf("unable to find the RAM share ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(shareId)
 	return resourceRAMShareRead(ctx, d, meta)
 }
 
@@ -177,6 +184,12 @@ func buildCreateRAMShareBodyParams(d *schema.ResourceData) map[string]interface{
 		"resource_urns":  utils.ValueIgnoreEmpty(d.Get("resource_urns").(*schema.Set).List()),
 		"tags":           utils.ExpandResourceTagsMap(d.Get("tags").(map[string]interface{})),
 	}
+
+	// The default value of this field when created is true. We do not actively add a default value.
+	if !d.Get("allow_external_principals").(bool) {
+		bodyParams["allow_external_principals"] = false
+	}
+
 	return bodyParams
 }
 
@@ -254,80 +267,135 @@ func setRAMShareInstance(client *golangsdk.ServiceClient, d *schema.ResourceData
 		d.Set("created_at", utils.PathSearch("created_at", resourceShare, nil)),
 		d.Set("updated_at", utils.PathSearch("updated_at", resourceShare, nil)),
 		d.Set("tags", utils.FlattenTagsToMap(utils.PathSearch("tags", resourceShare, nil))),
+		d.Set("allow_external_principals", utils.PathSearch("allow_external_principals", resourceShare, nil)),
 	)
 	return mErr.ErrorOrNil()
 }
 
+// buildAssociationsBodyParams The default limit value for paging query is `200`, so the limit value is not configured
+// here.
+func buildAssociationsBodyParams(d *schema.ResourceData, associationType, nextMarker string) interface{} {
+	requestParams := map[string]interface{}{
+		"resource_share_ids": []string{d.Id()},
+		"association_type":   associationType,
+	}
+
+	if nextMarker != "" {
+		requestParams["marker"] = nextMarker
+	}
+	return requestParams
+}
+
 // setRAMShareAssociations associationType has two valid values: "resource" and "principal"
 func setRAMShareAssociations(associationType string, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
-	getResourceUrnsHttpUrl := "v1/resource-share-associations/search"
-	getResourceUrnsPath := client.Endpoint + getResourceUrnsHttpUrl
-	getRAMShareResourceUrnsOpt := golangsdk.RequestOpts{
+	var (
+		httpUrl             = "v1/resource-share-associations/search"
+		associationJsonPath = "resource_share_associations[?status=='associating' || status=='associated'].associated_entity"
+		nextMarker          string
+		totalAssociations   []interface{}
+	)
+
+	requestPath := client.Endpoint + httpUrl
+	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		JSONBody: map[string]interface{}{
-			"resource_share_ids": []string{d.Id()},
-			"association_type":   associationType,
-		},
 	}
 
-	getResourceUrnsResp, err := client.Request("POST", getResourceUrnsPath, &getRAMShareResourceUrnsOpt)
-	if err != nil {
-		// There is no special error code.
-		return err
+	for {
+		requestOpt.JSONBody = buildAssociationsBodyParams(d, associationType, nextMarker)
+		resp, err := client.Request("POST", requestPath, &requestOpt)
+		if err != nil {
+			// There is no special error code.
+			return err
+		}
+
+		respBody, err := utils.FlattenResponse(resp)
+		if err != nil {
+			return err
+		}
+
+		associatedEntities := utils.PathSearch(associationJsonPath, respBody, make([]interface{}, 0)).([]interface{})
+		if len(associatedEntities) > 0 {
+			totalAssociations = append(totalAssociations, associatedEntities...)
+		}
+
+		nextMarker = utils.PathSearch("page_info.next_marker", respBody, "").(string)
+		if nextMarker == "" {
+			break
+		}
 	}
 
-	getResourceUrnsRespBody, err := utils.FlattenResponse(getResourceUrnsResp)
-	if err != nil {
-		return err
-	}
-
-	jsonPath := "resource_share_associations[?status=='associating' || status=='associated'].associated_entity"
 	if associationType == "resource" {
-		return d.Set("resource_urns", utils.PathSearch(jsonPath, getResourceUrnsRespBody, nil))
+		return d.Set("resource_urns", totalAssociations)
 	}
 
 	if associationType == "principal" {
-		return d.Set("principals", utils.PathSearch(jsonPath, getResourceUrnsRespBody, nil))
+		return d.Set("principals", totalAssociations)
 	}
 
 	return fmt.Errorf("got an invalid association type: %s when search share associations", associationType)
 }
 
+// buildPermissionPathWithQueryParams The default limit value for paging query is `200`, so the limit value is not
+// configured here.
+func buildPermissionPathWithQueryParams(path, nextMarker string) string {
+	if nextMarker == "" {
+		return path
+	}
+	return fmt.Sprintf("%s?marker=%s", path, nextMarker)
+}
+
 func setRAMSharePermissions(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
-	getPermissionsHttpUrl := "v1/resource-shares/{resource_share_id}/associated-permissions"
-	getPermissionsPath := client.Endpoint + getPermissionsHttpUrl
-	getPermissionsPath = strings.ReplaceAll(getPermissionsPath, "{resource_share_id}", d.Id())
-	getPermissionsOpt := golangsdk.RequestOpts{
+	var (
+		httpUrl            = "v1/resource-shares/{resource_share_id}/associated-permissions"
+		permissionJsonPath = "associated_permissions[?status=='associating' || status=='associated']"
+		nextMarker         string
+		totalPermissions   []interface{}
+	)
+
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{resource_share_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 	}
 
-	getPermissionsResp, err := client.Request("GET", getPermissionsPath, &getPermissionsOpt)
-	if err != nil {
-		// There is no special error code.
-		return err
-	}
+	for {
+		requestPathWithMarker := buildPermissionPathWithQueryParams(requestPath, nextMarker)
+		resp, err := client.Request("GET", requestPathWithMarker, &requestOpt)
+		if err != nil {
+			// There is no special error code.
+			return err
+		}
 
-	getPermissionsRespBody, err := utils.FlattenResponse(getPermissionsResp)
-	if err != nil {
-		return err
+		respBody, err := utils.FlattenResponse(resp)
+		if err != nil {
+			return err
+		}
+
+		permissions := utils.PathSearch(permissionJsonPath, respBody, make([]interface{}, 0)).([]interface{})
+		if len(permissions) > 0 {
+			totalPermissions = append(totalPermissions, permissions...)
+		}
+
+		nextMarker = utils.PathSearch("page_info.next_marker", respBody, "").(string)
+		if nextMarker == "" {
+			break
+		}
 	}
 
 	mErr := multierror.Append(
 		nil,
-		d.Set("associated_permissions", flattenAssociatedPermissions(getPermissionsRespBody)),
+		d.Set("associated_permissions", flattenAssociatedPermissions(totalPermissions)),
 	)
 	return mErr.ErrorOrNil()
 }
 
-func flattenAssociatedPermissions(resp interface{}) []interface{} {
-	if resp == nil {
+func flattenAssociatedPermissions(permissions []interface{}) []interface{} {
+	if len(permissions) == 0 {
 		return nil
 	}
-	jsonPath := "associated_permissions[?status=='associating' || status=='associated']"
-	curJson := utils.PathSearch(jsonPath, resp, make([]interface{}, 0))
-	curArray := curJson.([]interface{})
-	rst := make([]interface{}, len(curArray))
-	for i, v := range curArray {
+
+	rst := make([]interface{}, len(permissions))
+	for i, v := range permissions {
 		rst[i] = map[string]interface{}{
 			"permission_id":   utils.PathSearch("permission_id", v, nil),
 			"permission_name": utils.PathSearch("permission_name", v, nil),
@@ -350,6 +418,7 @@ func resourceRAMShareUpdate(ctx context.Context, d *schema.ResourceData, meta in
 	updateRAMShareChanges := []string{
 		"name",
 		"description",
+		"allow_external_principals",
 	}
 
 	if d.HasChanges(updateRAMShareChanges...) {
@@ -445,8 +514,9 @@ func updateRAMShareTags(client *golangsdk.ServiceClient, d *schema.ResourceData)
 
 func buildUpdateRAMShareBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"name":        utils.ValueIgnoreEmpty(d.Get("name")),
-		"description": utils.ValueIgnoreEmpty(d.Get("description")),
+		"name":                      utils.ValueIgnoreEmpty(d.Get("name")),
+		"description":               utils.ValueIgnoreEmpty(d.Get("description")),
+		"allow_external_principals": d.Get("allow_external_principals"),
 	}
 	return bodyParams
 }

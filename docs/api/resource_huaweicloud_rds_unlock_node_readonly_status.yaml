@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_rds_unlock_node_readonly_status
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: RDS
+paths:
+    /v3/{project_id}/instances:
+        GET:
+            tag: RDS
+    /v3/{project_id}/instances/{instance_id}/unlock-node-readonly-status:
+        PUT:
+            tag: RDS

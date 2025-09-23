@@ -25,12 +25,15 @@ func TestAccDatasourceVPCEPServiceConnections_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(rName, "connections.0.endpoint_id"),
+					resource.TestCheckResourceAttrSet(rName, "connections.0.marker_id"),
 					resource.TestCheckResourceAttrSet(rName, "connections.0.domain_id"),
 					resource.TestCheckResourceAttrSet(rName, "connections.0.status"),
 					resource.TestCheckResourceAttrSet(rName, "connections.0.created_at"),
 					resource.TestCheckResourceAttrSet(rName, "connections.0.updated_at"),
 
 					resource.TestCheckOutput("endpoint_id_filter_is_useful", "true"),
+
+					resource.TestCheckOutput("marker_id_filter_is_useful", "true"),
 
 					resource.TestCheckOutput("status_filter_is_useful", "true"),
 				),
@@ -59,6 +62,21 @@ locals {
 output "endpoint_id_filter_is_useful" {
   value = length(data.huaweicloud_vpcep_service_connections.endpoint_id_filter.connections) > 0 && alltrue(
     [for v in data.huaweicloud_vpcep_service_connections.endpoint_id_filter.connections[*].endpoint_id : v == local.endpoint_id]
+  )  
+}
+
+data "huaweicloud_vpcep_service_connections" "marker_id_filter" {
+  service_id = huaweicloud_vpcep_endpoint.test.service_id
+  marker_id  = data.huaweicloud_vpcep_service_connections.test.connections.0.marker_id
+}
+  
+locals {
+  marker_id = data.huaweicloud_vpcep_service_connections.test.connections.0.marker_id
+}
+  
+output "marker_id_filter_is_useful" {
+  value = length(data.huaweicloud_vpcep_service_connections.marker_id_filter.connections) > 0 && alltrue(
+    [for v in data.huaweicloud_vpcep_service_connections.marker_id_filter.connections[*].marker_id : v == local.marker_id]
   )  
 }
 

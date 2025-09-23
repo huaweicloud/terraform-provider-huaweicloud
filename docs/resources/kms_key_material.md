@@ -87,7 +87,7 @@ It is generally recommended running `terraform plan` after importing a KMS key m
 You can then decide if changes should be applied to the KMS key material, or the resource
 definition should be updated to align with the KMS key material. Also you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_kms_key_material" "test" {
     ...
 

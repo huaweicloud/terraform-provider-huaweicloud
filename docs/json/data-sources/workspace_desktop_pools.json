@@ -1,0 +1,144 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_workspace_desktop_pools": {
+          "block": {
+            "attributes": {
+              "desktop_pools": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "autoscale_policy": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "autoscale_type": "string",
+                            "max_auto_created": "number",
+                            "min_idle": "number",
+                            "once_auto_created": "number"
+                          }
+                        ]
+                      ],
+                      "availability_zone": "string",
+                      "charging_mode": "string",
+                      "created_time": "string",
+                      "data_volumes": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "resource_spec_code": "string",
+                            "size": "number",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "description": "string",
+                      "desktop_count": "number",
+                      "desktop_name_policy_id": "string",
+                      "desktop_used": "number",
+                      "disconnected_retention_period": "number",
+                      "enable_autoscale": "bool",
+                      "enterprise_project_id": "string",
+                      "id": "string",
+                      "image_id": "string",
+                      "image_name": "string",
+                      "image_os_platform": "string",
+                      "image_os_type": "string",
+                      "image_os_version": "string",
+                      "image_product_code": "string",
+                      "in_maintenance_mode": "bool",
+                      "name": "string",
+                      "product": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "charge_mode": "string",
+                            "cpu": "string",
+                            "descriptions": "string",
+                            "flavor_id": "string",
+                            "memory": "string",
+                            "product_id": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "root_volume": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "resource_spec_code": "string",
+                            "size": "number",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "security_groups": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string"
+                          }
+                        ]
+                      ],
+                      "status": "string",
+                      "subnet_id": "string",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of desktop pools.",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The enterprise project ID to which the desktop pool belongs",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "in_maintenance_mode": {
+                "type": "bool",
+                "description": "Whether the desktop pool is in maintenance mode.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the desktop pool.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region in which to obtain the desktop pools.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The type of the desktop pool.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

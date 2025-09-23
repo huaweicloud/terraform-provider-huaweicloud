@@ -1,0 +1,58 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_ims_os_versions": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "os_versions": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "platform": "string",
+                      "versions": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "os_bit": "number",
+                            "os_type": "string",
+                            "os_version": "string",
+                            "os_version_key": "string",
+                            "platform": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "tag": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "IMS",
+            "name": "Image Management Service",
+            "catalog": "Compute",
+            "name_cn": "镜像服务",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

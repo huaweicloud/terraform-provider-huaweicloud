@@ -53,8 +53,10 @@ resource "huaweicloud_vpc_subnet" "subnet_with_dhcp" {
   vpc_id            = huaweicloud_vpc.vpc.id
   availability_zone = var.availability_zone
 
-  dhcp_lease_time    = "24h"
-  ntp_server_address = "10.100.0.33,10.100.0.34"
+  dhcp_lease_time      = "24h"
+  dhcp_ipv6_lease_time = "4h"
+  ntp_server_address   = "10.100.0.33,10.100.0.34"
+  dhcp_domain_name     = "test.domainnanme"
 }
 
  ```
@@ -79,7 +81,7 @@ The following arguments are supported:
 * `vpc_id` - (Required, String, ForceNew) Specifies the ID of the VPC to which the subnet belongs. Changing this creates
   a new subnet.
 
-* `availability_zone` - (Required, String, ForceNew) Specifies the availability zone (AZ) to which the subnet belongs.
+* `availability_zone` - (Optional, String, ForceNew) Specifies the availability zone (AZ) to which the subnet belongs.
   The value must be an existing AZ in the system. Changing this creates a new subnet.
 
 * `description` - (Optional, String) Specifies supplementary information about the subnet. The value is a string of
@@ -106,6 +108,15 @@ The following arguments are supported:
 * `dhcp_lease_time` - (Optional, String) Specifies the DHCP lease expiration time. The value can be -1, which indicates
   unlimited lease time, or Number+h. the number ranges from 1 to 30,000. For example, the value can be 5h. The default
   value is 24h.
+
+* `dhcp_ipv6_lease_time` - (Optional, String) Specifies the DHCP lease expiration time of the IPv6 subnet. The value can
+  be -1, which indicates unlimited lease time, or Number+h. the number ranges from 1 to 175200. For example, the value
+  can be 5h. The default value is 2h.
+
+* `dhcp_domain_name` - (Optional, String) Specifies the domain name configured for DNS and is used to obtain the IP address
+  from the DNS server. A domain name can contain only letters, digits, and hyphens (-) and cannot start or end with a
+  hyphen (-). Each domain name contains at least two labels separated by periods (.). Max total: 254 characters. Max
+  label: 63 characters.
 
 * `tags` - (Optional, Map) The key/value pairs to associate with the subnet.
 
@@ -136,6 +147,6 @@ This resource provides the following timeouts configuration options:
 
 Subnets can be imported using the subnet `Network ID`, e.g.
 
-```
-$ terraform import huaweicloud_vpc_subnet 4779ab1c-7c1a-44b1-a02e-93dfc361b32d
+```bash
+$ terraform import huaweicloud_vpc_subnet.subnet 4779ab1c-7c1a-44b1-a02e-93dfc361b32d
 ```

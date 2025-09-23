@@ -36,7 +36,8 @@
                       "tags": [
                         "map",
                         "string"
-                      ]
+                      ],
+                      "ttl_in_days": "number"
                     }
                   ]
                 ],

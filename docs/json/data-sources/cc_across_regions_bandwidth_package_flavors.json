@@ -1,0 +1,71 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cc_across_regions_bandwidth_package_flavors": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "local_region_id": {
+                "type": "string",
+                "description": "Specifies the ID of a region for querying the list of multi-city bandwidth package",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "region_specifications": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "en_name": "string",
+                      "es_name": "string",
+                      "id": "string",
+                      "local_region_id": "string",
+                      "name": "string",
+                      "pt_name": "string",
+                      "remote_region_id": "string",
+                      "spec_codes": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "billing_mode": "string",
+                            "max_bandwidth": "number",
+                            "mim_bandwidth": "number",
+                            "spec_code": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of the multi-city bandwidth package specifications.",
+                "computed": true
+              },
+              "remote_region_id": {
+                "type": "string",
+                "description": "Specifies the ID of another region for querying the list of multi-city bandwidth",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CC",
+            "name": "Cloud Connect",
+            "catalog": "Networking",
+            "name_cn": "云连接",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

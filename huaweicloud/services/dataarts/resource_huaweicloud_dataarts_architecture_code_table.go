@@ -2,8 +2,6 @@ package dataarts
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -11,7 +9,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -170,12 +167,12 @@ func resourceArchitectureCodeTableCreate(ctx context.Context, d *schema.Resource
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("data.value.id", createCodeTableRespBody)
-	if err != nil || id == nil {
-		return diag.Errorf("error creating DataArts Architecture code table: %s is not found in API response", "id")
+	tableId := utils.PathSearch("data.value.id", createCodeTableRespBody, "").(string)
+	if tableId == "" {
+		return diag.Errorf("unable to find the DataArts Architecture code table ID from the API response")
 	}
 
-	d.SetId(id.(string))
+	d.SetId(tableId)
 
 	return resourceArchitectureCodeTableRead(ctx, d, meta)
 }
@@ -221,7 +218,8 @@ func resourceArchitectureCodeTableRead(_ context.Context, d *schema.ResourceData
 
 	getCodeTableResp, err := readCodeTable(getCodeTableClient, d)
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseCodeTableError(err), "error retrieving DataArts Architecture code table")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "errors|[0].error_code", "DLG.6022"),
+			"error retrieving DataArts Architecture code table")
 	}
 
 	getCodeTableRespBody, err := utils.FlattenResponse(getCodeTableResp)
@@ -366,7 +364,8 @@ func resourceArchitectureCodeTableDelete(_ context.Context, d *schema.ResourceDa
 		return diag.Errorf("error deleting DataArts Architecture code table")
 	}
 
-	return common.CheckDeletedDiag(d, parseCodeTableError(err), "error deleting DataArts Architecture code table")
+	return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "errors|[0].error_code", "DLG.6022"),
+		"error deleting DataArts Architecture code table")
 }
 
 func buildCodeTableDeleteBodyParams(d *schema.ResourceData) map[string]interface{} {
@@ -430,23 +429,4 @@ func resourceCodeTableImportState(_ context.Context, d *schema.ResourceData, met
 	d.SetId(codeTableID[0].(string))
 	d.Set("workspace_id", workspaceID)
 	return []*schema.ResourceData{d}, nil
-}
-
-func parseCodeTableError(err error) error {
-	var errCode golangsdk.ErrDefault400
-	if errors.As(err, &errCode) {
-		var apiError interface{}
-		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
-			return err
-		}
-		errorCode, errorCodeErr := jmespath.Search("errors|[0].error_code", apiError)
-		if errorCodeErr != nil {
-			return err
-		}
-
-		if errorCode == "DLG.6022" {
-			return golangsdk.ErrDefault404(errCode)
-		}
-	}
-	return err
 }

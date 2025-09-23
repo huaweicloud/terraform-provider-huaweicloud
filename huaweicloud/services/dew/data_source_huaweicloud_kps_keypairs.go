@@ -3,14 +3,16 @@ package dew
 import (
 	"context"
 	"fmt"
+	"strings"
 
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/kps/v3/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
@@ -24,27 +26,24 @@ func DataSourceKeypairs() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-
 			"public_key": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-
 			"fingerprint": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-
+			// It is not recommended to use Boolean values as filtering conditions.
 			"is_managed": {
-				Type:     schema.TypeBool,
-				Optional: true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: utils.SchemaDesc("", utils.SchemaDescInput{Deprecated: true}),
 			},
-
 			"keypairs": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -54,22 +53,18 @@ func DataSourceKeypairs() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-
 						"scope": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-
 						"public_key": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-
 						"fingerprint": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-
 						"is_managed": {
 							Type:     schema.TypeBool,
 							Computed: true,
@@ -81,87 +76,117 @@ func DataSourceKeypairs() *schema.Resource {
 	}
 }
 
-func dataSourceKeypairsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	region := c.GetRegion(d)
-	client, err := c.HcKmsV3Client(region)
-	if err != nil {
-		return diag.Errorf("error creating KMS v3 client: %s", err)
+func buildRequestPathWithMarker(requestPath, marker string) string {
+	if marker == "" {
+		return requestPath
 	}
 
-	var marker string
-	var allKeypairs []model.Keypair
-	for {
-		response, err := client.ListKeypairs(&model.ListKeypairsRequest{Marker: utils.StringIgnoreEmpty(marker)})
-		if err != nil {
-			return diag.Errorf("error fetching keypair: %s", err)
-		}
-
-		if response.Keypairs != nil {
-			for _, k := range *response.Keypairs {
-				allKeypairs = append(allKeypairs, *k.Keypair)
-			}
-		}
-
-		if response.PageInfo.NextMarker == nil {
-			break
-		}
-		marker = *response.PageInfo.NextMarker
-	}
-
-	filter := map[string]interface{}{
-		"Name":            d.Get("name"),
-		"PublicKey":       d.Get("public_key"),
-		"Fingerprint":     d.Get("fingerprint"),
-		"IsKeyProtection": d.Get("is_managed"),
-	}
-
-	filterKeypairs, err := utils.FilterSliceWithField(allKeypairs, filter)
-	if err != nil {
-		return diag.Errorf("erroring filting keypair list: %s", err)
-	}
-
-	keypairsToSet, ids, err := flattenKaypairs(filterKeypairs)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	d.SetId(hashcode.Strings(ids))
-
-	mErr := d.Set("keypairs", keypairsToSet)
-	if mErr != nil {
-		return diag.Errorf("set keypairs err:%s", mErr)
-	}
-
-	return nil
+	return fmt.Sprintf("%s?marker=%s", requestPath, marker)
 }
 
-func flattenKaypairs(keypairs []interface{}) ([]map[string]interface{}, []string, error) {
-	result := make([]map[string]interface{}, len(keypairs))
-	ids := make([]string, len(keypairs))
-
-	for i, item := range keypairs {
-		val := item.(model.Keypair)
-		keypair := map[string]interface{}{
-			"name":        val.Name,
-			"public_key":  val.PublicKey,
-			"fingerprint": val.Fingerprint,
-			"is_managed":  val.IsKeyProtection,
-		}
-
-		scope, err := parseEncodeValue(val.Scope.MarshalJSON())
-		if err != nil {
-			return nil, nil, fmt.Errorf("can not parse the value of %q from response: %s", "scope", err)
-		}
-		if scope == scopeDomainValue {
-			scope = scopeDomainLabel
-		}
-
-		keypair["scope"] = scope
-
-		result[i] = keypair
-		ids[i] = *val.Name
+func dataSourceKeypairsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg           = meta.(*config.Config)
+		region        = cfg.GetRegion(d)
+		httpUrl       = "v3/{project_id}/keypairs"
+		product       = "kms"
+		marker        = ""
+		totalKeypairs []interface{}
+	)
+	client, err := cfg.NewServiceClient(product, region)
+	if err != nil {
+		return diag.Errorf("error creating KMS client: %s", err)
 	}
 
-	return result, ids, nil
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	for {
+		resp, err := client.Request("GET", buildRequestPathWithMarker(requestPath, marker), &requestOpt)
+		if err != nil {
+			return diag.Errorf("error retrieving KPS keypairs: %s", err)
+		}
+
+		respBody, err := utils.FlattenResponse(resp)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+
+		keypairs := utils.PathSearch("keypairs[].keypair", respBody, make([]interface{}, 0)).([]interface{})
+		totalKeypairs = append(totalKeypairs, keypairs...)
+
+		marker = utils.PathSearch("page_info.next_marker", respBody, "").(string)
+		if marker == "" {
+			break
+		}
+	}
+
+	dataSourceId, err := uuid.GenerateUUID()
+	if err != nil {
+		return diag.Errorf("unable to generate ID: %s", err)
+	}
+	d.SetId(dataSourceId)
+
+	mErr := multierror.Append(nil,
+		d.Set("region", region),
+		d.Set("keypairs", flattenKeypairs(filterKeypairs(totalKeypairs, d))),
+	)
+	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func filterKeypairs(keypairs []interface{}, d *schema.ResourceData) []interface{} {
+	var (
+		name        = d.Get("name").(string)
+		publicKey   = d.Get("public_key").(string)
+		fingerprint = d.Get("fingerprint").(string)
+		result      = make([]interface{}, 0, len(keypairs))
+	)
+
+	for _, v := range keypairs {
+		if name != "" && utils.PathSearch("name", v, "").(string) != name {
+			continue
+		}
+
+		if publicKey != "" && utils.PathSearch("public_key", v, "").(string) != publicKey {
+			continue
+		}
+
+		if fingerprint != "" && utils.PathSearch("fingerprint", v, "").(string) != fingerprint {
+			continue
+		}
+
+		result = append(result, v)
+	}
+
+	return result
+}
+
+func flattenDatasourceScopeAttribute(scope string) string {
+	if scope == scopeDomainValue {
+		scope = scopeDomainLabel
+	}
+
+	return scope
+}
+
+func flattenKeypairs(keypairs []interface{}) []interface{} {
+	if len(keypairs) == 0 {
+		return nil
+	}
+
+	result := make([]interface{}, 0, len(keypairs))
+	for _, v := range keypairs {
+		result = append(result, map[string]interface{}{
+			"name":        utils.PathSearch("name", v, nil),
+			"public_key":  utils.PathSearch("public_key", v, nil),
+			"fingerprint": utils.PathSearch("fingerprint", v, nil),
+			"is_managed":  utils.PathSearch("is_key_protection", v, nil),
+			"scope":       flattenDatasourceScopeAttribute(utils.PathSearch("scope", v, "").(string)),
+		})
+	}
+
+	return result
 }

@@ -10,38 +10,49 @@ import (
 )
 
 func TestAccDatasourceListeners_basic(t *testing.T) {
-	var (
-		rName            = acceptance.RandomAccResourceNameWithDash()
-		dcByName         = acceptance.InitDataSourceCheck("data.huaweicloud_lb_listeners.by_name")
-		dcByProtocol     = acceptance.InitDataSourceCheck("data.huaweicloud_lb_listeners.by_protocol")
-		dcByProtocolPort = acceptance.InitDataSourceCheck("data.huaweicloud_lb_listeners.by_protocol_port")
-	)
+	name := acceptance.RandomAccResourceName()
+	rName := "data.huaweicloud_lb_listeners.test"
+	dc := acceptance.InitDataSourceCheck(rName)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDatasourceListeners_basic(rName),
+				Config: testAccDatasourceListeners_basic(name),
 				Check: resource.ComposeTestCheckFunc(
-					dcByName.CheckResourceExists(),
-					resource.TestCheckOutput("name_query_result_validation", "true"),
-					resource.TestCheckResourceAttrSet("data.huaweicloud_lb_listeners.by_name",
-						"listeners.0.name"),
-					resource.TestCheckResourceAttrSet("data.huaweicloud_lb_listeners.by_name",
-						"listeners.0.protocol"),
-					resource.TestCheckResourceAttrSet("data.huaweicloud_lb_listeners.by_name",
-						"listeners.0.protocol_port"),
-					resource.TestCheckResourceAttrSet("data.huaweicloud_lb_listeners.by_name",
-						"listeners.0.connection_limit"),
-					resource.TestCheckResourceAttrSet("data.huaweicloud_lb_listeners.by_name",
-						"listeners.0.http2_enable"),
-					resource.TestCheckResourceAttr("data.huaweicloud_lb_listeners.by_name",
-						"listeners.0.loadbalancers.#", "1"),
-					dcByProtocol.CheckResourceExists(),
-					resource.TestCheckOutput("protocol_query_result_validation", "true"),
-					dcByProtocolPort.CheckResourceExists(),
-					resource.TestCheckOutput("protocol_port_query_result_validation", "true"),
+					dc.CheckResourceExists(),
+					resource.TestCheckResourceAttrSet(rName, "listeners.#"),
+					resource.TestCheckResourceAttrSet(rName, "listeners.0.id"),
+					resource.TestCheckResourceAttrSet(rName, "listeners.0.name"),
+					resource.TestCheckResourceAttrSet(rName, "listeners.0.protocol"),
+					resource.TestCheckResourceAttrSet(rName, "listeners.0.protocol_port"),
+					resource.TestCheckResourceAttrSet(rName, "listeners.0.client_ca_tls_container_ref"),
+					resource.TestCheckResourceAttrSet(rName, "listeners.0.description"),
+					resource.TestCheckResourceAttrSet(rName, "listeners.0.connection_limit"),
+					resource.TestCheckResourceAttrSet(rName, "listeners.0.http2_enable"),
+					resource.TestCheckResourceAttrSet(rName, "listeners.0.insert_headers.#"),
+					resource.TestCheckResourceAttrSet(rName, "listeners.0.insert_headers.0.x_forwarded_elb_ip"),
+					resource.TestCheckResourceAttrSet(rName, "listeners.0.insert_headers.0.x_forwarded_host"),
+					resource.TestCheckResourceAttrSet(rName, "listeners.0.default_tls_container_ref"),
+					resource.TestCheckResourceAttrSet(rName, "listeners.0.sni_container_refs.#"),
+					resource.TestCheckResourceAttrSet(rName, "listeners.0.protection_status"),
+					resource.TestCheckResourceAttrSet(rName, "listeners.0.tls_ciphers_policy"),
+					resource.TestCheckResourceAttrSet(rName, "listeners.0.created_at"),
+					resource.TestCheckResourceAttrSet(rName, "listeners.0.updated_at"),
+					resource.TestCheckResourceAttrSet(rName, "listeners.0.loadbalancers.#"),
+					resource.TestCheckResourceAttrSet(rName, "listeners.0.loadbalancers.0.id"),
+					resource.TestCheckResourceAttrSet(rName, "listeners.0.tags.%"),
+					resource.TestCheckOutput("name_filter_is_useful", "true"),
+					resource.TestCheckOutput("protocol_filter_is_useful", "true"),
+					resource.TestCheckOutput("protocol_port_filter_is_useful", "true"),
+					resource.TestCheckOutput("client_ca_tls_container_ref_filter_is_useful", "true"),
+					resource.TestCheckOutput("default_tls_container_ref_filter_is_useful", "true"),
+					resource.TestCheckOutput("description_filter_is_useful", "true"),
+					resource.TestCheckOutput("http2_enable_filter_is_useful", "true"),
+					resource.TestCheckOutput("listener_id_filter_is_useful", "true"),
+					resource.TestCheckOutput("loadbalancer_id_filter_is_useful", "true"),
+					resource.TestCheckOutput("tls_ciphers_policy_filter_is_useful", "true"),
 				),
 			},
 		},
@@ -49,91 +60,188 @@ func TestAccDatasourceListeners_basic(t *testing.T) {
 }
 
 func testAccDatasourceListeners_base(rName string) string {
-	rCidr := acceptance.RandomCidr()
 	return fmt.Sprintf(`
-variable "listener_configuration" {
-  type = list(object({
-    protocol_port = number
-    protocol      = string
-  }))
-  default = [
-    {protocol_port = 306, protocol = "TCP"},
-    {protocol_port = 406, protocol = "UDP"},
-    {protocol_port = 506, protocol = "HTTP"},
-  ]
-}
+%[1]s
 
-resource "huaweicloud_vpc" "test" {
-  name = "%[1]s"
-  cidr = "%[2]s"
-}
+%[2]s
 
-resource "huaweicloud_vpc_subnet" "test" {
-  vpc_id = huaweicloud_vpc.test.id
-
-  name       = "%[1]s"
-  cidr       = cidrsubnet(huaweicloud_vpc.test.cidr, 4, 1)
-  gateway_ip = cidrhost(cidrsubnet(huaweicloud_vpc.test.cidr, 4, 1), 1)
-}
-
-resource "huaweicloud_lb_loadbalancer" "test" {
-  name          = "%[1]s"
-  vip_subnet_id = huaweicloud_vpc_subnet.test.ipv4_subnet_id
-}
+%[3]s
 
 resource "huaweicloud_lb_listener" "test" {
-  count = length(var.listener_configuration)
+  name                        = "%[4]s"
+  description                 = "test description"
+  protocol                    = "TERMINATED_HTTPS"
+  protocol_port               = 443
+  loadbalancer_id             = huaweicloud_lb_loadbalancer.loadbalancer_1.id
+  default_tls_container_ref   = huaweicloud_lb_certificate.certificate_1.id
+  client_ca_tls_container_ref = huaweicloud_lb_certificate.certificate_client.id
+  sni_container_refs          = [huaweicloud_lb_certificate.certificate_1.id]
+  tls_ciphers_policy          = "tls-1-1"
+  protection_status           = "consoleProtection"
+  protection_reason           = "test protection reason"
 
-  loadbalancer_id = huaweicloud_lb_loadbalancer.test.id
+  insert_headers {
+    x_forwarded_elb_ip = true
+    x_forwarded_host   = true
+  }
 
-  name          = "%[1]s-${count.index}"
-  protocol      = var.listener_configuration[count.index]["protocol"]
-  protocol_port = var.listener_configuration[count.index]["protocol_port"]
+  tags = {
+    key   = "value"
+    owner = "terraform"
+  }
 }
-`, rName, rCidr)
+`, testAccLBV2ListenerConfig_base(rName), testAccLBV2CertificateConfig_basic(rName),
+		testAccLBV2CertificateConfig_client(rName), rName)
 }
 
 func testAccDatasourceListeners_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
 
-data "huaweicloud_lb_listeners" "by_name" {
+data "huaweicloud_lb_listeners" "test" {
   depends_on = [huaweicloud_lb_listener.test]
-
-  name = huaweicloud_lb_listener.test[0].name
 }
 
-data "huaweicloud_lb_listeners" "by_protocol" {
+data "huaweicloud_lb_listeners" "name_filter" {
+  name = huaweicloud_lb_listener.test.name
+
   depends_on = [huaweicloud_lb_listener.test]
-
-  protocol = huaweicloud_lb_listener.test[1].protocol
+}
+locals {
+  name = huaweicloud_lb_listener.test.name
+}
+output "name_filter_is_useful" {
+  value = length(data.huaweicloud_lb_listeners.name_filter.listeners) > 0 && alltrue(
+  [for v in data.huaweicloud_lb_listeners.name_filter.listeners[*].name : v == local.name]
+  )  
 }
 
-data "huaweicloud_lb_listeners" "by_protocol_port" {
+data "huaweicloud_lb_listeners" "protocol_filter" {
+  protocol = huaweicloud_lb_listener.test.protocol
+
   depends_on = [huaweicloud_lb_listener.test]
-
-  protocol_port = huaweicloud_lb_listener.test[2].protocol_port
+}
+locals {
+  protocol = huaweicloud_lb_listener.test.protocol
+}
+output "protocol_filter_is_useful" {
+  value = length(data.huaweicloud_lb_listeners.protocol_filter.listeners) > 0 && alltrue(
+  [for v in data.huaweicloud_lb_listeners.protocol_filter.listeners[*].protocol : v == local.protocol]
+  )  
 }
 
-output "name_query_result_validation" {
-  value = contains(data.huaweicloud_lb_listeners.by_name.listeners[*].id,
-  huaweicloud_lb_listener.test[0].id) && !contains(data.huaweicloud_lb_listeners.by_name.listeners[*].id,
-  huaweicloud_lb_listener.test[1].id) && !contains(data.huaweicloud_lb_listeners.by_name.listeners[*].id,
-  huaweicloud_lb_listener.test[2].id)
+data "huaweicloud_lb_listeners" "protocol_port_filter" {
+  protocol_port = huaweicloud_lb_listener.test.protocol_port
+
+  depends_on = [huaweicloud_lb_listener.test]
+}
+locals {
+  protocol_port = huaweicloud_lb_listener.test.protocol_port
+}
+output "protocol_port_filter_is_useful" {
+  value = length(data.huaweicloud_lb_listeners.protocol_port_filter.listeners) > 0 && alltrue(
+  [for v in data.huaweicloud_lb_listeners.protocol_port_filter.listeners[*].protocol_port : v == local.protocol_port]
+  )  
 }
 
-output "protocol_query_result_validation" {
-  value = contains(data.huaweicloud_lb_listeners.by_protocol.listeners[*].id,
-  huaweicloud_lb_listener.test[1].id) && !contains(data.huaweicloud_lb_listeners.by_protocol.listeners[*].id,
-  huaweicloud_lb_listener.test[0].id) && !contains(data.huaweicloud_lb_listeners.by_protocol.listeners[*].id,
-  huaweicloud_lb_listener.test[2].id)
+data "huaweicloud_lb_listeners" "client_ca_tls_container_ref_filter" {
+  client_ca_tls_container_ref = huaweicloud_lb_listener.test.client_ca_tls_container_ref
+
+  depends_on = [huaweicloud_lb_listener.test]
+}
+locals {
+  client_ca_tls_container_ref = huaweicloud_lb_listener.test.client_ca_tls_container_ref
+}
+output "client_ca_tls_container_ref_filter_is_useful" {
+  value = length(data.huaweicloud_lb_listeners.client_ca_tls_container_ref_filter.listeners) > 0 && alltrue(
+  [for v in data.huaweicloud_lb_listeners.client_ca_tls_container_ref_filter.listeners[*].client_ca_tls_container_ref :
+  v == local.client_ca_tls_container_ref]
+  )  
 }
 
-output "protocol_port_query_result_validation" {
-  value = contains(data.huaweicloud_lb_listeners.by_protocol_port.listeners[*].id,
-  huaweicloud_lb_listener.test[2].id) && !contains(data.huaweicloud_lb_listeners.by_protocol_port.listeners[*].id,
-  huaweicloud_lb_listener.test[0].id) && !contains(data.huaweicloud_lb_listeners.by_protocol_port.listeners[*].id,
-  huaweicloud_lb_listener.test[1].id)
+data "huaweicloud_lb_listeners" "default_tls_container_ref_filter" {
+  default_tls_container_ref = huaweicloud_lb_listener.test.default_tls_container_ref
+
+  depends_on = [huaweicloud_lb_listener.test]
+}
+locals {
+  default_tls_container_ref = huaweicloud_lb_listener.test.default_tls_container_ref
+}
+output "default_tls_container_ref_filter_is_useful" {
+  value = length(data.huaweicloud_lb_listeners.default_tls_container_ref_filter.listeners) > 0 && alltrue(
+  [for v in data.huaweicloud_lb_listeners.default_tls_container_ref_filter.listeners[*].default_tls_container_ref :
+  v == local.default_tls_container_ref]
+  )  
+}
+
+data "huaweicloud_lb_listeners" "description_filter" {
+  description = huaweicloud_lb_listener.test.description
+
+  depends_on = [huaweicloud_lb_listener.test]
+}
+locals {
+  description = huaweicloud_lb_listener.test.description
+}
+output "description_filter_is_useful" {
+  value = length(data.huaweicloud_lb_listeners.description_filter.listeners) > 0 && alltrue(
+  [for v in data.huaweicloud_lb_listeners.description_filter.listeners[*].description : v == local.description]
+  )  
+}
+
+data "huaweicloud_lb_listeners" "http2_enable_filter" {
+  http2_enable = huaweicloud_lb_listener.test.http2_enable
+
+  depends_on = [huaweicloud_lb_listener.test]
+}
+locals {
+  http2_enable = huaweicloud_lb_listener.test.http2_enable
+}
+output "http2_enable_filter_is_useful" {
+  value = length(data.huaweicloud_lb_listeners.http2_enable_filter.listeners) > 0 && alltrue(
+  [for v in data.huaweicloud_lb_listeners.http2_enable_filter.listeners[*].http2_enable : v == local.http2_enable]
+  )  
+}
+
+data "huaweicloud_lb_listeners" "listener_id_filter" {
+  listener_id = huaweicloud_lb_listener.test.id
+
+  depends_on = [huaweicloud_lb_listener.test]
+}
+locals {
+  listener_id = huaweicloud_lb_listener.test.id
+}
+output "listener_id_filter_is_useful" {
+  value = length(data.huaweicloud_lb_listeners.listener_id_filter.listeners) > 0 && alltrue(
+  [for v in data.huaweicloud_lb_listeners.listener_id_filter.listeners[*].id : v == local.listener_id]
+  )  
+}
+
+data "huaweicloud_lb_listeners" "loadbalancer_id_filter" {
+  loadbalancer_id = huaweicloud_lb_listener.test.loadbalancer_id
+
+  depends_on = [huaweicloud_lb_listener.test]
+}
+locals {
+  loadbalancer_id = huaweicloud_lb_listener.test.loadbalancer_id
+}
+output "loadbalancer_id_filter_is_useful" {
+  value = length(data.huaweicloud_lb_listeners.loadbalancer_id_filter.listeners) > 0 && alltrue(
+  [for v in data.huaweicloud_lb_listeners.loadbalancer_id_filter.listeners[*].loadbalancers[0].id : v == local.loadbalancer_id]
+  )  
+}
+
+data "huaweicloud_lb_listeners" "tls_ciphers_policy_filter" {
+  tls_ciphers_policy = huaweicloud_lb_listener.test.tls_ciphers_policy
+
+  depends_on = [huaweicloud_lb_listener.test]
+}
+locals {
+  tls_ciphers_policy = huaweicloud_lb_listener.test.tls_ciphers_policy
+}
+output "tls_ciphers_policy_filter_is_useful" {
+  value = length(data.huaweicloud_lb_listeners.tls_ciphers_policy_filter.listeners) > 0 && alltrue(
+  [for v in data.huaweicloud_lb_listeners.tls_ciphers_policy_filter.listeners[*].tls_ciphers_policy : v == local.tls_ciphers_policy]
+  )  
 }
 `, testAccDatasourceListeners_base(rName))
 }

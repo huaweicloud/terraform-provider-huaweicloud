@@ -32,7 +32,7 @@ The following arguments are supported:
 * `object_id` - (Required, String) Specifies the protected object ID.
 
 * `list_type` - (Required, Int) Specifies the blacklist/whitelist type.
-  The options are **4** (blacklist) and **5** (whitelist).
+  The options are `4` (blacklist) and `5` (whitelist).
 
 * `address_type` - (Optional, String) Specifies the IP address type.
   The valid value can be **0** (IPv4).

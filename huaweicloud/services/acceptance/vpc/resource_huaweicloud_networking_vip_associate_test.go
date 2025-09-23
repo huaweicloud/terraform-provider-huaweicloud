@@ -27,17 +27,25 @@ func TestAccNetworkingV2VIPAssociate_basic(t *testing.T) {
 			{
 				Config: testAccNetworkingV2VIPAssociateConfig_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrPair("huaweicloud_networking_vip_associate.vip_associate_1",
-						"port_ids.0", "huaweicloud_compute_instance.test", "network.0.port"),
-					resource.TestCheckResourceAttrPair("huaweicloud_networking_vip_associate.vip_associate_1",
-						"vip_id", "huaweicloud_networking_vip.vip_1", "id"),
+					resource.TestCheckResourceAttrPair("huaweicloud_networking_vip_associate.vip_associate",
+						"vip_id", "huaweicloud_networking_vip.vip", "id"),
+					resource.TestCheckOutput("port_ids_check", "true"),
 				),
 			},
 			{
-				ResourceName:      "huaweicloud_networking_vip_associate.vip_associate_1",
+				Config:            testAccNetworkingV2VIPAssociateConfig_config(rName),
+				ResourceName:      "huaweicloud_networking_vip_associate.vip_associate",
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateIdFunc: testAccNetworkingV2VIPAssociateImportStateIdFunc(),
+			},
+			{
+				Config: testAccNetworkingV2VIPAssociateConfig_update(rName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrPair("huaweicloud_networking_vip_associate.vip_associate",
+						"vip_id", "huaweicloud_networking_vip.vip", "id"),
+					resource.TestCheckOutput("port_ids_check", "true"),
+				),
 			},
 		},
 	})
@@ -73,11 +81,11 @@ func testAccCheckNetworkingV2VIPAssociateDestroy(s *terraform.State) error {
 
 func testAccNetworkingV2VIPAssociateImportStateIdFunc() resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
-		vip, ok := s.RootModule().Resources["huaweicloud_networking_vip.vip_1"]
+		vip, ok := s.RootModule().Resources["huaweicloud_networking_vip.vip"]
 		if !ok {
 			return "", fmt.Errorf("vip not found: %s", vip)
 		}
-		instance, ok := s.RootModule().Resources["huaweicloud_compute_instance.test"]
+		instance, ok := s.RootModule().Resources["huaweicloud_compute_instance.test.0"]
 		if !ok {
 			return "", fmt.Errorf("port not found: %s", instance)
 		}
@@ -113,12 +121,13 @@ data "huaweicloud_networking_secgroup" "test" {
 }
 `
 
-func testAccComputeInstance_basic(rName string) string {
+func testAccNetworkingV2VIPAssociateConfig_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
 
 resource "huaweicloud_compute_instance" "test" {
-  name                = "%s"
+  count               = 1
+  name                = "%s-${count.index}"
   image_id            = data.huaweicloud_images_image.test.id
   flavor_id           = data.huaweicloud_compute_flavors.test.ids[0]
   security_group_ids  = [data.huaweicloud_networking_secgroup.test.id]
@@ -129,24 +138,93 @@ resource "huaweicloud_compute_instance" "test" {
     source_dest_check = false
   }
 }
-`, testAccCompute_data, rName)
-}
 
-func testAccNetworkingV2VIPAssociateConfig_basic(rName string) string {
-	return fmt.Sprintf(`
-%s
-
-data "huaweicloud_networking_port" "port" {
-  port_id = huaweicloud_compute_instance.test.network[0].port
-}
-
-resource "huaweicloud_networking_vip" "vip_1" {
+resource "huaweicloud_networking_vip" "vip" {
   network_id = data.huaweicloud_vpc_subnet.test.id
 }
 
-resource "huaweicloud_networking_vip_associate" "vip_associate_1" {
-  vip_id   = huaweicloud_networking_vip.vip_1.id
-  port_ids = [huaweicloud_compute_instance.test.network[0].port]
+resource "huaweicloud_networking_vip_associate" "vip_associate" {
+  vip_id   = huaweicloud_networking_vip.vip.id
+  port_ids = [huaweicloud_compute_instance.test[0].network[0].port]
 }
-`, testAccComputeInstance_basic(rName))
+
+locals {
+  port_ids_result = [
+    for v in huaweicloud_compute_instance.test[*].network[0].port : contains(huaweicloud_networking_vip_associate.vip_associate.port_ids, v)]
+}
+
+output "port_ids_check" {
+  value = alltrue(local.port_ids_result)
+}
+`, testAccCompute_data, rName)
+}
+
+func testAccNetworkingV2VIPAssociateConfig_config(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_compute_instance" "test" {
+  count               = 1
+  name                = "%s-${count.index}"
+  image_id            = data.huaweicloud_images_image.test.id
+  flavor_id           = data.huaweicloud_compute_flavors.test.ids[0]
+  security_group_ids  = [data.huaweicloud_networking_secgroup.test.id]
+  stop_before_destroy = true
+
+  network {
+    uuid              = data.huaweicloud_vpc_subnet.test.id
+    source_dest_check = false
+  }
+}
+
+resource "huaweicloud_networking_vip" "vip" {
+  network_id = data.huaweicloud_vpc_subnet.test.id
+}
+
+resource "huaweicloud_networking_vip_associate" "vip_associate" {
+  vip_id   = huaweicloud_networking_vip.vip.id
+  port_ids = [huaweicloud_compute_instance.test[0].network[0].port]
+}
+`, testAccCompute_data, rName)
+}
+
+func testAccNetworkingV2VIPAssociateConfig_update(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_compute_instance" "test" {
+  count               = 2
+  name                = "%s-${count.index}"
+  image_id            = data.huaweicloud_images_image.test.id
+  flavor_id           = data.huaweicloud_compute_flavors.test.ids[0]
+  security_group_ids  = [data.huaweicloud_networking_secgroup.test.id]
+  stop_before_destroy = true
+
+  network {
+    uuid              = data.huaweicloud_vpc_subnet.test.id
+    source_dest_check = false
+  }
+}
+
+resource "huaweicloud_networking_vip" "vip" {
+  network_id = data.huaweicloud_vpc_subnet.test.id
+}
+
+resource "huaweicloud_networking_vip_associate" "vip_associate" {
+  vip_id   = huaweicloud_networking_vip.vip.id
+  port_ids = [
+    huaweicloud_compute_instance.test[0].network[0].port,
+    huaweicloud_compute_instance.test[1].network[0].port,
+  ]
+}
+
+locals {
+  port_ids_result = [
+    for v in huaweicloud_compute_instance.test[*].network[0].port : contains(huaweicloud_networking_vip_associate.vip_associate.port_ids, v)]
+}
+
+output "port_ids_check" {
+  value = alltrue(local.port_ids_result)
+}
+`, testAccCompute_data, rName)
 }

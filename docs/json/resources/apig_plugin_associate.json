@@ -10,7 +10,7 @@
                   "set",
                   "string"
                 ],
-                "description": "The APIs bound by the plugin.",
+                "description": "The list of API IDs to be bound by the plugin.",
                 "required": true
               },
               "env_id": {

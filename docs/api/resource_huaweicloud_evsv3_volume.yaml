@@ -1,0 +1,35 @@
+info:
+    version: ""
+    title: resource_huaweicloud_evsv3_volume
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: EVS
+paths:
+    /v1/{project_id}/cloudservers/{server_id}/detachvolume/{volume_id}:
+        DELETE:
+            tag: ECS
+    /v1/{project_id}/jobs/{job_id}:
+        GET:
+            tag: ECS
+    /v2/{project_id}/cloudvolumes/{volume_id}/tags:
+        GET:
+            tag: EVS
+    /v2/{project_id}/cloudvolumes/{volume_id}/tags/action:
+        POST:
+            tag: EVS
+    /v3/{project_id}/volumes:
+        POST:
+            tag: EVS
+    /v3/{project_id}/volumes/{volume_id}:
+        DELETE:
+            tag: EVS
+        GET:
+            tag: EVS
+        PUT:
+            tag: EVS
+    /v3/{project_id}/volumes/{volume_id}/action:
+        POST:
+            tag: EVS

@@ -10,17 +10,30 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceCustomLines_basic(t *testing.T) {
+func TestAccDataCustomLines_basic(t *testing.T) {
 	var (
-		rName      = acceptance.RandomAccResourceName()
+		name  = acceptance.RandomAccResourceName()
+		rName = "huaweicloud_dns_custom_line.test"
+
 		dataSource = "data.huaweicloud_dns_custom_lines.test"
 		dc         = acceptance.InitDataSourceCheck(dataSource)
 
-		byId   = "data.huaweicloud_dns_custom_lines.filter_by_id"
-		dcById = acceptance.InitDataSourceCheck(byId)
+		byLineId           = "data.huaweicloud_dns_custom_lines.filter_by_line_id"
+		dcByLineId         = acceptance.InitDataSourceCheck(byLineId)
+		byNotFoundLineId   = "data.huaweicloud_dns_custom_lines.filter_by_not_found_line_id"
+		dcByNotFoundLineId = acceptance.InitDataSourceCheck(byNotFoundLineId)
 
-		byName   = "data.huaweicloud_dns_custom_lines.filter_by_name"
-		dcByName = acceptance.InitDataSourceCheck(byName)
+		byName           = "data.huaweicloud_dns_custom_lines.filter_by_name"
+		dcByName         = acceptance.InitDataSourceCheck(byName)
+		byNameFuzzy      = "data.huaweicloud_dns_custom_lines.filter_by_name_fuzzy"
+		dcByNameFuzzy    = acceptance.InitDataSourceCheck(byNameFuzzy)
+		byNotFoundName   = "data.huaweicloud_dns_custom_lines.filter_by_not_found_name"
+		dcByNotFoundName = acceptance.InitDataSourceCheck(byNotFoundName)
+
+		byIp           = "data.huaweicloud_dns_custom_lines.filter_by_ip"
+		dcByIp         = acceptance.InitDataSourceCheck(byIp)
+		byNotFoundIp   = "data.huaweicloud_dns_custom_lines.filter_by_not_found_ip"
+		dcByNotFoundIp = acceptance.InitDataSourceCheck(byNotFoundIp)
 
 		byStatus   = "data.huaweicloud_dns_custom_lines.filter_by_status"
 		dcByStatus = acceptance.InitDataSourceCheck(byStatus)
@@ -33,30 +46,46 @@ func TestAccDataSourceCustomLines_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceDataSourceDnsCustomLines_basic(rName),
+				Config: testAccDataCustomLines_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestMatchResourceAttr(dataSource, "lines.#", regexp.MustCompile(`^[1-9]([0-9]*)?$`)),
-					resource.TestCheckResourceAttrSet(dataSource, "lines.0.ip_segments.#"),
-					// The format is the time corresponding to the local time zone of the computer.
-					resource.TestMatchResourceAttr(dataSource, "lines.0.created_at",
-						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
-					resource.TestMatchResourceAttr(dataSource, "lines.0.updated_at",
-						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
-					dcById.CheckResourceExists(),
-					resource.TestCheckOutput("is_id_filter_useful", "true"),
+					// Filter by custom line ID.
+					dcByLineId.CheckResourceExists(),
+					resource.TestCheckOutput("is_line_id_filter_useful", "true"),
+					dcByNotFoundLineId.CheckResourceExists(),
+					resource.TestCheckOutput("line_id_not_found_validation_pass", "true"),
+					// Exact search by custom line name.
 					dcByName.CheckResourceExists(),
 					resource.TestCheckOutput("is_name_filter_useful", "true"),
-					resource.TestCheckOutput("is_name_not_found_filter_useful", "true"),
+					// Fuzzy search by custom line name.
+					dcByNameFuzzy.CheckResourceExists(),
+					resource.TestCheckOutput("is_name_fuzzy_filter_useful", "true"),
+					dcByNotFoundName.CheckResourceExists(),
+					resource.TestCheckOutput("name_not_found_validation_pass", "true"),
+					// Filter by IP address.
+					dcByIp.CheckResourceExists(),
+					resource.TestCheckOutput("is_ip_filter_useful", "true"),
+					dcByNotFoundIp.CheckResourceExists(),
+					resource.TestCheckOutput("ip_not_found_validation_pass", "true"),
+					// Filter by custom line status.
 					dcByStatus.CheckResourceExists(),
 					resource.TestCheckOutput("is_status_filter_useful", "true"),
+					// Check attributes.
+					resource.TestCheckResourceAttrPair(byLineId, "lines.0.description", rName, "description"),
+					resource.TestCheckResourceAttrPair(byLineId, "lines.0.ip_segments", rName, "ip_segments"),
+					// The format is the time corresponding to the local time zone of the computer.
+					resource.TestMatchResourceAttr(byLineId, "lines.0.created_at",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
+					resource.TestMatchResourceAttr(byLineId, "lines.0.updated_at",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
 				),
 			},
 		},
 	})
 }
 
-func testDataSourceDataSourceDnsCustomLines_basic(name string) string {
+func testAccDataCustomLines_basic(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_dns_custom_line" "test" {
   name        = "%s"
@@ -66,67 +95,116 @@ resource "huaweicloud_dns_custom_line" "test" {
 }
 
 data "huaweicloud_dns_custom_lines" "test" {
-  depends_on = [
-    huaweicloud_dns_custom_line.test
-  ]
+  depends_on = [huaweicloud_dns_custom_line.test]
 }
 
+# Filter by custom line ID.
 locals {
-  line_id = data.huaweicloud_dns_custom_lines.test.lines[0].id
+  line_id = huaweicloud_dns_custom_line.test.id
 }
 
-data "huaweicloud_dns_custom_lines" "filter_by_id" {
+data "huaweicloud_dns_custom_lines" "filter_by_line_id" {
   line_id = local.line_id
 }
 
 locals {
-  id_filter_result = [
-    for v in data.huaweicloud_dns_custom_lines.filter_by_id.lines[*].id : v == local.line_id
-  ]
+  line_id_filter_result = [for v in data.huaweicloud_dns_custom_lines.filter_by_line_id.lines[*].id : v == local.line_id]
 }
 
-output "is_id_filter_useful" {
-  value = length(local.id_filter_result) > 0 && alltrue(local.id_filter_result)
+output "is_line_id_filter_useful" {
+  value = length(local.line_id_filter_result) > 0 && alltrue(local.line_id_filter_result)
 }
 
+data "huaweicloud_dns_custom_lines" "filter_by_not_found_line_id" {
+  depends_on = [huaweicloud_dns_custom_line.test]
+  line_id    = "not_found_line_id"
+}
+
+output "line_id_not_found_validation_pass" {
+  value = length(data.huaweicloud_dns_custom_lines.filter_by_not_found_line_id.lines) == 0
+}
+
+# Exact search by custom line name.
 locals {
-  line_name = data.huaweicloud_dns_custom_lines.test.lines[0].name
+  line_name = huaweicloud_dns_custom_line.test.name
 }
 
 data "huaweicloud_dns_custom_lines" "filter_by_name" {
+  depends_on = [huaweicloud_dns_custom_line.test]
+
   name = local.line_name
 }
 
 locals {
-  name_filter_result = [
-    for v in data.huaweicloud_dns_custom_lines.filter_by_name.lines[*].name : v == local.line_name
-  ]
+  name_filter_result = [for v in data.huaweicloud_dns_custom_lines.filter_by_name.lines[*].name : v == local.line_name]
 }
 
 output "is_name_filter_useful" {
   value = length(local.name_filter_result) > 0 && alltrue(local.name_filter_result)
 }
 
+# Fuzzy search by custom line name.
 locals {
-  not_found_name = "not_found"
+  name_prefix = "tf_test"
 }
 
-data "huaweicloud_dns_custom_lines" "filter_by_not_found_name" {
-  name = local.not_found_name
+data "huaweicloud_dns_custom_lines" "filter_by_name_fuzzy" {
+  depends_on = [huaweicloud_dns_custom_line.test]
+
+  name = local.name_prefix
 }
 
 locals {
-  not_found_name_filter_result = [
-    for v in data.huaweicloud_dns_custom_lines.filter_by_not_found_name.lines[*].name : strcontains(v, local.not_found_name)
+  name_fuzzy_filter_result = [for v in data.huaweicloud_dns_custom_lines.filter_by_name_fuzzy.lines[*].name :
+    strcontains(v, local.name_prefix)
   ]
 }
 
-output "is_name_not_found_filter_useful" {
-  value = length(local.not_found_name_filter_result) == 0
+output "is_name_fuzzy_filter_useful" {
+  value = length(local.name_fuzzy_filter_result) > 0 && alltrue(local.name_fuzzy_filter_result)
+}
+
+data "huaweicloud_dns_custom_lines" "filter_by_not_found_name" {
+  depends_on = [huaweicloud_dns_custom_line.test]
+  name       = "not_found_custom_name"
+}
+
+output "name_not_found_validation_pass" {
+  value = length(data.huaweicloud_dns_custom_lines.filter_by_not_found_name.lines) == 0
+}
+
+# Filter by IP address.
+locals {
+  ip = try(split("-", tolist(huaweicloud_dns_custom_line.test.ip_segments)[0])[0], "")
+}
+
+data "huaweicloud_dns_custom_lines" "filter_by_ip" {
+  depends_on = [huaweicloud_dns_custom_line.test]
+
+  ip = local.ip
 }
 
 locals {
-  status = data.huaweicloud_dns_custom_lines.test.lines[0].status
+  ip_filter_result = [for v in data.huaweicloud_dns_custom_lines.filter_by_ip.lines[*].ip_segments : strcontains(join(",", v), local.ip)]
+}
+
+output "is_ip_filter_useful" {
+  value = length(local.ip_filter_result) > 0 && alltrue(local.ip_filter_result)
+}
+
+data "huaweicloud_dns_custom_lines" "filter_by_not_found_ip" {
+  depends_on = [huaweicloud_dns_custom_line.test]
+
+  ip = "0.0.0.0"
+}
+
+output "ip_not_found_validation_pass" {
+  value = length(data.huaweicloud_dns_custom_lines.filter_by_not_found_ip.lines) == 0
+}
+
+# Filter by custom line status.
+locals {
+  status = huaweicloud_dns_custom_line.test.status
 }
 
 data "huaweicloud_dns_custom_lines" "filter_by_status" {
@@ -134,9 +212,7 @@ data "huaweicloud_dns_custom_lines" "filter_by_status" {
 }
 
 locals {
-  status_filter_result = [
-    for v in data.huaweicloud_dns_custom_lines.filter_by_status.lines[*].status : v == local.status
-  ]
+  status_filter_result = [for v in data.huaweicloud_dns_custom_lines.filter_by_status.lines[*].status : v == local.status]
 }
 
 output "is_status_filter_useful" {

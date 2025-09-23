@@ -72,11 +72,11 @@ The following arguments are supported:
  The scheduled startup/shutdown and auto shutdown function cannot be enabled at the same time.
   The time format is `hh:mm:ss`. Changing this parameter will create a new resource.
 
-* `email` - (Optional, List, ForceNew) Specifies email address for receiving notifications when a table/file migration
- job fails or an EIP exception occurs. The max number is 5. Changing this parameter will create a new resource.
+* `email` - (Optional, List) Specifies email address for receiving notifications when a table/file migration
+ job fails or an EIP exception occurs. The max number is 20.
 
-* `phone_num` - (Optional, List, ForceNew) Specifies phone number for receiving notifications when a table/file
- migration job fails or an EIP exception occurs. The max number is 5. Changing this parameter will create a new resource.
+* `phone_num` - (Optional, List) Specifies phone number for receiving notifications when a table/file
+ migration job fails or an EIP exception occurs. The max number is 20.
 
 ## Attribute Reference
 

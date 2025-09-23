@@ -3,14 +3,14 @@ package nat
 import (
 	"context"
 	"fmt"
-	"log"
 	"strconv"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/chnsz/golangsdk/openstack/nat/v3/dnats"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -109,123 +109,211 @@ func ResourcePrivateDnatRule() *schema.Resource {
 	}
 }
 
+func buildCreatePrivateDnatRuleBodyParams(d *schema.ResourceData) map[string]interface{} {
+	dnatRuleBodyParams := map[string]interface{}{
+		"gateway_id":            d.Get("gateway_id"),
+		"transit_ip_id":         d.Get("transit_ip_id"),
+		"protocol":              utils.ValueIgnoreEmpty(d.Get("protocol")),
+		"network_interface_id":  utils.ValueIgnoreEmpty(d.Get("backend_interface_id")),
+		"private_ip_address":    utils.ValueIgnoreEmpty(d.Get("backend_private_ip")),
+		"internal_service_port": convertIntToStr(d.Get("internal_service_port").(int)),
+		"transit_service_port":  convertIntToStr(d.Get("transit_service_port").(int)),
+		"description":           utils.ValueIgnoreEmpty(d.Get("description")),
+	}
+
+	return map[string]interface{}{
+		"dnat_rule": dnatRuleBodyParams,
+	}
+}
+
+func convertIntToStr(param int) string {
+	return fmt.Sprintf("%v", param)
+}
+
 func resourcePrivateDnatRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	client, err := cfg.NatV3Client(cfg.GetRegion(d))
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v3/{project_id}/private-nat/dnat-rules"
+	)
+
+	client, err := cfg.NewServiceClient("nat", region)
 	if err != nil {
 		return diag.Errorf("error creating NAT v3 client: %s", err)
 	}
 
-	opts := dnats.CreateOpts{
-		GatewayId:           d.Get("gateway_id").(string),
-		Protocol:            d.Get("protocol").(string),
-		Description:         d.Get("description").(string),
-		NetworkInterfaceId:  d.Get("backend_interface_id").(string),
-		PrivateIpAddress:    d.Get("backend_private_ip").(string),
-		InternalServicePort: strconv.Itoa(d.Get("internal_service_port").(int)),
-		TransitIpId:         d.Get("transit_ip_id").(string),
-		TransitServicePort:  strconv.Itoa(d.Get("transit_service_port").(int)),
+	createPath := client.Endpoint + httpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildCreatePrivateDnatRuleBodyParams(d)),
 	}
 
-	log.Printf("[DEBUG] The create options of the DNAT rule (Private NAT) is: %#v", opts)
-	resp, err := dnats.Create(client, opts)
+	resp, err := client.Request("POST", createPath, &createOpt)
 	if err != nil {
-		return diag.Errorf("error creating DNAT rule (Private NAT): %s", err)
+		return diag.Errorf("error creating private DNAT rule: %s", err)
 	}
-	d.SetId(resp.ID)
+
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	ruleId := utils.PathSearch("dnat_rule.id", respBody, "").(string)
+	if ruleId == "" {
+		return diag.Errorf("error creating private DNAT rule: ID is not found in API response")
+	}
+
+	d.SetId(ruleId)
 
 	return resourcePrivateDnatRuleRead(ctx, d, meta)
 }
 
+func GetPrivateDnatRule(client *golangsdk.ServiceClient, ruleId string) (interface{}, error) {
+	httpUrl := "v3/{project_id}/private-nat/dnat-rules/{dnat_rule_id}"
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{dnat_rule_id}", ruleId)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(getResp)
+}
+
 func resourcePrivateDnatRuleRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	client, err := cfg.NatV3Client(region)
+	var (
+		cfg    = meta.(*config.Config)
+		region = cfg.GetRegion(d)
+	)
+
+	client, err := cfg.NewServiceClient("nat", region)
 	if err != nil {
 		return diag.Errorf("error creating NAT v3 client: %s", err)
 	}
 
-	resp, err := dnats.Get(client, d.Id())
+	respBody, err := GetPrivateDnatRule(client, d.Id())
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "Private DNAT rule")
+		// If the private DNAT rule does not exist, the response HTTP status code of the details API is 404.
+		return common.CheckDeletedDiag(d, err, "error retrieving private DNAT rule")
 	}
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("gateway_id", resp.GatewayId),
-		d.Set("transit_ip_id", resp.TransitIpId),
-		d.Set("description", resp.Description),
-		d.Set("backend_interface_id", resp.NetworkInterfaceId),
-		d.Set("protocol", resp.Protocol),
-		d.Set("backend_private_ip", resp.PrivateIpAddress),
-		d.Set("backend_type", resp.Type),
-		d.Set("created_at", resp.CreatedAt),
-		d.Set("updated_at", resp.UpdatedAt),
-		d.Set("enterprise_project_id", resp.EnterpriseProjectId),
+		d.Set("gateway_id", utils.PathSearch("dnat_rule.gateway_id", respBody, nil)),
+		d.Set("transit_ip_id", utils.PathSearch("dnat_rule.transit_ip_id", respBody, nil)),
+		d.Set("description", utils.PathSearch("dnat_rule.description", respBody, nil)),
+		d.Set("backend_interface_id", utils.PathSearch("dnat_rule.network_interface_id", respBody, nil)),
+		d.Set("protocol", utils.PathSearch("dnat_rule.protocol", respBody, nil)),
+		d.Set("backend_private_ip", utils.PathSearch("dnat_rule.private_ip_address", respBody, nil)),
+		d.Set("backend_type", utils.PathSearch("dnat_rule.type", respBody, nil)),
+		d.Set("created_at", utils.PathSearch("dnat_rule.created_at", respBody, nil)),
+		d.Set("updated_at", utils.PathSearch("dnat_rule.updated_at", respBody, nil)),
+		d.Set("enterprise_project_id", utils.PathSearch("dnat_rule.enterprise_project_id", respBody, nil)),
 	)
 
+	internalPort := utils.PathSearch("dnat_rule.internal_service_port", respBody, "").(string)
+	transitPort := utils.PathSearch("dnat_rule.transit_service_port", respBody, "").(string)
+
 	// Parse the internal service port
-	if internalServicePort, err := strconv.Atoi(resp.InternalServicePort); err != nil {
+	if internalServicePort, err := strconv.Atoi(internalPort); err != nil {
 		mErr = multierror.Append(mErr, fmt.Errorf("invalid format for internal service port, want 'string', but '%T'",
-			resp.InternalServicePort))
+			internalPort))
 	} else if internalServicePort != 0 {
 		mErr = multierror.Append(mErr, d.Set("internal_service_port", internalServicePort))
 	}
 
 	// Parse the transit service port
-	if transitServicePort, err := strconv.Atoi(resp.TransitServicePort); err != nil {
-		mErr = multierror.Append(mErr, fmt.Errorf("invalid format for transit service port, want 'string', but '%T'",
-			resp.TransitServicePort))
+	if transitServicePort, err := strconv.Atoi(transitPort); err != nil {
+		mErr = multierror.Append(mErr, fmt.Errorf("invalid format for internal service port, want 'string', but '%T'",
+			transitPort))
 	} else if transitServicePort != 0 {
 		mErr = multierror.Append(mErr, d.Set("transit_service_port", transitServicePort))
 	}
 
-	if err = mErr.ErrorOrNil(); err != nil {
-		return diag.Errorf("error saving resource fields of the DNAT rule (Private NAT): %s", err)
+	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func buildUpdatePrivateDnatRuleBodyParams(d *schema.ResourceData) map[string]interface{} {
+	dnatRuleBodyParams := map[string]interface{}{
+		"transit_ip_id":         d.Get("transit_ip_id"),
+		"protocol":              utils.ValueIgnoreEmpty(d.Get("protocol")),
+		"internal_service_port": convertIntToStr(d.Get("internal_service_port").(int)),
+		"transit_service_port":  convertIntToStr(d.Get("transit_service_port").(int)),
+		"description":           d.Get("description"),
 	}
-	return nil
+
+	return dnatRuleBodyParams
+}
+
+func updatePrivateDnatRule(client *golangsdk.ServiceClient, ruleId string, dnatRuleBodyParams map[string]interface{}) error {
+	httpUrl := "v3/{project_id}/private-nat/dnat-rules/{dnat_rule_id}"
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{dnat_rule_id}", ruleId)
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"dnat_rule": dnatRuleBodyParams,
+		},
+	}
+	_, err := client.Request("PUT", updatePath, &opt)
+	return err
 }
 
 func resourcePrivateDnatRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	client, err := cfg.NatV3Client(region)
+	var (
+		cfg    = meta.(*config.Config)
+		region = cfg.GetRegion(d)
+	)
+
+	client, err := cfg.NewServiceClient("nat", region)
 	if err != nil {
 		return diag.Errorf("error creating NAT v3 client: %s", err)
 	}
 
-	ruleId := d.Id()
-	opts := dnats.UpdateOpts{
-		Protocol:            d.Get("protocol").(string),
-		Description:         utils.String(d.Get("description").(string)),
-		InternalServicePort: strconv.Itoa(d.Get("internal_service_port").(int)),
-		TransitIpId:         d.Get("transit_ip_id").(string),
-		TransitServicePort:  strconv.Itoa(d.Get("transit_service_port").(int)),
-	}
+	updateOpt := buildUpdatePrivateDnatRuleBodyParams(d)
 	if d.HasChange("backend_private_ip") {
-		opts.PrivateIpAddress = d.Get("backend_private_ip").(string)
+		updateOpt["private_ip_address"] = utils.ValueIgnoreEmpty(d.Get("backend_private_ip"))
 	} else if d.HasChange("backend_interface_id") {
-		opts.NetworkInterfaceId = d.Get("backend_interface_id").(string)
+		updateOpt["network_interface_id"] = utils.ValueIgnoreEmpty(d.Get("backend_interface_id"))
 	}
 
-	_, err = dnats.Update(client, ruleId, opts)
+	err = updatePrivateDnatRule(client, d.Id(), updateOpt)
 	if err != nil {
-		return diag.Errorf("error updating DNAT rule (Private NAT) (%s): %s", ruleId, err)
+		return diag.Errorf("error updating private DNAT rule: %s", err)
 	}
 
 	return resourcePrivateDnatRuleRead(ctx, d, meta)
 }
 
 func resourcePrivateDnatRuleDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	client, err := cfg.NatV3Client(cfg.GetRegion(d))
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v3/{project_id}/private-nat/dnat-rules/{dnat_rule_id}"
+	)
+
+	client, err := cfg.NewServiceClient("nat", region)
 	if err != nil {
 		return diag.Errorf("error creating NAT v3 client: %s", err)
 	}
 
-	ruleId := d.Id()
-	err = dnats.Delete(client, ruleId)
+	deletePath := client.Endpoint + httpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = strings.ReplaceAll(deletePath, "{dnat_rule_id}", d.Id())
+	deleteOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	_, err = client.Request("DELETE", deletePath, &deleteOpts)
 	if err != nil {
-		return diag.Errorf("error deleting DNAT rule (Private NAT) (%s): %s", ruleId, err)
+		// If the private DNAT rule does not exist, the response HTTP status code of the details API is 404.
+		return common.CheckDeletedDiag(d, err, "error deleting private DNAT rule")
 	}
 
 	return nil

@@ -116,3 +116,64 @@ func TestAccFunction_IsUUID(t *testing.T) {
 		t.Logf("The processing result of IsUUID method meets expectation: %s", Green(expected[i]))
 	}
 }
+func TestAccFunction_IsUUIDWithHyphens(t *testing.T) {
+	var (
+		ids      = []string{"550e8400-e29b-41d4-a716-446655440000", "550e8400e29b41d4a716446655440000", "abc123", ""}
+		expected = []bool{true, false, false, false}
+	)
+
+	for i, idInput := range ids {
+		if isValid := IsUUIDWithHyphens(idInput); isValid != expected[i] {
+			t.Fatalf("The processing result of IsUUIDWithHyphens method is not as expected, want %s, but %s, the ID is %s",
+				Green(expected[i]), Yellow(isValid), idInput)
+		}
+		t.Logf("The processing result of IsUUIDWithHyphens method meets expectation: %s", Green(expected[i]))
+	}
+}
+
+func TestAccFunction_FilterMapWithSameKey(t *testing.T) {
+	var (
+		rawArray = []map[string]interface{}{
+			{"a": "b"},
+			{"a": "b"},
+			{"a": "b", "c": "d"},
+			{"a": "b", "c": "d"},
+			{"a": "b"},
+			{},
+			{},
+		}
+
+		filterArray = []map[string]interface{}{
+			{"a": "d"},
+			{"a": "d", "m": "n"},
+			{"a": "d", "m": "n"},
+			{"a": "d", "c": "a", "m": "n"},
+			{},
+			{"m": "n"},
+			{},
+		}
+
+		expectedArray = []map[string]interface{}{
+			{"a": "d"},
+			{"a": "d"},
+			{"a": "d"},
+			{"a": "d", "c": "a"},
+			{},
+			{},
+			{},
+		}
+	)
+
+	for i := 0; i < 7; i++ {
+		rawMap := rawArray[i]
+		filterMap := filterArray[i]
+		expectedMap := expectedArray[i]
+		result := FilterMapWithSameKey(rawMap, filterMap)
+
+		if !reflect.DeepEqual(result, expectedMap) {
+			t.Fatalf("The processing result of the function 'FilterMapWithSameKey' is not as expected, want '%v', "+
+				"but got '%v'", Green(expectedMap), Yellow(result))
+		}
+		t.Logf("The processing result of `FilterMapWithSameKey` method meets expectation: %s", Green(expectedMap))
+	}
+}

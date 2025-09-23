@@ -17,26 +17,26 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func DataSourceDNSQuotas() *schema.Resource {
+func DataSourceQuotas() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceDNSQuotasRead,
+		ReadContext: dataSourceQuotasRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				Description: `Specifies the region in which to query the resource. If omitted, the provider-level region will be used.`,
+				Description: `The region in which to query the resource. If omitted, the provider-level region will be used.`,
 			},
 			"domain_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: `Specified the account ID of IAM user.`,
+				Description: `The account ID of IAM user.`,
 			},
 			"type": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specifies the resource type.`,
+				Description: `The resource type.`,
 			},
 			"quotas": {
 				Type:        schema.TypeList,
@@ -83,7 +83,7 @@ func newQuotasDSWrapper(d *schema.ResourceData, meta interface{}) *QuotasDSWrapp
 	}
 }
 
-func dataSourceDNSQuotasRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceQuotasRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	wrapper := newQuotasDSWrapper(d, meta)
 	showDomainQuotaRst, err := wrapper.ShowDomainQuota()
 	if err != nil {

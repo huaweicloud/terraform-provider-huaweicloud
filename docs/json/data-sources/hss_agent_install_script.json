@@ -1,0 +1,67 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_agent_install_script": {
+          "block": {
+            "attributes": {
+              "batch_install": {
+                "type": "bool",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "install_script_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cmd": "string",
+                      "package_download_url": "string",
+                      "package_type": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "os_arch": {
+                "type": "string",
+                "required": true
+              },
+              "os_type": {
+                "type": "string",
+                "required": true
+              },
+              "outside_host": {
+                "type": "bool",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

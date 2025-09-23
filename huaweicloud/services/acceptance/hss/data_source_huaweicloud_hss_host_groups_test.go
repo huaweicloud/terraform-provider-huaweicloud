@@ -10,8 +10,10 @@ import (
 )
 
 func TestAccDataSourceHostGroups_basic(t *testing.T) {
-	dataSource := "data.huaweicloud_hss_host_groups.test"
-	dc := acceptance.InitDataSourceCheck(dataSource)
+	var (
+		dataSource = "data.huaweicloud_hss_host_groups.test"
+		dc         = acceptance.InitDataSourceCheck(dataSource)
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {

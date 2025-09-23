@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -21,6 +20,7 @@ import (
 )
 
 // @API IMS PUT /v1/cloudimages/members
+// @API IMS GET /v1/{project_id}/jobs/{job_id}
 func ResourceImsImageShareAccepter() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceImsImageShareAccepterCreate,
@@ -57,11 +57,9 @@ func ResourceImsImageShareAccepter() *schema.Resource {
 }
 
 func resourceImsImageShareAccepterCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// createImageShareAccepter: create IMS image share accepter
 	var (
+		cfg                             = meta.(*config.Config)
+		region                          = cfg.GetRegion(d)
 		createImageShareAccepterHttpUrl = "v1/cloudimages/members"
 		createImageShareAccepterProduct = "ims"
 	)
@@ -71,7 +69,6 @@ func resourceImsImageShareAccepterCreate(ctx context.Context, d *schema.Resource
 	}
 
 	createImageShareAccepterPath := createImageShareAccepterClient.Endpoint + createImageShareAccepterHttpUrl
-
 	createImageShareAccepterOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		OkCodes: []int{
@@ -92,12 +89,12 @@ func resourceImsImageShareAccepterCreate(ctx context.Context, d *schema.Resource
 		return diag.FromErr(err)
 	}
 
-	jobId, err := jmespath.Search("job_id", createImageShareAccepterRespBody)
-	if err != nil {
+	jobId := utils.PathSearch("job_id", createImageShareAccepterRespBody, "").(string)
+	if jobId == "" {
 		return diag.Errorf("error creating IMS image share accepter: job_id is not found in API response")
 	}
 
-	err = waitForJobSuccess(ctx, d, createImageShareAccepterClient, jobId.(string), schema.TimeoutCreate)
+	err = waitForImageShareOrAcceptJobSuccess(ctx, d, createImageShareAccepterClient, jobId, schema.TimeoutCreate)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -129,11 +126,9 @@ func resourceImsImageShareAccepterRead(_ context.Context, _ *schema.ResourceData
 }
 
 func resourceImsImageShareAccepterDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// deleteImageShareAccepter: delete IMS image share accepter
 	var (
+		cfg                             = meta.(*config.Config)
+		region                          = cfg.GetRegion(d)
 		deleteImageShareAccepterHttpUrl = "v1/cloudimages/members"
 		deleteImageShareAccepterProduct = "ims"
 	)
@@ -143,7 +138,6 @@ func resourceImsImageShareAccepterDelete(ctx context.Context, d *schema.Resource
 	}
 
 	deleteImageShareAccepterPath := deleteImageShareAccepterClient.Endpoint + deleteImageShareAccepterHttpUrl
-
 	deleteImageShareAccepterOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		OkCodes: []int{
@@ -163,12 +157,12 @@ func resourceImsImageShareAccepterDelete(ctx context.Context, d *schema.Resource
 		return diag.FromErr(err)
 	}
 
-	jobId, err := jmespath.Search("job_id", deleteImageShareAccepterRespBody)
-	if err != nil {
-		return diag.Errorf("error deleting IMS image share accepter: job_id is not found in API response")
+	jobId := utils.PathSearch("job_id", deleteImageShareAccepterRespBody, "").(string)
+	if jobId == "" {
+		return diag.Errorf("unable to find the job ID of IMS image share accepter from the API response")
 	}
 
-	err = waitForJobSuccess(ctx, d, deleteImageShareAccepterClient, jobId.(string), schema.TimeoutDelete)
+	err = waitForImageShareOrAcceptJobSuccess(ctx, d, deleteImageShareAccepterClient, jobId, schema.TimeoutDelete)
 	if err != nil {
 		return diag.FromErr(err)
 	}

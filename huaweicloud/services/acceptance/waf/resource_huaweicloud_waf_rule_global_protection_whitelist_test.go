@@ -22,7 +22,7 @@ func getRuleGlobalProtectionWhitelistResourceFunc(cfg *config.Config, state *ter
 	)
 	getClient, err := cfg.NewServiceClient(getProduct, acceptance.HW_REGION_NAME)
 	if err != nil {
-		return nil, fmt.Errorf("error creating WAF Client: %s", err)
+		return nil, fmt.Errorf("error creating WAF client: %s", err)
 	}
 
 	getPath := getClient.Endpoint + getHttpUrl
@@ -41,22 +41,21 @@ func getRuleGlobalProtectionWhitelistResourceFunc(cfg *config.Config, state *ter
 			"Content-Type": "application/json;charset=utf8",
 		},
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
 	getResp, err := getClient.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving RuleGlobalProtectionWhitelist: %s", err)
+		return nil, fmt.Errorf("error retrieving WAF global protection whitelist rule: %s", err)
 	}
 	return utils.FlattenResponse(getResp)
 }
 
+// Before running the test case, please ensure that there is at least one WAF dedicated instance in the current region.
 func TestAccRuleGlobalProtectionWhitelist_basic(t *testing.T) {
 	var obj interface{}
 
 	rName := "huaweicloud_waf_rule_global_protection_whitelist.test"
 	randName := acceptance.RandomAccResourceName()
+	certificateBody := generateCertificateBody()
 
 	rc := acceptance.InitResourceCheck(
 		rName,
@@ -68,16 +67,19 @@ func TestAccRuleGlobalProtectionWhitelist_basic(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPrecheckWafInstance(t)
+			acceptance.TestAccPreCheckEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testRuleGlobalProtectionWhitelist_basic(randName),
+				Config: testDataSourceRuleGlobalProtectionWhitelist_basic(randName, certificateBody),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(rName, "policy_id", "huaweicloud_waf_policy.policy_1", "id"),
-					resource.TestCheckResourceAttrPair(rName, "domains.0", "huaweicloud_waf_dedicated_domain.domain_1", "domain"),
+					resource.TestCheckResourceAttrPair(rName, "policy_id",
+						"huaweicloud_waf_policy.test", "id"),
+					resource.TestCheckResourceAttrPair(rName, "domains.0",
+						"huaweicloud_waf_dedicated_domain.test", "domain"),
 					resource.TestCheckResourceAttr(rName, "ignore_waf_protection", "xss;webshell"),
 					resource.TestCheckResourceAttr(rName, "advanced_field", "params"),
 					resource.TestCheckResourceAttr(rName, "advanced_content", "test_content"),
@@ -97,7 +99,7 @@ func TestAccRuleGlobalProtectionWhitelist_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testRuleGlobalProtectionWhitelist_basic_update(randName),
+				Config: testDataSourceRuleGlobalProtectionWhitelist_basic_update(randName, certificateBody),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "domains.#", "0"),
@@ -122,64 +124,19 @@ func TestAccRuleGlobalProtectionWhitelist_basic(t *testing.T) {
 	})
 }
 
-func TestAccRuleGlobalProtectionWhitelist_withEpsID(t *testing.T) {
-	var obj interface{}
-
-	rName := "huaweicloud_waf_rule_global_protection_whitelist.test"
-	randName := acceptance.RandomAccResourceName()
-
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&obj,
-		getRuleGlobalProtectionWhitelistResourceFunc,
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPrecheckWafInstance(t)
-			acceptance.TestAccPreCheckEpsID(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testRuleGlobalProtectionWhitelist_basicWithEpsID(randName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(rName, "policy_id", "huaweicloud_waf_policy.policy_1", "id"),
-					resource.TestCheckResourceAttrPair(rName, "domains.0", "huaweicloud_waf_dedicated_domain.domain_1", "domain"),
-					resource.TestCheckResourceAttr(rName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
-					resource.TestCheckResourceAttr(rName, "ignore_waf_protection", "xss;webshell"),
-					resource.TestCheckResourceAttr(rName, "status", "1"),
-					resource.TestCheckResourceAttr(rName, "conditions.0.field", "params"),
-					resource.TestCheckResourceAttr(rName, "conditions.0.logic", "contain"),
-					resource.TestCheckResourceAttr(rName, "conditions.0.content", "test content"),
-					resource.TestCheckResourceAttr(rName, "conditions.0.subfield", "test_subfield"),
-				),
-			},
-			{
-				ResourceName:      rName,
-				ImportState:       true,
-				ImportStateVerify: true,
-				ImportStateIdFunc: testWAFRuleImportState(rName),
-			},
-		},
-	})
-}
-
-func testRuleGlobalProtectionWhitelist_basic(randName string) string {
+func testDataSourceRuleGlobalProtectionWhitelist_basic(name, certificateBody string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_waf_rule_global_protection_whitelist" "test" {
-  policy_id             = huaweicloud_waf_policy.policy_1.id
-  domains               = [huaweicloud_waf_dedicated_domain.domain_1.domain]
+  policy_id             = huaweicloud_waf_policy.test.id
+  domains               = [huaweicloud_waf_dedicated_domain.test.domain]
   ignore_waf_protection = "xss;webshell"
   advanced_field        = "params"
   advanced_content      = "test_content"
   description           = "test description"
   status                = 0
+  enterprise_project_id = "%[2]s"
 
   conditions {
     field    = "params"
@@ -201,18 +158,19 @@ resource "huaweicloud_waf_rule_global_protection_whitelist" "test" {
     subfield = "x-forwarded-for"
   }
 }
-`, testAccWafDedicatedDomainV1_policy(randName))
+`, testAccWafDedicatedDomain_policy(name, certificateBody), acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
-func testRuleGlobalProtectionWhitelist_basic_update(randName string) string {
+func testDataSourceRuleGlobalProtectionWhitelist_basic_update(name, certificateBody string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_waf_rule_global_protection_whitelist" "test" {
-  policy_id             = huaweicloud_waf_policy.policy_1.id
+  policy_id             = huaweicloud_waf_policy.test.id
   domains               = []
   ignore_waf_protection = "030004;030006;030007"
   status                = 1
+  enterprise_project_id = "%[2]s"
 
   conditions {
     field    = "header"
@@ -227,25 +185,5 @@ resource "huaweicloud_waf_rule_global_protection_whitelist" "test" {
     content = "https://example.com"
   }
 }
-`, testAccWafDedicatedDomainV1_policy(randName))
-}
-
-func testRuleGlobalProtectionWhitelist_basicWithEpsID(randName, epsID string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_waf_rule_global_protection_whitelist" "test" {
-  policy_id             = huaweicloud_waf_policy.policy_1.id
-  domains               = [huaweicloud_waf_dedicated_domain.domain_1.domain]
-  enterprise_project_id = "%s"
-  ignore_waf_protection = "xss;webshell"
-
-  conditions {
-    field    = "params"
-    logic    = "contain"
-    content  = "test content"
-    subfield = "test_subfield"
-  }
-}
-`, testAccWafDedicatedDomainV1_policy_withEpsID(randName, epsID), epsID)
+`, testAccWafDedicatedDomain_policy(name, certificateBody), acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }

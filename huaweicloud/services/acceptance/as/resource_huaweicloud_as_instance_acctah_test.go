@@ -41,6 +41,8 @@ func getASInstanceAttachResourceFunc(cfg *config.Config, state *terraform.Resour
 	return nil, fmt.Errorf("can not find the instance %s in AS group %s", instanceID, groupID)
 }
 
+// The current test case does not have the test field `append_instance`, because testing this field may cause the
+// automatically added ECS instance resources to remain.
 func TestAccASInstanceAttach_basic(t *testing.T) {
 	var obj interface{}
 
@@ -59,30 +61,30 @@ func TestAccASInstanceAttach_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testASInstanceAttach_conf(name, "false", "false"),
+				Config: testASInstanceAttach_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "scaling_group_id", "huaweicloud_as_group.acc_as_group", "id"),
 					resource.TestCheckResourceAttrPair(rName, "instance_id", "huaweicloud_compute_instance.test.0", "id"),
-					resource.TestCheckResourceAttr(rName, "protected", "false"),
-					resource.TestCheckResourceAttr(rName, "standby", "false"),
-					resource.TestCheckResourceAttr(rName, "status", "INSERVICE"),
-				),
-			},
-			{
-				Config: testASInstanceAttach_conf(name, "true", "false"),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(rName, "protected", "true"),
-					resource.TestCheckResourceAttr(rName, "standby", "false"),
-					resource.TestCheckResourceAttr(rName, "status", "INSERVICE"),
-				),
-			},
-			{
-				Config: testASInstanceAttach_conf(name, "true", "true"),
-				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(rName, "protected", "true"),
 					resource.TestCheckResourceAttr(rName, "standby", "true"),
 					resource.TestCheckResourceAttr(rName, "status", "STANDBY"),
+				),
+			},
+			{
+				Config: testASInstanceAttach_step2(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(rName, "protected", "true"),
+					resource.TestCheckResourceAttr(rName, "standby", "false"),
+					resource.TestCheckResourceAttr(rName, "status", "INSERVICE"),
+				),
+			},
+			{
+				Config: testASInstanceAttach_step3(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(rName, "protected", "false"),
+					resource.TestCheckResourceAttr(rName, "standby", "false"),
+					resource.TestCheckResourceAttr(rName, "status", "INSERVICE"),
 				),
 			},
 			{
@@ -95,7 +97,7 @@ func TestAccASInstanceAttach_basic(t *testing.T) {
 	})
 }
 
-func testASInstanceAttach_conf(name, protection, standby string) string {
+func testASInstanceAttach_base(name string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -111,19 +113,66 @@ resource "huaweicloud_compute_instance" "test" {
     uuid = huaweicloud_vpc_subnet.test.id
   }
 }
+`, testASGroup_basic(name), name)
+}
+
+func testASInstanceAttach_step1(name string) string {
+	return fmt.Sprintf(`
+%s
 
 resource "huaweicloud_as_instance_attach" "test0" {
   scaling_group_id = huaweicloud_as_group.acc_as_group.id
   instance_id      = huaweicloud_compute_instance.test[0].id
-  protected        = %[3]s
-  standby          = %[4]s
+  protected        = true
+  standby          = true
 }
 
 resource "huaweicloud_as_instance_attach" "test1" {
   scaling_group_id = huaweicloud_as_group.acc_as_group.id
   instance_id      = huaweicloud_compute_instance.test[1].id
-  protected        = %[3]s
-  standby          = %[4]s
+  protected        = false
+  standby          = false
 }
-`, testASGroup_basic(name), name, protection, standby)
+`, testASInstanceAttach_base(name))
+}
+
+func testASInstanceAttach_step2(name string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_as_instance_attach" "test0" {
+  scaling_group_id = huaweicloud_as_group.acc_as_group.id
+  instance_id      = huaweicloud_compute_instance.test[0].id
+  protected        = true
+  standby          = false
+}
+
+resource "huaweicloud_as_instance_attach" "test1" {
+  scaling_group_id = huaweicloud_as_group.acc_as_group.id
+  instance_id      = huaweicloud_compute_instance.test[1].id
+  protected        = false
+  standby          = true
+}
+`, testASInstanceAttach_base(name))
+}
+
+func testASInstanceAttach_step3(name string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_as_instance_attach" "test0" {
+  scaling_group_id = huaweicloud_as_group.acc_as_group.id
+  instance_id      = huaweicloud_compute_instance.test[0].id
+  protected        = false
+  standby          = false
+}
+
+# When the instance status is standby, closing protected is not supported.
+resource "huaweicloud_as_instance_attach" "test1" {
+  scaling_group_id = huaweicloud_as_group.acc_as_group.id
+  instance_id      = huaweicloud_compute_instance.test[1].id
+  protected        = false
+  standby          = true
+}
+`, testASInstanceAttach_base(name))
 }

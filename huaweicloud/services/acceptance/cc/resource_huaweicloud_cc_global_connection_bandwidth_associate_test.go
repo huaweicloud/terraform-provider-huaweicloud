@@ -74,10 +74,18 @@ func TestAccGCBAssociate_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccGCBAssociate_update(name),
+				Config: testAccGCBAssociate_update_associate(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "gcb_binding_resources.#", "2"),
+					resource.TestCheckResourceAttrSet(rName, "gcb_id"),
+				),
+			},
+			{
+				Config: testAccGCBAssociate_update_disassociate(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "gcb_binding_resources.#", "1"),
 					resource.TestCheckResourceAttrSet(rName, "gcb_id"),
 				),
 			},
@@ -113,7 +121,7 @@ resource "huaweicloud_cc_global_connection_bandwidth_associate" test {
 `, testAccGCBAssociate_base(name), acceptance.HW_DEST_PROJECT_ID_TEST)
 }
 
-func testAccGCBAssociate_update(name string) string {
+func testAccGCBAssociate_update_associate(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -143,18 +151,41 @@ resource "huaweicloud_cc_global_connection_bandwidth_associate" test {
 `, testAccGCBAssociate_base(name), acceptance.HW_DEST_PROJECT_ID_TEST)
 }
 
+func testAccGCBAssociate_update_disassociate(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_cc_global_connection_bandwidth_associate" test {
+  depends_on = [
+    huaweicloud_cc_global_connection_bandwidth.test,
+    huaweicloud_global_eip_associate.test1,
+    huaweicloud_global_eip_associate.test2,
+  ]
+
+  gcb_id = huaweicloud_cc_global_connection_bandwidth.test.id
+
+  gcb_binding_resources {
+    resource_id   = huaweicloud_global_eip.test2.id
+    resource_type = "GEIP"
+    region_id     = "global"
+    project_id    = "%[2]s"
+  }
+}
+`, testAccGCBAssociate_base(name), acceptance.HW_DEST_PROJECT_ID_TEST)
+}
+
 func testAccGCBAssociate_base(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
 resource "huaweicloud_cc_global_connection_bandwidth" "test" {
-  name                  = "%[2]s"
-  type                  = "Region"  
-  bordercross           = false
-  charge_mode           = "bwd"
-  size                  = 300
-  description           = "test"
-  sla_level             = "Ag"
+  name        = "%[2]s"
+  type        = "Region"  
+  bordercross = false
+  charge_mode = "bwd"
+  size        = 300
+  description = "test"
+  sla_level   = "Ag"
 }
 `, testAccGCBAssociate_GEIP(name), name)
 }
@@ -165,15 +196,17 @@ func testAccGCBAssociate_GEIP(name string) string {
 
 %[2]s
 
-data "huaweicloud_global_eip_pools" "all" {}
+data "huaweicloud_global_eip_pools" "all" {
+  access_site = "cn-north-beijing"
+}
 
 resource "huaweicloud_global_internet_bandwidth" "test" {
-  access_site           = data.huaweicloud_global_eip_pools.all.geip_pools[0].access_site
-  charge_mode           = "95peak_guar"
-  size                  = 300
-  isp                   = data.huaweicloud_global_eip_pools.all.geip_pools[0].isp
-  name                  = "%[3]s"
-  type                  = data.huaweicloud_global_eip_pools.all.geip_pools[0].allowed_bandwidth_types[0].type  
+  access_site = data.huaweicloud_global_eip_pools.all.geip_pools[0].access_site
+  charge_mode = "95peak_guar"
+  size        = 300
+  isp         = data.huaweicloud_global_eip_pools.all.geip_pools[0].isp
+  name        = "%[3]s"
+  type        = data.huaweicloud_global_eip_pools.all.geip_pools[0].allowed_bandwidth_types[0].type  
 }
 
 resource "huaweicloud_global_eip" "test1" {

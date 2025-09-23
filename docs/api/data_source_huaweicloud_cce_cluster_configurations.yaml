@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_cce_cluster_configurations
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CCE
+paths:
+    /api/v3/projects/{project_id}/clusters/{cluster_id}/configuration/detail:
+        GET:
+            tag: CCE

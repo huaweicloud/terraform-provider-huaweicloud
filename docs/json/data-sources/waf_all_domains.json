@@ -1,0 +1,135 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_waf_all_domains": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID.",
+                "optional": true
+              },
+              "hostname": {
+                "type": "string",
+                "description": "Specifies the name of the domain.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_https": {
+                "type": "string",
+                "description": "Specifies whether HTTPS is used for the domain.",
+                "optional": true
+              },
+              "items": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "access_code": "string",
+                      "access_progress": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "status": "number",
+                            "step": "number"
+                          }
+                        ]
+                      ],
+                      "access_status": "number",
+                      "description": "string",
+                      "enterprise_project_id": "string",
+                      "flag": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "cname": "string",
+                            "ipv6": "string",
+                            "is_dual_az": "string",
+                            "pci_3ds": "string",
+                            "pci_dss": "string"
+                          }
+                        ]
+                      ],
+                      "hostname": "string",
+                      "id": "string",
+                      "paid_type": "string",
+                      "policyid": "string",
+                      "premium_waf_instances": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "accessed": "bool",
+                            "id": "string",
+                            "name": "string"
+                          }
+                        ]
+                      ],
+                      "protect_status": "number",
+                      "proxy": "bool",
+                      "region": "string",
+                      "server": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "address": "string",
+                            "back_protocol": "string",
+                            "front_protocol": "string",
+                            "port": "number",
+                            "type": "string",
+                            "vpc_id": "string",
+                            "weight": "number"
+                          }
+                        ]
+                      ],
+                      "timestamp": "number",
+                      "waf_type": "string",
+                      "web_tag": "string"
+                    }
+                  ]
+                ],
+                "description": "The details about the protected domain.",
+                "computed": true
+              },
+              "policyname": {
+                "type": "string",
+                "description": "Specifies the name of the policy.",
+                "optional": true
+              },
+              "protect_status": {
+                "type": "number",
+                "description": "Specifies the protection status of the domain.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "waf_type": {
+                "type": "string",
+                "description": "Specifies the WAF mode of the domain.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "WAF",
+            "name": "Web Application Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "Web应用防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"log"
-	"regexp"
 	"strings"
 	"time"
 
@@ -12,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
@@ -41,6 +39,8 @@ func ResourceTopic() *schema.Resource {
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 
+		CustomizeDiff: config.MergeDefaultTags(),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
@@ -52,17 +52,10 @@ func ResourceTopic() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[A-Za-z0-9][\w-]*$`),
-						"The name must start with a letter or digit, and can only contain "+
-							"letters, digits, underscores (_), and hyphens (-)."),
-					validation.StringLenBetween(1, 255),
-				),
 			},
 			"display_name": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringLenBetween(0, 192),
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
@@ -396,9 +389,9 @@ func resourceTopicDelete(ctx context.Context, d *schema.ResourceData, meta inter
 		return diag.Errorf("error creating SMN client: %s", err)
 	}
 
-	result := topics.Delete(client, d.Id())
-	if result.Err != nil {
-		return diag.Errorf("error deleting SMN topic: %s", result.Err)
+	err = topics.Delete(client, d.Id()).ExtractErr()
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, "error deleting SMN topic")
 	}
 
 	stateConf := &resource.StateChangeConf{

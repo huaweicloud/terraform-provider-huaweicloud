@@ -12,88 +12,76 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/evs"
 )
 
-func TestAccEvsSnapshotV2_basic(t *testing.T) {
-	var snapshot snapshots.Snapshot
+func getSnapshotResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	var (
+		region  = acceptance.HW_REGION_NAME
+		product = "evs"
+	)
 
-	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	resourceName := "huaweicloud_evs_snapshot.test"
+	client, err := conf.NewServiceClient(product, region)
+	if err != nil {
+		return nil, fmt.Errorf("error creating EVS client: %s", err)
+	}
+
+	return evs.GetSnapshotDetail(client, state.Primary.ID)
+}
+
+func TestAccEvsSnapshot_basic(t *testing.T) {
+	var (
+		snapshot     snapshots.Snapshot
+		rName        = fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+		resourceName = "huaweicloud_evs_snapshot.test"
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&snapshot,
+		getSnapshotResourceFunc,
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckEvsSnapshotV2Destroy,
+		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccEvsSnapshotV2_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckEvsSnapshotV2Exists(resourceName, &snapshot),
+					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "description", "Daily backup"),
 					resource.TestCheckResourceAttr(resourceName, "status", "available"),
 					resource.TestCheckResourceAttr(resourceName, "metadata.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "metadata.key", "value"),
+					resource.TestCheckResourceAttrSet(resourceName, "size"),
+					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
+					resource.TestCheckResourceAttrSet(resourceName, "updated_at"),
 				),
+			},
+			{
+				Config: testAccEvsSnapshotV2_update(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", fmt.Sprintf("%s-update", rName)),
+					resource.TestCheckResourceAttr(resourceName, "description", "Daily backup update"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"metadata", "force",
+				},
 			},
 		},
 	})
 }
 
-func testAccCheckEvsSnapshotV2Destroy(s *terraform.State) error {
-	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
-	evsClient, err := cfg.BlockStorageV2Client(acceptance.HW_REGION_NAME)
-	if err != nil {
-		return fmt.Errorf("error creating EVS storage client: %s", err)
-	}
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "huaweicloud_evs_snapshot" {
-			continue
-		}
-
-		_, err := snapshots.Get(evsClient, rs.Primary.ID).Extract()
-		if err == nil {
-			return fmt.Errorf("EVS snapshot still exists")
-		}
-	}
-
-	return nil
-}
-
-func testAccCheckEvsSnapshotV2Exists(n string, sp *snapshots.Snapshot) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("not found: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("no ID is set")
-		}
-
-		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
-		evsClient, err := cfg.BlockStorageV2Client(acceptance.HW_REGION_NAME)
-		if err != nil {
-			return fmt.Errorf("error creating EVS storage client: %s", err)
-		}
-
-		found, err := snapshots.Get(evsClient, rs.Primary.ID).Extract()
-		if err != nil {
-			return err
-		}
-
-		if found.ID != rs.Primary.ID {
-			return fmt.Errorf("EVS snapshot not found")
-		}
-
-		*sp = *found
-
-		return nil
-	}
-}
-
-func testAccEvsSnapshotV2_basic(rName string) string {
+func testAccEvsSnapshotV2_base(rName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_availability_zones" "test" {}
 
@@ -104,15 +92,37 @@ resource "huaweicloud_evs_volume" "test" {
   volume_type       = "SAS"
   size              = 12
 }
+`, rName)
+}
+
+func testAccEvsSnapshotV2_basic(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
 
 resource "huaweicloud_evs_snapshot" "test" {
   volume_id   = huaweicloud_evs_volume.test.id
-  name        = "%s"
+  name        = "%[2]s"
   description = "Daily backup"
   metadata    = {
     foo = "bar"
     key = "value"
   }
 }
-`, rName, rName)
+`, testAccEvsSnapshotV2_base(rName), rName)
+}
+
+func testAccEvsSnapshotV2_update(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_evs_snapshot" "test" {
+  volume_id   = huaweicloud_evs_volume.test.id
+  name        = "%[2]s-update"
+  description = "Daily backup update"
+  metadata    = {
+    foo = "bar"
+    key = "value"
+  }
+}
+`, testAccEvsSnapshotV2_base(rName), rName)
 }

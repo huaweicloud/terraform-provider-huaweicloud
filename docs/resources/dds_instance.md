@@ -18,7 +18,7 @@ resource "huaweicloud_dds_instance" "instance" {
   name = "dds-instance"
   datastore {
     type           = "DDS-Community"
-    version        = "3.4"
+    version        = "4.0"
     storage_engine = "wiredTiger"
   }
 
@@ -66,7 +66,7 @@ resource "huaweicloud_dds_instance" "instance" {
   name = "dds-instance"
   datastore {
     type           = "DDS-Community"
-    version        = "3.4"
+    version        = "4.0"
     storage_engine = "wiredTiger"
   }
 
@@ -198,11 +198,11 @@ The `datastore` block supports:
 * `type` - (Required, String, ForceNew) Specifies the DB engine. **DDS-Community** is supported.
 
 * `version` - (Required, String, ForceNew) Specifies the DB instance version. For the Community Edition, the valid
-  values are `3.2`, `3.4`, `4.0`, `4.2`, or `4.4`.
+  values are `4.0`, `4.2`, `4.4` or `5.0`.
 
 * `storage_engine` - (Optional, String, ForceNew) Specifies the storage engine of the DB instance.
-  If `version` is set to `3.2`, `3.4`, or `4.0`, the value is **wiredTiger**.
-  If `version` is set to `4.2`, or `4.4`, the value is **rocksDB**.
+  If `version` is set to `4.0`, the value is **wiredTiger**.
+  If `version` is set to `4.2`, `4.4` or `5.0`, the value is **rocksDB**.
 
 The `configuration` block supports:
 
@@ -223,13 +223,13 @@ The `flavor` block supports:
 
 * `num` - (Required, Int) Specifies the node quantity. Valid value:
   + If the value of type is **mongos**, num indicates the number of mongos nodes in the cluster instance. Value ranges
-    from **2** to **16**.
+    from `2` to `16`.
   + If the value of type is **shard**, num indicates the number of shard groups in the cluster instance. Value ranges
-    from **2** to **16**.
+    from `2` to `16`.
   + If the value of type is **config**, num indicates the number of config groups in the cluster instance. Value can
-    only be **1**.
+    only be `1`.
   + If the value of type is **replica**, num indicates the number of replica nodes in the replica set instance. Value
-    can be **3**, **5**, or **7**.
+    can be `3`, `5`, or `7`.
 
   This parameter can be updated when the value of `type` is **mongos**, **shard** or **replica**.
 
@@ -239,10 +239,10 @@ The `flavor` block supports:
 
   This parameter is valid for the shard and config nodes of a cluster instance and for replica set instances.
 
-* `size` - (Optional, Int) Specifies the disk size. The value must be a multiple of **10**. The unit is GB. This parameter
+* `size` - (Optional, Int) Specifies the disk size. The value must be a multiple of `10`. The unit is GB. This parameter
   is mandatory for nodes except mongos and invalid for mongos.For a cluster instance, the storage space of a shard node
-  can be **10** to **2,000** GB, and the config storage space is **20** GB. For a replica set instance, the value ranges
-  from **10** to **3000** GB. This parameter can be updated when the value of `type` is shard or replica.
+  can be `10` to `2,000` GB, and the config storage space is `20` GB. For a replica set instance, the value ranges
+  from `10` to `3000` GB. This parameter can be updated when the value of `type` is shard or replica.
 
 * `spec_code` - (Required, String) Specifies the resource specification code. In a cluster instance, multiple
   specifications need to be specified. All specifications must be of the same series, that is, general-purpose (s6),
@@ -331,7 +331,7 @@ It is generally recommended running `terraform plan` after importing an instance
 You can then decide if changes should be applied to the instance, or the resource definition should be updated to
 align with the instance. Also you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_dds_instance" "instance" {
     ...
 

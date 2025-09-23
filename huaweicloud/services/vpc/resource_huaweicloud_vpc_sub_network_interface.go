@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -147,12 +146,12 @@ func resourceSubNetworkInterfaceCreate(ctx context.Context, d *schema.ResourceDa
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("sub_network_interface.id", createcreateSubNetworkInterfaceRespBody)
-	if err != nil || id == nil {
+	id := utils.PathSearch("sub_network_interface.id", createcreateSubNetworkInterfaceRespBody, "").(string)
+	if id == "" {
 		return diag.Errorf("error creating supplementary network interface: %s is not found in API response", id)
 	}
 
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	return resourceSubNetworkInterfaceRead(ctx, d, meta)
 }

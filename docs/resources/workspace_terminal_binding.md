@@ -71,7 +71,7 @@ The `bindings` block supports:
 
 Bindings can be imported using the resource `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_workspace_terminal_binding.test <id>
 ```
 

@@ -3,15 +3,15 @@ package hss
 import (
 	"context"
 	"fmt"
+	"strings"
+	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
-
-	hssv5 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/hss/v5"
-	hssv5model "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/hss/v5/model"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -19,13 +19,14 @@ import (
 )
 
 const (
-	QueryAllEpsValue        string = "all_granted_eps"
-	protectionVersionNull   string = "hss.version.null"
-	hostAgentStatusOnline   string = "online"
-	chargingModePacketCycle string = "packet_cycle"
-	chargingModeOnDemand    string = "on_demand"
-	chargingModePrePaid     string = "prePaid"
-	chargingModePostPaid    string = "postPaid"
+	QueryAllEpsValue              string = "all_granted_eps"
+	protectionVersionNull         string = "hss.version.null"
+	hostAgentStatusOnline         string = "online"
+	chargingModePacketCycle       string = "packet_cycle"
+	chargingModeOnDemand          string = "on_demand"
+	chargingModePrePaid           string = "prePaid"
+	chargingModePostPaid          string = "postPaid"
+	getProtectionHostNeedRetryMsg string = "The host cannot be found temporarily, please try again later."
 )
 
 // @API HSS GET /v5/{project_id}/host-management/hosts
@@ -39,6 +40,10 @@ func ResourceHostProtection() *schema.Resource {
 
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceHostProtectionImportState,
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(30 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -65,9 +70,14 @@ func ResourceHostProtection() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"is_wait_host_available": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ForceNew: true,
 			},
 			// Attributes
@@ -115,28 +125,48 @@ func ResourceHostProtection() *schema.Resource {
 	}
 }
 
-func checkHostAvailable(client *hssv5.HssClient, region, epsId, hostId string) error {
-	request := hssv5model.ListHostStatusRequest{
-		Region:              &region,
-		EnterpriseProjectId: utils.StringIgnoreEmpty(epsId),
-		HostId:              utils.String(hostId),
+func buildProtectionHostQueryParams(epsId, hostId string) string {
+	// When calling the query API, if the enterprise project ID is not set, all enterprise projects will be queried.
+	if epsId == "" {
+		epsId = QueryAllEpsValue
 	}
 
-	resp, err := client.ListHostStatus(&request)
+	return fmt.Sprintf("?enterprise_project_id=%v&host_id=%v", epsId, hostId)
+}
+
+func getProtectionHost(client *golangsdk.ServiceClient, epsId, hostId string) (interface{}, error) {
+	getPath := client.Endpoint + "v5/{project_id}/host-management/hosts"
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath += buildProtectionHostQueryParams(epsId, hostId)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return fmt.Errorf("error querying HSS hosts: %s", err)
+		return nil, fmt.Errorf("error retrieving HSS host, %s", err)
 	}
 
-	if resp == nil || resp.DataList == nil {
-		return fmt.Errorf("the host (%s) for HSS host protection does not exist", hostId)
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return nil, err
 	}
 
-	hostList := *resp.DataList
-	if len(hostList) == 0 {
-		return fmt.Errorf("the host (%s) does not exist", hostId)
+	hostResp := utils.PathSearch("data_list[0]", getRespBody, nil)
+	if hostResp == nil {
+		return nil, fmt.Errorf("%s", getProtectionHostNeedRetryMsg)
 	}
 
-	agentStatus := *hostList[0].AgentStatus
+	return hostResp, nil
+}
+
+func checkHostAvailable(client *golangsdk.ServiceClient, epsId, hostId string) error {
+	host, err := getProtectionHost(client, epsId, hostId)
+	if err != nil {
+		return err
+	}
+
+	agentStatus := utils.PathSearch("agent_status", host, "").(string)
 	if agentStatus != hostAgentStatusOnline {
 		return fmt.Errorf("the host anget status for HSS protection must be: %s,"+
 			" but the current host (%s) agent status is: %s ", hostAgentStatusOnline, hostId, agentStatus)
@@ -156,63 +186,118 @@ func convertChargingModeRequest(chargingMode string) string {
 	}
 }
 
-func closeHostProtection(client *hssv5.HssClient, region, epsId, hostId string) error {
-	closeOpts := hssv5model.SwitchHostsProtectStatusRequest{
-		Region:              region,
-		EnterpriseProjectId: utils.StringIgnoreEmpty(epsId),
-		Body: &hssv5model.SwitchHostsProtectStatusRequestInfo{
-			Version:    protectionVersionNull,
-			HostIdList: []string{hostId},
-		},
+func buildSwitchHostProtectionQueryParams(epsId string) string {
+	queryParams := ""
+	if epsId != "" {
+		return fmt.Sprintf("?enterprise_project_id=%v", epsId)
 	}
 
-	_, err := client.SwitchHostsProtectStatus(&closeOpts)
+	return queryParams
+}
+
+func buildCloseHostProtectionBodyParams(hostId string) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"version":      protectionVersionNull,
+		"host_id_list": []string{hostId},
+	}
+	return bodyParams
+}
+
+func closeHostProtection(client *golangsdk.ServiceClient, region, epsId, hostId string) error {
+	requestPath := client.Endpoint + "v5/{project_id}/host-management/protection"
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath += buildSwitchHostProtectionQueryParams(epsId)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"region": region},
+		JSONBody:         buildCloseHostProtectionBodyParams(hostId),
+	}
+
+	_, err := client.Request("POST", requestPath, &requestOpt)
 
 	return err
 }
 
-func switchHostsProtectStatus(client *hssv5.HssClient, region, epsId, hostId string, d *schema.ResourceData) error {
-	var (
-		version      = d.Get("version").(string)
-		chargingMode = d.Get("charging_mode").(string)
-		quotaId      = d.Get("quota_id").(string)
-	)
+func buildSwitchHostProtectionStatusBodyParams(d *schema.ResourceData, hostId string) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"version":       d.Get("version").(string),
+		"charging_mode": convertChargingModeRequest(d.Get("charging_mode").(string)),
+		"resource_id":   utils.StringIgnoreEmpty(d.Get("quota_id").(string)),
+		"host_id_list":  []string{hostId},
+	}
+	return bodyParams
+}
 
-	switchOpts := hssv5model.SwitchHostsProtectStatusRequest{
-		Region:              region,
-		EnterpriseProjectId: utils.StringIgnoreEmpty(epsId),
-		Body: &hssv5model.SwitchHostsProtectStatusRequestInfo{
-			Version:      version,
-			ChargingMode: utils.String(convertChargingModeRequest(chargingMode)),
-			ResourceId:   utils.StringIgnoreEmpty(quotaId),
-			HostIdList:   []string{hostId},
+func switchHostProtectionStatus(client *golangsdk.ServiceClient, d *schema.ResourceData, region, epsId, hostId string) error {
+	requestPath := client.Endpoint + "v5/{project_id}/host-management/protection"
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath += buildSwitchHostProtectionQueryParams(epsId)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"region": region},
+		JSONBody:         buildSwitchHostProtectionStatusBodyParams(d, hostId),
+	}
+
+	_, err := client.Request("POST", requestPath, &requestOpt)
+
+	return err
+}
+
+func waitingForHostAvailable(ctx context.Context, client *golangsdk.ServiceClient, epsId, hostId string,
+	timeout time.Duration) error {
+	stateConf := &resource.StateChangeConf{
+		Pending: []string{"PENDING"},
+		Target:  []string{"COMPLETED"},
+		Refresh: func() (interface{}, string, error) {
+			host, err := getProtectionHost(client, epsId, hostId)
+			if err != nil {
+				if err.Error() == getProtectionHostNeedRetryMsg {
+					return nil, "PENDING", nil
+				}
+
+				return nil, "ERROR", err
+			}
+
+			agentStatus := utils.PathSearch("agent_status", host, "").(string)
+			if agentStatus == hostAgentStatusOnline {
+				return host, "COMPLETED", nil
+			}
+
+			return host, "PENDING", nil
 		},
+		Timeout:      timeout,
+		Delay:        20 * time.Second,
+		PollInterval: 20 * time.Second,
 	}
 
-	_, err := client.SwitchHostsProtectStatus(&switchOpts)
-	if err != nil {
-		return err
-	}
+	_, err := stateConf.WaitForStateContext(ctx)
 
-	return nil
+	return err
 }
 
 func resourceHostProtectionCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg    = meta.(*config.Config)
-		region = cfg.GetRegion(d)
-		epsId  = cfg.GetEnterpriseProjectID(d)
-		hostId = d.Get("host_id").(string)
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		epsId   = cfg.GetEnterpriseProjectID(d)
+		hostId  = d.Get("host_id").(string)
+		product = "hss"
 	)
 
-	client, err := cfg.HcHssV5Client(region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating HSS v5 client: %s", err)
+		return diag.Errorf("error creating HSS client: %s", err)
 	}
 
-	checkHostAvailableErr := checkHostAvailable(client, region, epsId, hostId)
-	if checkHostAvailableErr != nil {
-		return diag.FromErr(checkHostAvailableErr)
+	if d.Get("is_wait_host_available").(bool) {
+		if err := waitingForHostAvailable(ctx, client, epsId, hostId, d.Timeout(schema.TimeoutCreate)); err != nil {
+			return diag.Errorf("error waiting for host (%s) agent status to become online: %s", hostId, err)
+		}
+	} else {
+		checkHostAvailableErr := checkHostAvailable(client, epsId, hostId)
+		if checkHostAvailableErr != nil {
+			return diag.FromErr(checkHostAvailableErr)
+		}
 	}
 
 	// Due to API limitations, when switching host protection for the first time, protection needs to be closed first.
@@ -222,7 +307,7 @@ func resourceHostProtectionCreate(ctx context.Context, d *schema.ResourceData, m
 			hostId, err)
 	}
 
-	err = switchHostsProtectStatus(client, region, epsId, hostId, d)
+	err = switchHostProtectionStatus(client, d, region, epsId, hostId)
 	if err != nil {
 		return diag.Errorf("error opening HSS host (%s) protection: %s", hostId, err)
 	}
@@ -234,93 +319,90 @@ func resourceHostProtectionCreate(ctx context.Context, d *schema.ResourceData, m
 
 func resourceHostProtectionRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg    = meta.(*config.Config)
-		region = cfg.GetRegion(d)
-		id     = d.Id()
-		epsId  = cfg.GetEnterpriseProjectID(d)
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		id      = d.Id()
+		epsId   = cfg.GetEnterpriseProjectID(d, QueryAllEpsValue)
+		product = "hss"
 	)
 
-	client, err := cfg.HcHssV5Client(region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating HSS v5 client: %s", err)
+		return diag.Errorf("error creating HSS client: %s", err)
 	}
 
-	// If the enterprise project ID is not set during query, query all enterprise projects.
-	if epsId == "" {
-		epsId = QueryAllEpsValue
-	}
-	listHostOpts := hssv5model.ListHostStatusRequest{
-		Region:              &region,
-		EnterpriseProjectId: utils.String(epsId),
-		HostId:              utils.String(id),
+	getPath := client.Endpoint + "v5/{project_id}/host-management/hosts"
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath += buildProtectionHostQueryParams(epsId, id)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
 
-	resp, err := client.ListHostStatus(&listHostOpts)
+	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return diag.Errorf("error querying HSS hosts: %s", err)
+		return diag.Errorf("error retrieving HSS host, %s", err)
 	}
 
-	if resp == nil || resp.DataList == nil {
-		return diag.Errorf("the host (%s) for HSS host protection does not exist", id)
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
-	hostList := *resp.DataList
-	if len(hostList) == 0 || utils.StringValue(hostList[0].ProtectStatus) == string(ProtectStatusClosed) {
+	hostResp := utils.PathSearch("data_list[0]", getRespBody, nil)
+	protectStatus := utils.PathSearch("protect_status", hostResp, "").(string)
+	if hostResp == nil || protectStatus == string(ProtectStatusClosed) {
 		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "HSS host protection")
 	}
 
-	host := hostList[0]
+	openTime := utils.PathSearch("open_time", hostResp, float64(0)).(float64)
+
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("host_id", host.HostId),
-		d.Set("version", host.Version),
-		d.Set("charging_mode", convertChargingMode(host.ChargingMode)),
-		d.Set("enterprise_project_id", host.EnterpriseProjectId),
-		d.Set("host_name", host.HostName),
-		d.Set("host_status", host.HostStatus),
-		d.Set("private_ip", host.PrivateIp),
-		d.Set("agent_id", host.AgentId),
-		d.Set("agent_status", host.AgentStatus),
-		d.Set("os_type", host.OsType),
-		d.Set("status", host.ProtectStatus),
-		d.Set("detect_result", host.DetectResult),
-		d.Set("asset_value", host.AssetValue),
-		d.Set("open_time", convertOpenTime(host.OpenTime)),
+		d.Set("host_id", utils.PathSearch("host_id", hostResp, nil)),
+		d.Set("version", utils.PathSearch("version", hostResp, nil)),
+		d.Set("charging_mode", flattenChargingMode(utils.PathSearch("charging_mode", hostResp, "").(string))),
+		d.Set("enterprise_project_id", utils.PathSearch("enterprise_project_id", hostResp, nil)),
+		d.Set("host_name", utils.PathSearch("host_name", hostResp, nil)),
+		d.Set("host_status", utils.PathSearch("host_status", hostResp, nil)),
+		d.Set("private_ip", utils.PathSearch("private_ip", hostResp, nil)),
+		d.Set("agent_id", utils.PathSearch("agent_id", hostResp, nil)),
+		d.Set("agent_status", utils.PathSearch("agent_status", hostResp, nil)),
+		d.Set("os_type", utils.PathSearch("os_type", hostResp, nil)),
+		d.Set("status", utils.PathSearch("protect_status", hostResp, nil)),
+		d.Set("detect_result", utils.PathSearch("detect_result", hostResp, nil)),
+		d.Set("asset_value", utils.PathSearch("asset_value", hostResp, nil)),
+		d.Set("open_time", utils.FormatTimeStampRFC3339(int64(openTime)/1000, false)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func convertChargingMode(chargingMode *string) string {
-	if utils.StringValue(chargingMode) == chargingModePacketCycle {
+func flattenChargingMode(chargingMode string) string {
+	switch chargingMode {
+	case chargingModePacketCycle:
 		return chargingModePrePaid
-	}
-
-	return chargingModePostPaid
-}
-
-func convertOpenTime(openTime *int64) string {
-	if openTime == nil {
+	case chargingModeOnDemand:
+		return chargingModePostPaid
+	default:
 		return ""
 	}
-
-	return utils.FormatTimeStampRFC3339(*openTime/1000, false)
 }
 
 func resourceHostProtectionUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg    = meta.(*config.Config)
-		region = cfg.GetRegion(d)
-		epsId  = cfg.GetEnterpriseProjectID(d)
-		id     = d.Id()
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		epsId   = cfg.GetEnterpriseProjectID(d)
+		id      = d.Id()
+		product = "hss"
 	)
 
-	client, err := cfg.HcHssV5Client(region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating HSS v5 client: %s", err)
+		return diag.Errorf("error creating HSS client: %s", err)
 	}
 
-	checkHostAvailableErr := checkHostAvailable(client, region, epsId, id)
+	checkHostAvailableErr := checkHostAvailable(client, epsId, id)
 	if checkHostAvailableErr != nil {
 		return diag.FromErr(checkHostAvailableErr)
 	}
@@ -333,7 +415,7 @@ func resourceHostProtectionUpdate(ctx context.Context, d *schema.ResourceData, m
 				id, err)
 		}
 
-		err = switchHostsProtectStatus(client, region, epsId, id, d)
+		err = switchHostProtectionStatus(client, d, region, epsId, id)
 		if err != nil {
 			return diag.Errorf("error updating HSS host (%s) protection: %s", id, err)
 		}
@@ -344,19 +426,25 @@ func resourceHostProtectionUpdate(ctx context.Context, d *schema.ResourceData, m
 
 func resourceHostProtectionDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg    = meta.(*config.Config)
-		region = cfg.GetRegion(d)
-		epsId  = cfg.GetEnterpriseProjectID(d)
-		id     = d.Id()
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		epsId   = cfg.GetEnterpriseProjectID(d)
+		id      = d.Id()
+		product = "hss"
 	)
 
-	client, err := cfg.HcHssV5Client(region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating HSS v5 client: %s", err)
+		return diag.Errorf("error creating HSS client: %s", err)
 	}
 
 	err = closeHostProtection(client, region, epsId, id)
 	if err != nil {
+		// Repeatedly closing host protection, API will not report errors.
+		// If the host does not exist, closing host protection will result in an error as follows:
+		// {"error_code": "00000010","error_description": "拒绝访问"}
+		// The API documentation does not provide any explanatory information about this error,
+		// so the logic of checkDeleted is not added.
 		return diag.Errorf("error closing HSS host (%s) protection: %s", id, err)
 	}
 
@@ -366,17 +454,19 @@ func resourceHostProtectionDelete(_ context.Context, d *schema.ResourceData, met
 func resourceHostProtectionImportState(_ context.Context, d *schema.ResourceData, meta interface{}) (
 	[]*schema.ResourceData, error) {
 	var (
-		cfg    = meta.(*config.Config)
-		region = cfg.GetRegion(d)
-		id     = d.Id()
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		id      = d.Id()
+		epsId   = cfg.GetEnterpriseProjectID(d, QueryAllEpsValue)
+		product = "hss"
 	)
 
-	client, err := cfg.HcHssV5Client(region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return []*schema.ResourceData{d}, fmt.Errorf("error creating HSS v5 client: %s", err)
+		return []*schema.ResourceData{d}, fmt.Errorf("error creating HSS client: %s", err)
 	}
 
-	checkHostAvailableErr := checkHostAvailable(client, region, QueryAllEpsValue, id)
+	checkHostAvailableErr := checkHostAvailable(client, epsId, id)
 
 	return []*schema.ResourceData{d}, checkHostAvailableErr
 }

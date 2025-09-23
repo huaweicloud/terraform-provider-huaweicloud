@@ -1,0 +1,112 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_ces_event_details": {
+          "block": {
+            "attributes": {
+              "event_info": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "detail": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "content": "string",
+                            "dimensions": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "name": "string",
+                                  "value": "string"
+                                }
+                              ]
+                            ],
+                            "event_level": "string",
+                            "event_state": "string",
+                            "event_type": "string",
+                            "event_user": "string",
+                            "group_id": "string",
+                            "resource_id": "string",
+                            "resource_name": "string"
+                          }
+                        ]
+                      ],
+                      "event_id": "string",
+                      "event_name": "string",
+                      "event_source": "string",
+                      "time": "string"
+                    }
+                  ]
+                ],
+                "description": "The event information.",
+                "computed": true
+              },
+              "from": {
+                "type": "string",
+                "description": "Specifies the start time of the query.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "level": {
+                "type": "string",
+                "description": "Specifies the event severity.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the event name.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "source": {
+                "type": "string",
+                "description": "Specifies the event source.",
+                "optional": true
+              },
+              "state": {
+                "type": "string",
+                "description": "Specifies the event status.",
+                "optional": true
+              },
+              "to": {
+                "type": "string",
+                "description": "Specifies the end time of the query.",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the event type.",
+                "required": true
+              },
+              "user": {
+                "type": "string",
+                "description": "Specifies the name of the user for reporting event monitoring data.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CES",
+            "name": "Cloud Eye",
+            "catalog": "Management & Governance",
+            "name_cn": "云监控服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

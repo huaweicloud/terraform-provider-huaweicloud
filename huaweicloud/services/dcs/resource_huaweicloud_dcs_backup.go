@@ -16,7 +16,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -159,17 +158,17 @@ func resourceDcsBackupCreate(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("backup_id", createBackupRespBody)
-	if err != nil {
-		return diag.Errorf("error creating DCS backup: backup_id is not found in API response")
+	backupId := utils.PathSearch("backup_id", createBackupRespBody, "").(string)
+	if backupId == "" {
+		return diag.Errorf("unable to find the DCS backup ID from the API response")
 	}
 
-	d.SetId(instanceId + "/" + id.(string))
+	d.SetId(instanceId + "/" + backupId)
 
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"waiting", "backuping"},
 		Target:       []string{"succeed"},
-		Refresh:      dcsBackupStatusRefreshFunc(instanceId, id.(string), createBackupClient),
+		Refresh:      dcsBackupStatusRefreshFunc(instanceId, backupId, createBackupClient),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        10 * time.Second,
 		PollInterval: 10 * time.Second,
@@ -177,7 +176,7 @@ func resourceDcsBackupCreate(ctx context.Context, d *schema.ResourceData, meta i
 
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return diag.Errorf("error waiting for backup (%s) to become ready: %s", id.(string), err)
+		return diag.Errorf("error waiting for backup (%s) to become ready: %s", backupId, err)
 	}
 
 	return resourceDcsBackupRead(ctx, d, meta)
@@ -215,14 +214,7 @@ func resourceDcsBackupRead(_ context.Context, d *schema.ResourceData, meta inter
 	backupID := parts[1]
 	backup, err := getDcsBackup(instanceID, backupID, getBackupClient)
 	if err != nil {
-		return diag.FromErr(err)
-	}
-	if backup == nil {
-		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
-	}
-	status := utils.PathSearch("status", backup, "")
-	if status == "deleted" {
-		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
+		return common.CheckDeletedDiag(d, err, "")
 	}
 
 	mErr = multierror.Append(
@@ -287,7 +279,9 @@ func resourceDcsBackupDelete(ctx context.Context, d *schema.ResourceData, meta i
 		return nil
 	})
 	if err != nil {
-		return diag.Errorf("error deleting DCS backup: %s", err)
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error_code", "DCS.4031"),
+			"error deleting DCS backup")
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -311,6 +305,9 @@ func dcsBackupStatusRefreshFunc(instanceId, backupId string, client *golangsdk.S
 	return func() (interface{}, string, error) {
 		backup, err := getDcsBackup(instanceId, backupId, client)
 		if err != nil {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
+				return "", "deleted", nil
+			}
 			return nil, "", err
 		}
 		status := utils.PathSearch("status", backup, "")
@@ -330,6 +327,7 @@ func getDcsBackup(instanceID, backupID string, client *golangsdk.ServiceClient) 
 
 	getDdmSchemasOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		OkCodes:          []int{200, 204},
 	}
 
 	var currentTotal int
@@ -339,26 +337,24 @@ func getDcsBackup(instanceID, backupID string, client *golangsdk.ServiceClient) 
 		getBackupPath = getBackupBasePath + buildGetDcsBackupQueryParams(currentTotal)
 		getBackupResp, err := client.Request("GET", getBackupPath, &getDdmSchemasOpt)
 		if err != nil {
-			return nil, fmt.Errorf("error retrieving DCS backups: %s", err)
+			return nil, err
 		}
 		getBackupRespBody, err := utils.FlattenResponse(getBackupResp)
 		if err != nil {
 			return "", err
 		}
 		backups := utils.PathSearch("backup_record_response", getBackupRespBody, make([]interface{}, 0)).([]interface{})
-		total := utils.PathSearch("total_num", getBackupRespBody, 0)
-		for _, backup := range backups {
-			id := utils.PathSearch("backup_id", backup, "")
-			if backupID == id {
-				return backup, nil
-			}
+		total := utils.PathSearch("total_num", getBackupRespBody, float64(0))
+		backup := utils.PathSearch(fmt.Sprintf("[?backup_id=='%s']|[0]", backupID), backups, nil)
+		if backup != nil {
+			return backup, nil
 		}
 		currentTotal += len(backups)
 		if currentTotal >= int(total.(float64)) {
 			break
 		}
 	}
-	return nil, fmt.Errorf("error get DCS backup by backup_id (%s)", backupID)
+	return nil, golangsdk.ErrDefault404{}
 }
 
 func buildGetDcsBackupQueryParams(offset int) string {

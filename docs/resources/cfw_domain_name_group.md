@@ -2,7 +2,8 @@
 subcategory: "Cloud Firewall (CFW)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_cfw_domain_name_group"
-description: ""
+description: |-
+  Manages a CFW domain name group resource within HuaweiCloud.
 ---
 
 # huaweicloud_cfw_domain_name_group
@@ -49,8 +50,8 @@ The following arguments are supported:
 
 * `type` - (Required, Int, ForceNew) Specifies the type of the domain name group.
   The value can be:
-  + **0**: means URL filtering;
-  + **1**: means domain parse;
+  + **0**: means application type;
+  + **1**: means network type;
 
   Changing this parameter will create a new resource.
 

@@ -5,6 +5,11 @@
         "huaweicloud_as_bandwidth_policy": {
           "block": {
             "attributes": {
+              "action": {
+                "type": "string",
+                "description": "Specifies identification of operation the AS bandwidth policy.",
+                "optional": true
+              },
               "alarm_id": {
                 "type": "string",
                 "description": "Specifies the alarm rule ID.",
@@ -22,6 +27,11 @@
                 "optional": true,
                 "computed": true
               },
+              "create_time": {
+                "type": "string",
+                "description": "The creation time of the bandwidth policy.",
+                "computed": true
+              },
               "description": {
                 "type": "string",
                 "description": "Specifies the description of the AS policy.",
@@ -30,6 +40,21 @@
               },
               "id": {
                 "type": "string",
+                "computed": true
+              },
+              "meta_data": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "metadata_bandwidth_share_type": "string",
+                      "metadata_eip_address": "string",
+                      "metadata_eip_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The bandwidth policy additional information.",
                 "computed": true
               },
               "region": {
@@ -58,6 +83,44 @@
               }
             },
             "block_types": {
+              "interval_alarm_actions": {
+                "block": {
+                  "attributes": {
+                    "limits": {
+                      "type": "number",
+                      "description": "Specifies the operation restrictions.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "lower_bound": {
+                      "type": "string",
+                      "description": "Specifies the lower limit of the value range.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "operation": {
+                      "type": "string",
+                      "description": "Specifies the operation to be performed.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "size": {
+                      "type": "number",
+                      "description": "Specifies the operation size.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "upper_bound": {
+                      "type": "string",
+                      "description": "Specifies the upper limit of the value range.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "Specifies the alarm interval of the bandwidth policy."
+                },
+                "nesting_mode": "set"
+              },
               "scaling_policy_action": {
                 "block": {
                   "attributes": {

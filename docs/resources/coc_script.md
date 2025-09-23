@@ -52,8 +52,33 @@ The following arguments are supported:
 * `content` - (Required, String) Specifies the content of the script.
   The value can consist of up to 4096 characters.
 
+* `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID. The default value is **0**.
+
+* `reviewers` - (Optional, List) Specifies the reviewers of the script.
+  If left blank, no approval is required. The [reviewers](#block--reviewers) structure is documented below.
+
+* `protocol` - (Optional, String) Specifies the approval message notification protocol, used to notify reviewers.
+  Values can be as follows:
+  + **DEFAULT**: Default.
+  + **SMS**: SMS.
+  + **EMAIL**: Email.
+  + **DING_TALK**: DingTalk.
+  + **WE_LINK**: WeLink.
+  + **WECHAT**: WeChat.
+  + **CALLNOTIFY**: Language.
+  + **NOT_TO_NOTIFY**: Do not notify.
+
 * `parameters` - (Optional, List) Specifies the input parameters of the script.
   Up to 20 script parameters can be added. The [parameters](#block--parameters) structure is documented below.
+
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the script.
+
+<a name="block--reviewers"></a>
+The `reviewers` block supports:
+
+* `reviewer_name` - (Required, String) Specifies the name of the reviewer.
+
+* `reviewer_id` - (Required, String) Specifies the ID of the reviewer.
 
 <a name="block--parameters"></a>
 The `parameters` block supports:
@@ -81,4 +106,23 @@ The COC script can be imported using `id`, e.g.
 
 ```bash
 $ terraform import huaweicloud_coc_script.test <id>
+```
+
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
+API response, security or some other reason.
+The missing attributes include: `protocol`.
+It is generally recommended running `terraform plan` after importing a script.
+You can then decide if changes should be applied to the script, or the resource definition should be updated to align
+with the script. Also you can ignore changes as below.
+
+```hcl
+resource "huaweicloud_coc_script" "test" {
+    ...
+
+  lifecycle {
+    ignore_changes = [
+      protocol
+    ]
+  }
+}
 ```

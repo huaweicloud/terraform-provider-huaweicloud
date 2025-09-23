@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"net/http"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -19,25 +20,22 @@ import (
 )
 
 // @API CCM GET /v1/private-certificates/{certificate_id}/export
-func DataSourceCcmPrivateCertificateExport() *schema.Resource {
+func DataSourcePrivateCertificateExport() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: ccmPrivateCertificateExport,
+		ReadContext: privateCertificateExport,
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 			},
 			"certificate_id": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"type": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"sm_standard": {
 				Type:     schema.TypeString,
@@ -90,73 +88,25 @@ func DataSourceCcmPrivateCertificateExport() *schema.Resource {
 		},
 	}
 }
-func ccmPrivateCertificateExport(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	product := "ccm"
 
-	client, err := cfg.NewServiceClient(product, cfg.GetRegion(d))
-	if err != nil {
-		return diag.Errorf("error creating CCM client: %s", err)
+// whetherCompressed Return true to obtain the compressed file of the certificate, and return false to obtain the
+// certificate content in json format.
+// Obtain the compressed file of the certificate because the certificate structure of `TOMCAT` and `IIS` types is not defined.
+func whetherCompressed(serverType string) bool {
+	if serverType == "IIS" || serverType == "TOMCAT" {
+		return true
 	}
+	return false
+}
 
-	certId := d.Get("certificate_id").(string)
-	expCertificateHttpUrl := "v1/private-certificates/{certificate_id}/export"
-	expCertificatePath := client.Endpoint + expCertificateHttpUrl
-	expCertificatePath = strings.ReplaceAll(expCertificatePath, "{certificate_id}", certId)
-
-	expCertificateOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+func buildExpCertificateBodyParams(d *schema.ResourceData, serverType string, isCompressed bool) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"is_compressed":  isCompressed,
+		"type":           serverType,
+		"is_sm_standard": d.Get("sm_standard"),
+		"password":       d.Get("password"),
 	}
-	// get the server type, iis and tomcat export zip certificate file
-	serverType := d.Get("type").(string)
-	isCompressed := false
-	if strings.ToUpper(serverType) == "IIS" || strings.ToUpper(serverType) == "TOMCAT" {
-		isCompressed = true
-	}
-	expCertificateOpt.JSONBody = utils.RemoveNil(buildExpCertificateBodyParams(d, serverType, isCompressed))
-	expCertificateResp, err := client.Request("POST", expCertificatePath, &expCertificateOpt)
-	if err != nil {
-		return diag.Errorf("error export CCM private certificate: %s", err)
-	}
-	d.SetId(certId)
-
-	if isCompressed {
-		// save certificate file from file stream
-		data, err := io.ReadAll(expCertificateResp.Body)
-		if err != nil {
-			return diag.Errorf("error reading response certificate: %s", err)
-		}
-		zipReader, err := zip.NewReader(bytes.NewReader(data), int64(len(data)))
-		if err != nil {
-			return diag.Errorf("error reading zip certificate: %s", err)
-		}
-		for _, f := range zipReader.File {
-			err := saveCertificateFromZipFile(f, d)
-			if err != nil {
-				return diag.Errorf("error reading unzip certificate: %s", err)
-			}
-		}
-	} else {
-		expCertificateRespBody, err := utils.FlattenResponse(expCertificateResp)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		// save certificate file from json
-		mErr := multierror.Append(nil,
-			d.Set("private_key", utils.PathSearch("private_key", expCertificateRespBody, nil)),
-			d.Set("certificate", utils.PathSearch("certificate", expCertificateRespBody, nil)),
-			d.Set("certificate_chain", utils.PathSearch("certificate_chain", expCertificateRespBody, nil)),
-			d.Set("enc_private_key", utils.PathSearch("enc_private_key", expCertificateRespBody, nil)),
-			d.Set("enc_certificate", utils.PathSearch("enc_certificate", expCertificateRespBody, nil)),
-			d.Set("enc_sm2_enveloped_key", utils.PathSearch("enc_sm2_enveloped_key", expCertificateRespBody, nil)),
-			d.Set("signed_and_enveloped_data", utils.PathSearch("signed_and_enveloped_data", expCertificateRespBody, nil)),
-		)
-		if err := mErr.ErrorOrNil(); err != nil {
-			return diag.Errorf("error setting CCM private certificate export fields: %s", err)
-		}
-	}
-	return nil
+	return bodyParams
 }
 
 func saveCertificateFromZipFile(f *zip.File, d *schema.ResourceData) error {
@@ -183,12 +133,76 @@ func saveCertificateFromZipFile(f *zip.File, d *schema.ResourceData) error {
 	return mErr.ErrorOrNil()
 }
 
-func buildExpCertificateBodyParams(d *schema.ResourceData, serverType string, isCompressed bool) map[string]interface{} {
-	bodyParams := map[string]interface{}{
-		"is_compressed":  isCompressed,
-		"type":           serverType,
-		"is_sm_standard": d.Get("sm_standard"),
-		"password":       d.Get("password"),
+func handleCompressedCertificateResponse(d *schema.ResourceData, expCertificateResp *http.Response) diag.Diagnostics {
+	data, err := io.ReadAll(expCertificateResp.Body)
+	if err != nil {
+		return diag.Errorf("error reading response certificate: %s", err)
 	}
-	return bodyParams
+	zipReader, err := zip.NewReader(bytes.NewReader(data), int64(len(data)))
+	if err != nil {
+		return diag.Errorf("error reading zip certificate: %s", err)
+	}
+	for _, f := range zipReader.File {
+		err := saveCertificateFromZipFile(f, d)
+		if err != nil {
+			return diag.Errorf("error saving unzip certificate: %s", err)
+		}
+	}
+	return nil
+}
+
+func handleJSONCertificateResponse(d *schema.ResourceData, expCertificateResp *http.Response) diag.Diagnostics {
+	expCertificateRespBody, err := utils.FlattenResponse(expCertificateResp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	mErr := multierror.Append(nil,
+		d.Set("private_key", utils.PathSearch("private_key", expCertificateRespBody, nil)),
+		d.Set("certificate", utils.PathSearch("certificate", expCertificateRespBody, nil)),
+		d.Set("certificate_chain", utils.PathSearch("certificate_chain", expCertificateRespBody, nil)),
+		d.Set("enc_private_key", utils.PathSearch("enc_private_key", expCertificateRespBody, nil)),
+		d.Set("enc_certificate", utils.PathSearch("enc_certificate", expCertificateRespBody, nil)),
+		d.Set("enc_sm2_enveloped_key", utils.PathSearch("enc_sm2_enveloped_key", expCertificateRespBody, nil)),
+		d.Set("signed_and_enveloped_data", utils.PathSearch("signed_and_enveloped_data", expCertificateRespBody, nil)),
+	)
+
+	if err := mErr.ErrorOrNil(); err != nil {
+		return diag.Errorf("error setting CCM private certificate export fields: %s", err)
+	}
+	return nil
+}
+
+func privateCertificateExport(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg                   = meta.(*config.Config)
+		product               = "ccm"
+		expCertificateHttpUrl = "v1/private-certificates/{certificate_id}/export"
+		certId                = d.Get("certificate_id").(string)
+		serverType            = d.Get("type").(string)
+		isCompressed          = whetherCompressed(serverType)
+	)
+
+	client, err := cfg.NewServiceClient(product, cfg.GetRegion(d))
+	if err != nil {
+		return diag.Errorf("error creating CCM client: %s", err)
+	}
+
+	expCertificatePath := client.Endpoint + expCertificateHttpUrl
+	expCertificatePath = strings.ReplaceAll(expCertificatePath, "{certificate_id}", certId)
+	expCertificateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	expCertificateOpt.JSONBody = utils.RemoveNil(buildExpCertificateBodyParams(d, serverType, isCompressed))
+	expCertificateResp, err := client.Request("POST", expCertificatePath, &expCertificateOpt)
+	if err != nil {
+		return diag.Errorf("error exporting CCM private certificate: %s", err)
+	}
+	d.SetId(certId)
+
+	if isCompressed {
+		return handleCompressedCertificateResponse(d, expCertificateResp)
+	}
+	return handleJSONCertificateResponse(d, expCertificateResp)
 }

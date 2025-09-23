@@ -12,6 +12,7 @@
                     "object",
                     {
                       "created_at": "string",
+                      "enterprise_project_id": "string",
                       "id": "string",
                       "name": "string",
                       "tags": [

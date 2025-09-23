@@ -2,6 +2,7 @@ package waf
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"regexp"
@@ -15,7 +16,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 	"github.com/chnsz/golangsdk/openstack/waf/v1/clouds"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -300,7 +300,7 @@ func analysisSpecCode(specCode string) (string, error) {
 	// The right length of the string match is two, first is the match result of the regex string,
 	// second is the match result of the regex group.
 	if len(result) < 2 {
-		return "", fmt.Errorf("invalid specification code, want 'waf.xxx' or 'waf.xxx.xxx', but '%s'.", specCode)
+		return "", fmt.Errorf("invalid specification code, want 'waf.xxx' or 'waf.xxx.xxx', but '%s'", specCode)
 	}
 	return result[1], nil
 }
@@ -382,7 +382,7 @@ func resourceCloudInstanceRead(_ context.Context, d *schema.ResourceData, meta i
 	}
 
 	if err = mErr.ErrorOrNil(); err != nil {
-		return diag.Errorf("error saving cluod WAF fields: %s", err)
+		return diag.Errorf("error saving cloud WAF fields: %s", err)
 	}
 	return nil
 }
@@ -530,13 +530,13 @@ func resourceCloudInstanceUpdate(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	if d.HasChange("enterprise_project_id") {
-		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+		migrateOpts := config.MigrateResourceOpts{
 			ResourceId:   instanceId,
 			ResourceType: "waf",
 			RegionId:     region,
 			ProjectId:    wafClient.ProjectID,
 		}
-		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
+		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -546,10 +546,10 @@ func resourceCloudInstanceUpdate(ctx context.Context, d *schema.ResourceData, me
 
 func cloudInstanceDeleteRefreshFunc(client *golangsdk.ServiceClient, instanceId, epsId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		var unprotectedHostId string = ""
 		resp, _, err := QueryCloudInstance(client, instanceId, epsId)
-		if _, ok := err.(golangsdk.ErrDefault404); ok {
-			return unprotectedHostId, "DELETED", nil
+		var errDefault404 golangsdk.ErrDefault404
+		if errors.As(err, &errDefault404) {
+			return "success_deleted", "DELETED", nil
 		}
 		return resp, "PENDING", nil
 	}
@@ -579,7 +579,13 @@ func resourceCloudInstanceDelete(ctx context.Context, d *schema.ResourceData, me
 	instanceId := d.Id()
 	err = common.UnsubscribePrePaidResource(d, cfg, []string{instanceId})
 	if err != nil {
-		return diag.Errorf("error unsubscribing cloud WAF: %s", err)
+		// When the resource does not exist, the API for unsubscribing prePaid resource will return a `400` status code,
+		// and the response body is as follows:
+		// {"error_code": "CBC.30000067",
+		// "error_msg": "Unsubscription not supported. This resource has been deleted or the subscription to this resource has
+		// not been synchronized to ..."}
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", "CBC.30000067"),
+			"error unsubscribing WAF cloud instance")
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -592,7 +598,7 @@ func resourceCloudInstanceDelete(ctx context.Context, d *schema.ResourceData, me
 	}
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return diag.Errorf("error waiting to delete the postpaid cloud WAF (%s): %s", instanceId, err)
+		return diag.Errorf("error waiting to delete the prepaid cloud WAF (%s): %s", instanceId, err)
 	}
 	return nil
 }

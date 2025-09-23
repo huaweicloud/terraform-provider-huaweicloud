@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_rms_policy_assignment_evaluate_result_update
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: Config
+paths:
+    /v1/resource-manager/domains/{domain_id}/policy-states:
+        PUT:
+            tag: Config

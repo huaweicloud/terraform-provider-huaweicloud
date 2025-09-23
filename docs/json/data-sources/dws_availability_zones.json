@@ -1,0 +1,46 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dws_availability_zones": {
+          "block": {
+            "attributes": {
+              "availability_zones": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "display_name": "string",
+                      "name": "string",
+                      "public_border_group": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "description": "All availability zones that match the filter parameters.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DWS",
+            "name": "Data Warehouse Service",
+            "catalog": "Analytics",
+            "name_cn": "数据仓库服务",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

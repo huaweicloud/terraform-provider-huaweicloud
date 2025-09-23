@@ -2,7 +2,8 @@
 subcategory: "GaussDB"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_gaussdb_opengauss_instance"
-description: ""
+description: |-
+  GaussDB OpenGauss instance management within HuaweiCould.
 ---
 
 # huaweicloud_gaussdb_opengauss_instance
@@ -11,7 +12,7 @@ GaussDB OpenGauss instance management within HuaweiCould.
 
 ## Example Usage
 
-### Create a instance for distributed HA mode
+### Create an instance for distributed HA mode
 
 ```hcl
 variable "vpc_id" {}
@@ -47,7 +48,7 @@ resource "huaweicloud_gaussdb_opengauss_instance" "test" {
 }
 ```
 
-### Create a instance for centralized HA mode
+### Create an instance for centralized HA mode
 
 ```hcl
 variable "instance_name" {}
@@ -92,8 +93,7 @@ The following arguments are supported:
   The value must be `4` to `64` characters in length and start with a letter. It is case-sensitive and can contain only
   letters, digits, hyphens (-), and underscores (_).
 
-* `flavor` - (Required, String, ForceNew) Specifies the instance specifications. Please reference the API docs for valid
-  options. Changing this parameter will create a new resource.
+* `flavor` - (Required, String) Specifies the instance specifications.
 
 * `password` - (Required, String) Specifies the database password. The value must be `8` to `32` characters in length,
   including uppercase and lowercase letters, digits, and special characters, such as **~!@#%^*-_=+?**. You are advised
@@ -135,33 +135,66 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `configuration_id` - (Optional, String, ForceNew) Specifies the parameter template ID.
+* `configuration_id` - (Optional, String) Specifies the parameter template ID.
   Changing this parameter will create a new resource.
 
-* `sharding_num` - (Optional, Int) Specifies the sharding number. The valid value is range form `1` to `9`.
-  The default value is 3.
+* `sharding_num` - (Optional, Int) Specifies the sharding number.  
+  The valid value is range form `1` to `9`.
 
-* `coordinator_num` - (Optional, Int) Specifies the coordinator number. Values: 1~9. The default value is 3.
+* `coordinator_num` - (Optional, Int) Specifies the coordinator number.  
+  The valid value is range form `1` to `9`.
   The value must not be greater than twice value of `sharding_num`.
 
-* `replica_num` - (Optional, Int, ForceNew) The replica number. The valid values are **2** and **3**, defaults to **3**.
+* `replica_num` - (Optional, Int, ForceNew) The replica number. The valid values are `2` and `3`.
   Double replicas are only available for specific users and supports only instance versions are v1.3.0 or later.
   Changing this parameter will create a new resource.
 
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID.
 
-* `time_zone` - (Optional, String, ForceNew) Specifies the time zone. Defaults to **UTC+08:00**.
+* `time_zone` - (Optional, String, ForceNew) Specifies the time zone.
   Changing this parameter will create a new resource.
+
+* `disk_encryption_id` - (Optional, String, ForceNew) Specifies the key ID for disk encryption.
+  Changing this parameter will create a new resource.
+
+* `enable_force_switch` - (Optional, Bool, ForceNew) Specifies whether to forcibly promote a standby node to primary.
+  Defaults to **false**. Changing this parameter will create a new resource.
+
+* `enable_single_float_ip` - (Optional, Bool, ForceNew) Specifies whether to enable single floating IP address policy,
+  which is only suitable for primary/standby instances. Value options:
+  + **true**: This function is enabled. Only one floating IP address is bound to the primary node of a DB instance. If a
+    primary/standby fail over occurs, the floating IP address does not change.
+  + **false (default value)**: The function is disabled. Each node is bound to a floating IP address. If a primary/standby
+    fail over occurs, the floating IP addresses change.
+
+  Changing this parameter will create a new resource.
+
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the GaussDB OpenGauss instance.
 
 * `force_import` - (Optional, Bool) Specifies whether to import the instance with the given configuration instead of
   creation. If specified, try to import the instance instead of creation if the instance already existed.
 
 * `datastore` - (Optional, List, ForceNew) Specifies the datastore information.
-  The [object](#opengauss_datastore) structure is documented below.
+  The [datastore](#opengauss_datastore) structure is documented below.
   Changing this parameter will create a new resource.
 
 * `backup_strategy` - (Optional, List) Specifies the advanced backup policy.
-  The [object](#opengauss_backup_strategy) structure is documented below.
+  The [backup_strategy](#opengauss_backup_strategy) structure is documented below.
+
+* `parameters` - (Optional, List) Specifies an array of one or more parameters to be set to the instance after launched.
+  The [parameters](#parameters_struct) structure is documented below.
+
+* `mysql_compatibility_port` - (Optional, String) Specifies the port for MySQL compatibility. Value range: **0** or
+  **1024** to **39989**.
+  + The following ports are used by the system and cannot be used: **2378**, **2379**, **2380**, **2400**, **4999**,
+    **5000**, **5001**, **5100**, **5500**, **5999**, **6000**, **6001**, **6009**, **6010**, **6500**, **8015**, **8097**,
+    **8098**, **8181**, **9090**, **9100**, **9180**, **9187**, **9200**, **12016**, **12017**, **20049**, **20050**,
+    **21731**, **21732**, **32122**, **32123**, **32124**, **32125**, **32126**, **39001**,
+    **[Database port, Database port + 10]**.
+  + If the value is **0**, the MySQL compatibility port is disabled.
+
+* `advance_features` - (Optional, List) Specifies the advanced features.
+  The [advance_features](#advance_features_struct) structure is documented below.
 
 * `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of opengauss instance.
   The valid values are as follows:
@@ -186,7 +219,7 @@ The following arguments are supported:
 <a name="opengauss_ha"></a>
 The `ha` block supports:
 
-* `mode` - (Required, String, ForceNew) Specifies the database mode.
+* `mode` - (Required, String, ForceNew) Specifies the deployment model.
   The valid values are **enterprise** and **centralization_standard**.
   Changing this parameter will create a new resource.
 
@@ -194,7 +227,14 @@ The `ha` block supports:
   Only **sync** is supported now. Changing this parameter will create a new resource.
 
 * `consistency` - (Optional, String, ForceNew) Specifies the database consistency mode.
-  The valid values are **strong** and **eventual**, not case sensitive.
+  The valid values are **strong** and **eventual**, not case-sensitive.
+  Changing this parameter will create a new resource.
+
+* `instance_mode` - (Optional, String, ForceNew) Specifies the product type of the instance. Value options:
+  + **enterprise**: The instance of the enterprise edition will be created.
+  + **basic**: The instance of the basic edition will be created.
+  + **ecology**: The instance of the ecosystem edition will be created.
+
   Changing this parameter will create a new resource.
 
 <a name="opengauss_volume"></a>
@@ -226,6 +266,20 @@ The `backup_strategy` block supports:
   `0` to `732`. If this parameter is set to `0`, the automated backup policy is not set.
   If this parameter is not transferred, the automated backup policy is enabled by default.
 
+<a name="parameters_struct"></a>
+The `parameters` block supports:
+
+* `name` - (Required, String) Specifies the name of the parameter.
+
+* `value` - (Required, String) Specifies the value of the parameter.
+
+<a name="advance_features_struct"></a>
+The `advance_features` block supports:
+
+* `name` - (Required, String) Specifies the name of the advance feature.
+
+* `value` - (Required, String) Specifies the value of the advance feature.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -246,6 +300,12 @@ In addition to all arguments above, the following attributes are exported:
 
 * `switch_strategy` - Indicates the switch strategy.
 
+* `balance_status` - Indicates whether the host load is balanced due to a primary/standby switchover.
+
+* `error_log_switch_status` - Indicates whether error log collection is enabled. The value can be:
+  + **ON**: enabled
+  + **OFF**: disabled
+
 * `maintenance_window` - Indicates the maintenance window.
 
 * `nodes` - Indicates the instance nodes information. Structure is documented below.
@@ -264,18 +324,42 @@ The `nodes` block contains:
 
 * `availability_zone` - Indicates the availability zone of the node.
 
+* `private_ip` - Indicates the private IP address of the node.
+
+* `public_ip` - Indicates the EIP that has been bound.
+
 ## Timeouts
 
 This resource provides the following timeouts configuration options:
 
 * `create` - Default is 120 minutes.
-* `update` - Default is 90 minutes.
+* `update` - Default is 150 minutes.
 * `delete` - Default is 45 minutes.
 
 ## Import
 
 OpenGaussDB instance can be imported using the `id`, e.g.
 
+```bash
+$ terraform import huaweicloud_gaussdb_opengauss_instance.test <id>
 ```
-$ terraform import huaweicloud_gaussdb_opengauss_instance.test 1f2c4f48adea4ae684c8edd8818fa349in14
+
+Note that the imported state may not be identical to your resource definition, due to the attribute missing from the
+API response. The missing attributes include: `password`, `ha.0.mode`, `ha.0.instance_mode`, `configuration_id`,
+`disk_encryption_id`, `enable_force_switch`, `enable_single_float_ip`, `parameters`, `period_unit`, `period` and
+`auto_renew`. It is generally recommended running `terraform plan` after importing a GaussDB OpenGauss instance. You can
+then decide if changes should be applied to the GaussDB OpenGauss instance, or the resource definition should be updated
+to align with the GaussDB OpenGauss instance. Also you can ignore changes as below.
+
+```hcl
+resource "huaweicloud_gaussdb_opengauss_instance" "test" {
+  ...
+
+  lifecycle {
+    ignore_changes = [
+      password, configuration_id, disk_encryption_id, enable_force_switch, enable_single_float_ip, parameters, period_unit,
+      period, auto_renew,
+    ]
+  }
+}
 ```

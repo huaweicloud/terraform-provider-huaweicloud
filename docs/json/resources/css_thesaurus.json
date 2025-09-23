@@ -21,7 +21,8 @@
               },
               "main_object": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "region": {
                 "type": "string",
@@ -33,11 +34,13 @@
               },
               "stop_object": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "synonym_object": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "update_time": {
                 "type": "string",

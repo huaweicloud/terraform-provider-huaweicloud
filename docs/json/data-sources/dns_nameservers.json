@@ -34,14 +34,19 @@
                 "description": "All name servers that match the filter parameters.",
                 "computed": true
               },
+              "region": {
+                "type": "string",
+                "description": "The region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
               "server_region": {
                 "type": "string",
-                "description": "Specifies the region to which the name server belongs.",
+                "description": "The region to which the name server belongs.",
                 "optional": true
               },
               "type": {
                 "type": "string",
-                "description": "Specifies the type of the name server.",
+                "description": "The type of the name server.",
                 "optional": true
               }
             }
@@ -49,9 +54,9 @@
           "product": {
             "short": "DNS",
             "name": "Domain Name Service",
-            "catalog": "Business Applications",
+            "catalog": "Networking",
             "name_cn": "云解析服务",
-            "catalog_cn": "企业应用"
+            "catalog_cn": "网络"
           }
         }
       }

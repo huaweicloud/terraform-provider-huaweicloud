@@ -1,0 +1,53 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_eg_quotas": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "quotas": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "max": "number",
+                      "min": "number",
+                      "name": "string",
+                      "quota": "number",
+                      "type": "string",
+                      "used": "number"
+                    }
+                  ]
+                ],
+                "description": "The list of resource quotas that matched filter parameters.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region in which to query the resource.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The quota of the resource type to be queried.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "EG",
+            "name": "EventGrid",
+            "catalog": "Middleware",
+            "name_cn": "事件网格",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

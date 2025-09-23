@@ -16,7 +16,7 @@ Use this data source to get the list of CFW protection rules.
 variable "object_id" {}
 variable "name" {}
 
-resource "huaweicloud_cfw_protection_rules" "test" {
+data "huaweicloud_cfw_protection_rules" "test" {
   object_id = var.object_id
   name      = var.name
 }

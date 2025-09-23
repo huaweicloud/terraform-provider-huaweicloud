@@ -2,6 +2,7 @@ package identitycenter
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -31,6 +32,32 @@ func TestAccDatasourceIdentityCenterUsers_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "users.0.given_name"),
 					resource.TestCheckResourceAttrSet(rName, "users.0.display_name"),
 					resource.TestCheckResourceAttrSet(rName, "users.0.email"),
+					resource.TestCheckResourceAttrSet(rName, "users.0.phone_number"),
+					resource.TestCheckResourceAttrSet(rName, "users.0.user_type"),
+					resource.TestCheckResourceAttrSet(rName, "users.0.title"),
+					resource.TestCheckResourceAttrSet(rName, "users.0.addresses.#"),
+					resource.TestCheckResourceAttrSet(rName, "users.0.addresses.0.country"),
+					resource.TestCheckResourceAttrSet(rName, "users.0.addresses.0.formatted"),
+					resource.TestCheckResourceAttrSet(rName, "users.0.addresses.0.locality"),
+					resource.TestCheckResourceAttrSet(rName, "users.0.addresses.0.postal_code"),
+					resource.TestCheckResourceAttrSet(rName, "users.0.addresses.0.region"),
+					resource.TestCheckResourceAttrSet(rName, "users.0.addresses.0.street_address"),
+					resource.TestCheckResourceAttrSet(rName, "users.0.enterprise.#"),
+					resource.TestCheckResourceAttrSet(rName, "users.0.enterprise.0.cost_center"),
+					resource.TestCheckResourceAttrSet(rName, "users.0.enterprise.0.department"),
+					resource.TestCheckResourceAttrSet(rName, "users.0.enterprise.0.division"),
+					resource.TestCheckResourceAttrSet(rName, "users.0.enterprise.0.employee_number"),
+					resource.TestCheckResourceAttrSet(rName, "users.0.enterprise.0.organization"),
+					resource.TestCheckResourceAttrSet(rName, "users.0.enterprise.0.manager"),
+					resource.TestMatchResourceAttr(rName, "users.0.created_at",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
+					resource.TestMatchResourceAttr(rName, "users.0.updated_at",
+						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
+					resource.TestCheckResourceAttrSet(rName, "created_by"),
+					resource.TestCheckResourceAttrSet(rName, "users.0.updated_by"),
+					resource.TestCheckResourceAttrSet(rName, "users.0.email_verified"),
+					resource.TestCheckResourceAttrSet(rName, "users.0.enabled"),
+
 					resource.TestCheckOutput("user_name_filter_is_useful", "true"),
 					resource.TestCheckOutput("family_name_filter_is_useful", "true"),
 					resource.TestCheckOutput("given_name_filter_is_useful", "true"),

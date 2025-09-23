@@ -16,9 +16,8 @@ import (
 )
 
 func getImsImageShareResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	region := acceptance.HW_REGION_NAME
-	// getImage: Query IMS image
 	var (
+		region          = acceptance.HW_REGION_NAME
 		getImageHttpUrl = "v2/cloudimages"
 		getImageProduct = "ims"
 	)
@@ -41,7 +40,7 @@ func getImsImageShareResourceFunc(cfg *config.Config, state *terraform.ResourceS
 	}
 	getImageResp, err := getImageClient.Request("GET", getImagePath, &getImageOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving IMS image: %s", err)
+		return nil, fmt.Errorf("error retrieving IMS shared images: %s", err)
 	}
 
 	getImageRespBody, err := utils.FlattenResponse(getImageResp)
@@ -51,10 +50,10 @@ func getImsImageShareResourceFunc(cfg *config.Config, state *terraform.ResourceS
 
 	images := utils.PathSearch("images", getImageRespBody, nil)
 	if images == nil || len(images.([]interface{})) == 0 {
-		return nil, fmt.Errorf("error get IMS share image")
+		return nil, golangsdk.ErrDefault404{}
 	}
 
-	return make(map[string]interface{}), nil
+	return images, nil
 }
 
 func buildGetImageQueryParams(id string) string {
@@ -78,9 +77,9 @@ func TestAccImsImageShare_basic(t *testing.T) {
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
-			acceptance.TestAccPreCheckReplication(t)
-			acceptance.TestAccPreCheckProjectId(t)
 			acceptance.TestAccPreCheck(t)
+			// This test case requires setting the target project_id for image sharing in the same region.
+			acceptance.TestAccPreCheckDestProjectIds(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
@@ -90,7 +89,7 @@ func TestAccImsImageShare_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "source_image_id",
-						"huaweicloud_images_image.test", "id"),
+						"huaweicloud_ims_ecs_system_image.test", "id"),
 				),
 			},
 			{
@@ -98,7 +97,7 @@ func TestAccImsImageShare_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "source_image_id",
-						"huaweicloud_images_image.test", "id"),
+						"huaweicloud_ims_ecs_system_image.test", "id"),
 				),
 			},
 		},
@@ -110,10 +109,10 @@ func testImsImageShare_basic(imageName string) string {
 %[1]s
 
 resource "huaweicloud_images_image_share" "test" {
- source_image_id    = huaweicloud_images_image.test.id
+ source_image_id    = huaweicloud_ims_ecs_system_image.test.id
  target_project_ids = ["%[2]s"]
 }
-`, testAccImsImage_basic(imageName), acceptance.HW_DEST_PROJECT_ID)
+`, testAccEcsSystemImage_basic(imageName), acceptance.HW_DEST_PROJECT_ID)
 }
 
 func testImsImageShare_update(imageName string) string {
@@ -121,8 +120,8 @@ func testImsImageShare_update(imageName string) string {
 %s
 
 resource "huaweicloud_images_image_share" "test" {
- source_image_id    = huaweicloud_images_image.test.id
+ source_image_id    = huaweicloud_ims_ecs_system_image.test.id
  target_project_ids = ["%[2]s"]
 }
-`, testAccImsImage_basic(imageName), acceptance.HW_DEST_PROJECT_ID_TEST)
+`, testAccEcsSystemImage_basic(imageName), acceptance.HW_DEST_PROJECT_ID_TEST)
 }

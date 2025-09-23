@@ -8,6 +8,9 @@ host: huaweicloud.com
 tags:
     - name: GaussDBforMySQL
 paths:
+    /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrat:
+        POST:
+            tag: EPS
     /v2/orders/customer-orders/details/{order_id}:
         GET:
             tag: BSS
@@ -21,6 +24,9 @@ paths:
             tag: BSS
     /v3/{project_id}/configurations:
         GET:
+            tag: GaussDBforMySQL
+    /v3/{project_id}/configurations/{configuration_id}/apply:
+        PUT:
             tag: GaussDBforMySQL
     /v3/{project_id}/dedicated-resources:
         GET:
@@ -44,7 +50,41 @@ paths:
     /v3/{project_id}/instances/{instance_id}/action:
         POST:
             tag: GaussDBforMySQL
+    /v3/{project_id}/instances/{instance_id}/alias:
+        PUT:
+            tag: GaussDBforMySQL
+    /v3/{project_id}/instances/{instance_id}/auto-scaling/policy:
+        GET:
+            tag: GaussDBforMySQL
+        PUT:
+            tag: GaussDBforMySQL
+    /v3/{project_id}/instances/{instance_id}/backups/encryption:
+        GET:
+            tag: GaussDBforMySQL
+        POST:
+            tag: GaussDBforMySQL
     /v3/{project_id}/instances/{instance_id}/backups/policy/update:
+        PUT:
+            tag: GaussDBforMySQL
+    /v3/{project_id}/instances/{instance_id}/configurations:
+        GET:
+            tag: GaussDBforMySQL
+        PUT:
+            tag: GaussDBforMySQL
+    /v3/{project_id}/instances/{instance_id}/database-version:
+        GET:
+            tag: GaussDBforMySQL
+    /v3/{project_id}/instances/{instance_id}/dns:
+        POST:
+            tag: GaussDBforMySQL
+        PUT:
+            tag: GaussDBforMySQL
+    /v3/{project_id}/instances/{instance_id}/internal-ip:
+        PUT:
+            tag: GaussDBforMySQL
+    /v3/{project_id}/instances/{instance_id}/monitor-policy:
+        GET:
+            tag: GaussDBforMySQL
         PUT:
             tag: GaussDBforMySQL
     /v3/{project_id}/instances/{instance_id}/name:
@@ -56,8 +96,14 @@ paths:
     /v3/{project_id}/instances/{instance_id}/nodes/enlarge:
         POST:
             tag: GaussDBforMySQL
+    /v3/{project_id}/instances/{instance_id}/ops-window:
+        PUT:
+            tag: GaussDBforMySQL
     /v3/{project_id}/instances/{instance_id}/password:
         POST:
+            tag: GaussDBforMySQL
+    /v3/{project_id}/instances/{instance_id}/port:
+        PUT:
             tag: GaussDBforMySQL
     /v3/{project_id}/instances/{instance_id}/proxy:
         DELETE:
@@ -69,10 +115,25 @@ paths:
     /v3/{project_id}/instances/{instance_id}/proxy/enlarge:
         POST:
             tag: GaussDBforMySQL
+    /v3/{project_id}/instances/{instance_id}/restart:
+        POST:
+            tag: GaussDBforMySQL
+    /v3/{project_id}/instances/{instance_id}/security-group:
+        PUT:
+            tag: GaussDBforMySQL
+    /v3/{project_id}/instances/{instance_id}/slowlog/modify:
+        POST:
+            tag: GaussDBforMySQL
+    /v3/{project_id}/instances/{instance_id}/slowlog/query:
+        GET:
+            tag: GaussDBforMySQL
     /v3/{project_id}/instances/{instance_id}/sql-filter/switch:
         GET:
             tag: GaussDBforMySQL
         POST:
+            tag: GaussDBforMySQL
+    /v3/{project_id}/instances/{instance_id}/ssl-option:
+        PUT:
             tag: GaussDBforMySQL
     /v3/{project_id}/instances/{instance_id}/tags:
         GET:

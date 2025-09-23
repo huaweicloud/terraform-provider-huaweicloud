@@ -1,0 +1,55 @@
+info:
+    version: ""
+    title: resource_huaweicloud_elb_loadbalancer_copy
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: ELB
+paths:
+    /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrat:
+        POST:
+            tag: EPS
+    /v2.0/{project_id}/loadbalancers/{loadbalancer_id}/tags:
+        GET:
+            tag: ELB
+    /v2.0/{project_id}/loadbalancers/{loadbalancer_id}/tags/action:
+        POST:
+            tag: ELB
+    /v2/orders/customer-orders/details/{order_id}:
+        GET:
+            tag: BSS
+    /v2/orders/subscriptions/resources/autorenew/{instance_id}:
+        DELETE:
+            tag: BSS
+        POST:
+            tag: BSS
+    /v2/orders/suscriptions/resources/query:
+        POST:
+            tag: BSS
+    /v3/{project_id}/elb/jobs/{job_id}:
+        GET:
+            tag: ELB
+    /v3/{project_id}/elb/loadbalancers/{loadbalancer_id}:
+        DELETE:
+            tag: ELB
+        GET:
+            tag: ELB
+        PUT:
+            tag: ELB
+    /v3/{project_id}/elb/loadbalancers/{loadbalancer_id}/availability-zone/{batch-add}:
+        POST:
+            tag: ELB
+    /v3/{project_id}/elb/loadbalancers/{loadbalancer_id}/availability-zone/{batch-remove}:
+        POST:
+            tag: ELB
+    /v3/{project_id}/elb/loadbalancers/{loadbalancer_id}/clone:
+        POST:
+            tag: ELB
+    /v3/{project_id}/elb/loadbalancers/{loadbalancer_id}/force-elb:
+        DELETE:
+            tag: ELB
+    /v3/{project_id}/elb/loadbalancers/change-charge-mode:
+        POST:
+            tag: ELB

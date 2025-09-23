@@ -1,0 +1,58 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cts_operations": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "operations": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "operation_list": [
+                        "list",
+                        "string"
+                      ],
+                      "resource_type": "string",
+                      "service_type": "string"
+                    }
+                  ]
+                ],
+                "description": "All operations on the cloud service.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "resource_type": {
+                "type": "string",
+                "description": "Specifies the type of the resource on which operations are performed.",
+                "optional": true
+              },
+              "service_type": {
+                "type": "string",
+                "description": "Specifies the type of the cloud service on which operations are performed.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CTS",
+            "name": "Cloud Trace Service",
+            "catalog": "Management & Governance",
+            "name_cn": "云审计服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

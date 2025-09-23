@@ -1,0 +1,80 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_iotda_custom_authentication": {
+          "block": {
+            "attributes": {
+              "authorizer_name": {
+                "type": "string",
+                "required": true
+              },
+              "cache_enable": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "create_time": {
+                "type": "string",
+                "computed": true
+              },
+              "default_authorizer": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "func_name": {
+                "type": "string",
+                "computed": true
+              },
+              "func_urn": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "signing_enable": {
+                "type": "bool",
+                "optional": true,
+                "default": true
+              },
+              "signing_public_key": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "signing_token": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "sensitive": true
+              },
+              "status": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "update_time": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "IoTDA",
+            "name": "IoT Device Access",
+            "catalog": "Internet of Things",
+            "name_cn": "设备接入",
+            "catalog_cn": "IoT物联网"
+          }
+        }
+      }
+    }
+  }
+}

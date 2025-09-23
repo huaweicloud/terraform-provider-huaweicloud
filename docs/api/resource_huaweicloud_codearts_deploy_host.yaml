@@ -12,10 +12,9 @@ paths:
         POST:
             tag: CodeArtsDeploy
     /v1/resources/host-groups/{group_id}/hosts/{host_id}:
-        GET:
-            tag: CodeArtsDeploy
-    /v2/host-groups/{group_id}/hosts/{host_id}:
         DELETE:
+            tag: CodeArtsDeploy
+        GET:
             tag: CodeArtsDeploy
         PUT:
             tag: CodeArtsDeploy

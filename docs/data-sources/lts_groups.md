@@ -44,4 +44,6 @@ The `groups` block supports:
 
 * `tags` - The key/value pairs to associate with the log group.
 
+* `enterprise_project_id` - The enterprise project ID to which the log group belongs.
+
 * `created_at` - The creation time of the log group, in RFC3339 format.

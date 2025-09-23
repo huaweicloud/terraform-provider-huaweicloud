@@ -2,6 +2,7 @@ package ga
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -11,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -127,59 +127,54 @@ func buildCreateIpAddressGroupBodyParams(d *schema.ResourceData) map[string]inte
 }
 
 func resourceIpAddressGroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
 	var (
-		createIpAddressGroupHttpUrl = "v1/ip-groups"
-		createEndpointProduct       = "ga"
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1/ip-groups"
+		product = "ga"
 	)
-	createIpAddressGroupClient, err := cfg.NewServiceClient(createEndpointProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating IP address group client: %s", err)
+		return diag.Errorf("error creating GA client: %s", err)
 	}
 
-	createIpAddressGroupPath := createIpAddressGroupClient.Endpoint + createIpAddressGroupHttpUrl
-	createIpAddressGroupOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			201,
-		},
+		JSONBody:         utils.RemoveNil(buildCreateIpAddressGroupBodyParams(d)),
 	}
 
-	createIpAddressGroupOpt.JSONBody = utils.RemoveNil(buildCreateIpAddressGroupBodyParams(d))
-	createIpAddressGroupResp, err := createIpAddressGroupClient.Request("POST", createIpAddressGroupPath, &createIpAddressGroupOpt)
+	resp, err := client.Request("POST", requestPath, &requestOpt)
 	if err != nil {
-		return diag.Errorf("error creating IP address group: %s", err)
+		return diag.Errorf("error creating GA IP address group: %s", err)
 	}
 
-	createIpAddressGroupRespBody, err := utils.FlattenResponse(createIpAddressGroupResp)
+	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-
-	id, err := jmespath.Search("ip_group.id", createIpAddressGroupRespBody)
-	if err != nil {
-		return diag.Errorf("error creating IP address group: ID is not found in API response")
+	groupId := utils.PathSearch("ip_group.id", respBody, "").(string)
+	if groupId == "" {
+		return diag.Errorf("error creating GA IP address group: ID is not found in API response")
 	}
 
-	d.SetId(id.(string))
+	d.SetId(groupId)
 
 	err = waitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
-		return diag.Errorf("error waiting for the creation of IP address group (%s) to complete: %s", d.Id(), err)
+		return diag.Errorf("error waiting for the GA IP address group (%s) creation to complete: %s", d.Id(), err)
 	}
 
 	//  call addIps to support more than 20 ip addresses
 	if val, ok := d.GetOk("ip_addresses"); ok {
-		err = addIps(ctx, d, meta, createIpAddressGroupClient, val.(*schema.Set).List())
+		err = addIps(ctx, d, meta, client, val.(*schema.Set).List())
 		if err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
 	if val, ok := d.GetOk("listeners"); ok {
-		err = associateListener(ctx, d, meta, createIpAddressGroupClient, val.(*schema.Set).List())
+		err = associateListener(ctx, d, meta, client, val.(*schema.Set).List())
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -189,34 +184,25 @@ func resourceIpAddressGroupCreate(ctx context.Context, d *schema.ResourceData, m
 }
 
 func getIpAddressGroupInfo(d *schema.ResourceData, meta interface{}) (*http.Response, error) {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
 	var (
-		getIpAddressGroupHttpUrl = "v1/ip-groups/{ip_group_id}"
-		getIpAddressGroupProduct = "ga"
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1/ip-groups/{ip_group_id}"
+		product = "ga"
 	)
 
-	getIpAddressGroupClient, err := cfg.NewServiceClient(getIpAddressGroupProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return nil, fmt.Errorf("error creating IP address group client: %s", err)
+		return nil, fmt.Errorf("error creating GA client: %s", err)
 	}
 
-	getIpAddressGroupPath := getIpAddressGroupClient.Endpoint + getIpAddressGroupHttpUrl
-	getIpAddressGroupPath = strings.ReplaceAll(getIpAddressGroupPath, "{ip_group_id}", d.Id())
-	getIpAddressGroupOpts := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{ip_group_id}", d.Id())
+	requestOpts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
 
-	resp, err := getIpAddressGroupClient.Request("GET", getIpAddressGroupPath, &getIpAddressGroupOpts)
-	if err != nil {
-		return nil, err
-	}
-
-	return resp, nil
+	return client.Request("GET", requestPath, &requestOpts)
 }
 
 func flattenGetIpListResponseBody(rawParams interface{}) []interface{} {
@@ -256,27 +242,27 @@ func flattenGetListenersResponseBody(resp interface{}) []interface{} {
 }
 
 func resourceIpAddressGroupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	getIpAddressGroupResp, err := getIpAddressGroupInfo(d, meta)
+	resp, err := getIpAddressGroupInfo(d, meta)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "GA IP address group")
+		return common.CheckDeletedDiag(d, err, "error retrieving GA IP address group")
 	}
 
-	getIpAddressGroupRespBody, err := utils.FlattenResponse(getIpAddressGroupResp)
+	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
 	mErr := multierror.Append(
 		nil,
-		d.Set("name", utils.PathSearch("ip_group.name", getIpAddressGroupRespBody, nil)),
-		d.Set("description", utils.PathSearch("ip_group.description", getIpAddressGroupRespBody, nil)),
+		d.Set("name", utils.PathSearch("ip_group.name", respBody, nil)),
+		d.Set("description", utils.PathSearch("ip_group.description", respBody, nil)),
 		d.Set("ip_addresses", flattenGetIpListResponseBody(utils.PathSearch("ip_group.ip_list",
-			getIpAddressGroupRespBody, make([]interface{}, 0)))),
-		d.Set("status", utils.PathSearch("ip_group.status", getIpAddressGroupRespBody, nil)),
-		d.Set("created_at", utils.PathSearch("ip_group.created_at", getIpAddressGroupRespBody, nil)),
-		d.Set("updated_at", utils.PathSearch("ip_group.updated_at", getIpAddressGroupRespBody, nil)),
+			respBody, make([]interface{}, 0)))),
+		d.Set("status", utils.PathSearch("ip_group.status", respBody, nil)),
+		d.Set("created_at", utils.PathSearch("ip_group.created_at", respBody, nil)),
+		d.Set("updated_at", utils.PathSearch("ip_group.updated_at", respBody, nil)),
 		d.Set("listeners", flattenGetListenersResponseBody(utils.PathSearch("ip_group.associated_listeners",
-			getIpAddressGroupRespBody, make([]interface{}, 0)))),
+			respBody, make([]interface{}, 0)))),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -293,33 +279,29 @@ func buildUpdateIpAddressGroupBodyParams(d *schema.ResourceData) map[string]inte
 }
 
 func resourceIpAddressGroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
 	var (
-		updateIpAddressGroupHttpUrl = "v1/ip-groups/{ip_group_id}"
-		updateIpAddressGroupProduct = "ga"
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1/ip-groups/{ip_group_id}"
+		product = "ga"
 	)
 
-	updateIpAddressGroupClient, err := cfg.NewServiceClient(updateIpAddressGroupProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating IP address group client: %s", err)
+		return diag.Errorf("error creating GA client: %s", err)
 	}
 
 	if d.HasChanges("name", "description") {
-		updateIpAddressGroupPath := updateIpAddressGroupClient.Endpoint + updateIpAddressGroupHttpUrl
-		updateIpAddressGroupPath = strings.ReplaceAll(updateIpAddressGroupPath, "{ip_group_id}", d.Id())
-		updateIpAddressGroupOpt := golangsdk.RequestOpts{
+		requestPath := client.Endpoint + httpUrl
+		requestPath = strings.ReplaceAll(requestPath, "{ip_group_id}", d.Id())
+		requestOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
-			OkCodes: []int{
-				200,
-			},
+			JSONBody:         utils.RemoveNil(buildUpdateIpAddressGroupBodyParams(d)),
 		}
 
-		updateIpAddressGroupOpt.JSONBody = utils.RemoveNil(buildUpdateIpAddressGroupBodyParams(d))
-		_, err = updateIpAddressGroupClient.Request("PUT", updateIpAddressGroupPath, &updateIpAddressGroupOpt)
+		_, err = client.Request("PUT", requestPath, &requestOpt)
 		if err != nil {
-			return diag.Errorf("error updating IP address group: %s", err)
+			return diag.Errorf("error updating GA IP address group: %s", err)
 		}
 	}
 
@@ -329,14 +311,14 @@ func resourceIpAddressGroupUpdate(ctx context.Context, d *schema.ResourceData, m
 		removeIpsRaw := oldIpsRaw.(*schema.Set).Difference(newIpsRaw.(*schema.Set))
 
 		if removeIpsRaw.Len() > 0 {
-			err = removeIps(ctx, d, meta, updateIpAddressGroupClient, removeIpsRaw.List())
+			err = removeIps(ctx, d, meta, client, removeIpsRaw.List())
 			if err != nil {
 				return diag.FromErr(err)
 			}
 		}
 
 		if addIpsRaw.Len() > 0 {
-			err = addIps(ctx, d, meta, updateIpAddressGroupClient, addIpsRaw.List())
+			err = addIps(ctx, d, meta, client, addIpsRaw.List())
 			if err != nil {
 				return diag.FromErr(err)
 			}
@@ -349,14 +331,14 @@ func resourceIpAddressGroupUpdate(ctx context.Context, d *schema.ResourceData, m
 		disassociateListenerRaw := oldListenerRaw.(*schema.Set).Difference(newListenerRaw.(*schema.Set))
 
 		if disassociateListenerRaw.Len() > 0 {
-			err = disassociateListener(ctx, d, meta, updateIpAddressGroupClient, disassociateListenerRaw.List())
+			err = disassociateListener(ctx, d, meta, client, disassociateListenerRaw.List())
 			if err != nil {
 				return diag.FromErr(err)
 			}
 		}
 
 		if associateListenerRaw.Len() > 0 {
-			err = associateListener(ctx, d, meta, updateIpAddressGroupClient, associateListenerRaw.List())
+			err = associateListener(ctx, d, meta, client, associateListenerRaw.List())
 			if err != nil {
 				return diag.FromErr(err)
 			}
@@ -477,7 +459,7 @@ func associateListener(ctx context.Context, d *schema.ResourceData, meta interfa
 			}
 			_, err := client.Request("POST", associateListenerPath, &associateListenerOpt)
 			if err != nil {
-				return fmt.Errorf("error associate listener (%s) for IP address group: %s", listenerId, err)
+				return fmt.Errorf("error associating listener (%s) for IP address group: %s", listenerId, err)
 			}
 
 			err = waitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutUpdate))
@@ -509,7 +491,7 @@ func disassociateListener(ctx context.Context, d *schema.ResourceData, meta inte
 			}
 			_, err := client.Request("POST", disassociateListenerPath, &disassociateListenerOpt)
 			if err != nil {
-				return fmt.Errorf("error disassociated listener (%s) from IP address group: %s", listenerId, err)
+				return fmt.Errorf("error disassociating listener (%s) from IP address group: %s", listenerId, err)
 			}
 
 			err = waitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutUpdate))
@@ -523,38 +505,34 @@ func disassociateListener(ctx context.Context, d *schema.ResourceData, meta inte
 }
 
 func resourceIpAddressGroupDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
 	var (
-		deleteIpAddressGroupHttpUrl = "v1/ip-groups/{ip_group_id}"
-		deleteIpAddressGroupProduct = "ga"
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1/ip-groups/{ip_group_id}"
+		product = "ga"
 	)
 
-	deleteIpAddressGroupClient, err := cfg.NewServiceClient(deleteIpAddressGroupProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating IP address group client: %s", err)
+		return diag.Errorf("error creating GA client: %s", err)
 	}
 
 	if val, ok := d.GetOk("listeners"); ok {
-		err = disassociateListener(ctx, d, meta, deleteIpAddressGroupClient, val.(*schema.Set).List())
+		err = disassociateListener(ctx, d, meta, client, val.(*schema.Set).List())
 		if err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
-	deleteIpAddressGroupPath := deleteIpAddressGroupClient.Endpoint + deleteIpAddressGroupHttpUrl
-	deleteIpAddressGroupPath = strings.ReplaceAll(deleteIpAddressGroupPath, "{ip_group_id}", d.Id())
-	deleteIpAddressGroupOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{ip_group_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			204,
-		},
 	}
 
-	_, err = deleteIpAddressGroupClient.Request("DELETE", deleteIpAddressGroupPath, &deleteIpAddressGroupOpt)
+	_, err = client.Request("DELETE", requestPath, &requestOpt)
 	if err != nil {
-		return diag.Errorf("error deleting IP address group: %s", err)
+		return diag.Errorf("error deleting GA IP address group: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
@@ -567,11 +545,7 @@ func resourceIpAddressGroupDelete(ctx context.Context, d *schema.ResourceData, m
 	}
 
 	_, err = stateConf.WaitForStateContext(ctx)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	return nil
+	return diag.FromErr(err)
 }
 
 func waitingForStateCompleted(ctx context.Context, d *schema.ResourceData, meta interface{}, t time.Duration) error {
@@ -591,8 +565,10 @@ func waitIpAddressGroupStatusRefreshFunc(d *schema.ResourceData, meta interface{
 	return func() (interface{}, string, error) {
 		resp, err := getIpAddressGroupInfo(d, meta)
 		if err != nil {
-			if _, ok := err.(golangsdk.ErrDefault404); ok && isDelete {
-				// When the error code is 404, the value of respBody is nil, and a non-null value is returned to avoid continuing the loop check.
+			var errDefault404 golangsdk.ErrDefault404
+			if errors.As(err, &errDefault404) && isDelete {
+				// When the error code is `404`, the value of respBody is nil, and a non-null value is returned to avoid
+				// continuing the loop check.
 				return "Resource Not Found", "DELETED", nil
 			}
 
@@ -604,12 +580,7 @@ func waitIpAddressGroupStatusRefreshFunc(d *schema.ResourceData, meta interface{
 			return nil, "ERROR", err
 		}
 
-		statusRaw, err := jmespath.Search("ip_group.status", respBody)
-		if err != nil {
-			return nil, "ERROR", fmt.Errorf("error parsing %s from response body", statusRaw)
-		}
-
-		status := fmt.Sprintf("%v", statusRaw)
+		status := utils.PathSearch("ip_group.status", respBody, "").(string)
 
 		if utils.StrSliceContains([]string{"ERROR"}, status) {
 			return respBody, "ERROR", fmt.Errorf("unexpected address group status: %s", status)

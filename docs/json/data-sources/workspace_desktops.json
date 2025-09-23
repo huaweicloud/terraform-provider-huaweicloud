@@ -133,7 +133,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "user_attached": {
                 "type": "string",

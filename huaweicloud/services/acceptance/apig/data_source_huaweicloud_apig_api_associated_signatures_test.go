@@ -238,10 +238,14 @@ data "huaweicloud_apig_api_associated_signatures" "test" {
 
 # Filter by ID
 locals {
-  signature_id = data.huaweicloud_apig_api_associated_signatures.test.signatures[0].id
+  signature_id = huaweicloud_apig_signature.test.id
 }
 
 data "huaweicloud_apig_api_associated_signatures" "filter_by_id" {
+  depends_on = [
+    huaweicloud_apig_signature_associate.test,
+  ]
+
   instance_id = local.instance_id
   api_id      = huaweicloud_apig_api.test.id
 
@@ -260,10 +264,14 @@ output "is_id_filter_useful" {
 
 # Filter by name
 locals {
-  signature_name = data.huaweicloud_apig_api_associated_signatures.test.signatures[0].name
+  signature_name = huaweicloud_apig_signature.test.name
 }
 
 data "huaweicloud_apig_api_associated_signatures" "filter_by_name" {
+  depends_on = [
+    huaweicloud_apig_signature_associate.test,
+  ]
+
   instance_id = local.instance_id
   api_id      = huaweicloud_apig_api.test.id
 
@@ -286,6 +294,10 @@ locals {
 }
 
 data "huaweicloud_apig_api_associated_signatures" "filter_by_not_found_name" {
+  depends_on = [
+    huaweicloud_apig_signature_associate.test,
+  ]
+
   instance_id = local.instance_id
   api_id      = huaweicloud_apig_api.test.id
 
@@ -304,10 +316,14 @@ output "is_name_not_found_filter_useful" {
 
 # Filter by type
 locals {
-  signature_type = data.huaweicloud_apig_api_associated_signatures.test.signatures[0].type
+  signature_type = huaweicloud_apig_signature.test.type
 }
 
 data "huaweicloud_apig_api_associated_signatures" "filter_by_type" {
+  depends_on = [
+    huaweicloud_apig_signature_associate.test,
+  ]
+
   instance_id = local.instance_id
   api_id      = huaweicloud_apig_api.test.id
 
@@ -326,10 +342,14 @@ output "is_type_filter_useful" {
 
 # Filter by env ID
 locals {
-  env_id = data.huaweicloud_apig_api_associated_signatures.test.signatures[0].env_id
+  env_id = huaweicloud_apig_environment.test[0].id
 }
 
 data "huaweicloud_apig_api_associated_signatures" "filter_by_env_id" {
+  depends_on = [
+    huaweicloud_apig_signature_associate.test,
+  ]
+
   instance_id = local.instance_id
   api_id      = huaweicloud_apig_api.test.id
 
@@ -348,10 +368,14 @@ output "is_env_id_filter_useful" {
 
 # Filter by env name
 locals {
-  env_name = data.huaweicloud_apig_api_associated_signatures.test.signatures[0].env_name
+  env_name = huaweicloud_apig_environment.test[0].name
 }
 
 data "huaweicloud_apig_api_associated_signatures" "filter_by_env_name" {
+  depends_on = [
+    huaweicloud_apig_signature_associate.test,
+  ]
+
   instance_id = local.instance_id
   api_id      = huaweicloud_apig_api.test.id
 

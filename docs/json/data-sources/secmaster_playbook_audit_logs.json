@@ -1,0 +1,125 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_secmaster_playbook_audit_logs": {
+          "block": {
+            "attributes": {
+              "action_id": {
+                "type": "string",
+                "description": "Specifies the workflow ID.",
+                "optional": true
+              },
+              "action_name": {
+                "type": "string",
+                "description": "Specifies the workflow name.",
+                "optional": true
+              },
+              "audit_logs": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "action_id": "string",
+                      "action_name": "string",
+                      "end_time": "string",
+                      "error_msg": "string",
+                      "input": "string",
+                      "instance_id": "string",
+                      "instance_type": "string",
+                      "log_level": "string",
+                      "output": "string",
+                      "parent_instance_id": "string",
+                      "start_time": "string",
+                      "status": "string",
+                      "trigger_type": "string"
+                    }
+                  ]
+                ],
+                "description": "The audit log list.",
+                "computed": true
+              },
+              "end_time": {
+                "type": "string",
+                "description": "Specifies the end time.",
+                "optional": true
+              },
+              "error_msg": {
+                "type": "string",
+                "description": "Specifies the error message.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "input": {
+                "type": "string",
+                "description": "Specifies the input information.",
+                "optional": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the instance ID.",
+                "optional": true
+              },
+              "instance_type": {
+                "type": "string",
+                "description": "Specifies the instance type. The value can be **AOP_WORKFLOW**, **SCRIPT**, or **PLAYBOOK**.",
+                "optional": true
+              },
+              "log_level": {
+                "type": "string",
+                "description": "Specifies the log level. The value can be **DEBUG**, **INFO**, **WARN** or **ERROR**.",
+                "optional": true
+              },
+              "output": {
+                "type": "string",
+                "description": "Specifies the output information.",
+                "optional": true
+              },
+              "parent_instance_id": {
+                "type": "string",
+                "description": "Specifies the instance ID of the parent node.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "start_time": {
+                "type": "string",
+                "description": "Specifies the start time.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the status. The value can be **RUNNING**, **FINISHED**, **FAILED**, **RETRYING**, or **TERMINATED**.",
+                "optional": true
+              },
+              "trigger_type": {
+                "type": "string",
+                "description": "Specifies the triggering type.",
+                "optional": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "Specifies the workspace ID.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

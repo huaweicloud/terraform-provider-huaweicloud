@@ -68,6 +68,12 @@ type Listener struct {
 	// The client timeout of the Listener.
 	ClientTimeout int `json:"client_timeout"`
 
+	// The maximum number of concurrent connections that a listener can handle per second.
+	Connection int `json:"connection"`
+
+	// The maximum number of new connections that a listener can handle per second.
+	Cps int `json:"cps"`
+
 	// The member timeout of the Listener.
 	MemberTimeout int `json:"member_timeout"`
 
@@ -79,6 +85,9 @@ type Listener struct {
 
 	// Transparent client ip enable
 	TransparentClientIP bool `json:"transparent_client_ip_enable"`
+
+	// The UUID of the enterprise project who owns the Loadbalancer.
+	EnterpriseProjectID string `json:"enterprise_project_id"`
 
 	// The creation time of the current listener
 	CreatedAt string `json:"created_at"`

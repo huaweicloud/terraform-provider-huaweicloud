@@ -58,7 +58,7 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource. If omitted, the
   provider-level region will be used. Changing this creates a new resource.
 
-* `name` - (Required, String) Specifies the media asset name, which contains a maximum of 128 characters.
+* `name` - (Required, String) Specifies the media asset name, which contains a maximum of `128` characters.
 
 * `media_type` - (Required, String, ForceNew) Specifies the media type. Valid values are: **MP4**, **TS**, **MOV**,
   **MXF**, **MPG**, **FLV**, **WMV**, **AVI**, **M4V**, **F4V**, **MPEG**, **3GP**, **ASF**, **MKV**, **HLS**,
@@ -68,7 +68,8 @@ The following arguments are supported:
   -> When `media_type` is set to **HLS**, `storage_mode` must be set to **1** (user bucket), and the `output_path`
   should be set to the same as the `input_path`.
 
-* `description` - (Optional, String) Specifies the media asset description, which contains a maximum of 1024 characters.
+* `description` - (Optional, String) Specifies the media asset description, which contains a maximum of `1,024`
+  characters.
 
 * `url` - (Optional, String, ForceNew) Specifies the URL of media source file. Currently only http and https protocols
   are supported. Either this field or `input_bucket` must be specified. Changing this creates a new resource.
@@ -79,21 +80,21 @@ The following arguments are supported:
 * `input_path` - (Optional, String, ForceNew) Specifies the media source file path in the OBS bucket.
   Changing this creates a new resource.
 
+* `storage_mode` - (Optional, Int, ForceNew) Specifies the storage mode. The value can be:
+  + **0**: copy the media file to VOD bucket.
+  + **1**: save the media file in user bucket.
+
+  Defaults to `0`. Changing this creates a new resource.
+
 * `output_bucket` - (Optional, String, ForceNew) Specifies the output OBS bucket name.
   Changing this creates a new resource.
 
 * `output_path` - (Optional, String, ForceNew) Specifies the output file path in the OBS bucket.
   Changing this creates a new resource.
 
-* `storage_mode` - (Optional, Int, ForceNew) Specifies the storage mode. The value can be:
-  + **0**: copy the media file to VOD bucket.
-  + **1**: save the media file in user bucket.
+-> `output_bucket` and `output_path` must be specified when `storage_mode` is set to `1`.
 
-  Defaults to: **0**. Changing this creates a new resource.
-
-  -> `output_bucket` and `output_path` must be specified when `storage_mode` is set to **1**.
-
-* `category_id` - (Optional, Int) Specifies the category ID of the media asset. Default to: **-1**, which means the media
+* `category_id` - (Optional, Int) Specifies the category ID of the media asset. Defaults to `-1`, which means the media
   asset will be categorized into the 'Other' category of system presets.
 
 * `labels` - (Optional, String) Specifies the labels of the media asset, which contains a maximum of 16 labels
@@ -125,23 +126,23 @@ The `thumbnail` block supports:
 * `type` - (Required, String, ForceNew) Specifies the screenshot type. Valid values are: **time** and **dots**.
   Changing this creates a new resource.
 
-* `time` - (Optional, Int, ForceNew) Specifies the screenshot time interval (unit: second). The value range is 1 to 12.
+* `time` - (Optional, Int, ForceNew) Specifies the screenshot time interval (unit: second). The value range is `1` to `12`.
   Required when `type` is **time**. Changing this creates a new resource.
 
 * `dots` - (Optional, List, ForceNew) Specifies an array of time points of screenshot. Required when `type` is **dots**.
   Changing this creates a new resource.
 
-* `cover_position` - (Optional, Int, ForceNew) Specifies the number of screenshots as the cover. Defaults to: **1**.
+* `cover_position` - (Optional, Int, ForceNew) Specifies the number of screenshots as the cover. Defaults to `1`.
   Changing this creates a new resource.
 
-* `format` - (Optional, Int, ForceNew) Specifies the screenshot file format. Currently, only **1** (jpg) is supported.
-  Defaults to: **1**. Changing this creates a new resource.
+* `format` - (Optional, Int, ForceNew) Specifies the screenshot file format. Currently, only `1` (jpg) is supported.
+  Defaults to: `1`. Changing this creates a new resource.
 
 * `aspect_ratio` - (Optional, Int, ForceNew) Specifies the screenshot aspect ratio. The value can be:
   + **0**: adaptive (maintain the original aspect ratio).
   + **1**: 16:9.
   
-  Defaults to: **1**. Changing this creates a new resource.
+  Defaults to `1`. Changing this creates a new resource.
 
 * `max_length` - (Optional, Int, ForceNew) Specifies the size of the longest side of the screenshot. Unit: pixel.
   The width dimension is calculated by scaling the dimension proportional to the original video pixels.
@@ -159,11 +160,17 @@ In addition to all arguments above, the following attributes are exported:
 
 * `category_name` - The category name of the media asset.
 
+## Timeouts
+
+This resource provides the following timeouts configuration options:
+
+* `delete` - Defaults to `60` seconds.
+
 ## Import
 
 The media asset can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_vod_media_asset.test 8754976729b8a2ba745d01036edded2b
 ```
 
@@ -175,7 +182,7 @@ It is generally recommended running `terraform plan` after importing a media ass
 You can then decide if changes should be applied to the media asset, or the resource
 definition should be updated to align with the media asset. Also you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_vod_media_asset" "test" {
     ...
   lifecycle {

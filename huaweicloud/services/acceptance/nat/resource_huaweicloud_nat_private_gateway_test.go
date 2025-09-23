@@ -7,8 +7,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/chnsz/golangsdk/openstack/nat/v3/gateways"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
@@ -16,22 +14,21 @@ import (
 )
 
 func getPrivateGatewayResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := cfg.NatV3Client(acceptance.HW_REGION_NAME)
+	region := acceptance.HW_REGION_NAME
+	client, err := cfg.NewServiceClient("nat", region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating NAT v3 client: %s", err)
 	}
 
-	return gateways.Get(client, state.Primary.ID)
+	return nat.GetPrivateGateway(client, state.Primary.ID)
 }
 
 func TestAccPrivateGateway_basic(t *testing.T) {
 	var (
-		obj gateways.Gateway
-
+		obj        interface{}
 		rName      = "huaweicloud_nat_private_gateway.test"
 		name       = acceptance.RandomAccResourceNameWithDash()
 		updateName = acceptance.RandomAccResourceNameWithDash()
-		baseConfig = common.TestBaseNetwork(name)
 	)
 
 	rc := acceptance.InitResourceCheck(
@@ -48,30 +45,31 @@ func TestAccPrivateGateway_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccPrivateGateway_basic_step_1(name, baseConfig),
+				Config: testAccPrivateGateway_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "subnet_id", "huaweicloud_vpc_subnet.test", "id"),
 					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "spec", nat.PrivateSpecTypeSmall),
+					resource.TestCheckResourceAttr(rName, "spec", "Small"),
 					resource.TestCheckResourceAttr(rName, "description", "Created by acc test"),
+					resource.TestCheckResourceAttr(rName, "enterprise_project_id", "0"),
 					resource.TestCheckResourceAttr(rName, "status", "ACTIVE"),
 					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(rName, "tags.key", "value"),
 					resource.TestCheckResourceAttrSet(rName, "vpc_id"),
+					resource.TestCheckResourceAttrSet(rName, "created_at"),
+					resource.TestCheckResourceAttrSet(rName, "updated_at"),
 				),
 			},
 			{
-				Config: testAccPrivateGateway_basic_step_2(updateName, baseConfig),
+				Config: testAccPrivateGateway_update(updateName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(rName, "subnet_id", "huaweicloud_vpc_subnet.test", "id"),
 					resource.TestCheckResourceAttr(rName, "name", updateName),
+					resource.TestCheckResourceAttr(rName, "spec", "Medium"),
 					resource.TestCheckResourceAttr(rName, "description", ""),
-					resource.TestCheckResourceAttr(rName, "status", "ACTIVE"),
 					resource.TestCheckResourceAttr(rName, "tags.foo", "baaar"),
 					resource.TestCheckResourceAttr(rName, "tags.newKey", "value"),
-					resource.TestCheckResourceAttrSet(rName, "vpc_id"),
 				),
 			},
 			{
@@ -83,13 +81,14 @@ func TestAccPrivateGateway_basic(t *testing.T) {
 	})
 }
 
-func testAccPrivateGateway_basic_step_1(name, relatedConfig string) string {
+func testAccPrivateGateway_basic(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
 resource "huaweicloud_nat_private_gateway" "test" {
   subnet_id             = huaweicloud_vpc_subnet.test.id
   name                  = "%[2]s"
+  spec                  = "Small"
   description           = "Created by acc test"
   enterprise_project_id = "0"
 
@@ -98,16 +97,17 @@ resource "huaweicloud_nat_private_gateway" "test" {
     key = "value"
   }
 }
-`, relatedConfig, name)
+`, common.TestBaseNetwork(name), name)
 }
 
-func testAccPrivateGateway_basic_step_2(name, relatedConfig string) string {
+func testAccPrivateGateway_update(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
 resource "huaweicloud_nat_private_gateway" "test" {
   subnet_id             = huaweicloud_vpc_subnet.test.id
   name                  = "%[2]s"
+  spec                  = "Medium"
   enterprise_project_id = "0"
 
   tags = {
@@ -115,5 +115,5 @@ resource "huaweicloud_nat_private_gateway" "test" {
     newKey = "value"
   }
 }
-`, relatedConfig, name)
+`, common.TestBaseNetwork(name), name)
 }

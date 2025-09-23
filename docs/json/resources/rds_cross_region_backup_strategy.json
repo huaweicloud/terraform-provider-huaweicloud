@@ -13,14 +13,12 @@
               "destination_project_id": {
                 "type": "string",
                 "description": "Specifies the target project ID for the cross-region backup policy.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "destination_region": {
                 "type": "string",
                 "description": "Specifies the target region ID for the cross-region backup policy.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "id": {
                 "type": "string",
@@ -29,8 +27,7 @@
               "instance_id": {
                 "type": "string",
                 "description": "Specifies the ID of the RDS instance.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "keep_days": {
                 "type": "number",

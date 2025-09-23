@@ -7,14 +7,14 @@ package cdn
 
 import (
 	"context"
-	"log"
+	"fmt"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v2/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -128,132 +128,110 @@ func cacheHistoryTasksSchema() *schema.Resource {
 	return &sc
 }
 
-func buildHistoryTaskRequestBodyStatusOpts(status string) *model.ShowHistoryTasksRequestStatus {
-	if status == "" {
-		return nil
+func buildHistoryTaskQueryParams(d *schema.ResourceData, cfg *config.Config) string {
+	queryParams := "?page_size=10000"
+	if epsId := cfg.GetEnterpriseProjectID(d); epsId != "" {
+		queryParams = fmt.Sprintf("%s&enterprise_project_id=%s", queryParams, epsId)
+	}
+	if v, ok := d.GetOk("status"); ok {
+		queryParams = fmt.Sprintf("%s&status=%v", queryParams, v)
+	}
+	if v, ok := d.GetOk("start_date"); ok {
+		queryParams = fmt.Sprintf("%s&start_date=%v", queryParams, v)
+	}
+	if v, ok := d.GetOk("end_date"); ok {
+		queryParams = fmt.Sprintf("%s&end_date=%v", queryParams, v)
+	}
+	if v, ok := d.GetOk("order_field"); ok {
+		queryParams = fmt.Sprintf("%s&order_field=%v", queryParams, v)
+	}
+	if v, ok := d.GetOk("order_type"); ok {
+		queryParams = fmt.Sprintf("%s&order_type=%v", queryParams, v)
+	}
+	if v, ok := d.GetOk("file_type"); ok {
+		queryParams = fmt.Sprintf("%s&file_type=%v", queryParams, v)
+	}
+	if v, ok := d.GetOk("task_type"); ok {
+		queryParams = fmt.Sprintf("%s&task_type=%v", queryParams, v)
 	}
 
-	statusToReq := new(model.ShowHistoryTasksRequestStatus)
-	if err := statusToReq.UnmarshalJSON([]byte(status)); err != nil {
-		log.Printf("[WARN] failed to parse status %s: %s", status, err)
-		return nil
-	}
-	return statusToReq
-}
-
-func buildHistoryTaskRequestBodyFileTypeOpts(fileType string) *model.ShowHistoryTasksRequestFileType {
-	if fileType == "" {
-		return nil
-	}
-
-	fileTypeToReq := new(model.ShowHistoryTasksRequestFileType)
-	if err := fileTypeToReq.UnmarshalJSON([]byte(fileType)); err != nil {
-		log.Printf("[WARN] failed to parse file type %s: %s", fileType, err)
-		return nil
-	}
-	return fileTypeToReq
-}
-
-func buildHistoryTaskRequestBodyTaskTypeOpts(taskType string) *model.ShowHistoryTasksRequestTaskType {
-	if taskType == "" {
-		return nil
-	}
-
-	taskTypeToReq := new(model.ShowHistoryTasksRequestTaskType)
-	if err := taskTypeToReq.UnmarshalJSON([]byte(taskType)); err != nil {
-		log.Printf("[WARN] failed to parse task type %s: %s", taskType, err)
-		return nil
-	}
-	return taskTypeToReq
+	return queryParams
 }
 
 func resourceCacheHistoryTasksRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg        = meta.(*config.Config)
 		region     = cfg.GetRegion(d)
-		pageSize   = int32(10000)
-		PageNumber = int32(1)
-		respTasks  []model.TasksObject
+		product    = "cdn"
+		httpUrl    = "v1.0/cdn/historytasks"
+		pageNumber = 1
+		result     = make([]interface{}, 0)
 		mErr       *multierror.Error
 	)
 
-	hcCdnClient, err := cfg.HcCdnV2Client(region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating CDN v2 client: %s", err)
+		return diag.Errorf("error creating CDN client: %s", err)
 	}
 
-	request := &model.ShowHistoryTasksRequest{
-		EnterpriseProjectId: utils.StringIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
-		PageSize:            utils.Int32(pageSize),
-		Status:              buildHistoryTaskRequestBodyStatusOpts(d.Get("status").(string)),
-		StartDate:           utils.Int64IgnoreEmpty(int64(d.Get("start_date").(int))),
-		EndDate:             utils.Int64IgnoreEmpty(int64(d.Get("end_date").(int))),
-		OrderField:          utils.StringIgnoreEmpty(d.Get("order_field").(string)),
-		OrderType:           utils.StringIgnoreEmpty(d.Get("order_type").(string)),
-		FileType:            buildHistoryTaskRequestBodyFileTypeOpts(d.Get("file_type").(string)),
-		TaskType:            buildHistoryTaskRequestBodyTaskTypeOpts(d.Get("task_type").(string)),
+	getPath := client.Endpoint + httpUrl
+	getPath += buildHistoryTaskQueryParams(d, cfg)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
 	for {
-		request.PageNumber = utils.Int32(PageNumber)
-		resp, err := hcCdnClient.ShowHistoryTasks(request)
+		currentPath := fmt.Sprintf("%s&page_number=%v", getPath, pageNumber)
+		resp, err := client.Request("GET", currentPath, &getOpt)
 		if err != nil {
 			return diag.Errorf("error retrieving CDN cache history tasks: %s", err)
 		}
 
-		if resp == nil || resp.Tasks == nil || len(*resp.Tasks) == 0 {
+		respBody, err := utils.FlattenResponse(resp)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+
+		tasksResp := utils.PathSearch("tasks", respBody, make([]interface{}, 0)).([]interface{})
+		if len(tasksResp) == 0 {
 			break
 		}
-		respTasks = append(respTasks, *resp.Tasks...)
-		PageNumber++
+		result = append(result, tasksResp...)
+		pageNumber++
 	}
 
 	generateUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
+
 	d.SetId(generateUUID)
 
 	mErr = multierror.Append(
 		mErr,
-		d.Set("tasks", flattenCacheHistoryTasks(respTasks)),
+		d.Set("tasks", flattenCacheHistoryTasks(result)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func flattenCacheHistoryTasks(respTasks []model.TasksObject) []interface{} {
-	if len(respTasks) == 0 {
-		return nil
-	}
-
-	rst := make([]interface{}, 0, len(respTasks))
-	for _, v := range respTasks {
+func flattenCacheHistoryTasks(tasks []interface{}) []interface{} {
+	rst := make([]interface{}, 0, len(tasks))
+	for _, v := range tasks {
+		createdAt := utils.PathSearch("create_time", v, float64(0)).(float64)
 		rst = append(rst, map[string]interface{}{
-			"id":         v.Id,
-			"status":     v.Status,
-			"processing": v.Processing,
-			"succeed":    v.Succeed,
-			"failed":     v.Failed,
-			"total":      v.Total,
-			"task_type":  flattenHistoryTaskTaskType(v.TaskType),
-			"created_at": flattenCreatedAt(v.CreateTime),
-			"file_type":  flattenHistoryTaskFileType(v.FileType),
+			"id":         utils.PathSearch("id", v, nil),
+			"status":     utils.PathSearch("status", v, nil),
+			"processing": utils.PathSearch("processing", v, nil),
+			"succeed":    utils.PathSearch("succeed", v, nil),
+			"failed":     utils.PathSearch("failed", v, nil),
+			"total":      utils.PathSearch("total", v, nil),
+			"task_type":  utils.PathSearch("task_type", v, nil),
+			"created_at": utils.FormatTimeStampRFC3339(int64(createdAt)/1000, false),
+			"file_type":  utils.PathSearch("file_type", v, nil),
 		})
 	}
+
 	return rst
-}
-
-func flattenHistoryTaskTaskType(taskType *model.TasksObjectTaskType) string {
-	if taskType == nil {
-		return ""
-	}
-	return taskType.Value()
-}
-
-func flattenHistoryTaskFileType(fileType *model.TasksObjectFileType) string {
-	if fileType == nil {
-		return ""
-	}
-	return fileType.Value()
 }

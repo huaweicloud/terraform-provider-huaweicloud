@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_ces_agent_statuses
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CES
+paths:
+    /v3/{project_id}/agent-status/batch-query:
+        POST:
+            tag: CES

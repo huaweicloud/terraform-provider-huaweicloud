@@ -7,7 +7,7 @@
             "attributes": {
               "description": {
                 "type": "string",
-                "description": "Specifies the service member description.",
+                "description": "Specifies the service group member description.",
                 "optional": true,
                 "computed": true,
                 "forcenew": true
@@ -28,13 +28,6 @@
                 "type": "string",
                 "computed": true
               },
-              "name": {
-                "type": "string",
-                "description": "Specifies the service member name",
-                "optional": true,
-                "computed": true,
-                "forcenew": true
-              },
               "protocol": {
                 "type": "number",
                 "description": "Specifies the protocol type.",
@@ -47,7 +40,7 @@
               },
               "source_port": {
                 "type": "string",
-                "description": "Specifies the source port.source_port",
+                "description": "Specifies the source port.",
                 "required": true,
                 "forcenew": true
               }

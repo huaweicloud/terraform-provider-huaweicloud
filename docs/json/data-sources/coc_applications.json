@@ -1,0 +1,70 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_coc_applications": {
+          "block": {
+            "attributes": {
+              "code": {
+                "type": "string",
+                "description": "Specifies the application code.",
+                "optional": true
+              },
+              "data": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "code": "string",
+                      "create_time": "string",
+                      "description": "string",
+                      "domain_id": "string",
+                      "id": "string",
+                      "is_collection": "bool",
+                      "name": "string",
+                      "parent_id": "string",
+                      "path": "string",
+                      "update_time": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the application list.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "id_list": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the ID list.",
+                "optional": true
+              },
+              "name_like": {
+                "type": "string",
+                "description": "Specifies the fuzzy query the application name.",
+                "optional": true
+              },
+              "parent_id": {
+                "type": "string",
+                "description": "Specifies the parent application ID.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "COC",
+            "name": "Cloud Operations Center",
+            "catalog": "Management & Governance",
+            "name_cn": "云运维中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

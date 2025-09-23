@@ -2,13 +2,15 @@ package hss
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	hssv5model "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/hss/v5/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -177,104 +179,138 @@ func DataSourceHosts() *schema.Resource {
 	}
 }
 
+func buildHostsQueryParams(d *schema.ResourceData, epsId string) string {
+	queryParams := "?limit=20"
+	queryParams = fmt.Sprintf("%s&enterprise_project_id=%v", queryParams, epsId)
+	if v, ok := d.GetOk("host_id"); ok {
+		queryParams = fmt.Sprintf("%s&host_id=%v", queryParams, v)
+	}
+	if v, ok := d.GetOk("name"); ok {
+		queryParams = fmt.Sprintf("%s&host_name=%v", queryParams, v)
+	}
+	if v, ok := d.GetOk("status"); ok {
+		queryParams = fmt.Sprintf("%s&host_status=%v", queryParams, v)
+	}
+	if v, ok := d.GetOk("os_type"); ok {
+		queryParams = fmt.Sprintf("%s&os_type=%v", queryParams, v)
+	}
+	if v, ok := d.GetOk("agent_status"); ok {
+		queryParams = fmt.Sprintf("%s&agent_status=%v", queryParams, v)
+	}
+	if v, ok := d.GetOk("protect_status"); ok {
+		queryParams = fmt.Sprintf("%s&protect_status=%v", queryParams, v)
+	}
+	if v, ok := d.GetOk("protect_version"); ok {
+		queryParams = fmt.Sprintf("%s&version=%v", queryParams, v)
+	}
+	if v, ok := d.GetOk("protect_charging_mode"); ok {
+		queryParams = fmt.Sprintf("%s&charging_mode=%v", queryParams, convertChargingModeRequest(v.(string)))
+	}
+	if v, ok := d.GetOk("detect_result"); ok {
+		queryParams = fmt.Sprintf("%s&detect_result=%v", queryParams, v)
+	}
+	if v, ok := d.GetOk("group_id"); ok {
+		queryParams = fmt.Sprintf("%s&group_id=%v", queryParams, v)
+	}
+	if v, ok := d.GetOk("policy_group_id"); ok {
+		queryParams = fmt.Sprintf("%s&policy_group_id=%v", queryParams, v)
+	}
+	if v, ok := d.GetOk("asset_value"); ok {
+		queryParams = fmt.Sprintf("%s&asset_value=%v", queryParams, v)
+	}
+
+	return queryParams
+}
+
 func dataSourceHostsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg      = meta.(*config.Config)
-		region   = cfg.GetRegion(d)
-		epsId    = cfg.DataGetEnterpriseProjectID(d)
-		limit    = int32(20)
-		offset   int32
-		allHosts []hssv5model.Host
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		epsId   = cfg.GetEnterpriseProjectID(d, QueryAllEpsValue)
+		product = "hss"
+		httpUrl = "v5/{project_id}/host-management/hosts"
+		offset  = 0
+		result  = make([]interface{}, 0)
+		mErr    *multierror.Error
 	)
 
-	client, err := cfg.HcHssV5Client(region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating HSS v5 client: %s", err)
+		return diag.Errorf("error creating HSS client: %s", err)
+	}
+
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath += buildHostsQueryParams(d, epsId)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
 
 	for {
-		request := hssv5model.ListHostStatusRequest{
-			Region:              &region,
-			Limit:               utils.Int32(limit),
-			Offset:              utils.Int32(offset),
-			HostId:              utils.StringIgnoreEmpty(d.Get("host_id").(string)),
-			HostName:            utils.StringIgnoreEmpty(d.Get("name").(string)),
-			HostStatus:          utils.StringIgnoreEmpty(d.Get("status").(string)),
-			OsType:              utils.StringIgnoreEmpty(d.Get("os_type").(string)),
-			AgentStatus:         utils.StringIgnoreEmpty(d.Get("agent_status").(string)),
-			ProtectStatus:       utils.StringIgnoreEmpty(d.Get("protect_status").(string)),
-			Version:             utils.StringIgnoreEmpty(d.Get("protect_version").(string)),
-			ChargingMode:        utils.StringIgnoreEmpty(convertChargingModeRequest(d.Get("protect_charging_mode").(string))),
-			DetectResult:        utils.StringIgnoreEmpty(d.Get("detect_result").(string)),
-			GroupId:             utils.StringIgnoreEmpty(d.Get("group_id").(string)),
-			PolicyGroupId:       utils.StringIgnoreEmpty(d.Get("policy_group_id").(string)),
-			AssetValue:          utils.StringIgnoreEmpty(d.Get("asset_value").(string)),
-			EnterpriseProjectId: utils.String(epsId),
+		currentPath := fmt.Sprintf("%s&offset=%v", getPath, offset)
+		getResp, err := client.Request("GET", currentPath, &getOpt)
+		if err != nil {
+			return diag.Errorf("error retrieving HSS hosts, %s", err)
 		}
 
-		listResp, listErr := client.ListHostStatus(&request)
-		if listErr != nil {
-			return diag.Errorf("error querying HSS hosts: %s", listErr)
+		getRespBody, err := utils.FlattenResponse(getResp)
+		if err != nil {
+			return diag.FromErr(err)
 		}
 
-		if listResp == nil || listResp.DataList == nil {
-			break
-		}
-		if len(*listResp.DataList) == 0 {
+		hostsResp := utils.PathSearch("data_list", getRespBody, make([]interface{}, 0)).([]interface{})
+		if len(hostsResp) == 0 {
 			break
 		}
 
-		allHosts = append(allHosts, *listResp.DataList...)
-		offset += limit
+		result = append(result, hostsResp...)
+		offset += len(hostsResp)
 	}
 
-	uuId, err := uuid.GenerateUUID()
+	generateUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
 
-	d.SetId(uuId)
+	d.SetId(generateUUID)
 
-	mErr := multierror.Append(nil,
+	mErr = multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("hosts", flattenHosts(allHosts)),
+		d.Set("hosts", flattenHosts(result)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func flattenHosts(hosts []hssv5model.Host) []interface{} {
-	if len(hosts) == 0 {
-		return nil
-	}
-
-	rst := make([]interface{}, 0, len(hosts))
-	for _, v := range hosts {
-		rst = append(rst, map[string]interface{}{
-			"id":                     v.HostId,
-			"name":                   v.HostName,
-			"status":                 v.HostStatus,
-			"os_type":                v.OsType,
-			"agent_id":               v.AgentId,
-			"agent_status":           v.AgentStatus,
-			"protect_status":         v.ProtectStatus,
-			"protect_version":        v.Version,
-			"protect_charging_mode":  convertChargingMode(v.ChargingMode),
-			"quota_id":               v.ResourceId,
-			"detect_result":          v.DetectResult,
-			"group_id":               v.GroupId,
-			"policy_group_id":        v.PolicyGroupId,
-			"asset_value":            v.AssetValue,
-			"open_time":              convertOpenTime(v.OpenTime),
-			"private_ip":             v.PrivateIp,
-			"public_ip":              v.PublicIp,
-			"asset_risk_num":         v.Asset,
-			"vulnerability_risk_num": v.Vulnerability,
-			"baseline_risk_num":      v.Baseline,
-			"intrusion_risk_num":     v.Intrusion,
-			"enterprise_project_id":  v.EnterpriseProjectId,
+func flattenHosts(hostsResp []interface{}) []interface{} {
+	result := make([]interface{}, 0, len(hostsResp))
+	for _, v := range hostsResp {
+		openTime := utils.PathSearch("open_time", v, float64(0)).(float64)
+		result = append(result, map[string]interface{}{
+			"id":                     utils.PathSearch("host_id", v, nil),
+			"name":                   utils.PathSearch("host_name", v, nil),
+			"status":                 utils.PathSearch("host_status", v, nil),
+			"os_type":                utils.PathSearch("os_type", v, nil),
+			"agent_id":               utils.PathSearch("agent_id", v, nil),
+			"agent_status":           utils.PathSearch("agent_status", v, nil),
+			"protect_status":         utils.PathSearch("protect_status", v, nil),
+			"protect_version":        utils.PathSearch("version", v, nil),
+			"protect_charging_mode":  flattenChargingMode(utils.PathSearch("charging_mode", v, "").(string)),
+			"quota_id":               utils.PathSearch("resource_id", v, nil),
+			"detect_result":          utils.PathSearch("detect_result", v, nil),
+			"group_id":               utils.PathSearch("group_id", v, nil),
+			"policy_group_id":        utils.PathSearch("policy_group_id", v, nil),
+			"asset_value":            utils.PathSearch("asset_value", v, nil),
+			"open_time":              utils.FormatTimeStampRFC3339(int64(openTime)/1000, false),
+			"private_ip":             utils.PathSearch("private_ip", v, nil),
+			"public_ip":              utils.PathSearch("public_ip", v, nil),
+			"asset_risk_num":         utils.PathSearch("asset", v, nil),
+			"vulnerability_risk_num": utils.PathSearch("vulnerability", v, nil),
+			"baseline_risk_num":      utils.PathSearch("baseline", v, nil),
+			"intrusion_risk_num":     utils.PathSearch("intrusion", v, nil),
+			"enterprise_project_id":  utils.PathSearch("enterprise_project_id", v, nil),
 		})
 	}
 
-	return rst
+	return result
 }

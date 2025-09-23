@@ -1,0 +1,83 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_iotda_device_messages": {
+          "block": {
+            "attributes": {
+              "device_id": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "messages": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_time": "string",
+                      "encoding": "string",
+                      "error_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "error_code": "string",
+                            "error_msg": "string"
+                          }
+                        ]
+                      ],
+                      "finished_time": "string",
+                      "id": "string",
+                      "message": "string",
+                      "name": "string",
+                      "payload_format": "string",
+                      "properties": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "correlation_data": "string",
+                            "response_topic": "string",
+                            "user_properties": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "prop_key": "string",
+                                  "prop_value": "string"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "status": "string",
+                      "topic": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "IoTDA",
+            "name": "IoT Device Access",
+            "catalog": "Internet of Things",
+            "name_cn": "设备接入",
+            "catalog_cn": "IoT物联网"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,15 @@
+info:
+    version: ""
+    title: resource_huaweicloud_live_ip_acl
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: LIVE
+paths:
+    /v1/{project_id}/guard/ip:
+        GET:
+            tag: LIVE
+        PUT:
+            tag: LIVE

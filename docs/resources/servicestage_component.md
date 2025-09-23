@@ -75,8 +75,8 @@ The following arguments are supported:
   Changing this parameter will create a new component.
 
 * `name` - (Required, String) Specifies the authorization name.
-  The name can contain of 2 to 64 characters, only letters, digits, underscores (_) and hyphens (-) are allowed, and the
-  name must start with a letter and end with a letter or digit.
+  The name can contain of `2` to `64` characters, only letters, digits, underscores (_) and hyphens (-) are allowed,
+  and the name must start with a letter and end with a letter or digit.
 
 * `type` - (Required, String, ForceNew) Specifies the component type. The valid values are as follows:
   + **Webapp**
@@ -172,6 +172,6 @@ In addition to all arguments above, the following attributes are exported:
 
 Components can be imported using their `application_id` and `id`, separated by a slash (/), e.g.
 
-```
+```bash
 $ terraform import huaweicloud_servicestage_component.test dd7a1ce2-c48c-4f41-85bb-d0d09969eec9/9ab8ef79-d318-4de5-acf9-e1e1e25a0395
 ```

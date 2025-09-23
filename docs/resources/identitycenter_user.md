@@ -54,11 +54,65 @@ The following arguments are supported:
 
 * `email` - (Required, String) Specifies the email of the user.
 
+* `phone_number` - (Optional, String) Specifies the phone number of the user.
+
+* `user_type` - (Optional, String) Specifies the type of the user.
+
+* `title` - (Optional, String) Specifies the title of the user.
+
+* `addresses` - (Optional, List) Specifies the addresses information of the user.
+  The [addresses](#addresses_struct) structure is documented below.
+
+* `enterprise` - (Optional, List) Specifies the enterprise information of the user.
+  The [enterprise](#enterprise_struct) structure is documented below.
+
+<a name="addresses_struct"></a>
+The `addresses` block supports:
+
+* `country` - (Optional, String) Specifies the country of the user.
+
+* `formatted` - (Optional, String) Specifies a string containing a formatted version of the address to be displayed.
+
+* `locality` - (Optional, String) Specifies the locality of the user.
+
+* `postal_code` - (Optional, String) Specifies the postal code of the user.
+
+* `region` - (Optional, String) Specifies the region of the user.
+
+* `street_address` - (Optional, String) Specifies the street address of the user.
+
+<a name="enterprise_struct"></a>
+The `enterprise` block supports:
+
+* `cost_center` - (Optional, String) Specifies the cost center of the enterprise.
+
+* `department` - (Optional, String) Specifies the department of the enterprise.
+
+* `division` - (Optional, String) Specifies the division of the enterprise.
+
+* `employee_number` - (Optional, String) Specifies the employee number of the enterprise.
+
+* `organization` - (Optional, String) Specifies the organization of the enterprise.
+
+* `manager` - (Optional, String) Specifies the manager of the enterprise.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID.
+
+* `created_at` - The creation time of the user.
+
+* `created_by` - The creator of the user.
+
+* `updated_at` - The update time of the user.
+
+* `updated_by` - The updater of the user.
+
+* `email_verified` - Whether the email is verified.
+
+* `enabled` - Whether the user is enabled.
 
 ## Import
 

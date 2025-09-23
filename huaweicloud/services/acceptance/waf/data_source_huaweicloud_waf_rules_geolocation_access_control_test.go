@@ -9,7 +9,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceWafRulesGeolocationAccessControl_basic(t *testing.T) {
+// Before running the test case, please ensure that there is at least one WAF instance in the current region.
+func TestAccDataSourceRulesGeolocationAccessControl_basic(t *testing.T) {
 	var (
 		dataSourceName = "data.huaweicloud_waf_rules_geolocation_access_control.test"
 		rName          = acceptance.RandomAccResourceName()
@@ -34,6 +35,7 @@ func TestAccDataSourceWafRulesGeolocationAccessControl_basic(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPrecheckWafInstance(t)
+			acceptance.TestAccPreCheckEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -74,11 +76,12 @@ func testDataSourceWafRulesGeolocationAccessControl_basic(name string) string {
 %[1]s
 
 data "huaweicloud_waf_rules_geolocation_access_control" "test" {
+  policy_id             = huaweicloud_waf_policy.test.id
+  enterprise_project_id = "%[2]s"
+
   depends_on = [
     huaweicloud_waf_rule_geolocation_access_control.test
   ]
-
-  policy_id = huaweicloud_waf_policy.policy_1.id
 }
 
 locals {
@@ -86,8 +89,9 @@ locals {
 }
 
 data "huaweicloud_waf_rules_geolocation_access_control" "filter_by_rule_id" {
-  policy_id = huaweicloud_waf_policy.policy_1.id
-  rule_id   = local.rule_id
+  policy_id             = huaweicloud_waf_policy.test.id
+  rule_id               = local.rule_id
+  enterprise_project_id = "%[2]s"
 }
 
 locals {
@@ -105,8 +109,9 @@ locals {
 }
 
 data "huaweicloud_waf_rules_geolocation_access_control" "filter_by_name" {
-  policy_id = huaweicloud_waf_policy.policy_1.id
-  name      = local.name
+  policy_id             = huaweicloud_waf_policy.test.id
+  name                  = local.name
+  enterprise_project_id = "%[2]s"
 }
 
 locals {
@@ -120,8 +125,9 @@ output "name_filter_is_useful" {
 }
 
 data "huaweicloud_waf_rules_geolocation_access_control" "not_found" {
-  policy_id = huaweicloud_waf_policy.policy_1.id
-  name      = "not_found"
+  policy_id             = huaweicloud_waf_policy.test.id
+  name                  = "not_found"
+  enterprise_project_id = "%[2]s"
 }
   
 output "is_not_found" {
@@ -133,8 +139,9 @@ locals {
 }
 
 data "huaweicloud_waf_rules_geolocation_access_control" "filter_by_status" {
-  policy_id = huaweicloud_waf_policy.policy_1.id
-  status    = local.status
+  policy_id             = huaweicloud_waf_policy.test.id
+  status                = local.status
+  enterprise_project_id = "%[2]s"
 }
 
 locals {
@@ -152,8 +159,9 @@ locals {
 }
 
 data "huaweicloud_waf_rules_geolocation_access_control" "filter_by_action" {
-  policy_id = huaweicloud_waf_policy.policy_1.id
-  action    = local.action
+  policy_id             = huaweicloud_waf_policy.test.id
+  action                = local.action
+  enterprise_project_id = "%[2]s"
 }
 
 locals {
@@ -165,5 +173,5 @@ locals {
 output "action_filter_is_useful" {
   value = alltrue(local.action_filter_result) && length(local.action_filter_result) > 0
 }
-`, testRuleGeolocation_basic(name))
+`, testDataSourceRuleGeolocation_basic(name), acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }

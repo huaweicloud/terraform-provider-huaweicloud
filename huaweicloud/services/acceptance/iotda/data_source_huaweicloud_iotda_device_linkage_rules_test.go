@@ -19,45 +19,6 @@ func TestAccDataSourceDeviceLinkageRules_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccDataSourceDeviceLinkageRules_basic(name),
-				Check: resource.ComposeTestCheckFunc(
-					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttrSet(dataSourceName, "rules.#"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.id"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.name"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.type"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.status"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.space_id"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.triggers.0.type"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.actions.0.type"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.updated_at"),
-
-					resource.TestCheckOutput("rule_id_filter_is_useful", "true"),
-					resource.TestCheckOutput("name_filter_is_useful", "true"),
-					resource.TestCheckOutput("type_filter_is_useful", "true"),
-					resource.TestCheckOutput("space_id_filter_is_useful", "true"),
-					resource.TestCheckOutput("status_filter_is_useful", "true"),
-					resource.TestCheckOutput("not_found_validation_pass", "true"),
-				),
-			},
-		},
-	})
-}
-
-func TestAccDataSourceDeviceLinkageRules_derived(t *testing.T) {
-	var (
-		dataSourceName = "data.huaweicloud_iotda_device_linkage_rules.test"
-		dc             = acceptance.InitDataSourceCheck(dataSourceName)
-		name           = acceptance.RandomAccResourceName()
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckHWIOTDAAccessAddress(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
@@ -79,6 +40,7 @@ func TestAccDataSourceDeviceLinkageRules_derived(t *testing.T) {
 					resource.TestCheckOutput("rule_id_filter_is_useful", "true"),
 					resource.TestCheckOutput("name_filter_is_useful", "true"),
 					resource.TestCheckOutput("type_filter_is_useful", "true"),
+					resource.TestCheckOutput("space_id_filter_is_useful", "true"),
 					resource.TestCheckOutput("status_filter_is_useful", "true"),
 					resource.TestCheckOutput("not_found_validation_pass", "true"),
 				),
@@ -174,5 +136,5 @@ data "huaweicloud_iotda_device_linkage_rules" "not_found" {
 output "not_found_validation_pass" {
   value = length(data.huaweicloud_iotda_device_linkage_rules.not_found.rules) == 0
 }
-`, testDeviceLinkageRule_basic(name))
+`, testDeviceLinkageRule_deviceData(name))
 }

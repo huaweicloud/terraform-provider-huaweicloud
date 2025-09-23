@@ -1,0 +1,72 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dms_rocketmq_consumption_verify": {
+          "block": {
+            "attributes": {
+              "client_id": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "group": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "message_id_list": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "resend_results": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "error_code": "string",
+                      "error_message": "string",
+                      "message_id": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the verify results.",
+                "computed": true
+              },
+              "topic": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "RocketMQ",
+            "name": "Distributed Message Service for RocketMQ",
+            "catalog": "Middleware",
+            "name_cn": "分布式消息服务 RocketMQ",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

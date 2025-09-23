@@ -6,7 +6,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -70,12 +69,12 @@ func resourceShareAccepterCreate(ctx context.Context, d *schema.ResourceData, me
 		return diag.FromErr(err)
 	}
 
-	invitationId, err := jmespath.Search("resource_share_invitation.resource_share_invitation_id", createResourceShareAccepterRespBody)
-	if err != nil {
-		return diag.Errorf("error creating RAM resource share accepter: resource share invitation ID is not found in API response")
+	invitationId := utils.PathSearch("resource_share_invitation.resource_share_invitation_id", createResourceShareAccepterRespBody, "").(string)
+	if invitationId == "" {
+		return diag.Errorf("unable to find the resource share invitation ID of the RAM share accepter from the API response")
 	}
 
-	d.SetId(invitationId.(string))
+	d.SetId(invitationId)
 	return resourceShareAccepterRead(ctx, d, meta)
 }
 

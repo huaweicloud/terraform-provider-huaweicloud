@@ -1,11 +1,13 @@
 ---
-subcategory: "Scalable File Service (SFS)"
+subcategory: "Deprecated"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_sfs_access_rule"
 description: ""
 ---
 
 # huaweicloud_sfs_access_rule
+
+!> **WARNING:** It has been deprecated.
 
 Provides an access rule resource of Scalable File Resource (SFS).
 
@@ -98,6 +100,6 @@ This resource provides the following timeouts configuration options:
 
 SFS access rule can be imported by specifying the SFS ID and access rule ID separated by a slash, e.g.:
 
-```
+```bash
 $ terraform import huaweicloud_sfs_access_rule <sfs_id>/<rule_id>
 ```

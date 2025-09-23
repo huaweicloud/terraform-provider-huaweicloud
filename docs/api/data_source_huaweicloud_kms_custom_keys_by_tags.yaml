@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_kms_custom_keys_by_tags
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DEW
+paths:
+    /v1.0/{project_id}/kms/resource_instances/action:
+        POST:
+            tag: DEW

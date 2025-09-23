@@ -1,0 +1,65 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_compute_templates": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "launch_template_id": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the template IDs.",
+                "optional": true
+              },
+              "launch_templates": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "default_version": "number",
+                      "description": "string",
+                      "id": "string",
+                      "latest_version": "number",
+                      "name": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of templates.",
+                "computed": true
+              },
+              "name": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the template names.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "ECS",
+            "name": "Elastic Cloud Server",
+            "catalog": "Compute",
+            "name_cn": "弹性云服务器",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

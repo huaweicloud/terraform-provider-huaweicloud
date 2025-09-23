@@ -1,0 +1,77 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_codearts_pipeline_service_endpoint": {
+          "block": {
+            "attributes": {
+              "created_by": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "user_id": "string",
+                      "user_name": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the permission information.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "module_id": {
+                "type": "string",
+                "description": "Specifies the module ID.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the endpoint name.",
+                "optional": true
+              },
+              "project_id": {
+                "type": "string",
+                "description": "Specifies the CodeArts project ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "url": {
+                "type": "string",
+                "description": "Specifies the URL.",
+                "optional": true
+              }
+            },
+            "block_types": {
+              "authorization": {
+                "block": {
+                  "attributes": {
+                    "parameters": {
+                      "type": "string",
+                      "description": "Specifies the authentication parameter.",
+                      "optional": true
+                    },
+                    "scheme": {
+                      "type": "string",
+                      "description": "Specifies the authentication mode.",
+                      "optional": true
+                    }
+                  },
+                  "description": "Specifies the permission information."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -11,3 +11,6 @@ paths:
     /v2/{project_id}/instances/{instance_id}/groups:
         GET:
             tag: Kafka
+    /v2/{project_id}/instances/{instance_id}/management/groups/{group}:
+        GET:
+            tag: Kafka

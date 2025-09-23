@@ -1,0 +1,64 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_apig_orchestration_rules": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the dedicated instance to which the orchestration rules belong.",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the orchestration rule to be queried, fuzzy matching is supported.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the orchestration rules are located.",
+                "computed": true
+              },
+              "rule_id": {
+                "type": "string",
+                "description": "The ID of the orchestration rule to be queried.",
+                "optional": true
+              },
+              "rules": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "id": "string",
+                      "is_preprocessing": "bool",
+                      "mapped_param": "string",
+                      "name": "string",
+                      "strategy": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "All orchestration rules that match the filter parameters.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

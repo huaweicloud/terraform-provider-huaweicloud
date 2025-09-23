@@ -1,0 +1,20 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cfw_anti_virus
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CFW
+paths:
+    /v1/{project_id}/anti-virus/rule:
+        GET:
+            tag: CFW
+        PUT:
+            tag: CFW
+    /v1/{project_id}/anti-virus/switch:
+        GET:
+            tag: CFW
+        PUT:
+            tag: CFW

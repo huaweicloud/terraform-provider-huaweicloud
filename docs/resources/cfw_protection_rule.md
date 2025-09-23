@@ -1,11 +1,14 @@
 ---
-subcategory: "Cloud Firewall (CFW)"
+subcategory: "Deprecated"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_cfw_protection_rule"
-description: ""
+description: |-
+  Manages a CFW protection rule resource within HuaweiCloud.
 ---
 
 # huaweicloud_cfw_protection_rule
+
+!> **WARNING:** It has been deprecated, use `huaweicloud_cfw_acl_rule` instead.
 
 Manages a CFW protection rule resource within HuaweiCloud.
 
@@ -156,18 +159,18 @@ The following arguments are supported:
 
 * `name` - (Required, String) The rule name.
 
-* `object_id` - (Required, String, ForceNew) The protected object ID
+* `object_id` - (Required, String, ForceNew) The protected object ID.
 
   Changing this parameter will create a new resource.
 
 * `type` - (Required, Int) The rule type.
-  The value can be **0** (Internet rule), **1** (VPC rule), or **2** (NAT rule).
+  The value can be `0` (Internet rule), `1` (VPC rule), or `2` (NAT rule).
 
 * `action_type` - (Required, Int) The action type.
-  The value can be **0** (allow) **1** (deny).
+  The value can be `0` (allow) or `1` (deny).
 
 * `address_type` - (Required, Int) The address type.
-  The value can be **0** (IPv4), **1** (IPv6), or **2** (domain).
+  The value can be `0` (IPv4) or `1` (IPv6).
 
 * `sequence` - (Required, List) The sequence configuration.
 The [Order Rule](#ProtectionRule_OrderRuleAcl) structure is documented below.
@@ -243,13 +246,17 @@ The `service` block supports:
   This parameter is left blank for the manual type and cannot be left blank for the automatic type.
 
 * `service_set_name` - (Optional, String) The service group name.
+  This parameter is left blank for the manual type and cannot be left blank for the automatic type.
 
 * `source_port` - (Optional, String) The source port.
 
 * `custom_service` - (Optional, List) The custom service list.
+  When using this parameter, the `type` must be set to **2** (multiple objects).
+
   The [custom_service](#ProtectionRule_RuleCustomService) structure is documented below.
 
-* `service_group` - (Optional, List) The service group list.
+* `service_group` - (Optional, List) The list of service group IDs.
+  When using this parameter, the `type` must be set to **2** (multiple objects).
 
 <a name="ProtectionRule_RuleSourceAddress"></a>
 The `source` block supports:
@@ -259,17 +266,19 @@ The `source` block supports:
   + **1**: associated IP address group;
   + **2**: domain name;
   + **3**: region;
-  + **4**: domain name group using URL filtering;
+  + **4**: application domain name group;
   + **5**: multiple objects;
-  + **6**: domain name group using DNS resolution;
+  + **6**: network domain name group;
+  + **7**: application domain name;
 
 * `address` - (Optional, String) The IP address.
   The value cannot be empty for the manual type, and cannot be empty for the automatic or domain type.
 
 * `address_set_id` - (Optional, String) The ID of the associated IP address group.
-  The value cannot be empty for the automatic type or for the manual or domain type.
+  This parameter cannot be left blank when `type` is set to **1** (associated IP address group).
 
 * `address_set_name` - (Optional, String) The IP address group name.
+  This parameter cannot be left blank when `type` is set to **1** (associated IP address group).
 
 * `address_type` - (Optional, Int) The address type. The options are as follows:
   + **0**: IPv4;
@@ -282,8 +291,10 @@ The `source` block supports:
   The [region_list](#ProtectionRule_RuleRegionList) structure is documented below.
 
 * `ip_address` - (Optional, List) The IP address list.
+  When using this parameter, the `type` must be set to **5** (multiple objects).
 
-* `address_group` - (Optional, List) The address group list.
+* `address_group` - (Optional, List) The list of address group IDs.
+  When using this parameter, the `type` must be set to **5** (multiple objects).
 
 <a name="ProtectionRule_RuleDestinationAddress"></a>
 The `destination` block supports:
@@ -293,35 +304,43 @@ The `destination` block supports:
   + **1**: associated IP address group;
   + **2**: domain name;
   + **3**: region;
-  + **4**: domain name group using URL filtering;
+  + **4**: application domain name group;
   + **5**: multiple objects;
-  + **6**: domain name group using DNS resolution;
+  + **6**: network domain name group;
+  + **7**: application domain name;
 
 * `address` - (Optional, String) The IP address.
   The value cannot be empty for the manual type, and cannot be empty for the automatic or domain type.
 
 * `address_set_id` - (Optional, String) The ID of the associated IP address group.
-  The value cannot be empty for the automatic type or for the manual or domain type.
+  This parameter cannot be left blank when `type` is set to **1** (associated IP address group).
 
 * `address_set_name` - (Optional, String) The IP address group name.
+  This parameter cannot be left blank when `type` is set to **1** (associated IP address group).
 
 * `address_type` - (Optional, Int) The address type. The options are as follows:
   + **0**: IPv4;
   + **1**: IPv6;
 
 * `domain_address_name` - (Optional, String) The name of the domain name address.
-  This parameter cannot be left empty for the domain name type, and is empty for the manual or automatic type.
+  This parameter is valid when `type` is set to **2** (domain name) or **7** (application domain name).
 
 * `region_list` - (Optional, List) The region list.
   The [region_list](#ProtectionRule_RuleRegionList) structure is documented below.
 
 * `ip_address` - (Optional, List) The IP address list.
+  When using this parameter, the `type` must be set to **5** (multiple objects).
 
 * `domain_set_id` - (Optional, String) The ID of the domain group.
+  The value cannot be left blank when `type` is set to **4** (application domain name group) or **6** (network domain
+  name group).
   
 * `domain_set_name` - (Optional, String) The name of domain group.
+  The value cannot be left blank when `type` is set to **4** (application domain name group) or **6** (network domain
+  name group).
 
-* `address_group` - (Optional, List) The address group list.
+* `address_group` - (Optional, List) The list of address group IDs.
+  When using this parameter, the `type` must be set to **5** (multiple objects).
 
 <a name="ProtectionRule_RuleCustomService"></a>
 The `custom_service` block supports:

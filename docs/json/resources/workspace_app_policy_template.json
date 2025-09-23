@@ -1,0 +1,55 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_workspace_app_policy_template": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the policy template, in RFC3339 format.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the policy template.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the policy group.",
+                "required": true
+              },
+              "policies": {
+                "type": "string",
+                "description": "The policies configuration in JSON format.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the policy template is located.",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The update time of the policy template, in RFC3339 format.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

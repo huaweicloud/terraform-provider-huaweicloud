@@ -1,0 +1,78 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_opengauss_top_io_traffics": {
+          "block": {
+            "attributes": {
+              "component_id": {
+                "type": "string",
+                "description": "Specifies the component ID.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the GaussDB OpenGauss instance ID.",
+                "required": true
+              },
+              "node_id": {
+                "type": "string",
+                "description": "Specifies the node ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "sort_condition": {
+                "type": "string",
+                "description": "Specifies the top I/O sorting condition.",
+                "optional": true
+              },
+              "top_io_infos": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "client_ip": "string",
+                      "database_name": "string",
+                      "disk_read_rate": "number",
+                      "disk_write_rate": "number",
+                      "session_id": "string",
+                      "sql_start": "number",
+                      "state": "string",
+                      "thread_id": "string",
+                      "thread_type": "string",
+                      "unique_sql_id": "string",
+                      "user_name": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the I/O information.",
+                "computed": true
+              },
+              "top_io_num": {
+                "type": "number",
+                "description": "Specifies the number of top I/O threads to be queried in the database process.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDB",
+            "name": "GaussDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

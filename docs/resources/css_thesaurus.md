@@ -9,17 +9,21 @@ description: ""
 
 Manages CSS thesaurus resource within HuaweiCloud
 
--> Only one thesaurus resource can be created for the specified cluster
+-> Only one thesaurus resource can be created for the specified cluster.
 
 ## Example Usage
 
 ### Create a thesaurus
 
 ```hcl
+variable "cluster_id" {}
+variable "bucket_name" {}
+variable "bucket_obj_key" {}
+
 resource "huaweicloud_css_thesaurus" "test" {
-  cluster_id  = {{ css_cluster_id }}
-  bucket_name = {{ bucket_name }}
-  main_object = {{ bucket_obj_key }}
+  cluster_id  = var.cluster_id
+  bucket_name = var.bucket_name
+  main_object = var.bucket_obj_key
 }
 ```
 
@@ -42,7 +46,8 @@ The following arguments are supported:
 
 * `synonym_object` - (Optional, String) Specifies the path of the synonyms thesaurus file object.
 
--> Specifies at least one of `main_object`,`stop_object`,`synonym_object`
+-> Specifies at least one of `main_object`, `stop_object`, `synonym_object`.
+**nil** or **Default** indicates no change, **""** or **Unused** indicates that this value is cleared.
 
 ## Attribute Reference
 

@@ -11,6 +11,8 @@ Manages a GA accelerator resource within HuaweiCloud.
 
 ## Example Usage
 
+### Accelerator With IPV4
+
 ```hcl
 variable "name" {}
 variable "description" {}
@@ -30,20 +32,47 @@ resource "huaweicloud_ga_accelerator" "test" {
 }
 ```
 
+#### Accelerator With IPV4 And IPV6
+
+```hcl
+variable "name" {}
+variable "description" {}
+
+resource "huaweicloud_ga_accelerator" "test" {
+  name        = var.name
+  description = var.description
+
+  ip_sets {
+    ip_type = "IPV4"
+    area    = "CM"
+  }
+
+  ip_sets {
+    ip_type = "IPV6"
+    area    = "CM"
+  }
+
+  tags = {
+    foo = "bar"
+    key = "value"
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
 
-* `name` - (Required, String) Specifies the global accelerator name. The name can contain 1 to 64 characters.
-  Only letters, digits, and hyphens (-) are allowed.
+* `name` - (Required, String) Specifies the global accelerator name.  
+  The name can contain `1` to `64` characters, only letters, digits, and hyphens (-) are allowed.
 
 * `ip_sets` - (Required, List, ForceNew) Specifies the IP addresses assigned to the global accelerator.
   The [AccelerateIp](#Accelerator_AccelerateIp) structure is documented below.
 
   Changing this parameter will create a new resource.
 
-* `description` - (Optional, String) Specifies the description about the global accelerator. The value can contain
-  0 to 255 characters. The following characters are not allowed: <>
+* `description` - (Optional, String) Specifies the description about the global accelerator.  
+  The description contain a maximum of `255` characters, and the angle brackets (< and >) are not allowed.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID of the tenant.
   The value is **0** or a string that contains a maximum of 36 characters in UUID format with hyphens (-).
@@ -62,10 +91,14 @@ The `AccelerateIp` block supports:
 
   Changing this parameter will create a new resource.
 
-* `ip_type` - (Optional, String, ForceNew) Specifies the IP address version. Only **IPV4** is supported for now.
-  Defaults to **IPV4**.
-
+* `ip_type` - (Optional, String, ForceNew) Specifies the IP address version. Defaults to **IPV4**.
   Changing this parameter will create a new resource.
+  The valid values are as follows:
+  + **IPV4**
+  + **IPV6**
+
+  -> If you want to set this parameter to **IPV6**, you must set **IPV4** at the same time.
+    Please refer to the document sample.
 
 ## Attribute Reference
 

@@ -1,0 +1,234 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_workspace_app_server_group": {
+          "block": {
+            "attributes": {
+              "app_type": {
+                "type": "string",
+                "description": "The type of application group associated with the server group.",
+                "optional": true,
+                "computed": true
+              },
+              "availability_zone": {
+                "type": "string",
+                "description": "The availability zone of the server group.",
+                "optional": true,
+                "forcenew": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the server group.",
+                "optional": true
+              },
+              "enabled": {
+                "type": "bool",
+                "description": "Whether to enable server group.",
+                "optional": true,
+                "default": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The ID of the enterprise project to which the server group belong.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "extra_session_size": {
+                "type": "number",
+                "description": "The number of additional sessions for a single server.",
+                "optional": true,
+                "forcenew": true
+              },
+              "extra_session_type": {
+                "type": "string",
+                "description": "The additional session type.",
+                "optional": true,
+                "forcenew": true
+              },
+              "flavor_id": {
+                "type": "string",
+                "description": "The flavor ID of the server group.",
+                "required": true,
+                "forcenew": true
+              },
+              "flavors": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "string",
+                      "links": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "href": "string",
+                            "rel": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The list of server flavors.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "image_id": {
+                "type": "string",
+                "description": "The image ID of the server group.",
+                "required": true
+              },
+              "image_min_disk": {
+                "type": "number",
+                "description": "The minimum memory required to run the image, in MB.",
+                "computed": true
+              },
+              "image_product_id": {
+                "type": "string",
+                "description": "The image product ID of the server group.",
+                "optional": true,
+                "computed": true
+              },
+              "image_type": {
+                "type": "string",
+                "description": "The image type of the server group.",
+                "required": true
+              },
+              "is_vdi": {
+                "type": "bool",
+                "description": "The session mode of the server group.",
+                "optional": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the server group.",
+                "required": true
+              },
+              "os_type": {
+                "type": "string",
+                "description": "The operating system type of the server group.",
+                "required": true,
+                "forcenew": true
+              },
+              "ou_name": {
+                "type": "string",
+                "description": "The OU name corresponding to the AD server.",
+                "optional": true
+              },
+              "primary_server_group_id": {
+                "type": "string",
+                "description": "The ID of the primary server group.",
+                "optional": true,
+                "forcenew": true
+              },
+              "project_name": {
+                "type": "string",
+                "description": "The name of the project.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "storage_mount_policy": {
+                "type": "string",
+                "description": "The NAS storage directory mounting policy on the APS.",
+                "optional": true,
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "description": "The subnet ID to which the server group belongs.",
+                "required": true,
+                "forcenew": true
+              },
+              "system_disk_size": {
+                "type": "number",
+                "description": "The size of system disk, in GB.",
+                "required": true
+              },
+              "system_disk_type": {
+                "type": "string",
+                "description": "The type of system disk.",
+                "required": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "The key/value pairs to associate with the server group.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "description": "The VPC ID to which the server group belongs.",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "ip_virtual": {
+                "block": {
+                  "attributes": {
+                    "enable": {
+                      "type": "bool",
+                      "description": "Whether to enable IP virtualization.",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  },
+                  "description": "The IP virtualization function configuration."
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              },
+              "route_policy": {
+                "block": {
+                  "attributes": {
+                    "cpu_threshold": {
+                      "type": "number",
+                      "description": "The CPU usage of the server.",
+                      "optional": true
+                    },
+                    "max_session": {
+                      "type": "number",
+                      "description": "The number of session connections of the server.",
+                      "optional": true
+                    },
+                    "mem_threshold": {
+                      "type": "number",
+                      "description": "The memory usage of the server.",
+                      "optional": true
+                    }
+                  },
+                  "description": "The session scheduling policy of the server group."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

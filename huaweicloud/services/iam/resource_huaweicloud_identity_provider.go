@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"regexp"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -60,9 +59,6 @@ func ResourceIdentityProvider() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				ValidateFunc: validation.StringMatch(regexp.MustCompile(`^[\w-]{1,64}$`),
-					"The maximum length is 64 characters. "+
-						"Only letters, digits, underscores (_), and hyphens (-) are allowed"),
 			},
 			"protocol": {
 				Type:         schema.TypeString,
@@ -125,19 +121,18 @@ func ResourceIdentityProvider() *schema.Resource {
 						"scopes": {
 							Type:     schema.TypeList,
 							Optional: true,
-							MaxItems: 10,
 							Computed: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
 						"response_type": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Default:  "id_token",
+							Computed: true,
 						},
 						"response_mode": {
 							Type:         schema.TypeString,
 							Optional:     true,
-							Default:      "form_post",
+							Computed:     true,
 							ValidateFunc: validation.StringInSlice([]string{"fragment", "form_post"}, false),
 						},
 					},
@@ -248,8 +243,18 @@ func resourceIdentityProviderCreate(ctx context.Context, d *schema.ResourceData,
 			scopes := utils.ExpandToStringList(accessConfig["scopes"].([]interface{}))
 			createAccessTypeOpts.Scope = strings.Join(scopes, scopeSpilt)
 			createAccessTypeOpts.AuthorizationEndpoint = accessConfig["authorization_endpoint"].(string)
-			createAccessTypeOpts.ResponseType = accessConfig["response_type"].(string)
-			createAccessTypeOpts.ResponseMode = accessConfig["response_mode"].(string)
+
+			responseType := accessConfig["response_type"].(string)
+			if responseType == "" {
+				responseType = "id_token"
+			}
+			createAccessTypeOpts.ResponseType = responseType
+
+			responseMode := accessConfig["response_mode"].(string)
+			if responseMode == "" {
+				responseMode = "form_post"
+			}
+			createAccessTypeOpts.ResponseMode = responseMode
 		}
 
 		log.Printf("[DEBUG] Create access type of provider: %#v", opts)
@@ -315,7 +320,7 @@ func createProtocol(client *golangsdk.ServiceClient, d *schema.ResourceData) err
 func getDefaultConversionOpts() *mappings.MappingOption {
 	localRules := []mappings.LocalRule{
 		{
-			User: mappings.LocalRuleVal{
+			User: &mappings.LocalRuleVal{
 				Name: "FederationUser",
 			},
 		},
@@ -416,10 +421,11 @@ func flattenConversionRulesAttr(conversions *mappings.IdentityMapping) []interfa
 	for _, v := range conversions.Rules {
 		localRules := make([]map[string]interface{}, 0, len(v.Local))
 		for _, localRule := range v.Local {
-			username := localRule.User.Name
-			r := map[string]interface{}{
-				"username": username,
+			r := map[string]interface{}{}
+			if localRule.User != nil {
+				r["username"] = localRule.User.Name
 			}
+
 			if localRule.Group != nil {
 				r["group"] = localRule.Group.Name
 			}

@@ -14,7 +14,6 @@ import (
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
@@ -34,31 +33,21 @@ func DataSourceStoragetype() *schema.Resource {
 				Computed: true,
 			},
 			"db_type": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: `DB engine. The valid values are **MySQL**, **PostgreSQL**, **SQLServer**.`,
-				ValidateFunc: validation.StringInSlice([]string{
-					"MySQL", "PostgreSQL", "SQLServer",
-				}, false),
+				Type:     schema.TypeString,
+				Required: true,
 			},
 			"db_version": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: `DB version number.`,
+				Type:     schema.TypeString,
+				Required: true,
 			},
 			"instance_mode": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: `HA mode. The valid values are **single**, **ha**, **replica**.`,
-				ValidateFunc: validation.StringInSlice([]string{
-					"single", "ha", "replica",
-				}, false),
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"storage_types": {
-				Type:        schema.TypeList,
-				Elem:        StoragetypeStorageTypeSchema(),
-				Computed:    true,
-				Description: `Storage_type list. For details, see Data structure of the storageType field.`,
+				Type:     schema.TypeList,
+				Elem:     StoragetypeStorageTypeSchema(),
+				Computed: true,
 			},
 		},
 	}

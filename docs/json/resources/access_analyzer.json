@@ -25,8 +25,29 @@
                 "type": "string",
                 "required": true
               },
+              "organization_id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
               "status": {
                 "type": "string",
+                "computed": true
+              },
+              "status_reason": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "code": "string",
+                      "details": "string"
+                    }
+                  ]
+                ],
                 "computed": true
               },
               "tags": {
@@ -34,7 +55,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "type": {
                 "type": "string",
@@ -43,6 +65,29 @@
               "urn": {
                 "type": "string",
                 "computed": true
+              }
+            },
+            "block_types": {
+              "configuration": {
+                "block": {
+                  "block_types": {
+                    "unused_access": {
+                      "block": {
+                        "attributes": {
+                          "unused_access_age": {
+                            "type": "number",
+                            "optional": true,
+                            "computed": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
               }
             }
           }

@@ -1,0 +1,65 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dataarts_dataservice_messages": {
+          "block": {
+            "attributes": {
+              "api_name": {
+                "type": "string",
+                "description": "The name of the API to be approved.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "messages": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "api_apply_status": "string",
+                      "api_apply_type": "string",
+                      "api_id": "string",
+                      "api_name": "string",
+                      "api_using_time": "string",
+                      "app_id": "string",
+                      "app_name": "string",
+                      "apply_time": "string",
+                      "approval_time": "string",
+                      "approver_name": "string",
+                      "comment": "string",
+                      "id": "string",
+                      "user_name": "string"
+                    }
+                  ]
+                ],
+                "description": "All approval messages that match the filter parameters.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the approval messages are located.",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "The workspace ID of the exclusive API to which the approval message belongs.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "DataArtsStudio",
+            "name": "DataArts Studio",
+            "catalog": "Analytics",
+            "name_cn": "数据治理中心",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

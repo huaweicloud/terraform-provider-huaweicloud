@@ -32,9 +32,9 @@ The following arguments are supported:
   The valid values are **general-computing** and **gpu-accelerated**.
   Changing this will create a new CCI namespace resource.
 
-* `name` - (Required, String, ForceNew) Specifies the unique name of the CCI namespace.
-  This parameter can contain a maximum of 63 characters, which may consist of lowercase letters, digits and hyphens,
-  and must start and end with lowercase letters and digits.
+* `name` - (Required, String, ForceNew) Specifies the unique name of the CCI namespace.  
+  This parameter can contain a maximum of `63` characters, which may consist of lowercase letters, digits and
+  hyphens (-), and must start and end with lowercase letters and digits.  
   Changing this will create a new CCI namespace resource.
 
 * `auto_expend_enabled` - (Optional, Bool, ForceNew) Specifies whether elastic scheduling is enabled.
@@ -46,7 +46,8 @@ The following arguments are supported:
   ->**NOTE:** If the enterprise project selected by namespace is different from the enterprise project owned by the VPC,
   the created namespace may not work normally due to permissions.
 
-* `warmup_pool_size` - (Optional, Int, ForceNew) Specifies the size of IP pool to warm-up.
+* `warmup_pool_size` - (Optional, Int, ForceNew) Specifies the size of IP pool to warm-up.  
+  The valid value is range from `1` to `500`.
   Changing this will create a new CCI namespace resource.
 
 * `recycling_interval` - (Optional, Int, ForceNew) Specifies the IP address recycling interval, in hour.
@@ -76,7 +77,7 @@ In addition to all arguments above, the following attributes are exported:
 
 CCI Namespaces can be imported using their `name`, e.g.,
 
-```
+```bash
 $ terraform import huaweicloud_cci_namespace.test terraform-test
 ```
 

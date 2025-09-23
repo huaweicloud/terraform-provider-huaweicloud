@@ -1,0 +1,64 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_servicestagev3_environments": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The ID of the enterprise project to which the environments belong.",
+                "optional": true
+              },
+              "environment_id": {
+                "type": "string",
+                "description": "The ID of the environment to be queried.",
+                "optional": true
+              },
+              "environments": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "creator": "string",
+                      "deploy_mode": "string",
+                      "description": "string",
+                      "enterprise_project_id": "string",
+                      "id": "string",
+                      "name": "string",
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "updated_at": "string",
+                      "version": "string",
+                      "vpc_id": "string"
+                    }
+                  ]
+                ],
+                "description": "All runtime stack details.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the environment to be queried.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the environments are located.",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -28,37 +28,6 @@ jobs:
           files:
             ./*.md ./examples ./docs
 
-  tflint:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v3
-      name: Checkout source code
-
-    - uses: terraform-linters/setup-tflint@v3
-      name: Setup TFLint
-
-    - name: Init TFLint
-      run: tflint --init
-      env: 
-        github_token: ${{ secrets.github_token }}
-
-    - name: Show version
-      run: tflint --version
-
-    - name: Run TFLint
-      run: |
-        # Go through all dirs
-        WORK_DIR="./examples"
-        dirs=$(ls -d ${WORK_DIR}/*)
-        for sub_dir in ${dirs}; do
-          targets=$(ls -d ${sub_dir}/*)
-          for DIRECTORY in ${targets}; do
-            echo -e "\nlinting directory: ${DIRECTORY}"
-            tflint --chdir ${DIRECTORY} --config ../../.tflint.hcl
-          done
-        done
-
   misspell:
     runs-on: ubuntu-latest
     steps:
@@ -69,9 +38,7 @@ jobs:
           github_token: ${{ secrets.github_token }}
           locale: "US"
           ignore: |
-            "analyses"
-            "cancelled"
-            "classis"
+            analyses,cancelled,classis,cancelling,catalogue,catalogues,defence,subscirption,
           pattern: |
             *.md
             *.tf

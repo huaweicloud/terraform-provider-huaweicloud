@@ -7,40 +7,30 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v2/model"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cdn"
 )
 
 func getBillingOptionResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	region := acceptance.HW_REGION_NAME
-	hcCdnClient, err := cfg.HcCdnV2Client(region)
+	var (
+		region      = acceptance.HW_REGION_NAME
+		product     = "cdn"
+		productType = state.Primary.Attributes["product_type"]
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return nil, fmt.Errorf("error creating CDN v2 client: %s", err)
+		return nil, fmt.Errorf("error creating CDN client: %s", err)
 	}
 
-	request := model.ShowChargeModesRequest{
-		ProductType: state.Primary.Attributes["product_type"],
-	}
-
-	resp, err := hcCdnClient.ShowChargeModes(&request)
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving CDN billing option: %s", err)
-	}
-
-	if resp == nil || resp.Result == nil || len(*resp.Result) == 0 {
-		return nil, fmt.Errorf("error retrieving CDN billing option: Result is not found in API response")
-	}
-
-	resultArray := *resp.Result
-	return resultArray[0], nil
+	return cdn.GetBillingOptionDetail(client, productType)
 }
 
 func TestAccBillingOption_basic(t *testing.T) {
-	var obj interface{}
-
-	rName := "huaweicloud_cdn_billing_option.test"
+	var (
+		obj   interface{}
+		rName = "huaweicloud_cdn_billing_option.test"
+	)
 
 	rc := acceptance.InitResourceCheck(
 		rName,
@@ -48,9 +38,12 @@ func TestAccBillingOption_basic(t *testing.T) {
 		getBillingOptionResourceFunc,
 	)
 
+	// Avoid CheckDestroy, because there is nothing in the resource destroy method.
 	// lintignore:AT001
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{

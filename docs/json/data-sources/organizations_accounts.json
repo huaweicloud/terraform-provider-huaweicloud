@@ -11,10 +11,15 @@
                   [
                     "object",
                     {
+                      "description": "string",
+                      "email": "string",
                       "id": "string",
+                      "intl_number_prefix": "string",
                       "join_method": "string",
                       "joined_at": "string",
+                      "mobile_phone": "string",
                       "name": "string",
+                      "status": "string",
                       "urn": "string"
                     }
                   ]
@@ -34,6 +39,11 @@
               "parent_id": {
                 "type": "string",
                 "description": "Specifies the ID of root or organizational unit.",
+                "optional": true
+              },
+              "with_register_contact_info": {
+                "type": "bool",
+                "description": "Whether to return email addresses and mobile numbers associated with the account.",
                 "optional": true
               }
             }

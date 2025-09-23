@@ -17,6 +17,3 @@ paths:
     /v2/{project_id}/apigw/instances/{instance_id}/app-auths/binded-apis:
         GET:
             tag: APIG
-    /v2/{project_id}/apigw/instances/{instance_id}/app-auths/unbinded-apis:
-        GET:
-            tag: APIG

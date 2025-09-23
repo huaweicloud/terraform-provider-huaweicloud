@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
+	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/eg/v1/subscriptions"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -83,6 +84,17 @@ func ResourceEventSubscription() *schema.Resource {
 								utils.SchemaDescInput{
 									Required: true,
 								}),
+						},
+						"detail_name": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "The name (key) of the source configuration detail.",
+						},
+						"detail": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.StringIsJSON,
+							Description:  "The configuration source of the event target, in JSON format.",
 						},
 						"created_at": {
 							Type:        schema.TypeString,
@@ -208,9 +220,10 @@ func buildEventSourcesOpts(newSources *schema.Set) []interface{} {
 			continue
 		}
 		element := map[string]interface{}{
-			"provider_type": newSource["provider_type"],
-			"name":          newSource["name"],
-			"filter":        unmarshalEventSubscriptionParamsters("filter rule of event source", newSource["filter_rule"].(string)),
+			"provider_type":                   newSource["provider_type"],
+			"name":                            newSource["name"],
+			"filter":                          unmarshalEventSubscriptionParamsters("filter rule of event source", newSource["filter_rule"].(string)),
+			newSource["detail_name"].(string): unmarshalEventSubscriptionParamsters("event source detail", newSource["detail"].(string)),
 		}
 		if sourceId, ok := newSource["id"].(string); ok && sourceId != "" {
 			// The ID can be omitted, a new source will be created in this scenario.
@@ -231,9 +244,9 @@ func buildEventTargetsOpts(newTargets *schema.Set) []interface{} {
 		element := map[string]interface{}{
 			"provider_type":                   newTarget["provider_type"],
 			"name":                            newTarget["name"],
-			"connection_id":                   newTarget["connection_id"],
 			newTarget["detail_name"].(string): unmarshalEventSubscriptionParamsters("event target detail", newTarget["detail"].(string)),
 			"transform":                       unmarshalEventSubscriptionParamsters("transform of event target", newTarget["transform"].(string)),
+			"connection_id":                   utils.ValueIgnoreEmpty(utils.PathSearch("connection_id", newTarget, nil)),
 		}
 		if queueRaw := newTarget["dead_letter_queue"].(string); queueRaw != "" {
 			element["dead_letter_queue"] = unmarshalEventSubscriptionParamsters("dead letter queue of event target", queueRaw)
@@ -284,6 +297,19 @@ func flattenEventSources(sourcesResp []map[string]interface{}) []interface{} {
 			"created_at":    source["created_time"],
 			"updated_at":    source["updated_time"],
 		}
+		// find the key name of the target details
+		for key, value := range source {
+			if strings.Contains(key, "detail") {
+				jsonDetail, err := json.Marshal(value)
+				if err != nil {
+					log.Printf("[ERROR] unable to convert the detail of the event source, not json format")
+				} else {
+					element["detail_name"] = key
+					element["detail"] = string(jsonDetail)
+				}
+				break
+			}
+		}
 
 		jsonFilter, err := json.Marshal(source["filter"])
 		if err != nil {
@@ -310,8 +336,7 @@ func flattenEventTargets(targetsResp []map[string]interface{}) []interface{} {
 		}
 		// find the key name of the target details
 		for key, value := range target {
-			if target["provider_type"] == "OFFICIAL" && strings.Contains(key, "_detail") ||
-				target["provider_type"] == "CUSTOM" && strings.Contains(key, "detail") {
+			if strings.Contains(key, "detail") {
 				jsonDetail, err := json.Marshal(value)
 				if err != nil {
 					log.Printf("[ERROR] unable to convert the detail of the event target, not json format")
@@ -402,6 +427,10 @@ func resourceEventSubscriptionUpdate(ctx context.Context, d *schema.ResourceData
 	return resourceEventSubscriptionRead(ctx, d, meta)
 }
 
+func DeleteEventSubscription(client *golangsdk.ServiceClient, subscriptionId string) error {
+	return subscriptions.Delete(client, subscriptionId)
+}
+
 func resourceEventSubscriptionDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg            = meta.(*config.Config)
@@ -413,7 +442,7 @@ func resourceEventSubscriptionDelete(_ context.Context, d *schema.ResourceData, 
 		return diag.Errorf("error creating EG v1 client: %s", err)
 	}
 
-	err = subscriptions.Delete(client, subscriptionId)
+	err = DeleteEventSubscription(client, subscriptionId)
 	if err != nil {
 		return diag.Errorf("error deleting EG subscription (%s): %s", subscriptionId, err)
 	}

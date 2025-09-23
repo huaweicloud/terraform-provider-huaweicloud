@@ -1,0 +1,62 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_ddm_killing_sessions_audit_logs": {
+          "block": {
+            "attributes": {
+              "end_time": {
+                "type": "string",
+                "description": "Specifies the end time in UTC, accurate to milliseconds.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the DDM instance ID or ID of the associated RDS instance.",
+                "required": true
+              },
+              "process_audit_logs": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "execute_time": "string",
+                      "execute_user_name": "string",
+                      "instance_id": "string",
+                      "instance_name": "string",
+                      "process_id": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of killing sessions audit log.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "start_time": {
+                "type": "string",
+                "description": "Specifies the start time in UTC, accurate to milliseconds.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "DDM",
+            "name": "Distributed Database Middleware",
+            "catalog": "Databases",
+            "name_cn": "分布式数据库中间件",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

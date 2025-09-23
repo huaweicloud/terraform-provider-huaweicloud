@@ -1,26 +1,26 @@
-// ---------------------------------------------------------------
-// *** AUTO GENERATED CODE ***
-// @Product SecMaster
-// ---------------------------------------------------------------
-
 package secmaster
 
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+)
+
+const (
+	GetAlertRuleNotFound    = "common.00000500"
+	DeleteAlertRuleNotFound = "SecMaster.10011001"
 )
 
 // @API SecMaster DELETE /v1/{project_id}/workspaces/{workspace_id}/siem/alert-rules
@@ -37,6 +37,11 @@ func ResourceAlertRule() *schema.Resource {
 		DeleteContext: resourceAlertRuleDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceAlertRuleImportState,
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(10 * time.Minute),
+			Update: schema.DefaultTimeout(10 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -241,10 +246,7 @@ func resourceAlertRuleCreate(ctx context.Context, d *schema.ResourceData, meta i
 
 	createAlertRuleOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: map[string]string{"Content-Type": "application/json"},
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
 	createAlertRuleOpt.JSONBody = utils.RemoveNil(buildCreateAlertRuleBodyParams(d))
@@ -258,11 +260,16 @@ func resourceAlertRuleCreate(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("rule_id", createAlertRuleRespBody)
-	if err != nil {
-		return diag.Errorf("error creating AlertRule: ID is not found in API response")
+	id := utils.PathSearch("rule_id", createAlertRuleRespBody, "").(string)
+	if id == "" {
+		return diag.Errorf("error creating SecMaster alert rule: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
+
+	checkErr := alertRuleProcessStatusCheck(ctx, d, createAlertRuleClient, d.Timeout(schema.TimeoutCreate))
+	if checkErr != nil {
+		return diag.Errorf("error waiting for SecMaster alert rule creating to completed: %s", err)
+	}
 
 	return resourceAlertRuleRead(ctx, d, meta)
 }
@@ -335,45 +342,22 @@ func buildCreateAlertRuleRequestBodyAlertRuleTrigger(rawParams interface{}) []ma
 func resourceAlertRuleRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-
-	var mErr *multierror.Error
-
-	// getAlertRule: Query the SecMaster alert rule detail
-	var (
-		getAlertRuleHttpUrl = "v1/{project_id}/workspaces/{workspace_id}/siem/alert-rules/{id}"
-		getAlertRuleProduct = "secmaster"
-	)
-	getAlertRuleClient, err := cfg.NewServiceClient(getAlertRuleProduct, region)
+	client, err := cfg.NewServiceClient("secmaster", region)
 	if err != nil {
 		return diag.Errorf("error creating SecMaster client: %s", err)
 	}
 
-	getAlertRulePath := getAlertRuleClient.Endpoint + getAlertRuleHttpUrl
-	getAlertRulePath = strings.ReplaceAll(getAlertRulePath, "{project_id}", getAlertRuleClient.ProjectID)
-	getAlertRulePath = strings.ReplaceAll(getAlertRulePath, "{workspace_id}", d.Get("workspace_id").(string))
-	getAlertRulePath = strings.ReplaceAll(getAlertRulePath, "{id}", d.Id())
-
-	getAlertRuleOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: map[string]string{"Content-Type": "application/json"},
-	}
-
-	getAlertRuleResp, err := getAlertRuleClient.Request("GET", getAlertRulePath, &getAlertRuleOpt)
-
+	// getAlertRule: Query the SecMaster alert rule detail
+	getAlertRuleRespBody, err := GetAlertRule(client, d.Get("workspace_id").(string), d.Id())
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving AlertRule")
+		// SecMaster.20010001: the workspace ID not found
+		// common.00000500：the alert rule not found
+		err = common.ConvertExpected403ErrInto404Err(err, "code", WorkspaceNotFound)
+		err = common.ConvertExpected500ErrInto404Err(err, "code", GetAlertRuleNotFound)
+		return common.CheckDeletedDiag(d, err, "error retrieving SecMaster alert rule")
 	}
 
-	getAlertRuleRespBody, err := utils.FlattenResponse(getAlertRuleResp)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	mErr = multierror.Append(
-		mErr,
+	mErr := multierror.Append(
 		d.Set("region", region),
 		d.Set("pipeline_id", utils.PathSearch("pipe_id", getAlertRuleRespBody, nil)),
 		d.Set("name", utils.PathSearch("rule_name", getAlertRuleRespBody, nil)),
@@ -399,9 +383,8 @@ func resourceAlertRuleRead(_ context.Context, d *schema.ResourceData, meta inter
 
 func flattenGetAlertRuleResponseBodySchedule(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("schedule", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing schedule from response= %#v", resp)
+	curJson := utils.PathSearch("schedule", resp, nil)
+	if curJson == nil {
 		return rst
 	}
 
@@ -477,16 +460,18 @@ func resourceAlertRuleUpdate(ctx context.Context, d *schema.ResourceData, meta i
 
 		updateAlertRuleOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
-			OkCodes: []int{
-				200,
-			},
-			MoreHeaders: map[string]string{"Content-Type": "application/json"},
+			MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 		}
 
 		updateAlertRuleOpt.JSONBody = utils.RemoveNil(buildUpdateAlertRuleBodyParams(d))
 		_, err = updateAlertRuleClient.Request("PUT", updateAlertRulePath, &updateAlertRuleOpt)
 		if err != nil {
 			return diag.Errorf("error updating AlertRule: %s", err)
+		}
+
+		checkErr := alertRuleProcessStatusCheck(ctx, d, updateAlertRuleClient, d.Timeout(schema.TimeoutUpdate))
+		if checkErr != nil {
+			return diag.Errorf("error waiting for SecMaster alert rule updating to completed: %s", err)
 		}
 	}
 
@@ -502,6 +487,10 @@ func resourceAlertRuleUpdate(ctx context.Context, d *schema.ResourceData, meta i
 			if err != nil {
 				return diag.FromErr(err)
 			}
+		}
+		checkErr := alertRuleProcessStatusCheck(ctx, d, updateAlertRuleClient, d.Timeout(schema.TimeoutUpdate))
+		if checkErr != nil {
+			return diag.Errorf("error waiting for SecMaster alert rule updating to completed: %s", err)
 		}
 	}
 	return resourceAlertRuleRead(ctx, d, meta)
@@ -519,10 +508,7 @@ func updateAlertStatus(updateAlertRuleClient *golangsdk.ServiceClient, d *schema
 
 	updateAlertRuleOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: map[string]string{"Content-Type": "application/json"},
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
 	updateAlertRuleOpt.JSONBody = []string{d.Id()}
@@ -618,19 +604,69 @@ func resourceAlertRuleDelete(_ context.Context, d *schema.ResourceData, meta int
 
 	deleteAlertRuleOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: map[string]string{"Content-Type": "application/json"},
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
 	deleteAlertRuleOpt.JSONBody = []string{d.Id()}
 	_, err = deleteAlertRuleClient.Request("DELETE", deleteAlertRulePath, &deleteAlertRuleOpt)
 	if err != nil {
-		return diag.Errorf("error deleting AlertRule: %s", err)
+		// SecMaster.10011001：the deleting alert rule not found
+		// SecMaster.20010001: the workspace ID not found
+		err = common.ConvertExpected400ErrInto404Err(err, "error_code", DeleteAlertRuleNotFound)
+		err = common.ConvertExpected403ErrInto404Err(err, "code", WorkspaceNotFound)
+		return common.CheckDeletedDiag(d, err, "error deleting SecMaster alert rule")
 	}
 
 	return nil
+}
+
+func GetAlertRule(client *golangsdk.ServiceClient, workspaceId, id string) (interface{}, error) {
+	getAlertRuleHttpUrl := "v1/{project_id}/workspaces/{workspace_id}/siem/alert-rules/{id}"
+	getAlertRulePath := client.Endpoint + getAlertRuleHttpUrl
+	getAlertRulePath = strings.ReplaceAll(getAlertRulePath, "{project_id}", client.ProjectID)
+	getAlertRulePath = strings.ReplaceAll(getAlertRulePath, "{workspace_id}", workspaceId)
+	getAlertRulePath = strings.ReplaceAll(getAlertRulePath, "{id}", id)
+
+	getAlertRuleOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	getAlertRuleResp, err := client.Request("GET", getAlertRulePath, &getAlertRuleOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(getAlertRuleResp)
+}
+
+func alertRuleProcessStatusCheck(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, duration time.Duration) error {
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      alertRuleProcessStateRefreshFunc(client, d),
+		Timeout:      duration,
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+	_, err := stateConf.WaitForStateContext(ctx)
+
+	return err
+}
+
+func alertRuleProcessStateRefreshFunc(client *golangsdk.ServiceClient, d *schema.ResourceData) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		alertRule, err := GetAlertRule(client, d.Get("workspace_id").(string), d.Id())
+		if err != nil {
+			return alertRule, "ERROR", err
+		}
+		status := utils.PathSearch("process_status", alertRule, "").(string)
+		if status == "COMPLETED" {
+			return alertRule, status, nil
+		}
+
+		return alertRule, "PENDING", nil
+	}
 }
 
 func resourceAlertRuleImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {

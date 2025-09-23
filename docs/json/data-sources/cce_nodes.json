@@ -55,7 +55,17 @@
                         ]
                       ],
                       "ecs_group_id": "string",
+                      "enterprise_project_id": "string",
                       "flavor_id": "string",
+                      "hostname_config": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "type": "string"
+                          }
+                        ]
+                      ],
                       "id": "string",
                       "key_pair": "string",
                       "name": "string",

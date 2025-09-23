@@ -2,47 +2,56 @@ package cts
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	cts "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cts/v3/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func getCTSNotificationResourceObj(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := conf.HcCtsV3Client(acceptance.HW_REGION_NAME)
+	client, err := conf.NewServiceClient("cts", acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating CTS client: %s", err)
 	}
 
 	notificationName := state.Primary.ID
-	notificationType := cts.GetListNotificationsRequestNotificationTypeEnum().SMN
-	listOpts := &cts.ListNotificationsRequest{
-		NotificationType: notificationType,
-		NotificationName: &notificationName,
+	notificationType := "smn"
+	listOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
 
-	response, err := client.ListNotifications(listOpts)
+	getNotificationUrl := "v3/{project_id}/notifications/{notification_type}?notification_name={notification_name}"
+	getNotificationPath := client.Endpoint + getNotificationUrl
+	getNotificationPath = strings.ReplaceAll(getNotificationPath, "{project_id}", client.ProjectID)
+	getNotificationPath = strings.ReplaceAll(getNotificationPath, "{notification_type}", notificationType)
+	getNotificationPath = strings.ReplaceAll(getNotificationPath, "{notification_name}", notificationName)
+	resp, err := client.Request("GET", getNotificationPath, &listOpts)
 	if err != nil {
 		return nil, fmt.Errorf("error retrieving CTS notification: %s", err)
 	}
 
-	if response.Notifications == nil || len(*response.Notifications) == 0 {
-		return nil, fmt.Errorf("can not find the CTS notification %s", notificationName)
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return nil, err
 	}
 
-	allNotifications := *response.Notifications
-	ctsNotification := allNotifications[0]
+	notification := utils.PathSearch("notifications|[0]", respBody, nil)
+	if notification == nil {
+		return nil, golangsdk.ErrDefault404{}
+	}
 
-	return ctsNotification, nil
+	return notification, nil
 }
 
 func TestAccCTSNotification_basic(t *testing.T) {
-	var notify cts.NotificationsResponseBody
+	var notify interface{}
 	rName := acceptance.RandomAccResourceName()
 	resourceName := "huaweicloud_cts_notification.notify"
 
@@ -66,8 +75,10 @@ func TestAccCTSNotification_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "status", "enabled"),
 					resource.TestCheckResourceAttr(resourceName, "filter.0.condition", "AND"),
 					resource.TestCheckResourceAttr(resourceName, "filter.0.rule.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "agency_name", "cts_admin_trust"),
 					resource.TestCheckResourceAttrPair(resourceName, "smn_topic",
 						"huaweicloud_smn_topic.topic_1", "id"),
+					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
 				),
 			},
 			{
@@ -113,6 +124,7 @@ resource "huaweicloud_cts_notification" "notify" {
   name           = "%[1]s"
   operation_type = "complete"
   smn_topic      = huaweicloud_smn_topic.topic_1.id
+  agency_name    = "cts_admin_trust"
 
   filter {
     condition = "AND"
@@ -132,6 +144,7 @@ resource "huaweicloud_cts_notification" "notify" {
   name           = "%[1]s"
   operation_type = "customized"
   smn_topic      = huaweicloud_smn_topic.topic_1.id
+  agency_name    = "cts_admin_trust"
 
   filter {
     condition = "OR"
@@ -162,6 +175,7 @@ resource "huaweicloud_cts_notification" "notify" {
   name           = "%[1]s"
   operation_type = "customized"
   smn_topic      = huaweicloud_smn_topic.topic_1.id
+  agency_name    = "cts_admin_trust"
   enabled        = false
 
   operations {

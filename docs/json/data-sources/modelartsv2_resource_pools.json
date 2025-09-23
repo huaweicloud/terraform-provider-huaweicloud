@@ -1,0 +1,230 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_modelartsv2_resource_pools": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the resource pools are located.",
+                "computed": true
+              },
+              "resource_pools": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "metadata": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "annotations": [
+                              "map",
+                              "string"
+                            ],
+                            "created_at": "string",
+                            "labels": [
+                              "map",
+                              "string"
+                            ],
+                            "name": "string"
+                          }
+                        ]
+                      ],
+                      "spec": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "clusters": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "name": "string",
+                                  "provider_id": "string"
+                                }
+                              ]
+                            ],
+                            "network": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "name": "string",
+                                  "subnet_id": "string",
+                                  "vpc_id": "string"
+                                }
+                              ]
+                            ],
+                            "resources": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "azs": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "az": "string",
+                                        "count": "number"
+                                      }
+                                    ]
+                                  ],
+                                  "count": "number",
+                                  "creating_step": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "step": "number",
+                                        "type": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "data_volumes": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "count": "number",
+                                        "extend_params": "string",
+                                        "size": "string",
+                                        "volume_type": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "extend_params": "string",
+                                  "flavor": "string",
+                                  "labels": [
+                                    "map",
+                                    "string"
+                                  ],
+                                  "max_count": "number",
+                                  "network": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "security_groups": [
+                                          "list",
+                                          "string"
+                                        ],
+                                        "subnet": "string",
+                                        "vpc": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "node_pool": "string",
+                                  "os": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "image_id": "string",
+                                        "image_type": "string",
+                                        "name": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "root_volume": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "extend_params": "string",
+                                        "size": "string",
+                                        "volume_type": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "tags": [
+                                    "map",
+                                    "string"
+                                  ],
+                                  "taints": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "effect": "string",
+                                        "key": "string",
+                                        "value": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "volume_group_configs": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "docker_thin_pool": "number",
+                                        "lvm_config": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "lv_type": "string",
+                                              "path": "string"
+                                            }
+                                          ]
+                                        ],
+                                        "types": [
+                                          "list",
+                                          "string"
+                                        ],
+                                        "volume_group": "string"
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ],
+                            "scope": [
+                              "list",
+                              "string"
+                            ],
+                            "user_login": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "key_pair_name": "string"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "description": "All resource pools that matched filter parameters.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the resource pools to be queried.",
+                "optional": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "The workspace ID to which the resource pool belongs.",
+                "optional": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

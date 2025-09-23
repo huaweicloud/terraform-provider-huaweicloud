@@ -1,0 +1,67 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_workspace_app_personal_folders": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the personal folders are located.",
+                "computed": true
+              },
+              "storage_id": {
+                "type": "string",
+                "description": "The NAS storage ID to which the personal folders belong.",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "assignments": {
+                "block": {
+                  "attributes": {
+                    "attach": {
+                      "type": "string",
+                      "description": "The object name of personal folder assignment.",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "attach_type": {
+                      "type": "string",
+                      "description": "The type of personal folder assignment.",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "policy_statement_id": {
+                      "type": "string",
+                      "description": "The ID of the storage permission policy.",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  },
+                  "description": "The assignment configuration of personal folders."
+                },
+                "nesting_mode": "set",
+                "forcenew": true,
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

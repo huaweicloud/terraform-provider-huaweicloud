@@ -59,6 +59,6 @@ This resource provides the following timeouts configuration options:
 
 Floating IPs can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_networking_floatingip_v2.floatip_1 2c7f39f3-702b-48d1-940c-b50384177ee1
 ```

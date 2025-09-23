@@ -31,7 +31,7 @@ The following arguments are supported:
 * `instance_id` - (Required, String, ForceNew) Specifies the ID of the GaussDB MySQL instance.
 
 * `name` - (Required, String, ForceNew) Specifies the name of the backup. It must start with a letter and consist of
-  **4** to **64** characters. Only letters (case-sensitive), digits, hyphens (-), and underscores (_) are allowed.
+  `4` to `64` characters. Only letters (case-sensitive), digits, hyphens (-), and underscores (_) are allowed.
 
 * `description` - (Optional, String, ForceNew) Specifies the description of the backup.
 

@@ -32,7 +32,7 @@
               },
               "name": {
                 "type": "string",
-                "description": "Specifies playbook action name.",
+                "description": "Specifies the playbook action name.",
                 "optional": true,
                 "computed": true
               },
@@ -58,7 +58,7 @@
               },
               "version_id": {
                 "type": "string",
-                "description": "Specifies playbook version ID of the action.",
+                "description": "Specifies the playbook version ID of the action.",
                 "required": true,
                 "forcenew": true
               },

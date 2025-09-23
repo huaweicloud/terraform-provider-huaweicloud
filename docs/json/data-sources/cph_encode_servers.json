@@ -1,0 +1,79 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cph_encode_servers": {
+          "block": {
+            "attributes": {
+              "encode_servers": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "access_infos": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "access_port": "number",
+                            "listen_port": "number",
+                            "public_ip": "string",
+                            "server_ip": "string",
+                            "server_ipv6": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "encode_server_id": "string",
+                      "encode_server_ip": "string",
+                      "encode_server_ipv6": "string",
+                      "encode_server_name": "string",
+                      "keypair_name": "string",
+                      "server_id": "string",
+                      "status": "number",
+                      "type": "number"
+                    }
+                  ]
+                ],
+                "description": "The encode server list.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "server_id": {
+                "type": "string",
+                "description": "Specifies the CPH server ID.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the encode server status.",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the encode server type. The valid value can be **0** (server), **1** (container).",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CPH",
+            "name": "Cloud Phone",
+            "catalog": "Compute",
+            "name_cn": "云手机",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

@@ -9,8 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	hssv5model "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/hss/v5/model"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -89,28 +87,30 @@ func DataSourceHostGroups() *schema.Resource {
 
 func dataSourceHostGroupsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg    = meta.(*config.Config)
-		region = cfg.GetRegion(d)
-		epsId  = cfg.GetEnterpriseProjectID(d)
-		name   = d.Get("name").(string)
+		cfg       = meta.(*config.Config)
+		region    = cfg.GetRegion(d)
+		epsId     = cfg.GetEnterpriseProjectID(d)
+		groupName = d.Get("name").(string)
+		product   = "hss"
 	)
 
-	client, err := cfg.HcHssV5Client(region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating HSS v5 client: %s", err)
+		return diag.Errorf("error creating HSS client: %s", err)
 	}
 
-	allHostGroups, err := queryHostGroups(client, region, epsId, name)
+	allHostGroups, err := queryHostGroupsByName(client, region, epsId, groupName)
 	if err != nil {
-		return diag.Errorf("error querying host groups: %s", err)
+		return diag.Errorf("error querying HSS host groups: %s", err)
 	}
 
-	uuId, err := uuid.GenerateUUID()
+	dataSourceId, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
 
-	d.SetId(uuId)
+	d.SetId(dataSourceId)
+
 	targetGroups := filterHostGroups(allHostGroups, d)
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
@@ -120,38 +120,38 @@ func dataSourceHostGroupsRead(_ context.Context, d *schema.ResourceData, meta in
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func int32ToString(i *int32) string {
-	if i == nil {
+func convertNumValueToString(num interface{}) string {
+	if num == nil {
 		return ""
 	}
 
-	return fmt.Sprintf("%d", *i)
-}
-
-func filterHostGroups(groups []hssv5model.HostGroupItem, d *schema.ResourceData) []hssv5model.HostGroupItem {
-	if len(groups) == 0 {
-		return nil
+	if v, ok := num.(float64); ok {
+		return fmt.Sprintf("%v", v)
 	}
 
-	rst := make([]hssv5model.HostGroupItem, 0, len(groups))
-	for _, v := range groups {
+	return ""
+}
+
+func filterHostGroups(hostGroups []interface{}, d *schema.ResourceData) []interface{} {
+	rst := make([]interface{}, 0, len(hostGroups))
+	for _, v := range hostGroups {
 		if groupID, ok := d.GetOk("group_id"); ok &&
-			fmt.Sprint(groupID) != utils.StringValue(v.GroupId) {
+			fmt.Sprint(groupID) != utils.PathSearch("group_id", v, "").(string) {
 			continue
 		}
 
 		if hostNum, ok := d.GetOk("host_num"); ok &&
-			hostNum.(string) != int32ToString(v.HostNum) {
+			hostNum.(string) != convertNumValueToString(utils.PathSearch("host_num", v, nil)) {
 			continue
 		}
 
 		if riskHostNum, ok := d.GetOk("risk_host_num"); ok &&
-			riskHostNum.(string) != int32ToString(v.RiskHostNum) {
+			riskHostNum.(string) != convertNumValueToString(utils.PathSearch("risk_host_num", v, nil)) {
 			continue
 		}
 
 		if unprotectHostNum, ok := d.GetOk("unprotect_host_num"); ok &&
-			unprotectHostNum.(string) != int32ToString(v.UnprotectHostNum) {
+			unprotectHostNum.(string) != convertNumValueToString(utils.PathSearch("unprotect_host_num", v, nil)) {
 			continue
 		}
 
@@ -161,20 +161,16 @@ func filterHostGroups(groups []hssv5model.HostGroupItem, d *schema.ResourceData)
 	return rst
 }
 
-func flattenHostGroups(groups []hssv5model.HostGroupItem) []interface{} {
-	if len(groups) == 0 {
-		return nil
-	}
-
-	rst := make([]interface{}, 0, len(groups))
-	for _, v := range groups {
+func flattenHostGroups(hostGroups []interface{}) []interface{} {
+	rst := make([]interface{}, 0, len(hostGroups))
+	for _, v := range hostGroups {
 		rst = append(rst, map[string]interface{}{
-			"id":                 v.GroupId,
-			"name":               v.GroupName,
-			"host_num":           v.HostNum,
-			"risk_host_num":      v.RiskHostNum,
-			"unprotect_host_num": v.UnprotectHostNum,
-			"host_ids":           v.HostIdList,
+			"id":                 utils.PathSearch("group_id", v, nil),
+			"name":               utils.PathSearch("group_name", v, nil),
+			"host_num":           utils.PathSearch("host_num", v, nil),
+			"risk_host_num":      utils.PathSearch("risk_host_num", v, nil),
+			"unprotect_host_num": utils.PathSearch("unprotect_host_num", v, nil),
+			"host_ids":           utils.ExpandToStringList(utils.PathSearch("host_id_list", v, make([]interface{}, 0)).([]interface{})),
 		})
 	}
 

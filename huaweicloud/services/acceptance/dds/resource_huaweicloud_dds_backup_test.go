@@ -24,26 +24,22 @@ func getDdsBackupResourceFunc(cfg *config.Config, state *terraform.ResourceState
 	)
 	getBackupClient, err := cfg.NewServiceClient(getBackupProduct, region)
 	if err != nil {
-		return nil, fmt.Errorf("error creating DDS Client: %s", err)
+		return nil, fmt.Errorf("error creating DDS client: %s", err)
 	}
 
 	getBackupPath := getBackupClient.Endpoint + getBackupHttpUrl
 	getBackupPath = strings.ReplaceAll(getBackupPath, "{project_id}", getBackupClient.ProjectID)
 
-	instanceId := state.Primary.Attributes["instance_id"]
 	backupId := state.Primary.ID
-	getBackupQueryParams := buildGetBackupQueryParams(instanceId, backupId)
+	getBackupQueryParams := buildGetBackupQueryParams(backupId)
 	getBackupPath += getBackupQueryParams
 
 	getBackupOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
 	getBackupResp, err := getBackupClient.Request("GET", getBackupPath, &getBackupOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving DdsBackup: %s", err)
+		return nil, fmt.Errorf("error retrieving DDS backup: %s", err)
 	}
 	getBackupRespBody, err := utils.FlattenResponse(getBackupResp)
 	if err != nil {
@@ -51,24 +47,14 @@ func getDdsBackupResourceFunc(cfg *config.Config, state *terraform.ResourceState
 	}
 	backups := utils.PathSearch("backups", getBackupRespBody, make([]interface{}, 0)).([]interface{})
 	if len(backups) == 0 {
-		return nil, fmt.Errorf("error get backup by backup ID %s", backupId)
+		return nil, fmt.Errorf("error retrieving DDS backup by backup ID: %s", backupId)
 	}
 
 	return backups[0], nil
 }
 
-func buildGetBackupQueryParams(instanceId, backupId string) string {
-	res := ""
-	if instanceId != "" {
-		res = fmt.Sprintf("%s&instance_id=%v", res, instanceId)
-	}
-	if backupId != "" {
-		res = fmt.Sprintf("%s&backup_id=%v", res, backupId)
-	}
-	if res != "" {
-		res = "?" + res[1:]
-	}
-	return res
+func buildGetBackupQueryParams(backupId string) string {
+	return fmt.Sprintf("?backup_id=%s", backupId)
 }
 
 func TestAccDdsBackup_basic(t *testing.T) {

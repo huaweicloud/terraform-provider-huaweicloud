@@ -34,7 +34,7 @@ func TestAccDatasourceServerFlavors_basic(t *testing.T) {
 func testAccDatasourceServerFlavors_basic() string {
 	return `
 data "huaweicloud_cph_server_flavors" "test" {
-  type  = 0
+  type  = "0"
   vcpus = 64
 }
 `

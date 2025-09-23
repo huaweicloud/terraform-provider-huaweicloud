@@ -64,6 +64,6 @@ This resource provides the following timeouts configuration options:
 
 IEC Security Groups can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_iec_security_group.secgroup_test 2a02d1d3-437c-11eb-b721-fa163e8ac569
 ```

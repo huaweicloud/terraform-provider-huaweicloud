@@ -1,0 +1,72 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_waf_alarm_optional_event_types": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "locale": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "advanced_bot": "string",
+                      "anticrawler": "string",
+                      "antiscan_dir_traversal": "string",
+                      "antiscan_high_freq_scan": "string",
+                      "antitamper": "string",
+                      "botm": "string",
+                      "cc": "string",
+                      "cmdi": "string",
+                      "custom_custom": "string",
+                      "custom_geoip": "string",
+                      "custom_idc_ip": "string",
+                      "custom_whiteblackip": "string",
+                      "illegal": "string",
+                      "leakage": "string",
+                      "lfi": "string",
+                      "llm_prompt_injection": "string",
+                      "llm_prompt_sensitive": "string",
+                      "llm_response_sensitive": "string",
+                      "rfi": "string",
+                      "robot": "string",
+                      "sqli": "string",
+                      "third_bot_river": "string",
+                      "vuln": "string",
+                      "webshell": "string",
+                      "xss": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "threats": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "WAF",
+            "name": "Web Application Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "Web应用防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

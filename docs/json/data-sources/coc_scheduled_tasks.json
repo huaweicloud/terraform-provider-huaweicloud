@@ -1,0 +1,139 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_coc_scheduled_tasks": {
+          "block": {
+            "attributes": {
+              "approve_status": {
+                "type": "string",
+                "description": "Specifies the approval status of the scheduled task.",
+                "optional": true
+              },
+              "associated_task_type": {
+                "type": "string",
+                "description": "Specifies the type of the associated task.",
+                "optional": true
+              },
+              "created_by": {
+                "type": "string",
+                "description": "Specifies the IAM user ID of the person who created the scheduled task.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "last_execution_end_time": {
+                "type": "number",
+                "description": "Specifies the timestamp of the query end time for the most recent scheduled task execution.",
+                "optional": true
+              },
+              "last_execution_start_time": {
+                "type": "number",
+                "description": "Specifies the timestamp of the query start time for the most recent scheduled task execution.",
+                "optional": true
+              },
+              "last_execution_status": {
+                "type": "string",
+                "description": "Specifies the most recent execution status of a scheduled task.",
+                "optional": true
+              },
+              "region_id": {
+                "type": "string",
+                "description": "Specifies the region ID.",
+                "optional": true
+              },
+              "resource_id": {
+                "type": "string",
+                "description": "Specifies the resource ID.",
+                "optional": true
+              },
+              "reviewer": {
+                "type": "string",
+                "description": "Specifies the IAM user ID of the scheduled task approver.",
+                "optional": true
+              },
+              "reviewer_user_name": {
+                "type": "string",
+                "description": "Specifies the IAM user nickname of the scheduled task approver.",
+                "optional": true
+              },
+              "risk_level": {
+                "type": "string",
+                "description": "Specifies the risk level of the scheduled task.",
+                "optional": true
+              },
+              "scheduled_tasks": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "approve_status": "string",
+                      "associated_task_name": "string",
+                      "associated_task_name_en": "string",
+                      "associated_task_type": "string",
+                      "created_by": "string",
+                      "created_time": "number",
+                      "created_user_name": "string",
+                      "enabled": "bool",
+                      "enterprise_project_id": "string",
+                      "execution_count": "number",
+                      "id": "string",
+                      "last_execution_status": "string",
+                      "last_execution_time": "number",
+                      "modified_time": "number",
+                      "name": "string",
+                      "region_id": "string",
+                      "reviewer": "string",
+                      "reviewer_user_name": "string",
+                      "risk_level": "string",
+                      "scheduled_type": "string",
+                      "task_type": "string",
+                      "update_by": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of scheduled tasks.",
+                "computed": true
+              },
+              "scheduled_type": {
+                "type": "string",
+                "description": "Specifies the scheduled task execution strategy.",
+                "optional": true
+              },
+              "task_id": {
+                "type": "string",
+                "description": "Specifies the task ID.",
+                "optional": true
+              },
+              "task_name": {
+                "type": "string",
+                "description": "Specifies the task name.",
+                "optional": true
+              },
+              "task_type": {
+                "type": "string",
+                "description": "Specifies the scheduled task type.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "COC",
+            "name": "Cloud Operations Center",
+            "catalog": "Management & Governance",
+            "name_cn": "云运维中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

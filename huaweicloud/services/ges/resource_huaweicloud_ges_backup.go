@@ -15,7 +15,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -132,11 +131,11 @@ func resourceGesBackupCreate(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("backup_id", createBackupRespBody)
-	if err != nil {
-		return diag.Errorf("error creating GesBackup: ID is not found in API response")
+	backupId := utils.PathSearch("backup_id", createBackupRespBody, "").(string)
+	if backupId == "" {
+		return diag.Errorf("unable to find the GES backup ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(backupId)
 
 	err = createBackupWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutCreate),
 		utils.PathSearch("job_id", createBackupRespBody, "").(string))
@@ -186,12 +185,7 @@ func createBackupWaitingForStateCompleted(ctx context.Context, d *schema.Resourc
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`status`, createBackupWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `status`)
-			}
-
-			status := fmt.Sprintf("%v", statusRaw)
+			status := utils.PathSearch(`status`, createBackupWaitingRespBody, "").(string)
 
 			targetStatus := []string{
 				"success",

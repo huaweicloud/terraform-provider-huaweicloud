@@ -1,11 +1,13 @@
 ---
-subcategory: "Cloud Certificate Manager (CCM)"
+subcategory: "Deprecated"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_scm_certificates"
 description: ""
 ---
 
 # huaweicloud_scm_certificates
+
+!> **WARNING:** It has been deprecated, use `huaweicloud_ccm_certificates` to get the CCM SSL certificates.
 
 Use this data source to get the list of SCM certificates.
 

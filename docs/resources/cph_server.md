@@ -52,8 +52,8 @@ The following arguments are supported:
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
 * `name` - (Required, String) Server name.  
-  The name can contain 1 to 60 characters, only english and chinese letters, digits, underscore (_) and hyphens (-) are
-  allowed.
+  The name can contain `1` to `60` characters, only English letters, Chinese characters, digits, underscore (_) and
+  hyphens (-) are allowed.
 
 * `server_flavor` - (Required, String, ForceNew) The CPH server flavor.
 
@@ -104,8 +104,8 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `period` - (Required, Int, ForceNew) The charging period.  
-  If `period_unit` is set to **month**, the value ranges from 1 to 9.
-  If `period_unit` is set to **year**, the value ranges from 1 to 3.
+  If `period_unit` is set to **month**, the value ranges from `1` to `9`.
+  If `period_unit` is set to **year**, the value ranges from `1` to `3`.
 
   Changing this parameter will create a new resource.
 
@@ -114,19 +114,24 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `keypair_name` - (Optional, String, ForceNew) The key pair name, which is used for logging in to
-  the cloud phone through ADB.  
-
-  Changing this parameter will create a new resource.
+* `keypair_name` - (Optional, String) Specifies the key pair name, which is used for logging in to
+  the cloud phone through ADB.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project ID.
 
   Changing this parameter will create a new resource.
 
 * `ports` - (Optional, List, ForceNew) The application port enabled by the cloud phone.
-
   Changing this parameter will create a new resource.
   The [ApplicationPort](#cphServer_ApplicationPort) structure is documented below.
+
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the CPH server.
+
+* `phone_data_volume` - (Optional, List) The phone data volume.
+  The [phone_data_volume](#phone_data_volume) structure is documented below.
+
+* `server_share_data_volume` - (Optional, List) The server share data volume.
+  The [server_share_data_volume](#server_share_data_volume) structure is documented below.
 
 <a name="cphServer_BandWidth"></a>
 The `BandWidth` block supports:
@@ -141,7 +146,8 @@ The `BandWidth` block supports:
  This parameter is mandatory when you create a shared bandwidth.
 
 * `size` - (Optional, Int) The bandwidth (Mbit/s).  
- This parameter is mandatory for a dedicated bandwidth.
+  The valid value is range from `1` to `2,000`.  
+  This parameter is mandatory for a dedicated bandwidth.
 
 * `charge_mode` - (Optional, String) Which the bandwidth used by the CPH server is billed.  
  This parameter is mandatory for a dedicated bandwidth.
@@ -155,12 +161,30 @@ The `ApplicationPort` block supports:
 * `name` - (Required, String) The application port name, which can contain a maximum of 16 bytes.  
  The key service name cannot be **adb** or **vnc**.
 
-* `listen_port` - (Required, Int) The port number, which ranges from 10000 to 50000.
+* `listen_port` - (Required, Int) The port number, which ranges from `10,000` to `50,000`.
 
 * `internet_accessible` - (Required, String) Whether public network access is mapped.
   The options are as follows:
     + **true**: public network access is mapped.
     + **false**: no mapping is performed.
+
+<a name="phone_data_volume"></a>
+The `phone_data_volume` block supports:
+
+* `volume_size` - (Optional, Int, ForceNew) Specifies the volume size, the unit is GB.
+  Changing this parameter will create a new resource.
+
+* `volume_type` - (Optional, String, ForceNew) Specifies the volume type.
+  Changing this parameter will create a new resource.
+
+<a name="server_share_data_volume"></a>
+The `server_share_data_volume` block supports:
+
+* `volume_type` - (Optional, String, ForceNew) Specifies the share volume type.
+  Changing this parameter will create a new resource.
+
+* `size` - (Optional, Int, ForceNew) Specifies the share volume size, the unit is GB.
+  Changing this parameter will create a new resource.
 
 ## Attribute Reference
 
@@ -193,6 +217,28 @@ The `Address` block supports:
 
 * `public_ip` - The public IP address of the CPH server.  
 
+* `phone_data_volume` - The phone data volume.
+  The [phone_data_volume](#attr_phone_data_volume) structure is documented below.
+
+* `server_share_data_volume` - The server share data volume.
+  The [server_share_data_volume](#attr_server_share_data_volume) structure is documented below.
+
+<a name="attr_phone_data_volume"></a>
+The `phone_data_volume` block supports:
+
+* `volume_id` - The volume ID.
+
+* `volume_name` - The volume name.
+
+* `created_at` - The creation time.
+
+* `updated_at` - The update time.
+
+<a name="attr_server_share_data_volume"></a>
+The `server_share_data_volume` block supports:
+
+* `version` - The share volume type.
+
 ## Import
 
 The CPH server can be imported using the `id`, e.g.
@@ -207,7 +253,7 @@ API response, security or some other reason. The missing attributes include: `im
 You can then decide if changes should be applied to the resource, or the resource definition should be updated to
 align with the resource. Also you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_cph_server" "test" {
     ...
 

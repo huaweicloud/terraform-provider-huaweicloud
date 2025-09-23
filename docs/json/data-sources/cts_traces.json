@@ -75,6 +75,8 @@
                       "endpoint": "string",
                       "location_info": "string",
                       "message": "string",
+                      "operation_id": "string",
+                      "read_only": "bool",
                       "record_time": "string",
                       "request": "string",
                       "request_id": "string",

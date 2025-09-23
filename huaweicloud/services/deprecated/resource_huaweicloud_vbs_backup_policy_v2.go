@@ -59,7 +59,6 @@ func ResourceVBSBackupPolicyV2() *schema.Resource {
 				Type:          schema.TypeInt,
 				Optional:      true,
 				ConflictsWith: []string{"week_frequency"},
-				ValidateFunc:  validation.IntBetween(1, 14),
 			},
 			"week_frequency": {
 				Type:     schema.TypeList,
@@ -71,12 +70,10 @@ func ResourceVBSBackupPolicyV2() *schema.Resource {
 				Type:          schema.TypeInt,
 				Optional:      true,
 				ConflictsWith: []string{"rentention_day"},
-				ValidateFunc:  validation.IntAtLeast(2),
 			},
 			"rentention_day": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				ValidateFunc: validation.IntAtLeast(2),
+				Type:     schema.TypeInt,
+				Optional: true,
 			},
 			"retain_first_backup": {
 				Type:     schema.TypeString,
@@ -359,10 +356,8 @@ func resourceVBSBackupPolicyV2Delete(d *schema.ResourceData, meta interface{}) e
 			logp.Printf("[INFO] Successfully deleted Huaweicloud VBS Backup Policy %s", d.Id())
 
 		}
-		if errCode, ok := err.(golangsdk.ErrUnexpectedResponseCode); ok {
-			if errCode.Actual == 409 {
-				logp.Printf("[INFO] Error deleting Huaweicloud VBS Backup Policy %s", d.Id())
-			}
+		if _, ok := err.(golangsdk.ErrDefault409); ok {
+			logp.Printf("[INFO] Error deleting Huaweicloud VBS Backup Policy %s", d.Id())
 		}
 		logp.Printf("[INFO] Successfully deleted Huaweicloud VBS Backup Policy %s", d.Id())
 	}

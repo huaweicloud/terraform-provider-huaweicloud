@@ -1,0 +1,74 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_live_transcodings": {
+          "block": {
+            "attributes": {
+              "app_name": {
+                "type": "string",
+                "description": "Specifies the application name of the transcoding template.",
+                "optional": true
+              },
+              "domain_name": {
+                "type": "string",
+                "description": "Specifies the ingest domain name to which the transcoding templates blong.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "templates": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "app_name": "string",
+                      "quality_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "bitrate": "number",
+                            "bitrate_adaptive": "string",
+                            "frame_rate": "number",
+                            "gop": "number",
+                            "height": "number",
+                            "i_frame_interval": "number",
+                            "i_frame_policy": "string",
+                            "low_bitrate_hd": "string",
+                            "name": "string",
+                            "protocol": "string",
+                            "quality": "string",
+                            "video_encoding": "string",
+                            "width": "number"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The list of the transcoding templates.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Live",
+            "name": "Live",
+            "catalog": "Media Services",
+            "name_cn": "视频直播",
+            "catalog_cn": "视频"
+          }
+        }
+      }
+    }
+  }
+}

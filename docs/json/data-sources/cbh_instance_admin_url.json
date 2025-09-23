@@ -1,0 +1,40 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cbh_instance_admin_url": {
+          "block": {
+            "attributes": {
+              "admin_url": {
+                "type": "string",
+                "description": "The URL for logging in to a CBH instance as user admin.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource.",
+                "computed": true
+              },
+              "server_id": {
+                "type": "string",
+                "description": "Specifies the CBH instance ID.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "CBH",
+            "name": "Cloud Bastion Host",
+            "catalog": "Security & Compliance",
+            "name_cn": "云堡垒机",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

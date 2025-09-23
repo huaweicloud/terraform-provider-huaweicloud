@@ -16,3 +16,5 @@ paths:
             tag: IoTDA
         GET:
             tag: IoTDA
+        PUT:
+            tag: IoTDA

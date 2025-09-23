@@ -19,7 +19,7 @@ type MappingRule struct {
 }
 
 type LocalRule struct {
-	User  LocalRuleVal  `json:"user" required:"true"`
+	User  *LocalRuleVal `json:"user,omitempty"`
 	Group *LocalRuleVal `json:"group,omitempty"`
 }
 

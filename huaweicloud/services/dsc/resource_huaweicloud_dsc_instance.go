@@ -16,8 +16,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -75,43 +73,30 @@ func ResourceDscInstance() *schema.Resource {
 				Required:    true,
 				ForceNew:    true,
 				Description: `The edition of DSC.`,
-				ValidateFunc: validation.StringInSlice([]string{
-					resourceSpecCodeStandardBase, resourceSpecCodeProBase,
-				}, false),
 			},
 			"charging_mode": {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
 				Description: `Billing mode.`,
-				ValidateFunc: validation.StringInSlice([]string{
-					"prePaid",
-				}, false),
 			},
 			"period_unit": {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
 				Description: `The charging period unit.`,
-				ValidateFunc: validation.StringInSlice([]string{
-					"month", "year",
-				}, false),
 			},
 			"period": {
-				Type:         schema.TypeInt,
-				Required:     true,
-				ForceNew:     true,
-				Description:  `The charging period.`,
-				ValidateFunc: validation.IntBetween(1, 9),
+				Type:        schema.TypeInt,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The charging period.`,
 			},
 			"auto_renew": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
 				Description: `Whether auto renew is enabled. Valid values are "true" and "false".`,
-				ValidateFunc: validation.StringInSlice([]string{
-					"true", "false",
-				}, false),
 			},
 			"obs_expansion_package": {
 				Type:        schema.TypeInt,
@@ -131,82 +116,82 @@ func ResourceDscInstance() *schema.Resource {
 	}
 }
 
-func resourceDscInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// createDscInstance: create a DSC.
+func payDscInstanceOrder(cfg *config.Config, d *schema.ResourceData, orderId string) error {
 	var (
-		createDscInstanceHttpUrl = "v1/{project_id}/period/order"
-		createDscInstanceProduct = "dsc"
+		region  = cfg.GetRegion(d)
+		httpUrl = "v3/orders/customer-orders/pay"
+		product = "bss"
 	)
-	createDscInstanceClient, err := cfg.NewServiceClient(createDscInstanceProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating DscInstance Client: %s", err)
+		return fmt.Errorf("error creating BSS client: %s", err)
 	}
 
-	createDscInstancePath := createDscInstanceClient.Endpoint + createDscInstanceHttpUrl
-	createDscInstancePath = strings.ReplaceAll(createDscInstancePath, "{project_id}", createDscInstanceClient.ProjectID)
-
-	createDscInstanceOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		OkCodes: []int{
-			200,
+			204,
 		},
+		JSONBody: utils.RemoveNil(buildPayOrderBodyParams(orderId)),
+	}
+	_, err = client.Request("POST", requestPath, &requestOpt)
+	if err != nil {
+		return fmt.Errorf("error paying DSC instance order (%s): %s", orderId, err)
+	}
+	return nil
+}
+
+func resourceDscInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1/{project_id}/period/order"
+		product = "dsc"
+	)
+	client, err := cfg.NewServiceClient(product, region)
+	if err != nil {
+		return diag.Errorf("error creating DSC client: %s", err)
+	}
+
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
 	bodyParams, err := buildCreateDscInstanceBodyParams(d, cfg)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	createDscInstanceOpt.JSONBody = utils.RemoveNil(bodyParams)
-	createDscInstanceResp, err := createDscInstanceClient.Request("POST", createDscInstancePath, &createDscInstanceOpt)
+	requestOpt.JSONBody = utils.RemoveNil(bodyParams)
+	resp, err := client.Request("POST", requestPath, &requestOpt)
 	if err != nil {
-		return diag.Errorf("error creating DscInstance: %s", err)
+		return diag.Errorf("error creating DSC instance: %s", err)
 	}
 
-	createDscInstanceRespBody, err := utils.FlattenResponse(createDscInstanceResp)
+	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	orderId, err := jmespath.Search("order_id", createDscInstanceRespBody)
-	if err != nil {
-		return diag.Errorf("error creating DscInstance: ID is not found in API response")
+	orderId := utils.PathSearch("order_id", respBody, "").(string)
+	if orderId == "" {
+		return diag.Errorf("error creating DSC instance: ID is not found in API response")
 	}
 
-	// auto pay
-	var (
-		payOrderHttpUrl = "v3/orders/customer-orders/pay"
-		payOrderProduct = "bss"
-	)
-	payOrderClient, err := cfg.NewServiceClient(payOrderProduct, region)
-	if err != nil {
-		return diag.Errorf("error creating BSS Client: %s", err)
-	}
-
-	payOrderPath := payOrderClient.Endpoint + payOrderHttpUrl
-
-	payOrderOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		OkCodes: []int{
-			204,
-		},
-	}
-	payOrderOpt.JSONBody = utils.RemoveNil(buildPayOrderBodyParams(orderId.(string)))
-	_, err = payOrderClient.Request("POST", payOrderPath, &payOrderOpt)
-	if err != nil {
-		return diag.Errorf("error pay order=%s: %s", d.Id(), err)
+	if err := payDscInstanceOrder(cfg, d, orderId); err != nil {
+		return diag.FromErr(err)
 	}
 
 	bssClient, err := cfg.BssV2Client(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating BSS v2 client: %s", err)
 	}
-	err = common.WaitOrderComplete(ctx, bssClient, orderId.(string), d.Timeout(schema.TimeoutCreate))
+	err = common.WaitOrderComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, orderId.(string), d.Timeout(schema.TimeoutCreate))
+	resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -351,33 +336,31 @@ func buildProductInfoMap(products []interface{}) map[string]string {
 
 func getOrderProducts(cfg *config.Config, region string, productInfos []map[string]interface{}) ([]interface{}, error) {
 	var (
-		getOrderProductsHttpUrl = "v2/bills/ratings/period-resources/subscribe-rate"
-		getOrderProductsProduct = "bss"
+		httpUrl = "v2/bills/ratings/period-resources/subscribe-rate"
+		product = "bss"
 	)
-	getOrderProductsClient, err := cfg.NewServiceClient(getOrderProductsProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return nil, fmt.Errorf("error creating BSS Client: %s", err)
+		return nil, fmt.Errorf("error creating BSS client: %s", err)
 	}
 
-	getOrderProductsPath := getOrderProductsClient.Endpoint + getOrderProductsHttpUrl
-
-	getOrderProductsOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildGetProductIdBodyParams(client.ProjectID, productInfos)),
 	}
-	getOrderProductsOpt.JSONBody = utils.RemoveNil(buildGetProductIdBodyParams(getOrderProductsClient.ProjectID,
-		productInfos))
-	getOrderProductResp, err := getOrderProductsClient.Request("POST", getOrderProductsPath, &getOrderProductsOpt)
-
+	resp, err := client.Request("POST", requestPath, &requestOpt)
 	if err != nil {
 		return nil, fmt.Errorf("error getting DSC order product infos: %s", err)
 	}
 
-	getOrderProductRespBody, err := utils.FlattenResponse(getOrderProductResp)
+	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
 		return nil, err
 	}
-	curJson := utils.PathSearch("official_website_rating_result.product_rating_results",
-		getOrderProductRespBody, make([]interface{}, 0))
+
+	expression := "official_website_rating_result.product_rating_results"
+	curJson := utils.PathSearch(expression, respBody, make([]interface{}, 0))
 	return curJson.([]interface{}), nil
 }
 
@@ -425,45 +408,37 @@ func buildPayOrderBodyParams(orderId string) map[string]interface{} {
 }
 
 func resourceDscInstanceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	var mErr *multierror.Error
-
-	// getDscInstance: Query the DSC instance
 	var (
-		getDscInstanceHttpUrl = "v1/{project_id}/period/product/specification"
-		getDscInstanceProduct = "dsc"
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		mErr    *multierror.Error
+		httpUrl = "v1/{project_id}/period/product/specification"
+		product = "dsc"
 	)
-	getDscInstanceClient, err := cfg.NewServiceClient(getDscInstanceProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating DscInstance Client: %s", err)
+		return diag.Errorf("error creating DSC client: %s", err)
 	}
 
-	getDscInstancePath := getDscInstanceClient.Endpoint + getDscInstanceHttpUrl
-	getDscInstancePath = strings.ReplaceAll(getDscInstancePath, "{project_id}", getDscInstanceClient.ProjectID)
-
-	getDscInstanceOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
-	getDscInstanceResp, err := getDscInstanceClient.Request("GET", getDscInstancePath, &getDscInstanceOpt)
-
+	resp, err := client.Request("GET", requestPath, &requestOpt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving DscInstance")
+		return common.CheckDeletedDiag(d, err, "error retrieving DSC instance")
 	}
 
-	getDscInstanceRespBody, err := utils.FlattenResponse(getDscInstanceResp)
+	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	dscOrder, err := jmespath.Search("orderInfo[?productInfo.resourceType=='hws.resource.type.dsc.base']",
-		getDscInstanceRespBody)
-	if err != nil {
-		return diag.Errorf("error getting the instance info: base info not found in API response")
+	expression := "orderInfo[?productInfo.resourceType=='hws.resource.type.dsc.base']"
+	dscOrder := utils.PathSearch(expression, respBody, nil)
+	if dscOrder == nil {
+		return diag.Errorf("unable to find the base information about the DSC instance from the API response")
 	}
 
 	mErr = multierror.Append(
@@ -485,68 +460,59 @@ func parsePeriodUnit(periodType interface{}) string {
 }
 
 func resourceDscInstanceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
+	var (
+		cfg    = meta.(*config.Config)
+		region = cfg.GetRegion(d)
+	)
 
 	if err := common.UnsubscribePrePaidResource(d, cfg, []string{d.Id()}); err != nil {
-		return diag.Errorf("Error unsubscribing DSC order = %s: %s", d.Id(), err)
+		return diag.Errorf("error unsubscribing DSC order (%s): %s", d.Id(), err)
+	}
+
+	client, err := cfg.NewServiceClient("dsc", region)
+	if err != nil {
+		return diag.Errorf("error creating DSC client: %s", err)
 	}
 
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETE"},
-		Refresh:      waitForBmsInstanceDelete(ctx, d, meta),
+		Refresh:      waitingForDscInstanceDeleted(client),
 		Timeout:      d.Timeout(schema.TimeoutDelete),
 		Delay:        20 * time.Second,
 		PollInterval: 10 * time.Second,
 	}
 
-	_, err := stateConf.WaitForStateContext(ctx)
+	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return diag.Errorf("Error deleting DSC instance: %s", err)
+		return diag.Errorf("error waiting for DSC instance deletion to complete: %s", err)
 	}
 
 	return nil
 }
 
-func waitForBmsInstanceDelete(_ context.Context, d *schema.ResourceData, meta interface{}) resource.StateRefreshFunc {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
+func waitingForDscInstanceDeleted(client *golangsdk.ServiceClient) resource.StateRefreshFunc {
+	httpUrl := "v1/{project_id}/period/product/specification"
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
 
 	return func() (interface{}, string, error) {
-		// getDscInstance: Query the DSC instance
-		var (
-			getDscInstanceHttpUrl = "v1/{project_id}/period/product/specification"
-			getDscInstanceProduct = "dsc"
-		)
-		getDscInstanceClient, err := cfg.NewServiceClient(getDscInstanceProduct, region)
+		resp, err := client.Request("GET", requestPath, &requestOpt)
 		if err != nil {
-			return nil, "error", fmt.Errorf("error creating DscInstance Client: %s", err)
+			return nil, "ERROR", fmt.Errorf("error retrieving DSC instance: %s", err)
 		}
 
-		getDscInstancePath := getDscInstanceClient.Endpoint + getDscInstanceHttpUrl
-		getDscInstancePath = strings.ReplaceAll(getDscInstancePath, "{project_id}", getDscInstanceClient.ProjectID)
-
-		getDscInstanceOpt := golangsdk.RequestOpts{
-			KeepResponseBody: true,
-			OkCodes: []int{
-				200,
-			},
-		}
-		getDscInstanceResp, err := getDscInstanceClient.Request("GET", getDscInstancePath, &getDscInstanceOpt)
-
+		respBody, err := utils.FlattenResponse(resp)
 		if err != nil {
-			return nil, "error", fmt.Errorf("error retrieving DscInstance: %s", err)
+			return nil, "ERROR", err
 		}
 
-		getDscInstanceRespBody, err := utils.FlattenResponse(getDscInstanceResp)
-		if err != nil {
-			return nil, "error", fmt.Errorf("error retrieving DscInstance: %s", err)
-		}
-
-		orderInfo := utils.PathSearch("orderInfo", getDscInstanceRespBody, []interface{}{})
-		orders := orderInfo.([]interface{})
+		orders := utils.PathSearch("orderInfo", respBody, make([]interface{}, 0)).([]interface{})
 		if len(orders) == 0 {
-			return orders, "COMPLETE", nil
+			return "success_deleted", "COMPLETE", nil
 		}
 		return nil, "PENDING", nil
 	}

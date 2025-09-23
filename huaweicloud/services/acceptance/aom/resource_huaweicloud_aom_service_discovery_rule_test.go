@@ -8,15 +8,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	aom "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/aom/v2/model"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	aomservice "github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/aom"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/aom"
 )
 
 func getServiceDiscoveryRuleResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	c, err := conf.HcAomV2Client(acceptance.HW_REGION_NAME)
+	client, err := conf.NewServiceClient("aom", acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating AOM client: %s", err)
 	}
@@ -25,18 +23,11 @@ func getServiceDiscoveryRuleResourceFunc(conf *config.Config, state *terraform.R
 	// lintignore:R018
 	time.Sleep(30 * time.Second)
 
-	response, err := c.ListServiceDiscoveryRules(&aom.ListServiceDiscoveryRulesRequest{})
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving AOM service discovery rule: %s", state.Primary.ID)
-	}
-
-	allRules := *response.AppRules
-
-	return aomservice.FilterRules(allRules, state.Primary.ID)
+	return aom.GetServiceDiscoveryRule(client, state.Primary.ID)
 }
 
 func TestAccAOMServiceDiscoveryRule_basic(t *testing.T) {
-	var ar aom.QueryAlarmResult
+	var ar interface{}
 	rName := acceptance.RandomAccResourceNameWithDash()
 	rNameUpdate := rName + "-update"
 	resourceName := "huaweicloud_aom_service_discovery_rule.test"
@@ -69,6 +60,7 @@ func TestAccAOMServiceDiscoveryRule_basic(t *testing.T) {
 						resourceName, "name_rules.0.service_name_rule.0.args.0", "python"),
 					resource.TestCheckResourceAttr(
 						resourceName, "name_rules.0.application_name_rule.0.args.0", "python"),
+					resource.TestCheckResourceAttr(resourceName, "description", "test"),
 				),
 			},
 			{
@@ -108,6 +100,7 @@ resource "huaweicloud_aom_service_discovery_rule" "test" {
   is_default_rule        = true
   log_file_suffix        = ["log"]
   service_type           = "Python"
+  description            = "test"
 
   discovery_rules {
     check_content = ["python"]

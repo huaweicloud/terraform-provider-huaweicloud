@@ -1,0 +1,85 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_swr_enterprise_namespace": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "Indicates the creation time.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the enterprise instance ID.",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the namespace name.",
+                "required": true
+              },
+              "namespace_id": {
+                "type": "number",
+                "description": "Indicates the namespace ID.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "repo_count": {
+                "type": "number",
+                "description": "Indicates the repo count of the namespace.",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "Specifies the key/value pairs to associate with the namespace.",
+                "optional": true,
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "Indicates the last update time.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "metadata": {
+                "block": {
+                  "attributes": {
+                    "public": {
+                      "type": "string",
+                      "description": "Specifies whether the namespace is public.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the metadata."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "SWR",
+            "name": "Software Repository for Container",
+            "catalog": "Containers",
+            "name_cn": "容器镜像服务",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

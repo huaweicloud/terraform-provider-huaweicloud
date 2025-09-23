@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
@@ -11,8 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/cbr/v3/policies"
-	"github.com/chnsz/golangsdk/openstack/cbr/v3/vaults"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -182,6 +181,17 @@ func DataSourceVaults() *schema.Resource {
 							},
 							Description: "The array of one or more resources to attach to the vault.",
 						},
+						"auto_bind": {
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: "Whether automatic association is supported.",
+						},
+						"bind_rules": {
+							Type:        schema.TypeMap,
+							Computed:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Description: "The rules for automatic association.",
+						},
 					},
 				},
 			},
@@ -189,105 +199,139 @@ func DataSourceVaults() *schema.Resource {
 	}
 }
 
-func buildVaultListOpts(d *schema.ResourceData, cfg *config.Config) vaults.ListOpts {
-	return vaults.ListOpts{
-		Limit:               100,
-		CloudType:           "public",
-		Name:                d.Get("name").(string),
-		ObjectType:          d.Get("type").(string),
-		ProtectType:         d.Get("protection_type").(string),
-		PolicyID:            d.Get("policy_id").(string),
-		EnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
-		Status:              d.Get("status").(string),
+func buildListVaultsParams(d *schema.ResourceData) string {
+	res := "&cloud_type=public"
+	if v, ok := d.GetOk("name"); ok {
+		res = fmt.Sprintf("%s&name=%v", res, v)
 	}
+	if v, ok := d.GetOk("type"); ok {
+		res = fmt.Sprintf("%s&object_type=%v", res, v)
+	}
+	if v, ok := d.GetOk("protection_type"); ok {
+		res = fmt.Sprintf("%s&protect_type=%v", res, v)
+	}
+	if v, ok := d.GetOk("policy_id"); ok {
+		res = fmt.Sprintf("%s&policy_id=%v", res, v)
+	}
+	if v, ok := d.GetOk("enterprise_project_id"); ok {
+		res = fmt.Sprintf("%s&enterprise_project_id=%v", res, v)
+	}
+	if v, ok := d.GetOk("status"); ok {
+		res = fmt.Sprintf("%s&status=%v", res, v)
+	}
+	return res
 }
 
-func filterVaults(d *schema.ResourceData, vaultList []vaults.Vault) ([]interface{}, error) {
-	return utils.FilterSliceWithField(vaultList, map[string]interface{}{
-		"Billing.ConsistentLevel": d.Get("consistent_level").(string),
-		"Billing.Size":            d.Get("size").(int),
-		"AutoExpand":              d.Get("auto_expand_enabled").(bool),
-	})
-}
+func filterVaults(all []interface{}, d *schema.ResourceData) []interface{} {
+	rst := make([]interface{}, 0, len(all))
 
-func getPolicyOfSpecificVault(client *golangsdk.ServiceClient, vaultId string) (*policies.Policy, error) {
-	opt := policies.ListOpts{
-		VaultID: vaultId,
-	}
-	pages, err := policies.List(client, opt).AllPages()
-	if err != nil {
-		return nil, err
-	}
-	resp, err := policies.ExtractPolicies(pages)
-	if err != nil {
-		return nil, err
-	}
+	for _, v := range all {
+		if param, ok := d.GetOk("consistent_level"); ok &&
+			fmt.Sprint(param) != fmt.Sprint(utils.PathSearch("billing.consistent_level", v, nil)) {
+			continue
+		}
+		if param, ok := d.GetOk("size"); ok &&
+			fmt.Sprint(param) != fmt.Sprint(utils.PathSearch("billing.size", v, nil)) {
+			continue
+		}
+		if param, ok := d.GetOk("auto_expand_enabled"); ok &&
+			fmt.Sprint(param) != fmt.Sprint(utils.PathSearch("auto_expand", v, nil)) {
+			continue
+		}
 
-	if len(resp) > 0 {
-		return &resp[0], nil
+		rst = append(rst, v)
 	}
-	return nil, fmt.Errorf("no policies are bound to the vault")
+	return rst
 }
 
 func flattenAllVaults(client *golangsdk.ServiceClient, vaultList []interface{}) []map[string]interface{} {
 	if len(vaultList) < 1 {
 		return nil
 	}
-	result := make([]map[string]interface{}, len(vaultList))
-	for i, val := range vaultList {
-		vault := val.(vaults.Vault)
+	results := make([]map[string]interface{}, 0, len(vaultList))
+	for _, val := range vaultList {
+		vaultId := utils.PathSearch("id", val, "").(string)
+		objectType := utils.PathSearch("billing.object_type", val, "").(string)
 		vMap := map[string]interface{}{
-			"id":                    vault.ID,
-			"name":                  vault.Name,
-			"enterprise_project_id": vault.EnterpriseProjectID,
-			"type":                  vault.Billing.ObjectType,
-			"protection_type":       vault.Billing.ProtectType,
-			"status":                vault.Billing.Status,
-			"consistent_level":      vault.Billing.ConsistentLevel,
-			"size":                  vault.Billing.Size,
-			"allocated":             vault.Billing.Allocated,
-			"used":                  vault.Billing.Used,
-			"spec_code":             vault.Billing.SpecCode,
-			"storage":               vault.Billing.StorageUnit,
-			"auto_expand_enabled":   vault.AutoExpand,
-			"tags":                  utils.TagsToMap(vault.Tags),
-			"resources":             flattenVaultResources(vault.Billing.ObjectType, vault.Resources),
+			"id":                    vaultId,
+			"name":                  utils.PathSearch("name", val, ""),
+			"enterprise_project_id": utils.PathSearch("enterprise_project_id", val, ""),
+			"type":                  objectType,
+			"protection_type":       utils.PathSearch("billing.protect_type", val, ""),
+			"status":                utils.PathSearch("billing.status", val, ""),
+			"consistent_level":      utils.PathSearch("billing.consistent_level", val, ""),
+			"size":                  utils.PathSearch("billing.size", val, 0),
+			"allocated":             utils.PathSearch("billing.allocated", val, 0),
+			"used":                  utils.PathSearch("billing.used", val, 0),
+			"spec_code":             utils.PathSearch("billing.spec_code", val, ""),
+			"storage":               utils.PathSearch("billing.storage_unit", val, ""),
+			"auto_expand_enabled":   utils.PathSearch("auto_expand", val, false),
+			"tags":                  utils.FlattenTagsToMap(utils.PathSearch("tags", val, make(map[string]interface{}))),
+			"resources":             flattenVaultResources(objectType, utils.PathSearch("resources", val, make([]interface{}, 0)).([]interface{})),
+			"auto_bind":             utils.PathSearch("auto_bind", val, nil),
+			"bind_rules":            utils.FlattenTagsToMap(utils.PathSearch("bind_rules.tags", val, nil)),
 		}
 
 		// Query the CBR policy which bound to the vault by ID.
-		if policy, err := getPolicyOfSpecificVault(client, vault.ID); err != nil {
-			log.Printf("[DEBUG] No policy bound to vault (%s): %s", vault.ID, err)
+		if policies, err := getPoliciesByVaultId(client, vaultId); err != nil {
+			log.Printf("[DEBUG] No policy bound to vault (%s): %s", vaultId, err)
 		} else {
-			vMap["policy_id"] = policy.ID
+			vMap["policy_id"] = utils.PathSearch("[0].id", policies, "")
 		}
-		result[i] = vMap
+		results = append(results, vMap)
 	}
 
-	return result
+	return results
+}
+
+func queryVaults(client *golangsdk.ServiceClient, d *schema.ResourceData) ([]interface{}, error) {
+	var (
+		httpUrl = "v3/{project_id}/vaults?limit=100"
+		offset  = 0
+		results = make([]interface{}, 0)
+	)
+
+	listPath := client.Endpoint + httpUrl
+	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
+	listPath += buildListVaultsParams(d)
+
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	for {
+		listPathWithOffset := fmt.Sprintf("%s&offset=%d", listPath, offset)
+		requestResp, err := client.Request("GET", listPathWithOffset, &opt)
+		if err != nil {
+			return nil, fmt.Errorf("error querying vaults: %s", err)
+		}
+		respBody, err := utils.FlattenResponse(requestResp)
+		if err != nil {
+			return nil, err
+		}
+		vaults := utils.PathSearch("vaults", respBody, make([]interface{}, 0)).([]interface{})
+		if len(vaults) < 1 {
+			break
+		}
+		results = append(results, vaults...)
+		offset += len(vaults)
+	}
+	return results, nil
 }
 
 func dataSourceVaultsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	client, err := cfg.CbrV3Client(cfg.GetRegion(d))
+	var (
+		cfg    = meta.(*config.Config)
+		region = cfg.GetRegion(d)
+	)
+	client, err := cfg.NewServiceClient("cbr", region)
 	if err != nil {
-		return diag.Errorf("error creating CBR v3 client: %s", err)
+		return diag.Errorf("error creating CBR client: %s", err)
 	}
 
-	opt := buildVaultListOpts(d, cfg)
-	pages, err := vaults.List(client, opt).AllPages()
+	vaults, err := queryVaults(client, d)
 	if err != nil {
-		return diag.Errorf("error getting vault details: %s", err)
-	}
-
-	resp, err := vaults.ExtractVaults(pages)
-	if err != nil {
-		return diag.Errorf("error getting vault details: %s", err)
-	}
-	// Use the following parameters to filter the result of the List method return: consistent_level, size and
-	// auto_expand_enabled.
-	vaultList, err := filterVaults(d, *resp)
-	if err != nil {
-		return diag.Errorf("error filting vaults by consistent_level, size and auto_expand_enabled: %s", err)
+		return diag.FromErr(err)
 	}
 
 	// Set the ID and other parameters.
@@ -297,7 +341,7 @@ func dataSourceVaultsRead(_ context.Context, d *schema.ResourceData, meta interf
 	}
 	d.SetId(uuid)
 	mErr := multierror.Append(nil,
-		d.Set("vaults", flattenAllVaults(client, vaultList)),
+		d.Set("vaults", flattenAllVaults(client, filterVaults(vaults, d))),
 	)
 	if mErr.ErrorOrNil() != nil {
 		return diag.Errorf("error setting data-source fields: %s", err)

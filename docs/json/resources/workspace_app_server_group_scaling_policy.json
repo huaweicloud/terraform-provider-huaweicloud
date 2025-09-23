@@ -1,0 +1,72 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_workspace_app_server_group_scaling_policy": {
+          "block": {
+            "attributes": {
+              "enable": {
+                "type": "bool",
+                "description": "Whether the scaling policy is enabled.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "max_scaling_amount": {
+                "type": "number",
+                "description": "The maximum number of instances that can be scaled out.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the scaling policy is located.",
+                "computed": true
+              },
+              "server_group_id": {
+                "type": "string",
+                "description": "The ID of the server group to which the scaling policy belongs.",
+                "required": true
+              },
+              "single_expansion_count": {
+                "type": "number",
+                "description": "The number of instances to scale out in a single scaling operation.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "scaling_policy_by_session": {
+                "block": {
+                  "attributes": {
+                    "session_usage_threshold": {
+                      "type": "number",
+                      "description": "The total session usage threshold of the server group.",
+                      "required": true
+                    },
+                    "shrink_after_session_idle_minutes": {
+                      "type": "number",
+                      "description": "The number of minutes to wait before releasing instances with no session connections.",
+                      "required": true
+                    }
+                  },
+                  "description": "The session-based scaling policy configuration."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

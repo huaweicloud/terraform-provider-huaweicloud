@@ -7,63 +7,34 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5/model"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iotda"
 )
 
-func getDeviceCertificateResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := conf.HcIoTdaV5Client(acceptance.HW_REGION_NAME, WithDerivedAuth())
+func getDeviceCertificateResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	var (
+		region    = acceptance.HW_REGION_NAME
+		isDerived = iotda.WithDerivedAuth(cfg, region)
+	)
+
+	client, err := cfg.NewServiceClientWithDerivedAuth("iotda", region, isDerived)
 	if err != nil {
-		return nil, fmt.Errorf("error creating IoTDA v5 client: %s", err)
+		return nil, fmt.Errorf("error creating IoTDA client: %s", err)
 	}
-	return iotda.QueryDeviceCertificate(client, state.Primary.ID, nil)
+
+	return iotda.QueryDeviceCertificate(client, state.Primary.ID, "")
 }
 
 func TestAccDeviceCertificate_basic(t *testing.T) {
-	var obj model.CertificatesRspDto
-	rName := "huaweicloud_iotda_device_certificate.test"
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&obj,
-		getDeviceCertificateResourceFunc,
+	var (
+		deviceCaObj interface{}
+		rName       = "huaweicloud_iotda_device_certificate.test"
+		name        = acceptance.RandomAccResourceName()
 	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testDeviceCertificate_basic(),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "cn", "huaweiIoT"),
-					resource.TestCheckResourceAttr(rName, "status", "Unverified"),
-					resource.TestCheckResourceAttrSet(rName, "verify_code"),
-					resource.TestCheckResourceAttrSet(rName, "effective_date"),
-					resource.TestCheckResourceAttrSet(rName, "expiry_date"),
-					resource.TestCheckResourceAttrSet(rName, "owner"),
-				),
-			},
-			{
-				ResourceName:            rName,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"content"},
-			},
-		},
-	})
-}
-
-func TestAccDeviceCertificate_derived(t *testing.T) {
-	var obj model.CertificatesRspDto
-	rName := "huaweicloud_iotda_device_certificate.test"
 	rc := acceptance.InitResourceCheck(
 		rName,
-		&obj,
+		&deviceCaObj,
 		getDeviceCertificateResourceFunc,
 	)
 
@@ -76,7 +47,7 @@ func TestAccDeviceCertificate_derived(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testDeviceCertificate_basic(),
+				Config: testDeviceCertificate_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "cn", "huaweiIoT"),
@@ -91,17 +62,18 @@ func TestAccDeviceCertificate_derived(t *testing.T) {
 				ResourceName:            rName,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"content"},
+				ImportStateVerifyIgnore: []string{"content", "space_id"},
 			},
 		},
 	})
 }
 
-func testDeviceCertificate_basic() string {
+func testDeviceCertificate_basic(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
 resource "huaweicloud_iotda_device_certificate" "test" {
+  space_id = huaweicloud_iotda_space.test.id
   content  = <<EOT
 -----BEGIN CERTIFICATE-----
 MIIDlTCCAn0CFDksqsC4D2sWd5aIJ/3kveD9bi1VMA0GCSqGSIb3DQEBCwUAMIGF
@@ -127,5 +99,5 @@ RQocSUkUw0EW
 -----END CERTIFICATE-----
 EOT
 }
-`, buildIoTDAEndpoint())
+`, testSpace_basic(name))
 }

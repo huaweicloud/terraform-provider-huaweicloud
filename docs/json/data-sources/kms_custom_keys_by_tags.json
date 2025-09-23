@@ -1,0 +1,137 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_kms_custom_keys_by_tags": {
+          "block": {
+            "attributes": {
+              "action": {
+                "type": "string",
+                "description": "Specifies the operation type.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource.",
+                "computed": true
+              },
+              "resources": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "resource_detail": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "creation_date": "string",
+                            "default_key_flag": "string",
+                            "domain_id": "string",
+                            "expiration_time": "string",
+                            "key_alias": "string",
+                            "key_description": "string",
+                            "key_id": "string",
+                            "key_label": "string",
+                            "key_rotation_enabled": "string",
+                            "key_spec": "string",
+                            "key_state": "string",
+                            "key_type": "string",
+                            "key_usage": "string",
+                            "keystore_id": "string",
+                            "origin": "string",
+                            "partition_type": "string",
+                            "realm": "string",
+                            "scheduled_deletion_date": "string",
+                            "sys_enterprise_project_id": "string"
+                          }
+                        ]
+                      ],
+                      "resource_id": "string",
+                      "resource_name": "string",
+                      "tags": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "key": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The list of key resources.",
+                "computed": true
+              },
+              "sequence": {
+                "type": "string",
+                "description": "Specifies the sequence number of the request message.",
+                "optional": true
+              },
+              "total_count": {
+                "type": "number",
+                "description": "The total number of records.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "matches": {
+                "block": {
+                  "attributes": {
+                    "key": {
+                      "type": "string",
+                      "description": "Specifies the field to be matched.",
+                      "optional": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "description": "Specifies the value to be matched.",
+                      "optional": true
+                    }
+                  },
+                  "description": "Specifies the field to be matched."
+                },
+                "nesting_mode": "list"
+              },
+              "tags": {
+                "block": {
+                  "attributes": {
+                    "key": {
+                      "type": "string",
+                      "description": "Specifies the tag key.",
+                      "optional": true
+                    },
+                    "values": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "Specifies the tag value set.",
+                      "optional": true
+                    }
+                  },
+                  "description": "Specifies the tag list."
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "KMS",
+            "name": "Data Encryption Workshop KMS",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据加密服务-密钥管理",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

@@ -8,11 +8,32 @@ host: huaweicloud.com
 tags:
     - name: DBSS
 paths:
+    /v1/{project_id}/{resource_type}/{resource_id}/tags/create:
+        POST:
+            tag: DBSS
+    /v1/{project_id}/{resource_type}/{resource_id}/tags/delete:
+        DELETE:
+            tag: DBSS
+    /v1/{project_id}/dbss/audit/instance/reboot:
+        POST:
+            tag: DBSS
+    /v1/{project_id}/dbss/audit/instance/start:
+        POST:
+            tag: DBSS
+    /v1/{project_id}/dbss/audit/instance/stop:
+        POST:
+            tag: DBSS
     /v1/{project_id}/dbss/audit/instances:
         GET:
             tag: DBSS
+    /v1/{project_id}/dbss/audit/instances/{instance_id}:
+        PUT:
+            tag: DBSS
     /v1/{project_id}/dbss/audit/jobs/{resource_id}:
         GET:
+            tag: DBSS
+    /v1/{project_id}/dbss/audit/security-group:
+        POST:
             tag: DBSS
     /v2/{project_id}/dbss/audit/charge/period/order:
         POST:

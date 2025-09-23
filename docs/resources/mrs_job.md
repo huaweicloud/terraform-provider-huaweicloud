@@ -32,18 +32,24 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which to create the mrs job resource. If omitted, the
   provider-level region will be used. Changing this creates a new mrs job resource.
 
-* `job_type` - (Required, Int, ForceNew) Job type 1: MapReduce 2: Spark 3: Hive Script 4: HiveQL
-  (not supported currently) 5: DistCp, importing and exporting data. 6: Spark Script 7: Spark SQL, submitting Spark SQL
-  statements. (not supported in this API currently) NOTE: Spark and Hive jobs can be added to only clusters including
-  Spark and Hive components.
+* `job_type` - (Required, Int, ForceNew) Job type.
+  + **1**: MapReduce
+  + **2**: Spark
+  + **3**: Hive Script
+  + **4**: HiveQL (not supported currently)
+  + **5**: DistCp, importing and exporting data
+  + **6**: Spark Script
+  + **7**: Spark SQL, submitting Spark SQL statements (not supported in this API currently).
 
-* `job_name` - (Required, String, ForceNew) Job name Contains only 1 to 64 letters, digits, hyphens
+  -> NOTE: Spark and Hive jobs can be added to only clusters including Spark and Hive components.
+
+* `job_name` - (Required, String, ForceNew) Job name Contains only `1` to `64` letters, digits, hyphens
   (-), and underscores (_). NOTE: Identical job names are allowed but not recommended.
 
 * `cluster_id` - (Required, String, ForceNew) Cluster ID
 
 * `jar_path` - (Required, String, ForceNew) Path of the .jar package or .sql file for program execution The parameter
-  must meet the following requirements: Contains a maximum of 1023 characters, excluding special characters such as
+  must meet the following requirements: Contains a maximum of `1,023` characters, excluding special characters such as
   ;|&><'$. The address cannot be empty or full of spaces. Starts with / or s3a://. Spark Script must end with .sql;
   while MapReduce and Spark Jar must end with .jar. sql and jar are case-insensitive.
 
@@ -52,7 +58,7 @@ The following arguments are supported:
   characters, excluding special characters such as ;|&>'<$, and can be empty.
 
 * `input` - (Optional, String) Path for inputting data, which must start with / or s3a://. A correct OBS path is
-  required. The parameter contains a maximum of 1023 characters, excluding special characters such as ;|&>'<$, and can
+  required. The parameter contains a maximum of `1,023` characters, excluding special characters such as ;|&>'<$, and can
   be empty.
 
 * `output` - (Optional, String) Path for outputting data, which must start with / or s3a://. A correct OBS path is

@@ -2,20 +2,23 @@
 subcategory: "Web Application Firewall (WAF)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_waf_certificate"
-description: ""
+description: |-
+  Use this data source to get the certificate of WAF within HuaweiCloud.
 ---
 
 # huaweicloud_waf_certificate
 
-Get the certificate in the WAF, including the one pushed from SCM.
+Use this data source to get the certificate of WAF within HuaweiCloud.
+
+-> When multiple pieces of data are queried, the datasource will process the first piece of data and put it back.
 
 ## Example Usage
 
 ```hcl
 variable enterprise_project_id {}
 
-data "huaweicloud_waf_certificate" "certificate_1" {
-  name                  = "certificate name"
+data "huaweicloud_waf_certificate" "test" {
+  name                  = "test-name"
   enterprise_project_id = var.enterprise_project_id
 }
 ```
@@ -24,19 +27,20 @@ data "huaweicloud_waf_certificate" "certificate_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String) The region in which to obtain the WAF. If omitted, the provider-level region will be
-  used.
+* `region` - (Optional, String) Specifies the region in which to obtain the WAF. If omitted, the provider-level region
+  will be used.
 
-* `name` - (Required, String) The name of certificate. The value is case sensitive and supports fuzzy matching.
+* `name` - (Optional, String) Specifies the name of certificate. The value is case-sensitive and supports fuzzy matching.
 
-  -> **NOTE:** The certificate name is not unique. Only returns the last created one when matched multiple certificates.
+* `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID of WAF certificate.
+  For enterprise users, if omitted, default enterprise project will be used.
 
-* `expire_status` - (Optional, Int) The expire status of certificate. Defaults is `0`. The value can be:
-  + `0`: not expire
-  + `1`: has expired
-  + `2`: wil expired soon
+* `expiration_status` - (Optional, String) Specifies the certificate expiration status. The options are as follows:
+  + `0`: Not expired;
+  + `1`: Expired;
+  + `2`: Expired soon (The certificate will expire in one month.)
 
-* `enterprise_project_id` - (Optional, String) The enterprise project ID of WAF certificate.
+  -> If this field is not configured, all certificates that meet the expired status will be found.
 
 ## Attribute Reference
 
@@ -44,4 +48,6 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The certificate ID in UUID format.
 
-* `expiration` - Indicates the time when the certificate expires.
+* `created_at` - Indicates the time when the certificate uploaded, in RFC3339 format.
+
+* `expired_at` - Indicates the time when the certificate expires, in RFC3339 format.

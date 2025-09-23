@@ -30,13 +30,13 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the task resource. If omitted, the
   provider-level region will be used. Changing this parameter will create a new resource.
 
-* `name` - (Required, String) Specifies the name of the task, which can contain a maximum of 42 characters.
+* `name` - (Required, String) Specifies the name of the task, which can contain a maximum of `42` characters.
 
 * `project_id` - (Required, Int, ForceNew) Specifies the CPTS project ID which the task belongs to.
   Changing this parameter will create a new resource.
 
-* `benchmark_concurrency` - (Optional, Int) Specifies benchmark concurrency of the task, the value range is 0 to
-  2000000. The default value is `100`. Reference for the calculation of the number of concurrent users.
+* `benchmark_concurrency` - (Optional, Int) Specifies benchmark concurrency of the task, the value range is `0` to
+  `2,000,000`. The default value is `100`. Reference for the calculation of the number of concurrent users.  
   `Number of concurrent users` = `benchmark concurrency` * `concurrency ratio`.
 
 * `operation` - (Optional, String) Specifies whether to enable the task or stop the task. The options are as follows:
@@ -68,7 +68,7 @@ This resource provides the following timeouts configuration options:
 
 Tasks can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_cpts_task.test 1090
 ```
 
@@ -78,7 +78,7 @@ It is generally recommended running `terraform plan` after importing an instance
 You can then decide if changes should be applied to the instance, or the resource definition should be updated to
 align with the instance. Also you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_cpts_task" "test" {
     ...
 

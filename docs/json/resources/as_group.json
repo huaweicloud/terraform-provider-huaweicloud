@@ -5,6 +5,10 @@
         "huaweicloud_as_group": {
           "block": {
             "attributes": {
+              "activity_type": {
+                "type": "string",
+                "computed": true
+              },
               "agency_name": {
                 "type": "string",
                 "optional": true,
@@ -23,6 +27,10 @@
                 "description": "The cooling duration, in seconds.",
                 "optional": true,
                 "default": 300
+              },
+              "create_time": {
+                "type": "string",
+                "computed": true
               },
               "current_instance_number": {
                 "type": "number",
@@ -52,6 +60,10 @@
               "desire_instance_number": {
                 "type": "number",
                 "optional": true,
+                "computed": true
+              },
+              "detail": {
+                "type": "string",
                 "computed": true
               },
               "enable": {
@@ -102,6 +114,10 @@
                 "description": "The instances id list in the as group.",
                 "computed": true
               },
+              "is_scaling": {
+                "type": "bool",
+                "computed": true
+              },
               "max_instance_number": {
                 "type": "number",
                 "optional": true,
@@ -125,6 +141,10 @@
                 "type": "string",
                 "required": true
               },
+              "scaling_configuration_name": {
+                "type": "string",
+                "computed": true
+              },
               "scaling_group_name": {
                 "type": "string",
                 "required": true
@@ -138,7 +158,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "vpc_id": {
                 "type": "string",
@@ -150,6 +171,10 @@
               "lbaas_listeners": {
                 "block": {
                   "attributes": {
+                    "listener_id": {
+                      "type": "string",
+                      "computed": true
+                    },
                     "pool_id": {
                       "type": "string",
                       "required": true

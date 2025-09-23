@@ -2,9 +2,11 @@ package oms
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -14,10 +16,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
-
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/sdkerr"
-	oms "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/oms/v2"
-	omsmodel "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/oms/v2/model"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -129,6 +127,16 @@ func ResourceMigrationTask() *schema.Resource {
 								"source_object.0.list_file_bucket",
 							},
 						},
+						"list_file_num": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
+						"json_auth_file": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
 					},
 				},
 			},
@@ -221,9 +229,8 @@ func ResourceMigrationTask() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"max_bandwidth": {
-							Type:         schema.TypeInt,
-							Required:     true,
-							ValidateFunc: validation.IntBetween(1, 200),
+							Type:     schema.TypeInt,
+							Required: true,
 						},
 						"start": {
 							Type:     schema.TypeString,
@@ -293,8 +300,43 @@ func ResourceMigrationTask() *schema.Resource {
 							Optional: true,
 							ForceNew: true,
 						},
+						"message_template_name": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
 					},
 				},
+			},
+			"enable_metadata_migration": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+			},
+			"dst_storage_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+			"task_priority": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+			"consistency_check": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+			"enable_requester_pays": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+			},
+			"object_overwrite_mode": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
 			},
 			"name": {
 				Type:     schema.TypeString,
@@ -308,26 +350,28 @@ func ResourceMigrationTask() *schema.Resource {
 	}
 }
 
-func buildSrcNodeOpts(rawSrcNode []interface{}) *omsmodel.SrcNodeReq {
+func buildSrcNodeOpts(rawSrcNode []interface{}) map[string]interface{} {
 	if len(rawSrcNode) != 1 {
 		return nil
 	}
 	srcNode := rawSrcNode[0].(map[string]interface{})
 
-	srcNodeOpts := omsmodel.SrcNodeReq{
-		CloudType:     utils.StringIgnoreEmpty(srcNode["data_source"].(string)),
-		Region:        utils.StringIgnoreEmpty(srcNode["region"].(string)),
-		Ak:            utils.StringIgnoreEmpty(srcNode["access_key"].(string)),
-		Sk:            utils.StringIgnoreEmpty(srcNode["secret_key"].(string)),
-		SecurityToken: utils.StringIgnoreEmpty(srcNode["security_token"].(string)),
-		AppId:         utils.StringIgnoreEmpty(srcNode["app_id"].(string)),
-		Bucket:        utils.StringIgnoreEmpty(srcNode["bucket"].(string)),
+	srcNodeOpts := map[string]interface{}{
+		"cloud_type":     utils.ValueIgnoreEmpty(srcNode["data_source"]),
+		"region":         utils.ValueIgnoreEmpty(srcNode["region"]),
+		"ak":             utils.ValueIgnoreEmpty(srcNode["access_key"]),
+		"sk":             utils.ValueIgnoreEmpty(srcNode["secret_key"]),
+		"security_token": utils.ValueIgnoreEmpty(srcNode["security_token"]),
+		"app_id":         utils.ValueIgnoreEmpty(srcNode["app_id"]),
+		"bucket":         utils.ValueIgnoreEmpty(srcNode["bucket"]),
+		"json_auth_file": utils.ValueIgnoreEmpty(srcNode["json_auth_file"]),
 	}
 
 	if srcNode["list_file_bucket"].(string) != "" {
-		srcNodeOpts.ListFile = &omsmodel.ListFile{
-			ObsBucket:   srcNode["list_file_bucket"].(string),
-			ListFileKey: srcNode["list_file_key"].(string),
+		srcNodeOpts["list_file"] = map[string]interface{}{
+			"obs_bucket":    srcNode["list_file_bucket"],
+			"list_file_key": srcNode["list_file_key"],
+			"list_file_num": utils.ValueIgnoreEmpty(srcNode["list_file_num"]),
 		}
 	}
 
@@ -344,202 +388,212 @@ func buildSrcNodeOpts(rawSrcNode []interface{}) *omsmodel.SrcNodeReq {
 			s = append(s, "")
 		}
 
-		srcNodeOpts.ObjectKey = &s
+		srcNodeOpts["object_key"] = &s
 	}
 
-	return &srcNodeOpts
+	return srcNodeOpts
 }
 
-func buildDstNodeOpts(conf *config.Config, rawDstNode []interface{}) (*omsmodel.DstNodeReq, error) {
+func buildDstNodeOpts(cfg *config.Config, rawDstNode []interface{}) (map[string]interface{}, error) {
 	if len(rawDstNode) != 1 {
 		return nil, nil
 	}
 	dstNode := rawDstNode[0].(map[string]interface{})
-	ak, err := getDstAccessKey(conf, dstNode)
+	ak, err := getDstAccessKey(cfg, dstNode)
 	if err != nil {
 		return nil, err
 	}
-	sk, err := getDstSecretKey(conf, dstNode)
+	sk, err := getDstSecretKey(cfg, dstNode)
 	if err != nil {
 		return nil, err
 	}
-	securityToken := getDstSecurityToken(conf, dstNode)
+	securityToken := getDstSecurityToken(cfg, dstNode)
 
-	dstNodeOpts := omsmodel.DstNodeReq{
-		Region:        dstNode["region"].(string),
-		Ak:            ak,
-		Sk:            sk,
-		SecurityToken: securityToken,
-		Bucket:        dstNode["bucket"].(string),
-		SavePrefix:    utils.StringIgnoreEmpty(dstNode["save_prefix"].(string)),
+	dstNodeOpts := map[string]interface{}{
+		"region":         dstNode["region"].(string),
+		"ak":             ak,
+		"sk":             sk,
+		"security_token": securityToken,
+		"bucket":         dstNode["bucket"].(string),
+		"save_prefix":    utils.ValueIgnoreEmpty(dstNode["save_prefix"].(string)),
 	}
 
-	return &dstNodeOpts, nil
+	return dstNodeOpts, nil
 }
 
-func getDstAccessKey(conf *config.Config, dstNode map[string]interface{}) (string, error) {
+func getDstAccessKey(cfg *config.Config, dstNode map[string]interface{}) (string, error) {
 	if ak := dstNode["access_key"].(string); ak != "" {
 		return ak, nil
 	}
-	if ak := conf.AccessKey; ak != "" {
+	if ak := cfg.AccessKey; ak != "" {
 		return ak, nil
 	}
 	return "", fmt.Errorf("unable to find access_key")
 }
 
-func getDstSecretKey(conf *config.Config, dstNode map[string]interface{}) (string, error) {
+func getDstSecretKey(cfg *config.Config, dstNode map[string]interface{}) (string, error) {
 	if sk := dstNode["secret_key"].(string); sk != "" {
 		return sk, nil
 	}
-	if sk := conf.SecretKey; sk != "" {
+	if sk := cfg.SecretKey; sk != "" {
 		return sk, nil
 	}
 	return "", fmt.Errorf("unable to find secret_key")
 }
 
-func getDstSecurityToken(conf *config.Config, dstNode map[string]interface{}) *string {
+func getDstSecurityToken(cfg *config.Config, dstNode map[string]interface{}) *string {
 	if securityToken := dstNode["security_token"].(string); securityToken != "" {
 		return utils.String(securityToken)
 	}
-	if securityToken := conf.SecurityToken; securityToken != "" {
+	if securityToken := cfg.SecurityToken; securityToken != "" {
 		return utils.String(securityToken)
 	}
 	return nil
 }
 
-func buildBandwidthPolicyOpts(rawBandwidthPolicy []interface{}) *[]omsmodel.BandwidthPolicyDto {
+func buildBandwidthPolicyOpts(rawBandwidthPolicy []interface{}) []map[string]interface{} {
 	if len(rawBandwidthPolicy) < 1 {
 		return nil
 	}
 
-	bandwidthPolicyOpts := make([]omsmodel.BandwidthPolicyDto, len(rawBandwidthPolicy))
+	bandwidthPolicyOpts := make([]map[string]interface{}, len(rawBandwidthPolicy))
 	for i, rawPolicy := range rawBandwidthPolicy {
 		policy := rawPolicy.(map[string]interface{})
-		bandwidthPolicyOpts[i] = omsmodel.BandwidthPolicyDto{
-			MaxBandwidth: int64(policy["max_bandwidth"].(int) * 1024 * 1024),
-			Start:        policy["start"].(string),
-			End:          policy["end"].(string),
+		bandwidthPolicyOpts[i] = map[string]interface{}{
+			"max_bandwidth": float64(policy["max_bandwidth"].(int) * 1024 * 1024),
+			"start":         policy["start"].(string),
+			"end":           policy["end"].(string),
 		}
 	}
 
-	return &bandwidthPolicyOpts
+	return bandwidthPolicyOpts
 }
 
-func buildSourceCdnOpts(rawSourceCdn []interface{}) (*omsmodel.SourceCdnReq, error) {
+func buildSourceCdnOpts(rawSourceCdn []interface{}) map[string]interface{} {
 	if len(rawSourceCdn) != 1 {
-		return nil, nil
+		return nil
 	}
 	sourceCdn := rawSourceCdn[0].(map[string]interface{})
 
-	sourceCdnOpts := omsmodel.SourceCdnReq{
-		Domain:            sourceCdn["domain"].(string),
-		AuthenticationKey: utils.String(sourceCdn["authentication_key"].(string)),
+	sourceCdnOpts := map[string]interface{}{
+		"domain":              sourceCdn["domain"].(string),
+		"authentication_key":  utils.ValueIgnoreEmpty(sourceCdn["authentication_key"].(string)),
+		"protocol":            sourceCdn["protocol"].(string),
+		"authentication_type": sourceCdn["authentication_type"].(string),
 	}
 
-	if sourceCdn["protocol"].(string) == "http" {
-		sourceCdnOpts.Protocol = omsmodel.GetSourceCdnReqProtocolEnum().HTTP
-	} else {
-		sourceCdnOpts.Protocol = omsmodel.GetSourceCdnReqProtocolEnum().HTTPS
-	}
-
-	var authenticationType omsmodel.SourceCdnReqAuthenticationType
-	if err := authenticationType.UnmarshalJSON([]byte(sourceCdn["authentication_type"].(string))); err != nil {
-		return nil, fmt.Errorf("error parsing the argument authentication_type: %s", err)
-	}
-
-	return &sourceCdnOpts, nil
+	return sourceCdnOpts
 }
 
-func buildSmnConfigOpts(rawSmnConfig []interface{}) *omsmodel.SmnConfig {
+func buildSmnConfigOpts(rawSmnConfig []interface{}) map[string]interface{} {
 	if len(rawSmnConfig) != 1 {
 		return nil
 	}
 	smnInfo := rawSmnConfig[0].(map[string]interface{})
 
-	smnInfoOpts := omsmodel.SmnConfig{
-		TopicUrn:          smnInfo["topic_urn"].(string),
-		TriggerConditions: utils.ExpandToStringList(smnInfo["trigger_conditions"].([]interface{})),
+	smnInfoOpts := map[string]interface{}{
+		"topic_urn":          smnInfo["topic_urn"].(string),
+		"trigger_conditions": utils.ExpandToStringList(smnInfo["trigger_conditions"].([]interface{})),
+		"language":           utils.ValueIgnoreEmpty(smnInfo["language"].(string)),
 	}
-	var language omsmodel.SmnConfigLanguage
-	if smnInfo["language"].(string) == "zh-cn" {
-		language = omsmodel.GetSmnConfigLanguageEnum().ZH_CN
-	} else {
-		language = omsmodel.GetSmnConfigLanguageEnum().EN_US
-	}
-	smnInfoOpts.Language = &language
 
-	return &smnInfoOpts
+	return smnInfoOpts
 }
 
-func resourceMigrationTaskCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	client, err := conf.HcOmsV2Client(conf.GetRegion(d))
+func buildcreateTaskBodyParams(d *schema.ResourceData, cfg *config.Config) (map[string]interface{}, error) {
+	bodyParams := map[string]interface{}{
+		"task_type":                      d.Get("type"),
+		"src_node":                       buildSrcNodeOpts(d.Get("source_object").([]interface{})),
+		"enable_kms":                     d.Get("enable_kms").(bool),
+		"description":                    utils.ValueIgnoreEmpty(d.Get("description").(string)),
+		"bandwidth_policy":               buildBandwidthPolicyOpts(d.Get("bandwidth_policy").([]interface{})),
+		"smn_config":                     buildSmnConfigOpts(d.Get("smn_config").([]interface{})),
+		"enable_restore":                 d.Get("enable_restore"),
+		"enable_failed_object_recording": d.Get("enable_failed_object_recording"),
+		"source_cdn":                     buildSourceCdnOpts(d.Get("source_cdn").([]interface{})),
+		"enable_metadata_migration":      d.Get("enable_metadata_migration").(bool),
+		"enable_requester_pays":          d.Get("enable_requester_pays").(bool),
+		"task_priority":                  utils.ValueIgnoreEmpty(d.Get("task_priority").(string)),
+		"consistency_check":              utils.ValueIgnoreEmpty(d.Get("consistency_check").(string)),
+		"object_overwrite_mode":          utils.ValueIgnoreEmpty(d.Get("object_overwrite_mode").(string)),
+		"dst_storage_policy":             utils.ValueIgnoreEmpty(d.Get("dst_storage_policy").(string)),
+	}
+
+	dstNodeOpts, err := buildDstNodeOpts(cfg, d.Get("destination_object").([]interface{}))
 	if err != nil {
-		return diag.Errorf("error creating OMS client: %s", err)
+		return nil, err
 	}
 
-	var taskType omsmodel.CreateTaskReqTaskType
-	if err := taskType.UnmarshalJSON([]byte(d.Get("type").(string))); err != nil {
-		return diag.Errorf("error parsing the argument type: %s", err)
-	}
-
-	createOpts := omsmodel.CreateTaskReq{
-		TaskType:                    &taskType,
-		SrcNode:                     buildSrcNodeOpts(d.Get("source_object").([]interface{})),
-		EnableKms:                   utils.Bool(d.Get("enable_kms").(bool)),
-		Description:                 utils.StringIgnoreEmpty(d.Get("description").(string)),
-		BandwidthPolicy:             buildBandwidthPolicyOpts(d.Get("bandwidth_policy").([]interface{})),
-		SmnConfig:                   buildSmnConfigOpts(d.Get("smn_config").([]interface{})),
-		EnableRestore:               utils.Bool(d.Get("enable_restore").(bool)),
-		EnableFailedObjectRecording: utils.Bool(d.Get("enable_failed_object_recording").(bool)),
-	}
+	bodyParams["dst_node"] = dstNodeOpts
 
 	if d.Get("migrate_since").(string) != "" {
 		migrateSince, err := utils.FormatUTCTimeStamp(d.Get("migrate_since").(string))
 		if err != nil {
-			return diag.FromErr(err)
+			return nil, err
 		}
-		createOpts.MigrateSince = &migrateSince
+		bodyParams["migrate_since"] = migrateSince
 	}
 
-	sourceCdn, err := buildSourceCdnOpts(d.Get("source_cdn").([]interface{}))
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	createOpts.SourceCdn = sourceCdn
+	return bodyParams, nil
+}
 
-	dstNodeOpts, err := buildDstNodeOpts(conf, d.Get("destination_object").([]interface{}))
+func resourceMigrationTaskCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	var (
+		createTaskHttpUrl = "v2/{project_id}/tasks"
+		createTaskProduct = "oms"
+	)
+	createTaskClient, err := cfg.NewServiceClient(createTaskProduct, region)
 	if err != nil {
-		return diag.FromErr(err)
+		return diag.Errorf("error creating OMS client: %s", err)
 	}
-	createOpts.DstNode = dstNodeOpts
+
+	createTaskPath := createTaskClient.Endpoint + createTaskHttpUrl
+	createTaskPath = strings.ReplaceAll(createTaskPath, "{project_id}", createTaskClient.ProjectID)
+
+	createTaskOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	createOpts, err := buildcreateTaskBodyParams(d, cfg)
+	if err != nil {
+		return nil
+	}
 
 	log.Printf("[DEBUG] Create Task options: %#v", createOpts)
-
-	resp, err := client.CreateTask(&omsmodel.CreateTaskRequest{Body: &createOpts})
+	createTaskOpt.JSONBody = utils.RemoveNil(createOpts)
+	createTaskResp, err := createTaskClient.Request("POST", createTaskPath, &createTaskOpt)
 	if err != nil {
 		return diag.Errorf("error creating OMS migration task: %s", err)
 	}
 
-	if resp.Id == nil {
-		return diag.Errorf("unable to find the task ID")
+	createTaskRespBody, err := utils.FlattenResponse(createTaskResp)
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
-	taskID := strconv.FormatInt(*resp.Id, 10)
+	id := utils.PathSearch("id", createTaskRespBody, nil)
+	if id == nil {
+		return diag.Errorf("error creating OMS migration task: ID is not found in API response")
+	}
+
+	taskID := strconv.FormatInt(int64(id.(float64)), 10)
 	d.SetId(taskID)
 
-	err = waitForTaskStartedORCompleted(ctx, client, taskID, d.Timeout(schema.TimeoutCreate))
+	err = waitForTaskStartedORCompleted(ctx, createTaskClient, taskID, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.Errorf("error waiting for task (%s) started: %s", taskID, err)
 	}
 
 	if !d.Get("start_task").(bool) {
-		_, err = client.StopTask(&omsmodel.StopTaskRequest{TaskId: taskID})
+		err := stopTask(createTaskClient, d)
 		if err != nil {
-			return diag.Errorf("error stopping OMS migration task: %s", err)
+			return diag.FromErr(err)
 		}
 
-		err = waitForTaskStopped(ctx, client, taskID, d.Timeout(schema.TimeoutUpdate))
+		err = waitForTaskStopped(ctx, createTaskClient, taskID, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
 			return diag.Errorf("error waiting for task (%s) stopped: %s", taskID, err)
 		}
@@ -549,38 +603,52 @@ func resourceMigrationTaskCreate(ctx context.Context, d *schema.ResourceData, me
 }
 
 func resourceMigrationTaskRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	client, err := conf.HcOmsV2Client(conf.GetRegion(d))
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	var (
+		getTaskHttpUrl = "v2/{project_id}/tasks/{task_id}"
+		getTaskProduct = "oms"
+	)
+	getTaskClient, err := cfg.NewServiceClient(getTaskProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating OMS client: %s", err)
 	}
 
-	taskID := d.Id()
+	getTaskPath := getTaskClient.Endpoint + getTaskHttpUrl
+	getTaskPath = strings.ReplaceAll(getTaskPath, "{project_id}", getTaskClient.ProjectID)
+	getTaskPath = strings.ReplaceAll(getTaskPath, "{task_id}", d.Id())
 
-	resp, err := client.ShowTask(&omsmodel.ShowTaskRequest{TaskId: taskID})
-	if err != nil {
-		if responseErr, ok := err.(*sdkerr.ServiceResponseError); ok && responseErr.ErrorCode == "OMS.1009" {
-			err = golangsdk.ErrDefault404{}
-		}
-		return common.CheckDeletedDiag(d, err, "error retrieving OMS migration task")
+	getTaskOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
-	log.Printf("[DEBUG] Retrieved Task %s: %#v", d.Id(), resp)
+
+	getTaskResp, err := getTaskClient.Request("GET", getTaskPath, &getTaskOpt)
+	if err != nil {
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", "OMS.1009"),
+			"error retrieving OMS migration task")
+	}
+
+	getTaskRespBody, err := utils.FlattenResponse(getTaskResp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	mErr := multierror.Append(nil,
-		d.Set("type", resp.TaskType.Value()),
-		d.Set("enable_kms", resp.EnableKms),
-		d.Set("description", resp.Description),
-		d.Set("bandwidth_policy", flattenBandwidthPolicy(resp.BandwidthPolicy)),
-		d.Set("source_cdn", flattenSourceCdn(resp.SourceCdn)),
-		d.Set("enable_restore", resp.EnableRestore),
-		d.Set("enable_failed_object_recording", resp.EnableFailedObjectRecording),
-		d.Set("name", resp.Name),
-		d.Set("status", resp.Status),
+		d.Set("type", utils.PathSearch("task_type", getTaskRespBody, nil)),
+		d.Set("enable_kms", utils.PathSearch("enable_kms", getTaskRespBody, nil)),
+		d.Set("description", utils.PathSearch("description", getTaskRespBody, nil)),
+		d.Set("bandwidth_policy", flattenBandwidthPolicy(getTaskRespBody)),
+		d.Set("source_cdn", flattenSourceCdn(getTaskRespBody)),
+		d.Set("enable_restore", utils.PathSearch("enable_restore", getTaskRespBody, nil)),
+		d.Set("enable_failed_object_recording", utils.PathSearch("enable_failed_object_recording", getTaskRespBody, nil)),
+		d.Set("name", utils.PathSearch("name", getTaskRespBody, nil)),
+		d.Set("status", utils.PathSearch("status", getTaskRespBody, nil)),
 	)
 
-	if resp.MigrateSince != nil {
+	if migrateSince := utils.PathSearch("migrate_since", getTaskRespBody, float64(0)).(float64); migrateSince != 0 {
 		mErr = multierror.Append(mErr,
-			d.Set("migrate_since", utils.FormatTimeStampUTC(*resp.MigrateSince)),
+			d.Set("migrate_since", utils.FormatTimeStampUTC(int64(migrateSince))),
 		)
 	}
 
@@ -591,9 +659,32 @@ func resourceMigrationTaskRead(_ context.Context, d *schema.ResourceData, meta i
 	return nil
 }
 
+func hasErrorCode(err error, expectCode string) bool {
+	if errCode, ok := err.(golangsdk.ErrDefault400); ok {
+		var response interface{}
+		if jsonErr := json.Unmarshal(errCode.Body, &response); jsonErr == nil {
+			errorCode := utils.PathSearch("error_code", response, nil)
+			if errorCode == nil {
+				log.Printf("[WARN] failed to parse error_code from response body")
+			}
+
+			if errorCode == expectCode {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
 func resourceMigrationTaskUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	client, err := conf.HcOmsV2Client(conf.GetRegion(d))
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	var (
+		updateTaskProduct = "oms"
+	)
+	updateTaskClient, err := cfg.NewServiceClient(updateTaskProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating OMS client: %s", err)
 	}
@@ -601,46 +692,30 @@ func resourceMigrationTaskUpdate(ctx context.Context, d *schema.ResourceData, me
 	taskID := d.Id()
 
 	if d.HasChange("bandwidth_policy") {
-		updateBandwidthPolicyOpts := buildBandwidthPolicyOpts(d.Get("bandwidth_policy").([]interface{}))
-		updateBandwidthPolicyReq := omsmodel.UpdateBandwidthPolicyRequest{
-			TaskId: taskID,
-			Body: &omsmodel.UpdateBandwidthPolicyReq{
-				BandwidthPolicy: *updateBandwidthPolicyOpts,
-			},
-		}
-		_, err = client.UpdateBandwidthPolicy(&updateBandwidthPolicyReq)
+		err := updateBandwidthPolicy(updateTaskClient, d)
 		if err != nil {
-			return diag.Errorf("error retrieving OMS migration task: %s", err)
+			return diag.FromErr(err)
 		}
 	}
 
 	if d.HasChange("start_task") {
 		if d.Get("start_task").(bool) {
-			startTaskReqOpt, err := buildStartTaskReqOpt(conf, d)
+			err := startTask(updateTaskClient, cfg, d)
 			if err != nil {
 				return diag.FromErr(err)
 			}
-			startTaskRequestOpt := &omsmodel.StartTaskRequest{
-				TaskId: taskID,
-				Body:   startTaskReqOpt,
-			}
 
-			_, err = client.StartTask(startTaskRequestOpt)
-			if err != nil {
-				return diag.Errorf("error starting OMS migration task: %s", err)
-			}
-
-			err = waitForTaskStartedORCompleted(ctx, client, taskID, d.Timeout(schema.TimeoutUpdate))
+			err = waitForTaskStartedORCompleted(ctx, updateTaskClient, taskID, d.Timeout(schema.TimeoutUpdate))
 			if err != nil {
 				return diag.Errorf("error waiting for task (%s) started: %s", taskID, err)
 			}
 		} else {
-			_, err := client.StopTask(&omsmodel.StopTaskRequest{TaskId: taskID})
+			err := stopTask(updateTaskClient, d)
 			if err != nil {
-				return diag.Errorf("error stopping OMS migration task: %s", err)
+				return diag.FromErr(err)
 			}
 
-			err = waitForTaskStopped(ctx, client, taskID, d.Timeout(schema.TimeoutUpdate))
+			err = waitForTaskStopped(ctx, updateTaskClient, taskID, d.Timeout(schema.TimeoutUpdate))
 			if err != nil {
 				return diag.Errorf("error waiting for task (%s) stopped: %s", taskID, err)
 			}
@@ -650,7 +725,76 @@ func resourceMigrationTaskUpdate(ctx context.Context, d *schema.ResourceData, me
 	return resourceMigrationTaskRead(ctx, d, meta)
 }
 
-func waitForTaskStopped(ctx context.Context, client *oms.OmsClient, taskID string, timeout time.Duration) error {
+func buildUpdateBandwidthPolicyBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"bandwidth_policy": buildBandwidthPolicyOpts(d.Get("bandwidth_policy").([]interface{})),
+	}
+
+	return bodyParams
+}
+
+func updateBandwidthPolicy(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	updateBandwidthPolicyHttpUrl := "v2/{project_id}/tasks/{task_id}/bandwidth-policy"
+	updateBandwidthPolicyPath := client.Endpoint + updateBandwidthPolicyHttpUrl
+	updateBandwidthPolicyPath = strings.ReplaceAll(updateBandwidthPolicyPath, "{project_id}", client.ProjectID)
+	updateBandwidthPolicyPath = strings.ReplaceAll(updateBandwidthPolicyPath, "{task_id}", d.Id())
+
+	updateBandwidthPolicyOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	updateBandwidthPolicyOpt.JSONBody = utils.RemoveNil(buildUpdateBandwidthPolicyBodyParams(d))
+	_, err := client.Request("PUT", updateBandwidthPolicyPath, &updateBandwidthPolicyOpt)
+	if err != nil {
+		return fmt.Errorf("error updating bandwidth policy OMS migration task: %s", err)
+	}
+
+	return nil
+}
+
+func startTask(client *golangsdk.ServiceClient, cfg *config.Config, d *schema.ResourceData) error {
+	startTaskHttpUrl := "v2/{project_id}/tasks/{task_id}/start"
+	startTaskPath := client.Endpoint + startTaskHttpUrl
+	startTaskPath = strings.ReplaceAll(startTaskPath, "{project_id}", client.ProjectID)
+	startTaskPath = strings.ReplaceAll(startTaskPath, "{task_id}", d.Id())
+
+	startTaskOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	opts, err := buildStartTaskBodyParams(cfg, d)
+	if err != nil {
+		return err
+	}
+
+	startTaskOpt.JSONBody = utils.RemoveNil(opts)
+	_, err = client.Request("POST", startTaskPath, &startTaskOpt)
+	if err != nil {
+		return fmt.Errorf("error starting OMS migration task: %s", err)
+	}
+
+	return nil
+}
+
+func stopTask(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	stopTaskHttpUrl := "v2/{project_id}/tasks/{task_id}/stop"
+	stopTaskPath := client.Endpoint + stopTaskHttpUrl
+	stopTaskPath = strings.ReplaceAll(stopTaskPath, "{project_id}", client.ProjectID)
+	stopTaskPath = strings.ReplaceAll(stopTaskPath, "{task_id}", d.Id())
+
+	stopTaskOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	_, err := client.Request("POST", stopTaskPath, &stopTaskOpt)
+	if err != nil {
+		return fmt.Errorf("error stopping OMS migration task: %s", err)
+	}
+
+	return nil
+}
+
+func waitForTaskStopped(ctx context.Context, client *golangsdk.ServiceClient, taskID string, timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"0", "7"},
 		Target:     []string{"3"},
@@ -664,7 +808,7 @@ func waitForTaskStopped(ctx context.Context, client *oms.OmsClient, taskID strin
 	return err
 }
 
-func buildStartTaskReqOpt(conf *config.Config, d *schema.ResourceData) (*omsmodel.StartTaskReq, error) {
+func buildStartTaskBodyParams(cfg *config.Config, d *schema.ResourceData) (map[string]interface{}, error) {
 	srcNode := make(map[string]interface{})
 	dstNode := make(map[string]interface{})
 	if sourceObjects := d.Get("source_object").([]interface{}); len(sourceObjects) > 0 {
@@ -674,88 +818,97 @@ func buildStartTaskReqOpt(conf *config.Config, d *schema.ResourceData) (*omsmode
 		dstNode = destinationObjects[0].(map[string]interface{})
 	}
 
-	dstAk, err := getDstAccessKey(conf, dstNode)
+	dstAk, err := getDstAccessKey(cfg, dstNode)
 	if err != nil {
 		return nil, err
 	}
-	dstSk, err := getDstSecretKey(conf, dstNode)
+	dstSk, err := getDstSecretKey(cfg, dstNode)
 	if err != nil {
 		return nil, err
 	}
-	dstSecurityToken := getDstSecurityToken(conf, dstNode)
+	dstSecurityToken := getDstSecurityToken(cfg, dstNode)
 
-	startTaskReqOpt := &omsmodel.StartTaskReq{
-		SrcAk:            utils.StringIgnoreEmpty(srcNode["access_key"].(string)),
-		SrcSk:            utils.StringIgnoreEmpty(srcNode["secret_key"].(string)),
-		SrcSecurityToken: utils.StringIgnoreEmpty(srcNode["security_token"].(string)),
-		DstAk:            dstAk,
-		DstSk:            dstSk,
-		DstSecurityToken: dstSecurityToken,
+	startTaskReqOpt := map[string]interface{}{
+		"src_ak":             utils.ValueIgnoreEmpty(srcNode["access_key"].(string)),
+		"src_sk":             utils.ValueIgnoreEmpty(srcNode["secret_key"].(string)),
+		"src_security_token": utils.ValueIgnoreEmpty(srcNode["security_token"].(string)),
+		"dst_ak":             dstAk,
+		"dst_sk":             dstSk,
+		"dst_security_token": dstSecurityToken,
 	}
 	if sourceCDNs := d.Get("source_cdn").([]interface{}); len(sourceCDNs) > 0 {
 		sourceCdn := sourceCDNs[0].(map[string]interface{})
-		startTaskReqOpt.SourceCdnAuthenticationKey = utils.String(sourceCdn["authentication_key"].(string))
+		startTaskReqOpt["source_cdn_authentication_key"] = utils.String(sourceCdn["authentication_key"].(string))
 	}
 	return startTaskReqOpt, nil
 }
 
 func resourceMigrationTaskDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	client, err := conf.HcOmsV2Client(conf.GetRegion(d))
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	taskID := d.Id()
+
+	var (
+		deleteTaskHttpUrl = "v2/{project_id}/tasks/{task_id}"
+		deleteTaskProduct = "oms"
+	)
+	client, err := cfg.NewServiceClient(deleteTaskProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating OMS client: %s", err)
 	}
 
-	taskID := d.Id()
+	deleteTaskPath := client.Endpoint + deleteTaskHttpUrl
+	deleteTaskPath = strings.ReplaceAll(deleteTaskPath, "{project_id}", client.ProjectID)
+	deleteTaskPath = strings.ReplaceAll(deleteTaskPath, "{task_id}", taskID)
+
+	deleteTaskOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	// get the status of task before deleting it
+	getTaskResp, err := client.Request("GET", deleteTaskPath, &deleteTaskOpt)
+	if err != nil {
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", "OMS.1009"),
+			"error retrieving OMS migration task")
+	}
+
+	getTaskRespBody, err := utils.FlattenResponse(getTaskResp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	status := utils.PathSearch("status", getTaskRespBody, float64(0)).(float64)
 
 	// must stop the running task before deleting it
-	resp, err := client.ShowTask(&omsmodel.ShowTaskRequest{TaskId: taskID})
-	if err != nil {
-		// OMS.1009 means the resource is not found.
-		if responseErr, ok := err.(*sdkerr.ServiceResponseError); ok && responseErr.ErrorCode == "OMS.1009" {
-			return nil
-		}
-		return diag.Errorf("error retrieving OMS migration task: %s", err)
-	}
-
-	if resp.Status == nil {
-		return diag.Errorf("unable to find the status OMS migration task: %s", taskID)
-	}
-
-	if *resp.Status == 2 {
-		_, err = client.StopTask(&omsmodel.StopTaskRequest{TaskId: taskID})
+	if status == 2 {
+		err = stopTask(client, d)
 		if err != nil {
 			// ErrorCode "OMS.0066" means the task is not running, don't need to stop it before deleting
-			if responseErr, ok := err.(*sdkerr.ServiceResponseError); !ok || responseErr.ErrorCode != "OMS.0066" {
+			if !hasErrorCode(err, "OMS.0066") {
 				return diag.Errorf("error stopping OMS migration task: %s", err)
 			}
 		} else {
-			err := waitForTaskStopped(ctx, client, taskID, d.Timeout(schema.TimeoutUpdate))
+			err := waitForTaskStopped(ctx, client, taskID, d.Timeout(schema.TimeoutDelete))
 			if err != nil {
 				return diag.Errorf("error waiting for task (%s) stopped: %s", taskID, err)
 			}
 		}
 	}
 
-	if *resp.Status == 7 {
-		err := waitForTaskStopped(ctx, client, taskID, d.Timeout(schema.TimeoutUpdate))
+	if status == 7 {
+		err := waitForTaskStopped(ctx, client, taskID, d.Timeout(schema.TimeoutDelete))
 		if err != nil {
 			return diag.Errorf("error waiting for task (%s) stopped: %s", taskID, err)
 		}
 	}
 
 	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
-		_, err = client.DeleteTask(&omsmodel.DeleteTaskRequest{TaskId: taskID})
+		_, err = client.Request("DELETE", deleteTaskPath, &deleteTaskOpt)
 		if err == nil {
 			return nil
 		}
-		responseErr, ok := err.(*sdkerr.ServiceResponseError)
-		if !ok {
-			return resource.NonRetryableError(err)
-		}
 
 		// ErrorCode "OMS.0063" means the task is in progress. This ErrorCode is not accurate, we need retry it.
-		if responseErr.ErrorCode == "OMS.0063" {
+		if hasErrorCode(err, "OMS.0063") {
 			return resource.RetryableError(err)
 		}
 		return resource.NonRetryableError(err)
@@ -767,19 +920,36 @@ func resourceMigrationTaskDelete(ctx context.Context, d *schema.ResourceData, me
 	return nil
 }
 
-func getTaskStatus(client *oms.OmsClient, taskId string) resource.StateRefreshFunc {
+func getTaskStatus(client *golangsdk.ServiceClient, taskId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		taskGet, err := client.ShowTask(&omsmodel.ShowTaskRequest{TaskId: taskId})
+		var (
+			getTaskHttpUrl = "v2/{project_id}/tasks/{task_id}"
+		)
+
+		getTaskPath := client.Endpoint + getTaskHttpUrl
+		getTaskPath = strings.ReplaceAll(getTaskPath, "{project_id}", client.ProjectID)
+		getTaskPath = strings.ReplaceAll(getTaskPath, "{task_id}", taskId)
+
+		getTaskOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+		}
+
+		getTaskResp, err := client.Request("GET", getTaskPath, &getTaskOpt)
 		if err != nil {
 			return nil, "", err
 		}
 
-		status := strconv.Itoa(int(*taskGet.Status))
-		return taskGet, status, nil
+		getTaskRespBody, err := utils.FlattenResponse(getTaskResp)
+		if err != nil {
+			return nil, "", err
+		}
+
+		status := strconv.Itoa(int(utils.PathSearch("status", getTaskRespBody, float64(0)).(float64)))
+		return getTaskRespBody, status, nil
 	}
 }
 
-func waitForTaskStartedORCompleted(ctx context.Context, client *oms.OmsClient, taskID string, timeout time.Duration) error {
+func waitForTaskStartedORCompleted(ctx context.Context, client *golangsdk.ServiceClient, taskID string, timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"0", "1"},
 		Target:     []string{"2", "5"},
@@ -793,34 +963,33 @@ func waitForTaskStartedORCompleted(ctx context.Context, client *oms.OmsClient, t
 	return err
 }
 
-func flattenBandwidthPolicy(bandwidthPolicy *[]omsmodel.BandwidthPolicyDto) []map[string]interface{} {
+func flattenBandwidthPolicy(getTaskRespBody interface{}) []map[string]interface{} {
+	bandwidthPolicy := utils.PathSearch("bandwidth_policy", getTaskRespBody, nil)
 	if bandwidthPolicy == nil {
 		return nil
 	}
 
-	bandwidthPolicyResult := make([]map[string]interface{}, len(*bandwidthPolicy))
-	for i, policy := range *bandwidthPolicy {
+	bandwidthPolicyResult := make([]map[string]interface{}, len(bandwidthPolicy.([]interface{})))
+	for i, policy := range bandwidthPolicy.([]interface{}) {
 		bandwidthPolicyResult[i] = map[string]interface{}{
-			"max_bandwidth": policy.MaxBandwidth / (1024 * 1024),
-			"start":         policy.Start,
-			"end":           policy.End,
+			"max_bandwidth": utils.PathSearch("max_bandwidth", policy, float64(0)).(float64) / (1024 * 1024),
+			"start":         utils.PathSearch("start", policy, nil),
+			"end":           utils.PathSearch("end", policy, nil),
 		}
 	}
 	return bandwidthPolicyResult
 }
 
-func flattenSourceCdn(sourceCdn *omsmodel.SourceCdnResp) []map[string]interface{} {
+func flattenSourceCdn(getTaskRespBody interface{}) []map[string]interface{} {
+	sourceCdn := utils.PathSearch("source_cdn", getTaskRespBody, nil)
 	if sourceCdn == nil {
 		return nil
 	}
 
 	sourceCdnResult := map[string]interface{}{
-		"domain":   sourceCdn.Domain,
-		"protocol": sourceCdn.Protocol.Value(),
-	}
-
-	if sourceCdn.AuthenticationType != nil {
-		sourceCdnResult["authentication_type"] = sourceCdn.AuthenticationType.Value()
+		"domain":              utils.PathSearch("domain", sourceCdn, nil),
+		"protocol":            utils.PathSearch("protocol", sourceCdn, nil),
+		"authentication_type": utils.PathSearch("authentication_type", sourceCdn, nil),
 	}
 
 	return []map[string]interface{}{sourceCdnResult}

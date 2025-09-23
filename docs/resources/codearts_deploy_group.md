@@ -93,6 +93,9 @@ In addition to all arguments above, the following attributes are exported:
 * `permission` - The group permission detail.
   The [permission](#DeployGroup_permission) structure is documented below.
 
+* `permission_matrix` - The group permission matrix detail.
+  The [permission_matrix](#DeployGroup_permission_matrix) structure is documented below.
+
 <a name="DeployGroup_user"></a>
 The `object` block supports:
 
@@ -112,6 +115,33 @@ The `permission` block supports:
 * `can_add_host` - Indicates whether the user has the permission to add hosts.
 
 * `can_manage` - Indicates whether the user has the management permission.
+
+* `can_copy` - Indicates whether the user has the permission to copy.
+
+<a name="DeployGroup_permission_matrix"></a>
+The `permission_matrix` block supports:
+
+* `role_id` - Indicates the role ID.
+
+* `role_name` - Indicates the role name.
+
+* `role_type` - Indicates the role type.
+
+* `can_view` - Indicates whether the role has the view permission.
+
+* `can_edit` - Indicates whether the role has the edit permission.
+
+* `can_delete` - Indicates whether the role has the deletion permission.
+
+* `can_add_host` - Indicates whether the role has the permission to add hosts.
+
+* `can_manage` - Indicates whether the role has the management permission.
+
+* `can_copy` - Indicates whether the role has the permission to copy.
+
+* `created_at` - The permission create time.
+
+* `updated_at` - The permission update time.
 
 ## Import
 

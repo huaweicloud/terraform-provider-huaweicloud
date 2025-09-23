@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
@@ -18,12 +19,17 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+var extendLogLinkNonUpdatableParams = []string{"instance_id", "file_name"}
+
 // @API RDS POST /v3/{project_id}/instances/{instance_id}/xellog-download
 func ResourceRdsExtendLogLink() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceRdsExtendLogLinkCreate,
 		ReadContext:   resourceRdsExtendLogLinkRead,
+		UpdateContext: resourceRdsExtendLogLinkUpdate,
 		DeleteContext: resourceRdsExtendLogLinkDelete,
+
+		CustomizeDiff: config.FlexibleForceNew(extendLogLinkNonUpdatableParams),
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -39,13 +45,11 @@ func ResourceRdsExtendLogLink() *schema.Resource {
 			"instance_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the ID of the RDS instance.`,
 			},
 			"file_name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the name of the file to be downloaded.`,
 			},
 			"file_size": {
@@ -67,6 +71,12 @@ func ResourceRdsExtendLogLink() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Indicates the last update time.`,
+			},
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
 			},
 		},
 	}
@@ -117,7 +127,8 @@ func resourceRdsExtendLogLinkRead(_ context.Context, d *schema.ResourceData, met
 	fileName := d.Get("file_name").(string)
 	resp, err := extendLogLink(client, instanceID, fileName)
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseRdsErrorToError404(err), "error retrieving RDS extend log link")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code||errCode", "DBS.280343"),
+			"error retrieving RDS extend log link")
 	}
 	logInfo := utils.PathSearch(fmt.Sprintf("list|[?file_name=='%s']|[0]", fileName), resp, nil)
 	mErr := multierror.Append(
@@ -190,6 +201,10 @@ func rdsExtendLogLinkRefreshFunc(client *golangsdk.ServiceClient, instanceID, fi
 
 		return resp, status.(string), nil
 	}
+}
+
+func resourceRdsExtendLogLinkUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+	return nil
 }
 
 func resourceRdsExtendLogLinkDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {

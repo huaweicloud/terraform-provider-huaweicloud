@@ -1,0 +1,87 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_ccm_private_certificates": {
+          "block": {
+            "attributes": {
+              "certificates": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "distinguished_name": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "common_name": "string",
+                            "country": "string",
+                            "locality": "string",
+                            "organization": "string",
+                            "organizational_unit": "string",
+                            "state": "string"
+                          }
+                        ]
+                      ],
+                      "enterprise_project_id": "string",
+                      "expired_at": "string",
+                      "gen_mode": "string",
+                      "id": "string",
+                      "issuer_id": "string",
+                      "issuer_name": "string",
+                      "key_algorithm": "string",
+                      "signature_algorithm": "string",
+                      "start_at": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "description": "The certificate details.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the private certificate.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "sort_dir": {
+                "type": "string",
+                "description": "Specifies the sorting sequence.",
+                "optional": true
+              },
+              "sort_key": {
+                "type": "string",
+                "description": "Specifies the sorting attribute.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the private certificate status.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CCM",
+            "name": "Cloud Certificate & Manager",
+            "catalog": "Security & Compliance",
+            "name_cn": "云证书与管理服务",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

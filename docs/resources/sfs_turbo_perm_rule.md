@@ -1,13 +1,14 @@
 ---
-subcategory: "Scalable File Service (SFS)"
+subcategory: "SFS Turbo"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_sfs_turbo_perm_rule"
-description: ""
+description: |-
+  Manages a SFS Turbo permission rule resource within HuaweiCloud.
 ---
 
 # huaweicloud_sfs_turbo_perm_rule
 
-Provides a Shared File System (SFS) Turbo permission rule resource.
+Manages a SFS Turbo permission rule resource within HuaweiCloud.
 
 ## Example Usage
 

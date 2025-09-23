@@ -46,6 +46,17 @@ func TestAccResourceCdmCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "status", "Normal"),
 					resource.TestCheckResourceAttrSet(resourceName, "version"),
 					resource.TestCheckResourceAttrSet(resourceName, "created"),
+					resource.TestCheckResourceAttr(resourceName, "email.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "phone_num.#", "2"),
+				),
+			},
+			{
+				Config: testAccCdmCluster_update(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", name),
+					resource.TestCheckResourceAttr(resourceName, "status", "Normal"),
+					resource.TestCheckResourceAttrSet(resourceName, "created"),
 				),
 			},
 			{
@@ -66,80 +77,16 @@ data "huaweicloud_availability_zones" "test" {}
 data "huaweicloud_cdm_flavors" "test" {}
 
 resource "huaweicloud_cdm_cluster" "test" {
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  flavor_id         = data.huaweicloud_cdm_flavors.test.flavors[0].id
-  name              = "%s"
-  security_group_id = huaweicloud_networking_secgroup.test.id
-  subnet_id         = huaweicloud_vpc_subnet.test.id
-  vpc_id            = huaweicloud_vpc.test.id
-}
-`, common.TestBaseNetwork(name), name)
-}
-
-func TestAccResourceCdmCluster_all(t *testing.T) {
-	var obj clusters.ClusterCreateOpts
-	resourceName := "huaweicloud_cdm_cluster.test"
-	name := acceptance.RandomAccResourceName()
-
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&obj,
-		getCdmClusterResourceFunc,
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccCdmCluster_all(name),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", name),
-					resource.TestCheckResourceAttr(resourceName, "is_auto_off", "true"),
-					resource.TestCheckResourceAttr(resourceName, "status", "Normal"),
-					resource.TestCheckResourceAttrSet(resourceName, "created"),
-				),
-			},
-			{
-				Config: testAccCdmCluster_update(name),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", name),
-					resource.TestCheckResourceAttr(resourceName, "is_auto_off", "false"),
-					resource.TestCheckResourceAttr(resourceName, "status", "Normal"),
-					resource.TestCheckResourceAttrSet(resourceName, "created"),
-				),
-			},
-			{
-				ResourceName:            resourceName,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"email", "phone_num"},
-			},
-		},
-	})
-}
-
-func testAccCdmCluster_all(name string) string {
-	return fmt.Sprintf(`
-%s
-
-data "huaweicloud_availability_zones" "test" {}
-
-data "huaweicloud_cdm_flavors" "test" {}
-
-resource "huaweicloud_cdm_cluster" "test" {
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  flavor_id         = data.huaweicloud_cdm_flavors.test.flavors[0].id
-  name              = "%s"
-  security_group_id = huaweicloud_networking_secgroup.test.id
-  subnet_id         = huaweicloud_vpc_subnet.test.id
-  vpc_id            = huaweicloud_vpc.test.id
-  is_auto_off       = true
-  email             = ["test@test.com"]
-  phone_num         = ["12345678910"]
+  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
+  flavor_id          = data.huaweicloud_cdm_flavors.test.flavors[0].id
+  name               = "%s"
+  security_group_id  = huaweicloud_networking_secgroup.test.id
+  subnet_id          = huaweicloud_vpc_subnet.test.id
+  vpc_id             = huaweicloud_vpc.test.id
+  schedule_boot_time = "00:00:00"
+  schedule_off_time  = "10:00:00"
+  email              = ["test@test.com","test2@test.com"]
+  phone_num          = ["12345678910","12345678919"]
 }
 `, common.TestBaseNetwork(name), name)
 }
@@ -159,8 +106,6 @@ resource "huaweicloud_cdm_cluster" "test" {
   security_group_id  = huaweicloud_networking_secgroup.test.id
   subnet_id          = huaweicloud_vpc_subnet.test.id
   vpc_id             = huaweicloud_vpc.test.id
-  email              = ["test@test.com"]
-  phone_num          = ["12345678910"]
   schedule_boot_time = "00:00:00"
   schedule_off_time  = "10:00:00"
 }
@@ -215,13 +160,13 @@ data "huaweicloud_availability_zones" "test" {}
 data "huaweicloud_cdm_flavors" "test" {}
 
 resource "huaweicloud_cdm_cluster" "test" {
-  availability_zone      = data.huaweicloud_availability_zones.test.names[0]
-  flavor_id              = data.huaweicloud_cdm_flavors.test.flavors[0].id
-  name                   = "%s"
-  security_group_id      = huaweicloud_networking_secgroup.test.id
-  subnet_id              = huaweicloud_vpc_subnet.test.id
-  vpc_id                 = huaweicloud_vpc.test.id
-  enterprise_project_id  = "%s"
+  availability_zone     = data.huaweicloud_availability_zones.test.names[0]
+  flavor_id             = data.huaweicloud_cdm_flavors.test.flavors[0].id
+  name                  = "%s"
+  security_group_id     = huaweicloud_networking_secgroup.test.id
+  subnet_id             = huaweicloud_vpc_subnet.test.id
+  vpc_id                = huaweicloud_vpc.test.id
+  enterprise_project_id = "%s"
 }
 `, common.TestBaseNetwork(name), name, epsId)
 }

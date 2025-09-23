@@ -48,6 +48,6 @@ In addition to all arguments above, the following attributes are exported:
 
 IAM projects can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_identity_project.project_1 89c60255-9bd6-460c-822a-e2b959ede9d2
 ```

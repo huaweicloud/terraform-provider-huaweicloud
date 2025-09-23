@@ -1,0 +1,101 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_secmaster_alert_rule_simulation": {
+          "block": {
+            "attributes": {
+              "event_grouping": {
+                "type": "bool",
+                "description": "Specifies whether to put events in a group.",
+                "optional": true,
+                "default": true
+              },
+              "from_time": {
+                "type": "string",
+                "description": "Specifies the start time of the alert rule simulation.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "pipeline_id": {
+                "type": "string",
+                "description": "Specifies the pipeline ID of the alert rule.",
+                "required": true
+              },
+              "query_rule": {
+                "type": "string",
+                "description": "Specifies the query rule of the alert rule.",
+                "required": true
+              },
+              "query_type": {
+                "type": "string",
+                "description": "Specifies the query type of the alert rule.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "to_time": {
+                "type": "string",
+                "description": "Specifies the end time of the alert rule simulation.",
+                "required": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "Specifies the ID of the workspace to which the playbook belongs.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "triggers": {
+                "block": {
+                  "attributes": {
+                    "accumulated_times": {
+                      "type": "number",
+                      "description": "Specifies the accumulated times.",
+                      "required": true
+                    },
+                    "expression": {
+                      "type": "string",
+                      "description": "Specifies the expression.",
+                      "required": true
+                    },
+                    "mode": {
+                      "type": "string",
+                      "description": "Specifies the trigger mode.",
+                      "required": true
+                    },
+                    "operator": {
+                      "type": "string",
+                      "description": "Specifies the operator.",
+                      "required": true
+                    },
+                    "severity": {
+                      "type": "string",
+                      "description": "Specifies the severity of the trigger.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the triggers of the alert rule."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

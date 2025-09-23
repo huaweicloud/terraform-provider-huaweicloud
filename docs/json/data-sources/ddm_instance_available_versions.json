@@ -1,0 +1,63 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_ddm_instance_available_versions": {
+          "block": {
+            "attributes": {
+              "current_favored_version": {
+                "type": "string",
+                "description": "Indicates the preferred version of the current series.",
+                "computed": true
+              },
+              "current_version": {
+                "type": "string",
+                "description": "Indicates the current version.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the DDM instance ID.",
+                "required": true
+              },
+              "latest_version": {
+                "type": "string",
+                "description": "Indicates the latest version.",
+                "computed": true
+              },
+              "previous_version": {
+                "type": "string",
+                "description": "Indicates the previous version of the current instance.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource.",
+                "computed": true
+              },
+              "versions": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Indicates the available version.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DDM",
+            "name": "Distributed Database Middleware",
+            "catalog": "Databases",
+            "name_cn": "分布式数据库中间件",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

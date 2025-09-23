@@ -2,24 +2,18 @@ package cdn
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/cdn/v1/domains"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
-
-	cdnv2 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v2"
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v2/model"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -58,6 +52,11 @@ var httpsConfig = schema.Schema{
 			},
 			"certificate_source": {
 				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+			"scm_certificate_id": {
+				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
@@ -664,6 +663,12 @@ var userAgentFilter = schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
 			},
+			// This field has a default value, so Computed is added.
+			"include_empty": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"ua_list": {
 				Type:     schema.TypeSet,
 				Elem:     &schema.Schema{Type: schema.TypeString},
@@ -695,6 +700,100 @@ var errorCodeRedirectRules = schema.Schema{
 	},
 }
 
+var requestUrlRewrite = schema.Schema{
+	Type:     schema.TypeSet,
+	Optional: true,
+	Elem: &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"condition": {
+				Type:     schema.TypeList,
+				Required: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"match_type": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"priority": {
+							Type:     schema.TypeInt,
+							Required: true,
+						},
+						"match_value": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+					},
+				},
+			},
+			"redirect_url": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"execution_mode": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"redirect_status_code": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+			"redirect_host": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+		},
+	},
+}
+
+var browserCacheRules = schema.Schema{
+	Type:     schema.TypeSet,
+	Optional: true,
+	Elem: &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"condition": {
+				Type:     schema.TypeList,
+				Required: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"match_type": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"priority": {
+							Type:     schema.TypeInt,
+							Required: true,
+						},
+						"match_value": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+					},
+				},
+			},
+			"cache_type": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"ttl": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+			"ttl_unit": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+		},
+	},
+}
+
 var hsts = schema.Schema{
 	Type:     schema.TypeList,
 	Optional: true,
@@ -720,38 +819,91 @@ var hsts = schema.Schema{
 	},
 }
 
+var sni = schema.Schema{
+	Type:     schema.TypeList,
+	Optional: true,
+	Computed: true,
+	MaxItems: 1,
+	Elem: &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"enabled": {
+				Type:     schema.TypeBool,
+				Required: true,
+			},
+			"server_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"status": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+		},
+	},
+}
+
 var accessAreaFilters = schema.Schema{
 	Type:        schema.TypeSet,
 	Optional:    true,
-	Description: "schema: Internal; Specifies the geographic access control rules.",
+	Description: "Specifies the geographic access control rules.",
 	Elem: &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"type": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "schema: Internal; Specifies the the blacklist and whitelist rule type.",
+				Description: "Specifies the blacklist and whitelist rule type.",
 			},
 			"content_type": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "schema: Internal; Specifies the content type.",
+				Description: "Specifies the content type.",
 			},
 			"area": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "schema: Internal; Specifies the areas, separated by commas.",
+				Description: "Specifies the areas, separated by commas.",
 			},
 			"content_value": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				Description: "schema: Internal; Specifies the content value.",
+				Description: "Specifies the content value.",
 			},
 			"exception_ip": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				Description: "schema: Internal; Specifies the IP addresses exception in access control, separated by commas.",
+				Description: "Specifies the IP addresses exception in access control, separated by commas.",
+			},
+		},
+	},
+}
+
+var clientCert = schema.Schema{
+	Type:     schema.TypeList,
+	Optional: true,
+	Computed: true,
+	MaxItems: 1,
+	Elem: &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"enabled": {
+				Type:     schema.TypeBool,
+				Required: true,
+			},
+			"trusted_cert": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"hosts": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"status": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	},
@@ -781,7 +933,10 @@ func ResourceCdnDomain() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
-		CustomizeDiff: config.FlexibleForceNew(nonUpdatableParams),
+		CustomizeDiff: customdiff.All(
+			config.FlexibleForceNew(nonUpdatableParams),
+			config.MergeDefaultTags(),
+		),
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -808,7 +963,7 @@ func ResourceCdnDomain() *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 							ValidateFunc: validation.StringInSlice([]string{
-								"ipaddr", "domain", "obs_bucket",
+								"ipaddr", "domain", "obs_bucket", "third_bucket",
 							}, true),
 						},
 						"active": {
@@ -845,6 +1000,50 @@ func ResourceCdnDomain() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
+						},
+						"bucket_access_key": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+							Description: utils.SchemaDesc(
+								"Third-party object storage access key.",
+								utils.SchemaDescInput{
+									Internal: true,
+								},
+							),
+						},
+						"bucket_secret_key": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+							Description: utils.SchemaDesc(
+								"Third-party object storage secret key.",
+								utils.SchemaDescInput{
+									Internal: true,
+								},
+							),
+						},
+						"bucket_region": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+							Description: utils.SchemaDesc(
+								"Third-party object storage bucket region.",
+								utils.SchemaDescInput{
+									Internal: true,
+								},
+							),
+						},
+						"bucket_name": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+							Description: utils.SchemaDesc(
+								"Third-party object storage bucket name.",
+								utils.SchemaDescInput{
+									Internal: true,
+								},
+							),
 						},
 					},
 				},
@@ -925,7 +1124,11 @@ func ResourceCdnDomain() *schema.Resource {
 						"user_agent_filter":          &userAgentFilter,
 						"error_code_redirect_rules":  &errorCodeRedirectRules,
 						"hsts":                       &hsts,
+						"sni":                        &sni,
+						"request_url_rewrite":        &requestUrlRewrite,
+						"browser_cache_rules":        &browserCacheRules,
 						"access_area_filter":         &accessAreaFilters,
+						"client_cert":                &clientCert,
 					},
 				},
 			},
@@ -1023,524 +1226,11 @@ func ResourceCdnDomain() *schema.Resource {
 	}
 }
 
-func buildCreateDomainSources(d *schema.ResourceData) []domains.SourcesOpts {
-	var sourceRequests []domains.SourcesOpts
-
-	sources := d.Get("sources").(*schema.Set).List()
-	for i := range sources {
-		source := sources[i].(map[string]interface{})
-		sourceRequest := domains.SourcesOpts{
-			IporDomain:    source["origin"].(string),
-			OriginType:    source["origin_type"].(string),
-			ActiveStandby: source["active"].(int),
-		}
-		sourceRequests = append(sourceRequests, sourceRequest)
-	}
-	return sourceRequests
-}
-
-func buildHTTPSStatusOpts(enable bool) string {
-	if enable {
-		return "on"
-	}
-	return "off"
-}
-
-func buildHTTP2StatusOpts(enable bool) string {
-	if enable {
-		return "on"
-	}
-	// Currently, European sites do not support this parameter, so we will handle it this way for the time being.
-	return ""
-}
-
-func buildHTTPSOpts(rawHTTPS []interface{}) *model.HttpPutBody {
-	if len(rawHTTPS) != 1 {
-		return nil
-	}
-
-	https := rawHTTPS[0].(map[string]interface{})
-	httpsOpts := model.HttpPutBody{
-		HttpsStatus:        utils.String(buildHTTPSStatusOpts(https["https_enabled"].(bool))),
-		CertificateName:    utils.StringIgnoreEmpty(https["certificate_name"].(string)),
-		CertificateValue:   utils.StringIgnoreEmpty(https["certificate_body"].(string)),
-		PrivateKey:         utils.StringIgnoreEmpty(https["private_key"].(string)),
-		CertificateSource:  utils.Int32(int32(https["certificate_source"].(int))),
-		CertificateType:    utils.StringIgnoreEmpty(https["certificate_type"].(string)),
-		Http2Status:        utils.StringIgnoreEmpty(buildHTTP2StatusOpts(https["http2_enabled"].(bool))),
-		TlsVersion:         utils.StringIgnoreEmpty(https["tls_version"].(string)),
-		OcspStaplingStatus: utils.StringIgnoreEmpty(https["ocsp_stapling_status"].(string)),
-	}
-
-	return &httpsOpts
-}
-
-func buildOriginRequestHeaderOpts(rawOriginRequestHeader []interface{}) *[]model.OriginRequestHeader {
-	if len(rawOriginRequestHeader) < 1 {
-		return nil
-	}
-
-	originRequestHeaderOpts := make([]model.OriginRequestHeader, len(rawOriginRequestHeader))
-	for i, v := range rawOriginRequestHeader {
-		header := v.(map[string]interface{})
-		originRequestHeaderOpts[i] = model.OriginRequestHeader{
-			Name:   header["name"].(string),
-			Value:  utils.StringIgnoreEmpty(header["value"].(string)),
-			Action: header["action"].(string),
-		}
-	}
-
-	return &originRequestHeaderOpts
-}
-
-func buildHttpResponseHeaderOpts(rawHttpResponseHeader []interface{}) *[]model.HttpResponseHeader {
-	if len(rawHttpResponseHeader) < 1 {
-		return nil
-	}
-
-	httpResponseHeaderOpts := make([]model.HttpResponseHeader, len(rawHttpResponseHeader))
-	for i, v := range rawHttpResponseHeader {
-		header := v.(map[string]interface{})
-		httpResponseHeaderOpts[i] = model.HttpResponseHeader{
-			Name:   header["name"].(string),
-			Value:  utils.StringIgnoreEmpty(header["value"].(string)),
-			Action: header["action"].(string),
-		}
-	}
-
-	return &httpResponseHeaderOpts
-}
-
 func parseFunctionEnabledStatus(enabled bool) string {
 	if enabled {
 		return "on"
 	}
 	return "off"
-}
-
-func buildUrlAuthOpts(rawUrlAuth []interface{}) *model.UrlAuth {
-	if len(rawUrlAuth) != 1 {
-		return nil
-	}
-
-	urlAuth := rawUrlAuth[0].(map[string]interface{})
-	urlAuthOpts := model.UrlAuth{
-		Status:        parseFunctionEnabledStatus(urlAuth["enabled"].(bool)),
-		Type:          utils.StringIgnoreEmpty(urlAuth["type"].(string)),
-		SignMethod:    utils.StringIgnoreEmpty(urlAuth["sign_method"].(string)),
-		MatchType:     utils.StringIgnoreEmpty(urlAuth["match_type"].(string)),
-		InheritConfig: buildInheritConfigOpts(urlAuth["inherit_config"].([]interface{})),
-		SignArg:       utils.StringIgnoreEmpty(urlAuth["sign_arg"].(string)),
-		Key:           utils.StringIgnoreEmpty(urlAuth["key"].(string)),
-		BackupKey:     utils.StringIgnoreEmpty(urlAuth["backup_key"].(string)),
-		TimeFormat:    utils.StringIgnoreEmpty(urlAuth["time_format"].(string)),
-		ExpireTime:    utils.Int32(int32(urlAuth["expire_time"].(int))),
-	}
-
-	return &urlAuthOpts
-}
-
-func buildInheritConfigOpts(rwaInheritConfig []interface{}) *model.InheritConfig {
-	if len(rwaInheritConfig) != 1 {
-		return nil
-	}
-
-	inheritConfig := rwaInheritConfig[0].(map[string]interface{})
-	inheritConfigOpts := model.InheritConfig{
-		Status:          parseFunctionEnabledStatus(inheritConfig["enabled"].(bool)),
-		InheritType:     utils.StringIgnoreEmpty(inheritConfig["inherit_type"].(string)),
-		InheritTimeType: utils.StringIgnoreEmpty(inheritConfig["inherit_time_type"].(string)),
-	}
-
-	return &inheritConfigOpts
-}
-
-func buildForceRedirectOpts(rawForceRedirect []interface{}) *model.ForceRedirectConfig {
-	if len(rawForceRedirect) != 1 {
-		return nil
-	}
-
-	forceRedirect := rawForceRedirect[0].(map[string]interface{})
-	forceRedirectOpts := model.ForceRedirectConfig{
-		Status:       parseFunctionEnabledStatus(forceRedirect["enabled"].(bool)),
-		Type:         utils.StringIgnoreEmpty(forceRedirect["type"].(string)),
-		RedirectCode: utils.Int32IgnoreEmpty(int32(forceRedirect["redirect_code"].(int))),
-	}
-
-	return &forceRedirectOpts
-}
-
-func buildCompressOpts(rawCompress []interface{}) *model.Compress {
-	if len(rawCompress) != 1 {
-		return nil
-	}
-
-	compress := rawCompress[0].(map[string]interface{})
-	compressOpts := model.Compress{
-		Status:   parseFunctionEnabledStatus(compress["enabled"].(bool)),
-		Type:     utils.StringIgnoreEmpty(compress["type"].(string)),
-		FileType: utils.StringIgnoreEmpty(compress["file_type"].(string)),
-	}
-
-	return &compressOpts
-}
-
-func buildCacheUrlParameterFilterOpts(rawCacheUrlParameterFilter []interface{}) *model.CacheUrlParameterFilter {
-	if len(rawCacheUrlParameterFilter) != 1 {
-		return nil
-	}
-
-	cacheUrlParameterFilter := rawCacheUrlParameterFilter[0].(map[string]interface{})
-	cacheUrlParameterFilterOpts := model.CacheUrlParameterFilter{
-		Value: utils.StringIgnoreEmpty(cacheUrlParameterFilter["value"].(string)),
-		Type:  utils.StringIgnoreEmpty(cacheUrlParameterFilter["type"].(string)),
-	}
-
-	return &cacheUrlParameterFilterOpts
-}
-
-func buildIpFrequencyLimitOpts(rawIpFrequencyLimit []interface{}) *model.IpFrequencyLimit {
-	if len(rawIpFrequencyLimit) != 1 {
-		return nil
-	}
-
-	ipFrequencyLimit := rawIpFrequencyLimit[0].(map[string]interface{})
-	ipFrequencyLimitOpts := model.IpFrequencyLimit{
-		Status: parseFunctionEnabledStatus(ipFrequencyLimit["enabled"].(bool)),
-		Qps:    utils.Int32IgnoreEmpty(int32(ipFrequencyLimit["qps"].(int))),
-	}
-
-	return &ipFrequencyLimitOpts
-}
-
-func buildWebsocketOpts(rawWebsocket []interface{}) *model.WebSocketSeek {
-	if len(rawWebsocket) != 1 {
-		return nil
-	}
-
-	websocket := rawWebsocket[0].(map[string]interface{})
-	websocketOpts := model.WebSocketSeek{
-		Status:  parseFunctionEnabledStatus(websocket["enabled"].(bool)),
-		Timeout: int32(websocket["timeout"].(int)),
-	}
-
-	return &websocketOpts
-}
-
-func buildFlexibleOriginOpts(rawFlexibleOrigins []interface{}) *[]model.FlexibleOrigins {
-	if len(rawFlexibleOrigins) < 1 {
-		// Define an empty array to clear all flexible origins
-		rst := make([]model.FlexibleOrigins, 0)
-		return &rst
-	}
-
-	flexibleOriginOpts := make([]model.FlexibleOrigins, len(rawFlexibleOrigins))
-	for i, v := range rawFlexibleOrigins {
-		originMap := v.(map[string]interface{})
-		flexibleOriginOpt := model.FlexibleOrigins{
-			MatchType:    originMap["match_type"].(string),
-			MatchPattern: originMap["match_pattern"].(string),
-			Priority:     int32(originMap["priority"].(int)),
-			BackSources:  buildFlexibleOriginBackSourceOpts(originMap["back_sources"].([]interface{})),
-		}
-		flexibleOriginOpts[i] = flexibleOriginOpt
-	}
-	return &flexibleOriginOpts
-}
-
-func buildFlexibleOriginBackSourceOpts(rawBackSources []interface{}) []model.BackSources {
-	if len(rawBackSources) != 1 {
-		return nil
-	}
-
-	backSource := rawBackSources[0].(map[string]interface{})
-	backSourceOpts := model.BackSources{
-		SourcesType:   backSource["sources_type"].(string),
-		IpOrDomain:    backSource["ip_or_domain"].(string),
-		ObsBucketType: utils.StringIgnoreEmpty(backSource["obs_bucket_type"].(string)),
-		HttpPort:      utils.Int32IgnoreEmpty(int32(backSource["http_port"].(int))),
-		HttpsPort:     utils.Int32IgnoreEmpty(int32(backSource["https_port"].(int))),
-	}
-	return []model.BackSources{backSourceOpts}
-}
-
-func buildRemoteAuthOpts(rawRemoteAuth []interface{}) *model.CommonRemoteAuth {
-	if len(rawRemoteAuth) != 1 {
-		return nil
-	}
-
-	remoteAuth := rawRemoteAuth[0].(map[string]interface{})
-	remoteAuthOpts := model.CommonRemoteAuth{
-		RemoteAuthentication: parseFunctionEnabledStatus(remoteAuth["enabled"].(bool)),
-		RemoteAuthRules:      buildRemoteAuthRulesOpts(remoteAuth["remote_auth_rules"].([]interface{})),
-	}
-	return &remoteAuthOpts
-}
-
-func buildRemoteAuthRulesOpts(rawRemoteAuthRules []interface{}) *model.RemoteAuthRule {
-	if len(rawRemoteAuthRules) != 1 {
-		return nil
-	}
-
-	remoteAuthRule := rawRemoteAuthRules[0].(map[string]interface{})
-	remoteAuthRuleOpts := model.RemoteAuthRule{
-		AuthServer:            remoteAuthRule["auth_server"].(string),
-		RequestMethod:         remoteAuthRule["request_method"].(string),
-		FileTypeSetting:       remoteAuthRule["file_type_setting"].(string),
-		SpecifiedFileType:     utils.StringIgnoreEmpty(remoteAuthRule["specified_file_type"].(string)),
-		ReserveArgsSetting:    remoteAuthRule["reserve_args_setting"].(string),
-		ReserveArgs:           utils.StringIgnoreEmpty(remoteAuthRule["reserve_args"].(string)),
-		AddCustomArgsRules:    buildCustomArgsOpts(remoteAuthRule["add_custom_args_rules"].(*schema.Set).List()),
-		ReserveHeadersSetting: remoteAuthRule["reserve_headers_setting"].(string),
-		AddCustomHeadersRules: buildCustomArgsOpts(remoteAuthRule["add_custom_headers_rules"].(*schema.Set).List()),
-		AuthSuccessStatus:     remoteAuthRule["auth_success_status"].(string),
-		AuthFailedStatus:      remoteAuthRule["auth_failed_status"].(string),
-		ResponseStatus:        remoteAuthRule["response_status"].(string),
-		Timeout:               int32(remoteAuthRule["timeout"].(int)),
-		TimeoutAction:         remoteAuthRule["timeout_action"].(string),
-		ReserveHeaders:        utils.StringIgnoreEmpty(remoteAuthRule["reserve_headers"].(string)),
-	}
-	return &remoteAuthRuleOpts
-}
-
-func buildCustomArgsOpts(rawCustomArgs []interface{}) *[]model.CustomArgs {
-	if len(rawCustomArgs) < 1 {
-		// Define an empty array to clear all custom args
-		rst := make([]model.CustomArgs, 0)
-		return &rst
-	}
-
-	customArgsOpts := make([]model.CustomArgs, len(rawCustomArgs))
-	for i, v := range rawCustomArgs {
-		argMap := v.(map[string]interface{})
-		customArgsOpt := model.CustomArgs{
-			Type:  argMap["type"].(string),
-			Key:   argMap["key"].(string),
-			Value: argMap["value"].(string),
-		}
-		customArgsOpts[i] = customArgsOpt
-	}
-	return &customArgsOpts
-}
-
-func buildQUICOpts(rawQuic []interface{}) *model.Quic {
-	if len(rawQuic) != 1 {
-		return nil
-	}
-
-	quic := rawQuic[0].(map[string]interface{})
-	quicOpts := model.Quic{
-		Status: parseFunctionEnabledStatus(quic["enabled"].(bool)),
-	}
-
-	return &quicOpts
-}
-
-func buildRefererOpts(rawReferer []interface{}) *model.RefererConfig {
-	if len(rawReferer) != 1 {
-		return nil
-	}
-
-	referer := rawReferer[0].(map[string]interface{})
-	refererOpts := model.RefererConfig{
-		Type:         referer["type"].(string),
-		Value:        utils.String(referer["value"].(string)),
-		IncludeEmpty: utils.Bool(referer["include_empty"].(bool)),
-	}
-
-	return &refererOpts
-}
-
-func buildVideoSeekOpts(rawVideoSeek []interface{}) *model.VideoSeek {
-	if len(rawVideoSeek) != 1 {
-		return nil
-	}
-
-	videoSeek := rawVideoSeek[0].(map[string]interface{})
-	videoSeekOpts := model.VideoSeek{
-		EnableVideoSeek:     videoSeek["enable_video_seek"].(bool),
-		EnableFlvByTimeSeek: utils.Bool(videoSeek["enable_flv_by_time_seek"].(bool)),
-		StartParameter:      utils.String(videoSeek["start_parameter"].(string)),
-		EndParameter:        utils.String(videoSeek["end_parameter"].(string)),
-	}
-
-	return &videoSeekOpts
-}
-
-func buildRequestLimitRulesOpts(rawRequestLimitRules []interface{}) *[]model.RequestLimitRules {
-	if len(rawRequestLimitRules) < 1 {
-		// Define an empty array to clear all request limit rules
-		rst := make([]model.RequestLimitRules, 0)
-		return &rst
-	}
-
-	requestLimitRulesOpts := make([]model.RequestLimitRules, len(rawRequestLimitRules))
-	for i, v := range rawRequestLimitRules {
-		ruleMap := v.(map[string]interface{})
-		ruleOpt := model.RequestLimitRules{
-			Priority:       int32(ruleMap["priority"].(int)),
-			MatchType:      ruleMap["match_type"].(string),
-			MatchValue:     utils.String(ruleMap["match_value"].(string)),
-			Type:           ruleMap["type"].(string),
-			LimitRateAfter: int64(ruleMap["limit_rate_after"].(int)),
-			LimitRateValue: int32(ruleMap["limit_rate_value"].(int)),
-		}
-		requestLimitRulesOpts[i] = ruleOpt
-	}
-	return &requestLimitRulesOpts
-}
-
-func buildErrorCodeCacheOpts(rawErrorCodeCache []interface{}) *[]model.ErrorCodeCache {
-	if len(rawErrorCodeCache) < 1 {
-		// Define an empty array to clear all error code cache
-		rst := make([]model.ErrorCodeCache, 0)
-		return &rst
-	}
-
-	errorCodeCacheOpts := make([]model.ErrorCodeCache, len(rawErrorCodeCache))
-	for i, v := range rawErrorCodeCache {
-		cacheMap := v.(map[string]interface{})
-		cacheOpt := model.ErrorCodeCache{
-			Code: utils.Int32(int32(cacheMap["code"].(int))),
-			Ttl:  utils.Int32(int32(cacheMap["ttl"].(int))),
-		}
-		errorCodeCacheOpts[i] = cacheOpt
-	}
-	return &errorCodeCacheOpts
-}
-
-func buildIpFilterOpts(rawIpFilter []interface{}) *model.IpFilter {
-	if len(rawIpFilter) != 1 {
-		return nil
-	}
-
-	ipFilter := rawIpFilter[0].(map[string]interface{})
-	ipFilterOpts := model.IpFilter{
-		Type:  ipFilter["type"].(string),
-		Value: utils.String(ipFilter["value"].(string)),
-	}
-
-	return &ipFilterOpts
-}
-
-func buildOriginRequestUrlRewriteOpts(rawOriginRequestUrlRewrite []interface{}) *[]model.OriginRequestUrlRewrite {
-	if len(rawOriginRequestUrlRewrite) < 1 {
-		// Define an empty array to clear all origin request url rewrite
-		rst := make([]model.OriginRequestUrlRewrite, 0)
-		return &rst
-	}
-
-	originRequestUrlRewriteOpts := make([]model.OriginRequestUrlRewrite, len(rawOriginRequestUrlRewrite))
-	for i, v := range rawOriginRequestUrlRewrite {
-		urlMap := v.(map[string]interface{})
-		urlOpt := model.OriginRequestUrlRewrite{
-			Priority:  int32(urlMap["priority"].(int)),
-			MatchType: urlMap["match_type"].(string),
-			TargetUrl: urlMap["target_url"].(string),
-			SourceUrl: utils.StringIgnoreEmpty(urlMap["source_url"].(string)),
-		}
-		originRequestUrlRewriteOpts[i] = urlOpt
-	}
-	return &originRequestUrlRewriteOpts
-}
-
-func buildUserAgentFilterOpts(rawUserAgentFilter []interface{}) *model.UserAgentFilter {
-	if len(rawUserAgentFilter) != 1 {
-		return nil
-	}
-
-	userAgentFilter := rawUserAgentFilter[0].(map[string]interface{})
-	userAgentFilterOpts := model.UserAgentFilter{
-		Type:   userAgentFilter["type"].(string),
-		UaList: utils.ExpandToStringListPointer(userAgentFilter["ua_list"].(*schema.Set).List()),
-	}
-
-	return &userAgentFilterOpts
-}
-
-func buildErrorCodeRedirectRules(errorCodeRedirectRules []interface{}) *[]model.ErrorCodeRedirectRules {
-	if len(errorCodeRedirectRules) < 1 {
-		// Define an empty array to clear all error code redirect rules
-		rst := make([]model.ErrorCodeRedirectRules, 0)
-		return &rst
-	}
-
-	errorCodeRedirectRulesOpts := make([]model.ErrorCodeRedirectRules, len(errorCodeRedirectRules))
-	for i, v := range errorCodeRedirectRules {
-		ruleMap := v.(map[string]interface{})
-		ruleOpt := model.ErrorCodeRedirectRules{
-			ErrorCode:  int32(ruleMap["error_code"].(int)),
-			TargetCode: int32(ruleMap["target_code"].(int)),
-			TargetLink: ruleMap["target_link"].(string),
-		}
-		errorCodeRedirectRulesOpts[i] = ruleOpt
-	}
-	return &errorCodeRedirectRulesOpts
-}
-
-func buildHstsOpts(rawHsts []interface{}) *model.Hsts {
-	if len(rawHsts) != 1 {
-		return nil
-	}
-
-	hsts := rawHsts[0].(map[string]interface{})
-	hstsOpts := model.Hsts{
-		Status:            parseFunctionEnabledStatus(hsts["enabled"].(bool)),
-		MaxAge:            utils.Int32(int32(hsts["max_age"].(int))),
-		IncludeSubdomains: utils.StringIgnoreEmpty(hsts["include_subdomains"].(string)),
-	}
-
-	return &hstsOpts
-}
-
-func buildAccessAreaFilters(accessAreaFilters []interface{}) *[]model.AccessAreaFilter {
-	if len(accessAreaFilters) < 1 {
-		// Define an empty array to clear all access area filters
-		rst := make([]model.AccessAreaFilter, 0)
-		return &rst
-	}
-
-	accessAreaFiltersOpts := make([]model.AccessAreaFilter, len(accessAreaFilters))
-	for i, v := range accessAreaFilters {
-		filterMap := v.(map[string]interface{})
-		filterOpt := model.AccessAreaFilter{
-			Type:         utils.String(filterMap["type"].(string)),
-			ContentType:  utils.String(filterMap["content_type"].(string)),
-			Area:         utils.String(filterMap["area"].(string)),
-			ContentValue: utils.StringIgnoreEmpty(filterMap["content_value"].(string)),
-			ExceptionIp:  utils.StringIgnoreEmpty(filterMap["exception_ip"].(string)),
-		}
-		accessAreaFiltersOpts[i] = filterOpt
-	}
-	return &accessAreaFiltersOpts
-}
-
-func buildSourcesOpts(rawSources []interface{}) *[]model.SourcesConfig {
-	if len(rawSources) < 1 {
-		return nil
-	}
-	sourcesOpts := make([]model.SourcesConfig, len(rawSources))
-	for i, v := range rawSources {
-		source := v.(map[string]interface{})
-		var priority int32
-		if source["active"].(int) == 1 {
-			priority = 70
-		} else {
-			priority = 30
-		}
-		sourcesOpts[i] = model.SourcesConfig{
-			OriginAddr:          source["origin"].(string),
-			OriginType:          source["origin_type"].(string),
-			Priority:            priority,
-			ObsWebHostingStatus: utils.String(parseFunctionEnabledStatus(source["obs_web_hosting_enabled"].(bool))),
-			HttpPort:            utils.Int32IgnoreEmpty(int32(source["http_port"].(int))),
-			HttpsPort:           utils.Int32IgnoreEmpty(int32(source["https_port"].(int))),
-			HostName:            utils.StringIgnoreEmpty(source["retrieval_host"].(string)),
-			Weight:              utils.Int32IgnoreEmpty(int32(source["weight"].(int))),
-			ObsBucketType:       utils.StringIgnoreEmpty(source["obs_bucket_type"].(string)),
-		}
-	}
-	return &sourcesOpts
 }
 
 func parseCacheRuleType(ruleType string) string {
@@ -1570,557 +1260,627 @@ func parseCacheTTLUnits(ttlUnit string) string {
 	return ttlUnit
 }
 
-func buildCacheRules(followOrigin bool, rules []interface{}) *[]model.CacheRules {
-	result := make([]model.CacheRules, len(rules))
-	for i, val := range rules {
-		rule := val.(map[string]interface{})
-		result[i] = model.CacheRules{
-			FollowOrigin:      utils.StringIgnoreEmpty(parseFunctionEnabledStatus(followOrigin)),
-			MatchType:         utils.StringIgnoreEmpty(parseCacheRuleType(rule["rule_type"].(string))),
-			MatchValue:        utils.StringIgnoreEmpty(rule["content"].(string)),
-			Ttl:               utils.Int32(int32(rule["ttl"].(int))),
-			TtlUnit:           parseCacheTTLUnits(rule["ttl_type"].(string)),
-			Priority:          int32(rule["priority"].(int)),
-			UrlParameterType:  utils.StringIgnoreEmpty(rule["url_parameter_type"].(string)),
-			UrlParameterValue: utils.StringIgnoreEmpty(rule["url_parameter_value"].(string)),
-		}
+func buildCreateCdnDomainSourcesBodyParams(d *schema.ResourceData) []interface{} {
+	sources := d.Get("sources").(*schema.Set).List()
+	rst := make([]interface{}, 0, len(sources))
+
+	for _, v := range sources {
+		sourceMap := v.(map[string]interface{})
+		rst = append(rst, utils.RemoveNil(map[string]interface{}{
+			"ip_or_domain":      sourceMap["origin"],
+			"origin_type":       sourceMap["origin_type"],
+			"active_standby":    sourceMap["active"],
+			"obs_bucket_type":   sourceMap["obs_bucket_type"],
+			"bucket_access_key": sourceMap["bucket_access_key"],
+			"bucket_secret_key": sourceMap["bucket_secret_key"],
+			"bucket_region":     sourceMap["bucket_region"],
+			"bucket_name":       sourceMap["bucket_name"],
+			"host_name":         sourceMap["retrieval_host"],
+		}))
 	}
-	return &result
+	return rst
 }
 
-func buildIpv6AccelerateOpts(ipv6Enable bool) *int32 {
-	ipv6Accelerate := 0
-	if ipv6Enable {
-		ipv6Accelerate = 1
+func buildCreateCdnDomainBodyParams(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"domain_name":           d.Get("name"),
+		"business_type":         d.Get("type"),
+		"sources":               buildCreateCdnDomainSourcesBodyParams(d),
+		"service_area":          utils.ValueIgnoreEmpty(d.Get("service_area")),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
 	}
-	return utils.Int32(int32(ipv6Accelerate))
-}
-
-// buildUpdateDomainFullConfigsOpts Build CDN domain config opts from field `configs`
-func buildUpdateDomainFullConfigsOpts(configsOpts *model.Configs, configs map[string]interface{}, d *schema.ResourceData) {
-	if d.HasChange("configs.0.ipv6_enable") {
-		configsOpts.Ipv6Accelerate = buildIpv6AccelerateOpts(configs["ipv6_enable"].(bool))
-	}
-	if d.HasChange("configs.0.range_based_retrieval_enabled") {
-		retrievalEnabled := configs["range_based_retrieval_enabled"].(bool)
-		configsOpts.OriginRangeStatus = utils.String(parseFunctionEnabledStatus(retrievalEnabled))
-	}
-	if d.HasChange("configs.0.description") {
-		configsOpts.Remark = utils.String(configs["description"].(string))
-	}
-	if d.HasChange("configs.0.slice_etag_status") {
-		configsOpts.SliceEtagStatus = utils.StringIgnoreEmpty(configs["slice_etag_status"].(string))
-	}
-	if d.HasChange("configs.0.origin_receive_timeout") {
-		configsOpts.OriginReceiveTimeout = utils.Int32IgnoreEmpty(int32(configs["origin_receive_timeout"].(int)))
-	}
-	if d.HasChange("configs.0.origin_follow302_status") {
-		configsOpts.OriginFollow302Status = utils.StringIgnoreEmpty(configs["origin_follow302_status"].(string))
-	}
-	if d.HasChange("configs.0.https_settings") {
-		configsOpts.Https = buildHTTPSOpts(configs["https_settings"].([]interface{}))
-	}
-	if d.HasChange("configs.0.retrieval_request_header") {
-		configsOpts.OriginRequestHeader = buildOriginRequestHeaderOpts(configs["retrieval_request_header"].(*schema.Set).List())
-	}
-	if d.HasChange("configs.0.http_response_header") {
-		configsOpts.HttpResponseHeader = buildHttpResponseHeaderOpts(configs["http_response_header"].(*schema.Set).List())
-	}
-	if d.HasChange("configs.0.url_signing") {
-		configsOpts.UrlAuth = buildUrlAuthOpts(configs["url_signing"].([]interface{}))
-	}
-	if d.HasChange("configs.0.origin_protocol") {
-		configsOpts.OriginProtocol = utils.StringIgnoreEmpty(configs["origin_protocol"].(string))
-	}
-	if d.HasChange("configs.0.force_redirect") {
-		configsOpts.ForceRedirect = buildForceRedirectOpts(configs["force_redirect"].([]interface{}))
-	}
-	if d.HasChange("configs.0.compress") {
-		configsOpts.Compress = buildCompressOpts(configs["compress"].([]interface{}))
-	}
-	if d.HasChange("configs.0.cache_url_parameter_filter") {
-		configsOpts.CacheUrlParameterFilter = buildCacheUrlParameterFilterOpts(configs["cache_url_parameter_filter"].([]interface{}))
-	}
-	if d.HasChange("configs.0.ip_frequency_limit") {
-		configsOpts.IpFrequencyLimit = buildIpFrequencyLimitOpts(configs["ip_frequency_limit"].([]interface{}))
-	}
-	if d.HasChange("configs.0.websocket") {
-		configsOpts.Websocket = buildWebsocketOpts(configs["websocket"].([]interface{}))
-	}
-	if d.HasChange("configs.0.flexible_origin") {
-		configsOpts.FlexibleOrigin = buildFlexibleOriginOpts(configs["flexible_origin"].(*schema.Set).List())
-	}
-	if d.HasChange("configs.0.remote_auth") {
-		configsOpts.RemoteAuth = buildRemoteAuthOpts(configs["remote_auth"].([]interface{}))
-	}
-	if d.HasChange("configs.0.quic") {
-		configsOpts.Quic = buildQUICOpts(configs["quic"].([]interface{}))
-	}
-	if d.HasChange("configs.0.referer") {
-		configsOpts.Referer = buildRefererOpts(configs["referer"].([]interface{}))
-	}
-	if d.HasChange("configs.0.video_seek") {
-		configsOpts.VideoSeek = buildVideoSeekOpts(configs["video_seek"].([]interface{}))
-	}
-	if d.HasChange("configs.0.request_limit_rules") {
-		configsOpts.RequestLimitRules = buildRequestLimitRulesOpts(configs["request_limit_rules"].(*schema.Set).List())
-	}
-	if d.HasChange("configs.0.error_code_cache") {
-		configsOpts.ErrorCodeCache = buildErrorCodeCacheOpts(configs["error_code_cache"].(*schema.Set).List())
-	}
-	if d.HasChange("configs.0.ip_filter") {
-		configsOpts.IpFilter = buildIpFilterOpts(configs["ip_filter"].([]interface{}))
-	}
-	if d.HasChange("configs.0.origin_request_url_rewrite") {
-		originRequestUrlRewrites := configs["origin_request_url_rewrite"].(*schema.Set).List()
-		configsOpts.OriginRequestUrlRewrite = buildOriginRequestUrlRewriteOpts(originRequestUrlRewrites)
-	}
-	if d.HasChange("configs.0.user_agent_filter") {
-		configsOpts.UserAgentFilter = buildUserAgentFilterOpts(configs["user_agent_filter"].([]interface{}))
-	}
-	if d.HasChange("configs.0.error_code_redirect_rules") {
-		errorCodeRedirectRules := configs["error_code_redirect_rules"].(*schema.Set).List()
-		configsOpts.ErrorCodeRedirectRules = buildErrorCodeRedirectRules(errorCodeRedirectRules)
-	}
-	if d.HasChange("configs.0.hsts") {
-		configsOpts.Hsts = buildHstsOpts(configs["hsts"].([]interface{}))
-	}
-	if d.HasChange("configs.0.access_area_filter") {
-		accessAreaFilters := configs["access_area_filter"].(*schema.Set).List()
-		configsOpts.AccessAreaFilter = buildAccessAreaFilters(accessAreaFilters)
+	return map[string]interface{}{
+		"domain": bodyParams,
 	}
 }
 
-func updateDomainFullConfigs(client *cdnv2.CdnClient, cfg *config.Config, d *schema.ResourceData) error {
-	// When the configs configuration is empty, the interface will report an error.
-	// Make fields `business_type` and `service_area` are configured by default.
-	configsOpts := model.Configs{
-		BusinessType: utils.StringIgnoreEmpty(d.Get("type").(string)),
-		ServiceArea:  utils.StringIgnoreEmpty(d.Get("service_area").(string)),
+func buildCdnDomainQueryParams(epsID string) string {
+	if epsID == "" {
+		return ""
 	}
-	if d.HasChange("sources") {
-		configsOpts.Sources = buildSourcesOpts(d.Get("sources").(*schema.Set).List())
+	return fmt.Sprintf("?enterprise_project_id=%s", epsID)
+}
+
+func ReadCdnDomainDetail(client *golangsdk.ServiceClient, domainName, epsID string) (interface{}, error) {
+	getPath := client.Endpoint + "v1.0/cdn/configuration/domains/{domain_name}"
+	getPath = strings.ReplaceAll(getPath, "{domain_name}", domainName)
+	getPath += buildCdnDomainQueryParams(epsID)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
 
-	if d.HasChange("configs") {
-		rawConfigs := d.Get("configs").([]interface{})
-		if len(rawConfigs) > 0 && rawConfigs[0] != nil {
-			buildUpdateDomainFullConfigsOpts(&configsOpts, rawConfigs[0].(map[string]interface{}), d)
-		}
-	}
-
-	if d.HasChange("cache_settings") {
-		cacheSettings := d.Get("cache_settings").([]interface{})
-		if len(cacheSettings) > 0 {
-			cacheSetting := cacheSettings[0].(map[string]interface{})
-			configsOpts.CacheRules = buildCacheRules(cacheSetting["follow_origin"].(bool), cacheSetting["rules"].(*schema.Set).List())
-		}
-	}
-
-	req := model.UpdateDomainFullConfigRequest{
-		DomainName:          d.Get("name").(string),
-		EnterpriseProjectId: utils.StringIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
-		Body: &model.ModifyDomainConfigRequestBody{
-			Configs: &configsOpts,
-		},
-	}
-
-	_, err := client.UpdateDomainFullConfig(&req)
+	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+
+	return utils.FlattenResponse(getResp)
+}
+
+func waitingForCdnDomainStatusOnline(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
+	timeout time.Duration, cfg *config.Config) error {
+	var (
+		domainName       = d.Get("name").(string)
+		epsID            = cfg.GetEnterpriseProjectID(d)
+		unexpectedStatus = []string{"offline", "configure_failed", "check_failed", "deleting"}
+	)
+
+	stateConf := &resource.StateChangeConf{
+		Pending: []string{"PENDING"},
+		Target:  []string{"COMPLETED"},
+		Refresh: func() (interface{}, string, error) {
+			domainResp, err := ReadCdnDomainDetail(client, domainName, epsID)
+			if err != nil {
+				return nil, "ERROR", err
+			}
+
+			domainStatus := utils.PathSearch("domain.domain_status", domainResp, "").(string)
+			if domainStatus == "" {
+				return nil, "ERROR", fmt.Errorf("error retrieving CDN domain: domain_status is not found in API response")
+			}
+
+			if domainStatus == "online" {
+				return domainResp, "COMPLETED", nil
+			}
+
+			if utils.StrSliceContains(unexpectedStatus, domainStatus) {
+				return domainResp, domainStatus, nil
+			}
+			return domainResp, "PENDING", nil
+		},
+		Timeout:      timeout,
+		Delay:        20 * time.Second,
+		PollInterval: 20 * time.Second,
+	}
+	_, err := stateConf.WaitForStateContext(ctx)
+	return err
 }
 
 func resourceCdnDomainCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	cdnClient, err := cfg.CdnV1Client(cfg.GetRegion(d))
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1.0/cdn/domains"
+		product = "cdn"
+	)
+
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating CDN v1 client: %s", err)
+		return diag.Errorf("error creating CDN client: %s", err)
 	}
 
-	createOpts := &domains.CreateOpts{
-		DomainName:          d.Get("name").(string),
-		BusinessType:        d.Get("type").(string),
-		Sources:             buildCreateDomainSources(d),
-		ServiceArea:         d.Get("service_area").(string),
-		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
+	createPath := client.Endpoint + httpUrl
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildCreateCdnDomainBodyParams(d, cfg)),
 	}
 
-	v, err := domains.Create(cdnClient, createOpts).Extract()
+	createResp, err := client.Request("POST", createPath, &createOpt)
 	if err != nil {
 		return diag.Errorf("error creating CDN domain: %s", err)
 	}
 
-	if v.ID == "" {
+	createRespBody, err := utils.FlattenResponse(createResp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	// Even if there is an error when creating an API, the status code for the API response is always 200.
+	errorCode := utils.PathSearch("error.error_code", createRespBody, "").(string)
+	if errorCode != "" {
+		errorMsg := utils.PathSearch("error.error_msg", createRespBody, "").(string)
+		return diag.Errorf("error creating CDN domain: error_code (%s), error_msg (%s)", errorCode, errorMsg)
+	}
+
+	id := utils.PathSearch("domain.id", createRespBody, "").(string)
+	if id == "" {
 		return diag.Errorf("error creating CDN domain: ID is not found in API response")
 	}
-	d.SetId(v.ID)
+	d.SetId(id)
 
-	opts := buildResourceExtensionOpts(d, cfg)
-	if err := waitingForStatusOnline(ctx, cdnClient, d, d.Timeout(schema.TimeoutCreate), opts); err != nil {
+	if err := waitingForCdnDomainStatusOnline(ctx, client, d, d.Timeout(schema.TimeoutCreate), cfg); err != nil {
 		return diag.Errorf("error waiting for CDN domain (%s) creation to become online: %s", d.Id(), err)
 	}
+
 	return resourceCdnDomainUpdate(ctx, d, meta)
-}
-
-func waitingForStatusOnline(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
-	timeout time.Duration, opts *domains.ExtensionOpts) error {
-	domainName := d.Get("name").(string)
-	unexpectedStatus := []string{"offline", "configure_failed", "check_failed", "deleting"}
-	stateConf := &resource.StateChangeConf{
-		Pending: []string{"PENDING"},
-		Target:  []string{"COMPLETED"},
-		Refresh: func() (interface{}, string, error) {
-			domain, err := domains.GetByName(client, domainName, opts).Extract()
-			if err != nil {
-				return nil, "ERROR", err
-			}
-
-			if domain == nil {
-				return nil, "ERROR", fmt.Errorf("error retrieving CDN domain: Domain is not found in API response")
-			}
-
-			status := domain.DomainStatus
-			if status == "online" {
-				return domain, "COMPLETED", nil
-			}
-
-			if utils.StrSliceContains(unexpectedStatus, status) {
-				return domain, status, nil
-			}
-			return domain, "PENDING", nil
-		},
-		Timeout:      timeout,
-		Delay:        20 * time.Second,
-		PollInterval: 20 * time.Second,
-	}
-	_, err := stateConf.WaitForStateContext(ctx)
-	return err
-}
-
-func waitingForStatusOffline(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
-	timeout time.Duration, opts *domains.ExtensionOpts) error {
-	domainName := d.Get("name").(string)
-	unexpectedStatus := []string{"online", "configure_failed", "check_failed", "deleting"}
-	stateConf := &resource.StateChangeConf{
-		Pending: []string{"PENDING"},
-		Target:  []string{"COMPLETED"},
-		Refresh: func() (interface{}, string, error) {
-			domain, err := domains.GetByName(client, domainName, opts).Extract()
-			if err != nil {
-				return nil, "ERROR", err
-			}
-
-			if domain == nil {
-				return nil, "ERROR", fmt.Errorf("error retrieving CDN domain: Domain is not found in API response")
-			}
-
-			status := domain.DomainStatus
-			if status == "offline" {
-				return domain, "COMPLETED", nil
-			}
-
-			if utils.StrSliceContains(unexpectedStatus, status) {
-				return domain, status, nil
-			}
-			return domain, "PENDING", nil
-		},
-		Timeout:      timeout,
-		Delay:        20 * time.Second,
-		PollInterval: 20 * time.Second,
-	}
-	_, err := stateConf.WaitForStateContext(ctx)
-	return err
 }
 
 func analyseFunctionEnabledStatus(enabledStatus string) bool {
 	return enabledStatus == "on"
 }
 
-func analyseFunctionEnabledStatusPtr(enabledStatus *string) bool {
-	return enabledStatus != nil && *enabledStatus == "on"
+// In order to prevent the user from modifying the field `name` and causing the resource not to be queried, first try
+// to obtain the value of the attribute field `domain_name`.
+func getDomainName(d *schema.ResourceData) string {
+	if domainName := d.Get("domain_name").(string); domainName != "" {
+		return domainName
+	}
+	return d.Get("name").(string)
 }
 
-// flattenHTTPSAttrs Field `privateKey` is not returned in the details interface.
-// The value of the field `certificateBody` will be modified by the cloud, resulting in inconsistency with the local value.
-func flattenHTTPSAttrs(https *model.HttpGetBody, privateKey, certificateBody string) []map[string]interface{} {
-	if https == nil {
+func queryCdnDomainFullConfig(client *golangsdk.ServiceClient, domainName, epsID string) (interface{}, error) {
+	getPath := client.Endpoint + "v1.1/cdn/configuration/domains/{domain_name}/configs"
+	getPath = strings.ReplaceAll(getPath, "{domain_name}", domainName)
+	getPath += buildCdnDomainQueryParams(epsID)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(getResp)
+}
+
+func queryAndFlattenCdnDomainTags(client *golangsdk.ServiceClient, d *schema.ResourceData) (map[string]interface{}, error) {
+	getTagPath := client.Endpoint + "v1.0/cdn/configuration/tags"
+	getTagPath += fmt.Sprintf("?resource_id=%s", d.Id())
+	getTagOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getTagResp, err := client.Request("GET", getTagPath, &getTagOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	getTagRespBody, err := utils.FlattenResponse(getTagResp)
+	if err != nil {
+		return nil, err
+	}
+	return utils.FlattenTagsToMap(utils.PathSearch("tags", getTagRespBody, nil)), nil
+}
+
+func flattenSourcesActive(priority int64) interface{} {
+	if priority == 70 {
+		return 1
+	}
+	return 0
+}
+
+func flattenSourcesAttributes(configResp interface{}) []interface{} {
+	if configResp == nil {
 		return nil
 	}
-	httpsAttrs := map[string]interface{}{
-		"https_status":         https.HttpsStatus,
-		"certificate_name":     https.CertificateName,
+
+	curJson := utils.PathSearch("configs.sources", configResp, make([]interface{}, 0))
+	curArray := curJson.([]interface{})
+	if len(curArray) == 0 {
+		return nil
+	}
+
+	rst := make([]interface{}, 0, len(curArray))
+	for _, v := range curArray {
+		sourceMap := v.(map[string]interface{})
+
+		var priority float64
+		if float64Value, ok := sourceMap["priority"].(float64); ok {
+			priority = float64Value
+		}
+
+		var obsWebHostingStatus string
+		if stringValue, ok := sourceMap["obs_web_hosting_status"].(string); ok {
+			obsWebHostingStatus = stringValue
+		}
+
+		rst = append(rst, map[string]interface{}{
+			"origin":                  sourceMap["origin_addr"],
+			"origin_type":             sourceMap["origin_type"],
+			"active":                  flattenSourcesActive(int64(priority)),
+			"obs_web_hosting_enabled": analyseFunctionEnabledStatus(obsWebHostingStatus),
+			"http_port":               sourceMap["http_port"],
+			"https_port":              sourceMap["https_port"],
+			"retrieval_host":          sourceMap["host_name"],
+			"weight":                  sourceMap["weight"],
+			"obs_bucket_type":         sourceMap["obs_bucket_type"],
+			"bucket_access_key":       sourceMap["bucket_access_key"],
+			"bucket_secret_key":       sourceMap["bucket_secret_key"],
+			"bucket_region":           sourceMap["bucket_region"],
+			"bucket_name":             sourceMap["bucket_name"],
+		})
+	}
+	return rst
+}
+
+// flattenHTTPSAttributes Field `privateKey` is not returned in the details interface.
+// The value of the field `certificateBody` will be modified by the cloud, resulting in inconsistency with the local value.
+func flattenHTTPSAttributes(configResp interface{}, privateKey, certificateBody string) []map[string]interface{} {
+	curJson := utils.PathSearch("configs.https", configResp, nil)
+	if curJson == nil {
+		return nil
+	}
+
+	httpsMap := curJson.(map[string]interface{})
+	var httpsStatus string
+	if stringValue, ok := httpsMap["https_status"].(string); ok {
+		httpsStatus = stringValue
+	}
+
+	var http2Status string
+	if stringValue, ok := httpsMap["http2_status"].(string); ok {
+		http2Status = stringValue
+	}
+
+	httpsAttributes := map[string]interface{}{
+		"https_status":         httpsMap["https_status"],
+		"certificate_name":     httpsMap["certificate_name"],
 		"certificate_body":     certificateBody,
 		"private_key":          privateKey,
-		"certificate_source":   https.CertificateSource,
-		"certificate_type":     https.CertificateType,
-		"http2_status":         https.Http2Status,
-		"tls_version":          https.TlsVersion,
-		"ocsp_stapling_status": https.OcspStaplingStatus,
-		"https_enabled":        analyseFunctionEnabledStatusPtr(https.HttpsStatus),
-		"http2_enabled":        analyseFunctionEnabledStatusPtr(https.Http2Status),
+		"certificate_source":   httpsMap["certificate_source"],
+		"scm_certificate_id":   httpsMap["scm_certificate_id"],
+		"certificate_type":     httpsMap["certificate_type"],
+		"http2_status":         httpsMap["http2_status"],
+		"tls_version":          httpsMap["tls_version"],
+		"ocsp_stapling_status": httpsMap["ocsp_stapling_status"],
+		"https_enabled":        analyseFunctionEnabledStatus(httpsStatus),
+		"http2_enabled":        analyseFunctionEnabledStatus(http2Status),
 	}
 
-	return []map[string]interface{}{httpsAttrs}
+	return []map[string]interface{}{httpsAttributes}
 }
 
-func flattenOriginRequestHeaderAttrs(originRequestHeader *[]model.OriginRequestHeader) []map[string]interface{} {
-	if originRequestHeader == nil || len(*originRequestHeader) == 0 {
+func flattenOriginRequestHeaderAttributes(configResp interface{}) []interface{} {
+	curJson := utils.PathSearch("configs.origin_request_header", configResp, make([]interface{}, 0))
+	curArray := curJson.([]interface{})
+	if len(curArray) == 0 {
 		return nil
 	}
 
-	originRequestHeaderAttrs := make([]map[string]interface{}, len(*originRequestHeader))
-	for i, v := range *originRequestHeader {
-		originRequestHeaderAttrs[i] = map[string]interface{}{
-			"name":   v.Name,
-			"value":  v.Value,
-			"action": v.Action,
-		}
+	rst := make([]interface{}, 0, len(curArray))
+	for _, v := range curArray {
+		headerMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"name":   headerMap["name"],
+			"value":  headerMap["value"],
+			"action": headerMap["action"],
+		})
 	}
-
-	return originRequestHeaderAttrs
+	return rst
 }
 
-func flattenHttpResponseHeaderAttrs(httpResponseHeader *[]model.HttpResponseHeader) []map[string]interface{} {
-	if httpResponseHeader == nil || len(*httpResponseHeader) == 0 {
+func flattenHttpResponseHeaderAttributes(configResp interface{}) []interface{} {
+	curJson := utils.PathSearch("configs.http_response_header", configResp, make([]interface{}, 0))
+	curArray := curJson.([]interface{})
+	if len(curArray) == 0 {
 		return nil
 	}
 
-	httpResponseHeaderAttrs := make([]map[string]interface{}, len(*httpResponseHeader))
-	for i, v := range *httpResponseHeader {
-		httpResponseHeaderAttrs[i] = map[string]interface{}{
-			"name":   v.Name,
-			"value":  v.Value,
-			"action": v.Action,
-		}
+	rst := make([]interface{}, 0, len(curArray))
+	for _, v := range curArray {
+		headerMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"name":   headerMap["name"],
+			"value":  headerMap["value"],
+			"action": headerMap["action"],
+		})
 	}
-
-	return httpResponseHeaderAttrs
+	return rst
 }
 
-func flattenUrlAuthAttrs(urlAuth *model.UrlAuthGetBody, urlAuthKey, urlAuthBackupKey string) []map[string]interface{} {
-	if urlAuth == nil {
+func flattenInheritConfigAttributes(inheritConfigResp interface{}) []map[string]interface{} {
+	if inheritConfigResp == nil {
 		return nil
 	}
 
-	urlAuthAttrs := map[string]interface{}{
-		"enabled":        analyseFunctionEnabledStatus(urlAuth.Status),
-		"status":         urlAuth.Status,
-		"type":           urlAuth.Type,
-		"sign_method":    urlAuth.SignMethod,
-		"match_type":     urlAuth.MatchType,
-		"inherit_config": flattenInheritConfigAttrs(urlAuth.InheritConfig),
-		"sign_arg":       urlAuth.SignArg,
-		"key":            urlAuthKey,
-		"backup_key":     urlAuthBackupKey,
-		"time_format":    urlAuth.TimeFormat,
-		"expire_time":    urlAuth.ExpireTime,
-	}
-
-	return []map[string]interface{}{urlAuthAttrs}
-}
-
-func flattenInheritConfigAttrs(inheritConfig *model.InheritConfigQuery) []map[string]interface{} {
-	if inheritConfig == nil {
-		return nil
+	inheritConfigRespMap := inheritConfigResp.(map[string]interface{})
+	var status string
+	if stringValue, ok := inheritConfigRespMap["status"].(string); ok {
+		status = stringValue
 	}
 
 	inheritConfigAttrs := map[string]interface{}{
-		"enabled":           analyseFunctionEnabledStatus(inheritConfig.Status),
-		"status":            inheritConfig.Status,
-		"inherit_type":      inheritConfig.InheritType,
-		"inherit_time_type": inheritConfig.InheritTimeType,
+		"enabled":           analyseFunctionEnabledStatus(status),
+		"status":            inheritConfigRespMap["status"],
+		"inherit_type":      inheritConfigRespMap["inherit_type"],
+		"inherit_time_type": inheritConfigRespMap["inherit_time_type"],
 	}
 
 	return []map[string]interface{}{inheritConfigAttrs}
 }
 
-func flattenForceRedirectAttrs(forceRedirect *model.ForceRedirectConfig) []map[string]interface{} {
-	if forceRedirect == nil {
+func flattenUrlAuthAttributes(configResp interface{}, urlAuthKey, urlAuthBackupKey string) []map[string]interface{} {
+	curJson := utils.PathSearch("configs.url_auth", configResp, nil)
+	if curJson == nil {
 		return nil
 	}
 
+	authMap := curJson.(map[string]interface{})
+	var status string
+	if stringValue, ok := authMap["status"].(string); ok {
+		status = stringValue
+	}
+
+	urlAuthAttrs := map[string]interface{}{
+		"enabled":        analyseFunctionEnabledStatus(status),
+		"status":         authMap["status"],
+		"type":           authMap["type"],
+		"sign_method":    authMap["sign_method"],
+		"match_type":     authMap["match_type"],
+		"inherit_config": flattenInheritConfigAttributes(authMap["inherit_config"]),
+		"sign_arg":       authMap["sign_arg"],
+		"key":            urlAuthKey,
+		"backup_key":     urlAuthBackupKey,
+		"time_format":    authMap["time_format"],
+		"expire_time":    authMap["expire_time"],
+	}
+	return []map[string]interface{}{urlAuthAttrs}
+}
+
+func flattenForceRedirectAttributes(configResp interface{}) []map[string]interface{} {
+	curJson := utils.PathSearch("configs.force_redirect", configResp, nil)
+	if curJson == nil {
+		return nil
+	}
+
+	forceRedirectMap := curJson.(map[string]interface{})
+
+	var status string
+	if stringValue, ok := forceRedirectMap["status"].(string); ok {
+		status = stringValue
+	}
+
 	forceRedirectAttrs := map[string]interface{}{
-		"status":        forceRedirect.Status,
-		"type":          forceRedirect.Type,
-		"enabled":       analyseFunctionEnabledStatus(forceRedirect.Status),
-		"redirect_code": forceRedirect.RedirectCode,
+		"status":        forceRedirectMap["status"],
+		"type":          forceRedirectMap["type"],
+		"enabled":       analyseFunctionEnabledStatus(status),
+		"redirect_code": forceRedirectMap["redirect_code"],
 	}
 
 	return []map[string]interface{}{forceRedirectAttrs}
 }
 
-func flattenCompressAttrs(compress *model.Compress) []map[string]interface{} {
-	if compress == nil {
+func flattenCompressAttributes(configResp interface{}) []map[string]interface{} {
+	curJson := utils.PathSearch("configs.compress", configResp, nil)
+	if curJson == nil {
 		return nil
 	}
 
+	compressMap := curJson.(map[string]interface{})
+	var status string
+	if stringValue, ok := compressMap["status"].(string); ok {
+		status = stringValue
+	}
+
 	compressAttrs := map[string]interface{}{
-		"status":    compress.Status,
-		"type":      compress.Type,
-		"file_type": compress.FileType,
-		"enabled":   analyseFunctionEnabledStatus(compress.Status),
+		"status":    compressMap["status"],
+		"type":      compressMap["type"],
+		"file_type": compressMap["file_type"],
+		"enabled":   analyseFunctionEnabledStatus(status),
 	}
 
 	return []map[string]interface{}{compressAttrs}
 }
 
-func flattenCacheUrlParameterFilterAttrs(cacheUrlParameterFilter *model.CacheUrlParameterFilterGetBody) []map[string]interface{} {
-	if cacheUrlParameterFilter == nil {
+func flattenCacheUrlParameterFilterAttributes(configResp interface{}) []map[string]interface{} {
+	curJson := utils.PathSearch("configs.cache_url_parameter_filter", configResp, nil)
+	if curJson == nil {
 		return nil
 	}
 
+	filterMap := curJson.(map[string]interface{})
 	cacheUrlParameterFilterAttrs := map[string]interface{}{
-		"value": cacheUrlParameterFilter.Value,
-		"type":  cacheUrlParameterFilter.Type,
+		"value": filterMap["value"],
+		"type":  filterMap["type"],
 	}
 
 	return []map[string]interface{}{cacheUrlParameterFilterAttrs}
 }
 
-func flattenIpFrequencyLimitAttrs(ipFrequencyLimit *model.IpFrequencyLimitQuery) []map[string]interface{} {
-	if ipFrequencyLimit == nil {
+func flattenIpFrequencyLimitAttributes(configResp interface{}) []map[string]interface{} {
+	curJson := utils.PathSearch("configs.ip_frequency_limit", configResp, nil)
+	if curJson == nil {
 		return nil
 	}
 
+	rawMap := curJson.(map[string]interface{})
+	var status string
+	if stringValue, ok := rawMap["status"].(string); ok {
+		status = stringValue
+	}
+
 	ipFrequencyLimitAttrs := map[string]interface{}{
-		"enabled": analyseFunctionEnabledStatus(ipFrequencyLimit.Status),
-		"qps":     ipFrequencyLimit.Qps,
+		"enabled": analyseFunctionEnabledStatus(status),
+		"qps":     rawMap["qps"],
 	}
 
 	return []map[string]interface{}{ipFrequencyLimitAttrs}
 }
 
-func flattenWebsocketAttrs(websocket *model.WebSocketSeek) []map[string]interface{} {
-	if websocket == nil {
+func flattenWebsocketAttributes(configResp interface{}) []map[string]interface{} {
+	curJson := utils.PathSearch("configs.websocket", configResp, nil)
+	if curJson == nil {
 		return nil
 	}
 
+	rawMap := curJson.(map[string]interface{})
+	var status string
+	if stringValue, ok := rawMap["status"].(string); ok {
+		status = stringValue
+	}
+
 	websocketAttrs := map[string]interface{}{
-		"enabled": analyseFunctionEnabledStatus(websocket.Status),
-		"timeout": websocket.Timeout,
+		"enabled": analyseFunctionEnabledStatus(status),
+		"timeout": rawMap["timeout"],
 	}
 
 	return []map[string]interface{}{websocketAttrs}
 }
 
-func flattenFlexibleOriginAttrs(flexibleOrigins *[]model.FlexibleOrigins) []map[string]interface{} {
-	if flexibleOrigins == nil || len(*flexibleOrigins) == 0 {
+func flattenFlexibleOriginBackSourceAttributes(backSources interface{}) []interface{} {
+	if backSources == nil {
 		return nil
 	}
 
-	flexibleOriginsAttrs := make([]map[string]interface{}, len(*flexibleOrigins))
-	for i, v := range *flexibleOrigins {
-		flexibleOriginsAttrs[i] = map[string]interface{}{
-			"match_type":    v.MatchType,
-			"match_pattern": v.MatchPattern,
-			"priority":      v.Priority,
-			"back_sources":  flattenFlexibleOriginBackSourceAttrs(v.BackSources),
-		}
+	curArray := backSources.([]interface{})
+	if len(curArray) == 0 {
+		return nil
 	}
-	return flexibleOriginsAttrs
+
+	rst := make([]interface{}, 0, len(curArray))
+	for _, v := range curArray {
+		rawMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"sources_type":    rawMap["sources_type"],
+			"ip_or_domain":    rawMap["ip_or_domain"],
+			"obs_bucket_type": rawMap["obs_bucket_type"],
+			"http_port":       rawMap["http_port"],
+			"https_port":      rawMap["https_port"],
+		})
+	}
+	return rst
 }
 
-func flattenFlexibleOriginBackSourceAttrs(backSources []model.BackSources) []map[string]interface{} {
-	if len(backSources) == 0 {
+func flattenFlexibleOriginAttributes(configResp interface{}) []interface{} {
+	curJson := utils.PathSearch("configs.flexible_origin", configResp, make([]interface{}, 0))
+	curArray := curJson.([]interface{})
+	if len(curArray) == 0 {
 		return nil
 	}
 
-	backSourcesAttrs := make([]map[string]interface{}, len(backSources))
-	for i, v := range backSources {
-		backSourcesAttrs[i] = map[string]interface{}{
-			"sources_type":    v.SourcesType,
-			"ip_or_domain":    v.IpOrDomain,
-			"obs_bucket_type": v.ObsBucketType,
-			"http_port":       v.HttpPort,
-			"https_port":      v.HttpsPort,
-		}
+	rst := make([]interface{}, 0, len(curArray))
+	for _, v := range curArray {
+		flexibleOriginMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"match_type":    flexibleOriginMap["match_type"],
+			"match_pattern": flexibleOriginMap["match_pattern"],
+			"priority":      flexibleOriginMap["priority"],
+			"back_sources":  flattenFlexibleOriginBackSourceAttributes(flexibleOriginMap["back_sources"]),
+		})
 	}
-	return backSourcesAttrs
+	return rst
 }
 
-func flattenRemoteAuthAttrs(remoteAuth *model.CommonRemoteAuth) []map[string]interface{} {
-	if remoteAuth == nil {
+func flattenCustomArgsAttributes(customArgs interface{}) []interface{} {
+	if customArgs == nil {
 		return nil
 	}
 
-	remoteAuthAttrs := map[string]interface{}{
-		"enabled":           analyseFunctionEnabledStatus(remoteAuth.RemoteAuthentication),
-		"remote_auth_rules": flattenRemoteAuthRulesAttrs(remoteAuth.RemoteAuthRules),
+	curArray := customArgs.([]interface{})
+	if len(curArray) == 0 {
+		return nil
 	}
-	return []map[string]interface{}{remoteAuthAttrs}
+
+	rst := make([]interface{}, 0, len(curArray))
+	for _, v := range curArray {
+		rawMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"type":  rawMap["type"],
+			"key":   rawMap["key"],
+			"value": rawMap["value"],
+		})
+	}
+	return rst
 }
 
-func flattenRemoteAuthRulesAttrs(remoteAuthRule *model.RemoteAuthRule) []map[string]interface{} {
-	if remoteAuthRule == nil {
+func flattenRemoteAuthRulesAttributes(remoteAuthRules interface{}) []map[string]interface{} {
+	if remoteAuthRules == nil {
 		return nil
 	}
 
+	rawMap := remoteAuthRules.(map[string]interface{})
 	remoteAuthRuleAttrs := map[string]interface{}{
-		"auth_server":              remoteAuthRule.AuthServer,
-		"request_method":           remoteAuthRule.RequestMethod,
-		"file_type_setting":        remoteAuthRule.FileTypeSetting,
-		"specified_file_type":      remoteAuthRule.SpecifiedFileType,
-		"reserve_args_setting":     remoteAuthRule.ReserveArgsSetting,
-		"reserve_args":             remoteAuthRule.ReserveArgs,
-		"add_custom_args_rules":    flattenCustomArgsAttrs(remoteAuthRule.AddCustomArgsRules),
-		"reserve_headers_setting":  remoteAuthRule.ReserveHeadersSetting,
-		"add_custom_headers_rules": flattenCustomArgsAttrs(remoteAuthRule.AddCustomHeadersRules),
-		"auth_success_status":      remoteAuthRule.AuthSuccessStatus,
-		"auth_failed_status":       remoteAuthRule.AuthFailedStatus,
-		"response_status":          remoteAuthRule.ResponseStatus,
-		"timeout":                  remoteAuthRule.Timeout,
-		"timeout_action":           remoteAuthRule.TimeoutAction,
-		"reserve_headers":          remoteAuthRule.ReserveHeaders,
+		"auth_server":              rawMap["auth_server"],
+		"request_method":           rawMap["request_method"],
+		"file_type_setting":        rawMap["file_type_setting"],
+		"specified_file_type":      rawMap["specified_file_type"],
+		"reserve_args_setting":     rawMap["reserve_args_setting"],
+		"reserve_args":             rawMap["reserve_args"],
+		"add_custom_args_rules":    flattenCustomArgsAttributes(rawMap["add_custom_args_rules"]),
+		"reserve_headers_setting":  rawMap["reserve_headers_setting"],
+		"add_custom_headers_rules": flattenCustomArgsAttributes(rawMap["add_custom_headers_rules"]),
+		"auth_success_status":      rawMap["auth_success_status"],
+		"auth_failed_status":       rawMap["auth_failed_status"],
+		"response_status":          rawMap["response_status"],
+		"timeout":                  rawMap["timeout"],
+		"timeout_action":           rawMap["timeout_action"],
+		"reserve_headers":          rawMap["reserve_headers"],
 	}
 	return []map[string]interface{}{remoteAuthRuleAttrs}
 }
 
-func flattenCustomArgsAttrs(customArgs *[]model.CustomArgs) []map[string]interface{} {
-	if customArgs == nil || len(*customArgs) == 0 {
+func flattenRemoteAuthAttributes(configResp interface{}) []map[string]interface{} {
+	curJson := utils.PathSearch("configs.remote_auth", configResp, nil)
+	if curJson == nil {
 		return nil
 	}
 
-	customArgsAttrs := make([]map[string]interface{}, len(*customArgs))
-	for i, v := range *customArgs {
-		customArgsAttrs[i] = map[string]interface{}{
-			"type":  v.Type,
-			"key":   v.Key,
-			"value": v.Value,
-		}
+	rawMap := curJson.(map[string]interface{})
+	var remoteAuthentication string
+	if stringValue, ok := rawMap["remote_authentication"].(string); ok {
+		remoteAuthentication = stringValue
 	}
-	return customArgsAttrs
+
+	remoteAuthAttrs := map[string]interface{}{
+		"enabled":           analyseFunctionEnabledStatus(remoteAuthentication),
+		"remote_auth_rules": flattenRemoteAuthRulesAttributes(rawMap["remote_auth_rules"]),
+	}
+	return []map[string]interface{}{remoteAuthAttrs}
 }
 
-func flattenQUICAttrs(quic *model.Quic) []map[string]interface{} {
-	if quic == nil {
+func flattenIpv6EnableAttributes(configResp interface{}) bool {
+	ipv6Accelerate := utils.PathSearch("configs.ipv6_accelerate", configResp, float64(0)).(float64)
+	return int64(ipv6Accelerate) == 1
+}
+
+func flattenQUICAttributes(configResp interface{}) []map[string]interface{} {
+	curJson := utils.PathSearch("configs.quic", configResp, nil)
+	if curJson == nil {
 		return nil
+	}
+
+	rawMap := curJson.(map[string]interface{})
+	var status string
+	if stringValue, ok := rawMap["status"].(string); ok {
+		status = stringValue
 	}
 
 	quicAttrs := map[string]interface{}{
-		"enabled": analyseFunctionEnabledStatus(quic.Status),
+		"enabled": analyseFunctionEnabledStatus(status),
 	}
 
 	return []map[string]interface{}{quicAttrs}
 }
 
-func flattenRefererAttrs(referer *model.RefererConfig) []map[string]interface{} {
-	if referer == nil {
+func flattenRefererAttributes(configResp interface{}) []map[string]interface{} {
+	curJson := utils.PathSearch("configs.referer", configResp, nil)
+	if curJson == nil {
 		return nil
 	}
 
+	rawMap := curJson.(map[string]interface{})
 	refererAttrs := map[string]interface{}{
-		"type":          referer.Type,
-		"value":         referer.Value,
-		"include_empty": referer.IncludeEmpty,
+		"type":          rawMap["type"],
+		"value":         rawMap["value"],
+		"include_empty": rawMap["include_empty"],
 	}
 
 	return []map[string]interface{}{refererAttrs}
 }
 
-func flattenVideoSeekAttrs(videoSeek *model.VideoSeek) []map[string]interface{} {
-	if videoSeek == nil {
+func flattenVideoSeekAttributes(configResp interface{}) []map[string]interface{} {
+	curJson := utils.PathSearch("configs.video_seek", configResp, nil)
+	if curJson == nil {
 		// When closing `video_seek`, the API response body will not return the information of this field.
 		// In order to avoid plan problems in terraform, a default value is added.
 		return []map[string]interface{}{{
@@ -2128,389 +1888,1150 @@ func flattenVideoSeekAttrs(videoSeek *model.VideoSeek) []map[string]interface{} 
 		}}
 	}
 
+	rawMap := curJson.(map[string]interface{})
 	return []map[string]interface{}{{
-		"enable_video_seek":       videoSeek.EnableVideoSeek,
-		"enable_flv_by_time_seek": videoSeek.EnableFlvByTimeSeek,
-		"start_parameter":         videoSeek.StartParameter,
-		"end_parameter":           videoSeek.EndParameter,
+		"enable_video_seek":       rawMap["enable_video_seek"],
+		"enable_flv_by_time_seek": rawMap["enable_flv_by_time_seek"],
+		"start_parameter":         rawMap["start_parameter"],
+		"end_parameter":           rawMap["end_parameter"],
 	}}
 }
 
-func flattenRequestLimitRulesAttrs(requestLimitRules *[]model.RequestLimitRules) []map[string]interface{} {
-	if requestLimitRules == nil || len(*requestLimitRules) == 0 {
+func flattenRequestLimitRulesAttributes(configResp interface{}) []interface{} {
+	curJson := utils.PathSearch("configs.request_limit_rules", configResp, make([]interface{}, 0))
+	curArray := curJson.([]interface{})
+	if len(curArray) == 0 {
 		return nil
 	}
 
-	requestLimitRulesAttrs := make([]map[string]interface{}, len(*requestLimitRules))
-	for i, v := range *requestLimitRules {
-		requestLimitRulesAttrs[i] = map[string]interface{}{
-			"priority":         v.Priority,
-			"match_type":       v.MatchType,
-			"match_value":      v.MatchValue,
-			"type":             v.Type,
-			"limit_rate_after": v.LimitRateAfter,
-			"limit_rate_value": v.LimitRateValue,
-		}
+	rst := make([]interface{}, 0, len(curArray))
+	for _, v := range curArray {
+		rawMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"priority":         rawMap["priority"],
+			"match_type":       rawMap["match_type"],
+			"match_value":      rawMap["match_value"],
+			"type":             rawMap["type"],
+			"limit_rate_after": rawMap["limit_rate_after"],
+			"limit_rate_value": rawMap["limit_rate_value"],
+		})
 	}
-	return requestLimitRulesAttrs
+	return rst
 }
 
-func flattenErrorCodeCacheAttrs(errorCodeCache *[]model.ErrorCodeCache) []map[string]interface{} {
-	if errorCodeCache == nil || len(*errorCodeCache) == 0 {
+func flattenErrorCodeCacheAttributes(configResp interface{}) []interface{} {
+	curJson := utils.PathSearch("configs.error_code_cache", configResp, make([]interface{}, 0))
+	curArray := curJson.([]interface{})
+	if len(curArray) == 0 {
 		return nil
 	}
 
-	errorCodeCacheAttrs := make([]map[string]interface{}, len(*errorCodeCache))
-	for i, v := range *errorCodeCache {
-		errorCodeCacheAttrs[i] = map[string]interface{}{
-			"code": v.Code,
-			"ttl":  v.Ttl,
-		}
+	rst := make([]interface{}, 0, len(curArray))
+	for _, v := range curArray {
+		rawMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"code": rawMap["code"],
+			"ttl":  rawMap["ttl"],
+		})
 	}
-	return errorCodeCacheAttrs
+	return rst
 }
 
-func flattenIpFilterAttrs(ipFilter *model.IpFilter) []map[string]interface{} {
-	if ipFilter == nil {
+func flattenIpFilterAttributes(configResp interface{}) []map[string]interface{} {
+	curJson := utils.PathSearch("configs.ip_filter", configResp, nil)
+	if curJson == nil {
 		return nil
 	}
 
+	rawMap := curJson.(map[string]interface{})
 	ipFilterAttrs := map[string]interface{}{
-		"type":  ipFilter.Type,
-		"value": ipFilter.Value,
+		"type":  rawMap["type"],
+		"value": rawMap["value"],
 	}
 	return []map[string]interface{}{ipFilterAttrs}
 }
 
-func flattenOriginRequestUrlRewriteAttrs(originRequestUrlRewrite *[]model.OriginRequestUrlRewrite) []map[string]interface{} {
-	if originRequestUrlRewrite == nil || len(*originRequestUrlRewrite) == 0 {
+func flattenOriginRequestUrlRewriteAttributes(configResp interface{}) []interface{} {
+	curJson := utils.PathSearch("configs.origin_request_url_rewrite", configResp, make([]interface{}, 0))
+	curArray := curJson.([]interface{})
+	if len(curArray) == 0 {
 		return nil
 	}
 
-	originRequestUrlRewriteAttrs := make([]map[string]interface{}, len(*originRequestUrlRewrite))
-	for i, v := range *originRequestUrlRewrite {
-		originRequestUrlRewriteAttrs[i] = map[string]interface{}{
-			"priority":   v.Priority,
-			"match_type": v.MatchType,
-			"target_url": v.TargetUrl,
-			"source_url": v.SourceUrl,
-		}
+	rst := make([]interface{}, 0, len(curArray))
+	for _, v := range curArray {
+		rawMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"priority":   rawMap["priority"],
+			"match_type": rawMap["match_type"],
+			"target_url": rawMap["target_url"],
+			"source_url": rawMap["source_url"],
+		})
 	}
-	return originRequestUrlRewriteAttrs
+	return rst
 }
 
-func flattenUserAgentFilterAttrs(userAgentFilter *model.UserAgentFilter) []map[string]interface{} {
-	if userAgentFilter == nil {
+func flattenUserAgentFilterAttributes(configResp interface{}) []map[string]interface{} {
+	curJson := utils.PathSearch("configs.user_agent_filter", configResp, nil)
+	if curJson == nil {
 		return nil
 	}
 
+	rawMap := curJson.(map[string]interface{})
 	userAgentFilterAttrs := map[string]interface{}{
-		"type": userAgentFilter.Type,
-	}
-	if uaList := userAgentFilter.UaList; uaList != nil {
-		userAgentFilterAttrs["ua_list"] = *uaList
+		"type":          rawMap["type"],
+		"include_empty": fmt.Sprintf("%v", rawMap["include_empty"]),
 	}
 
+	if uaList, ok := rawMap["ua_list"].([]interface{}); ok {
+		userAgentFilterAttrs["ua_list"] = uaList
+	}
 	return []map[string]interface{}{userAgentFilterAttrs}
 }
 
-func flattenErrorCodeRedirectRulesAttrs(errorCodeRedirectRules *[]model.ErrorCodeRedirectRules) []map[string]interface{} {
-	if errorCodeRedirectRules == nil || len(*errorCodeRedirectRules) == 0 {
+func flattenErrorCodeRedirectRulesAttributes(configResp interface{}) []interface{} {
+	curJson := utils.PathSearch("configs.error_code_redirect_rules", configResp, make([]interface{}, 0))
+	curArray := curJson.([]interface{})
+	if len(curArray) == 0 {
 		return nil
 	}
 
-	errorCodeRedirectRulesAttrs := make([]map[string]interface{}, len(*errorCodeRedirectRules))
-	for i, v := range *errorCodeRedirectRules {
-		errorCodeRedirectRulesAttrs[i] = map[string]interface{}{
-			"error_code":  v.ErrorCode,
-			"target_code": v.TargetCode,
-			"target_link": v.TargetLink,
-		}
+	rst := make([]interface{}, 0, len(curArray))
+	for _, v := range curArray {
+		rawMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"error_code":  rawMap["error_code"],
+			"target_code": rawMap["target_code"],
+			"target_link": rawMap["target_link"],
+		})
 	}
-	return errorCodeRedirectRulesAttrs
+	return rst
 }
 
-func flattenHstsAttrs(hsts *model.HstsQuery) []map[string]interface{} {
-	if hsts == nil {
+func flattenHstsAttributes(configResp interface{}) []map[string]interface{} {
+	curJson := utils.PathSearch("configs.hsts", configResp, nil)
+	if curJson == nil {
 		return nil
+	}
+
+	rawMap := curJson.(map[string]interface{})
+	var status string
+	if stringValue, ok := rawMap["status"].(string); ok {
+		status = stringValue
 	}
 
 	hstsAttrs := map[string]interface{}{
-		"enabled":            analyseFunctionEnabledStatus(hsts.Status),
-		"max_age":            hsts.MaxAge,
-		"include_subdomains": hsts.IncludeSubdomains,
+		"enabled":            analyseFunctionEnabledStatus(status),
+		"max_age":            rawMap["max_age"],
+		"include_subdomains": rawMap["include_subdomains"],
 	}
 
 	return []map[string]interface{}{hstsAttrs}
 }
 
-func flattenAccessAreaFiltersAttrs(accessAreaFilters *[]model.AccessAreaFilter) []map[string]interface{} {
-	if accessAreaFilters == nil || len(*accessAreaFilters) == 0 {
+func flattenSniAttributes(configResp interface{}) []map[string]interface{} {
+	curJson := utils.PathSearch("configs.sni", configResp, nil)
+	if curJson == nil {
 		return nil
 	}
 
-	accessAreaFiltersAttrs := make([]map[string]interface{}, len(*accessAreaFilters))
-	for i, v := range *accessAreaFilters {
-		accessAreaFiltersAttrs[i] = map[string]interface{}{
-			"type":          v.Type,
-			"content_type":  v.ContentType,
-			"area":          v.Area,
-			"content_value": v.ContentValue,
-			"exception_ip":  v.ExceptionIp,
-		}
+	hstsAttrs := map[string]interface{}{
+		"enabled":     analyseFunctionEnabledStatus(utils.PathSearch("status", curJson, "").(string)),
+		"server_name": utils.PathSearch("server_name", curJson, nil),
+		"status":      utils.PathSearch("status", curJson, nil),
 	}
-	return accessAreaFiltersAttrs
+
+	return []map[string]interface{}{hstsAttrs}
 }
 
-func flattenSourcesAttrs(sources *[]model.SourcesConfigResponseBody) []map[string]interface{} {
-	if sources == nil || len(*sources) == 0 {
+func flattenRequestUrlRewriteAttributes(configResp interface{}) []interface{} {
+	curJson := utils.PathSearch("configs.request_url_rewrite", configResp, make([]interface{}, 0))
+	curArray := curJson.([]interface{})
+	if len(curArray) == 0 {
 		return nil
 	}
 
-	sourcesAttrs := make([]map[string]interface{}, len(*sources))
-	for i, v := range *sources {
-		var active int
-		if v.Priority == 70 {
-			active = 1
-		}
-		sourcesAttrs[i] = map[string]interface{}{
-			"origin":                  v.OriginAddr,
-			"origin_type":             v.OriginType,
-			"active":                  active,
-			"obs_web_hosting_enabled": analyseFunctionEnabledStatusPtr(v.ObsWebHostingStatus),
-			"http_port":               v.HttpPort,
-			"https_port":              v.HttpsPort,
-			"retrieval_host":          v.HostName,
-			"weight":                  v.Weight,
-			"obs_bucket_type":         v.ObsBucketType,
-		}
+	rst := make([]interface{}, 0, len(curArray))
+	for _, v := range curArray {
+		rst = append(rst, map[string]interface{}{
+			"condition":            flattenRequestUrlRewriteConditionAttributes(utils.PathSearch("condition", v, nil)),
+			"redirect_url":         utils.PathSearch("redirect_url", v, nil),
+			"execution_mode":       utils.PathSearch("execution_mode", v, nil),
+			"redirect_status_code": utils.PathSearch("redirect_status_code", v, nil),
+			"redirect_host":        utils.PathSearch("redirect_host", v, nil),
+		})
 	}
-
-	return sourcesAttrs
+	return rst
 }
 
-func flattenConfigAttrs(configsResp *model.ConfigsGetBody, d *schema.ResourceData) []map[string]interface{} {
+func flattenRequestUrlRewriteConditionAttributes(conditionResp interface{}) []interface{} {
+	if conditionResp == nil {
+		return nil
+	}
+
+	conditionAttribute := map[string]interface{}{
+		"match_type":  utils.PathSearch("match_type", conditionResp, nil),
+		"match_value": utils.PathSearch("match_value", conditionResp, nil),
+		"priority":    utils.PathSearch("priority", conditionResp, nil),
+	}
+
+	return []interface{}{conditionAttribute}
+}
+
+func flattenBrowserCacheRulesAttributes(configResp interface{}) []interface{} {
+	curJson := utils.PathSearch("configs.browser_cache_rules", configResp, make([]interface{}, 0))
+	curArray := curJson.([]interface{})
+	if len(curArray) == 0 {
+		return nil
+	}
+
+	rst := make([]interface{}, 0, len(curArray))
+	for _, v := range curArray {
+		rst = append(rst, map[string]interface{}{
+			"condition":  flattenBrowserCacheRulesConditionAttributes(utils.PathSearch("condition", v, nil)),
+			"cache_type": utils.PathSearch("cache_type", v, nil),
+			"ttl":        utils.PathSearch("ttl", v, nil),
+			"ttl_unit":   utils.PathSearch("ttl_unit", v, nil),
+		})
+	}
+	return rst
+}
+
+func flattenBrowserCacheRulesConditionAttributes(conditionResp interface{}) []interface{} {
+	if conditionResp == nil {
+		return nil
+	}
+
+	conditionAttribute := map[string]interface{}{
+		"match_type":  utils.PathSearch("match_type", conditionResp, nil),
+		"match_value": utils.PathSearch("match_value", conditionResp, nil),
+		"priority":    utils.PathSearch("priority", conditionResp, nil),
+	}
+
+	return []interface{}{conditionAttribute}
+}
+
+func flattenAccessAreaFiltersAttributes(configResp interface{}) []interface{} {
+	curJson := utils.PathSearch("configs.access_area_filter", configResp, make([]interface{}, 0))
+	curArray := curJson.([]interface{})
+	if len(curArray) == 0 {
+		return nil
+	}
+
+	rst := make([]interface{}, 0, len(curArray))
+	for _, v := range curArray {
+		rawMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"type":          rawMap["type"],
+			"content_type":  rawMap["content_type"],
+			"area":          rawMap["area"],
+			"content_value": rawMap["content_value"],
+			"exception_ip":  rawMap["exception_ip"],
+		})
+	}
+	return rst
+}
+
+func flattenClientCertAttributes(configResp interface{}) []map[string]interface{} {
+	curJson := utils.PathSearch("configs.client_cert", configResp, nil)
+	if curJson == nil {
+		return nil
+	}
+
+	hstsAttrs := map[string]interface{}{
+		"enabled":      analyseFunctionEnabledStatus(utils.PathSearch("status", curJson, "").(string)),
+		"trusted_cert": utils.PathSearch("trusted_cert", curJson, nil),
+		"hosts":        utils.PathSearch("hosts", curJson, nil),
+		"status":       utils.PathSearch("status", curJson, nil),
+	}
+
+	return []map[string]interface{}{hstsAttrs}
+}
+
+func flattenConfigAttributes(configResp interface{}, d *schema.ResourceData) []map[string]interface{} {
+	if configResp == nil {
+		return nil
+	}
+
 	privateKey := d.Get("configs.0.https_settings.0.private_key").(string)
 	certificateBody := d.Get("configs.0.https_settings.0.certificate_body").(string)
 	urlAuthKey := d.Get("configs.0.url_signing.0.key").(string)
 	urlAuthBackupKey := d.Get("configs.0.url_signing.0.backup_key").(string)
 
 	configsAttrs := map[string]interface{}{
-		"https_settings":                flattenHTTPSAttrs(configsResp.Https, privateKey, certificateBody),
-		"retrieval_request_header":      flattenOriginRequestHeaderAttrs(configsResp.OriginRequestHeader),
-		"http_response_header":          flattenHttpResponseHeaderAttrs(configsResp.HttpResponseHeader),
-		"url_signing":                   flattenUrlAuthAttrs(configsResp.UrlAuth, urlAuthKey, urlAuthBackupKey),
-		"origin_protocol":               configsResp.OriginProtocol,
-		"force_redirect":                flattenForceRedirectAttrs(configsResp.ForceRedirect),
-		"compress":                      flattenCompressAttrs(configsResp.Compress),
-		"cache_url_parameter_filter":    flattenCacheUrlParameterFilterAttrs(configsResp.CacheUrlParameterFilter),
-		"ip_frequency_limit":            flattenIpFrequencyLimitAttrs(configsResp.IpFrequencyLimit),
-		"websocket":                     flattenWebsocketAttrs(configsResp.Websocket),
-		"flexible_origin":               flattenFlexibleOriginAttrs(configsResp.FlexibleOrigin),
-		"remote_auth":                   flattenRemoteAuthAttrs(configsResp.RemoteAuth),
-		"ipv6_enable":                   configsResp.Ipv6Accelerate != nil && *configsResp.Ipv6Accelerate == 1,
-		"range_based_retrieval_enabled": analyseFunctionEnabledStatusPtr(configsResp.OriginRangeStatus),
-		"description":                   configsResp.Remark,
-		"slice_etag_status":             configsResp.SliceEtagStatus,
-		"origin_receive_timeout":        configsResp.OriginReceiveTimeout,
-		"origin_follow302_status":       configsResp.OriginFollow302Status,
-		"quic":                          flattenQUICAttrs(configsResp.Quic),
-		"referer":                       flattenRefererAttrs(configsResp.Referer),
-		"video_seek":                    flattenVideoSeekAttrs(configsResp.VideoSeek),
-		"request_limit_rules":           flattenRequestLimitRulesAttrs(configsResp.RequestLimitRules),
-		"error_code_cache":              flattenErrorCodeCacheAttrs(configsResp.ErrorCodeCache),
-		"ip_filter":                     flattenIpFilterAttrs(configsResp.IpFilter),
-		"origin_request_url_rewrite":    flattenOriginRequestUrlRewriteAttrs(configsResp.OriginRequestUrlRewrite),
-		"user_agent_filter":             flattenUserAgentFilterAttrs(configsResp.UserAgentFilter),
-		"error_code_redirect_rules":     flattenErrorCodeRedirectRulesAttrs(configsResp.ErrorCodeRedirectRules),
-		"hsts":                          flattenHstsAttrs(configsResp.Hsts),
-		"access_area_filter":            flattenAccessAreaFiltersAttrs(configsResp.AccessAreaFilter),
+		"https_settings":                flattenHTTPSAttributes(configResp, privateKey, certificateBody),
+		"retrieval_request_header":      flattenOriginRequestHeaderAttributes(configResp),
+		"http_response_header":          flattenHttpResponseHeaderAttributes(configResp),
+		"url_signing":                   flattenUrlAuthAttributes(configResp, urlAuthKey, urlAuthBackupKey),
+		"origin_protocol":               utils.PathSearch("configs.origin_protocol", configResp, nil),
+		"force_redirect":                flattenForceRedirectAttributes(configResp),
+		"compress":                      flattenCompressAttributes(configResp),
+		"cache_url_parameter_filter":    flattenCacheUrlParameterFilterAttributes(configResp),
+		"ip_frequency_limit":            flattenIpFrequencyLimitAttributes(configResp),
+		"websocket":                     flattenWebsocketAttributes(configResp),
+		"flexible_origin":               flattenFlexibleOriginAttributes(configResp),
+		"remote_auth":                   flattenRemoteAuthAttributes(configResp),
+		"ipv6_enable":                   flattenIpv6EnableAttributes(configResp),
+		"range_based_retrieval_enabled": analyseFunctionEnabledStatus(utils.PathSearch("configs.origin_range_status", configResp, "").(string)),
+		"description":                   utils.PathSearch("configs.remark", configResp, nil),
+		"slice_etag_status":             utils.PathSearch("configs.slice_etag_status", configResp, nil),
+		"origin_receive_timeout":        utils.PathSearch("configs.origin_receive_timeout", configResp, nil),
+		"origin_follow302_status":       utils.PathSearch("configs.origin_follow302_status", configResp, nil),
+		"quic":                          flattenQUICAttributes(configResp),
+		"referer":                       flattenRefererAttributes(configResp),
+		"video_seek":                    flattenVideoSeekAttributes(configResp),
+		"request_limit_rules":           flattenRequestLimitRulesAttributes(configResp),
+		"error_code_cache":              flattenErrorCodeCacheAttributes(configResp),
+		"ip_filter":                     flattenIpFilterAttributes(configResp),
+		"origin_request_url_rewrite":    flattenOriginRequestUrlRewriteAttributes(configResp),
+		"user_agent_filter":             flattenUserAgentFilterAttributes(configResp),
+		"error_code_redirect_rules":     flattenErrorCodeRedirectRulesAttributes(configResp),
+		"hsts":                          flattenHstsAttributes(configResp),
+		"sni":                           flattenSniAttributes(configResp),
+		"request_url_rewrite":           flattenRequestUrlRewriteAttributes(configResp),
+		"browser_cache_rules":           flattenBrowserCacheRulesAttributes(configResp),
+		"access_area_filter":            flattenAccessAreaFiltersAttributes(configResp),
+		"client_cert":                   flattenClientCertAttributes(configResp),
 	}
 	return []map[string]interface{}{configsAttrs}
 }
 
-func queryDomainFullConfig(hcCdnClient *cdnv2.CdnClient, cfg *config.Config, d *schema.ResourceData,
-	domainName string) (*model.ConfigsGetBody, error) {
-	req := model.ShowDomainFullConfigRequest{
-		DomainName:          domainName,
-		EnterpriseProjectId: utils.StringIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
-	}
-
-	resp, err := hcCdnClient.ShowDomainFullConfig(&req)
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving CDN domain full config: %s", err)
-	}
-
-	if resp == nil || resp.Configs == nil {
-		return nil, fmt.Errorf("error retrieving CDN domain full config: Config is not found in API response")
-	}
-	return resp.Configs, nil
-}
-
-func queryAndFlattenDomainTags(cdnClient *golangsdk.ServiceClient, d *schema.ResourceData) (map[string]string, error) {
-	tags, err := domains.GetTags(cdnClient, d.Id())
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving CDN domain tags: %s", err)
-	}
-	return utils.TagsToMap(tags), nil
-}
-
 func resourceCdnDomainRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	cdnClient, err := cfg.CdnV1Client(cfg.GetRegion(d))
+	var (
+		cfg        = meta.(*config.Config)
+		region     = cfg.GetRegion(d)
+		product    = "cdn"
+		domainName = getDomainName(d)
+		epsID      = cfg.GetEnterpriseProjectID(d)
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating CDN v1 client: %s", err)
+		return diag.Errorf("error creating CDN client: %s", err)
 	}
 
-	hcCdnClient, err := cfg.HcCdnV2Client(cfg.GetRegion(d))
+	domainResp, err := ReadCdnDomainDetail(client, domainName, epsID)
 	if err != nil {
-		return diag.Errorf("error creating CDN v2 client: %s", err)
-	}
-
-	domainName := d.Get("domain_name").(string)
-	if domainName == "" {
-		domainName = d.Get("name").(string)
-	}
-
-	v, err := domains.GetByName(cdnClient, domainName, buildResourceExtensionOpts(d, cfg)).Extract()
-	if err != nil {
-		return common.CheckDeletedDiag(d, parseDetailResponseError(err), "error retrieving CDN domain")
-	}
-
-	if v == nil {
-		return diag.Errorf("error retrieving CDN domain: Domain is not found in API response")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error.error_code", "CDN.0170"),
+			"error retrieving CDN domain")
 	}
 
 	// Backfield the ID when executing the import operation
-	d.SetId(v.ID)
-	configsResp, err := queryDomainFullConfig(hcCdnClient, cfg, d, v.DomainName)
-	if err != nil {
-		return diag.FromErr(err)
+	if id := utils.PathSearch("domain.id", domainResp, "").(string); id != "" {
+		d.SetId(id)
 	}
 
-	tags, err := queryAndFlattenDomainTags(cdnClient, d)
+	configResp, err := queryCdnDomainFullConfig(client, domainName, epsID)
 	if err != nil {
-		return diag.FromErr(err)
+		return diag.Errorf("error retrieving CDN domain full config: %s", err)
+	}
+
+	tags, err := queryAndFlattenCdnDomainTags(client, d)
+	if err != nil {
+		return diag.Errorf("error retrieving CDN domain tags: %s", err)
 	}
 
 	mErr := multierror.Append(nil,
-		d.Set("name", v.DomainName),
-		d.Set("type", v.BusinessType),
-		d.Set("cname", v.CName),
-		d.Set("domain_status", v.DomainStatus),
-		d.Set("service_area", v.ServiceArea),
-		d.Set("sources", flattenSourcesAttrs(configsResp.Sources)),
-		d.Set("configs", flattenConfigAttrs(configsResp, d)),
+		d.Set("name", utils.PathSearch("domain.domain_name", domainResp, nil)),
+		d.Set("type", utils.PathSearch("domain.business_type", domainResp, nil)),
+		d.Set("cname", utils.PathSearch("domain.cname", domainResp, nil)),
+		d.Set("domain_status", utils.PathSearch("domain.domain_status", domainResp, nil)),
+		d.Set("service_area", utils.PathSearch("domain.service_area", domainResp, nil)),
+		d.Set("sources", flattenSourcesAttributes(configResp)),
+		d.Set("configs", flattenConfigAttributes(configResp, d)),
 		d.Set("tags", tags),
-		d.Set("domain_name", v.DomainName),
+		d.Set("domain_name", utils.PathSearch("domain.domain_name", domainResp, nil)),
 	)
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-// When the domain name does not exist, the response body example of the details interface is as follows:
-// {"error": {"error_code": "CDN.0170","error_msg": "domain not exist!"}}
-func parseDetailResponseError(err error) error {
-	var errCode golangsdk.ErrDefault400
-	if errors.As(err, &errCode) {
-		var apiError interface{}
-		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
-			return err
-		}
-		errorCode, errorCodeErr := jmespath.Search("error.error_code", apiError)
-		if errorCodeErr != nil || errorCode == nil {
-			return err
-		}
+func buildCdnDomainSourcesPriorityOpts(active int) interface{} {
+	if active == 1 {
+		return 70
+	}
+	return 30
+}
 
-		if errorCode.(string) == "CDN.0170" {
-			return golangsdk.ErrDefault404(errCode)
+func buildCdnDomainSourcesOpts(rawSources []interface{}) []interface{} {
+	if len(rawSources) < 1 {
+		return nil
+	}
+
+	rst := make([]interface{}, 0, len(rawSources))
+	for _, v := range rawSources {
+		rawMap := v.(map[string]interface{})
+		rst = append(rst, utils.RemoveNil(map[string]interface{}{
+			"origin_addr":            rawMap["origin"],
+			"origin_type":            rawMap["origin_type"],
+			"priority":               buildCdnDomainSourcesPriorityOpts(rawMap["active"].(int)),
+			"obs_web_hosting_status": parseFunctionEnabledStatus(rawMap["obs_web_hosting_enabled"].(bool)),
+			"http_port":              utils.ValueIgnoreEmpty(rawMap["http_port"]),
+			"https_port":             utils.ValueIgnoreEmpty(rawMap["https_port"]),
+			"host_name":              utils.ValueIgnoreEmpty(rawMap["retrieval_host"]),
+			"weight":                 utils.ValueIgnoreEmpty(rawMap["weight"]),
+			"obs_bucket_type":        utils.ValueIgnoreEmpty(rawMap["obs_bucket_type"]),
+			"bucket_access_key":      utils.ValueIgnoreEmpty(rawMap["bucket_access_key"]),
+			"bucket_secret_key":      utils.ValueIgnoreEmpty(rawMap["bucket_secret_key"]),
+			"bucket_region":          utils.ValueIgnoreEmpty(rawMap["bucket_region"]),
+			"bucket_name":            utils.ValueIgnoreEmpty(rawMap["bucket_name"]),
+		}))
+	}
+	return rst
+}
+
+func buildCdnDomainIpv6AccelerateOpts(ipv6Enable bool) interface{} {
+	if ipv6Enable {
+		return 1
+	}
+	return 0
+}
+
+func buildCdnDomainHTTPSStatusOpts(enable bool) string {
+	if enable {
+		return "on"
+	}
+	return "off"
+}
+
+func buildCdnDomainHTTP2StatusOpts(enable bool) string {
+	if enable {
+		return "on"
+	}
+	// Currently, European sites do not support this parameter, so we will handle it this way for the time being.
+	return ""
+}
+
+func buildCdnDomainHTTPSOpts(rawHTTPS []interface{}) map[string]interface{} {
+	if len(rawHTTPS) != 1 {
+		return nil
+	}
+
+	https := rawHTTPS[0].(map[string]interface{})
+	rst := map[string]interface{}{
+		"https_status":         buildCdnDomainHTTPSStatusOpts(https["https_enabled"].(bool)),
+		"certificate_name":     utils.ValueIgnoreEmpty(https["certificate_name"]),
+		"certificate_value":    utils.ValueIgnoreEmpty(https["certificate_body"]),
+		"private_key":          utils.ValueIgnoreEmpty(https["private_key"]),
+		"certificate_source":   https["certificate_source"],
+		"scm_certificate_id":   utils.ValueIgnoreEmpty(https["scm_certificate_id"]),
+		"certificate_type":     utils.ValueIgnoreEmpty(https["certificate_type"]),
+		"tls_version":          utils.ValueIgnoreEmpty(https["tls_version"]),
+		"ocsp_stapling_status": utils.ValueIgnoreEmpty(https["ocsp_stapling_status"]),
+	}
+
+	// The API restriction field "http2_status" is only configurable if HTTPS is enabled.
+	if https["https_enabled"].(bool) {
+		rst["http2_status"] = utils.ValueIgnoreEmpty(buildCdnDomainHTTP2StatusOpts(https["http2_enabled"].(bool)))
+	}
+
+	return rst
+}
+
+func buildCdnDomainOriginRequestHeaderOpts(rawOriginRequestHeader []interface{}) []interface{} {
+	if len(rawOriginRequestHeader) < 1 {
+		return nil
+	}
+
+	rst := make([]interface{}, 0, len(rawOriginRequestHeader))
+	for _, v := range rawOriginRequestHeader {
+		rawMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"name":   rawMap["name"],
+			"value":  utils.ValueIgnoreEmpty(rawMap["value"]),
+			"action": rawMap["action"],
+		})
+	}
+	return rst
+}
+
+func buildCdnDomainHttpResponseHeaderOpts(rawHttpResponseHeader []interface{}) []interface{} {
+	if len(rawHttpResponseHeader) < 1 {
+		return nil
+	}
+
+	rst := make([]interface{}, 0, len(rawHttpResponseHeader))
+	for _, v := range rawHttpResponseHeader {
+		rawMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"name":   rawMap["name"],
+			"value":  utils.ValueIgnoreEmpty(rawMap["value"]),
+			"action": rawMap["action"],
+		})
+	}
+	return rst
+}
+
+func buildCdnDomainInheritConfigOpts(rwaInheritConfig []interface{}) map[string]interface{} {
+	if len(rwaInheritConfig) != 1 {
+		return nil
+	}
+
+	inheritConfig := rwaInheritConfig[0].(map[string]interface{})
+	return map[string]interface{}{
+		"status":            parseFunctionEnabledStatus(inheritConfig["enabled"].(bool)),
+		"inherit_type":      utils.ValueIgnoreEmpty(inheritConfig["inherit_type"]),
+		"inherit_time_type": utils.ValueIgnoreEmpty(inheritConfig["inherit_time_type"]),
+	}
+}
+
+func buildCdnDomainUrlAuthOpts(rawUrlAuth []interface{}) map[string]interface{} {
+	if len(rawUrlAuth) != 1 {
+		return nil
+	}
+
+	urlAuth := rawUrlAuth[0].(map[string]interface{})
+	return map[string]interface{}{
+		"status":         parseFunctionEnabledStatus(urlAuth["enabled"].(bool)),
+		"type":           utils.ValueIgnoreEmpty(urlAuth["type"]),
+		"sign_method":    utils.ValueIgnoreEmpty(urlAuth["sign_method"]),
+		"match_type":     utils.ValueIgnoreEmpty(urlAuth["match_type"]),
+		"inherit_config": buildCdnDomainInheritConfigOpts(urlAuth["inherit_config"].([]interface{})),
+		"sign_arg":       utils.ValueIgnoreEmpty(urlAuth["sign_arg"]),
+		"key":            utils.ValueIgnoreEmpty(urlAuth["key"]),
+		"backup_key":     utils.ValueIgnoreEmpty(urlAuth["backup_key"]),
+		"time_format":    utils.ValueIgnoreEmpty(urlAuth["time_format"]),
+		"expire_time":    urlAuth["expire_time"],
+	}
+}
+
+func buildCdnDomainForceRedirectOpts(rawForceRedirect []interface{}) map[string]interface{} {
+	if len(rawForceRedirect) != 1 {
+		return nil
+	}
+
+	forceRedirect := rawForceRedirect[0].(map[string]interface{})
+	return map[string]interface{}{
+		"status":        parseFunctionEnabledStatus(forceRedirect["enabled"].(bool)),
+		"type":          utils.ValueIgnoreEmpty(forceRedirect["type"]),
+		"redirect_code": utils.ValueIgnoreEmpty(forceRedirect["redirect_code"]),
+	}
+}
+
+func buildCdnDomainCompressOpts(rawCompress []interface{}) map[string]interface{} {
+	if len(rawCompress) != 1 {
+		return nil
+	}
+
+	compress := rawCompress[0].(map[string]interface{})
+	return map[string]interface{}{
+		"status":    parseFunctionEnabledStatus(compress["enabled"].(bool)),
+		"type":      utils.ValueIgnoreEmpty(compress["type"]),
+		"file_type": utils.ValueIgnoreEmpty(compress["file_type"]),
+	}
+}
+
+func buildCdnDomainCacheUrlParameterFilterOpts(rawCacheUrlParameterFilter []interface{}) map[string]interface{} {
+	if len(rawCacheUrlParameterFilter) != 1 {
+		return nil
+	}
+
+	cacheUrlParameterFilter := rawCacheUrlParameterFilter[0].(map[string]interface{})
+	return map[string]interface{}{
+		"value": utils.ValueIgnoreEmpty(cacheUrlParameterFilter["value"]),
+		"type":  utils.ValueIgnoreEmpty(cacheUrlParameterFilter["type"]),
+	}
+}
+
+func buildCdnDomainIpFrequencyLimitOpts(rawIpFrequencyLimit []interface{}) map[string]interface{} {
+	if len(rawIpFrequencyLimit) != 1 {
+		return nil
+	}
+
+	ipFrequencyLimit := rawIpFrequencyLimit[0].(map[string]interface{})
+	return map[string]interface{}{
+		"status": parseFunctionEnabledStatus(ipFrequencyLimit["enabled"].(bool)),
+		"qps":    utils.ValueIgnoreEmpty(ipFrequencyLimit["qps"]),
+	}
+}
+
+func buildCdnDomainWebsocketOpts(rawWebsocket []interface{}) map[string]interface{} {
+	if len(rawWebsocket) != 1 {
+		return nil
+	}
+
+	websocket := rawWebsocket[0].(map[string]interface{})
+	return map[string]interface{}{
+		"status":  parseFunctionEnabledStatus(websocket["enabled"].(bool)),
+		"timeout": websocket["timeout"],
+	}
+}
+
+func buildCdnDomainFlexibleOriginBackSourceOpts(rawBackSources []interface{}) []map[string]interface{} {
+	if len(rawBackSources) != 1 {
+		return nil
+	}
+
+	backSource := rawBackSources[0].(map[string]interface{})
+	backSourceOpts := map[string]interface{}{
+		"sources_type":    backSource["sources_type"],
+		"ip_or_domain":    backSource["ip_or_domain"],
+		"obs_bucket_type": utils.ValueIgnoreEmpty(backSource["obs_bucket_type"]),
+		"http_port":       utils.ValueIgnoreEmpty(backSource["http_port"]),
+		"https_port":      utils.ValueIgnoreEmpty(backSource["https_port"]),
+	}
+	return []map[string]interface{}{backSourceOpts}
+}
+
+func buildCdnDomainFlexibleOriginOpts(rawFlexibleOrigins []interface{}) []interface{} {
+	if len(rawFlexibleOrigins) < 1 {
+		// Define an empty array to clear all flexible origins
+		return make([]interface{}, 0)
+	}
+
+	rst := make([]interface{}, 0, len(rawFlexibleOrigins))
+	for _, v := range rawFlexibleOrigins {
+		rawMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"match_type":    rawMap["match_type"],
+			"match_pattern": rawMap["match_pattern"],
+			"priority":      rawMap["priority"],
+			"back_sources":  buildCdnDomainFlexibleOriginBackSourceOpts(rawMap["back_sources"].([]interface{})),
+		})
+	}
+	return rst
+}
+
+func buildCdnDomainCustomArgsOpts(rawCustomArgs []interface{}) []interface{} {
+	if len(rawCustomArgs) < 1 {
+		// Define an empty array to clear all custom args
+		return make([]interface{}, 0)
+	}
+
+	rst := make([]interface{}, 0, len(rawCustomArgs))
+	for _, v := range rawCustomArgs {
+		argMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"type":  argMap["type"],
+			"key":   argMap["key"],
+			"value": argMap["value"],
+		})
+	}
+	return rst
+}
+
+func buildCdnDomainRemoteAuthRulesOpts(rawRemoteAuthRules []interface{}) map[string]interface{} {
+	if len(rawRemoteAuthRules) != 1 {
+		return nil
+	}
+
+	remoteAuthRule := rawRemoteAuthRules[0].(map[string]interface{})
+	return map[string]interface{}{
+		"auth_server":              remoteAuthRule["auth_server"],
+		"request_method":           remoteAuthRule["request_method"],
+		"file_type_setting":        remoteAuthRule["file_type_setting"],
+		"specified_file_type":      utils.ValueIgnoreEmpty(remoteAuthRule["specified_file_type"]),
+		"reserve_args_setting":     remoteAuthRule["reserve_args_setting"],
+		"reserve_args":             utils.ValueIgnoreEmpty(remoteAuthRule["reserve_args"]),
+		"add_custom_args_rules":    buildCdnDomainCustomArgsOpts(remoteAuthRule["add_custom_args_rules"].(*schema.Set).List()),
+		"reserve_headers_setting":  remoteAuthRule["reserve_headers_setting"],
+		"add_custom_headers_rules": buildCdnDomainCustomArgsOpts(remoteAuthRule["add_custom_headers_rules"].(*schema.Set).List()),
+		"auth_success_status":      remoteAuthRule["auth_success_status"],
+		"auth_failed_status":       remoteAuthRule["auth_failed_status"],
+		"response_status":          remoteAuthRule["response_status"],
+		"timeout":                  remoteAuthRule["timeout"],
+		"timeout_action":           remoteAuthRule["timeout_action"],
+		"reserve_headers":          utils.ValueIgnoreEmpty(remoteAuthRule["reserve_headers"]),
+	}
+}
+
+func buildCdnDomainRemoteAuthOpts(rawRemoteAuth []interface{}) map[string]interface{} {
+	if len(rawRemoteAuth) != 1 {
+		return nil
+	}
+
+	remoteAuth := rawRemoteAuth[0].(map[string]interface{})
+	return map[string]interface{}{
+		"remote_authentication": parseFunctionEnabledStatus(remoteAuth["enabled"].(bool)),
+		"remote_auth_rules":     buildCdnDomainRemoteAuthRulesOpts(remoteAuth["remote_auth_rules"].([]interface{})),
+	}
+}
+
+func buildCdnDomainQUICOpts(rawQuic []interface{}) map[string]interface{} {
+	if len(rawQuic) != 1 {
+		return nil
+	}
+
+	quic := rawQuic[0].(map[string]interface{})
+	return map[string]interface{}{
+		"status": parseFunctionEnabledStatus(quic["enabled"].(bool)),
+	}
+}
+
+func buildCdnDomainRefererOpts(rawReferer []interface{}) map[string]interface{} {
+	if len(rawReferer) != 1 {
+		return nil
+	}
+
+	referer := rawReferer[0].(map[string]interface{})
+	return map[string]interface{}{
+		"type":          referer["type"],
+		"value":         referer["value"],
+		"include_empty": referer["include_empty"],
+	}
+}
+
+func buildCdnDomainVideoSeekOpts(rawVideoSeek []interface{}) map[string]interface{} {
+	if len(rawVideoSeek) != 1 {
+		return nil
+	}
+
+	videoSeek := rawVideoSeek[0].(map[string]interface{})
+	return map[string]interface{}{
+		"enable_video_seek":       videoSeek["enable_video_seek"],
+		"enable_flv_by_time_seek": videoSeek["enable_flv_by_time_seek"],
+		"start_parameter":         videoSeek["start_parameter"],
+		"end_parameter":           videoSeek["end_parameter"],
+	}
+}
+
+func buildCdnDomainRequestLimitRulesOpts(rawRequestLimitRules []interface{}) []interface{} {
+	if len(rawRequestLimitRules) < 1 {
+		// Define an empty array to clear all request limit rules
+		return make([]interface{}, 0)
+	}
+
+	rst := make([]interface{}, 0, len(rawRequestLimitRules))
+	for _, v := range rawRequestLimitRules {
+		rawMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"priority":         rawMap["priority"],
+			"match_type":       rawMap["match_type"],
+			"match_value":      rawMap["match_value"],
+			"type":             rawMap["type"],
+			"limit_rate_after": rawMap["limit_rate_after"],
+			"limit_rate_value": rawMap["limit_rate_value"],
+		})
+	}
+	return rst
+}
+
+func buildCdnDomainErrorCodeCacheOpts(rawErrorCodeCache []interface{}) []interface{} {
+	if len(rawErrorCodeCache) < 1 {
+		// Define an empty array to clear all error code cache
+		return make([]interface{}, 0)
+	}
+
+	rst := make([]interface{}, 0, len(rawErrorCodeCache))
+	for _, v := range rawErrorCodeCache {
+		rawMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"code": rawMap["code"],
+			"ttl":  rawMap["ttl"],
+		})
+	}
+	return rst
+}
+
+func buildCdnDomainIpFilterOpts(rawIpFilter []interface{}) map[string]interface{} {
+	if len(rawIpFilter) != 1 {
+		return nil
+	}
+
+	ipFilter := rawIpFilter[0].(map[string]interface{})
+	return map[string]interface{}{
+		"type":  ipFilter["type"],
+		"value": ipFilter["value"],
+	}
+}
+
+func buildCdnDomainOriginRequestUrlRewriteOpts(rawOriginRequestUrlRewrite []interface{}) []interface{} {
+	if len(rawOriginRequestUrlRewrite) < 1 {
+		// Define an empty array to clear all origin request url rewrite
+		return make([]interface{}, 0)
+	}
+
+	rst := make([]interface{}, 0, len(rawOriginRequestUrlRewrite))
+	for _, v := range rawOriginRequestUrlRewrite {
+		rawMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"priority":   rawMap["priority"],
+			"match_type": rawMap["match_type"],
+			"target_url": rawMap["target_url"],
+			"source_url": utils.ValueIgnoreEmpty(rawMap["source_url"]),
+		})
+	}
+	return rst
+}
+
+// This method is used to handle three scenarios: passing true, passing false and not passing.
+func buildCdnDomainUserAgentFilterIncludeEmptyOpts(includeEmpty string) interface{} {
+	switch includeEmpty {
+	case "true":
+		return true
+	case "false":
+		return false
+	}
+	return nil
+}
+
+func buildCdnDomainUserAgentFilterOpts(rawUserAgentFilter []interface{}) map[string]interface{} {
+	if len(rawUserAgentFilter) != 1 {
+		return nil
+	}
+
+	userAgentFilter := rawUserAgentFilter[0].(map[string]interface{})
+	return map[string]interface{}{
+		"type":          userAgentFilter["type"],
+		"ua_list":       utils.ExpandToStringList(userAgentFilter["ua_list"].(*schema.Set).List()),
+		"include_empty": buildCdnDomainUserAgentFilterIncludeEmptyOpts(userAgentFilter["include_empty"].(string)),
+	}
+}
+
+func buildCdnDomainErrorCodeRedirectRules(errorCodeRedirectRules []interface{}) []interface{} {
+	if len(errorCodeRedirectRules) < 1 {
+		// Define an empty array to clear all error code redirect rules
+		return make([]interface{}, 0)
+	}
+
+	rst := make([]interface{}, 0, len(errorCodeRedirectRules))
+	for _, v := range errorCodeRedirectRules {
+		rawMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"error_code":  rawMap["error_code"],
+			"target_code": rawMap["target_code"],
+			"target_link": rawMap["target_link"],
+		})
+	}
+	return rst
+}
+
+func buildCdnDomainHstsOpts(rawHsts []interface{}) map[string]interface{} {
+	if len(rawHsts) != 1 {
+		return nil
+	}
+
+	hsts := rawHsts[0].(map[string]interface{})
+	return map[string]interface{}{
+		"status":             parseFunctionEnabledStatus(hsts["enabled"].(bool)),
+		"max_age":            hsts["max_age"],
+		"include_subdomains": utils.ValueIgnoreEmpty(hsts["include_subdomains"]),
+	}
+}
+
+func buildCdnDomainSniOpts(rawArray []interface{}) map[string]interface{} {
+	if len(rawArray) != 1 {
+		return nil
+	}
+
+	rawMap := rawArray[0].(map[string]interface{})
+	return map[string]interface{}{
+		"status":      parseFunctionEnabledStatus(rawMap["enabled"].(bool)),
+		"server_name": utils.ValueIgnoreEmpty(rawMap["server_name"]),
+	}
+}
+
+func buildCdnDomainRequestUrlRewrite(rawArray []interface{}) interface{} {
+	if len(rawArray) < 1 {
+		// Define an empty array to clear all request url rewrite
+		return make([]interface{}, 0)
+	}
+
+	rst := make([]map[string]interface{}, 0, len(rawArray))
+	for _, v := range rawArray {
+		rawMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"condition":            buildRequestUrlRewriteCondition(rawMap["condition"].([]interface{})),
+			"redirect_url":         rawMap["redirect_url"],
+			"execution_mode":       rawMap["execution_mode"],
+			"redirect_status_code": utils.ValueIgnoreEmpty(rawMap["redirect_status_code"]),
+			"redirect_host":        utils.ValueIgnoreEmpty(rawMap["redirect_host"]),
+		})
+	}
+	return rst
+}
+
+func buildRequestUrlRewriteCondition(rawArray []interface{}) map[string]interface{} {
+	if len(rawArray) == 0 {
+		return nil
+	}
+
+	rawMap := rawArray[0].(map[string]interface{})
+	return map[string]interface{}{
+		"match_type":  rawMap["match_type"],
+		"match_value": utils.ValueIgnoreEmpty(rawMap["match_value"]),
+		"priority":    rawMap["priority"],
+	}
+}
+
+func buildCdnDomainBrowserCacheRules(rawArray []interface{}) interface{} {
+	if len(rawArray) < 1 {
+		// Define an empty array to clear all request url rewrite
+		return make([]interface{}, 0)
+	}
+
+	rst := make([]map[string]interface{}, 0, len(rawArray))
+	for _, v := range rawArray {
+		rawMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"condition":  buildBrowserCacheRulesCondition(rawMap["condition"].([]interface{})),
+			"cache_type": rawMap["cache_type"],
+			"ttl":        utils.ValueIgnoreEmpty(rawMap["ttl"]),
+			"ttl_unit":   utils.ValueIgnoreEmpty(rawMap["ttl_unit"]),
+		})
+	}
+	return rst
+}
+
+func buildBrowserCacheRulesCondition(rawArray []interface{}) map[string]interface{} {
+	if len(rawArray) == 0 {
+		return nil
+	}
+
+	rawMap := rawArray[0].(map[string]interface{})
+	return map[string]interface{}{
+		"match_type":  rawMap["match_type"],
+		"match_value": utils.ValueIgnoreEmpty(rawMap["match_value"]),
+		"priority":    rawMap["priority"],
+	}
+}
+
+func buildCdnDomainAccessAreaFilters(accessAreaFilters []interface{}) []interface{} {
+	if len(accessAreaFilters) < 1 {
+		// Define an empty array to clear all access area filters
+		return make([]interface{}, 0)
+	}
+
+	rst := make([]interface{}, 0, len(accessAreaFilters))
+	for _, v := range accessAreaFilters {
+		rawMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"type":          rawMap["type"],
+			"content_type":  rawMap["content_type"],
+			"area":          rawMap["area"],
+			"content_value": utils.ValueIgnoreEmpty(rawMap["content_value"]),
+			"exception_ip":  utils.ValueIgnoreEmpty(rawMap["exception_ip"]),
+		})
+	}
+	return rst
+}
+
+func buildCdnDomainClientCertOpts(rawArray []interface{}) map[string]interface{} {
+	if len(rawArray) != 1 {
+		return nil
+	}
+
+	rawMap := rawArray[0].(map[string]interface{})
+	return map[string]interface{}{
+		"status":       parseFunctionEnabledStatus(rawMap["enabled"].(bool)),
+		"trusted_cert": utils.ValueIgnoreEmpty(rawMap["trusted_cert"]),
+		"hosts":        utils.ValueIgnoreEmpty(rawMap["hosts"]),
+	}
+}
+
+// nolint
+func buildUpdateCdnDomainFullConfigsOpts(bodyParams map[string]interface{}, configs map[string]interface{}, d *schema.ResourceData) {
+	if d.HasChange("configs.0.ipv6_enable") {
+		bodyParams["ipv6_accelerate"] = buildCdnDomainIpv6AccelerateOpts(configs["ipv6_enable"].(bool))
+	}
+	if d.HasChange("configs.0.range_based_retrieval_enabled") {
+		retrievalEnabled := configs["range_based_retrieval_enabled"].(bool)
+		bodyParams["origin_range_status"] = parseFunctionEnabledStatus(retrievalEnabled)
+	}
+	if d.HasChange("configs.0.description") {
+		bodyParams["remark"] = configs["description"]
+	}
+	if d.HasChange("configs.0.slice_etag_status") {
+		bodyParams["slice_etag_status"] = utils.ValueIgnoreEmpty(configs["slice_etag_status"])
+	}
+	if d.HasChange("configs.0.origin_receive_timeout") {
+		bodyParams["origin_receive_timeout"] = utils.ValueIgnoreEmpty(configs["origin_receive_timeout"])
+	}
+	if d.HasChange("configs.0.origin_follow302_status") {
+		bodyParams["origin_follow302_status"] = utils.ValueIgnoreEmpty(configs["origin_follow302_status"])
+	}
+	if d.HasChange("configs.0.https_settings") {
+		bodyParams["https"] = buildCdnDomainHTTPSOpts(configs["https_settings"].([]interface{}))
+	}
+	if d.HasChange("configs.0.retrieval_request_header") {
+		bodyParams["origin_request_header"] = buildCdnDomainOriginRequestHeaderOpts(configs["retrieval_request_header"].(*schema.Set).List())
+	}
+	if d.HasChange("configs.0.http_response_header") {
+		bodyParams["http_response_header"] = buildCdnDomainHttpResponseHeaderOpts(configs["http_response_header"].(*schema.Set).List())
+	}
+	if d.HasChange("configs.0.url_signing") {
+		bodyParams["url_auth"] = buildCdnDomainUrlAuthOpts(configs["url_signing"].([]interface{}))
+	}
+	if d.HasChange("configs.0.origin_protocol") {
+		bodyParams["origin_protocol"] = utils.ValueIgnoreEmpty(configs["origin_protocol"])
+	}
+	if d.HasChange("configs.0.force_redirect") {
+		bodyParams["force_redirect"] = buildCdnDomainForceRedirectOpts(configs["force_redirect"].([]interface{}))
+	}
+	if d.HasChange("configs.0.compress") {
+		bodyParams["compress"] = buildCdnDomainCompressOpts(configs["compress"].([]interface{}))
+	}
+	if d.HasChange("configs.0.cache_url_parameter_filter") {
+		bodyParams["cache_url_parameter_filter"] = buildCdnDomainCacheUrlParameterFilterOpts(configs["cache_url_parameter_filter"].([]interface{}))
+	}
+	if d.HasChange("configs.0.ip_frequency_limit") {
+		bodyParams["ip_frequency_limit"] = buildCdnDomainIpFrequencyLimitOpts(configs["ip_frequency_limit"].([]interface{}))
+	}
+	if d.HasChange("configs.0.websocket") {
+		bodyParams["websocket"] = buildCdnDomainWebsocketOpts(configs["websocket"].([]interface{}))
+	}
+	if d.HasChange("configs.0.flexible_origin") {
+		bodyParams["flexible_origin"] = buildCdnDomainFlexibleOriginOpts(configs["flexible_origin"].(*schema.Set).List())
+	}
+	if d.HasChange("configs.0.remote_auth") {
+		bodyParams["remote_auth"] = buildCdnDomainRemoteAuthOpts(configs["remote_auth"].([]interface{}))
+	}
+	if d.HasChange("configs.0.quic") {
+		bodyParams["quic"] = buildCdnDomainQUICOpts(configs["quic"].([]interface{}))
+	}
+	if d.HasChange("configs.0.referer") {
+		bodyParams["referer"] = buildCdnDomainRefererOpts(configs["referer"].([]interface{}))
+	}
+	if d.HasChange("configs.0.video_seek") {
+		bodyParams["video_seek"] = buildCdnDomainVideoSeekOpts(configs["video_seek"].([]interface{}))
+	}
+	if d.HasChange("configs.0.request_limit_rules") {
+		bodyParams["request_limit_rules"] = buildCdnDomainRequestLimitRulesOpts(configs["request_limit_rules"].(*schema.Set).List())
+	}
+	if d.HasChange("configs.0.error_code_cache") {
+		bodyParams["error_code_cache"] = buildCdnDomainErrorCodeCacheOpts(configs["error_code_cache"].(*schema.Set).List())
+	}
+	if d.HasChange("configs.0.ip_filter") {
+		bodyParams["ip_filter"] = buildCdnDomainIpFilterOpts(configs["ip_filter"].([]interface{}))
+	}
+	if d.HasChange("configs.0.origin_request_url_rewrite") {
+		originRequestUrlRewrites := configs["origin_request_url_rewrite"].(*schema.Set).List()
+		bodyParams["origin_request_url_rewrite"] = buildCdnDomainOriginRequestUrlRewriteOpts(originRequestUrlRewrites)
+	}
+	if d.HasChange("configs.0.user_agent_filter") {
+		bodyParams["user_agent_filter"] = buildCdnDomainUserAgentFilterOpts(configs["user_agent_filter"].([]interface{}))
+	}
+	if d.HasChange("configs.0.error_code_redirect_rules") {
+		errorCodeRedirectRules := configs["error_code_redirect_rules"].(*schema.Set).List()
+		bodyParams["error_code_redirect_rules"] = buildCdnDomainErrorCodeRedirectRules(errorCodeRedirectRules)
+	}
+	if d.HasChange("configs.0.hsts") {
+		bodyParams["hsts"] = buildCdnDomainHstsOpts(configs["hsts"].([]interface{}))
+	}
+	if d.HasChange("configs.0.sni") {
+		bodyParams["sni"] = buildCdnDomainSniOpts(configs["sni"].([]interface{}))
+	}
+	if d.HasChange("configs.0.request_url_rewrite") {
+		requestUrlRewrite := configs["request_url_rewrite"].(*schema.Set).List()
+		bodyParams["request_url_rewrite"] = buildCdnDomainRequestUrlRewrite(requestUrlRewrite)
+	}
+	if d.HasChange("configs.0.browser_cache_rules") {
+		browserCacheRules := configs["browser_cache_rules"].(*schema.Set).List()
+		bodyParams["browser_cache_rules"] = buildCdnDomainBrowserCacheRules(browserCacheRules)
+	}
+	if d.HasChange("configs.0.access_area_filter") {
+		accessAreaFilters := configs["access_area_filter"].(*schema.Set).List()
+		bodyParams["access_area_filter"] = buildCdnDomainAccessAreaFilters(accessAreaFilters)
+	}
+	if d.HasChange("configs.0.client_cert") {
+		bodyParams["client_cert"] = buildCdnDomainClientCertOpts(configs["client_cert"].([]interface{}))
+	}
+}
+
+func buildCdnDomainCacheRules(followOrigin bool, rules []interface{}) []interface{} {
+	rst := make([]interface{}, 0, len(rules))
+	for _, v := range rules {
+		rawMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"follow_origin":       utils.ValueIgnoreEmpty(parseFunctionEnabledStatus(followOrigin)),
+			"match_type":          utils.ValueIgnoreEmpty(parseCacheRuleType(rawMap["rule_type"].(string))),
+			"match_value":         utils.ValueIgnoreEmpty(rawMap["content"]),
+			"ttl":                 rawMap["ttl"],
+			"ttl_unit":            parseCacheTTLUnits(rawMap["ttl_type"].(string)),
+			"priority":            rawMap["priority"],
+			"url_parameter_type":  utils.ValueIgnoreEmpty(rawMap["url_parameter_type"]),
+			"url_parameter_value": utils.ValueIgnoreEmpty(rawMap["url_parameter_value"]),
+		})
+	}
+	return rst
+}
+
+func updateCdnDomainFullConfigs(client *golangsdk.ServiceClient, cfg *config.Config, d *schema.ResourceData) error {
+	// When the configs configuration is empty, the interface will report an error.
+	// Make fields `business_type` and `service_area` are configured by default.
+	bodyParams := map[string]interface{}{
+		"business_type": utils.ValueIgnoreEmpty(d.Get("type")),
+		"service_area":  utils.ValueIgnoreEmpty(d.Get("service_area")),
+	}
+
+	if d.HasChange("sources") {
+		bodyParams["sources"] = buildCdnDomainSourcesOpts(d.Get("sources").(*schema.Set).List())
+	}
+
+	if d.HasChange("configs") {
+		rawConfigs := d.Get("configs").([]interface{})
+		if len(rawConfigs) > 0 && rawConfigs[0] != nil {
+			buildUpdateCdnDomainFullConfigsOpts(bodyParams, rawConfigs[0].(map[string]interface{}), d)
 		}
 	}
+
+	if d.HasChange("cache_settings") {
+		cacheSettings := d.Get("cache_settings").([]interface{})
+		if len(cacheSettings) > 0 {
+			cacheSetting := cacheSettings[0].(map[string]interface{})
+			bodyParams["cache_rules"] = buildCdnDomainCacheRules(cacheSetting["follow_origin"].(bool), cacheSetting["rules"].(*schema.Set).List())
+		}
+	}
+
+	updatePath := client.Endpoint + "v1.1/cdn/configuration/domains/{domain_name}/configs"
+	updatePath = strings.ReplaceAll(updatePath, "{domain_name}", d.Get("name").(string))
+	updatePath += buildCdnDomainQueryParams(cfg.GetEnterpriseProjectID(d))
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes:          []int{200, 202, 204},
+		JSONBody: map[string]interface{}{
+			"configs": utils.RemoveNil(bodyParams),
+		},
+	}
+	_, err := client.Request("PUT", updatePath, &updateOpt)
 	return err
 }
 
-func resourceCdnDomainUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	hcCdnClient, err := cfg.HcCdnV2Client(region)
-	if err != nil {
-		return diag.Errorf("error creating CDN v2 client: %s", err)
+func createCdnDomainTags(client *golangsdk.ServiceClient, d *schema.ResourceData, tags map[string]interface{}) error {
+	createPath := client.Endpoint + "v1.0/cdn/configuration/tags"
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes:          []int{200, 202, 204},
+		JSONBody: map[string]interface{}{
+			"resource_id": d.Id(),
+			"tags":        utils.ExpandResourceTags(tags),
+		},
 	}
-
-	if d.HasChanges("sources", "configs", "cache_settings", "type", "service_area") || d.IsNewResource() {
-		err = updateDomainFullConfigs(hcCdnClient, cfg, d)
-		if err != nil {
-			return diag.Errorf("error updating CDN domain configs settings: %s", err)
-		}
-
-		cdnClient, err := cfg.CdnV1Client(region)
-		if err != nil {
-			return diag.Errorf("error creating CDN v1 client: %s", err)
-		}
-		opts := buildResourceExtensionOpts(d, cfg)
-		if err := waitingForStatusOnline(ctx, cdnClient, d, d.Timeout(schema.TimeoutUpdate), opts); err != nil {
-			return diag.Errorf("error waiting for CDN domain (%s) update to become online: %s", d.Id(), err)
-		}
-	}
-
-	if d.HasChange("tags") {
-		if err := updateDomainTags(hcCdnClient, d); err != nil {
-			return diag.FromErr(err)
-		}
-	}
-
-	if d.HasChange("enterprise_project_id") {
-		migrateOpts := enterpriseprojects.MigrateResourceOpts{
-			ResourceId:   d.Id(),
-			ResourceType: "cdn",
-			RegionId:     region,
-			ProjectId:    cfg.GetProjectID(region),
-		}
-		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
-			return diag.FromErr(err)
-		}
-	}
-
-	return resourceCdnDomainRead(ctx, d, meta)
+	_, err := client.Request("POST", createPath, &createOpt)
+	return err
 }
 
-func updateDomainTags(hcCdnClient *cdnv2.CdnClient, d *schema.ResourceData) error {
+func deleteCdnDomainTags(client *golangsdk.ServiceClient, d *schema.ResourceData, tags map[string]interface{}) error {
+	tagKeys := make([]string, 0, len(tags))
+	for k := range tags {
+		tagKeys = append(tagKeys, k)
+	}
+
+	deletePath := client.Endpoint + "v1.0/cdn/configuration/tags/batch-delete"
+	deleteOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes:          []int{200, 202, 204},
+		JSONBody: map[string]interface{}{
+			"resource_id": d.Id(),
+			"tags":        tagKeys,
+		},
+	}
+	_, err := client.Request("POST", deletePath, &deleteOpt)
+	return err
+}
+
+func updateCdnDomainTags(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
 	oTagsRaw, nTagsRaw := d.GetChange("tags")
 	oTagsMap := oTagsRaw.(map[string]interface{})
 	nTagsMap := nTagsRaw.(map[string]interface{})
 
 	if len(oTagsMap) > 0 {
-		var tagList []string
-		for k := range oTagsMap {
-			tagList = append(tagList, k)
-		}
-		deleteTagsReq := model.BatchDeleteTagsRequest{
-			Body: &model.DeleteTagsRequestBody{
-				ResourceId: d.Id(),
-				Tags:       tagList,
-			},
-		}
-		_, err := hcCdnClient.BatchDeleteTags(&deleteTagsReq)
+		err := deleteCdnDomainTags(client, d, oTagsMap)
 		if err != nil {
 			return fmt.Errorf("error deleting CDN domain tags: %s", err)
 		}
 	}
 
 	if len(nTagsMap) > 0 {
-		tagList := make([]model.TagMap, 0, len(nTagsMap))
-		for k, v := range nTagsMap {
-			tag := model.TagMap{
-				Key:   k,
-				Value: utils.String(v.(string)),
-			}
-			tagList = append(tagList, tag)
-		}
-		createTagsReq := model.CreateTagsRequest{
-			Body: &model.CreateTagsRequestBody{
-				ResourceId: d.Id(),
-				Tags:       tagList,
-			},
-		}
-		_, err := hcCdnClient.CreateTags(&createTagsReq)
+		err := createCdnDomainTags(client, d, nTagsMap)
 		if err != nil {
 			return fmt.Errorf("error creating CDN domain tags: %s", err)
 		}
@@ -2518,62 +3039,99 @@ func updateDomainTags(hcCdnClient *cdnv2.CdnClient, d *schema.ResourceData) erro
 	return nil
 }
 
-func resourceCdnDomainDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	cdnClient, err := cfg.CdnV1Client(cfg.GetRegion(d))
+func resourceCdnDomainUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		product = "cdn"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating CDN v1 client: %s", err)
+		return diag.Errorf("error creating CDN client: %s", err)
 	}
 
-	opts := buildResourceExtensionOpts(d, cfg)
-	if d.Get("domain_status").(string) == "online" {
-		// make sure the status has changed to offline before deleting it.
-		if err = domains.Disable(cdnClient, d.Id(), opts).Err; err != nil {
-			return diag.Errorf("error disable CDN domain %s: %s", d.Id(), err)
+	if d.HasChanges("sources", "configs", "cache_settings", "type", "service_area") || d.IsNewResource() {
+		err = updateCdnDomainFullConfigs(client, cfg, d)
+		if err != nil {
+			return diag.Errorf("error updating CDN domain configs settings: %s", err)
 		}
 
-		if err := waitingForStatusOffline(ctx, cdnClient, d, d.Timeout(schema.TimeoutDelete), opts); err != nil {
-			return diag.Errorf("error waiting for CDN domain (%s) update to become offline: %s", d.Id(), err)
+		if err := waitingForCdnDomainStatusOnline(ctx, client, d, d.Timeout(schema.TimeoutUpdate), cfg); err != nil {
+			return diag.Errorf("error waiting for CDN domain (%s) update to become online: %s", d.Id(), err)
 		}
 	}
 
-	_, err = domains.Delete(cdnClient, d.Id(), opts).Extract()
-	if err != nil {
-		return diag.Errorf("error deleting CDN domain (%s): %s", d.Id(), err)
+	if d.HasChange("tags") {
+		if err := updateCdnDomainTags(client, d); err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
-	if err := waitingForDomainDeleted(ctx, cdnClient, d, d.Timeout(schema.TimeoutDelete), opts); err != nil {
-		return diag.Errorf("error waiting for CDN domain (%s) deletion to complete: %s", d.Id(), err)
+	if d.HasChange("enterprise_project_id") {
+		migrateOpts := config.MigrateResourceOpts{
+			ResourceId:   d.Id(),
+			ResourceType: "cdn",
+			RegionId:     region,
+			ProjectId:    cfg.GetProjectID(region),
+		}
+		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
+			return diag.FromErr(err)
+		}
 	}
-	return nil
+
+	return resourceCdnDomainRead(ctx, d, meta)
 }
 
-func waitingForDomainDeleted(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
-	timeout time.Duration, opts *domains.ExtensionOpts) error {
-	domainName := d.Get("name").(string)
-	unexpectedStatus := []string{"online", "offline", "configuring", "configure_failed", "checking", "check_failed"}
+func deleteCdnDomain(client *golangsdk.ServiceClient, d *schema.ResourceData, epsID string) error {
+	deletePath := client.Endpoint + "v1.0/cdn/domains/{domain_id}"
+	deletePath = strings.ReplaceAll(deletePath, "{domain_id}", d.Id())
+	deletePath += buildCdnDomainQueryParams(epsID)
+	deleteOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	deleteResp, err := client.Request("DELETE", deletePath, &deleteOpt)
+	if err != nil {
+		return err
+	}
+
+	deleteRespBody, err := utils.FlattenResponse(deleteResp)
+	if err != nil {
+		return err
+	}
+	// Even if there is an error when deleting an API, the status code for the API response is always 200.
+	errorCode := utils.PathSearch("error.error_code", deleteRespBody, "").(string)
+	if errorCode != "" {
+		errorMsg := utils.PathSearch("error.error_msg", deleteRespBody, "").(string)
+		return fmt.Errorf("error_code (%s), error_msg (%s)", errorCode, errorMsg)
+	}
+
+	return err
+}
+
+func waitingForCdnDomainDeleted(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
+	timeout time.Duration, epsID string) error {
+	var (
+		domainName               = d.Get("name").(string)
+		resourceNotFoundErrCodes = []string{
+			"CDN.0170",     // Domain not exist.
+			"CDN.00010182", // The resource is not belong to the enterprise project.
+		}
+	)
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
-			domain, err := domains.GetByName(client, domainName, opts).Extract()
+			domainResp, err := ReadCdnDomainDetail(client, domainName, epsID)
 			if err != nil {
-				parseErr := parseDeleteDetailResponseError(err)
+				parseErr := common.ConvertExpected400ErrInto404Err(err, "error.error_code", resourceNotFoundErrCodes...)
 				if _, ok := parseErr.(golangsdk.ErrDefault404); ok {
 					return "success", "COMPLETED", nil
 				}
 				return nil, "ERROR", err
 			}
 
-			if domain == nil {
-				return nil, "ERROR", fmt.Errorf("error retrieving CDN domain: Domain is not found in API response")
-			}
-
-			status := domain.DomainStatus
-			if utils.StrSliceContains(unexpectedStatus, status) {
-				return domain, status, nil
-			}
-			return domain, "PENDING", nil
+			return domainResp, "PENDING", nil
 		},
 		Timeout:      timeout,
 		Delay:        20 * time.Second,
@@ -2583,34 +3141,102 @@ func waitingForDomainDeleted(ctx context.Context, client *golangsdk.ServiceClien
 	return err
 }
 
-// When the deletion interface is successfully called, in the error information responded by the query details interface,
-// the following two situations need to be processed as 404:
-// {"error": {"error_code": "CDN.0170","error_msg": "domain not exist!"}}
-// {"error": {"error_code": "CDN.00010182","error_msg": "The resource is not belong to the enterprise project."}}
-func parseDeleteDetailResponseError(err error) error {
-	var errCode golangsdk.ErrDefault400
-	if errors.As(err, &errCode) {
-		var apiError interface{}
-		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
-			return err
-		}
-		errorCode, errorCodeErr := jmespath.Search("error.error_code", apiError)
-		if errorCodeErr != nil || errorCode == nil {
-			return err
-		}
-
-		if errorCode.(string) == "CDN.0170" || errorCode.(string) == "CDN.00010182" {
-			return golangsdk.ErrDefault404(errCode)
-		}
+func disableCdnDomain(client *golangsdk.ServiceClient, d *schema.ResourceData, epsID string) error {
+	disablePath := client.Endpoint + "v1.0/cdn/domains/{domain_id}/disable"
+	disablePath = strings.ReplaceAll(disablePath, "{domain_id}", d.Id())
+	disablePath += buildCdnDomainQueryParams(epsID)
+	disableOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
+
+	resp, err := client.Request("PUT", disablePath, &disableOpt)
+	if err != nil {
+		return nil
+	}
+
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return err
+	}
+	// Even if there is an error when disabling an API, the status code for the API response is always 200.
+	errorCode := utils.PathSearch("error.error_code", respBody, "").(string)
+	if errorCode != "" {
+		errorMsg := utils.PathSearch("error.error_msg", respBody, "").(string)
+		return fmt.Errorf("error_code (%s), error_msg (%s)", errorCode, errorMsg)
+	}
+
 	return err
 }
 
-func buildResourceExtensionOpts(d *schema.ResourceData, cfg *config.Config) *domains.ExtensionOpts {
-	if epsID := cfg.GetEnterpriseProjectID(d); epsID != "" {
-		return &domains.ExtensionOpts{
-			EnterpriseProjectId: epsID,
+func waitingForCdnDomainStatusOffline(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
+	timeout time.Duration, epsID string) error {
+	domainName := d.Get("name").(string)
+	unexpectedStatus := []string{"online", "configure_failed", "check_failed", "deleting"}
+	stateConf := &resource.StateChangeConf{
+		Pending: []string{"PENDING"},
+		Target:  []string{"COMPLETED"},
+		Refresh: func() (interface{}, string, error) {
+			domainResp, err := ReadCdnDomainDetail(client, domainName, epsID)
+			if err != nil {
+				return nil, "ERROR", err
+			}
+
+			domainStatus := utils.PathSearch("domain.domain_status", domainResp, "").(string)
+			if domainStatus == "" {
+				return nil, "ERROR", fmt.Errorf("error retrieving CDN domain: domain_status is not found in API response")
+			}
+
+			if domainStatus == "offline" {
+				return domainResp, "COMPLETED", nil
+			}
+
+			if utils.StrSliceContains(unexpectedStatus, domainStatus) {
+				return domainResp, domainStatus, nil
+			}
+			return domainResp, "PENDING", nil
+		},
+		Timeout:      timeout,
+		Delay:        20 * time.Second,
+		PollInterval: 20 * time.Second,
+	}
+	_, err := stateConf.WaitForStateContext(ctx)
+	return err
+}
+
+func resourceCdnDomainDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		product = "cdn"
+		epsID   = cfg.GetEnterpriseProjectID(d)
+	)
+
+	client, err := cfg.NewServiceClient(product, region)
+	if err != nil {
+		return diag.Errorf("error creating CDN client: %s", err)
+	}
+
+	if d.Get("domain_status").(string) == "online" {
+		// make sure the status has changed to offline before deleting it.
+		if err := disableCdnDomain(client, d, epsID); err != nil {
+			return diag.Errorf("error disabling CDN domain %s: %s", d.Id(), err)
 		}
+
+		if err := waitingForCdnDomainStatusOffline(ctx, client, d, d.Timeout(schema.TimeoutDelete), epsID); err != nil {
+			return diag.Errorf("error waiting for CDN domain (%s) update to become offline: %s", d.Id(), err)
+		}
+	}
+
+	if err := deleteCdnDomain(client, d, epsID); err != nil {
+		// When the domain does not exist, the deletion API will report an error and return the following information:
+		// {"error": {"error_code": "CDN.0000","error_msg": "domain is null or more than one."}}.
+		// The error code "CDN.0000" indicates an internal system error and cannot be used to prove that the resource
+		// no longer exists, so the logic of checkDeleted is not added.
+		return diag.Errorf("error deleting CDN domain (%s): %s", d.Id(), err)
+	}
+
+	if err := waitingForCdnDomainDeleted(ctx, client, d, d.Timeout(schema.TimeoutDelete), epsID); err != nil {
+		return diag.Errorf("error waiting for CDN domain (%s) deletion to complete: %s", d.Id(), err)
 	}
 
 	return nil

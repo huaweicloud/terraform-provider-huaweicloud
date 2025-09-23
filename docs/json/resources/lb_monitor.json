@@ -9,6 +9,11 @@
                 "type": "number",
                 "required": true
               },
+              "domain_name": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "expected_codes": {
                 "type": "string",
                 "optional": true,
@@ -50,8 +55,7 @@
               },
               "type": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "url_path": {
                 "type": "string",

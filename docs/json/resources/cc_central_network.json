@@ -41,7 +41,6 @@
                   "map",
                   "string"
                 ],
-                "description": "The key/value pairs to associate with the central network.",
                 "optional": true,
                 "computed": true
               }

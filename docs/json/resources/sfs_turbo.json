@@ -5,6 +5,10 @@
         "huaweicloud_sfs_turbo": {
           "block": {
             "attributes": {
+              "auto_create_security_group_rules": {
+                "type": "string",
+                "optional": true
+              },
               "auto_renew": {
                 "type": "string",
                 "optional": true
@@ -17,6 +21,12 @@
               "available_capacity": {
                 "type": "string",
                 "computed": true
+              },
+              "backup_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
               },
               "charging_mode": {
                 "type": "string",
@@ -122,7 +132,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "version": {
                 "type": "string",
@@ -134,13 +145,6 @@
                 "forcenew": true
               }
             }
-          },
-          "product": {
-            "short": "SFS",
-            "name": "Scalable File Service(General Purpose File System)",
-            "catalog": "Storage",
-            "name_cn": "弹性文件服务(通用文件系统)",
-            "catalog_cn": "存储"
           }
         }
       }

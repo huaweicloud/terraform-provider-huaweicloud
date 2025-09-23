@@ -64,7 +64,10 @@ func TestAccCBHInstance_basic(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckEpsID(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
@@ -87,6 +90,7 @@ func TestAccCBHInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "data_disk_size", "1.2"),
 					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(rName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(rName, "enterprise_project_id", "0"),
 
 					resource.TestCheckResourceAttrPair(rName, "vpc_id",
 						"huaweicloud_vpc.test", "id"),
@@ -99,7 +103,6 @@ func TestAccCBHInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "private_ip"),
 					resource.TestCheckResourceAttrSet(rName, "status"),
 					resource.TestCheckResourceAttrSet(rName, "version"),
-					resource.TestCheckResourceAttrSet(rName, "enterprise_project_id"),
 				),
 			},
 			{
@@ -112,6 +115,7 @@ func TestAccCBHInstance_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "data_disk_size", "3.2"),
 					resource.TestCheckResourceAttr(rName, "tags.foo", "bar_update"),
 					resource.TestCheckResourceAttr(rName, "tags.key", "value_update"),
+					resource.TestCheckResourceAttr(rName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 
 					resource.TestCheckResourceAttrPair(rName, "security_group_id",
 						"huaweicloud_networking_secgroup.test", "id"),
@@ -129,58 +133,6 @@ func TestAccCBHInstance_basic(t *testing.T) {
 					"auto_renew",
 					"ipv6_enable",
 					"attach_disk_size",
-				},
-			},
-		},
-	})
-}
-
-func TestAccCBHInstance_epsId_migrate(t *testing.T) {
-	var (
-		obj          interface{}
-		name         = acceptance.RandomAccResourceName()
-		rName        = "huaweicloud_cbh_instance.test"
-		defaultEpsId = "0"
-		migrateEpsId = acceptance.HW_ENTERPRISE_PROJECT_ID_TEST
-	)
-
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&obj,
-		getCBHInstanceResourceFunc,
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckEpsID(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testCBHInstance_epsId_config(name, defaultEpsId),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "enterprise_project_id", defaultEpsId),
-				),
-			},
-			{
-				Config: testCBHInstance_epsId_config(name, migrateEpsId),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "enterprise_project_id", migrateEpsId),
-				),
-			},
-			{
-				ResourceName:      rName,
-				ImportState:       true,
-				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{
-					"charging_mode",
-					"password",
-					"period",
-					"period_unit",
 				},
 			},
 		},
@@ -269,19 +221,20 @@ func testCBHInstance_basic(name string) string {
 %s
 
 resource "huaweicloud_cbh_instance" "test" {
-  flavor_id         = "cbh.basic.10"
-  name              = "%s"
-  vpc_id            = huaweicloud_vpc.test.id
-  subnet_id         = huaweicloud_vpc_subnet.test.id
-  subnet_address    = "192.168.0.154"
-  security_group_id = join(",", [huaweicloud_networking_secgroup.test.id, huaweicloud_networking_secgroup.test2.id])
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  password          = "test_123456"
-  charging_mode     = "prePaid"
-  period_unit       = "month"
-  auto_renew        = "false"
-  period            = 1
-  attach_disk_size  = 1
+  flavor_id             = "cbh.basic.10"
+  name                  = "%s"
+  vpc_id                = huaweicloud_vpc.test.id
+  subnet_id             = huaweicloud_vpc_subnet.test.id
+  subnet_address        = "192.168.0.154"
+  security_group_id     = join(",", [huaweicloud_networking_secgroup.test.id, huaweicloud_networking_secgroup.test2.id])
+  availability_zone     = data.huaweicloud_availability_zones.test.names[0]
+  password              = "test_123456"
+  charging_mode         = "prePaid"
+  period_unit           = "month"
+  auto_renew            = "false"
+  period                = 1
+  attach_disk_size      = 1
+  enterprise_project_id = "0"
 
   tags = {
     foo = "bar"
@@ -293,49 +246,30 @@ resource "huaweicloud_cbh_instance" "test" {
 
 func testCBHInstance_basic_update(name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_cbh_instance" "test" {
-  flavor_id         = "cbh.basic.20"
-  name              = "%s"
-  vpc_id            = huaweicloud_vpc.test.id
-  subnet_id         = huaweicloud_vpc_subnet.test.id
-  subnet_address    = "192.168.0.154"
-  security_group_id = huaweicloud_networking_secgroup.test.id
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  password          = "test_147258"
-  charging_mode     = "prePaid"
-  period_unit       = "month"
-  auto_renew        = "true"
-  period            = 1
-  attach_disk_size  = 2
+  flavor_id             = "cbh.basic.20"
+  name                  = "%[2]s"
+  vpc_id                = huaweicloud_vpc.test.id
+  subnet_id             = huaweicloud_vpc_subnet.test.id
+  subnet_address        = "192.168.0.154"
+  security_group_id     = huaweicloud_networking_secgroup.test.id
+  availability_zone     = data.huaweicloud_availability_zones.test.names[0]
+  password              = "test_147258"
+  charging_mode         = "prePaid"
+  period_unit           = "month"
+  auto_renew            = "true"
+  period                = 1
+  attach_disk_size      = 2
+  enterprise_project_id = "%[3]s"
 
   tags = {
     foo = "bar_update"
     key = "value_update"
   }
 }
-`, testCBHInstance_base(name), name)
-}
-
-func testCBHInstance_epsId_config(name, epsId string) string {
-	return fmt.Sprintf(`
-%[1]s
-
-resource "huaweicloud_cbh_instance" "test" {
-  flavor_id             = "cbh.basic.10"
-  name                  = "%[2]s"
-  vpc_id                = huaweicloud_vpc.test.id
-  subnet_id             = huaweicloud_vpc_subnet.test.id
-  security_group_id     = huaweicloud_networking_secgroup.test.id
-  availability_zone     = data.huaweicloud_availability_zones.test.names[0]
-  password              = "test_123456"
-  charging_mode         = "prePaid"
-  period_unit           = "month"
-  period                = 1
-  enterprise_project_id = "%[3]s"
-}
-`, testCBHInstance_base(name), name, epsId)
+`, testCBHInstance_base(name), name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
 func testCBHInstance_doAction_config(name, action string) string {

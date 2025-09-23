@@ -1,0 +1,21 @@
+info:
+    version: ""
+    title: resource_huaweicloud_workspace_app_server_group
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: WORKSPACEAPP
+paths:
+    /v1/{project_id}/app-server-group:
+        GET:
+            tag: WORKSPACEAPP
+    /v1/{project_id}/app-server-groups:
+        POST:
+            tag: WORKSPACEAPP
+    /v1/{project_id}/app-server-groups/{server_group_id}:
+        PATCH:
+            tag: WORKSPACEAPP
+        POST:
+            tag: WORKSPACEAPP

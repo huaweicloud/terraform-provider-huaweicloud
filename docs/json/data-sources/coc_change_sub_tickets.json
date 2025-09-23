@@ -1,0 +1,75 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_coc_change_sub_tickets": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ticket_id": {
+                "type": "string",
+                "description": "Specifies the change order ticket id.",
+                "required": true
+              },
+              "ticket_type": {
+                "type": "string",
+                "description": "Specifies the work order type. The value can be **change**.",
+                "required": true
+              },
+              "tickets": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cloud_service_name": "string",
+                      "create_time": "number",
+                      "creator": "string",
+                      "domain_id": "string",
+                      "ep_id": "string",
+                      "hosting_id": "string",
+                      "id": "string",
+                      "is_deleted": "bool",
+                      "main_ticket_id": "string",
+                      "name": "string",
+                      "operator": "string",
+                      "parent_ticket_id": "string",
+                      "properties_json": "string",
+                      "real_ticket_id": "string",
+                      "region_id": "string",
+                      "resource_id": "string",
+                      "tags_json": "string",
+                      "target_type": "string",
+                      "target_value": "string",
+                      "ticket_id": "string",
+                      "ticket_path": "string",
+                      "type": "string",
+                      "update_time": "number"
+                    }
+                  ]
+                ],
+                "description": "Indicates the work order details.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the resource type.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "COC",
+            "name": "Cloud Operations Center",
+            "catalog": "Management & Governance",
+            "name_cn": "云运维中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

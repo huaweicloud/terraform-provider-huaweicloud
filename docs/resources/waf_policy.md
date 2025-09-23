@@ -2,7 +2,8 @@
 subcategory: "Web Application Firewall (WAF)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_waf_policy"
-description: ""
+description: |-
+  Manages a WAF policy resource within HuaweiCloud.
 ---
 
 # huaweicloud_waf_policy
@@ -10,7 +11,7 @@ description: ""
 Manages a WAF policy resource within HuaweiCloud.
 
 -> **NOTE:** All WAF resources depend on WAF instances, and the WAF instances need to be purchased before they can be
-used. The policy resource can be used in Cloud Mode, Dedicated Mode and ELB Mode.
+used. The policy resource can be used in Cloud Mode and Dedicated Mode.
 
 ## Example Usage
 
@@ -18,11 +19,14 @@ used. The policy resource can be used in Cloud Mode, Dedicated Mode and ELB Mode
 variable "enterprise_project_id" {}
 
 resource "huaweicloud_waf_policy" "test" {
-  name                  = "test_policy"
-  protection_mode       = "log"
-  robot_action          = "block"
-  level                 = 2
-  enterprise_project_id = var.enterprise_project_id
+  name                   = "test_policy"
+  protection_mode        = "log"
+  robot_action           = "block"
+  level                  = 2
+  deep_inspection        = true
+  header_inspection      = true
+  shiro_decryption_check = true
+  enterprise_project_id  = var.enterprise_project_id
 
   options {
     crawler_scanner                = true
@@ -43,13 +47,14 @@ resource "huaweicloud_waf_policy" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) The region in which to create the WAF policy resource. If omitted, the
+* `region` - (Optional, String, ForceNew) Specifies the region in which to create the WAF policy resource. If omitted, the
   provider-level region will be used. Changing this setting will push a new certificate.
 
-* `name` - (Required, String) Specifies the policy name. The maximum length is 256 characters. Only digits, letters,
-  underscores(_), and hyphens(-) are allowed.
+* `name` - (Required, String) Specifies the policy name. The maximum length is `256` characters. Only digits, letters,
+  underscores (_), and hyphens (-) are allowed.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID of WAF policy.
+  For enterprise users, if omitted, default enterprise project will be used.
   Changing this parameter will create a new resource.
 
 * `full_detection` - (Optional, Bool) Specifies the detection mode in precise protection. Defaults to **false**.
@@ -68,13 +73,20 @@ The following arguments are supported:
   + **block**: WAF blocks discovered attacks.
   + **log**: WAF only logs discovered attacks.
 
-* `level` - (Optional, Int) Specifies the protection level. Defaults to **2**. Valid values are:
-  + **1**: Low. At this protection level, WAF blocks only requests with obvious attack features. If a large number of
+* `level` - (Optional, Int) Specifies the protection level. Defaults to `2`. Valid values are:
+  + `1`: Low. At this protection level, WAF blocks only requests with obvious attack features. If a large number of
     false alarms have been reported, this value is recommended.
-  + **2**: Medium. This protection level meets web protection requirements in most scenarios.
-  + **3**: High. At this protection level, WAF provides the finest granular protection and can intercept attacks with
-    complex bypass features, such as Jolokia cyber attacks, common gateway interface (CGI) vulnerability detection,
+  + `2`: Medium. This protection level meets web protection requirements in most scenarios.
+  + `3`: High. At this protection level, WAF provides the finest granular protection and can intercept attacks with
+    complex bypass features, such as Jolokia cyberattacks, common gateway interface (CGI) vulnerability detection,
     and Druid SQL injection attacks.
+
+* `deep_inspection` - (Optional, Bool) Specifies the deep inspection in basic web protection. Defaults to **false**.
+
+* `header_inspection` - (Optional, Bool) Specifies the header inspection in basic web protection. Defaults to **false**.
+
+* `shiro_decryption_check` - (Optional, Bool) Specifies the shiro decryption check in basic web protection.
+  Defaults to **false**.
 
 * `options` - (Optional, List) Specifies the switch options of the protection item in the policy.
   The [options](#Policy_Options) structure is documented below.
@@ -87,7 +99,7 @@ The `options` block supports:
 * `general_check` - (Optional, Bool) Specifies whether the general check in basic web protection is enabled.
   Defaults to **false**.
 
-* `webshell` - (Optional, Bool) Specifies whether the webshell detection in basic web protection is enabled.
+* `webshell` - (Optional, Bool) Specifies whether the web shell detection in basic web protection is enabled.
   Defaults to **false**.
 
 * `crawler_engine` - (Optional, Bool) Specifies whether the search engine is enabled. Defaults to **false**.
@@ -130,12 +142,6 @@ The `options` block supports:
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - The policy ID in UUID format.
-
-* `deep_inspection` - The deep inspection in basic web protection.
-
-* `header_inspection` - The header inspection in basic web protection.
-
-* `shiro_decryption_check` - The shiro decryption check in basic web protection.
 
 * `bind_hosts` - The protection switches. The options object structure is documented below.
 

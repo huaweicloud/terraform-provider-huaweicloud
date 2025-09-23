@@ -1,0 +1,51 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_vpc_bandwidth_addon_packages": {
+          "block": {
+            "attributes": {
+              "bandwidth_pkgs": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "bandwidth_id": "string",
+                      "billing_info": "string",
+                      "end_time": "string",
+                      "pkg_size": "number",
+                      "processed_time": "string",
+                      "resource_id": "string",
+                      "resource_name": "string",
+                      "start_time": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the bandwidth packages list.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "EIP",
+            "name": "Elastic IP",
+            "catalog": "Networking",
+            "name_cn": "弹性公网IP",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

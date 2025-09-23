@@ -49,7 +49,7 @@ The following arguments are supported:
 
 * `app` - (Optional, String) Specifies the application protocol.
 
-* `enterprise_project_id` - (Optional, String) Specifies the enterprise project id.
+* `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID.
 
 * `rule_name` - (Optional, String) Specifies the rule name.
 
@@ -58,6 +58,14 @@ The following arguments are supported:
 * `src_region_name` - (Optional, String) Specifies the source region name.
 
 * `dst_region_name` - (Optional, String) Specifies the destination region name.
+
+* `src_province_name` - (Optional, String) Specifies the source province name.
+
+* `dst_province_name` - (Optional, String) Specifies the destination province name.
+
+* `src_city_name` - (Optional, String) Specifies the source city name.
+
+* `dst_city_name` - (Optional, String) Specifies the destination city name.
 
 ## Attribute Reference
 
@@ -94,12 +102,28 @@ The `records` block supports:
 
 * `action` - The action.
 
-* `src_region_id` - The source region id.
+* `src_region_id` - The source region ID.
 
 * `src_region_name` - The source region name.
 
-* `dst_region_id` - The destination region id.
+* `dst_region_id` - The destination region ID.
 
 * `dst_region_name` - The destination region name.
+
+* `src_province_id` - The source province ID.
+
+* `src_province_name` - The source province name.
+
+* `src_city_id` - The source city ID.
+
+* `src_city_name` - The source city name.
+
+* `dst_province_id` - The destination province ID.
+
+* `dst_province_name` - The destination province name.
+
+* `dst_city_id` - The destination city ID.
+
+* `dst_city_name` - The destination city name.
 
 * `dst_host` - The destination host.

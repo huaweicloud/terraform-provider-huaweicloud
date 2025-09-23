@@ -1,0 +1,85 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_secmaster_playbooks": {
+          "block": {
+            "attributes": {
+              "data_class_name": {
+                "type": "string",
+                "description": "Specifies the data class name.",
+                "optional": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the playbook description.",
+                "optional": true
+              },
+              "enabled": {
+                "type": "string",
+                "description": "Specifies whether the playbook is enabled. The value can be **true** or **false**.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the playbook name.",
+                "optional": true
+              },
+              "playbooks": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "approve_role": "string",
+                      "created_at": "string",
+                      "data_class_id": "string",
+                      "data_class_name": "string",
+                      "description": "string",
+                      "edit_role": "string",
+                      "enabled": "bool",
+                      "id": "string",
+                      "name": "string",
+                      "owner_id": "string",
+                      "project_id": "string",
+                      "reject_version_id": "string",
+                      "unaudited_version_id": "string",
+                      "updated_at": "string",
+                      "user_role": "string",
+                      "version": "string",
+                      "version_id": "string",
+                      "workspace_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The playbook list.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "Specifies the workspace ID.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,20 @@
+info:
+    version: ""
+    title: resource_huaweicloud_vpc_subnet_cidr_reservation
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: VPC
+paths:
+    /v3/{project_id}/vpc/virsubnet-cidr-reservations:
+        POST:
+            tag: VPC
+    /v3/{project_id}/vpc/virsubnet-cidr-reservations/{reservation_id}:
+        DELETE:
+            tag: VPC
+        GET:
+            tag: VPC
+        PUT:
+            tag: VPC

@@ -24,7 +24,7 @@ func TestAccDataSourceGaAvailabilityZones_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceAvailabilityZones_basic(),
+				Config: testDataSourceAvailabilityZones_basic,
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(dataSourceName, "regions.#"),
@@ -40,8 +40,7 @@ func TestAccDataSourceGaAvailabilityZones_basic(t *testing.T) {
 	})
 }
 
-func testDataSourceAvailabilityZones_basic() string {
-	return (`
+const testDataSourceAvailabilityZones_basic = `
 data "huaweicloud_ga_availability_zones" "test" {}
 
 locals {
@@ -61,5 +60,4 @@ locals {
 output "area_filter_is_useful" {
   value = alltrue(local.area_filter_result) && length(local.area_filter_result) > 0
 }
-`)
-}
+`

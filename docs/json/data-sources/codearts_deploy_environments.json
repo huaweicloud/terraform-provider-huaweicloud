@@ -1,0 +1,87 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_codearts_deploy_environments": {
+          "block": {
+            "attributes": {
+              "application_id": {
+                "type": "string",
+                "description": "Specifies the application ID.",
+                "required": true
+              },
+              "environments": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "created_by": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "user_id": "string",
+                            "user_name": "string"
+                          }
+                        ]
+                      ],
+                      "deploy_type": "number",
+                      "description": "string",
+                      "id": "string",
+                      "instance_count": "number",
+                      "name": "string",
+                      "os_type": "string",
+                      "permission": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "can_delete": "bool",
+                            "can_deploy": "bool",
+                            "can_edit": "bool",
+                            "can_manage": "bool",
+                            "can_view": "bool"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "Indicates the environment lists.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the environment name.",
+                "optional": true
+              },
+              "project_id": {
+                "type": "string",
+                "description": "Specifies the project ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CodeArtsDeploy",
+            "name": "CodeArts Deploy",
+            "catalog": "CodeArts",
+            "name_cn": "部署",
+            "catalog_cn": "软件开发生产线"
+          }
+        }
+      }
+    }
+  }
+}

@@ -85,6 +85,11 @@ The following arguments are supported:
 
 Changing this parameter will reset the node.
 
+* `hostname_config` - (Optional, List, ForceNew) Specifies the hostname config of the kubernetes node,
+  which is supported by clusters of v1.23.6-r0 to v1.25 or clusters of v1.25.2-r0 or later versions.
+  The [object](#hostname_config) structure is documented below.
+  Changing this parameter will create a new resource.
+
 * `storage` - (Optional, List) Specifies the disk initialization management parameter.
   This parameter is alternative to `lvm_config` and supported for clusters of v1.15.11 and later.
   Changing this parameter will reset the node.
@@ -164,6 +169,23 @@ The `groups` block supports:
   + `runtime_lv_type` - (Optional, String) Specifies the LVM write mode, values can be **linear** and **striped**.
     This parameter takes effect only in **runtime** configuration. Changing this parameter will reset the node.
 
+<a name="hostname_config"></a>
+The `hostname_config` block supports:
+
+* `type` - (Required, String, ForceNew) Specifies the hostname type of the kubernetes node.
+  The value can be:
+  + **privateIp**: The Kubernetes node is named after its IP address.
+  + **cceNodeName**: The Kubernetes node is named after the CCE node.
+  
+  If `hostname_config` not specified, the default value is **privateIp**.
+  Changing this parameter will create a new resource.
+
+  ~>For a node which is configured using cceNodeName, the name is the same as the Kubernetes node name and the ECS name.
+    The node name cannot be changed. If the ECS name is changed on the ECS console, the node name will retain unchanged
+    after ECS synchronization. To avoid a conflict between Kubernetes nodes, the system automatically adds a suffix to
+    each node name. The suffix is in the format of A hyphen (-) Five random characters. The value of the random
+    characters is a lowercase letter or a digit ranging from 0 to 9.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -177,6 +199,9 @@ In addition to all arguments above, the following attributes are exported:
 * `ecs_group_id` - The Ecs group ID.
 * `subnet_id` - The ID of the subnet to which the NIC belongs.
 * `charging_mode` - The charging mode of the CCE node. Valid values are *prePaid* and *postPaid*.
+* `enterprise_project_id` - The enterprise project ID of the CCE node.
+* `extension_nics` - The extension NICs of the node.
+  The [object](#extension_nics) structure is documented below.
 
 * `root_volume` - The configuration of the system disk.
   + `size` - The disk size in GB.
@@ -184,6 +209,8 @@ In addition to all arguments above, the following attributes are exported:
   + `extend_params` - The disk expansion parameters.
   + `kms_key_id` - The ID of a KMS key. This is used to encrypt the volume.
   + `dss_pool_id` - The DSS pool ID. This field is used only for dedicated storage.
+  + `iops` - The iops of the disk.
+  + `throughput` - The throughput of the disk.
 
 * `data_volumes` - The configurations of the data disk.
   + `size` - The disk size in GB.
@@ -191,6 +218,13 @@ In addition to all arguments above, the following attributes are exported:
   + `extend_params` - The disk expansion parameters.
   + `kms_key_id` - The ID of a KMS key. This is used to encrypt the volume.
   + `dss_pool_id` - The DSS pool ID. This field is used only for dedicated storage.
+  + `iops` - The iops of the disk.
+  + `throughput` - The throughput of the disk.
+
+<a name="extension_nics"></a>
+The `extension_nics` block supports:
+
+* `subnet_id` - The ID of the subnet to which the NIC belongs.
 
 ## Timeouts
 

@@ -1,0 +1,92 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_antiddos_config_ranges": {
+          "block": {
+            "attributes": {
+              "connection_limited_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cleaning_access_pos_id": "number",
+                      "new_connection_limited": "number",
+                      "total_connection_limited": "number"
+                    }
+                  ]
+                ],
+                "description": "The list of limits of numbers of connections.",
+                "computed": true
+              },
+              "extend_ddos_config": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "http_packet_per_second": "number",
+                      "new_connection_limited": "number",
+                      "packet_per_second": "number",
+                      "set_id": "number",
+                      "total_connection_limited": "number",
+                      "traffic_per_second": "number"
+                    }
+                  ]
+                ],
+                "description": "The list of extend ddos limits.",
+                "computed": true
+              },
+              "http_limited_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "http_packet_per_second": "number",
+                      "http_request_pos_id": "number"
+                    }
+                  ]
+                ],
+                "description": "The list of HTTP limits.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "traffic_limited_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "packet_per_second": "number",
+                      "traffic_per_second": "number",
+                      "traffic_pos_id": "number"
+                    }
+                  ]
+                ],
+                "description": "The list of traffic limits.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Anti-DDoS",
+            "name": "Anti-DDoS",
+            "catalog": "Security & Compliance",
+            "name_cn": "Anti-DDoS流量清洗",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

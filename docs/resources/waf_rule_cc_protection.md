@@ -2,7 +2,8 @@
 subcategory: "Web Application Firewall (WAF)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_waf_rule_cc_protection"
-description: ""
+description: |-
+  Manages a WAF cc protection rule resource within HuaweiCloud.
 ---
 
 # huaweicloud_waf_rule_cc_protection
@@ -10,7 +11,7 @@ description: ""
 Manages a WAF cc protection rule resource within HuaweiCloud.
 
 -> **NOTE:** All WAF resources depend on WAF instances, and the WAF instances need to be purchased before they can be
-used. The cc protection rule resource can be used in Cloud Mode, Dedicated Mode.
+used. The cc protection rule resource can be used in Cloud Mode and Dedicated Mode.
 
 ## Example Usage
 
@@ -87,48 +88,48 @@ The [conditions](#RuleCCProtection_conditions) structure is documented below.
   + **url**: A web visitor is identified by url.
 
 * `limit_num` - (Required, Int) Specifies the number of requests allowed from a web visitor in a rate limiting period.
-  The value ranges from 1 to 2,147,483,647.
+  The value ranges from `1` to `2,147,483,647`.
 
-* `limit_period` - (Required, Int) Specifies the rate limiting period. The value ranges from 1 to 3,600 in seconds.
+* `limit_period` - (Required, Int) Specifies the rate limiting period. The value ranges from `1` to `3,600` in seconds.
 
 * `block_page_type` - (Optional, String) Specifies the type of the returned page. The options are **application/json**,
-  **text/html** and **text/xml**. This parameter is valid when protective_action is set to `block` or `dynamic_block`.
+  **text/html** and **text/xml**. This parameter is valid when `protective_action` is set to **block** or **dynamic_block**.
   If not specified the system default block page will be used.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID of WAF cc protection rule.
-
+  For enterprise users, if omitted, default enterprise project will be used.
   Changing this parameter will create a new resource.
 
 * `page_content` - (Optional, String) Specifies the content of the returned page.
   This parameter is required when `block_page_type` has value.
 
 * `user_identifier` - (Optional, String) Specifies the user identifier.
-  This parameter is required when `rate_limit_mode` is set to `cookie` or `header`.
-  + If `rate_limit_mode` is set to `cookie`, this parameter indicates cookie name.
-  + If `rate_limit_mode` is set to `header`, this parameter indicates header name.
+  This parameter is required when `rate_limit_mode` is set to **cookie** or **header**.
+  + If `rate_limit_mode` is set to **cookie**, this parameter indicates cookie name.
+  + If `rate_limit_mode` is set to **header**, this parameter indicates header name.
 
 * `other_user_identifier` - (Optional, String) Specifies the other user identifier.
-  This parameter is required when `rate_limit_mode` is set to `other`, indicates the user-defined request field.
+  This parameter is required when `rate_limit_mode` is set to **other**, indicates the user-defined request field.
 
-* `unlock_num` - (Optional, Int) Specifies the allowable frequency. The value ranges from 0 to 2,147,483,647.
-  This parameter is valid when `protective_action` is set to `dynamic_block`.
+* `unlock_num` - (Optional, Int) Specifies the allowable frequency. The value ranges from `0` to `2,147,483,647`.
+  This parameter is valid when `protective_action` is set to **dynamic_block**.
 
 * `lock_time` - (Optional, Int) Specifies the lock time for resuming normal page access after blocking can be set.
-  The value ranges from 0 to 65,535 in seconds. This parameter is valid when `protective_action` is set to `block`.
+  The value ranges from `0` to `65,535` in seconds. This parameter is valid when `protective_action` is set to **block**.
 
 * `request_aggregation` - (Optional, Bool) Specifies whether to enable domain aggregation statistics.
-  This parameter is valid when `rate_limit_mode` is not set to `policy`. Default to false.
+  This parameter is valid when `rate_limit_mode` is not set to **policy**. Default to **false**.
 
-* `all_waf_instances` - (Optional, Bool) Specifies whether to enable global counting. Default to false.
+* `all_waf_instances` - (Optional, Bool) Specifies whether to enable global counting. Default to **false**.
 
 * `description` - (Optional, String) Specifies the description of WAF cc protection rule.
 
 * `status` - (Optional, Int) Specifies the status of WAF cc protection rule.
   Valid values are as follows:
-  + **0**: Disabled.
-  + **1**: Enabled.
+  + `0`: Disabled.
+  + `1`: Enabled.
 
-  The default value is **1**.
+  The default value is `1`.
 
 <a name="RuleCCProtection_conditions"></a>
 The `conditions` block supports:
@@ -138,30 +139,30 @@ The `conditions` block supports:
 
 * `logic` - (Required, String) Specifies the condition matching logic.
 
-  + If `field` is set to `url`: Valid values are **contain**, **not_contain**, **equal**, **not_equal**, **prefix**,
+  + If `field` is set to **url**: Valid values are **contain**, **not_contain**, **equal**, **not_equal**, **prefix**,
   **not_prefix**, **suffix**, **not_suffix**, **contain_any**, **not_contain_all**, **equal_any**, **not_equal_all**,
   **equal_any**, **not_equal_all**, **prefix_any**, **not_prefix_all**, **suffix_any**, **not_suffix_all**,
   **len_greater**, **len_less**, **len_equal** and **len_not_equal**.
 
-  + If `field` is set to `ip` or `ipv6`: Valid values are **equal**, **not_equal**, **equal_any** and
+  + If `field` is set to **ip** or **ipv6**: Valid values are **equal**, **not_equal**, **equal_any** and
   **not_equal_all**.
 
-  + If `field` is set to `response_code`: Valid values are **equal** and **not_equal**.
+  + If `field` is set to **response_code**: Valid values are **equal** and **not_equal**.
 
-  + If `field` is set to `params` or `cookie` or `header`: Valid values are **contain**, **not_contain**,
+  + If `field` is set to **params**, **cookie** or **header**: Valid values are **contain**, **not_contain**,
   **equal**, **not_equal**, **prefix**, **not_prefix**, **suffix**, **not_suffix**, **contain_any**,
   **not_contain_all**, **equal_any**, **not_equal_all**, **equal_any**, **not_equal_all**, **prefix_any**,
   **not_prefix_all**, **suffix_any**, **not_suffix_all**, **len_greater**, **len_less**, **len_equal**,
   **len_not_equal**, **num_greater**, **num_less**, **num_equal**, **num_not_equal**, **exist** and **not_exist**.
 
 * `subfield` - (Optional, String) Specifies the subfield of the condition.
-  It is required when `field` is set to `params`, `header` or `cookie`.
+  It is required when `field` is set to **params**, **header** or **cookie**.
 
 * `content` - (Optional, String) Specifies the content of the match condition.
-  It is required when the `logic` does not end with `any` or `all`.
+  It is required when the `logic` does not end with **any** or **all**.
 
-* `reference_table_id` - (Optional, String) Specifies the reference table id.
-  It is required when the `logic` end with `any` or `all`.
+* `reference_table_id` - (Optional, String) Specifies the reference table ID.
+  It is required when the `logic` end with **any** or **all**.
 
 ## Attribute Reference
 

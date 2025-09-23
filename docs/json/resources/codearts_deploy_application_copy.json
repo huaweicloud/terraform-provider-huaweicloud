@@ -1,0 +1,251 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_codearts_deploy_application_copy": {
+          "block": {
+            "attributes": {
+              "artifact_source_system": {
+                "type": "string",
+                "description": "Specifies the source information transferred by the pipeline.",
+                "optional": true
+              },
+              "artifact_type": {
+                "type": "string",
+                "description": "Specifies the artifact type for the pipeline source.",
+                "optional": true
+              },
+              "can_copy": {
+                "type": "bool",
+                "description": "Indicates whether the user has the copy permission.",
+                "computed": true
+              },
+              "can_create_env": {
+                "type": "bool",
+                "description": "Indicates whether the user has the permission to create an environment.",
+                "computed": true
+              },
+              "can_delete": {
+                "type": "bool",
+                "description": "Indicates whether the user has the deletion permission.",
+                "computed": true
+              },
+              "can_disable": {
+                "type": "bool",
+                "description": "Indicates whether the user has the permission to disable application.",
+                "computed": true
+              },
+              "can_execute": {
+                "type": "bool",
+                "description": "Indicates whether the user has the deployment permission",
+                "computed": true
+              },
+              "can_manage": {
+                "type": "bool",
+                "description": "Indicates whether the user has the management permission, including adding, deleting,\nmodifying, querying deployment and permission modification.",
+                "computed": true
+              },
+              "can_modify": {
+                "type": "bool",
+                "description": "Indicates whether the user has the editing permission.",
+                "computed": true
+              },
+              "can_view": {
+                "type": "bool",
+                "description": "Indicates whether the user has the view permission.",
+                "computed": true
+              },
+              "create_type": {
+                "type": "string",
+                "description": "Specifies the creation type.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The create time.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the application description.",
+                "optional": true,
+                "computed": true
+              },
+              "group_id": {
+                "type": "string",
+                "description": "Specifies the group ID.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_care": {
+                "type": "bool",
+                "description": "Indicates whether the user has favorited the application.",
+                "computed": true
+              },
+              "is_disable": {
+                "type": "bool",
+                "description": "Specifies whether to disable the application.",
+                "optional": true,
+                "computed": true
+              },
+              "is_draft": {
+                "type": "bool",
+                "description": "Specifies whether the application is in draft status.",
+                "optional": true,
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the application name.",
+                "optional": true,
+                "computed": true
+              },
+              "permission_level": {
+                "type": "string",
+                "description": "Specifies the permission level.",
+                "optional": true,
+                "computed": true
+              },
+              "permission_matrix": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "can_copy": "bool",
+                      "can_create_env": "bool",
+                      "can_delete": "bool",
+                      "can_disable": "bool",
+                      "can_execute": "bool",
+                      "can_manage": "bool",
+                      "can_modify": "bool",
+                      "can_view": "bool",
+                      "role_id": "string",
+                      "role_name": "string",
+                      "role_type": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the permission matrix.",
+                "computed": true
+              },
+              "project_id": {
+                "type": "string",
+                "description": "Specifies the project ID for CodeArts service.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "project_name": {
+                "type": "string",
+                "description": "The project name.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "resource_pool_id": {
+                "type": "string",
+                "description": "Specifies the custom slave resource pool ID.",
+                "optional": true,
+                "computed": true
+              },
+              "source_app_id": {
+                "type": "string",
+                "description": "Specifies the application ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "steps": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "The deployment steps.",
+                "computed": true
+              },
+              "task_id": {
+                "type": "string",
+                "description": "The deployment task ID.",
+                "computed": true
+              },
+              "task_name": {
+                "type": "string",
+                "description": "The deployment task name.",
+                "computed": true
+              },
+              "trigger_source": {
+                "type": "string",
+                "description": "Specifies where a deployment task can be executed.",
+                "optional": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The update time.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "operation_list": {
+                "block": {
+                  "attributes": {
+                    "code": {
+                      "type": "string",
+                      "description": "Specifies the download URL.",
+                      "optional": true
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "Specifies the step description.",
+                      "optional": true
+                    },
+                    "entrance": {
+                      "type": "string",
+                      "description": "Specifies the entry function.",
+                      "optional": true
+                    },
+                    "module_id": {
+                      "type": "string",
+                      "description": "Specifies the module ID.",
+                      "optional": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Specifies the step name.",
+                      "optional": true
+                    },
+                    "params": {
+                      "type": "string",
+                      "description": "Specifies the parameter.",
+                      "optional": true
+                    },
+                    "version": {
+                      "type": "string",
+                      "description": "Specifies the version.",
+                      "optional": true
+                    }
+                  },
+                  "description": "Specifies the deployment orchestration list information."
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "CodeArtsDeploy",
+            "name": "CodeArts Deploy",
+            "catalog": "CodeArts",
+            "name_cn": "部署",
+            "catalog_cn": "软件开发生产线"
+          }
+        }
+      }
+    }
+  }
+}

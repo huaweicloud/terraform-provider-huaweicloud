@@ -1,0 +1,78 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_eg_event_sources": {
+          "block": {
+            "attributes": {
+              "channel_id": {
+                "type": "string",
+                "description": "The ID of the event channel to which the event sources belong.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the event source to be queried.",
+                "optional": true
+              },
+              "provider_type": {
+                "type": "string",
+                "description": "The type of the event sources to be queried.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the event sources are located."
+              },
+              "sources": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "channel_id": "string",
+                      "channel_name": "string",
+                      "created_at": "string",
+                      "description": "string",
+                      "detail": "string",
+                      "event_types": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "description": "string",
+                            "name": "string"
+                          }
+                        ]
+                      ],
+                      "id": "string",
+                      "label": "string",
+                      "name": "string",
+                      "provider_type": "string",
+                      "status": "string",
+                      "type": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "All event sources that match the filter parameters.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "EG",
+            "name": "EventGrid",
+            "catalog": "Middleware",
+            "name_cn": "事件网格",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

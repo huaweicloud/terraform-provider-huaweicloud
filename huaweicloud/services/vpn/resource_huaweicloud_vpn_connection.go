@@ -16,7 +16,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -30,7 +29,7 @@ import (
 // @API VPN GET /v5/{project_id}/vpn-connection/{id}
 // @API VPN PUT /v5/{project_id}/vpn-connection/{id}
 // @API VPN POST /v5/{project_id}/{resource_type}/{resource_id}/tags/create
-// @API VPN DELETE /v5/{project_id}/{resource_type}/{resource_id}/tags/delete
+// @API VPN POST /v5/{project_id}/{resource_type}/{resource_id}/tags/delete
 func ResourceConnection() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceConnectionCreate,
@@ -45,6 +44,8 @@ func ResourceConnection() *schema.Resource {
 			Update: schema.DefaultTimeout(10 * time.Minute),
 			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
+
+		CustomizeDiff: config.MergeDefaultTags(),
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -75,7 +76,7 @@ func ResourceConnection() *schema.Resource {
 				Required:         true,
 				ForceNew:         true,
 				Description:      `The connection type. The value can be **policy**, **static** or **bgp**.`,
-				DiffSuppressFunc: utils.SuppressCaseDiffs,
+				DiffSuppressFunc: utils.SuppressCaseDiffs(),
 			},
 			"customer_gateway_id": {
 				Type:        schema.TypeString,
@@ -379,9 +380,6 @@ func resourceConnectionCreate(ctx context.Context, d *schema.ResourceData, meta 
 
 	createConnectionOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			201,
-		},
 	}
 	createConnectionOpt.JSONBody = utils.RemoveNil(buildCreateConnectionBodyParams(d))
 	createConnectionResp, err := createConnectionClient.Request("POST", createConnectionPath, &createConnectionOpt)
@@ -394,11 +392,11 @@ func resourceConnectionCreate(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("vpn_connection.id", createConnectionRespBody)
-	if err != nil {
+	id := utils.PathSearch("vpn_connection.id", createConnectionRespBody, "").(string)
+	if id == "" {
 		return diag.Errorf("error creating VPN connection: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	err = createConnectionWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
@@ -551,9 +549,6 @@ func createConnectionWaitingForStateCompleted(ctx context.Context, d *schema.Res
 
 			createConnectionWaitingOpt := golangsdk.RequestOpts{
 				KeepResponseBody: true,
-				OkCodes: []int{
-					200,
-				},
 			}
 			createConnectionWaitingResp, err := createConnectionWaitingClient.Request("GET", createConnectionWaitingPath, &createConnectionWaitingOpt)
 			if err != nil {
@@ -564,12 +559,16 @@ func createConnectionWaitingForStateCompleted(ctx context.Context, d *schema.Res
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`vpn_connection.status`, createConnectionWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `vpn_connection.status`)
+			statusRaw := utils.PathSearch(`vpn_connection.status`, createConnectionWaitingRespBody, nil)
+			if statusRaw == nil {
+				return nil, "ERROR", fmt.Errorf("error parsing %s from response body", `vpn_connection.status`)
 			}
 
 			status := fmt.Sprintf("%v", statusRaw)
+
+			if status == "ERROR" {
+				return createConnectionWaitingRespBody, status, nil
+			}
 
 			targetStatus := []string{
 				"ACTIVE",
@@ -577,13 +576,6 @@ func createConnectionWaitingForStateCompleted(ctx context.Context, d *schema.Res
 			}
 			if utils.StrSliceContains(targetStatus, status) {
 				return createConnectionWaitingRespBody, "COMPLETED", nil
-			}
-
-			unexpectedStatus := []string{
-				"ERROR",
-			}
-			if utils.StrSliceContains(unexpectedStatus, status) {
-				return createConnectionWaitingRespBody, status, nil
 			}
 
 			return createConnectionWaitingRespBody, "PENDING", nil
@@ -618,9 +610,6 @@ func resourceConnectionRead(_ context.Context, d *schema.ResourceData, meta inte
 
 	getConnectionOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
 	getConnectionResp, err := getConnectionClient.Request("GET", getConnectionPath, &getConnectionOpt)
 
@@ -661,8 +650,8 @@ func resourceConnectionRead(_ context.Context, d *schema.ResourceData, meta inte
 
 func flattenGetConnectionResponseBodyCreateRequestIkePolicy(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("vpn_connection.ikepolicy", resp)
-	if err != nil {
+	curJson := utils.PathSearch("vpn_connection.ikepolicy", resp, nil)
+	if curJson == nil {
 		log.Printf("[ERROR] error parsing vpn_connection.ikepolicy from response= %#v", resp)
 		return rst
 	}
@@ -689,8 +678,8 @@ func flattenGetConnectionResponseBodyCreateRequestIkePolicy(resp interface{}) []
 
 func flattenGetConnectionResponseBodyDPD(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("vpn_connection.ikepolicy.dpd", resp)
-	if err != nil {
+	curJson := utils.PathSearch("vpn_connection.ikepolicy.dpd", resp, nil)
+	if curJson == nil {
 		log.Printf("[ERROR] error parsing vpn_connection.ikepolicy.dpd from response= %#v", resp)
 		return rst
 	}
@@ -707,8 +696,8 @@ func flattenGetConnectionResponseBodyDPD(resp interface{}) []interface{} {
 
 func flattenGetConnectionResponseBodyCreateRequestIpsecPolicy(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("vpn_connection.ipsecpolicy", resp)
-	if err != nil {
+	curJson := utils.PathSearch("vpn_connection.ipsecpolicy", resp, nil)
+	if curJson == nil {
 		log.Printf("[ERROR] error parsing vpn_connection.ipsecpolicy from response= %#v", resp)
 		return rst
 	}
@@ -774,9 +763,6 @@ func resourceConnectionUpdate(ctx context.Context, d *schema.ResourceData, meta 
 
 		updateConnectionOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
-			OkCodes: []int{
-				200,
-			},
 		}
 		updateConnectionOpt.JSONBody = utils.RemoveNil(buildUpdateConnectionBodyParams(d))
 		_, err = updateConnectionClient.Request("PUT", updateConnectionPath, &updateConnectionOpt)
@@ -900,9 +886,6 @@ func updateConnectionWaitingForStateCompleted(ctx context.Context, d *schema.Res
 
 			updateConnectionWaitingOpt := golangsdk.RequestOpts{
 				KeepResponseBody: true,
-				OkCodes: []int{
-					200,
-				},
 			}
 			updateConnectionWaitingResp, err := updateConnectionWaitingClient.Request("GET", updateConnectionWaitingPath, &updateConnectionWaitingOpt)
 			if err != nil {
@@ -913,12 +896,16 @@ func updateConnectionWaitingForStateCompleted(ctx context.Context, d *schema.Res
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`vpn_connection.status`, updateConnectionWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `vpn_connection.status`)
+			statusRaw := utils.PathSearch(`vpn_connection.status`, updateConnectionWaitingRespBody, nil)
+			if statusRaw == nil {
+				return nil, "ERROR", fmt.Errorf("error parsing %s from response body", `vpn_connection.status`)
 			}
 
 			status := fmt.Sprintf("%v", statusRaw)
+
+			if status == "ERROR" {
+				return updateConnectionWaitingRespBody, status, nil
+			}
 
 			targetStatus := []string{
 				"ACTIVE",
@@ -926,13 +913,6 @@ func updateConnectionWaitingForStateCompleted(ctx context.Context, d *schema.Res
 			}
 			if utils.StrSliceContains(targetStatus, status) {
 				return updateConnectionWaitingRespBody, "COMPLETED", nil
-			}
-
-			unexpectedStatus := []string{
-				"ERROR",
-			}
-			if utils.StrSliceContains(unexpectedStatus, status) {
-				return updateConnectionWaitingRespBody, status, nil
 			}
 
 			return updateConnectionWaitingRespBody, "PENDING", nil
@@ -965,13 +945,10 @@ func resourceConnectionDelete(ctx context.Context, d *schema.ResourceData, meta 
 
 	deleteConnectionOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			204,
-		},
 	}
 	_, err = deleteConnectionClient.Request("DELETE", deleteConnectionPath, &deleteConnectionOpt)
 	if err != nil {
-		return diag.Errorf("error deleting VPN connection: %s", err)
+		return common.CheckDeletedDiag(d, err, "error deleting VPN connection")
 	}
 
 	err = deleteConnectionWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutDelete))
@@ -1004,9 +981,6 @@ func deleteConnectionWaitingForStateCompleted(ctx context.Context, d *schema.Res
 
 			deleteConnectionWaitingOpt := golangsdk.RequestOpts{
 				KeepResponseBody: true,
-				OkCodes: []int{
-					200,
-				},
 			}
 			deleteConnectionWaitingResp, err := deleteConnectionWaitingClient.Request("GET", deleteConnectionWaitingPath, &deleteConnectionWaitingOpt)
 			if err != nil {
@@ -1022,17 +996,14 @@ func deleteConnectionWaitingForStateCompleted(ctx context.Context, d *schema.Res
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`vpn_connection.status`, deleteConnectionWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `vpn_connection.status`)
+			statusRaw := utils.PathSearch(`vpn_connection.status`, deleteConnectionWaitingRespBody, nil)
+			if statusRaw == nil {
+				return nil, "ERROR", fmt.Errorf("error parsing %s from response body", `vpn_connection.status`)
 			}
 
 			status := fmt.Sprintf("%v", statusRaw)
 
-			unexpectedStatus := []string{
-				"ERROR",
-			}
-			if utils.StrSliceContains(unexpectedStatus, status) {
+			if status == "ERROR" {
 				return deleteConnectionWaitingRespBody, status, nil
 			}
 

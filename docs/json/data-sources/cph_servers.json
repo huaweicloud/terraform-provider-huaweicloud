@@ -1,0 +1,114 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cph_servers": {
+          "block": {
+            "attributes": {
+              "create_since": {
+                "type": "string",
+                "description": "The creation start time. For example, **2024-10-15 15:04:05**.",
+                "optional": true
+              },
+              "create_until": {
+                "type": "string",
+                "description": "The creation end time. For example, **2024-10-15 15:04:05**.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "network_version": {
+                "type": "string",
+                "description": "Specifies whether the cloud phone server is a custom network identifier.",
+                "optional": true
+              },
+              "phone_flavor": {
+                "type": "string",
+                "description": "Specifies the cloud phone flavor name.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "server_id": {
+                "type": "string",
+                "description": "Specifies the cloud phone server ID.",
+                "optional": true
+              },
+              "server_name": {
+                "type": "string",
+                "description": "Specifies the cloud phone server name and support fuzzy query.",
+                "optional": true
+              },
+              "servers": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "addresses": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "public_ip": "string",
+                            "server_ip": "string"
+                          }
+                        ]
+                      ],
+                      "availability_zone": "string",
+                      "cidr": "string",
+                      "create_time": "string",
+                      "enterprise_project_id": "string",
+                      "keypair_name": "string",
+                      "metadata": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "order_id": "string",
+                            "product_id": "string"
+                          }
+                        ]
+                      ],
+                      "network_version": "string",
+                      "phone_flavor": "string",
+                      "resource_project_id": "string",
+                      "server_flavor": "string",
+                      "server_id": "string",
+                      "server_name": "string",
+                      "status": "number",
+                      "subnet_cidr": "string",
+                      "subnet_id": "string",
+                      "update_time": "string",
+                      "vpc_cidr": "string",
+                      "vpc_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The cloud phone server list.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the server status.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CPH",
+            "name": "Cloud Phone",
+            "catalog": "Compute",
+            "name_cn": "云手机",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"regexp"
 	"strings"
 	"time"
 
@@ -12,12 +11,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
-
-	hssv5 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/hss/v5"
-	hssv5model "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/hss/v5/model"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -64,12 +59,6 @@ func ResourceHostGroup() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The name of the host group.",
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile("^[\u4e00-\u9fa5\\w-.+*]*$"),
-						"Only Chinese and English letters, digits, hyphens (-), underscores (_) dots (.), plusses (+) "+
-							"and asterisks (*) are allowed."),
-					validation.StringLenBetween(1, 64),
-				),
 			},
 			"host_ids": {
 				Type:        schema.TypeSet,
@@ -109,9 +98,9 @@ func ResourceHostGroup() *schema.Resource {
 	}
 }
 
-func checkAllHostsAvailable(ctx context.Context, client *hssv5.HssClient, epsId string, hostIDs []string,
+func checkAllHostsAvailable(ctx context.Context, client *golangsdk.ServiceClient, epsId string, hostIDs []string,
 	timeout time.Duration) ([]string, error) {
-	unprotected := make([]string, 0)
+	unprotectedIDs := make([]string, 0)
 	for _, hostId := range hostIDs {
 		log.Printf("[DEBUG] Waiting for the host (%s) status to become available.", hostId)
 		stateConf := &resource.StateChangeConf{
@@ -126,244 +115,354 @@ func checkAllHostsAvailable(ctx context.Context, client *hssv5.HssClient, epsId 
 		if err != nil {
 			return nil, fmt.Errorf("error waiting for the host (%s) status to become completed: %s", hostId, err)
 		}
+
 		if unprotectedHostId != nil && unprotectedHostId.(string) != "" {
-			unprotected = append(unprotected, unprotectedHostId.(string))
+			unprotectedIDs = append(unprotectedIDs, unprotectedHostId.(string))
 		}
 	}
-	return unprotected, nil
+
+	return unprotectedIDs, nil
 }
 
-func hostStatusRefreshFunc(client *hssv5.HssClient, epsId, hostId string) resource.StateRefreshFunc {
+func getHostFunc(client *golangsdk.ServiceClient, epsId, hostId string) (interface{}, error) {
+	getPath := client.Endpoint + "v5/{project_id}/host-management/hosts"
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath += fmt.Sprintf("?enterprise_project_id=%v&refresh=%v&host_id=%v", epsId, true, hostId)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving HSS host: %s", err)
+	}
+
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return nil, err
+	}
+
+	hostResp := utils.PathSearch("data_list[0]", getRespBody, nil)
+
+	return hostResp, nil
+}
+
+func hostStatusRefreshFunc(client *golangsdk.ServiceClient, epsId, hostId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		var unprotectedHostId string
 		if epsId == "" {
-			epsId = "all_granted_eps"
+			epsId = QueryAllEpsValue
 		}
 
-		request := hssv5model.ListHostStatusRequest{
-			EnterpriseProjectId: utils.String(epsId),
-			Refresh:             utils.Bool(true),
-			HostId:              utils.String(hostId),
-		}
-		resp, err := client.ListHostStatus(&request)
+		hostResp, err := getHostFunc(client, epsId, hostId)
 		if err != nil {
-			return unprotectedHostId, "ERROR", err
-		}
-		if resp == nil || len(*resp.DataList) < 1 {
-			return unprotectedHostId, "PENDING", nil
+			return "", "ERROR", err
 		}
 
-		hostList := *resp.DataList
-		if *hostList[0].ProtectStatus == string(ProtectStatusClosed) {
-			unprotectedHostId = *hostList[0].HostId
+		protectStatus := utils.PathSearch("protect_status", hostResp, "").(string)
+		if hostResp == nil || protectStatus == "" {
+			return "", "PENDING", nil
 		}
+
+		if protectStatus == string(ProtectStatusClosed) {
+			unprotectedHostId = hostId
+		}
+
 		return unprotectedHostId, "COMPLETED", nil
 	}
 }
 
-func resourceHostGroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	client, err := cfg.HcHssV5Client(region)
-	if err != nil {
-		return diag.Errorf("error creating HSS v5 client: %s", err)
+func buildCreateOrUpdateHostGroupQueryParams(epsId string) string {
+	if epsId != "" {
+		return fmt.Sprintf("?enterprise_project_id=%v", epsId)
 	}
 
+	return ""
+}
+
+func buildCreateHostGroupBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"group_name":   d.Get("name"),
+		"host_id_list": utils.ExpandToStringListBySet(d.Get("host_ids").(*schema.Set)),
+	}
+	return bodyParams
+}
+
+func resourceHostGroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
+		cfg       = meta.(*config.Config)
+		region    = cfg.GetRegion(d)
+		product   = "hss"
+		epsId     = cfg.GetEnterpriseProjectID(d)
 		groupName = d.Get("name").(string)
 		hostIds   = utils.ExpandToStringListBySet(d.Get("host_ids").(*schema.Set))
-		epsId     = common.GetEnterpriseProjectID(d, cfg)
-
-		request = hssv5model.AddHostsGroupRequest{
-			Region:              region,
-			EnterpriseProjectId: utils.StringIgnoreEmpty(epsId),
-			Body: &hssv5model.AddHostsGroupRequestInfo{
-				GroupName:  groupName,
-				HostIdList: hostIds,
-			},
-		}
+		mErr      *multierror.Error
 	)
 
-	unprotected, err := checkAllHostsAvailable(ctx, client, epsId, hostIds, d.Timeout(schema.TimeoutCreate))
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.FromErr(err)
-	}
-	log.Printf("[DEBUG] All hosts are availabile.")
-	if len(unprotected) > 1 {
-		log.Printf("[WARN] These hosts are not protected: %#v", unprotected)
-		d.Set("unprotect_host_ids", unprotected)
-	}
-	_, err = client.AddHostsGroup(&request)
-	if err != nil {
-		return diag.Errorf("error creating host group: %s", err)
+		return diag.Errorf("error creating HSS client: %s", err)
 	}
 
-	allHostGroups, err := queryHostGroups(client, region, epsId, groupName)
+	// Before creating, check if all hosts can be accessed and obtain a list of all host IDs that have not enabled
+	// host protection.
+	unprotectedIDs, err := checkAllHostsAvailable(ctx, client, epsId, hostIds, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	if len(allHostGroups) < 1 {
-		return common.CheckDeletedDiag(d, err, "host group")
+
+	if len(unprotectedIDs) > 0 {
+		mErr = multierror.Append(nil, d.Set("unprotect_host_ids", unprotectedIDs))
 	}
-	d.SetId(*allHostGroups[0].GroupId)
+	if err = mErr.ErrorOrNil(); err != nil {
+		return diag.Errorf("error saving `unprotect_host_ids` field in creation operation: %s", err)
+	}
+
+	createPath := client.Endpoint + "v5/{project_id}/host-management/groups"
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+	createPath += buildCreateOrUpdateHostGroupQueryParams(epsId)
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"region": region},
+		JSONBody:         buildCreateHostGroupBodyParams(d),
+	}
+
+	_, err = client.Request("POST", createPath, &createOpt)
+	if err != nil {
+		return diag.Errorf("error creating HSS host group: %s", err)
+	}
+
+	hostGroups, err := queryHostGroupsByName(client, region, epsId, groupName)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	if len(hostGroups) < 1 {
+		return diag.Errorf("error creating HSS host group: after successful creation, host group is not found " +
+			"in query API response")
+	}
+
+	groupId := utils.PathSearch("group_id", hostGroups[0], "").(string)
+	if groupId == "" {
+		return diag.Errorf("error creating HSS host group: ID is not found in API response")
+	}
+
+	d.SetId(groupId)
 
 	return resourceHostGroupRead(ctx, d, meta)
 }
 
-func queryHostGroups(client *hssv5.HssClient, region, epsId, name string) ([]hssv5model.HostGroupItem, error) {
+func buildQueryHostGroupsByNameQueryParams(epsId, groupName string) string {
+	queryParams := "?limit=20"
+	if epsId != "" {
+		queryParams += fmt.Sprintf("&enterprise_project_id=%v", epsId)
+	}
+	if groupName != "" {
+		queryParams += fmt.Sprintf("&group_name=%v", groupName)
+	}
+
+	return queryParams
+}
+
+func queryHostGroupsByName(client *golangsdk.ServiceClient, region, epsId, groupName string) ([]interface{}, error) {
+	getPath := client.Endpoint + "v5/{project_id}/host-management/groups"
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath += buildQueryHostGroupsByNameQueryParams(epsId, groupName)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"region": region},
+	}
+
 	var (
-		offset        int32
-		limit         int32
-		allHostGroups []hssv5model.HostGroupItem = make([]hssv5model.HostGroupItem, 0)
+		offset = 0
+		result = make([]interface{}, 0)
 	)
+
+	// The `name` parameter is a fuzzy match, so pagination must be used to retrieve all data related to that name.
 	for {
-		response, err := client.ListHostGroups(&hssv5model.ListHostGroupsRequest{
-			Region:              region,
-			EnterpriseProjectId: utils.StringIgnoreEmpty(epsId),
-			GroupName:           utils.StringIgnoreEmpty(name),
-			Offset:              utils.Int32IgnoreEmpty(offset),
-			Limit:               utils.Int32IgnoreEmpty(limit),
-		})
+		currentPath := fmt.Sprintf("%s&offset=%v", getPath, offset)
+		getResp, err := client.Request("GET", currentPath, &getOpt)
 		if err != nil {
-			return nil, fmt.Errorf("error fetching host group: %s", err)
+			return nil, fmt.Errorf("error retrieving HSS host groups, %s", err)
 		}
 
-		if response != nil && response.DataList != nil {
-			allHostGroups = append(allHostGroups, *response.DataList...)
+		getRespBody, err := utils.FlattenResponse(getResp)
+		if err != nil {
+			return nil, err
 		}
 
-		if response == nil || offset >= *response.TotalNum || len(*response.DataList) == 0 {
+		hostGroupsResp := utils.PathSearch("data_list", getRespBody, make([]interface{}, 0)).([]interface{})
+		if len(hostGroupsResp) == 0 {
 			break
 		}
 
-		offset += *response.TotalNum
+		result = append(result, hostGroupsResp...)
+		offset += len(hostGroupsResp)
 	}
 
-	return allHostGroups, nil
+	return result, nil
 }
 
-func QueryHostGroupById(client *hssv5.HssClient, region, epsId, groupId string) (*hssv5model.HostGroupItem, error) {
-	allHostGroups, err := queryHostGroups(client, region, epsId, "")
+func filterHostGroupById(allHostGroups []interface{}, groupId string) interface{} {
+	for _, hostGroup := range allHostGroups {
+		if utils.PathSearch("group_id", hostGroup, "").(string) == groupId {
+			return hostGroup
+		}
+	}
+
+	return nil
+}
+
+func QueryHostGroupById(client *golangsdk.ServiceClient, region, epsId, groupId string) (interface{}, error) {
+	allHostGroups, err := queryHostGroupsByName(client, region, epsId, "")
 	if err != nil {
 		return nil, err
 	}
-	filter := map[string]interface{}{
-		"GroupId": groupId,
-	}
-	result, err := utils.FilterSliceWithField(allHostGroups, filter)
-	if err != nil {
-		return nil, fmt.Errorf("erroring filting security groups list: %s", err)
+
+	hostGroup := filterHostGroupById(allHostGroups, groupId)
+	if hostGroup == nil {
+		return nil, golangsdk.ErrDefault404{}
 	}
 
-	if len(result) < 1 {
-		return nil, golangsdk.ErrDefault404{
-			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
-				Body: []byte(fmt.Sprintf("the host group (%s) does not exist", groupId)),
-			},
-		}
-	}
-	if item, ok := result[0].(hssv5model.HostGroupItem); ok {
-		return &item, nil
-	}
-	return nil, fmt.Errorf("invalid host group list, want 'hssv5model.HostGroupItem', but '%T'", result[0])
+	return hostGroup, nil
 }
 
 func resourceHostGroupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg     = meta.(*config.Config)
 		region  = cfg.GetRegion(d)
+		epsId   = cfg.GetEnterpriseProjectID(d)
 		groupId = d.Id()
-		epsId   = common.GetEnterpriseProjectID(d, cfg)
+		product = "hss"
+		mErr    *multierror.Error
 	)
 
-	client, err := cfg.HcHssV5Client(region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating HSS v5 client: %s", err)
+		return diag.Errorf("error creating HSS client: %s", err)
 	}
 
-	resp, err := QueryHostGroupById(client, region, epsId, groupId)
+	hostGroup, err := QueryHostGroupById(client, region, epsId, groupId)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "host group")
+		return common.CheckDeletedDiag(d, err, "HSS host group")
 	}
-	log.Printf("[DEBUG] The response of host group is: %#v", resp)
 
-	mErr := multierror.Append(nil,
-		d.Set("region", cfg.GetRegion(d)),
-		d.Set("name", resp.GroupName),
-		d.Set("host_ids", resp.HostIdList),
-		d.Set("host_num", resp.HostNum),
-		d.Set("risk_host_num", resp.RiskHostNum),
-		d.Set("unprotect_host_num", resp.UnprotectHostNum),
+	mErr = multierror.Append(nil,
+		d.Set("region", region),
+		d.Set("name", utils.PathSearch("group_name", hostGroup, nil)),
+		d.Set("host_ids", utils.ExpandToStringList(utils.PathSearch("host_id_list", hostGroup, make([]interface{}, 0)).([]interface{}))),
+		d.Set("host_num", utils.PathSearch("host_num", hostGroup, nil)),
+		d.Set("risk_host_num", utils.PathSearch("risk_host_num", hostGroup, nil)),
+		d.Set("unprotect_host_num", utils.PathSearch("unprotect_host_num", hostGroup, nil)),
 	)
+
+	if len(d.Get("unprotect_host_ids").([]interface{})) == 0 {
+		// The reason for writing an empty array to `unprotect_host_ids` is to avoid unexpected changes
+		mErr = multierror.Append(mErr, d.Set("unprotect_host_ids", make([]string, 0)))
+	}
 
 	if err = mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error saving host group fields: %s", err)
 	}
+
 	return nil
 }
 
-func resourceHostGroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	client, err := cfg.HcHssV5Client(region)
-	if err != nil {
-		return diag.Errorf("error creating HSS v5 client: %s", err)
+func buildUpdateHostGroupBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"group_name":   d.Get("name"),
+		"group_id":     d.Id(),
+		"host_id_list": utils.ExpandToStringListBySet(d.Get("host_ids").(*schema.Set)),
 	}
 
-	var (
-		groupId   = d.Id()
-		groupName = d.Get("name").(string)
-		hostIds   = utils.ExpandToStringListBySet(d.Get("host_ids").(*schema.Set))
-		epsId     = common.GetEnterpriseProjectID(d, cfg)
+	return bodyParams
+}
 
-		request = hssv5model.ChangeHostsGroupRequest{
-			Region:              region,
-			EnterpriseProjectId: utils.StringIgnoreEmpty(epsId),
-			Body: &hssv5model.ChangeHostsGroupRequestInfo{
-				GroupId:    groupId,
-				GroupName:  utils.StringIgnoreEmpty(groupName),
-				HostIdList: &hostIds,
-			},
-		}
+func resourceHostGroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		epsId   = cfg.GetEnterpriseProjectID(d)
+		product = "hss"
+		hostIds = utils.ExpandToStringListBySet(d.Get("host_ids").(*schema.Set))
+		mErr    *multierror.Error
 	)
 
-	unprotected, err := checkAllHostsAvailable(ctx, client, epsId, hostIds, d.Timeout(schema.TimeoutUpdate))
+	client, err := cfg.NewServiceClient(product, region)
+	if err != nil {
+		return diag.Errorf("error creating HSS client: %s", err)
+	}
+
+	unprotectedIDs, err := checkAllHostsAvailable(ctx, client, epsId, hostIds, d.Timeout(schema.TimeoutUpdate))
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	log.Printf("[DEBUG] All hosts are availabile.")
-	if len(unprotected) > 1 {
-		log.Printf("[WARN] These hosts are not protected: %#v", unprotected)
-		d.Set("unprotect_host_ids", unprotected)
+
+	if len(unprotectedIDs) > 0 {
+		mErr = multierror.Append(nil, d.Set("unprotect_host_ids", unprotectedIDs))
 	}
-	_, err = client.ChangeHostsGroup(&request)
+	if err = mErr.ErrorOrNil(); err != nil {
+		return diag.Errorf("error saving `unprotect_host_ids` field in update operation: %s", err)
+	}
+
+	updatePath := client.Endpoint + "v5/{project_id}/host-management/groups"
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath += buildCreateOrUpdateHostGroupQueryParams(epsId)
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"region": region},
+		JSONBody:         buildUpdateHostGroupBodyParams(d),
+	}
+
+	_, err = client.Request("PUT", updatePath, &updateOpt)
 	if err != nil {
-		return diag.Errorf("error updating host group: %s", err)
+		return diag.Errorf("error updating HSS host group: %s", err)
 	}
 
 	return resourceHostGroupRead(ctx, d, meta)
 }
 
-func resourceHostGroupDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	client, err := cfg.HcHssV5Client(cfg.GetRegion(d))
-	if err != nil {
-		return diag.Errorf("error creating HSS v5 client: %s", err)
+func buildDeleteHostGroupQueryParams(epsId, groupId string) string {
+	queryParams := fmt.Sprintf("?group_id=%v", groupId)
+	if epsId != "" {
+		queryParams += fmt.Sprintf("&enterprise_project_id=%v", epsId)
 	}
 
-	var (
-		groupId = d.Id()
+	return queryParams
+}
 
-		request = hssv5model.DeleteHostsGroupRequest{
-			Region:              cfg.GetRegion(d),
-			EnterpriseProjectId: utils.StringIgnoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
-			GroupId:             groupId,
-		}
+func resourceHostGroupDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		epsId   = cfg.GetEnterpriseProjectID(d)
+		groupId = d.Id()
+		product = "hss"
 	)
 
-	_, err = client.DeleteHostsGroup(&request)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error deleting host group (%s): %s", groupId, err)
+		return diag.Errorf("error creating HSS client: %s", err)
+	}
+
+	deletePath := client.Endpoint + "v5/{project_id}/host-management/groups"
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath += buildDeleteHostGroupQueryParams(epsId, groupId)
+	deleteOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"region": region},
+	}
+
+	_, err = client.Request("DELETE", deletePath, &deleteOpt)
+	// The API error when deleting non-existent resource is as follows:
+	// {
+	// "error_code": "HSS.1019",
+	// "error_description": "查询服务器组信息失败",
+	// "error_msg": "查询服务器组信息失败"
+	// }
+	if err != nil {
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", "HSS.1019"),
+			"error deleting HSS host group")
 	}
 
 	return nil

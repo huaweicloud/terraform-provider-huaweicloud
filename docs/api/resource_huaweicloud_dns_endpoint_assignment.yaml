@@ -1,0 +1,31 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dns_endpoint_assignment
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DNS
+paths:
+    /v1/{project_id}/subnets:
+        GET:
+            tag: VPC
+    /v2.1/endpoints:
+        POST:
+            tag: DNS
+    /v2.1/endpoints/{endpoint_id}:
+        DELETE:
+            tag: DNS
+        GET:
+            tag: DNS
+        PUT:
+            tag: DNS
+    /v2.1/endpoints/{endpoint_id}/ipaddresses:
+        GET:
+            tag: DNS
+        POST:
+            tag: DNS
+    /v2.1/endpoints/{endpoint_id}/ipaddresses/{ipaddress_id}:
+        DELETE:
+            tag: DNS

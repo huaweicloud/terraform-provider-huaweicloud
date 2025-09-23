@@ -1,0 +1,71 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dbss_instances": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instances": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "availability_zone": "string",
+                      "charge_model": "string",
+                      "config_num": "number",
+                      "connect_ip": "string",
+                      "connect_ipv6": "string",
+                      "cpu": "number",
+                      "created_at": "string",
+                      "database_limit": "number",
+                      "description": "string",
+                      "effect": "number",
+                      "expired_at": "string",
+                      "instance_id": "string",
+                      "keep_days": "string",
+                      "name": "string",
+                      "new_version": "string",
+                      "port_id": "string",
+                      "ram": "number",
+                      "region": "string",
+                      "remain_days": "string",
+                      "resource_id": "string",
+                      "resource_spec_code": "string",
+                      "scene": "string",
+                      "security_group_id": "string",
+                      "specification": "string",
+                      "status": "string",
+                      "subnet_id": "string",
+                      "task": "string",
+                      "version": "string",
+                      "vpc_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The instance information list.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DBSS",
+            "name": "Database Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据库安全服务",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

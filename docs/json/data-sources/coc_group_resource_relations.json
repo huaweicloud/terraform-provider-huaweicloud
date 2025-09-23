@@ -1,0 +1,156 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_coc_group_resource_relations": {
+          "block": {
+            "attributes": {
+              "agent_state": {
+                "type": "string",
+                "optional": true
+              },
+              "application_id": {
+                "type": "string",
+                "optional": true
+              },
+              "az_id": {
+                "type": "string",
+                "optional": true
+              },
+              "charging_mode": {
+                "type": "string",
+                "optional": true
+              },
+              "cloud_service_name": {
+                "type": "string",
+                "required": true
+              },
+              "component_id": {
+                "type": "string",
+                "optional": true
+              },
+              "data": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "agent_id": "string",
+                      "agent_state": "string",
+                      "cloud_service_name": "string",
+                      "cmdb_resource_id": "string",
+                      "create_time": "string",
+                      "domain_id": "string",
+                      "ep_id": "string",
+                      "ep_name": "string",
+                      "group_id": "string",
+                      "group_name": "string",
+                      "id": "string",
+                      "ingest_properties": "string",
+                      "inner_ip": "string",
+                      "name": "string",
+                      "operable": "string",
+                      "project_id": "string",
+                      "properties": "string",
+                      "region_id": "string",
+                      "resource_id": "string",
+                      "tags": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "key": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ],
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "flavor_name": {
+                "type": "string",
+                "optional": true
+              },
+              "group_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "image_name": {
+                "type": "string",
+                "optional": true
+              },
+              "ip": {
+                "type": "string",
+                "optional": true
+              },
+              "ip_list": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "optional": true
+              },
+              "ip_type": {
+                "type": "string",
+                "optional": true
+              },
+              "is_collected": {
+                "type": "bool",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "os_type": {
+                "type": "string",
+                "optional": true
+              },
+              "region_id": {
+                "type": "string",
+                "optional": true
+              },
+              "resource_id_list": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "optional": true
+              },
+              "tag": {
+                "type": "string",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "required": true
+              },
+              "vendor": {
+                "type": "string",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "COC",
+            "name": "Cloud Operations Center",
+            "catalog": "Management & Governance",
+            "name_cn": "云运维中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

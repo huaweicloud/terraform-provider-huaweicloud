@@ -8,6 +8,9 @@ host: huaweicloud.com
 tags:
     - name: IMS
 paths:
+    /v1/{project_id}/jobs/{job_id}:
+        GET:
+            tag: IMS
     /v1/cloudimages/members:
         DELETE:
             tag: IMS

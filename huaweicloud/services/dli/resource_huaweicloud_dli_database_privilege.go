@@ -155,7 +155,7 @@ func GetObjectPrivilegesForSpecifiedUser(client *golangsdk.ServiceClient, object
 
 	requestResp, err := client.Request("GET", getPath, &getOpts)
 	if err != nil {
-		err = ParsePrivilegesQueryError(err, errCodeDbNotFound)
+		err = common.ConvertExpected400ErrInto404Err(err, "error_code", errCodeDbNotFound)
 		return
 	}
 	respBody, err := utils.FlattenResponse(requestResp)

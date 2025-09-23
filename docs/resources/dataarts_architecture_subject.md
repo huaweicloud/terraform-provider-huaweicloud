@@ -52,7 +52,7 @@ The following arguments are supported:
 
 * `owner` - (Required, String) Specifies the owner of the subject.
 
-* `level` - (Required, Int) Specifies the level of subject. The valid values are **1**, **2** and **3**.
+* `level` - (Required, Int) Specifies the level of subject. The valid values are `1`, `2` and `3`.
 
 * `parent_id` - (Optional, String) Specifies the parent ID of the subject.
   It's **Required** when you created a **L2** or **L3** subject.

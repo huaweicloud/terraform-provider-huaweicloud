@@ -7,6 +7,7 @@
             "attributes": {
               "category": {
                 "type": "string",
+                "description": "The category used to query the application templates.",
                 "optional": true
               },
               "id": {
@@ -15,10 +16,12 @@
               },
               "region": {
                 "type": "string",
+                "description": "The region where the application templates are located.",
                 "computed": true
               },
               "runtime": {
                 "type": "string",
+                "description": "The runtime name used to query the application templates.",
                 "optional": true
               },
               "templates": {
@@ -36,6 +39,7 @@
                     }
                   ]
                 ],
+                "description": "All application templates that match the filter parameters.",
                 "computed": true
               }
             }

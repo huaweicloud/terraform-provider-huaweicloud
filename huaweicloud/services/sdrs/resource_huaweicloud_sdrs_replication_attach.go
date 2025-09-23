@@ -22,6 +22,7 @@ import (
 // @API SDRS GET /v1/{project_id}/protected-instances/{id}
 // @API SDRS POST /v1/{project_id}/protected-instances/{instanceID}/attachreplication
 // @API SDRS DELETE /v1/{project_id}/protected-instances/{instanceID}/detachreplication/{replicationID}
+// @API SDRS GET /v1/{project_id}/jobs/{job_id}
 func ResourceReplicationAttach() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceReplicationAttachCreate,

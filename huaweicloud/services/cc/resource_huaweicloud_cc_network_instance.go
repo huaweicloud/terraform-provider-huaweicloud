@@ -7,14 +7,12 @@ package cc
 
 import (
 	"context"
-	"regexp"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -88,21 +86,11 @@ func ResourceNetworkInstance() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				Description: `The network instance name.`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[\x{4E00}-\x{9FFC}A-Za-z-_0-9.]*$`),
-						"the input is invalid"),
-					validation.StringLenBetween(1, 64),
-				),
 			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `The description about the network instance.`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[^<>]+$`),
-						"the input is invalid"),
-					validation.StringLenBetween(0, 255),
-				),
 			},
 			"instance_domain_id": {
 				Type:        schema.TypeString,
@@ -159,11 +147,11 @@ func resourceNetworkInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("network_instance.id", createNetworkInstanceRespBody)
-	if err != nil {
+	id := utils.PathSearch("network_instance.id", createNetworkInstanceRespBody, "").(string)
+	if id == "" {
 		return diag.Errorf("error creating NetworkInstance: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	return resourceNetworkInstanceRead(ctx, d, meta)
 }
@@ -330,7 +318,9 @@ func resourceNetworkInstanceDelete(_ context.Context, d *schema.ResourceData, me
 	}
 	_, err = deleteNetworkInstanceClient.Request("DELETE", deleteNetworkInstancePath, &deleteNetworkInstanceOpt)
 	if err != nil {
-		return diag.Errorf("error deleting NetworkInstance: %s", err)
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error_code", "CC.1002"),
+			"error deleting NetworkInstance")
 	}
 
 	return nil

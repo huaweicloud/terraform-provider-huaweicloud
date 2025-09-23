@@ -1,0 +1,15 @@
+info:
+    version: ""
+    title: resource_huaweicloud_elb_certificate_private_key_echo
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: ELB
+paths:
+    /v3/{project_id}/elb/certificates/settings/private-key-echo:
+        GET:
+            tag: ELB
+        POST:
+            tag: ELB

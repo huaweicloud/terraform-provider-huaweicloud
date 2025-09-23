@@ -1,0 +1,72 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dms_rocketmq_message_traces": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the instance ID.",
+                "required": true
+              },
+              "message_id": {
+                "type": "string",
+                "description": "Specifies the message ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "traces": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "body_length": "number",
+                      "client_host": "string",
+                      "consume_status": "number",
+                      "cost_time": "number",
+                      "from_transaction_check": "bool",
+                      "group_name": "string",
+                      "keys": "string",
+                      "message_id": "string",
+                      "message_type": "string",
+                      "offset_message_id": "string",
+                      "request_id": "string",
+                      "retry_times": "number",
+                      "store_host": "string",
+                      "success": "bool",
+                      "tags": "string",
+                      "time": "string",
+                      "topic": "string",
+                      "trace_type": "string",
+                      "transaction_id": "string",
+                      "transaction_state": "string"
+                    }
+                  ]
+                ],
+                "description": "Specifies the message trace list.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "RocketMQ",
+            "name": "Distributed Message Service for RocketMQ",
+            "catalog": "Middleware",
+            "name_cn": "分布式消息服务 RocketMQ",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

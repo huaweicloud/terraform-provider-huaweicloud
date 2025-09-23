@@ -1,0 +1,39 @@
+info:
+    version: ""
+    title: resource_huaweicloud_identitycenter_application_instance
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: IdentityCenter
+paths:
+    /v1/instances/{instance_id}/application-instances:
+        POST:
+            tag: IdentityCenter
+    /v1/instances/{instance_id}/application-instances/{application_instance_id}:
+        DELETE:
+            tag: IdentityCenter
+        GET:
+            tag: IdentityCenter
+    /v1/instances/{instance_id}/application-instances/{application_instance_id}/display-data:
+        PUT:
+            tag: IdentityCenter
+    /v1/instances/{instance_id}/application-instances/{application_instance_id}/metadata:
+        POST:
+            tag: IdentityCenter
+    /v1/instances/{instance_id}/application-instances/{application_instance_id}/response-configuration:
+        PUT:
+            tag: IdentityCenter
+    /v1/instances/{instance_id}/application-instances/{application_instance_id}/response-schema-configuration:
+        PUT:
+            tag: IdentityCenter
+    /v1/instances/{instance_id}/application-instances/{application_instance_id}/security-configuration:
+        PUT:
+            tag: IdentityCenter
+    /v1/instances/{instance_id}/application-instances/{application_instance_id}/service-provider-configuration:
+        PUT:
+            tag: IdentityCenter
+    /v1/instances/{instance_id}/application-instances/{application_instance_id}/status:
+        PUT:
+            tag: IdentityCenter

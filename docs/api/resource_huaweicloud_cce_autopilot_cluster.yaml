@@ -1,0 +1,32 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cce_autopilot_cluster
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CCE
+paths:
+    /autopilot/v3/projects/{project_id}/clusters:
+        POST:
+            tag: CCE
+    /autopilot/v3/projects/{project_id}/clusters/{cluster_id}:
+        DELETE:
+            tag: CCE
+        GET:
+            tag: CCE
+        PUT:
+            tag: CCE
+    /autopilot/v3/projects/{project_id}/clusters/{cluster_id}/mastereip:
+        PUT:
+            tag: CCE
+    /autopilot/v3/projects/{project_id}/clusters/{cluster_id}/tags/create:
+        POST:
+            tag: CCE
+    /autopilot/v3/projects/{project_id}/clusters/{cluster_id}/tags/delete:
+        POST:
+            tag: CCE
+    /autopilot/v3/projects/{project_id}/jobs/{job_id}:
+        GET:
+            tag: CCE

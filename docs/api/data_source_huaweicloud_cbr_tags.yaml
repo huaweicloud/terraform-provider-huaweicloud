@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_cbr_tags
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CBR
+paths:
+    /v3/{project_id}/vault/tags:
+        GET:
+            tag: CBR

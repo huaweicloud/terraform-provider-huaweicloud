@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"strconv"
 	"strings"
 	"time"
 
@@ -12,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/block_devices"
@@ -24,12 +26,15 @@ import (
 
 // @API ECS POST /v1/{project_id}/cloudservers/{server_id}/attachvolume
 // @API ECS GET /v1/{project_id}/cloudservers/{server_id}/block_device/{volume_id}
+// @API ECS GET /v1/{project_id}/cloudservers/{server_id}
+// @API ECS PUT /v1/{project_id}/cloudservers/{server_id}/block_device/{volume_id}
 // @API ECS DELETE /v1/{project_id}/cloudservers/{server_id}/detachvolume/{volume_id}
 // @API ECS GET /v1/{project_id}/jobs/{job_id}
 func ResourceComputeVolumeAttach() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceComputeVolumeAttachCreate,
 		ReadContext:   resourceComputeVolumeAttachRead,
+		UpdateContext: resourceComputeVolumeAttachUpdate,
 		DeleteContext: resourceComputeVolumeAttachDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -65,6 +70,12 @@ func ResourceComputeVolumeAttach() *schema.Resource {
 				Computed:         true,
 				Optional:         true,
 				DiffSuppressFunc: utils.SuppressDiffAll,
+			},
+			"delete_on_termination": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
 			},
 
 			"pci_address": {
@@ -128,6 +139,13 @@ func resourceComputeVolumeAttachCreate(ctx context.Context, d *schema.ResourceDa
 	id := fmt.Sprintf("%s/%s", instanceId, volumeId)
 	d.SetId(id)
 
+	if v, ok := d.GetOk("delete_on_termination"); ok && v == "true" {
+		err = updateDeleteOnTermination(computeClient, d)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceComputeVolumeAttachRead(ctx, d, meta)
 }
 
@@ -149,7 +167,14 @@ func resourceComputeVolumeAttachRead(_ context.Context, d *schema.ResourceData, 
 		return common.CheckDeletedDiag(d, parseRequestError(err), "error fetching compute_volume_attach")
 	}
 
-	log.Printf("[DEBUG] Retrieved volume attachment: %#v", attachment)
+	var deleteOnTermination string
+	instance, err := getComputeInstance(computeClient, instanceId)
+	if err != nil {
+		log.Printf("[WARN] failed to fetch ECS instance(%s): %s", instance, err)
+	} else {
+		searchExp := fmt.Sprintf(`server."os-extended-volumes:volumes_attached"[?id=='%s']|[0].delete_on_termination`, volumeId)
+		deleteOnTermination = utils.PathSearch(searchExp, instance, "").(string)
+	}
 
 	mErr := multierror.Append(nil,
 		d.Set("instance_id", attachment.ServerId),
@@ -157,9 +182,78 @@ func resourceComputeVolumeAttachRead(_ context.Context, d *schema.ResourceData, 
 		d.Set("device", attachment.Device),
 		d.Set("region", region),
 		d.Set("pci_address", attachment.PciAddress),
+		d.Set("delete_on_termination", deleteOnTermination),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func getComputeInstance(client *golangsdk.ServiceClient, instanceId string) (interface{}, error) {
+	httpUrl := "v1/{project_id}/cloudservers/{server_id}"
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{server_id}", instanceId)
+
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, fmt.Errorf("error getting ECS instance: %s", err)
+	}
+	return utils.FlattenResponse(getResp)
+}
+
+func resourceComputeVolumeAttachUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	var (
+		product = "ecs"
+	)
+	client, err := cfg.NewServiceClient(product, region)
+	if err != nil {
+		return diag.Errorf("error creating ECS client: %s", err)
+	}
+
+	if d.HasChange("delete_on_termination") {
+		err = updateDeleteOnTermination(client, d)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	return resourceComputeVolumeAttachRead(ctx, d, meta)
+}
+
+func updateDeleteOnTermination(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	httpUrl := "v1/{project_id}/cloudservers/{server_id}/block_device/{volume_id}"
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{server_id}", d.Get("instance_id").(string))
+	updatePath = strings.ReplaceAll(updatePath, "{volume_id}", d.Get("volume_id").(string))
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	updateOpt.JSONBody = utils.RemoveNil(buildUpdateComputeVolumeAttachBodyParams(d))
+
+	_, err := client.Request("PUT", updatePath, &updateOpt)
+	if err != nil {
+		return fmt.Errorf("error updating ECS volume attach: %s", err)
+	}
+	return nil
+}
+
+func buildUpdateComputeVolumeAttachBodyParams(d *schema.ResourceData) map[string]interface{} {
+	deleteOnTermination, _ := strconv.ParseBool(d.Get("delete_on_termination").(string))
+	bodyParams := map[string]interface{}{
+		"delete_on_termination": deleteOnTermination,
+	}
+	return map[string]interface{}{
+		"block_device": bodyParams,
+	}
 }
 
 func resourceComputeVolumeAttachDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

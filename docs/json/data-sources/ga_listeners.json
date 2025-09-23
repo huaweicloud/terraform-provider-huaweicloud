@@ -29,6 +29,20 @@
                       "client_affinity": "string",
                       "created_at": "string",
                       "description": "string",
+                      "frozen_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "effect": "number",
+                            "scene": [
+                              "list",
+                              "string"
+                            ],
+                            "status": "number"
+                          }
+                        ]
+                      ],
                       "id": "string",
                       "name": "string",
                       "port_ranges": [

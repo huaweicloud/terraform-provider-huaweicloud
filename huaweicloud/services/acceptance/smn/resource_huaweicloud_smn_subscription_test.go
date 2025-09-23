@@ -89,6 +89,9 @@ func TestAccSMNV2Subscription_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName1, "endpoint", "mailtest@gmail.com"),
 					resource.TestCheckResourceAttr(resourceName2, "endpoint", "13600000000"),
 					resource.TestCheckResourceAttr(resourceName3, "endpoint", "https://test.com"),
+					resource.TestCheckResourceAttr(resourceName3, "extension.#", "1"),
+					resource.TestCheckResourceAttr(resourceName3, "extension.0.header.%", "1"),
+					resource.TestCheckResourceAttr(resourceName3, "extension.0.header.X-Custom-Header", "test"),
 					resource.TestCheckResourceAttrPair(
 						resourceName4, "endpoint", "huaweicloud_fgs_function.test", "urn"),
 				),
@@ -172,6 +175,12 @@ resource "huaweicloud_smn_subscription" "subscription_3" {
   endpoint  = "https://test.com"
   protocol  = "https"
   remark    = "O&M"
+
+  extension {
+    header = {
+      "X-Custom-Header" = "test"
+    }
+  }
 }
 
 resource "huaweicloud_smn_subscription" "subscription_4" {

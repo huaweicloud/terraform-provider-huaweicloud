@@ -29,10 +29,13 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource. If omitted, the
   provider-level region will be used. Changing this creates a new resource.
 
-* `organization` - (Required, String, ForceNew) Specifies the name of the organization (namespace) the repository belongs.
-  Changing this creates a new resource.
+* `organization` - (Required, String, ForceNew) Specifies the name of the organization (namespace) the repository
+  belongs. Changing this creates a new resource.
 
-* `name` - (Required, String, ForceNew) Specifies the name of the repository. Changing this creates a new resource.
+* `name` - (Required, String, ForceNew) Specifies the name of the repository.  
+  The valid length is limited from `1` to `128`, only lowercase letters, digits, periods (.), hyphens (-) and
+  underscores (_) are allowed. Periods, underscores, and hyphens cannot be placed next to each other.
+  A maximum of two consecutive underscores are allowed. Changing this creates a new resource.
 
 * `is_public` - (Optional, Bool) Specifies whether the repository is public. Default is false.
   + `true` - Indicates the repository is public.
@@ -63,6 +66,6 @@ In addition to all arguments above, the following attributes are exported:
 
 Repository can be imported using the organization name and repository name separated by a slash, e.g.:
 
-```
+```bash
 $ terraform import huaweicloud_swr_repository.test org-name/repo-name
 ```

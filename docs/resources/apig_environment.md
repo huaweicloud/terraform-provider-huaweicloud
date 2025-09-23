@@ -54,6 +54,6 @@ In addition to all arguments above, the following attributes are exported:
 
 Environments can be imported using their `name` and the ID of the related dedicated instance, separated by a slash, e.g.
 
-```
-$ terraform import huaweicloud_apig_environment.test &ltinstance_id&gt/&ltname&gt
+```bash
+$ terraform import huaweicloud_apig_environment.test <instance_id>/<name>
 ```

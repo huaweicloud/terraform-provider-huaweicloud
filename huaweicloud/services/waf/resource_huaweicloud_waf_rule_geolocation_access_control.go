@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -87,21 +86,22 @@ func ResourceRuleGeolocation() *schema.Resource {
 
 func resourceRuleGeolocationCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg     = meta.(*config.Config)
-		region  = cfg.GetRegion(d)
-		httpUrl = "v1/{project_id}/waf/policy/{policy_id}/geoip"
-		product = "waf"
+		cfg      = meta.(*config.Config)
+		region   = cfg.GetRegion(d)
+		httpUrl  = "v1/{project_id}/waf/policy/{policy_id}/geoip"
+		product  = "waf"
+		policyID = d.Get("policy_id").(string)
 	)
 	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating WAF Client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
-	createPath := client.Endpoint + httpUrl
-	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
-	createPath = strings.ReplaceAll(createPath, "{policy_id}", d.Get("policy_id").(string))
-	createPath += buildQueryParams(d, cfg)
-	createOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{policy_id}", policyID)
+	requestPath += buildQueryParams(d, cfg)
+	requestOpt := golangsdk.RequestOpts{
 		MoreHeaders: map[string]string{
 			"Content-Type": "application/json;charset=utf8",
 		},
@@ -109,21 +109,21 @@ func resourceRuleGeolocationCreate(ctx context.Context, d *schema.ResourceData, 
 		JSONBody:         buildCreateBodyParams(d),
 	}
 
-	createResp, err := client.Request("POST", createPath, &createOpt)
+	resp, err := client.Request("POST", requestPath, &requestOpt)
 	if err != nil {
 		return diag.Errorf("error creating WAF geolocation access control rule: %s", err)
 	}
 
-	createRespBody, err := utils.FlattenResponse(createResp)
+	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("id", createRespBody)
-	if err != nil {
+	ruleId := utils.PathSearch("id", respBody, "").(string)
+	if ruleId == "" {
 		return diag.Errorf("error creating WAF geolocation access control rule: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(ruleId)
 
 	return resourceRuleGeolocationRead(ctx, d, meta)
 }
@@ -148,27 +148,28 @@ func resourceRuleGeolocationRead(_ context.Context, d *schema.ResourceData, meta
 	)
 	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating WAF Client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
-	getPath := client.Endpoint + httpUrl
-	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
-	getPath = strings.ReplaceAll(getPath, "{policy_id}", d.Get("policy_id").(string))
-	getPath = strings.ReplaceAll(getPath, "{rule_id}", d.Id())
-	getPath += buildQueryParams(d, cfg)
-	getOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{policy_id}", d.Get("policy_id").(string))
+	requestPath = strings.ReplaceAll(requestPath, "{rule_id}", d.Id())
+	requestPath += buildQueryParams(d, cfg)
+	requestOpt := golangsdk.RequestOpts{
 		MoreHeaders: map[string]string{
 			"Content-Type": "application/json;charset=utf8",
 		},
 		KeepResponseBody: true,
 	}
 
-	getResp, err := client.Request("GET", getPath, &getOpt)
+	resp, err := client.Request("GET", requestPath, &requestOpt)
 	if err != nil {
+		// If the rule does not exist, the response HTTP status code of the details API is 404.
 		return common.CheckDeletedDiag(d, err, "error retrieving WAF geolocation access control rule")
 	}
 
-	getRespBody, err := utils.FlattenResponse(getResp)
+	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -176,12 +177,12 @@ func resourceRuleGeolocationRead(_ context.Context, d *schema.ResourceData, meta
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),
-		d.Set("name", utils.PathSearch("name", getRespBody, nil)),
-		d.Set("policy_id", utils.PathSearch("policyid", getRespBody, nil)),
-		d.Set("geolocation", utils.PathSearch("geoip", getRespBody, nil)),
-		d.Set("action", utils.PathSearch("white", getRespBody, nil)),
-		d.Set("status", utils.PathSearch("status", getRespBody, nil)),
-		d.Set("description", utils.PathSearch("description", getRespBody, nil)),
+		d.Set("name", utils.PathSearch("name", respBody, nil)),
+		d.Set("policy_id", utils.PathSearch("policyid", respBody, nil)),
+		d.Set("geolocation", utils.PathSearch("geoip", respBody, nil)),
+		d.Set("action", utils.PathSearch("white", respBody, nil)),
+		d.Set("status", utils.PathSearch("status", respBody, nil)),
+		d.Set("description", utils.PathSearch("description", respBody, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -192,7 +193,7 @@ func resourceRuleGeolocationUpdate(ctx context.Context, d *schema.ResourceData, 
 	region := cfg.GetRegion(d)
 	client, err := cfg.NewServiceClient("waf", region)
 	if err != nil {
-		return diag.Errorf("error creating WAF Client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
 	updateRuleGeolocationChanges := []string{
@@ -202,12 +203,12 @@ func resourceRuleGeolocationUpdate(ctx context.Context, d *schema.ResourceData, 
 		"description",
 	}
 	if d.HasChanges(updateRuleGeolocationChanges...) {
-		updatePath := client.Endpoint + "v1/{project_id}/waf/policy/{policy_id}/geoip/{rule_id}"
-		updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
-		updatePath = strings.ReplaceAll(updatePath, "{policy_id}", d.Get("policy_id").(string))
-		updatePath = strings.ReplaceAll(updatePath, "{rule_id}", d.Id())
-		updatePath += buildQueryParams(d, cfg)
-		updateOpt := golangsdk.RequestOpts{
+		requestPath := client.Endpoint + "v1/{project_id}/waf/policy/{policy_id}/geoip/{rule_id}"
+		requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+		requestPath = strings.ReplaceAll(requestPath, "{policy_id}", d.Get("policy_id").(string))
+		requestPath = strings.ReplaceAll(requestPath, "{rule_id}", d.Id())
+		requestPath += buildQueryParams(d, cfg)
+		requestOpt := golangsdk.RequestOpts{
 			MoreHeaders: map[string]string{
 				"Content-Type": "application/json;charset=utf8",
 			},
@@ -215,7 +216,7 @@ func resourceRuleGeolocationUpdate(ctx context.Context, d *schema.ResourceData, 
 			JSONBody:         utils.RemoveNil(buildUpdateBodyParams(d)),
 		}
 
-		_, err := client.Request("PUT", updatePath, &updateOpt)
+		_, err := client.Request("PUT", requestPath, &requestOpt)
 		if err != nil {
 			return diag.Errorf("error updating WAF geolocation access control rule: %s", err)
 		}
@@ -240,31 +241,33 @@ func buildUpdateBodyParams(d *schema.ResourceData) map[string]interface{} {
 
 func resourceRuleGeolocationDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg     = meta.(*config.Config)
-		region  = cfg.GetRegion(d)
-		httpUrl = "v1/{project_id}/waf/policy/{policy_id}/geoip/{rule_id}"
-		product = "waf"
+		cfg      = meta.(*config.Config)
+		region   = cfg.GetRegion(d)
+		httpUrl  = "v1/{project_id}/waf/policy/{policy_id}/geoip/{rule_id}"
+		product  = "waf"
+		policyID = d.Get("policy_id").(string)
 	)
 	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating WAF Client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
-	deletePath := client.Endpoint + httpUrl
-	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
-	deletePath = strings.ReplaceAll(deletePath, "{policy_id}", d.Get("policy_id").(string))
-	deletePath = strings.ReplaceAll(deletePath, "{rule_id}", d.Id())
-	deletePath += buildQueryParams(d, cfg)
-	deleteOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{policy_id}", policyID)
+	requestPath = strings.ReplaceAll(requestPath, "{rule_id}", d.Id())
+	requestPath += buildQueryParams(d, cfg)
+	requestOpt := golangsdk.RequestOpts{
 		MoreHeaders: map[string]string{
 			"Content-Type": "application/json;charset=utf8",
 		},
 		KeepResponseBody: true,
 	}
 
-	_, err = client.Request("DELETE", deletePath, &deleteOpt)
+	_, err = client.Request("DELETE", requestPath, &requestOpt)
 	if err != nil {
-		return diag.Errorf("error deleting WAF geolocation access control rule: %s", err)
+		// If the rule does not exist, the response HTTP status code of the deletion API is 404.
+		return common.CheckDeletedDiag(d, err, "error deleting WAF geolocation access control rule")
 	}
 
 	return nil

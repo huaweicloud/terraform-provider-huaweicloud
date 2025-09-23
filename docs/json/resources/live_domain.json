@@ -9,6 +9,12 @@
                 "type": "string",
                 "computed": true
               },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "id": {
                 "type": "string",
                 "computed": true
@@ -16,6 +22,11 @@
               "ingest_domain_name": {
                 "type": "string",
                 "optional": true
+              },
+              "is_ipv6": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
               },
               "name": {
                 "type": "string",
@@ -25,6 +36,12 @@
               "region": {
                 "type": "string",
                 "computed": true
+              },
+              "service_area": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
               },
               "status": {
                 "type": "string",

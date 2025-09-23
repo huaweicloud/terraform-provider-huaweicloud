@@ -19,6 +19,13 @@
                 "computed": true,
                 "forcenew": true
               },
+              "extension_info": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
               "fingerprint": {
                 "type": "string",
                 "optional": true,
@@ -100,7 +107,28 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
+              }
+            },
+            "block_types": {
+              "shadow": {
+                "block": {
+                  "attributes": {
+                    "desired": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "required": true
+                    },
+                    "service_id": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
               }
             }
           },

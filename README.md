@@ -40,7 +40,7 @@ Using the provider
 
 Please see the documentation at [provider usage](docs/index.md).
 
-Or you can browse the documentation within this repo [here](https://github.com/huaweicloud/terraform-provider-huaweicloud/tree/master/docs).
+Or you can browse the documentation within this repo [docs](https://github.com/huaweicloud/terraform-provider-huaweicloud/tree/master/docs).
 
 Developing the Provider
 -----------------------

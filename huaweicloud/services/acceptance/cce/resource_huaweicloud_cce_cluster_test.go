@@ -37,6 +37,7 @@ func TestAccCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "container_network_type", "overlay_l2"),
 					resource.TestCheckResourceAttr(resourceName, "authentication_mode", "rbac"),
 					resource.TestCheckResourceAttr(resourceName, "service_network_cidr", "10.248.0.0/16"),
+					resource.TestCheckResourceAttr(resourceName, "timezone", "Asia/Shanghai"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 				),
@@ -46,7 +47,9 @@ func TestAccCluster_basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"certificate_users.0.client_certificate_data", "kube_config_raw",
+					"certificate_users.0.client_certificate_data",
+					"certificate_users.0.client_key_data",
+					"kube_config_raw",
 				},
 			},
 			{
@@ -182,6 +185,7 @@ func TestAccCluster_turbo(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckClusterExists(resourceName, &cluster),
 					resource.TestCheckResourceAttr(resourceName, "container_network_type", "eni"),
+					resource.TestCheckResourceAttr(resourceName, "enable_dist_mgt", "true"),
 					resource.TestCheckOutput("is_eni_subnet_id_different", "false"),
 				),
 			},
@@ -491,6 +495,7 @@ resource "huaweicloud_cce_cluster" "test" {
   subnet_id              = huaweicloud_vpc_subnet.test.id
   container_network_type = "overlay_l2"
   service_network_cidr   = "10.248.0.0/16"
+  timezone               = "Asia/Shanghai"
 
   tags = {
     foo = "bar"
@@ -512,6 +517,7 @@ resource "huaweicloud_cce_cluster" "test" {
   container_network_type = "overlay_l2"
   service_network_cidr   = "10.248.0.0/16"
   description            = "new description"
+  timezone               = "Asia/Shanghai"
 
   tags = {
     foo        = "bar_update"
@@ -626,6 +632,7 @@ resource "huaweicloud_cce_cluster" "test" {
   vpc_id                 = huaweicloud_vpc.test.id
   subnet_id              = huaweicloud_vpc_subnet.test.id
   container_network_type = "eni"
+  enable_dist_mgt        = true
   eni_subnet_id          = join(",", huaweicloud_vpc_subnet.eni_test[*].ipv4_subnet_id)
 }
 

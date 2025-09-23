@@ -2,16 +2,23 @@
 subcategory: "Image Management Service (IMS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_images_image"
-description: ""
+description: |-
+  Use this data source to get an available IMS image within HuaweiCloud.
 ---
 
 # huaweicloud_images_image
 
-Use this data source to get the ID of an available HuaweiCloud image.
+Use this data source to get an available IMS image within HuaweiCloud.
 
 ## Example Usage
 
 ```hcl
+variable "image_id" {}
+
+data "huaweicloud_images_image" "test" {
+  image_id = var.image_id
+}
+
 data "huaweicloud_images_image" "ubuntu" {
   name        = "Ubuntu 18.04 server 64bit"
   visibility  = "public"
@@ -20,7 +27,6 @@ data "huaweicloud_images_image" "ubuntu" {
 
 data "huaweicloud_images_image" "centos-1" {
   architecture = "x86"
-  os_version   = "CentOS 7.4 64bit"
   visibility   = "public"
   most_recent  = true
 }
@@ -35,7 +41,6 @@ data "huaweicloud_images_image" "centos-2" {
 data "huaweicloud_images_image" "bms_image" {
   architecture = "x86"
   image_type   = "Ironic"
-  os_version   = "CentOS 7.4 64bit"
   visibility   = "public"
   most_recent  = true
 }
@@ -43,62 +48,97 @@ data "huaweicloud_images_image" "bms_image" {
 
 ## Argument Reference
 
-* `region` - (Optional, String) The region in which to obtain the images. If omitted, the provider-level region will be
-  used.
+* `region` - (Optional, String) Specifies the region in which to obtain the images.
+  If omitted, the provider-level region will be used.
 
-* `most_recent` - (Optional, Bool) If more than one result is returned, use the latest updated image.
+* `most_recent` - (Optional, Bool) Specifies whether to return the latest updated image if the query returns more than
+  results. The valid value is **true** or **false**. Defaults to **false**.
 
-* `name` - (Optional, String) The name of the image. Cannot be used simultaneously with `name_regex`.
+* `image_id` - (Optional, String) Specifies the ID of the image.
 
-* `name_regex` - (Optional, String) The regular expression of the name of the image.
+* `name` - (Optional, String) Specifies the name of the image. Cannot be used simultaneously with `name_regex`.
+
+* `name_regex` - (Optional, String) Specifies the regular expression of the name of the image.
   Cannot be used simultaneously with `name`.
 
-* `visibility` - (Optional, String) The visibility of the image. Must be one of
-  **public**, **private**, **market** or **shared**.
+* `image_type` - (Optional, String) Specifies the environment where the image is used.
+  The valid values are as follows:
+  + **FusionCompute**: Cloud server image, also known as system disk image.
+  + **DataImage**: Data disk image.
+  + **Ironic**: Bare metal server image.
+  + **IsoImage**: ISO image.
 
-* `architecture` - (Optional, String) Specifies the image architecture type. The value can be **x86** and **arm**.
+* `is_whole_image` - (Optional, Bool) Specifies whether it is a whole image. The valid value is **true** or **false**.
+  Defaults to **false**.
 
-* `os` - (Optional, String) Specifies the image OS type. The value can be **Windows**, **Ubuntu**,
-  **RedHat**, **SUSE**, **CentOS**, **Debian**, **OpenSUSE**, **Oracle Linux**, **Fedora**, **Other**,
-  **CoreOS**, or **EulerOS**.
+* `visibility` - (Optional, String) Specifies the visibility of the image. Must be one of **public**, **private**,
+  **market** or **shared**.
 
-* `os_version` - (Optional, String) Specifies the OS version. For example, *CentOS 7.4 64bit* or *Ubuntu 18.04 server 64bit*.
-  For all its valid values, see [API docs](https://support.huaweicloud.com/intl/en-us/api-ims/ims_03_0910.html).
-
-* `image_type` - (Optional, String) Specifies the environment where the image is used. For a BMS image, the value is **Ironic**.
-
-* `owner` - (Optional, String) The owner (UUID) of the image.
-
-* `tag` - (Optional, String) Search for images with a specific tag in "Key=Value" format.
-
-* `sort_direction` - (Optional, String) Order the results in either `asc` or `desc`.
-
-* `sort_key` - (Optional, String) Sort images based on a certain key. Must be one of
-  "name", "container_format", "disk_format", "status", "id" or "size". Defaults to `name`.
-
-* `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID of the image.
+* `owner` - (Optional, String) Specifies the owner (UUID) of the image.
 
 * `flavor_id` - (Optional, String) Specifies the ECS flavor ID used to filter out available images.
   You can specify only one flavor ID and only ECS flavor ID is valid, BMS flavor is not supported.
+
+* `sort_key` - (Optional, String) Specifies which field to use for sorting. The valid values are **name**,
+  **container_format**, **disk_format**, **status**, **id**, **size**, and **created_at**. Defaults to **name**.
+
+* `sort_direction` - (Optional, String) Specifies whether to sort the query results in ascending or descending order.
+  The valid values are as follows:
+  + **asc**: Ascending order.
+  + **desc**: Descending order.
+
+  Defaults to **asc**.
+
+* `os` - (Optional, String) Specifies the image OS type. The value can be **Windows**, **Ubuntu**, **RedHat**, **SUSE**,
+  **CentOS**, **Debian**, **OpenSUSE**, **Oracle Linux**, **Fedora**, **Other**, **CoreOS**, or **EulerOS**.
+
+* `architecture` - (Optional, String) Specifies the image architecture type. The value can be **x86** or **arm**.
+
+* `tag` - (Optional, String) Specifies the image tag in **Key=Value** format.
+  
+* `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID of the image.
+  For enterprise users, if omitted, will query the images under all enterprise projects.
 
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - Specifies a resource ID in UUID format.
-* `checksum` - The checksum of the data associated with the image.
+* `id` - The data source ID, same as `image_id`.
+
+* `os_version` - The operating system version of the image.
+
+* `file` - The image file download and upload links.
+
+* `schema` - The image view.
+
+* `status` - The status of the image. The valid value is **active**.
+
+* `description` - The description of the image.
+
+* `protected` - Indicates whether the image is protected, protected images cannot be deleted.
+  The valid value is **true** or **false**.
+
 * `container_format` - The format of the image's container.
-* `disk_format` - The format of the image's disk.
-* `file` - the trailing path after the glance endpoint that represent the location of the image or the path to retrieve
-  it.
-* `metadata` - The metadata associated with the image. Image metadata allow for meaningfully define the image properties
-  and tags.
-* `min_disk_gb` - The minimum amount of disk space required to use the image.
-* `min_ram_mb` - The minimum amount of ram required to use the image.
-* `protected` - Whether or not the image is protected.
-* `schema` - The path to the JSON-schema that represent the image or image.
-* `size_bytes` - The size of the image (in bytes).
-* `status` - The status of the image.
+
+* `min_ram_mb` - The minimum memory required to run an image, in MB unit.
+
+* `max_ram_mb` - The maximum memory supported by the image, in MB unit.
+
+* `min_disk_gb` - The minimum disk space required to run an image, in GB unit.
+  + When the operating system is Linux, the value ranges from `10` to `1,024`.
+  + When the operating system is Windows, the value ranges from `20` to `1,024`.
+
+* `disk_format` - The image format. The value can be **zvhd2**, **vhd**, **zvhd**, **raw**, **qcow2**, or **iso**.
+
+* `data_origin` - The image source. The format is **server_backup,backup_id**,  **instance,instance_id**,
+  **server_backup,vault_id**,  **volume,volume_id**, **file,image_url**, or **image,region,image_id**.
+
 * `backup_id` - The backup ID of the whole image in the CBR vault.
-* `created_at` - The date when the image was created.
-* `updated_at` - The date when the image was last updated.
+
+* `size_bytes` - The size of the image file, in bytes unit.
+
+* `active_at` - The time when the image status changes to active, in RFC3339 format.
+
+* `created_at` - The creation time of the image, in RFC3339 format.
+
+* `updated_at` - The last update time of the image, in RFC3339 format.

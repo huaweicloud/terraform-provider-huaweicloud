@@ -79,6 +79,6 @@ This resource provides the following timeouts configuration options:
 
 Volumes can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_blockstorage_volume_v2.volume_1 ea257959-eeb1-4c10-8d33-26f0409a755d
 ```

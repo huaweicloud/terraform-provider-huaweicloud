@@ -1,0 +1,74 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_gaussdb_mysql_scheduled_task_cancel": {
+          "block": {
+            "attributes": {
+              "create_time": {
+                "type": "string",
+                "computed": true
+              },
+              "datastore_type": {
+                "type": "string",
+                "computed": true
+              },
+              "end_time": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_name": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_status": {
+                "type": "string",
+                "computed": true
+              },
+              "job_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "job_name": {
+                "type": "string",
+                "computed": true
+              },
+              "job_status": {
+                "type": "string",
+                "computed": true
+              },
+              "project_id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "start_time": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDBforMySQL",
+            "name": "GaussDB(for MySQL)",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB(for MySQL)",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

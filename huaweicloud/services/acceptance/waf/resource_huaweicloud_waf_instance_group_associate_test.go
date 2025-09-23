@@ -26,8 +26,9 @@ func TestAccWafInsGroupAssociate_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			// The WAF group APIs do not support general user usage. Skip the WAF group test.
 			acceptance.TestAccPrecheckWafInstance(t)
+			// WAF group is an internal feature that does not require running test cases on a daily basis.
+			acceptance.TestAccPreCheckWafGroup(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),

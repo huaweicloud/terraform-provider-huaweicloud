@@ -1,0 +1,65 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_mysql_proxy_flavors": {
+          "block": {
+            "attributes": {
+              "flavor_groups": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "flavors": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "az_status": [
+                              "map",
+                              "string"
+                            ],
+                            "db_type": "string",
+                            "id": "string",
+                            "ram": "string",
+                            "spec_code": "string",
+                            "vcpus": "string"
+                          }
+                        ]
+                      ],
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of flavor groups.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of GaussDB MySQL Instance.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDBforMySQL",
+            "name": "GaussDB(for MySQL)",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB(for MySQL)",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

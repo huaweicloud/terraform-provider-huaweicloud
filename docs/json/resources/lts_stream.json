@@ -28,6 +28,11 @@
                 "type": "string",
                 "computed": true
               },
+              "is_favorite": {
+                "type": "bool",
+                "description": "Whether to favorite the log stream.",
+                "optional": true
+              },
               "region": {
                 "type": "string",
                 "computed": true
@@ -42,12 +47,13 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "ttl_in_days": {
                 "type": "number",
                 "optional": true,
-                "forcenew": true
+                "computed": true
               }
             }
           },

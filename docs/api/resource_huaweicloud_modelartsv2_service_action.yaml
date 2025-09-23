@@ -1,0 +1,19 @@
+info:
+    version: ""
+    title: resource_huaweicloud_modelartsv2_service_action
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: ModelArts
+paths:
+    /v2/{project_id}/services/{service_id}/interrupt:
+        POST:
+            tag: ModelArts
+    /v2/{project_id}/services/{service_id}/start:
+        POST:
+            tag: ModelArts
+    /v2/{project_id}/services/{service_id}/stop:
+        POST:
+            tag: ModelArts

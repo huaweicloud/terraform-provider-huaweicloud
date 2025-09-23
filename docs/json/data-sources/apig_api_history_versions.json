@@ -1,0 +1,70 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_apig_api_history_versions": {
+          "block": {
+            "attributes": {
+              "api_id": {
+                "type": "string",
+                "description": "The ID of the API.",
+                "required": true
+              },
+              "api_versions": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "api_id": "string",
+                      "env_id": "string",
+                      "env_name": "string",
+                      "id": "string",
+                      "number": "string",
+                      "publish_time": "string",
+                      "remark": "string",
+                      "status": "number"
+                    }
+                  ]
+                ],
+                "description": "The list of the API history versions that matched filter parameters.",
+                "computed": true
+              },
+              "env_id": {
+                "type": "string",
+                "description": "The ID of the environment.",
+                "optional": true
+              },
+              "env_name": {
+                "type": "string",
+                "description": "The name of the environment.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the dedicated instance to which the API belongs.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the API history versions are located.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

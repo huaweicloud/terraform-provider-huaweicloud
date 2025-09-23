@@ -1,0 +1,9 @@
+turbo_name    = "cbr-test-turbo"
+turbo_size    = 500
+vpc_name      = "cbr-test-vpc"
+subnet_name   = "cbr-test-subnet"
+secgroup_name = "cbr-test-sg"
+vault_name    = "cbr-vault-turbo"
+vault_size    = 1000
+enable_policy = true
+is_multi_az   = true

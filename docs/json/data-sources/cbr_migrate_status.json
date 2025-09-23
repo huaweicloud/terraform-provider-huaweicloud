@@ -1,0 +1,59 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cbr_migrate_status": {
+          "block": {
+            "attributes": {
+              "all_regions": {
+                "type": "bool",
+                "description": "Specifies whether to query the migration results in other regions.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "project_status": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "fail_code": "number",
+                      "fail_reason": "string",
+                      "progress": "number",
+                      "project_id": "string",
+                      "project_name": "string",
+                      "region_id": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "description": "List of project migration status details.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region in which to query the datasource.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The overall migration status.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CBR",
+            "name": "Cloud Backup and Recovery",
+            "catalog": "Storage",
+            "name_cn": "云备份",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}

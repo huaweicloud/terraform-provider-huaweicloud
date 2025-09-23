@@ -14,7 +14,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/pagination"
@@ -119,11 +118,11 @@ func resourceDwsAlarmSubsCreate(ctx context.Context, d *schema.ResourceData, met
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("id", createDwsAlarmSubsRespBody)
-	if err != nil {
-		return diag.Errorf("error creating DWS alarm subscription: ID is not found in API response")
+	subscriptionId := utils.PathSearch("id", createDwsAlarmSubsRespBody, "").(string)
+	if subscriptionId == "" {
+		return diag.Errorf("unable to find the DWS alarm subscription ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(subscriptionId)
 
 	return resourceDwsAlarmSubsRead(ctx, d, meta)
 }

@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -105,11 +104,11 @@ func resourceSmnMessageTemplateCreate(ctx context.Context, d *schema.ResourceDat
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("message_template_id", createMessageTemplateRespBody)
-	if err != nil {
+	id := utils.PathSearch("message_template_id", createMessageTemplateRespBody, "").(string)
+	if id == "" {
 		return diag.Errorf("error creating SMN message template: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	return resourceSmnMessageTemplateRead(ctx, d, meta)
 }
@@ -149,9 +148,6 @@ func resourceSmnMessageTemplateUpdate(ctx context.Context, d *schema.ResourceDat
 
 		updateMessageTemplateOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
-			OkCodes: []int{
-				200,
-			},
 		}
 		updateMessageTemplateOpt.JSONBody = utils.RemoveNil(buildUpdateMessageTemplateBodyParams(d))
 		_, err = updateMessageTemplateClient.Request("PUT", updateMessageTemplatePath, &updateMessageTemplateOpt)
@@ -192,9 +188,6 @@ func resourceSmnMessageTemplateRead(_ context.Context, d *schema.ResourceData, m
 
 	getMessageTemplateOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
 	getMessageTemplateResp, err := getMessageTemplateClient.Request("GET",
 		getMessageTemplatePath, &getMessageTemplateOpt)
@@ -242,13 +235,10 @@ func resourceSmnMessageTemplateDelete(_ context.Context, d *schema.ResourceData,
 
 	deleteMessageTemplateOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
 	_, err = deleteMessageTemplateClient.Request("DELETE", deleteMessageTemplatePath, &deleteMessageTemplateOpt)
 	if err != nil {
-		return diag.Errorf("error deleting SMN message template: %s", err)
+		return common.CheckDeletedDiag(d, err, "error deleting SMN message template")
 	}
 
 	return nil

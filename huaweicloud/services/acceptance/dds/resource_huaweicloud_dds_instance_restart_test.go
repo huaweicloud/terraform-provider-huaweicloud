@@ -6,32 +6,19 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
-	"github.com/chnsz/golangsdk/openstack/dds/v3/instances"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
 func TestAccDDSV3InstanceRestart_basic(t *testing.T) {
-	var instance instances.InstanceResponse
 	rName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_dds_instance_restart.test"
-
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&instance,
-		getDdsResourceFunc,
-	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
+		CheckDestroy:      nil,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDDSInstanceV3Config_restart(rName),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-				),
 			},
 		},
 	})

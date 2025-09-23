@@ -7,7 +7,7 @@
             "attributes": {
               "begin_time": {
                 "type": "string",
-                "description": "Indicates the start time of the backup. The format is yyyy-mm-dd hh:mm:ss.\nThe value is in UTC format.",
+                "description": "Indicates the start time of the backup.",
                 "computed": true
               },
               "datastore": {
@@ -26,14 +26,14 @@
               },
               "description": {
                 "type": "string",
-                "description": "Specifies the manual backup description",
+                "description": "Specifies the manual backup description.",
                 "optional": true,
                 "computed": true,
                 "forcenew": true
               },
               "end_time": {
                 "type": "string",
-                "description": "Indicates the end time of the backup. The format is yyyy-mm-dd hh:mm:ss.\nThe value is in UTC format.",
+                "description": "Indicates the end time of the backup.",
                 "computed": true
               },
               "id": {

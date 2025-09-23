@@ -9,7 +9,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -130,7 +129,6 @@ func ResourceDataServiceApi() *schema.Resource {
 			"request_params": {
 				Type:        schema.TypeSet,
 				Optional:    true,
-				Computed:    true,
 				Elem:        apiRequestParamsElemSchema(),
 				Description: `The parameters of the API request.`,
 			},
@@ -179,7 +177,7 @@ func ResourceDataServiceApi() *schema.Resource {
 			"hosts": {
 				Type:        schema.TypeList,
 				Computed:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString},
+				Elem:        apiHostsSchema(),
 				Description: `The API host configuration, for exclusive type.`,
 			},
 		},
@@ -330,7 +328,6 @@ func apiDataSourceConfigResponseParamsElemSchema() *schema.Resource {
 			"example_value": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Computed:    true,
 				Description: `The example value of the response parameter.`,
 			},
 		},
@@ -526,30 +523,62 @@ func apiBackendConfigConstantParamsElemSchema() *schema.Resource {
 	return &sc
 }
 
+func apiHostsSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"instance_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The cluster ID to which the API belongs.`,
+			},
+			"instance_name": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The cluster name to which the API belongs.`,
+			},
+			"intranet_host": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The intranet address.`,
+			},
+			"external_host": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The exrernal address.`,
+			},
+			"domains": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `The list of gateway damains.`,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+		},
+	}
+	return &sc
+}
+
 func buildModifyDataServiceApiBodyParams(client *golangsdk.ServiceClient, d *schema.ResourceData, workspaceId string) map[string]interface{} {
 	bodyParams := map[string]interface{}{
+		// Required
 		"catalog_id":        d.Get("catalog_id"),
 		"name":              d.Get("name"),
-		"description":       d.Get("description"),
 		"api_type":          d.Get("type"),
 		"auth_type":         d.Get("auth_type"),
-		"manager":           d.Get("manager"),
-		"path":              d.Get("path"),
 		"protocol":          d.Get("protocol"),
+		"path":              d.Get("path"),
 		"request_type":      d.Get("request_type"),
-		"visibility":        d.Get("visibility"),
-		"request_paras":     buildApiRequestParamsBodyParams(d.Get("request_params").(*schema.Set)),
+		"manager":           d.Get("manager"),
 		"datasource_config": buildApiDataSourceConfigBodyParams(client, workspaceId, d.Get("datasource_config").([]interface{})),
-		"backend_config":    buildApiBackendConfigBodyParams(d.Get("backend_config").([]interface{})),
+		// Optional
+		"description":    d.Get("description"),
+		"visibility":     d.Get("visibility"),
+		"request_paras":  buildApiRequestParamsBodyParams(d.Get("request_params").(*schema.Set)),
+		"backend_config": utils.RemoveNil(buildApiBackendConfigBodyParams(d.Get("backend_config").([]interface{}))),
 	}
 	return bodyParams
 }
 
 func buildApiRequestParamsBodyParams(params *schema.Set) []interface{} {
-	if params.Len() < 1 {
-		return nil
-	}
-
 	result := make([]interface{}, 0, params.Len())
 	for _, val := range params.List() {
 		result = append(result, map[string]interface{}{
@@ -729,14 +758,14 @@ func buildApiBackendConfigBodyParams(params []interface{}) map[string]interface{
 
 	// The default integer triggers the structure change.
 	return map[string]interface{}{
-		"type":     utils.StringIgnoreEmpty(utils.PathSearch("type", params[0], "").(string)),
-		"protocol": utils.StringIgnoreEmpty(utils.PathSearch("protocol", params[0], "").(string)),
-		"host":     utils.StringIgnoreEmpty(utils.PathSearch("host", params[0], "").(string)),
-		"path":     utils.StringIgnoreEmpty(utils.PathSearch("path", params[0], "").(string)),
-		"timeout":  utils.IntIgnoreEmpty(utils.PathSearch("timeout", params[0], 0).(int)),
+		"type":     utils.ValueIgnoreEmpty(utils.PathSearch("type", params[0], "").(string)),
+		"protocol": utils.ValueIgnoreEmpty(utils.PathSearch("protocol", params[0], "").(string)),
+		"host":     utils.ValueIgnoreEmpty(utils.PathSearch("host", params[0], "").(string)),
+		"path":     utils.ValueIgnoreEmpty(utils.PathSearch("path", params[0], "").(string)),
+		"timeout":  utils.ValueIgnoreEmpty(utils.PathSearch("timeout", params[0], 0).(int)),
 		"backend_paras": buildApiBackendConfigBackendParamsBodyParams(utils.PathSearch("backend_params",
 			params[0], schema.NewSet(schema.HashString, nil)).(*schema.Set)),
-		"constant_paras": buildApiBackendConfigConstantParamsBodyParams(utils.PathSearch("backend_params",
+		"constant_paras": buildApiBackendConfigConstantParamsBodyParams(utils.PathSearch("constant_params",
 			params[0], schema.NewSet(schema.HashString, nil)).(*schema.Set)),
 	}
 }
@@ -798,7 +827,7 @@ func resourceDataServiceApiCreate(ctx context.Context, d *schema.ResourceData, m
 			"workspace":    workspaceId,
 			"Dlm-Type":     dlmType,
 		},
-		JSONBody: utils.RemoveNil(buildModifyDataServiceApiBodyParams(client, d, workspaceId)),
+		JSONBody: buildModifyDataServiceApiBodyParams(client, d, workspaceId),
 	}
 
 	requestResp, err := client.Request("POST", createPath, &opt)
@@ -811,11 +840,11 @@ func resourceDataServiceApiCreate(ctx context.Context, d *schema.ResourceData, m
 		return diag.FromErr(err)
 	}
 
-	apiId, err := jmespath.Search("id", respBody)
-	if err != nil || apiId == "" {
-		return diag.Errorf("the API ID does not found in the API response")
+	apiId := utils.PathSearch("id", respBody, "").(string)
+	if apiId == "" {
+		return diag.Errorf("unable to find the DataArts DataService API ID from the API response")
 	}
-	d.SetId(apiId.(string))
+	d.SetId(apiId)
 
 	return resourceDataServiceApiRead(ctx, d, meta)
 }
@@ -837,7 +866,7 @@ func GetDataServiceApi(client *golangsdk.ServiceClient, workspaceId, dlmType, ap
 
 	requestResp, err := client.Request("GET", getPath, &opt)
 	if err != nil {
-		return nil, ParseQueryError400(err, apiResourceNotFoundCodes)
+		return nil, common.ConvertExpected400ErrInto404Err(err, "error_code", apiResourceNotFoundCodes...)
 	}
 	return utils.FlattenResponse(requestResp)
 }
@@ -1134,7 +1163,7 @@ func resourceDataServiceApiUpdate(ctx context.Context, d *schema.ResourceData, m
 			"workspace":    workspaceId,
 			"Dlm-Type":     dlmType,
 		},
-		JSONBody: utils.RemoveNil(buildModifyDataServiceApiBodyParams(client, d, workspaceId)),
+		JSONBody: buildModifyDataServiceApiBodyParams(client, d, workspaceId),
 	}
 
 	_, err = client.Request("PUT", createPath, &opt)
@@ -1179,7 +1208,8 @@ func resourceDataServiceApiDelete(_ context.Context, d *schema.ResourceData, met
 
 	_, err = client.Request("POST", createPath, &opt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, ParseQueryError400(err, apiResourceNotFoundCodesForDelete), fmt.Sprintf("error deleting API (%s)", apiId))
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", apiResourceNotFoundCodesForDelete...),
+			fmt.Sprintf("error deleting API (%s)", apiId))
 	}
 	return nil
 }

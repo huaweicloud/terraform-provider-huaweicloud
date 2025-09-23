@@ -1,0 +1,64 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_opengauss_restorable_instances": {
+          "block": {
+            "attributes": {
+              "backup_id": {
+                "type": "string",
+                "description": "Specifies the instance backup ID.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instances": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "data_volume_size": "number",
+                      "instance_id": "string",
+                      "instance_mode": "string",
+                      "instance_name": "string",
+                      "mode": "string",
+                      "version": "string",
+                      "volume_type": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the instances that can be used for backups and restorations.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "restore_time": {
+                "type": "string",
+                "description": "Specifies the time point of data restoration in the UNIX timestamp format.",
+                "optional": true
+              },
+              "source_instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the GaussDB OpenGauss instance to be restored.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDB",
+            "name": "GaussDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

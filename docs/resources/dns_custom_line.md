@@ -2,7 +2,8 @@
 subcategory: "Domain Name Service (DNS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_dns_custom_line"
-description: ""
+description: |-
+  Manages a DNS custom line resource within HuaweiCloud.
 ---
 
 # huaweicloud_dns_custom_line
@@ -32,22 +33,23 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `name` - (Required, String) Specifies the custom line name.
-  The value consists of 1 to 80 characters including chinese and english letters, digits, hyphens (-), underscores (_),
-  and periods (.). The name of each resolution line set by one account must be unique.
+* `name` - (Required, String) Specifies the custom line name.  
+  The value consists of `1` to `80` characters including Chinese characters, English letters, digits, hyphens (-),
+  underscores (_) and dots (.). The name of each resolution line set by one account must be unique.
 
-* `ip_segments` - (Required, List) Specifies the IP address range.
+* `ip_segments` - (Required, List) Specifies the IP address range.  
   The start IP address is separated from the end IP address with a hyphen (-). The IP address ranges cannot overlap.
   If the start and end IP addresses are the same, there is only one IP address in the range. Set the value to
-  IP1-IP1. Currently, only IPv4 addresses are supported. You can specify a maximum of 50 IP address ranges.
+  `IP1-IP1`. Currently, only IPv4 addresses are supported. You can specify a maximum of `50` IP address ranges.
 
-* `description` - (Optional, String) Specifies the custom line description. A maximum of 255 characters are allowed.
+* `description` - (Optional, String) Specifies the custom line description.  
+  A maximum of `255` characters are allowed.
 
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - The resource ID.
+* `id` - The resource ID, also custom line ID.
 
 * `status` - The resource status.
 
@@ -64,5 +66,5 @@ This resource provides the following timeouts configuration options:
 The DNS custom line can be imported using the `id`, e.g.
 
 ```bash
-$ terraform import huaweicloud_dns_custom_line.test 0ce123456a00f2591fabc00385ff1234
+$ terraform import huaweicloud_dns_custom_line.test <id>
 ```

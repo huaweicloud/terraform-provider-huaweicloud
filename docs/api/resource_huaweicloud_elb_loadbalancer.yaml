@@ -8,6 +8,9 @@ host: huaweicloud.com
 tags:
     - name: ELB
 paths:
+    /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrat:
+        POST:
+            tag: EPS
     /v1/{project_id}/publicips/{publicip_id}:
         DELETE:
             tag: EIP

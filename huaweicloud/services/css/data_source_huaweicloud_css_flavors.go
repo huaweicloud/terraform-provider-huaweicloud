@@ -123,11 +123,11 @@ func dataSourceCssFlavorsRead(_ context.Context, d *schema.ResourceData, meta in
 	}
 
 	if v, ok := d.GetOk("vcpus"); ok {
-		filter["Cpu"] = v
+		filter["CPU"] = v
 	}
 
 	if v, ok := d.GetOk("memory"); ok {
-		filter["Ram"] = v
+		filter["RAM"] = v
 	}
 
 	filterFlavors, err := utils.FilterSliceWithField(allFlavors, filter)

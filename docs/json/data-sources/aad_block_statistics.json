@@ -1,0 +1,50 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_aad_block_statistics": {
+          "block": {
+            "attributes": {
+              "automatic_unblocking_times": {
+                "type": "number",
+                "description": "The automatic unblocking times.",
+                "computed": true
+              },
+              "current_blocked_ip_numbers": {
+                "type": "number",
+                "description": "The current blocked IP number.",
+                "computed": true
+              },
+              "domain_id": {
+                "type": "string",
+                "description": "Specified the account ID of IAM user.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "manual_unblocking_times": {
+                "type": "number",
+                "description": "The manual unblocking times.",
+                "computed": true
+              },
+              "total_unblocking_times": {
+                "type": "number",
+                "description": "The total unblocking times.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "AAD",
+            "name": "Advanced Anti-DDoS",
+            "catalog": "Security & Compliance",
+            "name_cn": "DDoS高防",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,162 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_natv3_gateway": {
+          "block": {
+            "attributes": {
+              "auto_renew": {
+                "type": "string",
+                "optional": true
+              },
+              "billing_info": {
+                "type": "string",
+                "description": "The order information of the NAT gateway.",
+                "computed": true
+              },
+              "bps_max": {
+                "type": "number",
+                "description": "The bandwidth that the NAT gateway can receive or send per second.",
+                "computed": true
+              },
+              "charging_mode": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the NAT gateway.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the NAT gateway.",
+                "optional": true
+              },
+              "dnat_rules_limit": {
+                "type": "number",
+                "description": "The maximum number of DNAT rules on the NAT gateway.",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The enterprise project ID of the NAT gateway.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The NAT gateway name.",
+                "required": true
+              },
+              "ngport_ip_address": {
+                "type": "string",
+                "description": "The IP address used for the NG port of the NAT gateway.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "period": {
+                "type": "number",
+                "optional": true,
+                "forcenew": true
+              },
+              "period_unit": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "pps_max": {
+                "type": "number",
+                "description": "The number of packets that the NAT gateway can receive or send per second.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the NAT gateway is located.",
+                "computed": true
+              },
+              "snat_rule_public_ip_limit": {
+                "type": "number",
+                "description": "The maximum number of SNAT rules on the NAT gateway.",
+                "computed": true
+              },
+              "spec": {
+                "type": "string",
+                "description": "The specification of the NAT gateway.",
+                "required": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The current status of the NAT gateway.",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "description": "The network ID of the downstream interface (the next hop of the DVR) of the NAT gateway.",
+                "required": true,
+                "forcenew": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "description": "The ID of the VPC to which the NAT gateway belongs.",
+                "required": true,
+                "forcenew": true
+              }
+            },
+            "block_types": {
+              "session_conf": {
+                "block": {
+                  "attributes": {
+                    "icmp_session_expire_time": {
+                      "type": "number",
+                      "description": "The ICMP session expiration time.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "tcp_session_expire_time": {
+                      "type": "number",
+                      "description": "The TCP session expiration time.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "tcp_time_wait_time": {
+                      "type": "number",
+                      "description": "The duration of TIME_WAIT state when TCP connection is closed.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "udp_session_expire_time": {
+                      "type": "number",
+                      "description": "The UDP session expiration time.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "The session configuration of the NAT gateway."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

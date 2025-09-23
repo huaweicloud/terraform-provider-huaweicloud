@@ -14,8 +14,7 @@
                   "list",
                   "string"
                 ],
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "binlog_retention_hours": {
                 "type": "number",
@@ -24,8 +23,7 @@
               "charging_mode": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "collation": {
                 "type": "string",
@@ -67,6 +65,10 @@
                 "type": "string",
                 "computed": true
               },
+              "is_flexus": {
+                "type": "bool",
+                "optional": true
+              },
               "lower_case_table_names": {
                 "type": "string",
                 "optional": true,
@@ -79,6 +81,11 @@
               },
               "maintain_end": {
                 "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "minor_version_auto_upgrade_enabled": {
+                "type": "bool",
                 "optional": true,
                 "computed": true
               },
@@ -108,18 +115,15 @@
               },
               "period": {
                 "type": "number",
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "period_unit": {
                 "type": "string",
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "power_action": {
                 "type": "string",
-                "optional": true,
-                "computed": true
+                "optional": true
               },
               "private_dns_name_prefix": {
                 "type": "string",
@@ -152,6 +156,10 @@
                 "optional": true
               },
               "region": {
+                "type": "string",
+                "computed": true
+              },
+              "replication_status": {
                 "type": "string",
                 "computed": true
               },
@@ -198,6 +206,19 @@
                 "type": "string",
                 "computed": true
               },
+              "storage_used_space": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "node_id": "string",
+                      "used": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
               "subnet_id": {
                 "type": "string",
                 "required": true,
@@ -213,7 +234,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "tde_enabled": {
                 "type": "bool",

@@ -1,0 +1,82 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_aom_alarm_group_rules": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "rules": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "description": "string",
+                      "detail": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "bind_notification_rule_ids": [
+                              "list",
+                              "string"
+                            ],
+                            "match": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "key": "string",
+                                  "operate": "string",
+                                  "value": [
+                                    "list",
+                                    "string"
+                                  ]
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "enterprise_project_id": "string",
+                      "group_by": [
+                        "list",
+                        "string"
+                      ],
+                      "group_interval": "number",
+                      "group_repeat_waiting": "number",
+                      "group_wait": "number",
+                      "name": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "AOM",
+            "name": "Application Operations Management",
+            "catalog": "Management & Governance",
+            "name_cn": "应用运维管理",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

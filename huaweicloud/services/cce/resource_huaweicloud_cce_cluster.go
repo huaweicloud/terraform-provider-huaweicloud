@@ -20,7 +20,6 @@ import (
 	"github.com/chnsz/golangsdk/openstack/cce/v3/clusters"
 	"github.com/chnsz/golangsdk/openstack/cce/v3/nodes"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -88,6 +87,8 @@ func ResourceCluster() *schema.Resource {
 			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
 
+		CustomizeDiff: config.MergeDefaultTags(),
+
 		//request and response parameters
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -109,7 +110,6 @@ func ResourceCluster() *schema.Resource {
 				Type:             schema.TypeString,
 				Optional:         true,
 				Computed:         true,
-				ForceNew:         true,
 				DiffSuppressFunc: utils.SuppressVersionDiffs,
 			},
 			"cluster_type": {
@@ -121,6 +121,12 @@ func ResourceCluster() *schema.Resource {
 			"alias": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
+			},
+			"timezone": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
 				Computed: true,
 			},
 			"description": {
@@ -187,11 +193,10 @@ func ResourceCluster() *schema.Resource {
 				Description: "schema: Computed",
 			},
 			"enable_distribute_management": {
-				Type:         schema.TypeBool,
-				Optional:     true,
-				ForceNew:     true,
-				RequiredWith: []string{"eni_subnet_id", "eni_subnet_cidr"},
-				Description:  "schema: Internal",
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
 			},
 			"authentication_mode": {
 				Type:     schema.TypeString,
@@ -319,18 +324,38 @@ func ResourceCluster() *schema.Resource {
 			"component_configurations": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
 							Type:     schema.TypeString,
 							Required: true,
-							ForceNew: true,
 						},
 						"configurations": {
 							Type:     schema.TypeString,
 							Optional: true,
+						},
+					},
+				},
+			},
+			"encryption_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				ForceNew: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"mode": {
+							Type:     schema.TypeString,
+							Optional: true,
 							ForceNew: true,
+							Computed: true,
+						},
+						"kms_key_id": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+							Computed: true,
 						},
 					},
 				},
@@ -342,12 +367,6 @@ func ResourceCluster() *schema.Resource {
 				Computed: true,
 			},
 			"ipv6_enable": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
-			},
-			"support_istio": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: true,
@@ -375,6 +394,10 @@ func ResourceCluster() *schema.Resource {
 					"true", "try", "false",
 				}, true),
 			},
+			"lts_reclaim_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -386,6 +409,14 @@ func ResourceCluster() *schema.Resource {
 			"kube_config_raw": {
 				Type:     schema.TypeString,
 				Computed: true,
+			},
+			"support_istio": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+				Description: utils.SchemaDesc("", utils.SchemaDescInput{
+					Computed: true,
+				}),
 			},
 			"certificate_clusters": {
 				Type:     schema.TypeList,
@@ -636,6 +667,22 @@ func buildResourceClusterConfigurationsOverride(componentConfigurationsRaw []int
 	return res, nil
 }
 
+func buildResourceClusterEncryptionConfig(d *schema.ResourceData) *clusters.EncryptionConfig {
+	encryptionConfigRaw, ok := d.GetOk("encryption_config")
+	if !ok {
+		return nil
+	}
+
+	encryptionConfig := encryptionConfigRaw.([]interface{})[0]
+
+	res := clusters.EncryptionConfig{
+		Mode:     utils.PathSearch("mode", encryptionConfig, "").(string),
+		KmsKeyID: utils.PathSearch("kms_key_id", encryptionConfig, "").(string),
+	}
+
+	return &res
+}
+
 func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
 	cceClient, err := config.CceV3Client(config.GetRegion(d))
@@ -670,7 +717,9 @@ func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta int
 			Name:        clusterName,
 			Alias:       d.Get("alias").(string),
 			Labels:      resourceClusterLabels(d),
-			Annotations: resourceClusterAnnotations(d)},
+			Annotations: resourceClusterAnnotations(d),
+			Timezone:    d.Get("timezone").(string),
+		},
 
 		Spec: clusters.Spec{
 			Type:        d.Get("cluster_type").(string),
@@ -692,19 +741,25 @@ func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta int
 				Mode:                d.Get("authentication_mode").(string),
 				AuthenticatingProxy: authenticating_proxy,
 			},
-			BillingMode:          billingMode,
-			ExtendParam:          buildResourceClusterExtendParams(d, config),
-			KubernetesSvcIPRange: d.Get("service_network_cidr").(string),
-			ClusterTags:          resourceClusterTags(d),
-			CustomSan:            utils.ExpandToStringList(d.Get("custom_san").([]interface{})),
-			IPv6Enable:           d.Get("ipv6_enable").(bool),
-			KubeProxyMode:        d.Get("kube_proxy_mode").(string),
-			SupportIstio:         d.Get("support_istio").(bool),
+			BillingMode:      billingMode,
+			ExtendParam:      buildResourceClusterExtendParams(d, config),
+			ClusterTags:      resourceClusterTags(d),
+			CustomSan:        utils.ExpandToStringList(d.Get("custom_san").([]interface{})),
+			IPv6Enable:       d.Get("ipv6_enable").(bool),
+			KubeProxyMode:    d.Get("kube_proxy_mode").(string),
+			EncryptionConfig: buildResourceClusterEncryptionConfig(d),
 		},
 	}
 
 	if _, ok := d.GetOk("enable_distribute_management"); ok {
 		createOpts.Spec.EnableDistMgt = d.Get("enable_distribute_management").(bool)
+	}
+
+	if v, ok := d.GetOk("service_network_cidr"); ok {
+		serviceNetwork := clusters.ServiceNetwork{
+			IPv4Cidr: v.(string),
+		}
+		createOpts.Spec.ServiceNetwork = &serviceNetwork
 	}
 
 	masters, err := resourceClusterMasters(d)
@@ -815,6 +870,7 @@ func resourceClusterRead(_ context.Context, d *schema.ResourceData, meta interfa
 		d.Set("region", config.GetRegion(d)),
 		d.Set("name", n.Metadata.Name),
 		d.Set("alias", n.Metadata.Alias),
+		d.Set("timezone", n.Metadata.Timezone),
 		d.Set("status", n.Status.Phase),
 		d.Set("flavor_id", n.Spec.Flavor),
 		d.Set("cluster_version", n.Spec.Version),
@@ -830,14 +886,16 @@ func resourceClusterRead(_ context.Context, d *schema.ResourceData, meta interfa
 		d.Set("authentication_mode", n.Spec.Authentication.Mode),
 		d.Set("security_group_id", n.Spec.HostNetwork.SecurityGroup),
 		d.Set("enterprise_project_id", n.Spec.ExtendParam["enterpriseProjectId"]),
-		d.Set("service_network_cidr", n.Spec.KubernetesSvcIPRange),
+		d.Set("service_network_cidr", n.Spec.ServiceNetwork.IPv4Cidr),
 		d.Set("billing_mode", n.Spec.BillingMode),
 		d.Set("tags", utils.TagsToMap(n.Spec.ClusterTags)),
 		d.Set("ipv6_enable", n.Spec.IPv6Enable),
+		d.Set("enable_distribute_management", n.Spec.EnableDistMgt),
 		d.Set("kube_proxy_mode", n.Spec.KubeProxyMode),
 		d.Set("support_istio", n.Spec.SupportIstio),
 		d.Set("custom_san", n.Spec.CustomSan),
 		d.Set("category", n.Spec.Category),
+		d.Set("encryption_config", flattenEncrytionConfig(n.Spec.EncryptionConfig)),
 	)
 
 	if n.Spec.BillingMode != 0 {
@@ -926,6 +984,19 @@ func flattenEniSubnetID(eniNetwork *clusters.EniNetworkSpec) string {
 	}
 
 	return strings.Join(subnetIDs, ",")
+}
+
+func flattenEncrytionConfig(encrytionConfig *clusters.EncryptionConfig) []map[string]interface{} {
+	if encrytionConfig == nil {
+		return nil
+	}
+
+	return []map[string]interface{}{
+		{
+			"mode":       encrytionConfig.Mode,
+			"kms_key_id": encrytionConfig.KmsKeyID,
+		},
+	}
 }
 
 func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -1049,6 +1120,30 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		}
 	}
 
+	if d.HasChange("component_configurations") {
+		var (
+			updateClusterConfigurationsHttpUrl = "api/v3/projects/{project_id}/clusters/{cluster_id}/nodepools/master/configuration"
+		)
+
+		updateClusterConfigurationsPath := cceClient.Endpoint + updateClusterConfigurationsHttpUrl
+		updateClusterConfigurationsPath = strings.ReplaceAll(updateClusterConfigurationsPath, "{project_id}", cfg.GetProjectID(region))
+		updateClusterConfigurationsPath = strings.ReplaceAll(updateClusterConfigurationsPath, "{cluster_id}", clusterId)
+
+		updateClusterConfigurationsOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+		}
+
+		bodyParams, err := buildUpdateClusterConfigurationsBodyParams(d)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		updateClusterConfigurationsOpt.JSONBody = bodyParams
+		_, err = cceClient.Request("PUT", updateClusterConfigurationsPath, &updateClusterConfigurationsOpt)
+		if err != nil {
+			return diag.Errorf("error updating CCE cluster configurations: %s", err)
+		}
+	}
+
 	if d.HasChange("auto_renew") {
 		bssClient, err := cfg.BssV2Client(region)
 		if err != nil {
@@ -1060,18 +1155,59 @@ func resourceClusterUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	}
 
 	if d.HasChange("enterprise_project_id") {
-		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+		migrateOpts := config.MigrateResourceOpts{
 			ResourceId:   clusterId,
 			ResourceType: "cce-cluster",
 			RegionId:     region,
 			ProjectId:    cceClient.ProjectID,
 		}
-		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
+		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
 	return resourceClusterRead(ctx, d, meta)
+}
+
+func buildUpdateClusterConfigurationsBodyParams(d *schema.ResourceData) (map[string]interface{}, error) {
+	configurationsPackages, err := buildConfigurationsPackagesBodyParams(d)
+	if err != nil {
+		return nil, err
+	}
+	bodyParams := map[string]interface{}{
+		"apiVersion": "v3",
+		"kind":       "Configuration",
+		"metadata": map[string]interface{}{
+			"name": "configuration",
+		},
+		"spec": map[string]interface{}{
+			"packages": configurationsPackages,
+		},
+	}
+	return bodyParams, nil
+}
+
+func buildConfigurationsPackagesBodyParams(d *schema.ResourceData) ([]map[string]interface{}, error) {
+	packagesRaw := d.Get("component_configurations").([]interface{})
+	bodyParams := make([]map[string]interface{}, len(packagesRaw))
+	for i, v := range packagesRaw {
+		packageRaw := v.(map[string]interface{})
+		bodyParams[i] = map[string]interface{}{
+			"name": packageRaw["name"],
+		}
+
+		if configurationsRaw := packageRaw["configurations"].(string); configurationsRaw != "" {
+			var configurations interface{}
+			err := json.Unmarshal([]byte(configurationsRaw), &configurations)
+			if err != nil {
+				err = fmt.Errorf("error unmarshalling configurations of %s: %s", packageRaw["name"].(string), err)
+				return nil, err
+			}
+			bodyParams[i]["configurations"] = configurations
+		}
+	}
+
+	return bodyParams, nil
 }
 
 func resourceClusterDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -1105,6 +1241,8 @@ func resourceClusterDelete(ctx context.Context, d *schema.ResourceData, meta int
 			deleteOpts.DeleteSfs = d.Get("delete_sfs").(string)
 			deleteOpts.DeleteSfs30 = d.Get("delete_sfs").(string)
 		}
+
+		deleteOpts.LtsReclaimPolicy = d.Get("lts_reclaim_policy").(string)
 		err = clusters.DeleteWithOpts(cceClient, d.Id(), deleteOpts).ExtractErr()
 		if err != nil {
 			return diag.Errorf("error deleting CCE cluster: %s", err)

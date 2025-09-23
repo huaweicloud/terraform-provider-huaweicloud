@@ -1,0 +1,40 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cbr_checkpoint_sync": {
+          "block": {
+            "attributes": {
+              "auto_trigger": {
+                "type": "bool",
+                "description": "Specifies whether this checkpoint sync is automatically triggered.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to create the resource. If omitted, the provider-level\nregion will be used.",
+                "computed": true
+              },
+              "vault_id": {
+                "type": "string",
+                "description": "Specifies the ID of the hybrid cloud vault to sync checkpoints to.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "CBR",
+            "name": "Cloud Backup and Recovery",
+            "catalog": "Storage",
+            "name_cn": "云备份",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}

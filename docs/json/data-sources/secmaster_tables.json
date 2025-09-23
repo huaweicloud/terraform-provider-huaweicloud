@@ -1,0 +1,197 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_secmaster_tables": {
+          "block": {
+            "attributes": {
+              "category": {
+                "type": "string",
+                "description": "Specifies the directory type.",
+                "optional": true
+              },
+              "exists": {
+                "type": "bool",
+                "description": "Specifies whether the table exists.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "records": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "category": "string",
+                      "create_time": "number",
+                      "data_classification": "string",
+                      "data_layering": "string",
+                      "delete_time": "number",
+                      "description": "string",
+                      "directory": "string",
+                      "display_setting": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "columns": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "column_alias": "string",
+                                  "column_name": "string",
+                                  "display_by_default": "string"
+                                }
+                              ]
+                            ],
+                            "format": "string"
+                          }
+                        ]
+                      ],
+                      "format": "string",
+                      "lock_status": "string",
+                      "owner_type": "string",
+                      "pipe_id": "string",
+                      "process_error": "string",
+                      "process_status": "string",
+                      "project_id": "string",
+                      "rw_type": "string",
+                      "schema": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "columns": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "array": "bool",
+                                  "column_data_type": "string",
+                                  "column_data_type_setting": "string",
+                                  "column_display_setting": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "display_description": "string",
+                                        "display_name": "string",
+                                        "group_name": "string",
+                                        "group_sequence_number": "number",
+                                        "intra_group_sequence_number": "number",
+                                        "mapping_required": "bool",
+                                        "value_qualified": "string",
+                                        "value_type": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "column_name": "string",
+                                  "column_sequence_number": "number",
+                                  "column_type": "string",
+                                  "column_type_setting": "string",
+                                  "depth": "number",
+                                  "nullable": "bool",
+                                  "own_name": "string",
+                                  "parent_name": "string"
+                                }
+                              ]
+                            ],
+                            "partition": [
+                              "list",
+                              "string"
+                            ],
+                            "primary_key": [
+                              "list",
+                              "string"
+                            ],
+                            "time_filter": "string",
+                            "watermark_column": "string",
+                            "watermark_interval": "number"
+                          }
+                        ]
+                      ],
+                      "storage_setting": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "application_data_class_id": "string",
+                            "application_index": "string",
+                            "application_topic": "string",
+                            "index_replicas": "number",
+                            "index_shards": "number",
+                            "index_storage_period": "number",
+                            "index_storage_size": "number",
+                            "lake_expiration_status": "string",
+                            "lake_partition_setting": "string",
+                            "lake_storage_period": "number",
+                            "streaming_bandwidth": "number",
+                            "streaming_dataspace_id": "string",
+                            "streaming_partition": "number",
+                            "streaming_retention_size": "number"
+                          }
+                        ]
+                      ],
+                      "table_alias": "string",
+                      "table_id": "string",
+                      "table_name": "string",
+                      "update_time": "number",
+                      "workspace_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The tables list.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "sort_dir": {
+                "type": "string",
+                "description": "Specifies the sorting order. Supported values are **ASC** and **DESC**.",
+                "optional": true
+              },
+              "sort_key": {
+                "type": "string",
+                "description": "Specifies the attribute fields for sorting.",
+                "optional": true
+              },
+              "table_alias": {
+                "type": "string",
+                "description": "Specifies the table alias.",
+                "optional": true
+              },
+              "table_id": {
+                "type": "string",
+                "description": "Specifies the table ID.",
+                "optional": true
+              },
+              "table_name": {
+                "type": "string",
+                "description": "Specifies the table name.",
+                "optional": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "Specifies the workspace ID.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

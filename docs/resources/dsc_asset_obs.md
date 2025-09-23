@@ -2,12 +2,13 @@
 subcategory: "Data Security Center (DSC)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_dsc_asset_obs"
-description: ""
+description: |-
+  Manages an OBS asset resource of DSC within HuaweiCloud.
 ---
 
 # huaweicloud_dsc_asset_obs
 
-Manages an OBS asset resource of DSC within HuaweiCloud.  
+Manages an OBS asset resource of DSC within HuaweiCloud.
 
 ## Example Usage
 
@@ -29,13 +30,13 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `name` - (Required, String) The name of asset.  
+* `name` - (Required, String) Specifies the name of asset.
 
-* `bucket_name` - (Required, String, ForceNew) The bucket name.  
+* `bucket_name` - (Required, String, ForceNew) Specifies the bucket name.
 
   Changing this parameter will create a new resource.
 
-* `bucket_policy` - (Required, String, ForceNew) The bucket policy.  
+* `bucket_policy` - (Required, String, ForceNew) Specifies the bucket policy.
 
   Changing this parameter will create a new resource.
 
@@ -47,8 +48,8 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Import
 
-The obs asset can be imported using the `id`, e.g.
+The OBS asset resource can be imported using the `id`, e.g.
 
-```
-$ terraform import huaweicloud_dsc_asset_obs.test 0ce123456a00f2591fabc00385ff1234
+```bash
+$ terraform import huaweicloud_dsc_asset_obs.test <id>
 ```

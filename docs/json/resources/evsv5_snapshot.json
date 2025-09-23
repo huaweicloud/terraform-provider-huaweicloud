@@ -1,0 +1,134 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_evsv5_snapshot": {
+          "block": {
+            "attributes": {
+              "availability_zone": {
+                "type": "string",
+                "computed": true
+              },
+              "category": {
+                "type": "string",
+                "computed": true
+              },
+              "cmk_id": {
+                "type": "string",
+                "computed": true
+              },
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "encrypt_algorithm": {
+                "type": "string",
+                "computed": true
+              },
+              "encrypted": {
+                "type": "bool",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "incremental": {
+                "type": "bool",
+                "optional": true,
+                "default": true
+              },
+              "instant_access": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "instant_access_retention_at": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "progress": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "retention_at": {
+                "type": "string",
+                "computed": true
+              },
+              "size": {
+                "type": "number",
+                "computed": true
+              },
+              "snapshot_chains": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "availability_zone": "string",
+                      "capacity": "number",
+                      "category": "string",
+                      "created_at": "string",
+                      "id": "string",
+                      "snapshot_count": "number",
+                      "updated_at": "string",
+                      "volume_id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "snapshot_group_id": {
+                "type": "string",
+                "computed": true
+              },
+              "snapshot_type": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "computed": true
+              },
+              "volume_id": {
+                "type": "string",
+                "required": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -80,10 +80,6 @@ The following arguments are supported:
 * `destination_region` - (Optional, String) Specifies the name of the replication destination region, which is mandatory
   for cross-region replication. Required if `protection_type` is **replication**.
 
-* `enable_acceleration` - (Optional, Bool, ForceNew) Specifies whether to enable the acceleration function to shorten
-  the replication time for cross-region.  
-  Changing this will create a new policy.
-
 * `destination_project_id` - (Optional, String) Specifies the ID of the replication destination project, which is
   mandatory for cross-region replication. Required if `protection_type` is **replication**.
 
@@ -151,22 +147,4 @@ Policies can be imported by their `id`, e.g.
 
 ```bash
 $ terraform import huaweicloud_cbr_policy.test <id>
-```
-
-Note that the imported state may not be identical to your resource definition, due to the attribute missing from the
-API response. The missing attribute is: `enable_acceleration`.
-It is generally recommended running `terraform plan` after importing a policy.
-You can then decide if changes should be applied to the policy, or the resource definition should be updated to align
-with the policy. Also you can ignore changes as below.
-
-```
-resource "huaweicloud_cbr_policy" "test" {
-  ...
-
-  lifecycle {
-    ignore_changes = [
-      enable_acceleration,
-    ]
-  }
-}
 ```

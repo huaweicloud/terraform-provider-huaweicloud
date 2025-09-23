@@ -41,6 +41,12 @@
                 "type": "string",
                 "computed": true
               },
+              "ip_version": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "name": {
                 "type": "string",
                 "optional": true
@@ -81,6 +87,12 @@
                 "type": "string",
                 "computed": true
               },
+              "snat_network_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "status": {
                 "type": "string",
                 "computed": true
@@ -90,7 +102,13 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
+              },
+              "tcp_proxy": {
+                "type": "string",
+                "optional": true,
+                "computed": true
               },
               "vpc_id": {
                 "type": "string",

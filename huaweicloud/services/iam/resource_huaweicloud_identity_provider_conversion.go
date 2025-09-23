@@ -43,7 +43,6 @@ func ResourceIAMProviderConversion() *schema.Resource {
 			"conversion_rules": {
 				Type:     schema.TypeList,
 				Required: true,
-				MaxItems: 10,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"local": {
@@ -53,7 +52,7 @@ func ResourceIAMProviderConversion() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"username": {
 										Type:     schema.TypeString,
-										Required: true,
+										Optional: true,
 									},
 									"group": {
 										Type:     schema.TypeString,
@@ -65,7 +64,6 @@ func ResourceIAMProviderConversion() *schema.Resource {
 						"remote": {
 							Type:     schema.TypeList,
 							Required: true,
-							MaxItems: 10,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"attribute": {
@@ -147,11 +145,14 @@ func buildConversionRules(conversionRules []interface{}) mappings.MappingOption 
 		localRules := make([]mappings.LocalRule, 0, len(local))
 		for _, v := range local {
 			lRule := v.(map[string]interface{})
-			r := mappings.LocalRule{
-				User: mappings.LocalRuleVal{
+			var r mappings.LocalRule
+			username, ok := lRule["username"]
+			if ok && len(username.(string)) > 0 {
+				r.User = &mappings.LocalRuleVal{
 					Name: lRule["username"].(string),
-				},
+				}
 			}
+
 			group, ok := lRule["group"]
 			if ok && len(group.(string)) > 0 {
 				r.Group = &mappings.LocalRuleVal{

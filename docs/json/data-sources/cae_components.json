@@ -1,0 +1,82 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cae_components": {
+          "block": {
+            "attributes": {
+              "application_id": {
+                "type": "string",
+                "description": "The ID of the application to which the components belong.",
+                "required": true
+              },
+              "components": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "annotations": [
+                        "map",
+                        "string"
+                      ],
+                      "created_at": "string",
+                      "id": "string",
+                      "name": "string",
+                      "spec": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "available_replica": "number",
+                            "build": "string",
+                            "environment_id": "string",
+                            "image_url": "string",
+                            "replica": "number",
+                            "resource_limit": "string",
+                            "runtime": "string",
+                            "source": "string",
+                            "status": "string"
+                          }
+                        ]
+                      ],
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "All queried components.",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The ID of the enterprise project to which the components belong.",
+                "optional": true
+              },
+              "environment_id": {
+                "type": "string",
+                "description": "The ID of the environment to which the components belong.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the components are located.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CAE",
+            "name": "Cloud Application Engine",
+            "catalog": "CodeArts",
+            "name_cn": "云应用引擎",
+            "catalog_cn": "软件开发生产线"
+          }
+        }
+      }
+    }
+  }
+}

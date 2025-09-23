@@ -1,0 +1,87 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cdm_job_execution_records": {
+          "block": {
+            "attributes": {
+              "cluster_id": {
+                "type": "string",
+                "description": "Specifies the cluster ID.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "job_name": {
+                "type": "string",
+                "description": "Specifies the job name.",
+                "required": true
+              },
+              "records": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "counters": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "bytes_read": "number",
+                            "bytes_written": "number",
+                            "file_skipped": "number",
+                            "files_read": "number",
+                            "files_written": "number",
+                            "rows_read": "number",
+                            "rows_written": "number",
+                            "rows_written_skipped": "number",
+                            "total_files": "number",
+                            "total_size": "number"
+                          }
+                        ]
+                      ],
+                      "creation_date": "string",
+                      "creation_user": "string",
+                      "delete_rows": "number",
+                      "error_details": "string",
+                      "error_summary": "string",
+                      "execute_date": "string",
+                      "external_id": "string",
+                      "is_delete_job": "bool",
+                      "is_execute_auto": "bool",
+                      "is_incrementing": "bool",
+                      "is_stoping_increment": "string",
+                      "last_udpate_user": "string",
+                      "last_update_date": "string",
+                      "progress": "number",
+                      "status": "string",
+                      "submission_id": "number",
+                      "update_rows": "number",
+                      "write_rows": "number"
+                    }
+                  ]
+                ],
+                "description": "Indicates the records.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CDM",
+            "name": "Cloud Data Migration",
+            "catalog": "Migration",
+            "name_cn": "云数据迁移",
+            "catalog_cn": "迁移"
+          }
+        }
+      }
+    }
+  }
+}

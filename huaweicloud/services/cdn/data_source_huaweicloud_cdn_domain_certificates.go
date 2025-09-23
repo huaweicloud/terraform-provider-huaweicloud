@@ -30,14 +30,14 @@ func DataSourceDomainCertificates() *schema.Resource {
 			},
 			"domain_certificates": {
 				Type:     schema.TypeList,
-				Elem:     domainCertificateschema(),
+				Elem:     domainCertificateSchema(),
 				Computed: true,
 			},
 		},
 	}
 }
 
-func domainCertificateschema() *schema.Resource {
+func domainCertificateSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"domain_id": {
@@ -81,52 +81,59 @@ func domainCertificateschema() *schema.Resource {
 	return &sc
 }
 
+func buildCertificateQueryParams(conf *config.Config, d *schema.ResourceData) string {
+	rst := "?page_size=10"
+	if epsId := conf.GetEnterpriseProjectID(d); epsId != "" {
+		rst += fmt.Sprintf("&enterprise_project_id=%v", epsId)
+	}
+
+	if v, ok := d.GetOk("name"); ok {
+		rst += fmt.Sprintf("&domain_name=%v", v)
+	}
+	return rst
+}
+
 func resourceDomainCertificatesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	region := conf.GetRegion(d)
-
-	var mErr *multierror.Error
-
 	var (
-		domainCertificatesHttpUrl = "v1.0/cdn/domains/https-certificate-info"
-		domainCertificatesProduct = "cdn"
+		conf         = meta.(*config.Config)
+		region       = conf.GetRegion(d)
+		mErr         *multierror.Error
+		httpUrl      = "v1.0/cdn/domains/https-certificate-info"
+		product      = "cdn"
+		currentTotal = 1
+		rst          = make([]interface{}, 0)
 	)
-	domainCertificatesClient, err := conf.NewServiceClient(domainCertificatesProduct, region)
+	client, err := conf.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating CDN client: %s", err)
 	}
 
-	domainCertificatesPath := domainCertificatesClient.Endpoint + domainCertificatesHttpUrl + "?page_size=10"
-	epsId := conf.GetEnterpriseProjectID(d)
-	if epsId != "" {
-		domainCertificatesPath += fmt.Sprintf("&enterprise_project_id=%v", epsId)
-	}
-	if v, ok := d.GetOk("name"); ok {
-		domainCertificatesPath += fmt.Sprintf("&domain_name=%v", v)
-	}
-	getCDNCertificateDomainsOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath += buildCertificateQueryParams(conf, d)
+	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 	}
 
-	currentTotal := 1
-	rst := make([]interface{}, 0)
 	for {
-		currentPath := fmt.Sprintf("%s&page_number=%v", domainCertificatesPath, currentTotal)
-		getCDNCertificateDomainsResp, err := domainCertificatesClient.Request("GET", currentPath, &getCDNCertificateDomainsOpt)
+		currentPath := fmt.Sprintf("%s&page_number=%v", requestPath, currentTotal)
+		resp, err := client.Request("GET", currentPath, &requestOpt)
 		if err != nil {
 			return diag.FromErr(err)
 		}
-		getCDNCertificateDomainsRespBody, err := utils.FlattenResponse(getCDNCertificateDomainsResp)
+
+		respBody, err := utils.FlattenResponse(resp)
 		if err != nil {
 			return diag.FromErr(err)
 		}
-		domainCertificates := utils.PathSearch("https", getCDNCertificateDomainsRespBody, make([]interface{}, 0)).([]interface{})
+
+		domainCertificates := utils.PathSearch("https", respBody, make([]interface{}, 0)).([]interface{})
 		if len(domainCertificates) == 0 {
 			break
 		}
 		rst = append(rst, domainCertificates...)
 		currentTotal++
 	}
+
 	dataSourceId, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
@@ -142,7 +149,7 @@ func resourceDomainCertificatesRead(_ context.Context, d *schema.ResourceData, m
 }
 
 func flattenListCertificateDomainsBody(domainCertificates []interface{}) []interface{} {
-	rst := make([]interface{}, 0)
+	rst := make([]interface{}, 0, len(domainCertificates))
 	for _, v := range domainCertificates {
 		expirationTime := utils.PathSearch("expiration_time", v, 0)
 		rst = append(rst, map[string]interface{}{

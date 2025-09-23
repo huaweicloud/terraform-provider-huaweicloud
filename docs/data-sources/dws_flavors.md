@@ -2,7 +2,8 @@
 subcategory: "GaussDB(DWS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_dws_flavors"
-description: ""
+description: |-
+  Use this data source to get available flavors of DWS cluster node.
 ---
 
 # huaweicloud_dws_flavors

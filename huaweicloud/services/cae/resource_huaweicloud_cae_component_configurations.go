@@ -18,8 +18,8 @@ import (
 )
 
 var ConfigRelatedResourcesNotFoundCodes = []string{
-	"CAE.01500208",
-	"CAE.01500404",
+	"CAE.01500208", // Application or component does not found.
+	"CAE.01500404", // Environment does not found.
 }
 
 // ListNode is the structure of linked list node.
@@ -251,7 +251,7 @@ func resourceComponentConfigurationsRead(_ context.Context, d *schema.ResourceDa
 	}
 	requestResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, ParseQueryError400(err, ConfigRelatedResourcesNotFoundCodes),
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", ConfigRelatedResourcesNotFoundCodes...),
 			fmt.Sprintf("error querying configurations for the specified component (%s): %s", componentId, err))
 	}
 	respBody, err := utils.FlattenResponse(requestResp)

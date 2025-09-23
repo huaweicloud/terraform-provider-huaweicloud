@@ -7,12 +7,12 @@
             "attributes": {
               "created_at": {
                 "type": "string",
-                "description": "Resource creation time.",
+                "description": "The creation time of the line group.",
                 "computed": true
               },
               "description": {
                 "type": "string",
-                "description": "Specifies the line group description. A maximum of 255 characters are allowed.",
+                "description": "The line group description.",
                 "optional": true
               },
               "id": {
@@ -24,12 +24,12 @@
                   "set",
                   "string"
                 ],
-                "description": "Specifies the lines.",
+                "description": "The list of the resolution line IDs.",
                 "required": true
               },
               "name": {
                 "type": "string",
-                "description": "Specifies the line group name.",
+                "description": "The line group name.",
                 "required": true
               },
               "region": {
@@ -43,7 +43,7 @@
               },
               "updated_at": {
                 "type": "string",
-                "description": "Resource update time.",
+                "description": "The latest update time of the line group.",
                 "computed": true
               }
             }
@@ -51,9 +51,9 @@
           "product": {
             "short": "DNS",
             "name": "Domain Name Service",
-            "catalog": "Business Applications",
+            "catalog": "Networking",
             "name_cn": "云解析服务",
-            "catalog_cn": "企业应用"
+            "catalog_cn": "网络"
           }
         }
       }

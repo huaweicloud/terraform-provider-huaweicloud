@@ -187,7 +187,7 @@ The following arguments are supported:
 
 * `use_recently_partition` - (Optional, Bool) Specifies the table model use recently partition or not.
 
-* `reversed` - (Optional, String) Specifies the table model is reversed or not.
+* `reversed` - (Optional, Bool) Specifies whether the table model is reversed.
 
 <a name="block--attributes"></a>
 The `attributes` block supports:

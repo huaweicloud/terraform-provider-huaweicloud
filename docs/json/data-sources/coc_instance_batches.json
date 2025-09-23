@@ -1,0 +1,142 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_coc_instance_batches": {
+          "block": {
+            "attributes": {
+              "batch_strategy": {
+                "type": "string",
+                "required": true
+              },
+              "data": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "batch_index": "number",
+                      "target_instances": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "cloud_service_name": "string",
+                            "custom_attributes": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "key": "string",
+                                  "value": "string"
+                                }
+                              ]
+                            ],
+                            "properties": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "fixed_ip": "string",
+                                  "host_name": "string",
+                                  "region_id": "string",
+                                  "zone_id": "string"
+                                }
+                              ]
+                            ],
+                            "region_id": "string",
+                            "resource_id": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "target_instances": {
+                "block": {
+                  "attributes": {
+                    "cloud_service_name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "region_id": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "resource_id": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "custom_attributes": {
+                      "block": {
+                        "attributes": {
+                          "key": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "value": {
+                            "type": "string",
+                            "required": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list"
+                    },
+                    "properties": {
+                      "block": {
+                        "attributes": {
+                          "fixed_ip": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "host_name": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "region_id": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "zone_id": {
+                            "type": "string",
+                            "required": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "COC",
+            "name": "Cloud Operations Center",
+            "catalog": "Management & Governance",
+            "name_cn": "云运维中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

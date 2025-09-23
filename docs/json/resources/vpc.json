@@ -13,6 +13,11 @@
                 "type": "string",
                 "optional": true
               },
+              "enhanced_local_route": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "enterprise_project_id": {
                 "type": "string",
                 "optional": true,
@@ -47,7 +52,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               }
             }
           },

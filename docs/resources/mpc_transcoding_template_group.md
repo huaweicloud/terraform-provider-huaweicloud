@@ -64,15 +64,17 @@ The following arguments are supported:
   + **5**: MP3
   + **6**: ADTS
 
--> If output_format is set to 5 or 6, do not set video parameters.
+-> If output_format is set to `5` or `6`, do not set video parameters.
 
 * `low_bitrate_hd` - (Optional, Bool) Specifies Whether to enable low bitrate HD. The default value is false.
 
-* `hls_segment_duration` - (Optional, Int) Specifies the HLS segment duration. This parameter is used only
-  when `output_format` is set to 1 or 3. The value ranges from 2 to 10. The default value is 5. The unit is second.
+* `hls_segment_duration` - (Optional, Int) Specifies the HLS segment duration, in second.  
+  The valid value is range from `2` to `10`, and it is used only when `output_format` is set to `1` or `3`.  
+  The default value is `5`.
 
-* `dash_segment_duration` - (Optional, Int) Specifies the dash segment duration. This parameter is used only when `output_format`
-  is set to 2 or 3. The value ranges from 2 to 10. The default value is 5. The unit is second.
+* `dash_segment_duration` - (Optional, Int) Specifies the dash segment duration, in second.  
+  The valid value is range from `2` to `10`, and it is used only when `output_format` is set to `1` or `3`.  
+  The default value is `5`.
 
 * `audio` - (Optional, List) Specifies the audio parameters. The [object](#audio_object) structure is documented below.
 
@@ -104,8 +106,8 @@ The `audio` block supports:
   + **2**: AUDIO_CHANNELS_2
   + **6**: AUDIO_CHANNELS_5_1
 
-* `bitrate` - (Optional, Int) Specifies the audio bitrate. The value is 0 or ranges from 8 to 1,000.
-  The default value is 0. The unit is kbit/s.
+* `bitrate` - (Optional, Int) Specifies the audio bitrate. The value is `0` or ranges from `8` to `1,000`.
+  The default value is `0`. The unit is kbit/s.
 
 * `output_policy` - (Optional, String) Specifies the output policy. Possible values are **discard** and **transcode**.
   The default value is transcode.
@@ -120,15 +122,16 @@ The `video_common` block supports:
   + **1**: H.264
   + **2**: H.265
 
-  The default value is 1.
+  The default value is `1`.
 
-* `profile` - (Optional, Int) Specifies the encoding profile. The recommended value is 3. Possible values are:
+* `profile` - (Optional, Int) Specifies the encoding profile.  
+  Possible values are:
   + **1**: VIDEO_PROFILE_H264_BASE
   + **2**: VIDEO_PROFILE_H264_MAIN
   + **3**: VIDEO_PROFILE_H264_HIGH
   + **4**: VIDEO_PROFILE_H265_MAIN
 
-  The default value is 3.
+  The default value is `3` (also recommended).
 
 * `level` - (Optional, Int) Specifies the encoding level. Possible values are:
   + **1**: VIDEO_LEVEL_1_0
@@ -147,7 +150,7 @@ The `video_common` block supports:
   + **14**: VIDEO_LEVEL_5_0
   + **15**: VIDEO_LEVEL_5_1
 
-  The default value is 15.
+  The default value is `15`.
 
 * `quality` - (Optional, Int) Specifies the encoding quality. A larger value indicates higher encoding quality and
   longer transcoding time. Possible values are:
@@ -155,38 +158,40 @@ The `video_common` block supports:
   + **2**: VIDEO_PRESET_HSPEED
   + **3**: VIDEO_PRESET_NORMAL
 
-  The default value is 1.
+  The default value is `1`.
 
-* `max_iframes_interval` - (Optional, Int) Specifies the maximum I-frame interval. The value ranges from 2 to 10.
-  The default value is 5. The unit is second.
+* `max_iframes_interval` - (Optional, Int) Specifies the maximum I-frame interval. The value ranges from `2` to `10`.
+  The default value is `5`. The unit is second.
 
 * `max_consecutive_bframes` - (Optional, Int) Specifies the maximum number of B-frames.
-  The value range is  0 to 7, and the default value is 4. The unit is frame.
+  The value range is  `0` to `7`, and the default value is `4`. The unit is frame.
 
-* `fps` - (Optional, Int) Specifies the frame rate. Its value is 0 or an integer ranging from 5 to 30.
-  The default value is 0. The unit is FPS.
+* `fps` - (Optional, Int) Specifies the frame rate. Its value is `0` or an integer ranging from `5` to `30`.
+  The default value is `0`. The unit is FPS.
 
 * `black_bar_removal` - (Optional, Int) Specifies whether to enable black bar removal. Possible values are:
   + **0**: Disable black bar removal.
   + **1**: Enable black bar removal and low-complexity algorithms for long videos (>5 minutes).
   + **2**: Enable black bar removal and high-complexity algorithms for short videos (≤5 minutes).
 
-  The default value is 0.
+  The default value is `0`.
 
 <a name="videos_object"></a>
 The `videos` block supports:
 
-* `width` - (Optional, Int) Specifies the video width. The value can be 0 or a multiple of 2 from 32 to 4,096 for H.264
-  and 0 or a multiple of 4 from 160 to 4,096 for H.265. The unit is pixel. If this parameter is set to 0, the video width
-  is an adaptive value. The default value is 0.
+* `width` - (Optional, Int) Specifies the video width.  
+  The value can be 0 or a multiple of `2` from `32` to `4,096` for H.264 and `0` or a multiple of `4` from `160` to
+  `4,096` for H.265. The unit is pixel.  
+  If this parameter is set to `0`, the video width is an adaptive value. The default value is `0`.
 
-* `height` - (Optional, Int) Specifies the video height. The value is 0 or a multiple of 2 from 32 to 2,880 for H.264,
-  and 0 or a multiple of 4 from 96 to 2,880 for H.265. The unit is pixel. If this parameter is set to 0, the video height
-  is an adaptive value. The default value is 0.
+* `height` - (Optional, Int) Specifies the video height.  
+  The value is `0` or a multiple of `2` from `32` to `2,880` for H.264, and `0` or a multiple of `4` from `96` to
+  `2,880` for H.265. The unit is pixel.  
+  If this parameter is set to `0`, the video height is an adaptive value. The default value is `0`.
 
-* `bitrate` - (Optional, Int) Specifies the average output bitrate. The value is 0 or an integer ranging from 40 to
-  30,000. The default value is 0. The unit is kbit/s. If this parameter is set to 0, the average output bitrate is an
-  adaptive value.
+* `bitrate` - (Optional, Int) Specifies the average output bitrate.  
+  The value is `0` or an integer ranging from `40` to `30,000`. The default value is `0`. The unit is kbit/s.  
+  If this parameter is set to `0`, the average output bitrate is an adaptive value.
 
 ## Attribute Reference
 
@@ -200,6 +205,6 @@ In addition to all arguments above, the following attributes are exported:
 
 MPC transcoding template groups can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_mpc_transcoding_template_group.test 589e49809bb84447a759f6fa9aa19949
 ```

@@ -5,11 +5,14 @@ import (
 	"log"
 	"time"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk/openstack/cce/v3/nodes"
+	"github.com/chnsz/golangsdk/openstack/common/tags"
+	"github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -33,7 +36,7 @@ import (
 func ResourceNodeAttach() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceNodeAttachCreate,
-		ReadContext:   resourceNodeRead,
+		ReadContext:   resourceNodeAttachRead,
 		UpdateContext: resourceNodeAttachUpdate,
 		DeleteContext: resourceNodeAttachDelete,
 
@@ -42,6 +45,8 @@ func ResourceNodeAttach() *schema.Resource {
 			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
+
+		CustomizeDiff: config.MergeDefaultTags(),
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -139,7 +144,7 @@ func ResourceNodeAttach() *schema.Resource {
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"storage": resourceNodeStorageUpdatableSchema(),
+			"storage": resourceNodeStorageSchema(),
 			"taints": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -167,6 +172,22 @@ func ResourceNodeAttach() *schema.Resource {
 			},
 			//(node/ecs_tags)
 			"tags": common.TagsSchema(),
+			"hostname_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"type": {
+							Type:     schema.TypeString,
+							Required: true,
+							ForceNew: true,
+						},
+					},
+				},
+			},
 
 			"flavor_id": {
 				Type:     schema.TypeString,
@@ -200,6 +221,14 @@ func ResourceNodeAttach() *schema.Resource {
 						},
 						"dss_pool_id": {
 							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"iops": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"throughput": {
+							Type:     schema.TypeInt,
 							Computed: true,
 						},
 
@@ -245,6 +274,14 @@ func ResourceNodeAttach() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"iops": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"throughput": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
 
 						// Internal parameters
 						"hw_passthrough": {
@@ -270,6 +307,18 @@ func ResourceNodeAttach() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"extension_nics": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"subnet_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+					},
+				},
+			},
 			"private_ip": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -283,6 +332,10 @@ func ResourceNodeAttach() *schema.Resource {
 				Computed: true,
 			},
 			"charging_mode": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -384,6 +437,7 @@ func buildNodeAttachCreateOpts(d *schema.ResourceData) (*nodes.AddOpts, error) {
 					K8sOptions:            resourceNodeAttachK8sOptions(d),
 					Lifecycle:             resourceNodeAttachLifecycle(d),
 					InitializedConditions: utils.ExpandToStringList(d.Get("initialized_conditions").([]interface{})),
+					HostnameConfig:        buildResourceNodeHostnameConfig(d),
 				},
 			},
 		},
@@ -483,6 +537,80 @@ func buildNodeAttachUpdateOpts(d *schema.ResourceData) (*nodes.ResetOpts, error)
 	}
 	result.NodeList[0].Spec.Login = loginSpec
 	return &result, nil
+}
+
+func resourceNodeAttachRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	nodeClient, err := cfg.CceV3Client(region)
+	if err != nil {
+		return diag.Errorf("error creating CCE Node client: %s", err)
+	}
+	clusterid := d.Get("cluster_id").(string)
+	s, err := nodes.Get(nodeClient, clusterid, d.Id()).Extract()
+
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, "error retrieving CCE Node")
+	}
+
+	// The following parameters are not returned:
+	// password, private_key, fixed_ip, extension_nics, eip_id, iptype, bandwidth_charge_mode, bandwidth_size,
+	// sharetype, extend_params, dedicated_host_id, initialized_conditions, labels, taints, period_unit, period, auto_renew, auto_pay
+	mErr := multierror.Append(nil,
+		d.Set("region", region),
+		d.Set("name", s.Metadata.Name),
+		d.Set("flavor_id", s.Spec.Flavor),
+		d.Set("availability_zone", s.Spec.Az),
+		d.Set("os", s.Spec.Os),
+		d.Set("key_pair", s.Spec.Login.SshKey),
+		d.Set("subnet_id", s.Spec.NodeNicSpec.PrimaryNic.SubnetId),
+		d.Set("ecs_group_id", s.Spec.EcsGroupID),
+		d.Set("server_id", s.Status.ServerID),
+		d.Set("private_ip", s.Status.PrivateIP),
+		d.Set("public_ip", s.Status.PublicIP),
+		d.Set("status", s.Status.Phase),
+		d.Set("root_volume", flattenResourceNodeRootVolume(d, s.Spec.RootVolume)),
+		d.Set("data_volumes", flattenResourceNodeDataVolume(d, s.Spec.DataVolumes)),
+		d.Set("initialized_conditions", s.Spec.InitializedConditions),
+		d.Set("hostname_config", flattenResourceNodeHostnameConfig(s.Spec.HostnameConfig)),
+		d.Set("enterprise_project_id", s.Spec.ServerEnterpriseProjectID),
+		d.Set("tags", utils.TagsToMap(s.Spec.UserTags)),
+		d.Set("storage", flattenResourceNodeStorage(s.Spec.Storage)),
+		d.Set("extension_nics", flattenExtensionNics(s.Spec.NodeNicSpec.ExtNics)),
+	)
+
+	if s.Spec.BillingMode != 0 {
+		mErr = multierror.Append(mErr, d.Set("charging_mode", "prePaid"))
+	}
+	if s.Spec.RunTime != nil {
+		mErr = multierror.Append(mErr, d.Set("runtime", s.Spec.RunTime.Name))
+	}
+
+	computeClient, err := cfg.ComputeV1Client(region)
+	if err != nil {
+		return diag.Errorf("error creating compute client: %s", err)
+	}
+
+	serverId := s.Status.ServerID
+	// fetch key_pair from ECS instance
+	if server, err := cloudservers.Get(computeClient, serverId).Extract(); err == nil {
+		mErr = multierror.Append(mErr, d.Set("key_pair", server.KeyName))
+	} else {
+		log.Printf("[WARN] Error fetching ECS instance (%s): %s", serverId, err)
+	}
+
+	// fetch tags from ECS instance
+	if resourceTags, err := tags.Get(computeClient, "cloudservers", serverId).Extract(); err == nil {
+		tagmap := utils.TagsToMap(resourceTags.Tags)
+		mErr = multierror.Append(mErr, d.Set("tags", tagmap))
+	} else {
+		log.Printf("[WARN] Error fetching tags of ECS instance (%s): %s", serverId, err)
+	}
+
+	if err = mErr.ErrorOrNil(); err != nil {
+		return diag.Errorf("error setting CCE Node fields: %s", err)
+	}
+	return nil
 }
 
 func resourceNodeAttachUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

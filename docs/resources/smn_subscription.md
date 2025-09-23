@@ -30,6 +30,19 @@ resource "huaweicloud_smn_subscription" "subscription_2" {
   protocol  = "sms"
   remark    = "O&M"
 }
+
+resource "huaweicloud_smn_subscription" "subscription_3" {
+  topic_urn = huaweicloud_smn_topic.topic_1.id
+  endpoint  = "https://example.com/notification"
+  protocol  = "https"
+  remark    = "API webhook"
+  
+  extension {
+    header = {
+      "X-Custom-Test" = "test"
+    }
+  }
+}
 ```
 
 ## Argument Reference
@@ -90,6 +103,23 @@ The `extension` block supports:
   enter the key field obtained from the Lark client. If only keyword is configured on the Lark client, skip this field.
   Changing this parameter will create a new resource.
 
+* `header` - (Optional, Map, ForceNew) Specifies the HTTP/HTTPS headers to be added to the requests when the
+  message is delivered via HTTP/HTTPS. This field is used when `protocol` is set to **http** or **https**.
+  The following requirements apply to the header keys and values:
+  + Header keys must:
+    - Contain only letters, numbers, and hyphens (`[A-Za-z0-9-]`)
+    - Not end with a hyphen
+    - Not contain consecutive hyphens
+    - Start with "x-" (e.g., "x-abc-cba", "x-abc")
+    - Not start with "x-smn"
+    - Be case-insensitive (e.g., "X-Custom" and "x-custom" are considered the same)
+    - Not be duplicated
+  + Maximum of 10 key-value pairs allowed
+  + Total length of all keys and values combined must not exceed 1024 characters
+  + Values must only contain ASCII characters (no Chinese or other Unicode characters, spaces are allowed)
+
+  Changing this parameter will create a new resource.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -105,10 +135,20 @@ In addition to all arguments above, the following attributes are exported:
   + **1**: indicates that the subscription is confirmed.
   + **3**: indicates that the subscription is canceled.
 
+* `filter_policies` - The message filter policies of a subscriber.
+  The [filter_policies](#smn_subscription_filter_policies_attr) structure is documented below.
+
+<a name="smn_subscription_filter_policies_attr"></a>
+The `filter_policies` block supports:
+
+* `name` - The filter policy name.
+
+* `string_equals` - The string array for exact match.
+
 ## Import
 
 SMN subscription can be imported using the `id` (subscription urn), e.g.
 
-```
+```bash
 $ terraform import huaweicloud_smn_subscription.subscription_1 urn:smn:cn-north-4:0970dd7a1300f5672ff2c003c60ae115:topic_1:a2aa5a1f66df494184f4e108398de1a6
 ```

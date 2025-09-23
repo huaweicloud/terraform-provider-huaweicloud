@@ -1,0 +1,92 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_coc_scheduled_task_histories": {
+          "block": {
+            "attributes": {
+              "finished_end_time": {
+                "type": "number",
+                "description": "Specifies the end timestamp of the query interval for the finished_time parameter.",
+                "optional": true
+              },
+              "finished_start_time": {
+                "type": "number",
+                "description": "Specifies the start timestamp of the query interval for the finished_time parameter.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the task region ID."
+              },
+              "scheduled_task_history_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "associated_task_name": "string",
+                      "associated_task_name_en": "string",
+                      "created_by": "string",
+                      "execution_id": "string",
+                      "execution_msg": "string",
+                      "finished_time": "number",
+                      "id": "string",
+                      "region": "string",
+                      "started_time": "number",
+                      "status": "string",
+                      "task_type": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of scheduled operation and maintenance history records.",
+                "computed": true
+              },
+              "sort_dir": {
+                "type": "string",
+                "description": "Specifies the sorting method.",
+                "optional": true
+              },
+              "sort_key": {
+                "type": "string",
+                "description": "Specifies the sorting field name. Supported are **started_time** and **finished_time**.",
+                "optional": true
+              },
+              "started_end_time": {
+                "type": "number",
+                "description": "Specifies the end timestamp of the query interval for the started_time parameter.",
+                "optional": true
+              },
+              "started_start_time": {
+                "type": "number",
+                "description": "Specifies the start timestamp of the query interval for the started_time parameter.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the task execution status.",
+                "optional": true
+              },
+              "task_id": {
+                "type": "string",
+                "description": "Specifies the task ID.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "COC",
+            "name": "Cloud Operations Center",
+            "catalog": "Management & Governance",
+            "name_cn": "云运维中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

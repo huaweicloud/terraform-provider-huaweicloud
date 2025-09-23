@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_ddm_logical_sessions
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DDM
+paths:
+    /v3/{project_id}/instances/{instance_id}/logical-processes:
+        GET:
+            tag: DDM

@@ -91,6 +91,6 @@ This resource provides the following timeouts configuration options:
 
 The DDM account can be imported using the instance ID and account name separated by a slash, e.g.:
 
-```
+```bash
 $ terraform import huaweicloud_ddm_account.test 0a8f1c6baa124e99853719d9257324dfin09/account_name
 ```

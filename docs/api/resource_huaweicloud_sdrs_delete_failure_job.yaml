@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_sdrs_delete_failure_job
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: SDRS
+paths:
+    /v1/{project_id}/task-center/failure-jobs/{failure_job_id}:
+        DELETE:
+            tag: SDRS

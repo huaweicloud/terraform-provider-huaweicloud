@@ -15,7 +15,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -28,7 +27,7 @@ import (
 // @API DWS GET /v1.0/{project_id}/clusters/{cluster_id}/ext-data-sources
 // @API DWS POST /v1.0/{project_id}/clusters/{cluster_id}/ext-data-sources
 // @API DWS DELETE /v1.0/{project_id}/clusters/{cluster_id}/ext-data-sources/{ext_data_source_id}
-// @API AWS PUT /v1.0/{project_id}/clusters/{cluster_id}/ext-data-sources/{ext_data_source_id}
+// @API DWS PUT /v1.0/{project_id}/clusters/{cluster_id}/ext-data-sources/{ext_data_source_id}
 func ResourceDwsExtDataSource() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDwsExtDataSourceCreate,
@@ -141,7 +140,7 @@ func resourceDwsExtDataSourceCreate(ctx context.Context, d *schema.ResourceData,
 	)
 	createDwsExtDataSourceClient, err := cfg.NewServiceClient(createDwsExtDataSourceProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating DWS Client: %s", err)
+		return diag.Errorf("error creating DWS client: %s", err)
 	}
 
 	createDwsExtDataSourcePath := createDwsExtDataSourceClient.Endpoint + createDwsExtDataSourceHttpUrl
@@ -164,11 +163,11 @@ func resourceDwsExtDataSourceCreate(ctx context.Context, d *schema.ResourceData,
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("id", createDwsExtDataSourceRespBody)
-	if err != nil {
-		return diag.Errorf("error creating DWS external data source: ID is not found in API response")
+	dataSourceId := utils.PathSearch("id", createDwsExtDataSourceRespBody, "").(string)
+	if dataSourceId == "" {
+		return diag.Errorf("unable to find the DWS external data source ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(dataSourceId)
 
 	jobId := utils.PathSearch("job_id", createDwsExtDataSourceRespBody, nil)
 	if jobId == nil {
@@ -205,7 +204,11 @@ func resourceDwsExtDataSourceRead(_ context.Context, d *schema.ResourceData, met
 	// getDwsExtDataSource: Query the DWS external data source.
 	extDataSource, err := GetExtDataSource(cfg, region, d, d.Get("type").(string))
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving DWS external data source")
+		// The cluster ID does not exist.
+		// "DWS.0001": The cluster ID is a non-standard UUID, the status code is 400.
+		// "DWS.0047": The cluster ID is a standard UUID, the status code is 404.
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", ClusterIdIllegalErrCode),
+			"error retrieving DWS external data source")
 	}
 
 	if extDataSource == nil {
@@ -237,7 +240,7 @@ func GetExtDataSource(cfg *config.Config, region string, d *schema.ResourceData,
 	)
 	getDwsExtDataSourceClient, err := cfg.NewServiceClient(getDwsExtDataSourceProduct, region)
 	if err != nil {
-		return nil, fmt.Errorf("error creating DWS Client: %s", err)
+		return nil, fmt.Errorf("error creating DWS client: %s", err)
 	}
 
 	getDwsExtDataSourcePath := getDwsExtDataSourceClient.Endpoint + getDwsExtDataSourceHttpUrl
@@ -284,7 +287,7 @@ func resourceDwsExtDataSourceUpdate(ctx context.Context, d *schema.ResourceData,
 		)
 		updateDwsExtDataSourceClient, err := cfg.NewServiceClient(updateDwsExtDataSourceProduct, region)
 		if err != nil {
-			return diag.Errorf("error creating DWS Client: %s", err)
+			return diag.Errorf("error creating DWS client: %s", err)
 		}
 
 		updateDwsExtDataSourcePath := updateDwsExtDataSourceClient.Endpoint + updateDwsExtDataSourceHttpUrl
@@ -322,11 +325,15 @@ func resourceDwsExtDataSourceUpdate(ctx context.Context, d *schema.ResourceData,
 }
 
 func buildUpdateDwsExtDataSourceBodyParams(d *schema.ResourceData) map[string]interface{} {
+	params := map[string]interface{}{
+		"reboot": utils.ValueIgnoreEmpty(d.Get("reboot")),
+	}
+	if d.Get("type").(string) == "OBS" {
+		params["agency"] = utils.ValueIgnoreEmpty(d.Get("user_name"))
+	}
+
 	bodyParams := map[string]interface{}{
-		"reconfigure": map[string]interface{}{
-			"reboot":    utils.ValueIgnoreEmpty(d.Get("reboot")),
-			"user_name": utils.ValueIgnoreEmpty(d.Get("user_name")),
-		},
+		"reconfigure": params,
 	}
 	return bodyParams
 }
@@ -342,7 +349,7 @@ func resourceDwsExtDataSourceDelete(ctx context.Context, d *schema.ResourceData,
 	)
 	deleteDwsExtDataSourceClient, err := cfg.NewServiceClient(deleteDwsExtDataSourceProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating DWS Client: %s", err)
+		return diag.Errorf("error creating DWS client: %s", err)
 	}
 
 	deleteDwsExtDataSourcePath := deleteDwsExtDataSourceClient.Endpoint + deleteDwsExtDataSourceHttpUrl
@@ -427,7 +434,7 @@ func extDataSourceWaitingForStateCompleted(ctx context.Context, d *schema.Resour
 			)
 			extDataSourceWaitingClient, err := cfg.NewServiceClient(extDataSourceWaitingProduct, region)
 			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error creating DWS Client: %s", err)
+				return nil, "ERROR", fmt.Errorf("error creating DWS client: %s", err)
 			}
 
 			extDataSourceWaitingPath := extDataSourceWaitingClient.Endpoint + extDataSourceWaitingHttpUrl
@@ -447,12 +454,7 @@ func extDataSourceWaitingForStateCompleted(ctx context.Context, d *schema.Resour
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`status`, extDataSourceWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `status`)
-			}
-
-			status := fmt.Sprintf("%v", statusRaw)
+			status := utils.PathSearch(`status`, extDataSourceWaitingRespBody, "").(string)
 
 			targetStatus := []string{
 				"SUCCESS",

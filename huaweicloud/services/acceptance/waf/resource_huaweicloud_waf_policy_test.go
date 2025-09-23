@@ -21,11 +21,12 @@ func getPolicyResourceFunc(cfg *config.Config, state *terraform.ResourceState) (
 	return policies.GetWithEpsID(wafClient, state.Primary.ID, state.Primary.Attributes["enterprise_project_id"]).Extract()
 }
 
-func TestAccWafPolicyV1_basic(t *testing.T) {
+// Before running the test case, please ensure that there is at least one WAF instance in the current region.
+func TestAccPolicy_basic(t *testing.T) {
 	var obj interface{}
 
 	randName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_waf_policy.policy_1"
+	resourceName := "huaweicloud_waf_policy.test"
 
 	rc := acceptance.InitResourceCheck(
 		resourceName,
@@ -37,14 +38,16 @@ func TestAccWafPolicyV1_basic(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPrecheckWafInstance(t)
+			acceptance.TestAccPreCheckEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccWafPolicyV1_basic(randName),
+				Config: testAccWafPolicy_basic(randName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(resourceName, "name", randName),
 					resource.TestCheckResourceAttr(resourceName, "level", "1"),
 					resource.TestCheckResourceAttr(resourceName, "full_detection", "false"),
@@ -68,14 +71,14 @@ func TestAccWafPolicyV1_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "options.0.bot_enable", "false"),
 					resource.TestCheckResourceAttr(resourceName, "options.0.known_attack_source", "false"),
 					resource.TestCheckResourceAttr(resourceName, "options.0.anti_crawler", "false"),
+					resource.TestCheckResourceAttr(resourceName, "deep_inspection", "false"),
+					resource.TestCheckResourceAttr(resourceName, "header_inspection", "false"),
+					resource.TestCheckResourceAttr(resourceName, "shiro_decryption_check", "false"),
 					resource.TestCheckResourceAttrSet(resourceName, "bind_hosts.#"),
-					resource.TestCheckResourceAttrSet(resourceName, "deep_inspection"),
-					resource.TestCheckResourceAttrSet(resourceName, "header_inspection"),
-					resource.TestCheckResourceAttrSet(resourceName, "shiro_decryption_check"),
 				),
 			},
 			{
-				Config: testAccWafPolicyV1_update1(randName),
+				Config: testAccWafPolicy_update1(randName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", randName+"_updated"),
@@ -101,10 +104,13 @@ func TestAccWafPolicyV1_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "options.0.bot_enable", "true"),
 					resource.TestCheckResourceAttr(resourceName, "options.0.known_attack_source", "true"),
 					resource.TestCheckResourceAttr(resourceName, "options.0.anti_crawler", "true"),
+					resource.TestCheckResourceAttr(resourceName, "deep_inspection", "true"),
+					resource.TestCheckResourceAttr(resourceName, "header_inspection", "true"),
+					resource.TestCheckResourceAttr(resourceName, "shiro_decryption_check", "true"),
 				),
 			},
 			{
-				Config: testAccWafPolicyV1_update2(randName),
+				Config: testAccWafPolicy_update2(randName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "full_detection", "false"),
@@ -126,56 +132,9 @@ func TestAccWafPolicyV1_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "options.0.bot_enable", "false"),
 					resource.TestCheckResourceAttr(resourceName, "options.0.known_attack_source", "false"),
 					resource.TestCheckResourceAttr(resourceName, "options.0.anti_crawler", "false"),
-				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
-	})
-}
-
-func TestAccWafPolicyV1_withEpsID(t *testing.T) {
-	var obj interface{}
-
-	randName := acceptance.RandomAccResourceName()
-	resourceName := "huaweicloud_waf_policy.policy_1"
-
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&obj,
-		getPolicyResourceFunc,
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPrecheckWafInstance(t)
-			acceptance.TestAccPreCheckEpsID(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccWafPolicyV1_basic_withEpsID(randName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
-					resource.TestCheckResourceAttr(resourceName, "name", randName),
-					resource.TestCheckResourceAttr(resourceName, "level", "1"),
-					resource.TestCheckResourceAttr(resourceName, "full_detection", "false"),
-				),
-			},
-			{
-				Config: testAccWafPolicyV1_update_withEpsID(randName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
-					resource.TestCheckResourceAttr(resourceName, "name", randName+"_updated"),
-					resource.TestCheckResourceAttr(resourceName, "protection_mode", "block"),
-					resource.TestCheckResourceAttr(resourceName, "level", "3"),
+					resource.TestCheckResourceAttr(resourceName, "deep_inspection", "false"),
+					resource.TestCheckResourceAttr(resourceName, "header_inspection", "true"),
+					resource.TestCheckResourceAttr(resourceName, "shiro_decryption_check", "false"),
 				),
 			},
 			{
@@ -188,31 +147,28 @@ func TestAccWafPolicyV1_withEpsID(t *testing.T) {
 	})
 }
 
-func testAccWafPolicyV1_basic(name string) string {
+func testAccWafPolicy_basic(name string) string {
 	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_waf_policy" "policy_1" {
-  name  = "%s"
-  level = 1
-
-  depends_on = [
-    huaweicloud_waf_dedicated_instance.instance_1
-  ]
+resource "huaweicloud_waf_policy" "test" {
+  name                  = "%[1]s"
+  level                 = 1
+  enterprise_project_id = "%[2]s"
 }
-`, testAccWafDedicatedInstanceV1_conf(name), name)
+`, name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
-func testAccWafPolicyV1_update1(name string) string {
+func testAccWafPolicy_update1(name string) string {
 	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_waf_policy" "policy_1" {
-  name            = "%s_updated"
-  full_detection  = true
-  protection_mode = "block"
-  level           = 3
-  robot_action    = "block"
+resource "huaweicloud_waf_policy" "test" {
+  name                   = "%[1]s_updated"
+  full_detection         = true
+  protection_mode        = "block"
+  level                  = 3
+  robot_action           = "block"
+  deep_inspection        = true
+  header_inspection      = true
+  shiro_decryption_check = true
+  enterprise_project_id  = "%[2]s"
 
   options {
     anti_crawler                   = true
@@ -232,65 +188,26 @@ resource "huaweicloud_waf_policy" "policy_1" {
     web_tamper_protection          = true
     webshell                       = true
   }
-
-  depends_on = [
-    huaweicloud_waf_dedicated_instance.instance_1
-  ]
 }
-`, testAccWafDedicatedInstanceV1_conf(name), name)
+`, name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
-func testAccWafPolicyV1_update2(name string) string {
+func testAccWafPolicy_update2(name string) string {
 	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_waf_policy" "policy_1" {
-  name            = "%s_updated"
-  full_detection  = false
-  protection_mode = "block"
-  level           = 3
-  robot_action    = "block"
+resource "huaweicloud_waf_policy" "test" {
+  name                   = "%[1]s_updated"
+  full_detection         = false
+  protection_mode        = "block"
+  level                  = 3
+  robot_action           = "block"
+  deep_inspection        = false
+  header_inspection      = true
+  shiro_decryption_check = false
+  enterprise_project_id  = "%[2]s"
 
   options {
     
   }
-
-  depends_on = [
-    huaweicloud_waf_dedicated_instance.instance_1
-  ]
 }
-`, testAccWafDedicatedInstanceV1_conf(name), name)
-}
-
-func testAccWafPolicyV1_basic_withEpsID(name, epsID string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_waf_policy" "policy_1" {
-  name                  = "%s"
-  level                 = 1
-  enterprise_project_id = "%s"
-
-  depends_on = [
-    huaweicloud_waf_dedicated_instance.instance_1
-  ]
-}
-`, testAccWafDedicatedInstance_epsId(name, epsID), name, epsID)
-}
-
-func testAccWafPolicyV1_update_withEpsID(name, epsID string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_waf_policy" "policy_1" {
-  name                  = "%s_updated"
-  protection_mode       = "block"
-  level                 = 3
-  enterprise_project_id = "%s"
-
-  depends_on = [
-    huaweicloud_waf_dedicated_instance.instance_1
-  ]
-}
-`, testAccWafDedicatedInstance_epsId(name, epsID), name, epsID)
+`, name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }

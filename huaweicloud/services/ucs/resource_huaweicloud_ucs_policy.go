@@ -14,7 +14,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/pagination"
@@ -138,11 +137,11 @@ func resourcePolicyCreate(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("uid", createPolicyRespBody)
-	if err != nil {
+	id := utils.PathSearch("uid", createPolicyRespBody, "").(string)
+	if id == "" {
 		return diag.Errorf("error creating Policy: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	return resourcePolicyRead(ctx, d, meta)
 }

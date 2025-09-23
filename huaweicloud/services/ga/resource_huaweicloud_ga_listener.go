@@ -7,8 +7,8 @@ package ga
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"regexp"
 	"strings"
 	"time"
 
@@ -17,7 +17,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -47,17 +46,14 @@ func ResourceListener() *schema.Resource {
 			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 
+		CustomizeDiff: config.MergeDefaultTags(),
+
 		Schema: map[string]*schema.Schema{
 			"accelerator_id": {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
 				Description: `Specifies the ID of the global accelerator associated with the listener.`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}`),
-						"the input is invalid"),
-					validation.StringLenBetween(0, 36),
-				),
 			},
 			"name": {
 				Type:     schema.TypeString,
@@ -65,11 +61,6 @@ func ResourceListener() *schema.Resource {
 				Description: `|-
                     Specifies the listener name. The name can contain 1 to 64 characters.
                     Only letters, digits, and hyphens (-) are allowed.`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[A-Za-z0-9-]+$`),
-						"the input is invalid"),
-					validation.StringLenBetween(1, 64),
-				),
 			},
 			"port_ranges": {
 				Type:        schema.TypeList,
@@ -106,11 +97,6 @@ func ResourceListener() *schema.Resource {
 				Description: `|-
                     Specifies the information about the listener. The value can contain 0 to 255 characters.
                     The following characters are not allowed: <>`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`[^<>]*`),
-						"the input is invalid"),
-					validation.StringLenBetween(0, 255),
-				),
 			},
 			"tags": common.TagsSchema(),
 
@@ -134,6 +120,31 @@ func ResourceListener() *schema.Resource {
 				Computed:    true,
 				Description: `Specifies when the listener was updated.`,
 			},
+			"frozen_info": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `The frozen details of cloud services or resources.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"status": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `The status of a cloud service or resource.`,
+						},
+						"effect": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `The status of the resource after being forzen.`,
+						},
+						"scene": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Description: `The service scenario.`,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -142,16 +153,14 @@ func ListenerPortRangeSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"from_port": {
-				Type:         schema.TypeInt,
-				Required:     true,
-				Description:  `Specifies the start port number.`,
-				ValidateFunc: validation.IntBetween(1, 65535),
+				Type:        schema.TypeInt,
+				Required:    true,
+				Description: `Specifies the start port number.`,
 			},
 			"to_port": {
-				Type:         schema.TypeInt,
-				Required:     true,
-				Description:  `Specifies the end port number.`,
-				ValidateFunc: validation.IntBetween(1, 65535),
+				Type:        schema.TypeInt,
+				Required:    true,
+				Description: `Specifies the end port number.`,
 			},
 		},
 	}
@@ -159,47 +168,42 @@ func ListenerPortRangeSchema() *schema.Resource {
 }
 
 func resourceListenerCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	region := conf.GetRegion(d)
-
-	// createListener: Create a GA Listener.
 	var (
-		createListenerHttpUrl = "v1/listeners"
-		createListenerProduct = "ga"
+		conf    = meta.(*config.Config)
+		region  = conf.GetRegion(d)
+		httpUrl = "v1/listeners"
+		product = "ga"
 	)
-	createListenerClient, err := conf.NewServiceClient(createListenerProduct, region)
+	client, err := conf.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating Listener Client: %s", err)
+		return diag.Errorf("error creating GA client: %s", err)
 	}
 
-	createListenerPath := createListenerClient.Endpoint + createListenerHttpUrl
-
-	createListenerOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			201,
-		},
-	}
-	createListenerOpt.JSONBody = utils.RemoveNil(buildCreateListenerBodyParams(d))
-	createListenerResp, err := createListenerClient.Request("POST", createListenerPath, &createListenerOpt)
-	if err != nil {
-		return diag.Errorf("error creating Listener: %s", err)
+		JSONBody:         utils.RemoveNil(buildCreateListenerBodyParams(d)),
 	}
 
-	createListenerRespBody, err := utils.FlattenResponse(createListenerResp)
+	resp, err := client.Request("POST", requestPath, &requestOpt)
+	if err != nil {
+		return diag.Errorf("error creating GA listener: %s", err)
+	}
+
+	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("listener.id", createListenerRespBody)
-	if err != nil {
-		return diag.Errorf("error creating Listener: ID is not found in API response")
+	listenerId := utils.PathSearch("listener.id", respBody, "").(string)
+	if listenerId == "" {
+		return diag.Errorf("error creating GA listener: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(listenerId)
 
 	err = createListenerWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
-		return diag.Errorf("error waiting for the Create of Listener (%s) to complete: %s", d.Id(), err)
+		return diag.Errorf("error waiting for the GA listener (%s) creation to complete: %s", d.Id(), err)
 	}
 	return resourceListenerRead(ctx, d, meta)
 }
@@ -239,119 +243,100 @@ func buildCreateListenerRequestBodyPortRange(rawParams interface{}) []map[string
 }
 
 func createListenerWaitingForStateCompleted(ctx context.Context, d *schema.ResourceData, meta interface{}, t time.Duration) error {
+	var (
+		cfg              = meta.(*config.Config)
+		region           = cfg.GetRegion(d)
+		httpUrl          = "v1/listeners/{listener_id}"
+		product          = "ga"
+		targetStatus     = []string{"ACTIVE"}
+		unexpectedStatus = []string{"ERROR"}
+	)
+	client, err := cfg.NewServiceClient(product, region)
+	if err != nil {
+		return fmt.Errorf("error creating GA client: %s", err)
+	}
+
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{listener_id}", d.Id())
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
-			config := meta.(*config.Config)
-			region := config.GetRegion(d)
-			// createListenerWaiting: missing operation notes
-			var (
-				createListenerWaitingHttpUrl = "v1/listeners/{listener_id}"
-				createListenerWaitingProduct = "ga"
-			)
-			createListenerWaitingClient, err := config.NewServiceClient(createListenerWaitingProduct, region)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error creating Listener Client: %s", err)
-			}
-
-			createListenerWaitingPath := createListenerWaitingClient.Endpoint + createListenerWaitingHttpUrl
-			createListenerWaitingPath = strings.ReplaceAll(createListenerWaitingPath, "{listener_id}", d.Id())
-
-			createListenerWaitingOpt := golangsdk.RequestOpts{
-				KeepResponseBody: true,
-				OkCodes: []int{
-					200,
-				},
-			}
-			createListenerWaitingResp, err := createListenerWaitingClient.Request("GET", createListenerWaitingPath, &createListenerWaitingOpt)
+			resp, err := client.Request("GET", requestPath, &createOpt)
 			if err != nil {
 				return nil, "ERROR", err
 			}
 
-			createListenerWaitingRespBody, err := utils.FlattenResponse(createListenerWaitingResp)
+			respBody, err := utils.FlattenResponse(resp)
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`listener.status`, createListenerWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `listener.status`)
-			}
 
-			status := fmt.Sprintf("%v", statusRaw)
-
-			targetStatus := []string{
-				"ACTIVE",
-			}
+			status := utils.PathSearch(`listener.status`, respBody, "").(string)
 			if utils.StrSliceContains(targetStatus, status) {
-				return createListenerWaitingRespBody, "COMPLETED", nil
+				return respBody, "COMPLETED", nil
 			}
 
-			unexpectedStatus := []string{
-				"ERROR",
-			}
 			if utils.StrSliceContains(unexpectedStatus, status) {
-				return createListenerWaitingRespBody, status, nil
+				return respBody, status, nil
 			}
 
-			return createListenerWaitingRespBody, "PENDING", nil
+			return respBody, "PENDING", nil
 		},
 		Timeout:      t,
 		Delay:        10 * time.Second,
 		PollInterval: 5 * time.Second,
 	}
-	_, err := stateConf.WaitForStateContext(ctx)
+	_, err = stateConf.WaitForStateContext(ctx)
 	return err
 }
 
 func resourceListenerRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	region := conf.GetRegion(d)
-
-	var mErr *multierror.Error
-
-	// getListener: Query the GA Listener detail
 	var (
-		getListenerHttpUrl = "v1/listeners/{listener_id}"
-		getListenerProduct = "ga"
+		conf    = meta.(*config.Config)
+		region  = conf.GetRegion(d)
+		mErr    *multierror.Error
+		httpUrl = "v1/listeners/{listener_id}"
+		product = "ga"
 	)
-	getListenerClient, err := conf.NewServiceClient(getListenerProduct, region)
+	client, err := conf.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating Listener Client: %s", err)
+		return diag.Errorf("error creating GA client: %s", err)
 	}
 
-	getListenerPath := getListenerClient.Endpoint + getListenerHttpUrl
-	getListenerPath = strings.ReplaceAll(getListenerPath, "{listener_id}", d.Id())
-
-	getListenerOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{listener_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
-	getListenerResp, err := getListenerClient.Request("GET", getListenerPath, &getListenerOpt)
 
+	resp, err := client.Request("GET", requestPath, &requestOpt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving Listener")
+		return common.CheckDeletedDiag(d, err, "error retrieving GA listener")
 	}
 
-	getListenerRespBody, err := utils.FlattenResponse(getListenerResp)
+	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
 	mErr = multierror.Append(
 		mErr,
-		d.Set("accelerator_id", utils.PathSearch("listener.accelerator_id", getListenerRespBody, nil)),
-		d.Set("client_affinity", utils.PathSearch("listener.client_affinity", getListenerRespBody, nil)),
-		d.Set("created_at", utils.PathSearch("listener.created_at", getListenerRespBody, nil)),
-		d.Set("description", utils.PathSearch("listener.description", getListenerRespBody, nil)),
-		d.Set("name", utils.PathSearch("listener.name", getListenerRespBody, nil)),
-		d.Set("port_ranges", flattenGetListenerResponseBodyPortRange(getListenerRespBody)),
-		d.Set("protocol", utils.PathSearch("listener.protocol", getListenerRespBody, nil)),
-		d.Set("status", utils.PathSearch("listener.status", getListenerRespBody, nil)),
-		d.Set("tags", flattenGetListenerResponseBodyResourceTag(getListenerRespBody)),
-		d.Set("updated_at", utils.PathSearch("listener.updated_at", getListenerRespBody, nil)),
+		d.Set("accelerator_id", utils.PathSearch("listener.accelerator_id", respBody, nil)),
+		d.Set("client_affinity", utils.PathSearch("listener.client_affinity", respBody, nil)),
+		d.Set("created_at", utils.PathSearch("listener.created_at", respBody, nil)),
+		d.Set("description", utils.PathSearch("listener.description", respBody, nil)),
+		d.Set("name", utils.PathSearch("listener.name", respBody, nil)),
+		d.Set("port_ranges", flattenGetListenerResponseBodyPortRange(respBody)),
+		d.Set("protocol", utils.PathSearch("listener.protocol", respBody, nil)),
+		d.Set("status", utils.PathSearch("listener.status", respBody, nil)),
+		d.Set("tags", flattenGetListenerResponseBodyResourceTag(respBody)),
+		d.Set("updated_at", utils.PathSearch("listener.updated_at", respBody, nil)),
+		d.Set("frozen_info", flattenListenerFrozenInfo(utils.PathSearch("listener.frozen_info", respBody, nil))),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -381,55 +366,59 @@ func flattenGetListenerResponseBodyResourceTag(resp interface{}) map[string]inte
 	return utils.FlattenTagsToMap(curJson)
 }
 
-func resourceListenerUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	region := conf.GetRegion(d)
+func flattenListenerFrozenInfo(resp interface{}) []map[string]interface{} {
+	if resp == nil {
+		return nil
+	}
 
-	updateListenerhasChanges := []string{
+	frozenInfo := map[string]interface{}{
+		"status": utils.PathSearch("status", resp, nil),
+		"effect": utils.PathSearch("effect", resp, nil),
+		"scene":  utils.PathSearch("scene", resp, []string{}),
+	}
+
+	return []map[string]interface{}{frozenInfo}
+}
+
+func resourceListenerUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		conf    = meta.(*config.Config)
+		region  = conf.GetRegion(d)
+		product = "ga"
+	)
+	client, err := conf.NewServiceClient(product, region)
+	if err != nil {
+		return diag.Errorf("error creating GA client: %s", err)
+	}
+
+	updateListenerHasChanges := []string{
 		"client_affinity",
 		"description",
 		"name",
 		"port_ranges",
 	}
 
-	if d.HasChanges(updateListenerhasChanges...) {
-		// updateListener: Update the configuration of GA Listener
-		var (
-			updateListenerHttpUrl = "v1/listeners/{listener_id}"
-			updateListenerProduct = "ga"
-		)
-		updateListenerClient, err := conf.NewServiceClient(updateListenerProduct, region)
-		if err != nil {
-			return diag.Errorf("error creating Listener Client: %s", err)
-		}
-
-		updateListenerPath := updateListenerClient.Endpoint + updateListenerHttpUrl
-		updateListenerPath = strings.ReplaceAll(updateListenerPath, "{listener_id}", d.Id())
-
-		updateListenerOpt := golangsdk.RequestOpts{
+	if d.HasChanges(updateListenerHasChanges...) {
+		requestPath := client.Endpoint + "v1/listeners/{listener_id}"
+		requestPath = strings.ReplaceAll(requestPath, "{listener_id}", d.Id())
+		requestOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
-			OkCodes: []int{
-				200,
-			},
+			JSONBody:         utils.RemoveNil(buildUpdateListenerBodyParams(d)),
 		}
-		updateListenerOpt.JSONBody = utils.RemoveNil(buildUpdateListenerBodyParams(d))
-		_, err = updateListenerClient.Request("PUT", updateListenerPath, &updateListenerOpt)
+
+		_, err = client.Request("PUT", requestPath, &requestOpt)
 		if err != nil {
-			return diag.Errorf("error updating Listener: %s", err)
+			return diag.Errorf("error updating GA listener: %s", err)
 		}
+
 		err = updateListenerWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
-			return diag.Errorf("error waiting for the Update of Listener (%s) to complete: %s", d.Id(), err)
+			return diag.Errorf("error waiting for the GA listener (%s) update to complete: %s", d.Id(), err)
 		}
 	}
 
 	// update tags
 	if d.HasChange("tags") {
-		client, err := conf.NewServiceClient("ga", region)
-		if err != nil {
-			return diag.Errorf("error creating GA Client: %s", err)
-		}
-
 		oldRaw, newRaw := d.GetChange("tags")
 		oldMap := oldRaw.(map[string]interface{})
 		newMap := newRaw.(map[string]interface{})
@@ -484,166 +473,139 @@ func buildUpdateListenerRequestBodyPortRange(rawParams interface{}) []map[string
 }
 
 func updateListenerWaitingForStateCompleted(ctx context.Context, d *schema.ResourceData, meta interface{}, t time.Duration) error {
+	var (
+		cfg              = meta.(*config.Config)
+		region           = cfg.GetRegion(d)
+		httpUrl          = "v1/listeners/{listener_id}"
+		product          = "ga"
+		targetStatus     = []string{"ACTIVE"}
+		unexpectedStatus = []string{"ERROR"}
+	)
+	client, err := cfg.NewServiceClient(product, region)
+	if err != nil {
+		return fmt.Errorf("error creating GA client: %s", err)
+	}
+
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{listener_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
-			config := meta.(*config.Config)
-			region := config.GetRegion(d)
-			// updateListenerWaiting: missing operation notes
-			var (
-				updateListenerWaitingHttpUrl = "v1/listeners/{listener_id}"
-				updateListenerWaitingProduct = "ga"
-			)
-			updateListenerWaitingClient, err := config.NewServiceClient(updateListenerWaitingProduct, region)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error creating Listener Client: %s", err)
-			}
-
-			updateListenerWaitingPath := updateListenerWaitingClient.Endpoint + updateListenerWaitingHttpUrl
-			updateListenerWaitingPath = strings.ReplaceAll(updateListenerWaitingPath, "{listener_id}", d.Id())
-
-			updateListenerWaitingOpt := golangsdk.RequestOpts{
-				KeepResponseBody: true,
-				OkCodes: []int{
-					200,
-				},
-			}
-			updateListenerWaitingResp, err := updateListenerWaitingClient.Request("GET", updateListenerWaitingPath, &updateListenerWaitingOpt)
+			resp, err := client.Request("GET", requestPath, &requestOpt)
 			if err != nil {
 				return nil, "ERROR", err
 			}
 
-			updateListenerWaitingRespBody, err := utils.FlattenResponse(updateListenerWaitingResp)
+			respBody, err := utils.FlattenResponse(resp)
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`listener.status`, updateListenerWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `listener.status`)
-			}
 
-			status := fmt.Sprintf("%v", statusRaw)
-
-			targetStatus := []string{
-				"ACTIVE",
-			}
+			status := utils.PathSearch(`listener.status`, respBody, "").(string)
 			if utils.StrSliceContains(targetStatus, status) {
-				return updateListenerWaitingRespBody, "COMPLETED", nil
+				return respBody, "COMPLETED", nil
 			}
 
-			unexpectedStatus := []string{
-				"ERROR",
-			}
 			if utils.StrSliceContains(unexpectedStatus, status) {
-				return updateListenerWaitingRespBody, status, nil
+				return respBody, status, nil
 			}
 
-			return updateListenerWaitingRespBody, "PENDING", nil
+			return respBody, "PENDING", nil
 		},
 		Timeout:      t,
 		Delay:        10 * time.Second,
 		PollInterval: 5 * time.Second,
 	}
-	_, err := stateConf.WaitForStateContext(ctx)
+	_, err = stateConf.WaitForStateContext(ctx)
 	return err
 }
 
 func resourceListenerDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	region := conf.GetRegion(d)
-
-	// deleteListener: Delete an existing GA Listener
 	var (
-		deleteListenerHttpUrl = "v1/listeners/{listener_id}"
-		deleteListenerProduct = "ga"
+		conf    = meta.(*config.Config)
+		region  = conf.GetRegion(d)
+		httpUrl = "v1/listeners/{listener_id}"
+		product = "ga"
 	)
-	deleteListenerClient, err := conf.NewServiceClient(deleteListenerProduct, region)
+	client, err := conf.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating Listener Client: %s", err)
+		return diag.Errorf("error creating GA client: %s", err)
 	}
 
-	deleteListenerPath := deleteListenerClient.Endpoint + deleteListenerHttpUrl
-	deleteListenerPath = strings.ReplaceAll(deleteListenerPath, "{listener_id}", d.Id())
-
-	deleteListenerOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{listener_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			204,
-		},
 	}
-	_, err = deleteListenerClient.Request("DELETE", deleteListenerPath, &deleteListenerOpt)
+
+	_, err = client.Request("DELETE", requestPath, &requestOpt)
 	if err != nil {
-		return diag.Errorf("error deleting Listener: %s", err)
+		return diag.Errorf("error deleting GA listener: %s", err)
 	}
 
 	err = deleteListenerWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return diag.Errorf("error waiting for the Delete of Listener (%s) to complete: %s", d.Id(), err)
+		return diag.Errorf("error waiting for the GA listener (%s) delete to complete: %s", d.Id(), err)
 	}
 	return nil
 }
 
 func deleteListenerWaitingForStateCompleted(ctx context.Context, d *schema.ResourceData, meta interface{}, t time.Duration) error {
+	var (
+		cfg              = meta.(*config.Config)
+		region           = cfg.GetRegion(d)
+		httpUrl          = "v1/listeners/{listener_id}"
+		product          = "ga"
+		unexpectedStatus = []string{"ERROR"}
+	)
+	client, err := cfg.NewServiceClient(product, region)
+	if err != nil {
+		return fmt.Errorf("error creating GA client: %s", err)
+	}
+
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{listener_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{"PENDING"},
 		Target:  []string{"COMPLETED"},
 		Refresh: func() (interface{}, string, error) {
-			config := meta.(*config.Config)
-			region := config.GetRegion(d)
-			// deleteListenerWaiting: missing operation notes
-			var (
-				deleteListenerWaitingHttpUrl = "v1/listeners/{listener_id}"
-				deleteListenerWaitingProduct = "ga"
-			)
-			deleteListenerWaitingClient, err := config.NewServiceClient(deleteListenerWaitingProduct, region)
+			resp, err := client.Request("GET", requestPath, &requestOpt)
 			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error creating Listener Client: %s", err)
-			}
-
-			deleteListenerWaitingPath := deleteListenerWaitingClient.Endpoint + deleteListenerWaitingHttpUrl
-			deleteListenerWaitingPath = strings.ReplaceAll(deleteListenerWaitingPath, "{listener_id}", d.Id())
-
-			deleteListenerWaitingOpt := golangsdk.RequestOpts{
-				KeepResponseBody: true,
-				OkCodes: []int{
-					200,
-				},
-			}
-			deleteListenerWaitingResp, err := deleteListenerWaitingClient.Request("GET", deleteListenerWaitingPath, &deleteListenerWaitingOpt)
-			if err != nil {
-				if _, ok := err.(golangsdk.ErrDefault404); ok {
-					// When the error code is 404, the value of respBody is nil, and a non-null value is returned to avoid continuing the loop check.
+				var errDefault404 golangsdk.ErrDefault404
+				if errors.As(err, &errDefault404) {
+					// When the error code is `404`, the value of respBody is nil, and a non-null value is returned to
+					// avoid continuing the loop check.
 					return "Resource Not Found", "COMPLETED", nil
 				}
 
 				return nil, "ERROR", err
 			}
 
-			deleteListenerWaitingRespBody, err := utils.FlattenResponse(deleteListenerWaitingResp)
+			respBody, err := utils.FlattenResponse(resp)
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`listener.status`, deleteListenerWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `listener.status`)
-			}
 
-			status := fmt.Sprintf("%v", statusRaw)
-
-			unexpectedStatus := []string{
-				"ERROR",
-			}
+			status := utils.PathSearch(`listener.status`, respBody, "").(string)
 			if utils.StrSliceContains(unexpectedStatus, status) {
-				return deleteListenerWaitingRespBody, status, nil
+				return respBody, status, nil
 			}
 
-			return deleteListenerWaitingRespBody, "PENDING", nil
+			return respBody, "PENDING", nil
 		},
 		Timeout:      t,
 		Delay:        10 * time.Second,
 		PollInterval: 5 * time.Second,
 	}
-	_, err := stateConf.WaitForStateContext(ctx)
+	_, err = stateConf.WaitForStateContext(ctx)
 	return err
 }

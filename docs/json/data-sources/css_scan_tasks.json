@@ -1,0 +1,77 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_css_scan_tasks": {
+          "block": {
+            "attributes": {
+              "cluster_id": {
+                "type": "string",
+                "description": "Specifies the ID of the CSS cluster.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "scan_tasks": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "description": "string",
+                      "id": "string",
+                      "name": "string",
+                      "smn_fail_reason": "string",
+                      "smn_status": "string",
+                      "status": "number",
+                      "summary": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "high": "number",
+                            "medium": "number",
+                            "suggestion": "number"
+                          }
+                        ]
+                      ],
+                      "task_risks": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "description": "string",
+                            "level": "string",
+                            "risk": "string",
+                            "suggestion": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The scan tasks.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CSS",
+            "name": "Cloud Search Service",
+            "catalog": "Analytics",
+            "name_cn": "云搜索服务",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

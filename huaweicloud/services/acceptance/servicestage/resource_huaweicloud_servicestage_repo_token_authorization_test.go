@@ -33,15 +33,15 @@ func getAuthResourceFunc(conf *config.Config, state *terraform.ResourceState) (i
 
 func TestAccRepoTokenAuth_basic(t *testing.T) {
 	var (
-		auth         repositories.Authorization
-		randName     = acceptance.RandomAccResourceNameWithDash()
-		resourceName = "huaweicloud_servicestage_repo_token_authorization.test"
-	)
+		auth interface{}
 
-	rc := acceptance.InitResourceCheck(
-		resourceName,
-		&auth,
-		getAuthResourceFunc,
+		name = acceptance.RandomAccResourceNameWithDash()
+
+		withHost    = "huaweicloud_servicestage_repo_token_authorization.with_host"
+		withoutHost = "huaweicloud_servicestage_repo_token_authorization.without_host"
+
+		rcWithHost    = acceptance.InitResourceCheck(withHost, &auth, getAuthResourceFunc)
+		rcWithoutHost = acceptance.InitResourceCheck(withoutHost, &auth, getAuthResourceFunc)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -50,23 +50,39 @@ func TestAccRepoTokenAuth_basic(t *testing.T) {
 			acceptance.TestAccPreCheckRepoTokenAuth(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			rcWithHost.CheckResourceDestroy(),
+			rcWithoutHost.CheckResourceDestroy(),
+		),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccRepoTokenAuth_basic(randName),
+				Config: testAccRepoTokenAuth_basic(name),
 				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", randName),
-					resource.TestCheckResourceAttr(resourceName, "type", "github"),
+					rcWithHost.CheckResourceExists(),
+					resource.TestCheckResourceAttr(withHost, "name", name+"-with-host"),
+					resource.TestCheckResourceAttr(withHost, "type", "github"),
+					resource.TestCheckResourceAttr(withHost, "host", "https://api.github.com"),
+					rcWithoutHost.CheckResourceExists(),
+					resource.TestCheckResourceAttr(withoutHost, "name", name+"-without-host"),
+					resource.TestCheckResourceAttr(withoutHost, "type", "github"),
+					resource.TestCheckNoResourceAttr(withoutHost, "host"),
 				),
 			},
 			{
-				ResourceName:      resourceName,
+				ResourceName:      withHost,
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
 					"token",
 					"host",
+				},
+			},
+			{
+				ResourceName:      withoutHost,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"token",
 				},
 			},
 		},
@@ -75,11 +91,17 @@ func TestAccRepoTokenAuth_basic(t *testing.T) {
 
 func testAccRepoTokenAuth_basic(rName string) string {
 	return fmt.Sprintf(`
-resource "huaweicloud_servicestage_repo_token_authorization" "test" {
+resource "huaweicloud_servicestage_repo_token_authorization" "with_host" {
   type  = "github"
-  name  = "%s"
-  host  = "%s"
-  token = "%s"
+  name  = "%[1]s-with-host"
+  token = "%[2]s"
+  host  = "https://api.github.com"
 }
-`, rName, acceptance.HW_GITHUB_REPO_HOST, acceptance.HW_GITHUB_PERSONAL_TOKEN)
+
+resource "huaweicloud_servicestage_repo_token_authorization" "without_host" {
+  type  = "github"
+  name  = "%[1]s-without-host"
+  token = "%[2]s"
+}
+`, rName, acceptance.HW_GITHUB_PERSONAL_TOKEN)
 }

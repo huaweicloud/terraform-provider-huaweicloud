@@ -1,0 +1,176 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_workspace_app_server_groups": {
+          "block": {
+            "attributes": {
+              "app_type": {
+                "type": "string",
+                "description": "The type of application group.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The enterprise project ID.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_secondary_server_group": {
+                "type": "string",
+                "description": "Whether it is a secondary server group.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region in which to query the resource.",
+                "computed": true
+              },
+              "server_group_id": {
+                "type": "string",
+                "description": "The ID of the server group.",
+                "optional": true
+              },
+              "server_group_name": {
+                "type": "string",
+                "description": "The name of the server group.",
+                "optional": true
+              },
+              "server_groups": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "app_group_count": "number",
+                      "app_server_count": "number",
+                      "app_server_flavor_count": "number",
+                      "app_type": "string",
+                      "create_time": "string",
+                      "description": "string",
+                      "enterprise_project_id": "string",
+                      "extra_session_size": "number",
+                      "extra_session_type": "string",
+                      "id": "string",
+                      "image_id": "string",
+                      "image_name": "string",
+                      "is_vdi": "bool",
+                      "name": "string",
+                      "os_type": "string",
+                      "ou_name": "string",
+                      "primary_server_group_ids": [
+                        "list",
+                        "string"
+                      ],
+                      "product_id": "string",
+                      "product_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "architecture": "string",
+                            "charge_mode": "string",
+                            "cloud_service_type": "string",
+                            "cond_operation_az": "string",
+                            "contain_data_disk": "bool",
+                            "cpu": "string",
+                            "cpu_desc": "string",
+                            "descriptions": "string",
+                            "domain_ids": [
+                              "list",
+                              "string"
+                            ],
+                            "expire_time": "string",
+                            "flavor_id": "string",
+                            "gpu_desc": "string",
+                            "is_gpu": "bool",
+                            "memory": "string",
+                            "package_type": "string",
+                            "product_id": "string",
+                            "resource_type": "string",
+                            "sessions": "number",
+                            "status": "string",
+                            "sub_product_list": [
+                              "list",
+                              "string"
+                            ],
+                            "support_gpu_type": "string",
+                            "system_disk_size": "string",
+                            "system_disk_type": "string",
+                            "type": "string",
+                            "volume_product_type": "string"
+                          }
+                        ]
+                      ],
+                      "scaling_policy": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "enable": "bool",
+                            "max_scaling_amount": "number",
+                            "scaling_policy_by_session": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "session_usage_threshold": "number",
+                                  "shrink_after_session_idle_minutes": "number"
+                                }
+                              ]
+                            ],
+                            "single_expansion_count": "number"
+                          }
+                        ]
+                      ],
+                      "secondary_server_group_ids": [
+                        "list",
+                        "string"
+                      ],
+                      "server_group_status": "bool",
+                      "site_id": "string",
+                      "site_type": "string",
+                      "storage_mount_policy": "string",
+                      "subnet_id": "string",
+                      "subnet_name": "string",
+                      "system_disk_size": "number",
+                      "system_disk_type": "string",
+                      "tags": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "key": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ],
+                      "update_time": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of server groups.",
+                "computed": true
+              },
+              "tags": {
+                "type": "string",
+                "description": "The tag value to filter server groups.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

@@ -15,7 +15,6 @@ import (
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/cdm/v1/clusters"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -25,6 +24,7 @@ import (
 // @API CDM DELETE /v1.1/{project_id}/clusters/{clusterId}
 // @API CDM GET /v1.1/{project_id}/clusters/{clusterId}
 // @API CDM POST /v1.1/{project_id}/clusters
+// @API CDM POST /v1.1/{project_id}/cluster/modify/{cluster_id}
 func ResourceCdmCluster() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCdmClusterCreate,
@@ -117,20 +117,16 @@ func ResourceCdmCluster() *schema.Resource {
 			},
 
 			"email": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
-				ForceNew: true,
-				MaxItems: 5,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
 
 			"phone_num": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
-				ForceNew: true,
-				MaxItems: 5,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -228,8 +224,6 @@ func resourceCdmClusterCreate(ctx context.Context, d *schema.ResourceData, meta 
 	buildClusterParamter(d, &opts, cfg.GetEnterpriseProjectID(d))
 	buildNotifyParamter(d, &opts)
 
-	log.Printf("[DEBUG] Creating CDM cluster opts: %#v", opts)
-
 	rst, createErr := clusters.Create(client, opts)
 	if createErr != nil {
 		return diag.Errorf("error creating CDM cluster: %s", createErr)
@@ -293,8 +287,8 @@ func buildClusterParamter(d *schema.ResourceData, opts *clusters.ClusterCreateOp
 }
 
 func buildNotifyParamter(d *schema.ResourceData, opts *clusters.ClusterCreateOpts) {
-	opts.Email = strings.Join(utils.ExpandToStringList(d.Get("email").([]interface{})), ",")
-	opts.PhoneNum = strings.Join(utils.ExpandToStringList(d.Get("phone_num").([]interface{})), ",")
+	opts.Email = strings.Join(utils.ExpandToStringList(d.Get("email").(*schema.Set).List()), ",")
+	opts.PhoneNum = strings.Join(utils.ExpandToStringList(d.Get("phone_num").(*schema.Set).List()), ",")
 
 	if opts.Email != "" || opts.PhoneNum != "" {
 		opts.AutoRemind = utils.Bool(true)
@@ -371,19 +365,78 @@ func resourceCdmClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.Errorf("error creating CDM v1 client, err=%s", err)
 	}
 
+	if d.HasChanges("email", "phone_num") {
+		err := updateEmailAndPhoneNum(client, d)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	if d.HasChange("enterprise_project_id") {
-		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+		migrateOpts := config.MigrateResourceOpts{
 			ResourceId:   clusterId,
 			ResourceType: "cdm-clusters",
 			RegionId:     region,
 			ProjectId:    client.ProjectID,
 		}
-		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
+		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
 	return resourceCdmClusterRead(ctx, d, meta)
+}
+
+func updateEmailAndPhoneNum(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	updateHttpUrl := "v1.1/{project_id}/cluster/modify/{cluster_id}"
+	updatePath := client.Endpoint + updateHttpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{cluster_id}", d.Id())
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildUpdateClusterBodyParam(d)),
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+			"X-Language":   "zh-cn",
+		},
+	}
+
+	_, err := client.Request("POST", updatePath, &updateOpt)
+	if err != nil {
+		return fmt.Errorf("error updating cluster notification infos: %s", err)
+	}
+
+	return nil
+}
+
+func buildUpdateClusterBodyParam(d *schema.ResourceData) map[string]interface{} {
+	email := strings.Join(utils.ExpandToStringList(d.Get("email").(*schema.Set).List()), ",")
+	phoneNum := strings.Join(utils.ExpandToStringList(d.Get("phone_num").(*schema.Set).List()), ",")
+
+	bodyParams := map[string]interface{}{
+		"email":    utils.ValueIgnoreEmpty(email),
+		"phoneNum": utils.ValueIgnoreEmpty(phoneNum),
+	}
+	if email == "" && phoneNum == "" {
+		bodyParams["autoRemind"] = utils.Bool(false)
+	} else {
+		bodyParams["autoRemind"] = utils.Bool(true)
+	}
+
+	// Shutdown cluster is no longer supported, to be deprecated,
+	// so resource does not support to update those params, input them to avoid being covered.
+	bootTime := d.Get("schedule_boot_time").(string)
+	offTime := d.Get("schedule_off_time").(string)
+
+	bodyParams["autoOff"] = d.Get("is_auto_off")
+
+	if bootTime != "" || offTime != "" {
+		bodyParams["scheduleBootOff"] = utils.Bool(true)
+		bodyParams["scheduleBootTime"] = bootTime
+		bodyParams["scheduleOffTime"] = offTime
+	}
+
+	return bodyParams
 }
 
 func resourceCdmClusterDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

@@ -13,7 +13,6 @@ import (
 func TestAccDatasourcePrivateGateways_basic(t *testing.T) {
 	var (
 		name           = acceptance.RandomAccResourceName()
-		baseConfig     = testAccPrivateGatewaysDataSource_base()
 		dataSourceName = "data.huaweicloud_nat_private_gateways.test"
 		dc             = acceptance.InitDataSourceCheck(dataSourceName)
 
@@ -40,6 +39,9 @@ func TestAccDatasourcePrivateGateways_basic(t *testing.T) {
 		byEps   = "data.huaweicloud_nat_private_gateways.filter_by_eps"
 		dcByEps = acceptance.InitDataSourceCheck(byEps)
 
+		byDescription   = "data.huaweicloud_nat_private_gateways.filter_by_description"
+		dcByDescription = acceptance.InitDataSourceCheck(byDescription)
+
 		byTags   = "data.huaweicloud_nat_private_gateways.filter_by_tags"
 		dcByTags = acceptance.InitDataSourceCheck(byTags)
 	)
@@ -49,7 +51,7 @@ func TestAccDatasourcePrivateGateways_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDatasourcePrivateGateways_basic(baseConfig, name),
+				Config: testAccDatasourcePrivateGateways_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					dcByName.CheckResourceExists(),
@@ -75,6 +77,9 @@ func TestAccDatasourcePrivateGateways_basic(t *testing.T) {
 					dcByEps.CheckResourceExists(),
 					resource.TestCheckOutput("eps_filter_is_useful", "true"),
 
+					dcByDescription.CheckResourceExists(),
+					resource.TestCheckOutput("description_filter_is_useful", "true"),
+
 					dcByTags.CheckResourceExists(),
 					resource.TestCheckOutput("tags_filter_is_useful", "true"),
 				),
@@ -83,9 +88,7 @@ func TestAccDatasourcePrivateGateways_basic(t *testing.T) {
 	})
 }
 
-func testAccPrivateGatewaysDataSource_base() string {
-	name := acceptance.RandomAccResourceNameWithDash()
-
+func testAccPrivateGatewaysDataSource_base(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -103,7 +106,7 @@ resource "huaweicloud_nat_private_gateway" "test" {
 `, common.TestBaseNetwork(name), name)
 }
 
-func testAccDatasourcePrivateGateways_basic(baseConfig, name string) string {
+func testAccDatasourcePrivateGateways_basic(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -249,6 +252,24 @@ output "eps_filter_is_useful" {
 }
 
 locals {
+  description = data.huaweicloud_nat_private_gateways.test.gateways[0].description
+}
+
+data "huaweicloud_nat_private_gateways" "filter_by_description" {
+  description = [local.description]
+}
+
+locals {
+  description_filter_result = [
+    for v in data.huaweicloud_nat_private_gateways.filter_by_description.gateways[*].description : v == local.description
+  ]
+}
+
+output "description_filter_is_useful" {
+  value = alltrue(local.description_filter_result) && length(local.description_filter_result) > 0
+}
+
+locals {
   tags = data.huaweicloud_nat_private_gateways.test.gateways[0].tags
 }
 
@@ -258,12 +279,14 @@ data "huaweicloud_nat_private_gateways" "filter_by_tags" {
 
 locals {
   tags_filter_result = [
-    for v in data.huaweicloud_nat_private_gateways.filter_by_tags.gateways[*].tags : v == local.tags
+    for tagMap in data.huaweicloud_nat_private_gateways.filter_by_tags.gateways[*].tags : alltrue([
+      for k, v in local.tags : tagMap[k] == v
+    ])
   ]
 }
 
 output "tags_filter_is_useful" {
   value = alltrue(local.tags_filter_result) && length(local.tags_filter_result) > 0
 }
-`, baseConfig, name)
+`, testAccPrivateGatewaysDataSource_base(name))
 }

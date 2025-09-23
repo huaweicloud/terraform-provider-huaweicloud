@@ -1,0 +1,72 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_vpn_access_policy": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "The creation time.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the access policy.",
+                "optional": true
+              },
+              "dest_ip_cidrs": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "description": "The list of destination IP CIDRs.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The access policy name.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The update time.",
+                "computed": true
+              },
+              "user_group_id": {
+                "type": "string",
+                "description": "The user group ID.",
+                "required": true
+              },
+              "user_group_name": {
+                "type": "string",
+                "description": "The user group name.",
+                "computed": true
+              },
+              "vpn_server_id": {
+                "type": "string",
+                "description": "The VPN server ID.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "VPN",
+            "name": "Virtual Private Network",
+            "catalog": "Networking",
+            "name_cn": "虚拟专用网络",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

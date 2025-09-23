@@ -2,7 +2,8 @@
 subcategory: "IoT Device Access (IoTDA)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_iotda_space"
-description: ""
+description: -|
+  Manages an IoTDA resource space within HuaweiCloud.
 ---
 
 # huaweicloud_iotda_space
@@ -12,6 +13,8 @@ Manages an IoTDA resource space within HuaweiCloud.
 A resource space is the basic unit of service management and provides independent device management and platform
 configuration capabilities at the service layer. Resources (such as products and devices) must be created on
 a resource space.
+
+-> The **basic** edition instance does not support updating the resource.
 
 -> When accessing an IoTDA **standard** or **enterprise** edition instance, you need to specify
   the IoTDA service endpoint in `provider` block.
@@ -31,8 +34,10 @@ a resource space.
 ## Example Usage
 
 ```hcl
-resource "huaweicloud_iotda_space" "space" {
-  name = "first_space"
+variable "name" {}
+
+resource "huaweicloud_iotda_space" "test" {
+  name = var.name
 }
 ```
 
@@ -43,9 +48,8 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the IoTDA resource space resource.
 If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `name` - (Required, String, ForceNew) Specifies the space name. The name contains a maximum of 64 characters.
+* `name` - (Required, String) Specifies the space name. The name contains a maximum of `64` characters.
 Only letters, digits, hyphens (-), underscore (_) and the following special characters are allowed: `?'#().,&%@!`.
-Changing this parameter will create a new resource.
 
 ## Attribute Reference
 
@@ -58,8 +62,8 @@ a default resource space (undeletable) to your account.
 
 ## Import
 
-Spaces can be imported using the `id`, e.g.
+The resource can be imported using the `id`, e.g.
 
-```
-$ terraform import huaweicloud_iotda_space.test 10022532f4f94f26b01daa1e424853e1
+```bash
+$ terraform import huaweicloud_iotda_space.test <id>
 ```

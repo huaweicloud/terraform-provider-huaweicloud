@@ -15,3 +15,20 @@ func List(client *golangsdk.ServiceClient) (r ListResult) {
 	})
 	return
 }
+
+type ApplyOpts struct {
+	InstanceIds []string `json:"instance_ids" required:"true"`
+}
+
+func Apply(c *golangsdk.ServiceClient, configID string, opts ApplyOpts) (r JobResult) {
+	b, err := golangsdk.BuildRequestBody(opts, "")
+	if err != nil {
+		r.Err = err
+		return
+	}
+
+	_, r.Err = c.Put(applyURL(c, configID), b, &r.Body, &golangsdk.RequestOpts{
+		MoreHeaders: RequestOpts.MoreHeaders,
+	})
+	return
+}

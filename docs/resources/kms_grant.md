@@ -47,8 +47,8 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `name` - (Optional, String, ForceNew) Grant name.  
-  It must be 1 to 255 characters long, start with a letter, and contain only letters (case-sensitive),
-  digits, hyphens (-), underscores (_), and slash(/).
+  It must be `1` to `255` characters long, start with a letter, and contain only letters (case-sensitive),
+  digits, hyphens (-), underscores (_), colons (:), and slash(/).
   Changing this parameter will create a new resource.
 
 * `type` - (Optional, String, ForceNew) Authorization type.

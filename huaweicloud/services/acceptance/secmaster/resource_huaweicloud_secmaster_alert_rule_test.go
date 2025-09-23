@@ -34,23 +34,15 @@ func getAlertRuleResourceFunc(cfg *config.Config, state *terraform.ResourceState
 
 	getAlertRuleOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: map[string]string{"Content-Type": "application/json"},
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
 	getAlertRuleResp, err := getAlertRuleClient.Request("GET", getAlertRulePath, &getAlertRuleOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving AlertRule: %s", err)
+		return nil, err
 	}
 
-	getAlertRuleRespBody, err := utils.FlattenResponse(getAlertRuleResp)
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving AlertRule: %s", err)
-	}
-
-	return getAlertRuleRespBody, nil
+	return utils.FlattenResponse(getAlertRuleResp)
 }
 
 func TestAccAlertRule_basic(t *testing.T) {
@@ -137,9 +129,10 @@ resource "huaweicloud_secmaster_alert_rule" "test" {
   description  = "this is a test rule created by terraform"
   status       = "ENABLED"
   severity     = "TIPS"
+
   type = {
-    "name"     = "DNS协议攻击"
-    "category" = "DDoS攻击"
+    "name"     = "DNS protocol attacks"
+    "category" = "DDoS attacks"
   }
 
   triggers {
@@ -171,9 +164,10 @@ resource "huaweicloud_secmaster_alert_rule" "test" {
   description  = "this is a test rule created by terraform update"
   status       = "DISABLED"
   severity     = "MEDIUM"
+
   type = {
-    "name"     = "DNS协议攻击"
-    "category" = "DDoS攻击"
+    "name"     = "DNS protocol attacks"
+    "category" = "DDoS attacks"
   }
 
   triggers {

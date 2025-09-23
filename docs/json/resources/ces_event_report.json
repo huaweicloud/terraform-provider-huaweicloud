@@ -1,0 +1,116 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_ces_event_report": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the CES event name.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "source": {
+                "type": "string",
+                "description": "Specifies the event source.",
+                "required": true
+              },
+              "time": {
+                "type": "string",
+                "description": "Specifies the occurrence time of the event.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "detail": {
+                "block": {
+                  "attributes": {
+                    "content": {
+                      "type": "string",
+                      "description": "Specifies the event content.",
+                      "optional": true
+                    },
+                    "group_id": {
+                      "type": "string",
+                      "description": "Specifies the group that the event belongs to.",
+                      "optional": true
+                    },
+                    "level": {
+                      "type": "string",
+                      "description": "Specifies the event level.",
+                      "required": true
+                    },
+                    "resource_id": {
+                      "type": "string",
+                      "description": "Specifies the resource ID.",
+                      "optional": true
+                    },
+                    "resource_name": {
+                      "type": "string",
+                      "description": "Specifies the resource name.",
+                      "optional": true
+                    },
+                    "state": {
+                      "type": "string",
+                      "description": "Specifies the event status.",
+                      "required": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Specifies the event type.",
+                      "optional": true
+                    },
+                    "user": {
+                      "type": "string",
+                      "description": "Specifies the event user.",
+                      "optional": true
+                    }
+                  },
+                  "block_types": {
+                    "dimensions": {
+                      "block": {
+                        "attributes": {
+                          "name": {
+                            "type": "string",
+                            "description": "The resource dimension name.",
+                            "required": true
+                          },
+                          "value": {
+                            "type": "string",
+                            "description": "The resource dimension value.",
+                            "required": true
+                          }
+                        },
+                        "description": "Specifies the resource dimensions."
+                      },
+                      "nesting_mode": "list"
+                    }
+                  },
+                  "description": "Specifies the detail of the CES event."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "CES",
+            "name": "Cloud Eye",
+            "catalog": "Management & Governance",
+            "name_cn": "云监控服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

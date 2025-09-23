@@ -1,0 +1,26 @@
+info:
+    version: ""
+    title: resource_huaweicloud_natv3_gateway
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: NAT
+paths:
+    /v2/{project_id}/nat_gateways:
+        POST:
+            tag: NAT
+    /v2/{project_id}/nat_gateways/{nat_gateway_id}:
+        DELETE:
+            tag: NAT
+        GET:
+            tag: NAT
+        PUT:
+            tag: NAT
+    /v3/{project_id}/nat_gateways/{nat_gateway_id}/tags:
+        GET:
+            tag: NAT
+    /v3/{project_id}/nat_gateways/{nat_gateway_id}/tags/action:
+        POST:
+            tag: NAT

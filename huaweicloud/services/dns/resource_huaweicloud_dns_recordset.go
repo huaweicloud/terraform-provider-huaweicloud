@@ -11,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -46,6 +45,8 @@ func ResourceDNSRecordset() *schema.Resource {
 			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 
+		CustomizeDiff: config.MergeDefaultTags(),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
@@ -57,13 +58,15 @@ func ResourceDNSRecordset() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `Specifies the zone ID.`,
+				Description: `The ID of the zone to which the record set belongs.`,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				Description: `Specifies the name of the record set. The name suffixed with a zone name, which is a
-complete host name ended with a dot.`,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The name of the record set.`,
+				DiffSuppressFunc: func(_, oldVal, newVal string, _ *schema.ResourceData) bool {
+					return strings.TrimSuffix(oldVal, ".") == strings.TrimSuffix(newVal, ".")
+				},
 			},
 			"type": {
 				Type:     schema.TypeString,
@@ -71,59 +74,57 @@ complete host name ended with a dot.`,
 				ValidateFunc: validation.StringInSlice([]string{
 					"A", "AAAA", "MX", "CNAME", "TXT", "NS", "SRV", "CAA",
 				}, false),
-				Description: `Specifies the type of the record set.`,
+				Description: `The type of the record set.`,
 			},
 			"records": {
-				Type:        schema.TypeList,
+				Type:        schema.TypeSet,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				MinItems:    1,
 				Required:    true,
-				Description: `Specifies an array of DNS records. The value rules vary depending on the record set type.`,
+				Description: `The list of the records of the record set.`,
 			},
 			"ttl": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Default:      300,
-				ValidateFunc: validation.IntBetween(1, 2147483647),
-				Description:  `Specifies the time to live (TTL) of the record set (in seconds).`,
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Default:     300,
+				Description: `The time to live (TTL) of the record set (in seconds).`,
 			},
 			"line_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
 				ForceNew:    true,
-				Description: `Specifies the resolution line ID.`,
+				Description: `The resolution line ID.`,
 			},
 			"status": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Default:      "ENABLE",
 				ValidateFunc: validation.StringInSlice([]string{"ENABLE", "DISABLE"}, false),
-				Description:  `Specifies the status of the record set.`,
+				Description:  `The status of the record set.`,
 			},
 			"tags": common.TagsSchema(),
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				Description: `Specifies the description of the record set.`,
+				Description: `The description of the record set.`,
 			},
 			"weight": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Computed:     true,
-				ValidateFunc: validation.IntBetween(0, 1000),
-				Description:  `Specifies the weight of the record set.`,
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Computed:    true,
+				Description: `The weight of the record set.`,
 			},
 			"zone_name": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `The zone name of the record set.`,
+				Description: `The name of the zone to which the record set belongs.`,
 			},
 			"zone_type": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `The zone type. The value can be public or private`,
+				Description: `The type of the zone to which the record set belongs.`,
 			},
 		},
 	}
@@ -201,11 +202,11 @@ func createDNSRecordset(recordsetClient *golangsdk.ServiceClient, d *schema.Reso
 		return err
 	}
 
-	id, err := jmespath.Search("id", createDNSRecordsetRespBody)
-	if err != nil {
-		return fmt.Errorf("error creating DNS recordset: ID is not found in API response")
+	recordSetID := utils.PathSearch("id", createDNSRecordsetRespBody, "").(string)
+	if recordSetID == "" {
+		return fmt.Errorf("unable to find the DNS recordset ID from the API response")
 	}
-	d.SetId(fmt.Sprintf("%s/%s", zoneID, id))
+	d.SetId(fmt.Sprintf("%s/%s", zoneID, recordSetID))
 	return nil
 }
 
@@ -234,7 +235,7 @@ func buildCreateDNSRecordsetBodyParams(d *schema.ResourceData) map[string]interf
 		"type":        utils.ValueIgnoreEmpty(d.Get("type")),
 		"status":      utils.ValueIgnoreEmpty(d.Get("status")),
 		"ttl":         utils.ValueIgnoreEmpty(d.Get("ttl")),
-		"records":     utils.ValueIgnoreEmpty(d.Get("records")),
+		"records":     utils.ValueIgnoreEmpty(d.Get("records").(*schema.Set).List()),
 		"line":        utils.ValueIgnoreEmpty(d.Get("line_id")),
 		"tags":        utils.ExpandResourceTagsMap(d.Get("tags").(map[string]interface{})),
 		"weight":      utils.ValueIgnoreEmpty(d.Get("weight")),
@@ -253,7 +254,7 @@ func resourceDNSRecordsetRead(_ context.Context, d *schema.ResourceData, meta in
 
 	dnsClient, zoneType, err := chooseDNSClientbyZoneID(d, zoneID, meta)
 	if err != nil {
-		return diag.FromErr(err)
+		return common.CheckDeletedDiag(d, err, "error creating DNS client")
 	}
 
 	version := getApiVersionByZoneType(zoneType)
@@ -292,6 +293,7 @@ func resourceDNSRecordsetRead(_ context.Context, d *schema.ResourceData, meta in
 		d.Set("line_id", utils.PathSearch("line", getDNSRecordsetRespBody, nil)),
 		d.Set("weight", utils.PathSearch("weight", getDNSRecordsetRespBody, nil)),
 		d.Set("zone_type", zoneType),
+		d.Set("tags", d.Get("tags")),
 	)
 
 	if err := mErr.ErrorOrNil(); err != nil {
@@ -329,7 +331,7 @@ func resourceDNSRecordsetUpdate(ctx context.Context, d *schema.ResourceData, met
 
 	dnsClient, zoneType, err := chooseDNSClientbyZoneID(d, zoneID, meta)
 	if err != nil {
-		return diag.FromErr(err)
+		return common.CheckDeletedDiag(d, err, "error creating DNS client")
 	}
 
 	if zoneType == "private" {
@@ -436,7 +438,7 @@ func buildUpdateDNSRecordsetBodyParams(d *schema.ResourceData) map[string]interf
 		"description": utils.ValueIgnoreEmpty(d.Get("description")),
 		"type":        utils.ValueIgnoreEmpty(d.Get("type")),
 		"ttl":         utils.ValueIgnoreEmpty(d.Get("ttl")),
-		"records":     utils.ValueIgnoreEmpty(d.Get("records")),
+		"records":     utils.ValueIgnoreEmpty(d.Get("records").(*schema.Set).List()),
 		"weight":      utils.ValueIgnoreEmpty(d.Get("weight")),
 	}
 	return bodyParams
@@ -457,7 +459,7 @@ func resourceDNSRecordsetDelete(ctx context.Context, d *schema.ResourceData, met
 
 	dnsClient, zoneType, err := chooseDNSClientbyZoneID(d, zoneID, meta)
 	if err != nil {
-		return diag.FromErr(err)
+		return common.CheckDeletedDiag(d, err, "error creating DNS client")
 	}
 
 	version := getApiVersionByZoneType(zoneType)

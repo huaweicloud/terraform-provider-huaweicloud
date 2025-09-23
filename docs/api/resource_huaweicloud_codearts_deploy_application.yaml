@@ -11,9 +11,23 @@ paths:
     /v1/applications:
         POST:
             tag: CodeArtsDeploy
+        PUT:
+            tag: CodeArtsDeploy
     /v1/applications/{app_id}:
         DELETE:
             tag: CodeArtsDeploy
+    /v1/applications/{app_id}/disable:
+        PUT:
+            tag: CodeArtsDeploy
     /v1/applications/{app_id}/info:
+        GET:
+            tag: CodeArtsDeploy
+    /v1/projects/{project_id}/applications/groups/move:
+        PUT:
+            tag: CodeArtsDeploy
+    /v3/applications/permission-level:
+        PUT:
+            tag: CodeArtsDeploy
+    /v3/applications/permissions:
         GET:
             tag: CodeArtsDeploy

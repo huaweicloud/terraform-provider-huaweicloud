@@ -17,6 +17,10 @@
                 "type": "string",
                 "optional": true
               },
+              "create_time": {
+                "type": "number",
+                "computed": true
+              },
               "data_bucket": {
                 "type": "string",
                 "required": true,
@@ -30,6 +34,14 @@
                 "optional": true,
                 "computed": true
               },
+              "detail": {
+                "type": "string",
+                "computed": true
+              },
+              "domain_id": {
+                "type": "string",
+                "computed": true
+              },
               "enabled": {
                 "type": "bool",
                 "optional": true,
@@ -39,14 +51,30 @@
                 "type": "string",
                 "optional": true
               },
+              "group_id": {
+                "type": "string",
+                "computed": true
+              },
               "id": {
                 "type": "string",
+                "computed": true
+              },
+              "is_authorized_bucket": {
+                "type": "bool",
                 "computed": true
               },
               "is_sort_by_service": {
                 "type": "bool",
                 "optional": true,
                 "default": true
+              },
+              "log_group_name": {
+                "type": "string",
+                "computed": true
+              },
+              "log_topic_name": {
+                "type": "string",
+                "computed": true
               },
               "lts_enabled": {
                 "type": "bool",
@@ -69,12 +97,17 @@
                 "type": "string",
                 "computed": true
               },
+              "stream_id": {
+                "type": "string",
+                "computed": true
+              },
               "tags": {
                 "type": [
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "transfer_enabled": {
                 "type": "bool",

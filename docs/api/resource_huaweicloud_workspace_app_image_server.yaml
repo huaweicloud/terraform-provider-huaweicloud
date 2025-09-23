@@ -1,0 +1,21 @@
+info:
+    version: ""
+    title: resource_huaweicloud_workspace_app_image_server
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: Workspace
+paths:
+    /v1/{project_id}/image-servers:
+        POST:
+            tag: Workspace
+    /v1/{project_id}/image-servers/{server_id}:
+        GET:
+            tag: Workspace
+        PATCH:
+            tag: Workspace
+    /v1/{project_id}/image-servers/actions/batch-delete:
+        PATCH:
+            tag: Workspace

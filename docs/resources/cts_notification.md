@@ -2,7 +2,8 @@
 subcategory: "Cloud Trace Service (CTS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_cts_notification"
-description: ""
+description: |-
+  Manages CTS key event notification resource within HuaweiCloud.
 ---
 
 # huaweicloud_cts_notification
@@ -65,13 +66,15 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to manage the CTS notification resource.
   If omitted, the provider-level region will be used. Changing this creates a new resource.
 
-* `name` - (Required, String) Specifies the notification name. The value contains a maximum of 64 characters,
-  and only letters, digits, underscores(_), and Chinese characters are allowed.
+* `name` - (Required, String) Specifies the notification name. The value contains a maximum of `64` characters,
+  and only English letters, digits, underscores(_), and Chinese characters are allowed.
 
 * `operation_type` - (Required, String) Specifies the operation type, possible options include **complete** and
   **customized**.
 
 * `smn_topic` - (Optional, String) Specifies the URN of a topic.
+
+* `agency_name` - (Optional, String) Specifies the cloud service agency name. The value can only be **cts_admin_trust**.
 
 * `operations` - (Optional, List) Specifies an array of operations that will trigger notifications.
   For details, see [Supported Services and Operations](https://support.huaweicloud.com/intl/en-us/usermanual-cts/cts_03_0022.html).
@@ -132,6 +135,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `status` - The notification status, the value can be **enabled** or **disabled**.
 
+* `created_at` - The creation time of the notification.
+
 ## Timeouts
 
 This resource provides the following timeouts configuration options:
@@ -144,6 +149,6 @@ This resource provides the following timeouts configuration options:
 
 CTS notifications can be imported using `name`, e.g.:
 
-```
+```bash
 $ terraform import huaweicloud_cts_notification.tracker your_notification
 ```

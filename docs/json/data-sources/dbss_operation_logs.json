@@ -1,0 +1,85 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dbss_operation_logs": {
+          "block": {
+            "attributes": {
+              "end_time": {
+                "type": "string",
+                "description": "Specifies the end time of the user operation.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the audit instance ID to which the user operation logs belong.",
+                "required": true
+              },
+              "logs": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "action": "string",
+                      "description": "string",
+                      "function": "string",
+                      "id": "string",
+                      "name": "string",
+                      "result": "string",
+                      "time": "string",
+                      "user": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the user operation logs.",
+                "computed": true
+              },
+              "operate_name": {
+                "type": "string",
+                "description": "Specifies the name of the operation object.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the data source. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "result": {
+                "type": "string",
+                "description": "Specifies the execution result of user operation.",
+                "optional": true
+              },
+              "start_time": {
+                "type": "string",
+                "description": "Specifies the start time of the user operation.",
+                "optional": true
+              },
+              "time_range": {
+                "type": "string",
+                "description": "Specifies the time segment.",
+                "optional": true
+              },
+              "user_name": {
+                "type": "string",
+                "description": "Specifies the name of the operation user.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DBSS",
+            "name": "Database Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据库安全服务",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

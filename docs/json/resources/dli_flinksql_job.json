@@ -118,7 +118,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "smn_topic": {
                 "type": "string",
@@ -149,7 +150,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "tm_cus": {
                 "type": "number",

@@ -1,0 +1,60 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_kms_parameters_for_import": {
+          "block": {
+            "attributes": {
+              "expiration_time": {
+                "type": "number",
+                "description": "The import parameter expiration time.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "import_token": {
+                "type": "string",
+                "description": "The key import token.",
+                "computed": true
+              },
+              "key_id": {
+                "type": "string",
+                "description": "Specifies the key ID.",
+                "required": true
+              },
+              "public_key": {
+                "type": "string",
+                "description": "The public key of the DEK material, in Base64 format.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to obtain the KMS parameters.",
+                "computed": true
+              },
+              "sequence": {
+                "type": "string",
+                "description": "Specifies the `36` bytes sequence number of a request message.",
+                "optional": true
+              },
+              "wrapping_algorithm": {
+                "type": "string",
+                "description": "Specifies the encryption algorithm of key materials.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "KMS",
+            "name": "Data Encryption Workshop KMS",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据加密服务-密钥管理",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

@@ -32,8 +32,7 @@
               "edition": {
                 "type": "string",
                 "description": "The edition of the dedicated instance.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "egress_address": {
                 "type": "string",
@@ -125,7 +124,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "vpc_id": {
                 "type": "string",
@@ -148,6 +148,36 @@
                 "description": "Name of the VPC endpoint service.",
                 "optional": true,
                 "computed": true
+              }
+            },
+            "block_types": {
+              "custom_ingress_ports": {
+                "block": {
+                  "attributes": {
+                    "id": {
+                      "type": "string",
+                      "description": "The ID of the custom ingress port.",
+                      "computed": true
+                    },
+                    "port": {
+                      "type": "number",
+                      "description": "Specified port of the custom ingress port.",
+                      "required": true
+                    },
+                    "protocol": {
+                      "type": "string",
+                      "description": "Specified protocol of the custom ingress port.",
+                      "required": true
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "The current status of the custom ingress port.",
+                      "computed": true
+                    }
+                  },
+                  "description": "Specified the list of the instance custom ingress ports."
+                },
+                "nesting_mode": "set"
               }
             }
           },

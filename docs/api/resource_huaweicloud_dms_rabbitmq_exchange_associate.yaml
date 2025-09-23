@@ -1,0 +1,18 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dms_rabbitmq_exchange_associate
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: RabbitMQ
+paths:
+    /v2/rabbitmq/{project_id}/instances/{instance_id}/vhosts/{vhost}/exchanges/{exchange}/binding:
+        GET:
+            tag: RabbitMQ
+        POST:
+            tag: RabbitMQ
+    /v2/rabbitmq/{project_id}/instances/{instance_id}/vhosts/{vhost}/exchanges/{exchange}/destination-type/{destination_type}/destination/{destination}/properties-key/{properties_key}/unbinding:
+        DELETE:
+            tag: RabbitMQ

@@ -1,0 +1,129 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_coc_incident": {
+          "block": {
+            "attributes": {
+              "assignee_role": {
+                "type": "string",
+                "optional": true
+              },
+              "assignee_scene": {
+                "type": "string",
+                "optional": true
+              },
+              "create_time": {
+                "type": "number",
+                "computed": true
+              },
+              "creator": {
+                "type": "string",
+                "required": true
+              },
+              "current_cloud_service": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "enterprise_project": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "enum_data_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "enum_key": "string",
+                      "filed_key": "string",
+                      "name_en": "string",
+                      "name_zh": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "handle_time": {
+                "type": "number",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "incident_assignee": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
+              "incident_description": {
+                "type": "string",
+                "optional": true
+              },
+              "incident_level": {
+                "type": "string",
+                "required": true
+              },
+              "incident_ownership": {
+                "type": "string",
+                "optional": true
+              },
+              "incident_source": {
+                "type": "string",
+                "required": true
+              },
+              "incident_title": {
+                "type": "string",
+                "required": true
+              },
+              "incident_type": {
+                "type": "string",
+                "required": true
+              },
+              "is_service_interrupt": {
+                "type": "bool",
+                "required": true
+              },
+              "regions": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "start_time": {
+                "type": "number",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "warroom_id": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "COC",
+            "name": "Cloud Operations Center",
+            "catalog": "Management & Governance",
+            "name_cn": "云运维中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

@@ -355,10 +355,8 @@ func waitForCSBSBackupDelete(backupClient *golangsdk.ServiceClient, backupId str
 				logp.Printf("[INFO] Successfully deleted Backup %s", backupId)
 				return r, "deleted", nil
 			}
-			if errCode, ok := err.(golangsdk.ErrUnexpectedResponseCode); ok {
-				if errCode.Actual == 409 {
-					return r, "deleting", nil
-				}
+			if _, ok := err.(golangsdk.ErrDefault409); ok {
+				return r, "deleting", nil
 			}
 			if _, ok := err.(golangsdk.ErrDefault400); ok {
 				return r, "deleting", nil

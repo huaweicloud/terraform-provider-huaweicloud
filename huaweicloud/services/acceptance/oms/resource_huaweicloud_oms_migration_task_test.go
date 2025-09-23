@@ -2,28 +2,47 @@ package oms
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	oms "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/oms/v2/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getMigrationTaskResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	c, err := conf.HcOmsV2Client(acceptance.HW_REGION_NAME)
+func getMigrationTaskResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	var (
+		getTaskHttpUrl = "v2/{project_id}/tasks/{task_id}"
+		getTaskProduct = "oms"
+	)
+	getTaskClient, err := cfg.NewServiceClient(getTaskProduct, acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating OMS client: %s", err)
 	}
 
-	return c.ShowTask(&oms.ShowTaskRequest{TaskId: state.Primary.ID})
+	getTaskPath := getTaskClient.Endpoint + getTaskHttpUrl
+	getTaskPath = strings.ReplaceAll(getTaskPath, "{project_id}", getTaskClient.ProjectID)
+	getTaskPath = strings.ReplaceAll(getTaskPath, "{task_id}", state.Primary.ID)
+
+	getTaskOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getTaskResp, err := getTaskClient.Request("GET", getTaskPath, &getTaskOpt)
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving OMS migration task: %s", err)
+	}
+
+	return utils.FlattenResponse(getTaskResp)
 }
 
 func TestAccMigrationTask_object(t *testing.T) {
-	var task oms.ShowTaskResponse
+	var task interface{}
 	rName := acceptance.RandomAccResourceNameWithDash()
 	sourceBucketName := rName + "-source"
 	destBucketName := rName + "-dest"
@@ -72,7 +91,7 @@ func TestAccMigrationTask_object(t *testing.T) {
 }
 
 func TestAccMigrationTask_prefix(t *testing.T) {
-	var task oms.ShowTaskResponse
+	var task interface{}
 	rName := acceptance.RandomAccResourceNameWithDash()
 	sourceBucketName := rName + "-source"
 	destBucketName := rName + "-dest"
@@ -103,7 +122,7 @@ func TestAccMigrationTask_prefix(t *testing.T) {
 }
 
 func TestAccMigrationTask_list(t *testing.T) {
-	var task oms.ShowTaskResponse
+	var task interface{}
 	rName := acceptance.RandomAccResourceNameWithDash()
 	sourceBucketName := rName + "-source"
 	destBucketName := rName + "-dest"
@@ -185,6 +204,8 @@ resource "huaweicloud_oms_migration_task" "test" {
   start_task  = false
   type        = "object"
   description = "test task"
+
+  enable_metadata_migration = true
 
   bandwidth_policy {
     max_bandwidth = 1

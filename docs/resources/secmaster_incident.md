@@ -2,14 +2,13 @@
 subcategory: "SecMaster"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_secmaster_incident"
-description: ""
+description: |-
+  Manages a SecMaster incident resource within HuaweiCloud.
 ---
 
 # huaweicloud_secmaster_incident
 
 Manages a SecMaster incident resource within HuaweiCloud.
-
-~> This resource can only be used in region **cn-east-3** for now.
 
 ## Example Usage
 

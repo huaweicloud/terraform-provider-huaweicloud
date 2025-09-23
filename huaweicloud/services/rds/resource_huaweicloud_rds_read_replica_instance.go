@@ -4,14 +4,16 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"strings"
 	"time"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 	"github.com/chnsz/golangsdk/openstack/rds/v3/instances"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -32,6 +34,7 @@ import (
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/ssl
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/disk-auto-expansion
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/configurations
+// @API RDS PUT /v3.1/{project_id}/instances/{instance_id}/configurations
 // @API RDS GET /v3/{project_id}/instances/{instance_id}/disk-auto-expansion
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/name
 // @API RDS DELETE /v3/{project_id}/instances/{instance_id}
@@ -56,6 +59,8 @@ func ResourceRdsReadReplicaInstance() *schema.Resource {
 			Update: schema.DefaultTimeout(30 * time.Minute),
 			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
+
+		CustomizeDiff: config.MergeDefaultTags(),
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -239,85 +244,70 @@ func ResourceRdsReadReplicaInstance() *schema.Resource {
 }
 
 func resourceRdsReadReplicaInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.RdsV3Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	var (
+		httpUrl = "v3/{project_id}/instances"
+		product = "rds"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating rds client: %s ", err)
+		return diag.Errorf("error creating RDS client: %s", err)
 	}
 
-	primaryInstanceID := d.Get("primary_instance_id").(string)
-	createOpts := instances.CreateReplicaOpts{
-		Name:                d.Get("name").(string),
-		ReplicaOfId:         primaryInstanceID,
-		FlavorRef:           d.Get("flavor").(string),
-		Region:              region,
-		AvailabilityZone:    d.Get("availability_zone").(string),
-		Volume:              buildRdsReplicaInstanceVolume(d),
-		DiskEncryptionId:    d.Get("volume.0.disk_encryption_id").(string),
-		EnterpriseProjectId: config.GetEnterpriseProjectID(d),
+	createPath := client.Endpoint + httpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
-
-	// PrePaid
-	if d.Get("charging_mode") == "prePaid" {
-		if err = common.ValidatePrePaidChargeInfo(d); err != nil {
-			return diag.FromErr(err)
-		}
-
-		chargeInfo := &instances.ChargeInfo{
-			ChargeMode: d.Get("charging_mode").(string),
-			PeriodType: d.Get("period_unit").(string),
-			PeriodNum:  d.Get("period").(int),
-			IsAutoPay:  true,
-		}
-		if d.Get("auto_renew").(string) == "true" {
-			chargeInfo.IsAutoRenew = true
-		}
-		createOpts.ChargeInfo = chargeInfo
-	}
-
-	log.Printf("[DEBUG] Create replica instance Options: %#v", createOpts)
+	createOpt.JSONBody = utils.RemoveNil(buildCreateReplicaInstanceBodyParams(d, cfg, region))
 	retryFunc := func() (interface{}, bool, error) {
-		resp, err := instances.CreateReplica(client, createOpts).Extract()
+		res, err := client.Request("POST", createPath, &createOpt)
 		retry, err := handleMultiOperationsError(err)
-		return resp, retry, err
+		return res, retry, err
 	}
-	r, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+	createResp, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
 		Ctx:          ctx,
 		RetryFunc:    retryFunc,
-		WaitFunc:     rdsInstanceStateRefreshFunc(client, primaryInstanceID),
+		WaitFunc:     rdsInstanceStateRefreshFunc(client, d.Get("primary_instance_id").(string)),
 		WaitTarget:   []string{"ACTIVE"},
 		Timeout:      d.Timeout(schema.TimeoutCreate),
-		DelayTimeout: 1 * time.Second,
+		DelayTimeout: 30 * time.Second,
 		PollInterval: 10 * time.Second,
 	})
 	if err != nil {
-		return diag.Errorf("error creating replica instance: %s ", err)
+		return diag.Errorf("error creating RDS replica instance: %s", err)
 	}
 
-	resp := r.(*instances.CreateResponse)
+	createRespBody, err := utils.FlattenResponse(createResp.(*http.Response))
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
-	instance := resp.Instance
-	d.SetId(instance.Id)
-	instanceID := d.Id()
-	// wait for order success
-	if resp.OrderId != "" {
-		bssClient, err := config.BssV2Client(config.GetRegion(d))
+	instanceID := utils.PathSearch("instance.id", createRespBody, "").(string)
+	if instanceID == "" {
+		return diag.Errorf("error creating RDS replica instance: ID is not found in API response")
+	}
+	d.SetId(instanceID)
+
+	orderId := utils.PathSearch("order_id", createRespBody, "").(string)
+	if orderId != "" {
+		bssClient, err := cfg.BssV2Client(region)
 		if err != nil {
-			return diag.Errorf("error creating BSS V2 client: %s", err)
+			return diag.Errorf("error creating BSS v2 client: %s", err)
 		}
-		err = common.WaitOrderComplete(ctx, bssClient, resp.OrderId, d.Timeout(schema.TimeoutCreate))
+		err = common.WaitOrderComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
 			return diag.FromErr(err)
 		}
-		resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, resp.OrderId, d.Timeout(schema.TimeoutCreate))
-		if err != nil {
-			return diag.Errorf("error waiting for replica order resource %s complete: %s", resp.OrderId, err)
-		}
-		d.SetId(resourceId)
-	} else {
-		if err := checkRDSInstanceJobFinish(client, resp.JobId, d.Timeout(schema.TimeoutCreate)); err != nil {
-			return diag.Errorf("error creating replica instance (%s): %s", instanceID, err)
+	}
+
+	jobId := utils.PathSearch("job_id", createRespBody, "").(string)
+	if jobId != "" {
+		if err = checkRDSInstanceJobFinish(client, jobId, d.Timeout(schema.TimeoutCreate)); err != nil {
+			return diag.Errorf("error creating instance (%s): %s", instanceID, err)
 		}
 	}
 
@@ -326,43 +316,49 @@ func resourceRdsReadReplicaInstanceCreate(ctx context.Context, d *schema.Resourc
 		return diag.FromErr(err)
 	}
 
-	if err = updateRdsInstanceDescription(d, client, instanceID); err != nil {
+	if err = updateRdsInstanceDescription(ctx, d, client); err != nil {
 		return diag.FromErr(err)
 	}
 
-	if err = updateRdsInstanceMaintainWindow(d, client, instanceID); err != nil {
+	if err = updateRdsInstanceMaintainWindow(ctx, d, client); err != nil {
 		return diag.FromErr(err)
 	}
 
-	if v, ok := d.GetOk("db.0.port"); ok && v.(int) != res.Port {
-		if err = updateRdsInstanceDBPort(ctx, d, client, instanceID); err != nil {
+	port := utils.PathSearch("port", res, float64(0)).(float64)
+	if v, ok := d.GetOk("db.0.port"); ok && v.(int) != int(port) {
+		if err = updateRdsInstanceDBPort(ctx, d, client); err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
-	if v, ok := d.GetOk("security_group_id"); ok && v.(string) != res.SecurityGroupId {
-		if err = updateRdsInstanceSecurityGroup(ctx, d, client, instanceID); err != nil {
+	securityGroupId := utils.PathSearch("security_group_id", res, "").(string)
+	if v, ok := d.GetOk("security_group_id"); ok && v.(string) != securityGroupId {
+		if err = updateRdsInstanceSecurityGroup(ctx, d, client); err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
-	if v, ok := d.GetOk("volume.0.size"); ok && v.(int) != res.Volume.Size {
-		if err = updateRdsInstanceVolumeSize(ctx, d, config, client, instanceID); err != nil {
+	volumeSize := utils.PathSearch("volume.size", res, float64(0)).(float64)
+	if v, ok := d.GetOk("volume.0.size"); ok && v.(int) != int(volumeSize) {
+		if err = updateRdsInstanceVolumeSize(ctx, d, cfg, client); err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
-	if v, ok := d.GetOk("fixed_ip"); ok && v.(string) != res.PrivateIps[0] {
-		if err = updateRdsInstanceFixedIp(ctx, d, client, instanceID); err != nil {
+	fixedIp := utils.PathSearch("private_ips[0]", res, "").(string)
+	if v, ok := d.GetOk("fixed_ip"); ok && v.(string) != fixedIp {
+		if err = updateRdsInstanceFixedIp(ctx, d, client); err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
-	if v, ok := d.GetOk("ssl_enable"); ok && v.(bool) != res.EnableSsl {
-		if strings.ToLower(res.DataStore.Type) != "mysql" {
+	enableSsl := utils.PathSearch("enable_ssl", res, false).(bool)
+	if v, ok := d.GetOk("ssl_enable"); ok && v.(bool) != enableSsl {
+		dataStoreType := utils.PathSearch("datastore.type", res, "").(string)
+		if strings.ToLower(dataStoreType) != "mysql" {
 			return diag.Errorf("only MySQL database support SSL enable and disable")
 		}
-		err = configRdsInstanceSSL(ctx, d, client, d.Id())
+		err = configRdsInstanceSSL(ctx, d, client)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -370,11 +366,11 @@ func resourceRdsReadReplicaInstanceCreate(ctx context.Context, d *schema.Resourc
 
 	if v, ok := d.GetOk("volume.0.limit_size"); ok {
 		if v.(int) > 0 {
-			if err = enableVolumeAutoExpand(ctx, d, client, instanceID, v.(int)); err != nil {
+			if err = enableVolumeAutoExpand(ctx, d, client, v.(int)); err != nil {
 				return diag.FromErr(err)
 			}
 		} else {
-			if err = disableVolumeAutoExpand(ctx, d.Timeout(schema.TimeoutCreate), client, instanceID); err != nil {
+			if err = disableVolumeAutoExpand(ctx, schema.TimeoutCreate, client, d); err != nil {
 				return diag.FromErr(err)
 			}
 		}
@@ -382,11 +378,7 @@ func resourceRdsReadReplicaInstanceCreate(ctx context.Context, d *schema.Resourc
 
 	// Set Parameters
 	if parametersRaw := d.Get("parameters").(*schema.Set); parametersRaw.Len() > 0 {
-		clientV31, err := config.RdsV31Client(config.GetRegion(d))
-		if err != nil {
-			return diag.Errorf("error creating RDS V3.1 client: %s", err)
-		}
-		if err = initializeParameters(ctx, d, client, clientV31, instanceID, parametersRaw); err != nil {
+		if err = initializeParameters(ctx, d, client, parametersRaw); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -403,170 +395,180 @@ func resourceRdsReadReplicaInstanceCreate(ctx context.Context, d *schema.Resourc
 	return resourceRdsReadReplicaInstanceRead(ctx, d, meta)
 }
 
+func buildCreateReplicaInstanceBodyParams(d *schema.ResourceData, cfg *config.Config, region string) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"name":                  d.Get("name"),
+		"replica_of_id":         d.Get("primary_instance_id").(string),
+		"flavor_ref":            d.Get("flavor"),
+		"region":                region,
+		"availability_zone":     d.Get("availability_zone"),
+		"volume":                buildCreateReplicaInstanceVolumeBodyParams(d),
+		"disk_encryption_id":    utils.ValueIgnoreEmpty(d.Get("volume.0.disk_encryption_id")),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
+		"charge_info":           buildCreateReplicaInstanceChargeInfoBodyParams(d),
+	}
+	return bodyParams
+}
+
+func buildCreateReplicaInstanceVolumeBodyParams(d *schema.ResourceData) map[string]interface{} {
+	volumeRaw := d.Get("volume").([]interface{})
+	if len(volumeRaw) == 0 {
+		return nil
+	}
+
+	bodyParams := map[string]interface{}{
+		"type": volumeRaw[0].(map[string]interface{})["type"],
+	}
+	return bodyParams
+}
+
+func buildCreateReplicaInstanceChargeInfoBodyParams(d *schema.ResourceData) map[string]interface{} {
+	if d.Get("charging_mode") != "prePaid" {
+		return nil
+	}
+
+	bodyParams := map[string]interface{}{
+		"charge_mode": d.Get("charging_mode"),
+		"period_type": d.Get("period_unit"),
+		"period_num":  d.Get("period"),
+		"is_auto_pay": true,
+	}
+	if d.Get("auto_renew").(string) == "true" {
+		bodyParams["is_auto_renew"] = true
+	}
+	return bodyParams
+}
+
 func resourceRdsReadReplicaInstanceRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.RdsV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	client, err := cfg.NewServiceClient("rds", region)
 	if err != nil {
-		return diag.Errorf("error creating rds client: %s", err)
+		return diag.Errorf("error creating RDS client: %s", err)
 	}
 
 	instanceID := d.Id()
 	instance, err := GetRdsInstanceByID(client, instanceID)
 	if err != nil {
-		return diag.FromErr(err)
-	}
-	if instance.Id == "" {
-		d.SetId("")
-		return nil
+		return common.CheckDeletedDiag(d, err, "error getting RDS replice instance")
 	}
 
-	log.Printf("[DEBUG] Retrieved rds read replica instance %s: %#v", instanceID, instance)
-	d.Set("name", instance.Name)
-	d.Set("description", instance.Alias)
-	d.Set("flavor", instance.FlavorRef)
-	d.Set("region", instance.Region)
-	d.Set("private_ips", instance.PrivateIps)
-	d.Set("public_ips", instance.PublicIps)
-	d.Set("vpc_id", instance.VpcId)
-	d.Set("subnet_id", instance.SubnetId)
-	d.Set("security_group_id", instance.SecurityGroupId)
-	d.Set("type", instance.Type)
-	d.Set("status", instance.Status)
-	d.Set("enterprise_project_id", instance.EnterpriseProjectId)
-	d.Set("ssl_enable", instance.EnableSsl)
-	d.Set("tags", utils.TagsToMap(instance.Tags))
+	mErr := multierror.Append(nil,
+		d.Set("name", utils.PathSearch("name", instance, nil)),
+		d.Set("description", utils.PathSearch("alias", instance, nil)),
+		d.Set("flavor", utils.PathSearch("flavor_ref", instance, nil)),
+		d.Set("region", utils.PathSearch("region", instance, nil)),
+		d.Set("private_ips", utils.PathSearch("private_ips", instance, nil)),
+		d.Set("public_ips", utils.PathSearch("public_ips", instance, nil)),
+		d.Set("vpc_id", utils.PathSearch("vpc_id", instance, nil)),
+		d.Set("subnet_id", utils.PathSearch("subnet_id", instance, nil)),
+		d.Set("security_group_id", utils.PathSearch("security_group_id", instance, nil)),
+		d.Set("type", utils.PathSearch("type", instance, nil)),
+		d.Set("status", utils.PathSearch("status", instance, nil)),
+		d.Set("enterprise_project_id", utils.PathSearch("enterprise_project_id", instance, nil)),
+		d.Set("ssl_enable", utils.PathSearch("enable_ssl", instance, nil)),
+		d.Set("tags", utils.FlattenTagsToMap(utils.PathSearch("tags", instance, make([]interface{}, 0)))),
+		d.Set("fixed_ip", utils.PathSearch("private_ips[0]", instance, nil)),
+		d.Set("availability_zone", utils.PathSearch("nodes[0].availability_zone", instance, nil)),
+		d.Set("primary_instance_id", utils.PathSearch("related_instance[?type=='replica_of']|[0].id", instance, nil)),
+		d.Set("volume", flattenInstanceVolume(client, instance, instanceID)),
+		d.Set("db", flattenReplicaInstanceDb(instance)),
+	)
 
-	if len(instance.PrivateIps) > 0 {
-		d.Set("fixed_ip", instance.PrivateIps[0])
-	}
-
-	az := expandAvailabilityZone(instance)
-	d.Set("availability_zone", az)
-
-	if primaryInstanceID, err := expandPrimaryInstanceID(instance); err == nil {
-		d.Set("primary_instance_id", primaryInstanceID)
-	} else {
-		return diag.FromErr(err)
-	}
-
-	maintainWindow := strings.Split(instance.MaintenanceWindow, "-")
-	if len(maintainWindow) == 2 {
-		d.Set("maintain_begin", maintainWindow[0])
-		d.Set("maintain_end", maintainWindow[1])
+	if v := utils.PathSearch("maintenance_window", instance, "").(string); v != "" {
+		maintainWindow := strings.Split(v, "-")
+		mErr = multierror.Append(mErr, d.Set("maintain_begin", maintainWindow[0]))
+		mErr = multierror.Append(mErr, d.Set("maintain_end", maintainWindow[1]))
 	}
 
-	volumeList := make([]map[string]interface{}, 0, 1)
-	volume := map[string]interface{}{
-		"type":               instance.Volume.Type,
-		"size":               instance.Volume.Size,
-		"disk_encryption_id": instance.DiskEncryptionId,
-	}
-	// Only MySQL engines are supported.
-	resp, err := instances.GetAutoExpand(client, instanceID)
-	if err != nil {
-		log.Printf("[ERROR] error query automatic expansion configuration of the instance storage: %s", err)
-	}
-	if resp.SwitchOption {
-		volume["limit_size"] = resp.LimitSize
-		volume["trigger_threshold"] = resp.TriggerThreshold
-	}
-	volumeList = append(volumeList, volume)
-	if err = d.Set("volume", volumeList); err != nil {
-		return diag.Errorf("error saving volume to RDS read replica instance (%s): %s", instanceID, err)
-	}
+	diagErr := setRdsInstanceParameters(ctx, d, client)
+	resErr := append(diag.FromErr(mErr.ErrorOrNil()), diagErr...)
 
-	dbList := make([]map[string]interface{}, 0, 1)
+	return resErr
+}
+
+func flattenReplicaInstanceDb(instance interface{}) []interface{} {
 	database := map[string]interface{}{
-		"type":      instance.DataStore.Type,
-		"version":   instance.DataStore.Version,
-		"port":      instance.Port,
-		"user_name": instance.DbUserName,
+		"type":      utils.PathSearch("datastore.type", instance, nil),
+		"version":   utils.PathSearch("datastore.version", instance, nil),
+		"port":      utils.PathSearch("port", instance, nil),
+		"user_name": utils.PathSearch("db_user_name", instance, nil),
 	}
-	dbList = append(dbList, database)
-	if err := d.Set("db", dbList); err != nil {
-		return diag.Errorf("error saving data base to RDS read replica instance (%s): %s", instanceID, err)
-	}
-
-	return setRdsInstanceParameters(ctx, d, client, instanceID)
+	return []interface{}{database}
 }
 
 func resourceRdsReadReplicaInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
-	client, err := config.RdsV3Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.RdsV3Client(region)
 	if err != nil {
 		return diag.Errorf("error creating rds v3 client: %s ", err)
 	}
-	clientV31, err := config.RdsV31Client(config.GetRegion(d))
-	if err != nil {
-		return diag.Errorf("error creating RDS V3.1 client: %s", err)
-	}
 
-	instanceID := d.Id()
-
-	if err = updateRdsInstanceName(d, client, instanceID); err != nil {
+	if err = updateRdsInstanceName(ctx, d, client); err != nil {
 		return diag.FromErr(err)
 	}
 
-	if err = updateRdsInstanceDescription(d, client, instanceID); err != nil {
+	if err = updateRdsInstanceDescription(ctx, d, client); err != nil {
 		return diag.FromErr(err)
 	}
 
-	if err = updateRdsInstanceVolumeSize(ctx, d, config, client, instanceID); err != nil {
+	if err = updateRdsInstanceVolumeSize(ctx, d, cfg, client); err != nil {
 		return diag.FromErr(err)
 	}
 
-	if err = updateRdsInstanceMaintainWindow(d, client, instanceID); err != nil {
+	if err = updateRdsInstanceMaintainWindow(ctx, d, client); err != nil {
 		return diag.FromErr(err)
 	}
 
-	if err = updateRdsInstanceDBPort(ctx, d, client, instanceID); err != nil {
+	if err = updateRdsInstanceDBPort(ctx, d, client); err != nil {
 		return diag.FromErr(err)
 	}
 
-	if err = updateRdsInstanceFixedIp(ctx, d, client, instanceID); err != nil {
+	if err = updateRdsInstanceFixedIp(ctx, d, client); err != nil {
 		return diag.FromErr(err)
 	}
 
-	if err = updateRdsInstanceSecurityGroup(ctx, d, client, instanceID); err != nil {
+	if err = updateRdsInstanceSecurityGroup(ctx, d, client); err != nil {
 		return diag.FromErr(err)
 	}
 
-	if err = updateRdsInstanceSSLConfig(ctx, d, client, instanceID); err != nil {
+	if err = updateRdsInstanceSSLConfig(ctx, d, client); err != nil {
 		return diag.FromErr(err)
 	}
 
-	if err = updateRdsInstanceFlavor(ctx, d, config, client, instanceID, false); err != nil {
+	if err = updateRdsInstanceFlavor(ctx, d, cfg, client, false); err != nil {
 		return diag.FromErr(err)
 	}
 
-	if err = updateRdsInstanceAutoRenew(d, config); err != nil {
+	if err = updateRdsInstanceAutoRenew(d, cfg); err != nil {
 		return diag.FromErr(err)
 	}
 
-	if ctx, err = updateRdsParameters(ctx, d, client, clientV31, instanceID); err != nil {
+	if ctx, err = updateRdsParameters(ctx, d, client); err != nil {
 		return diag.FromErr(err)
 	}
 
-	if err = updateVolumeAutoExpand(ctx, d, client, instanceID); err != nil {
+	if err = updateVolumeAutoExpand(ctx, d, client); err != nil {
 		return diag.FromErr(err)
 	}
 
 	if d.HasChange("tags") {
-		tagErr := utils.UpdateResourceTags(client, d, "instances", instanceID)
+		tagErr := utils.UpdateResourceTags(client, d, "instances", d.Id())
 		if tagErr != nil {
-			return diag.Errorf("error updating tags of RDS read replica instance: %s, err: %s", instanceID, tagErr)
+			return diag.Errorf("error updating tags of RDS read replica instance: %s, err: %s", d.Id(), tagErr)
 		}
 	}
 
 	if d.HasChange("enterprise_project_id") {
-		migrateOpts := enterpriseprojects.MigrateResourceOpts{
-			ResourceId:   instanceID,
+		migrateOpts := config.MigrateResourceOpts{
+			ResourceId:   d.Id(),
 			ResourceType: "rds",
 			RegionId:     region,
 			ProjectId:    client.ProjectID,
 		}
-		if err := common.MigrateEnterpriseProject(ctx, config, d, migrateOpts); err != nil {
+		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -585,21 +587,6 @@ func updateRdsInstanceAutoRenew(d *schema.ResourceData, config *config.Config) e
 		}
 	}
 	return nil
-}
-
-func expandAvailabilityZone(resp *instances.RdsInstanceResponse) string {
-	node := resp.Nodes[0]
-	return node.AvailabilityZone
-}
-
-func expandPrimaryInstanceID(resp *instances.RdsInstanceResponse) (string, error) {
-	relatedInst := resp.RelatedInstance
-	for _, relate := range relatedInst {
-		if relate.Type == "replica_of" {
-			return relate.Id, nil
-		}
-	}
-	return "", fmt.Errorf("error when get primary instance id for replica %s", resp.Id)
 }
 
 func buildRdsReplicaInstanceVolume(d *schema.ResourceData) *instances.Volume {

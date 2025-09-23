@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"math"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -26,8 +25,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
-
-var regexp4Name = regexp.MustCompile(`^[a-z0-9_]{1,128}$`)
 
 const (
 	CU16                  = 16
@@ -76,6 +73,8 @@ func ResourceDliQueue() *schema.Resource {
 			StateContext: resourceQueueImportState,
 		},
 
+		CustomizeDiff: config.MergeDefaultTags(),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
@@ -114,8 +113,6 @@ func ResourceDliQueue() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-				ValidateFunc: validation.StringMatch(regexp4Name,
-					"only contain digits, lower letters, and underscores (_)"),
 			},
 
 			"queue_type": {
@@ -134,9 +131,8 @@ func ResourceDliQueue() *schema.Resource {
 			},
 
 			"cu_count": {
-				Type:         schema.TypeInt,
-				Required:     true,
-				ValidateFunc: validCuCount,
+				Type:     schema.TypeInt,
+				Required: true,
 			},
 
 			"enterprise_project_id": {
@@ -161,14 +157,7 @@ func ResourceDliQueue() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{queueFeatureBasic, queueFeatureAI}, false),
 			},
 
-			"tags": {
-				Type: schema.TypeMap,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-				Optional: true,
-				ForceNew: true,
-			},
+			"tags": common.TagsForceNewSchema(),
 
 			"scaling_policies": {
 				Type:         schema.TypeSet,
@@ -381,6 +370,7 @@ func resourceDliQueueRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("create_time", queueDetail.CreateTime),
 		d.Set("vpc_cidr", queueDetail.CidrInVpc),
 		d.Set("elastic_resource_pool_name", queueDetail.ElasticResourcePoolName),
+		d.Set("tags", d.Get("tags")),
 	)
 
 	v3Client, err := cfg.DliV3Client(region)
@@ -668,15 +658,6 @@ func buildScaleActionParam(oldValue, newValue int) string {
 		return actionScaleIn
 	}
 	return actionScaleOut
-}
-
-func validCuCount(val interface{}, key string) (warns []string, errs []error) {
-	diviNum := 16
-	warns, errs = validation.IntAtLeast(diviNum)(val, key)
-	if len(errs) > 0 {
-		return warns, errs
-	}
-	return validation.IntDivisibleBy(diviNum)(val, key)
 }
 
 func updateVpcCidrOfQueue(client *golangsdk.ServiceClient, queueName, cidr string) error {

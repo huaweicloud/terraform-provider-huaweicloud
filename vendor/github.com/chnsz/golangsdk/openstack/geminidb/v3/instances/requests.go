@@ -7,6 +7,11 @@ import (
 	"github.com/chnsz/golangsdk/pagination"
 )
 
+type AvailabilityZoneDetailOpt struct {
+	PrimaryAvailabilityZone   string `json:"primary_availability_zone" required:"true"`
+	SecondaryAvailabilityZone string `json:"secondary_availability_zone" required:"true"`
+}
+
 type FlavorOpt struct {
 	Num      string `json:"num" required:"true"`
 	Size     int    `json:"size" required:"true"`
@@ -28,23 +33,24 @@ type ChargeInfoOpt struct {
 }
 
 type CreateGeminiDBOpts struct {
-	Name                string             `json:"name" required:"true"`
-	Region              string             `json:"region" required:"true"`
-	AvailabilityZone    string             `json:"availability_zone" required:"true"`
-	VpcId               string             `json:"vpc_id" required:"true"`
-	SubnetId            string             `json:"subnet_id" required:"true"`
-	SecurityGroupId     string             `json:"security_group_id,omitempty"`
-	Password            string             `json:"password" required:"true"`
-	Mode                string             `json:"mode" required:"true"`
-	ConfigurationId     string             `json:"configuration_id,omitempty"`
-	EnterpriseProjectId string             `json:"enterprise_project_id,omitempty"`
-	DedicatedResourceId string             `json:"dedicated_resource_id,omitempty"`
-	Ssl                 string             `json:"ssl_option,omitempty"`
-	Port                string             `json:"port,omitempty"`
-	DataStore           DataStore          `json:"datastore" required:"true"`
-	Flavor              []FlavorOpt        `json:"flavor" required:"true"`
-	BackupStrategy      *BackupStrategyOpt `json:"backup_strategy,omitempty"`
-	ChargeInfo          *ChargeInfoOpt     `json:"charge_info,omitempty"`
+	Name                   string                     `json:"name" required:"true"`
+	Region                 string                     `json:"region" required:"true"`
+	AvailabilityZone       string                     `json:"availability_zone" required:"true"`
+	AvailabilityZoneDetail *AvailabilityZoneDetailOpt `json:"availability_zone_detail,omitempty"`
+	VpcId                  string                     `json:"vpc_id" required:"true"`
+	SubnetId               string                     `json:"subnet_id" required:"true"`
+	SecurityGroupId        string                     `json:"security_group_id,omitempty"`
+	Password               string                     `json:"password" required:"true"`
+	Mode                   string                     `json:"mode" required:"true"`
+	ConfigurationId        string                     `json:"configuration_id,omitempty"`
+	EnterpriseProjectId    string                     `json:"enterprise_project_id,omitempty"`
+	DedicatedResourceId    string                     `json:"dedicated_resource_id,omitempty"`
+	Ssl                    string                     `json:"ssl_option,omitempty"`
+	Port                   string                     `json:"port,omitempty"`
+	DataStore              DataStore                  `json:"datastore" required:"true"`
+	Flavor                 []FlavorOpt                `json:"flavor" required:"true"`
+	BackupStrategy         *BackupStrategyOpt         `json:"backup_strategy,omitempty"`
+	ChargeInfo             *ChargeInfoOpt             `json:"charge_info,omitempty"`
 }
 
 type CreateGeminiDBBuilder interface {

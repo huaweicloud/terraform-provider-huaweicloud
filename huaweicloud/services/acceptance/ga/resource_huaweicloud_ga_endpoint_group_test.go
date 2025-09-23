@@ -16,38 +16,34 @@ import (
 )
 
 func getEndpointGroupResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	region := acceptance.HW_REGION_NAME
-	// getEndpointGroup: Query the GA Endpoint Group detail
 	var (
-		getEndpointGroupHttpUrl = "v1/endpoint-groups/{id}"
-		getEndpointGroupProduct = "ga"
+		region  = acceptance.HW_REGION_NAME
+		httpUrl = "v1/endpoint-groups/{id}"
+		product = "ga"
 	)
-	getEndpointGroupClient, err := conf.NewServiceClient(getEndpointGroupProduct, region)
+	client, err := conf.NewServiceClient(product, region)
 	if err != nil {
-		return nil, fmt.Errorf("error creating EndpointGroup Client: %s", err)
+		return nil, fmt.Errorf("error creating GA client: %s", err)
 	}
 
-	getEndpointGroupPath := getEndpointGroupClient.Endpoint + getEndpointGroupHttpUrl
-	getEndpointGroupPath = strings.ReplaceAll(getEndpointGroupPath, "{id}", state.Primary.ID)
-
-	getEndpointGroupOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{id}", state.Primary.ID)
+	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
-	getEndpointGroupResp, err := getEndpointGroupClient.Request("GET", getEndpointGroupPath, &getEndpointGroupOpt)
+	resp, err := client.Request("GET", requestPath, &requestOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving EndpointGroup: %s", err)
+		return nil, fmt.Errorf("error retrieving GA endpoint group: %s", err)
 	}
-	return utils.FlattenResponse(getEndpointGroupResp)
+	return utils.FlattenResponse(resp)
 }
 
 func TestAccEndpointGroup_basic(t *testing.T) {
-	var obj interface{}
-
-	name := acceptance.RandomAccResourceNameWithDash()
-	rName := "huaweicloud_ga_endpoint_group.test"
+	var (
+		obj   interface{}
+		name  = acceptance.RandomAccResourceNameWithDash()
+		rName = "huaweicloud_ga_endpoint_group.test"
+	)
 
 	rc := acceptance.InitResourceCheck(
 		rName,

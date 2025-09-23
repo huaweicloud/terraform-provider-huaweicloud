@@ -1,0 +1,156 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_ces_notification_mask": {
+          "block": {
+            "attributes": {
+              "end_date": {
+                "type": "string",
+                "description": "Specifies the masking end date.",
+                "optional": true
+              },
+              "end_time": {
+                "type": "string",
+                "description": "Specifies the masking end time.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "mask_name": {
+                "type": "string",
+                "description": "Specifies the masking rule name.",
+                "optional": true
+              },
+              "mask_status": {
+                "type": "string",
+                "description": "Specifies the alarm notification masking status.",
+                "computed": true
+              },
+              "mask_type": {
+                "type": "string",
+                "description": "Specifies the alarm notification masking type.",
+                "required": true
+              },
+              "policies": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "alarm_level": "number",
+                      "alarm_policy_id": "string",
+                      "comparison_operator": "string",
+                      "count": "number",
+                      "extra_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "custom_proc_name": "string",
+                            "metric_prefix": "string",
+                            "metric_type": "string",
+                            "origin_metric_name": "string"
+                          }
+                        ]
+                      ],
+                      "filter": "string",
+                      "metric_name": "string",
+                      "period": "number",
+                      "selected_unit": "string",
+                      "suppress_duration": "number",
+                      "type": "string",
+                      "unit": "string",
+                      "value": "number"
+                    }
+                  ]
+                ],
+                "description": "The alarm policy list.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region in which to create the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "relation_id": {
+                "type": "string",
+                "description": "Specifies the alarm rule ID.",
+                "optional": true,
+                "computed": true
+              },
+              "relation_ids": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "description": "Specifies the alarm policy ID.",
+                "optional": true
+              },
+              "relation_type": {
+                "type": "string",
+                "description": "Specifies the type of a resource that is associated with an alarm notification masking rule.",
+                "required": true
+              },
+              "start_date": {
+                "type": "string",
+                "description": "Specifies the masking start date.",
+                "optional": true
+              },
+              "start_time": {
+                "type": "string",
+                "description": "Specifies the masking start time.",
+                "optional": true
+              }
+            },
+            "block_types": {
+              "resources": {
+                "block": {
+                  "attributes": {
+                    "namespace": {
+                      "type": "string",
+                      "description": "Specifies the resource namespace in **service.item** format.",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "dimensions": {
+                      "block": {
+                        "attributes": {
+                          "name": {
+                            "type": "string",
+                            "description": "Specifies the dimension of a resource.",
+                            "required": true
+                          },
+                          "value": {
+                            "type": "string",
+                            "description": "Specifies the value of a resource dimension.",
+                            "required": true
+                          }
+                        },
+                        "description": "Specifies the resource dimension information."
+                      },
+                      "nesting_mode": "set",
+                      "min_items": 1
+                    }
+                  },
+                  "description": "Specifies the resource for which alarm notifications will be masked."
+                },
+                "nesting_mode": "set"
+              }
+            }
+          },
+          "product": {
+            "short": "CES",
+            "name": "Cloud Eye",
+            "catalog": "Management & Governance",
+            "name_cn": "云监控服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

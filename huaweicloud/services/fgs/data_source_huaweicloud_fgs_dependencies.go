@@ -2,7 +2,9 @@ package fgs
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
@@ -11,22 +13,23 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/fgs/v2/dependencies"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 // @API FunctionGraph GET /v2/{project_id}/fgs/dependencies
-// DataSourceFunctionGraphDependencies provides some parameters to filter dependent packages on the server.
-func DataSourceFunctionGraphDependencies() *schema.Resource {
+// DataSourceDependencies provides some parameters to filter dependent packages on the server.
+func DataSourceDependencies() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceFunctionGraphDependenciesRead,
+		ReadContext: dataSourceDependenciesRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `The region where the dependency packages are located.`,
 			},
 			"type": {
 				Type:     schema.TypeString,
@@ -34,14 +37,22 @@ func DataSourceFunctionGraphDependencies() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{
 					"public", "private",
 				}, false),
+				Description: `The type of the dependency package.`,
 			},
 			"runtime": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The runtime of the dependency package.`,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The name of the dependency package.`,
+			},
+			"is_versions_query_allowed": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Whether to query the versions of each dependency package.`,
 			},
 			"packages": {
 				Type:     schema.TypeList,
@@ -49,36 +60,44 @@ func DataSourceFunctionGraphDependencies() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The ID of the dependency package.`,
 						},
 						"name": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The name of the dependency package.`,
 						},
 						"owner": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The owner of the dependency package.`,
 						},
 						"link": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The OBS bucket path where the dependency package is located (FunctionGraph serivce side).`,
 						},
 						"etag": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The unique ID of the dependency package.`,
 						},
 						"size": {
-							Type:     schema.TypeInt,
-							Computed: true,
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `The size of the dependency package.`,
 						},
 						"file_name": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The file name of the stored dependency package.`,
 						},
 						"runtime": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The runtime of the dependency package.`,
 						},
 						"versions": {
 							Type:     schema.TypeList,
@@ -97,31 +116,93 @@ func DataSourceFunctionGraphDependencies() *schema.Resource {
 									},
 								},
 							},
+							Description: `The list of the versions for the dependency package.`,
 						},
 					},
 				},
+				Description: `All dependency packages that match the filter parameters.`,
 			},
 		},
 	}
 }
 
-func dataSourceFunctionGraphDependenciesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	client, err := cfg.FgsV2Client(region)
-	if err != nil {
-		return diag.Errorf("error creating FunctionGraph v2 client: %s", err)
+func buildDependenciesQueryParams(d *schema.ResourceData) string {
+	result := ""
+
+	if pkgType, ok := d.GetOk("type"); ok {
+		result = fmt.Sprintf("%s&dependency_type=%v", result, pkgType)
 	}
-	// Limit and Marker use default values.
-	listOpts := dependencies.ListOpts{
-		Name:           d.Get("name").(string),
-		Runtime:        d.Get("runtime").(string),
-		DependencyType: d.Get("type").(string),
+	if pkgRuntime, ok := d.GetOk("runtime"); ok {
+		result = fmt.Sprintf("%s&runtime=%v", result, pkgRuntime)
+	}
+	if pkgName, ok := d.GetOk("name"); ok {
+		result = fmt.Sprintf("%s&name=%v", result, pkgName)
 	}
 
-	allPages, err := dependencies.List(client, listOpts).AllPages()
+	return result
+}
+
+func getDependencies(client *golangsdk.ServiceClient, queryParams ...string) ([]interface{}, error) {
+	var (
+		httpUrl = "v2/{project_id}/fgs/dependencies?maxitems=100"
+		marker  float64
+		result  = make([]interface{}, 0)
+	)
+
+	listPath := client.Endpoint + httpUrl
+	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
+	if len(queryParams) > 0 {
+		listPath += queryParams[0]
+	}
+
+	listOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+	}
+
+	for {
+		listPathWithMarker := fmt.Sprintf("%s&marker=%v", listPath, marker)
+		requestResp, err := client.Request("GET", listPathWithMarker, &listOpt)
+		if err != nil {
+			return nil, fmt.Errorf("error querying dependency packages: %s", err)
+		}
+		respBody, err := utils.FlattenResponse(requestResp)
+		if err != nil {
+			return nil, err
+		}
+		dependencies := utils.PathSearch("dependencies", respBody, make([]interface{}, 0)).([]interface{})
+		if len(dependencies) < 1 {
+			break
+		}
+		result = append(result, dependencies...)
+		// In this API, marker has the same meaning as offset.
+		nextMarker := utils.PathSearch("next_marker", respBody, float64(0)).(float64)
+		if nextMarker == marker || nextMarker == 0 {
+			// Make sure the next marker value is correct, not the previous marker or zero (in the last page).
+			break
+		}
+		marker = nextMarker
+	}
+
+	return result, nil
+}
+
+func dataSourceDependenciesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg    = meta.(*config.Config)
+		region = cfg.GetRegion(d)
+	)
+
+	client, err := cfg.NewServiceClient("fgs", region)
 	if err != nil {
-		return diag.Errorf("error retrieving dependent packages: %s", err)
+		return diag.Errorf("error creating FunctionGraph client: %s", err)
+	}
+
+	dependencies, err := getDependencies(client, buildDependenciesQueryParams(d))
+	if err != nil {
+		return diag.Errorf("error retrieving dependency packages: %s", err)
 	}
 
 	randUUID, err := uuid.GenerateUUID()
@@ -130,55 +211,57 @@ func dataSourceFunctionGraphDependenciesRead(_ context.Context, d *schema.Resour
 	}
 	d.SetId(randUUID)
 
-	resp, _ := dependencies.ExtractDependencies(allPages)
-	packages := flatFunctionGraphDependencies(client, resp.Dependencies)
 	mErr := multierror.Append(
-		d.Set("packages", packages),
+		d.Set("packages", flattenDependencies(client, dependencies, d.Get("is_versions_query_allowed").(bool))),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
-		return diag.Errorf("error setting packages of FunctionGraph dependencies: %s", err)
+		return diag.Errorf("error saving data source fields of the dependency packages: %s", err)
 	}
 	return nil
 }
 
-func flatFunctionGraphDependencies(client *golangsdk.ServiceClient, pkgs []dependencies.Dependency) []map[string]interface{} {
-	packages := make([]map[string]interface{}, len(pkgs))
+func flattenDependencies(client *golangsdk.ServiceClient, dependencies []interface{},
+	isVersionsQueryAllowed bool) []map[string]interface{} {
+	result := make([]map[string]interface{}, 0, len(dependencies))
 
-	names := schema.NewSet(schema.HashString, nil)
-	for i, pkg := range pkgs {
-		names.Add(pkg.Name)
-		packages[i] = map[string]interface{}{
-			"id":        pkg.ID,
-			"name":      pkg.Name,
-			"owner":     pkg.Owner,
-			"link":      pkg.Link,
-			"etag":      pkg.Etag,
-			"size":      pkg.Size,
-			"file_name": pkg.FileName,
-			"runtime":   pkg.Runtime,
-			"versions":  flattenPckVersions(client, pkg.ID),
+	for _, dependency := range dependencies {
+		dependencyId := utils.PathSearch("id", dependency, "").(string)
+		elem := map[string]interface{}{
+			"id":        dependencyId,
+			"name":      utils.PathSearch("name", dependency, nil),
+			"owner":     utils.PathSearch("owner", dependency, nil),
+			"link":      utils.PathSearch("link", dependency, nil),
+			"etag":      utils.PathSearch("etag", dependency, nil),
+			"size":      utils.PathSearch("size", dependency, nil),
+			"file_name": utils.PathSearch("file_name", dependency, nil),
+			"runtime":   utils.PathSearch("runtime", dependency, nil),
 		}
+
+		if isVersionsQueryAllowed && dependencyId != "" {
+			dependencyVersions, err := getDependencyVersions(client, dependencyId)
+			if err != nil {
+				log.Printf("error retrieving versions under specified dependency package (%s): %s", dependencyId, err)
+			} else {
+				elem["versions"] = flattenDependencyVersionInfos(dependencyVersions)
+			}
+		}
+		result = append(result, elem)
 	}
 
-	return packages
+	return result
 }
 
-func flattenPckVersions(client *golangsdk.ServiceClient, dependencyId string) []map[string]interface{} {
-	listOpts := dependencies.ListVersionsOpts{
-		DependId: dependencyId,
-	}
-	dependencyVersions, err := dependencies.ListVersions(client, listOpts)
-	if err != nil {
-		log.Printf("error retrieving versions under specified dependency package (%s): %s", dependencyId, err)
+func flattenDependencyVersionInfos(dependencyVersions []interface{}) []map[string]interface{} {
+	if len(dependencyVersions) < 1 {
 		return nil
 	}
 
 	result := make([]map[string]interface{}, len(dependencyVersions))
-	for i, version := range dependencyVersions {
-		result[i] = map[string]interface{}{
-			"id":      version.ID,
-			"version": version.Version,
-		}
+	for _, dependencyVersion := range dependencyVersions {
+		result = append(result, map[string]interface{}{
+			"id":      utils.PathSearch("id", dependencyVersion, nil),
+			"version": int(utils.PathSearch("version", dependencyVersion, float64(0)).(float64)),
+		})
 	}
 
 	return result

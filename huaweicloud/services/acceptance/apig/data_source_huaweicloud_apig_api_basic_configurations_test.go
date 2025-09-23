@@ -279,7 +279,7 @@ output "is_name_not_found_filter_useful" {
 
 # Filter by group ID
 locals {
-  group_id = data.huaweicloud_apig_api_basic_configurations.test.configurations[0].group_id
+  group_id = huaweicloud_apig_api.test.group_id
 }
 
 data "huaweicloud_apig_api_basic_configurations" "filter_by_group_id" {
@@ -303,7 +303,7 @@ output "is_group_id_filter_useful" {
 
 # Filter by type
 locals {
-  api_type = data.huaweicloud_apig_api_basic_configurations.test.configurations[0].type
+  api_type = huaweicloud_apig_api.test.type
 }
 
 data "huaweicloud_apig_api_basic_configurations" "filter_by_type" {
@@ -327,7 +327,7 @@ output "is_type_filter_useful" {
 
 # Filter by request method
 locals {
-  request_method = data.huaweicloud_apig_api_basic_configurations.test.configurations[0].request_method
+  request_method = huaweicloud_apig_api.test.request_method
 }
 
 data "huaweicloud_apig_api_basic_configurations" "filter_by_request_method" {
@@ -351,7 +351,7 @@ output "is_request_method_filter_useful" {
 
 # Filter by request path
 locals {
-  request_path = data.huaweicloud_apig_api_basic_configurations.test.configurations[0].request_path
+  request_path = huaweicloud_apig_api.test.request_path
 }
 
 data "huaweicloud_apig_api_basic_configurations" "filter_by_request_path" {
@@ -376,7 +376,7 @@ output "is_request_path_filter_useful" {
 
 # Filter by request protocol
 locals {
-  request_protocol = data.huaweicloud_apig_api_basic_configurations.test.configurations[0].request_protocol
+  request_protocol = huaweicloud_apig_api.test.request_protocol
 }
 
 data "huaweicloud_apig_api_basic_configurations" "filter_by_request_protocol" {
@@ -401,7 +401,7 @@ output "is_request_protocol_filter_useful" {
 
 # Filter by security authentication type
 locals {
-  security_authentication = data.huaweicloud_apig_api_basic_configurations.test.configurations[0].security_authentication
+  security_authentication = huaweicloud_apig_api.test.security_authentication
 }
 
 data "huaweicloud_apig_api_basic_configurations" "filter_by_security_authentication" {
@@ -440,7 +440,7 @@ output "is_vpc_channel_name_filter_useful" {
 
 # Filter by env ID
 locals {
-  env_id = data.huaweicloud_apig_api_basic_configurations.test.configurations[0].env_id
+  env_id = huaweicloud_apig_environment.test.id
 }
 
 data "huaweicloud_apig_api_basic_configurations" "filter_by_env_id" {
@@ -464,7 +464,7 @@ output "is_env_id_filter_useful" {
 
 # Filter by env name
 locals {
-  env_name = data.huaweicloud_apig_api_basic_configurations.test.configurations[0].env_name
+  env_name = huaweicloud_apig_environment.test.name
 }
 
 data "huaweicloud_apig_api_basic_configurations" "filter_by_env_name" {
@@ -487,8 +487,9 @@ output "is_env_name_filter_useful" {
 }
 
 # Filter by backend type
+# There is no "backend_type" field in the parent resource.
 locals {
-  backend_type = data.huaweicloud_apig_api_basic_configurations.test.configurations[0].backend_type
+  backend_type = data.huaweicloud_apig_api_basic_configurations.filter_by_id.configurations[0].backend_type
 }
 
 data "huaweicloud_apig_api_basic_configurations" "filter_by_backend_type" {

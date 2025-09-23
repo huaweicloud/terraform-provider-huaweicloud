@@ -1,0 +1,76 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_servicestagev3_environment": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the environment, in RFC3339 format.",
+                "computed": true
+              },
+              "creator": {
+                "type": "string",
+                "description": "The creator name of the environment.",
+                "computed": true
+              },
+              "deploy_mode": {
+                "type": "string",
+                "description": "The deploy mode of the environment.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the environment.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The the enterprise project ID to which the environment belongs.",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the environment.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the environment is located.",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "The key/value pairs to associate with the environment that used to filter resource.",
+                "optional": true,
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The latest update time of the environment, in RFC3339 format.",
+                "computed": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "description": "The VPC ID to which the environment belongs.",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

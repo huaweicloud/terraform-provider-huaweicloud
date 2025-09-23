@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_vpc_subnet_private_ips
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: VPC
+paths:
+    /v1/{project_id}/subnets/{subnet_id}/privateips:
+        GET:
+            tag: VPC

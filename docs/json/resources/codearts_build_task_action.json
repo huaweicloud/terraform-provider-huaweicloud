@@ -1,0 +1,82 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_codearts_build_task_action": {
+          "block": {
+            "attributes": {
+              "action": {
+                "type": "string",
+                "description": "Specifies the action.",
+                "required": true
+              },
+              "build_no": {
+                "type": "string",
+                "description": "Specifies the build task number, start from 1.",
+                "optional": true,
+                "computed": true
+              },
+              "daily_build_number": {
+                "type": "string",
+                "description": "Indicates the daily build number.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "job_id": {
+                "type": "string",
+                "description": "Specifies the build task ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "parameter": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "description": "Specifies the parameter name.",
+                      "required": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "description": "Specifies the parameter value.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the parameter list."
+                },
+                "nesting_mode": "set"
+              },
+              "scm": {
+                "block": {
+                  "attributes": {
+                    "build_commit_id": {
+                      "type": "string",
+                      "description": "Specifies the build commit ID.",
+                      "optional": true
+                    },
+                    "build_tag": {
+                      "type": "string",
+                      "description": "Specifies the build tag.",
+                      "optional": true
+                    }
+                  },
+                  "description": "Specifies the build execution SCM."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -3,20 +3,25 @@ package lb
 import (
 	"context"
 	"log"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
+	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
-	"github.com/chnsz/golangsdk/openstack/elb/v2/listeners"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
+
+var listenerNonUpdatableParams = []string{"protocol", "protocol_port", "loadbalancer_id", "tenant_id"}
 
 // @API ELB POST /v2/{project_id}/elb/listeners
 // @API ELB GET /v2/{project_id}/elb/loadbalancers/{loadbalancer_id}
@@ -35,6 +40,11 @@ func ResourceListener() *schema.Resource {
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 
+		CustomizeDiff: customdiff.All(
+			config.FlexibleForceNew(listenerNonUpdatableParams),
+			config.MergeDefaultTags(),
+		),
+
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
 			Update: schema.DefaultTimeout(10 * time.Minute),
@@ -48,293 +58,330 @@ func ResourceListener() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-
 			"protocol": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
-
 			"protocol_port": {
 				Type:     schema.TypeInt,
 				Required: true,
-				ForceNew: true,
 			},
-
-			"tenant_id": {
-				Type:       schema.TypeString,
-				Optional:   true,
-				Computed:   true,
-				ForceNew:   true,
-				Deprecated: "tenant_id is deprecated",
-			},
-
 			"loadbalancer_id": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
-
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-
 			"default_pool_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 			},
-
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-
-			"connection_limit": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				Computed: true,
-			},
-
 			"http2_enable": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default:  false,
 			},
-
 			"default_tls_container_ref": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
-
-			"sni_container_refs": {
-				Type:     schema.TypeList,
+			"client_ca_tls_container_ref": {
+				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
+			},
+			"sni_container_refs": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-
-			"admin_state_up": {
-				Type:     schema.TypeBool,
-				Default:  true,
+			"insert_headers": {
+				Type:     schema.TypeList,
+				Optional: true,
+				MaxItems: 1,
+				Computed: true,
+				Elem:     listenerInsertHeadersSchema(),
+			},
+			"tls_ciphers_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"protection_status": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"protection_reason": {
+				Type:     schema.TypeString,
 				Optional: true,
 			},
 			"tags": common.TagsSchema(),
+			"created_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"updated_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"tenant_id": {
+				Type:       schema.TypeString,
+				Optional:   true,
+				Computed:   true,
+				Deprecated: "tenant_id is deprecated",
+			},
+			"admin_state_up": {
+				Type:       schema.TypeBool,
+				Default:    true,
+				Optional:   true,
+				Deprecated: "admin_state_up is deprecated",
+			},
+			"connection_limit": {
+				Type:       schema.TypeInt,
+				Optional:   true,
+				Computed:   true,
+				Deprecated: "connection_limit is deprecated",
+			},
 		},
 	}
 }
 
+func listenerInsertHeadersSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"x_forwarded_elb_ip": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"true", "false",
+				}, false),
+			},
+			"x_forwarded_host": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"true", "false",
+				}, false),
+			},
+		},
+	}
+	return &sc
+}
+
 func resourceListenerV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	lbClient, err := cfg.LoadBalancerClient(cfg.GetRegion(d))
+	region := cfg.GetRegion(d)
+
+	var (
+		httpUrl = "v2/{project_id}/elb/listeners"
+		product = "elbv2"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating ELB v2 Client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
-	// client for tags
-	lbv2Client, err := cfg.ElbV2Client(cfg.GetRegion(d))
+	createPath := client.Endpoint + httpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	createOpt.JSONBody = utils.RemoveNil(buildCreateListenerBodyParams(d))
+	createResp, err := client.Request("POST", createPath, &createOpt)
 	if err != nil {
-		return diag.Errorf("error creating ELB v2.0 Client: %s", err)
+		return diag.Errorf("error creating ELB listener: %s", err)
 	}
 
-	lbID := d.Get("loadbalancer_id").(string)
-	adminStateUp := d.Get("admin_state_up").(bool)
-	http2Enable := d.Get("http2_enable").(bool)
-	var sniContainerRefs []string
-	if raw, ok := d.GetOk("sni_container_refs"); ok {
-		for _, v := range raw.([]interface{}) {
-			sniContainerRefs = append(sniContainerRefs, v.(string))
-		}
-	}
-	createOpts := listeners.CreateOpts{
-		Protocol:               listeners.Protocol(d.Get("protocol").(string)),
-		ProtocolPort:           d.Get("protocol_port").(int),
-		TenantID:               d.Get("tenant_id").(string),
-		LoadbalancerID:         lbID,
-		Name:                   d.Get("name").(string),
-		DefaultPoolID:          d.Get("default_pool_id").(string),
-		Description:            d.Get("description").(string),
-		DefaultTlsContainerRef: d.Get("default_tls_container_ref").(string),
-		SniContainerRefs:       sniContainerRefs,
-		Http2Enable:            &http2Enable,
-		AdminStateUp:           &adminStateUp,
-	}
-
-	if v, ok := d.GetOk("connection_limit"); ok {
-		connectionLimit := v.(int)
-		createOpts.ConnLimit = &connectionLimit
-	}
-
-	// Wait for LoadBalancer to become active before continuing
-	timeout := d.Timeout(schema.TimeoutCreate)
-	err = waitForLBV2LoadBalancer(ctx, lbClient, lbID, "ACTIVE", nil, timeout)
+	createRespBody, err := utils.FlattenResponse(createResp)
 	if err != nil {
-		return diag.FromErr(err)
+		return diag.Errorf("error retrieving ELB listener: %s", err)
+	}
+	listenerId := utils.PathSearch("listener.id", createRespBody, "").(string)
+	if listenerId == "" {
+		return diag.Errorf("error creating ELB listener: ID is not found in API response")
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
-	listener, err := listeners.Create(lbClient, createOpts).Extract()
-	if err != nil {
-		return diag.Errorf("error creating listener: %s", err)
-	}
-
-	// Wait for LoadBalancer to become active again before continuing
-	err = waitForLBV2LoadBalancer(ctx, lbClient, lbID, "ACTIVE", nil, timeout)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	d.SetId(listener.ID)
+	d.SetId(listenerId)
 
 	// set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
 		tagList := utils.ExpandResourceTags(tagRaw)
-		if tagErr := tags.Create(lbv2Client, "listeners", listener.ID, tagList).ExtractErr(); tagErr != nil {
-			return diag.Errorf("error setting tags of ELB listener %s: %s", listener.ID, tagErr)
+		if tagErr := tags.Create(client, "listeners", listenerId, tagList).ExtractErr(); tagErr != nil {
+			return diag.Errorf("error setting tags of ELB listener %s: %s", listenerId, tagErr)
 		}
 	}
 
 	return resourceListenerV2Read(ctx, d, meta)
 }
 
+func buildCreateListenerBodyParams(d *schema.ResourceData) map[string]interface{} {
+	params := map[string]interface{}{
+		"protocol":                    d.Get("protocol"),
+		"protocol_port":               d.Get("protocol_port"),
+		"loadbalancer_id":             d.Get("loadbalancer_id"),
+		"tenant_id":                   utils.ValueIgnoreEmpty(d.Get("tenant_id")),
+		"admin_state_up":              utils.ValueIgnoreEmpty(d.Get("admin_state_up")),
+		"name":                        utils.ValueIgnoreEmpty(d.Get("name")),
+		"description":                 utils.ValueIgnoreEmpty(d.Get("description")),
+		"http2_enable":                utils.ValueIgnoreEmpty(d.Get("http2_enable")),
+		"default_pool_id":             utils.ValueIgnoreEmpty(d.Get("default_pool_id")),
+		"default_tls_container_ref":   utils.ValueIgnoreEmpty(d.Get("default_tls_container_ref")),
+		"client_ca_tls_container_ref": utils.ValueIgnoreEmpty(d.Get("client_ca_tls_container_ref")),
+		"sni_container_refs":          d.Get("sni_container_refs").(*schema.Set).List(),
+		"insert_headers":              buildListenerInsertHeaders(d),
+		"tls_ciphers_policy":          utils.ValueIgnoreEmpty(d.Get("tls_ciphers_policy")),
+		"protection_status":           utils.ValueIgnoreEmpty(d.Get("protection_status")),
+		"protection_reason":           utils.ValueIgnoreEmpty(d.Get("protection_reason")),
+	}
+	bodyParams := map[string]interface{}{
+		"listener": params,
+	}
+	return bodyParams
+}
+
+func buildListenerInsertHeaders(d *schema.ResourceData) map[string]interface{} {
+	if rawInsertHeaders, ok := d.GetOk("insert_headers"); ok {
+		if v, ok := rawInsertHeaders.([]interface{})[0].(map[string]interface{}); ok {
+			xForwardedElbIp, _ := strconv.ParseBool(v["x_forwarded_elb_ip"].(string))
+			xForwardedHost, _ := strconv.ParseBool(v["x_forwarded_host"].(string))
+			params := map[string]interface{}{
+				"X-Forwarded-ELB-IP": xForwardedElbIp,
+				"X-Forwarded-Host":   xForwardedHost,
+			}
+			return params
+		}
+	}
+	return nil
+}
+
 func resourceListenerV2Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	lbClient, err := cfg.LoadBalancerClient(cfg.GetRegion(d))
+	region := cfg.GetRegion(d)
+
+	var mErr *multierror.Error
+
+	var (
+		httpUrl = "v2/{project_id}/elb/listeners/{listener_id}"
+		product = "elbv2"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating ELB v2 Client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
-	// client for tags
-	lbv2Client, err := cfg.ElbV2Client(cfg.GetRegion(d))
-	if err != nil {
-		return diag.Errorf("error creating ELB v2.0 Client: %s", err)
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{listener_id}", d.Id())
+
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
 
-	listener, err := listeners.Get(lbClient, d.Id()).Extract()
+	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "listener")
+		return common.CheckDeletedDiag(d, err, "error retrieving ELB listener")
 	}
 
-	log.Printf("[DEBUG] Retrieved listener %s: %#v", d.Id(), listener)
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
-	mErr := multierror.Append(nil,
-		d.Set("region", cfg.GetRegion(d)),
-		d.Set("name", listener.Name),
-		d.Set("protocol", listener.Protocol),
-		d.Set("tenant_id", listener.TenantID),
-		d.Set("description", listener.Description),
-		d.Set("protocol_port", listener.ProtocolPort),
-		d.Set("admin_state_up", listener.AdminStateUp),
-		d.Set("default_pool_id", listener.DefaultPoolID),
-		d.Set("connection_limit", listener.ConnLimit),
-		d.Set("http2_enable", listener.Http2Enable),
-		d.Set("sni_container_refs", listener.SniContainerRefs),
-		d.Set("default_tls_container_ref", listener.DefaultTlsContainerRef),
+	mErr = multierror.Append(
+		mErr,
+		d.Set("region", region),
+		d.Set("name", utils.PathSearch("listener.name", getRespBody, nil)),
+		d.Set("protocol", utils.PathSearch("listener.protocol", getRespBody, nil)),
+		d.Set("protocol_port", utils.PathSearch("listener.protocol_port", getRespBody, nil)),
+		d.Set("loadbalancer_id", utils.PathSearch("listener.loadbalancers[0].id", getRespBody, nil)),
+		d.Set("description", utils.PathSearch("listener.description", getRespBody, nil)),
+		d.Set("default_pool_id", utils.PathSearch("listener.default_pool_id", getRespBody, nil)),
+		d.Set("http2_enable", utils.PathSearch("listener.http2_enable", getRespBody, nil)),
+		d.Set("default_tls_container_ref", utils.PathSearch("listener.default_tls_container_ref", getRespBody, nil)),
+		d.Set("client_ca_tls_container_ref", utils.PathSearch("listener.client_ca_tls_container_ref", getRespBody, nil)),
+		d.Set("sni_container_refs", utils.PathSearch("listener.sni_container_refs", getRespBody, nil)),
+		d.Set("insert_headers", flattenInsertHeaders(getRespBody)),
+		d.Set("tls_ciphers_policy", utils.PathSearch("listener.tls_ciphers_policy", getRespBody, nil)),
+		d.Set("protection_status", utils.PathSearch("listener.protection_status", getRespBody, nil)),
+		d.Set("protection_reason", utils.PathSearch("listener.protection_reason", getRespBody, nil)),
+		d.Set("tenant_id", utils.PathSearch("listener.tenant_id", getRespBody, nil)),
+		d.Set("admin_state_up", utils.PathSearch("listener.admin_state_up", getRespBody, nil)),
+		d.Set("connection_limit", utils.PathSearch("listener.connection_limit", getRespBody, nil)),
+		d.Set("created_at", utils.PathSearch("listener.created_at", getRespBody, nil)),
+		d.Set("updated_at", utils.PathSearch("listener.updated_at", getRespBody, nil)),
 	)
 
-	if len(listener.Loadbalancers) != 0 {
-		mErr = multierror.Append(mErr, d.Set("loadbalancer_id", listener.Loadbalancers[0].ID))
-	}
-
 	// fetch tags
-	if resourceTags, err := tags.Get(lbv2Client, "listeners", d.Id()).Extract(); err == nil {
+	if resourceTags, err := tags.Get(client, "listeners", d.Id()).Extract(); err == nil {
 		tagMap := utils.TagsToMap(resourceTags.Tags)
 		mErr = multierror.Append(mErr, d.Set("tags", tagMap))
 	} else {
 		log.Printf("[WARN] fetching tags of ELB listener failed: %s", err)
 	}
 
-	if err = mErr.ErrorOrNil(); err != nil {
-		return diag.Errorf("error setting listener fields: %s", err)
+	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func flattenInsertHeaders(listener interface{}) []map[string]interface{} {
+	curJson := utils.PathSearch("listener.insert_headers", listener, nil)
+	if curJson == nil {
+		return nil
 	}
 
-	return nil
+	xForwardedElbIp := utils.PathSearch(`"X-Forwarded-ELB-IP"`, curJson, false).(bool)
+	xForwardedHost := utils.PathSearch(`"X-Forwarded-Host"`, curJson, false).(bool)
+	rst := []map[string]interface{}{
+		{
+			"x_forwarded_elb_ip": strconv.FormatBool(xForwardedElbIp),
+			"x_forwarded_host":   strconv.FormatBool(xForwardedHost),
+		},
+	}
+	return rst
 }
 
 func resourceListenerV2Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	lbClient, err := cfg.LoadBalancerClient(cfg.GetRegion(d))
+	region := cfg.GetRegion(d)
+
+	var (
+		httpUrl = "v2/{project_id}/elb/listeners/{listener_id}"
+		product = "elbv2"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating ELB v2 client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
-	// client for tags
-	lbv2Client, err := cfg.ElbV2Client(cfg.GetRegion(d))
-	if err != nil {
-		return diag.Errorf("error creating ELB v2.0 Client: %s", err)
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{listener_id}", d.Id())
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
-
-	//lintignore:R019
-	if d.HasChanges("name", "description", "admin_state_up", "connection_limit",
-		"default_tls_container_ref", "sni_container_refs", "http2_enable") {
-		var updateOpts listeners.UpdateOpts
-		if d.HasChange("name") {
-			updateOpts.Name = d.Get("name").(string)
-		}
-		if d.HasChange("description") {
-			desc := d.Get("description").(string)
-			updateOpts.Description = &desc
-		}
-		if d.HasChange("connection_limit") {
-			connLimit := d.Get("connection_limit").(int)
-			updateOpts.ConnLimit = &connLimit
-		}
-		if d.HasChange("default_tls_container_ref") {
-			updateOpts.DefaultTlsContainerRef = d.Get("default_tls_container_ref").(string)
-		}
-		if d.HasChange("sni_container_refs") {
-			var sniContainerRefs []string
-			if raw, ok := d.GetOk("sni_container_refs"); ok {
-				for _, v := range raw.([]interface{}) {
-					sniContainerRefs = append(sniContainerRefs, v.(string))
-				}
-			}
-			updateOpts.SniContainerRefs = sniContainerRefs
-		}
-		if d.HasChange("admin_state_up") {
-			asu := d.Get("admin_state_up").(bool)
-			updateOpts.AdminStateUp = &asu
-		}
-		if d.HasChange("http2_enable") {
-			http2Enable := d.Get("http2_enable").(bool)
-			updateOpts.Http2Enable = &http2Enable
-		}
-
-		// Wait for LoadBalancer to become active before continuing
-		lbID := d.Get("loadbalancer_id").(string)
-		timeout := d.Timeout(schema.TimeoutUpdate)
-		err = waitForLBV2LoadBalancer(ctx, lbClient, lbID, "ACTIVE", nil, timeout)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-
-		log.Printf("[DEBUG] Updating listener %s with options: %#v", d.Id(), updateOpts)
-		//lintignore:R006
-		err = resource.RetryContext(ctx, timeout, func() *resource.RetryError {
-			_, err = listeners.Update(lbClient, d.Id(), updateOpts).Extract()
-			if err != nil {
-				return common.CheckForRetryableError(err)
-			}
-			return nil
-		})
-
-		if err != nil {
-			return diag.Errorf("error updating listener %s: %s", d.Id(), err)
-		}
-
-		// Wait for LoadBalancer to become active again before continuing
-		err = waitForLBV2LoadBalancer(ctx, lbClient, lbID, "ACTIVE", nil, timeout)
-		if err != nil {
-			return diag.FromErr(err)
-		}
+	updateOpt.JSONBody = utils.RemoveNil(buildUpdateListenerBodyParams(d))
+	_, err = client.Request("PUT", updatePath, &updateOpt)
+	if err != nil {
+		return diag.Errorf("error updating ELB listener: %s", err)
 	}
 
 	// update tags
 	if d.HasChange("tags") {
-		tagErr := utils.UpdateResourceTags(lbv2Client, d, "listeners", d.Id())
+		tagErr := utils.UpdateResourceTags(client, d, "listeners", d.Id())
 		if tagErr != nil {
 			return diag.Errorf("error updating tags of ELB listener:%s, err:%s", d.Id(), tagErr)
 		}
@@ -343,45 +390,51 @@ func resourceListenerV2Update(ctx context.Context, d *schema.ResourceData, meta 
 	return resourceListenerV2Read(ctx, d, meta)
 }
 
-func resourceListenerV2Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func buildUpdateListenerBodyParams(d *schema.ResourceData) map[string]interface{} {
+	params := map[string]interface{}{
+		"admin_state_up":              d.Get("admin_state_up"),
+		"name":                        d.Get("name"),
+		"description":                 d.Get("description"),
+		"http2_enable":                d.Get("http2_enable"),
+		"default_pool_id":             utils.ValueIgnoreEmpty(d.Get("default_pool_id")),
+		"default_tls_container_ref":   utils.ValueIgnoreEmpty(d.Get("default_tls_container_ref")),
+		"client_ca_tls_container_ref": utils.ValueIgnoreEmpty(d.Get("client_ca_tls_container_ref")),
+		"sni_container_refs":          d.Get("sni_container_refs").(*schema.Set).List(),
+		"insert_headers":              buildListenerInsertHeaders(d),
+		"tls_ciphers_policy":          utils.ValueIgnoreEmpty(d.Get("tls_ciphers_policy")),
+		"protection_status":           utils.ValueIgnoreEmpty(d.Get("protection_status")),
+		"protection_reason":           d.Get("protection_reason"),
+	}
+	bodyParams := map[string]interface{}{
+		"listener": params,
+	}
+	return bodyParams
+}
+
+func resourceListenerV2Delete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	lbClient, err := cfg.LoadBalancerClient(cfg.GetRegion(d))
+	region := cfg.GetRegion(d)
+
+	var (
+		httpUrl = "v2/{project_id}/elb/listeners/{listener_id}"
+		product = "elb"
+	)
+
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating ELB v2 client: %s", err)
+		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
-	// Wait for LoadBalancer to become active before continuing
-	lbID := d.Get("loadbalancer_id").(string)
-	timeout := d.Timeout(schema.TimeoutDelete)
-	err = waitForLBV2LoadBalancer(ctx, lbClient, lbID, "ACTIVE", nil, timeout)
-	if err != nil {
-		return diag.FromErr(err)
+	deletePath := client.Endpoint + httpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = strings.ReplaceAll(deletePath, "{listener_id}", d.Id())
+
+	deleteOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
-
-	log.Printf("[DEBUG] Deleting listener %s", d.Id())
-	//lintignore:R006
-	err = resource.RetryContext(ctx, timeout, func() *resource.RetryError {
-		err = listeners.Delete(lbClient, d.Id()).ExtractErr()
-		if err != nil {
-			return common.CheckForRetryableError(err)
-		}
-		return nil
-	})
-
+	_, err = client.Request("DELETE", deletePath, &deleteOpt)
 	if err != nil {
-		return diag.Errorf("error deleting listener %s: %s", d.Id(), err)
-	}
-
-	// Wait for LoadBalancer to become active again before continuing
-	err = waitForLBV2LoadBalancer(ctx, lbClient, lbID, "ACTIVE", nil, timeout)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	// Wait for Listener to delete
-	err = waitForLBV2Listener(ctx, lbClient, d.Id(), "DELETED", nil, timeout)
-	if err != nil {
-		return diag.FromErr(err)
+		return common.CheckDeletedDiag(d, err, "error deleting ELB listener")
 	}
 
 	return nil

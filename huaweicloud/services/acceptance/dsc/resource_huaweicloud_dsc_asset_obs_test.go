@@ -12,45 +12,41 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dsc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 func getAssetObsResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	region := acceptance.HW_REGION_NAME
-	// getAssetObs: Query the asset OBS
 	var (
-		getAssetObsHttpUrl = "v1/{project_id}/sdg/asset/obs/buckets"
-		getAssetObsProduct = "dsc"
+		region  = acceptance.HW_REGION_NAME
+		httpUrl = "v1/{project_id}/sdg/asset/obs/buckets"
+		product = "dsc"
 	)
-	getAssetObsClient, err := cfg.NewServiceClient(getAssetObsProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return nil, fmt.Errorf("error creating AssetObs Client: %s", err)
+		return nil, fmt.Errorf("error creating DSC client: %s", err)
 	}
 
-	getAssetObsPath := getAssetObsClient.Endpoint + getAssetObsHttpUrl
-	getAssetObsPath = strings.ReplaceAll(getAssetObsPath, "{project_id}", getAssetObsClient.ProjectID)
-	getAssetObsPath += "?added=true"
-
-	getAssetObsOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath += "?added=true"
+	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-	}
-	getAssetObsResp, err := getAssetObsClient.Request("GET", getAssetObsPath, &getAssetObsOpt)
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving AssetObs: %s", err)
 	}
 
-	getAssetObsRespBody, err := utils.FlattenResponse(getAssetObsResp)
+	resp, err := client.Request("GET", requestPath, &requestOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving AssetObs: %s", err)
+		return nil, fmt.Errorf("error retrieving DSC asset OBS buckets: %s", err)
 	}
 
-	assetObs := dsc.FilterAssetObs(getAssetObsRespBody, state.Primary.ID, "id")
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return nil, err
+	}
+
+	expression := fmt.Sprintf("buckets[?id=='%s']|[0]", state.Primary.ID)
+	assetObs := utils.PathSearch(expression, respBody, nil)
 	if assetObs == nil {
-		return nil, fmt.Errorf("error retrieving AssetObs: %s", err)
+		return nil, golangsdk.ErrDefault404{}
 	}
 	return assetObs, nil
 }
@@ -69,7 +65,11 @@ func TestAccAssetObs_basic(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			// Configure a DSC instance with OBS authorization enabled.
+			acceptance.TestAccPrecheckDscInstance(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
@@ -102,26 +102,16 @@ func TestAccAssetObs_basic(t *testing.T) {
 
 func testAssetObs_basic(name, obsName string) string {
 	return fmt.Sprintf(`
-%s
-
 resource "huaweicloud_obs_bucket" "test" {
   bucket        = "%s"
   acl           = "private"
   force_destroy = true
-
-  lifecycle {
-    ignore_changes = [
-      logging,
-    ]
-  }
 }
 
 resource "huaweicloud_dsc_asset_obs" "test" {
   name          = "%s"
   bucket_name   = huaweicloud_obs_bucket.test.bucket
   bucket_policy = "private"
-
-  depends_on = [huaweicloud_dsc_instance.test]
 }
-`, testDscInstance_basic(), obsName, name)
+`, obsName, name)
 }

@@ -21,6 +21,7 @@ func TestAccDataSourceRmsOrganizationalAssignmentPackages_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckOrganizationsOpen(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -58,19 +59,19 @@ data "huaweicloud_rms_organizational_assignment_packages" "filter_by_name" {
 
 data "huaweicloud_rms_organizational_assignment_packages" "filter_by_id" {
   organization_id = data.huaweicloud_organizations_organization.test.id
-  assignment_id   = huaweicloud_rms_organizational_assignment_package.test.id
+  package_id   = huaweicloud_rms_organizational_assignment_package.test.id
 }
 
 locals {
-  name_filter_result = [for v in data.huaweicloud_rms_organizational_assignment_packages.filter_by_name.assignments[*].name : v == "%[2]s"]
+  name_filter_result = [for v in data.huaweicloud_rms_organizational_assignment_packages.filter_by_name.packages[*].name : v == "%[2]s"]
   id_filter_result = [
-    for v in data.huaweicloud_rms_organizational_assignment_packages.filter_by_name.assignments[*].id :
+    for v in data.huaweicloud_rms_organizational_assignment_packages.filter_by_name.packages[*].id :
 	v == huaweicloud_rms_organizational_assignment_package.test.id
   ]
 }
 
 output "is_results_not_empty" {
-  value = length(data.huaweicloud_rms_organizational_assignment_packages.basic.assignments) > 0
+  value = length(data.huaweicloud_rms_organizational_assignment_packages.basic.packages) > 0
 }
 
 output "is_name_filter_useful" {

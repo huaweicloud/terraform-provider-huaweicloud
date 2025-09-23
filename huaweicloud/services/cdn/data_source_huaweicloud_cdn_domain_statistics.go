@@ -18,7 +18,6 @@ import (
 
 	"github.com/chnsz/golangsdk"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -96,52 +95,43 @@ func DataSourceStatistics() *schema.Resource {
 }
 
 func resourceStatisticsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	region := conf.GetRegion(d)
-
-	var mErr *multierror.Error
-
-	// domainStatistics: Query the statistics of CDN domain.
 	var (
-		domainStatisticsHttpUrl = "v1.0/cdn/statistics/domain-location-stats"
-		domainStatisticsProduct = "cdn"
+		conf    = meta.(*config.Config)
+		region  = conf.GetRegion(d)
+		mErr    *multierror.Error
+		httpUrl = "v1.0/cdn/statistics/domain-location-stats"
+		product = "cdn"
 	)
-	domainStatisticsClient, err := conf.NewServiceClient(domainStatisticsProduct, region)
+	client, err := conf.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating Statistics Client: %s", err)
+		return diag.Errorf("error creating CDN client: %s", err)
 	}
 
-	domainStatisticsPath := domainStatisticsClient.Endpoint + domainStatisticsHttpUrl
-
-	domainStatisticsqueryParams := buildDomainStatisticsQueryParams(d)
-	domainStatisticsPath += domainStatisticsqueryParams
-
-	domainStatisticsOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath += buildDomainStatisticsQueryParams(d)
+	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
-	domainStatisticsResp, err := domainStatisticsClient.Request("GET", domainStatisticsPath, &domainStatisticsOpt)
 
+	resp, err := client.Request("GET", requestPath, &requestOpt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving Statistics")
+		return diag.Errorf("error retrieving CDN statistics: %s", err)
 	}
 
-	domainStatisticsRespBody, err := utils.FlattenResponse(domainStatisticsResp)
+	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	generateUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(generateUUID)
 
-	results, err := utils.JsonMarshal(utils.PathSearch("result", domainStatisticsRespBody, nil))
+	results, err := utils.JsonMarshal(utils.PathSearch("result", respBody, nil))
 	if err != nil {
-		return diag.Errorf("error marshaling Statistics result: %s", err)
+		return diag.Errorf("error marshaling statistics result: %s", err)
 	}
 
 	mErr = multierror.Append(

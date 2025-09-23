@@ -1,0 +1,90 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_workspace_app_server_quotas": {
+          "block": {
+            "attributes": {
+              "cluster_id": {
+                "type": "string",
+                "description": "The of the cloud dedicated distributed storage pool.",
+                "optional": true
+              },
+              "deh_id": {
+                "type": "string",
+                "description": "The ID of the dedicated host.",
+                "optional": true
+              },
+              "disk_num": {
+                "type": "number",
+                "description": "The number of disks for the single server instance to be queried.",
+                "required": true
+              },
+              "disk_size": {
+                "type": "number",
+                "description": "The disk size of the single server instance to be queried.",
+                "required": true
+              },
+              "flavor_id": {
+                "type": "string",
+                "description": "The ID of the flavor to be queried.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_enough": {
+                "type": "bool",
+                "description": "Whether the quota is sufficient.",
+                "computed": true
+              },
+              "is_period": {
+                "type": "bool",
+                "description": "Whether the instance is prepaid.",
+                "optional": true
+              },
+              "product_id": {
+                "type": "string",
+                "description": "The ID of the product to be queried.",
+                "required": true
+              },
+              "quotas": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "need": "number",
+                      "remainder": "number",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the quotas that match the filter parameters.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the Workspace APP server quotas are located.",
+                "computed": true
+              },
+              "subscription_num": {
+                "type": "number",
+                "description": "The number of server instances to be queried.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

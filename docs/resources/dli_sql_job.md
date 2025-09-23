@@ -114,7 +114,7 @@ This resource provides the following timeouts configuration options:
 
 DLI SQL job can be imported by `id`. For example,
 
-```
+```bash
 terraform import huaweicloud_dli_sql_job.example 7f803d70-c533-469f-8431-e378f3e97123
 ```
 
@@ -124,7 +124,7 @@ It is generally recommended running `terraform plan` after importing a resource.
 be applied to the resource, or the resource definition should be updated to align with the resource. Also you can
 ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_dli_sql_job" "test" {
     ...
 

@@ -1,0 +1,23 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dms_kafka_message_diagnosis_task
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: Kafka
+paths:
+    /v2/{project_id}/kafka/instances/{instance_id}/diagnosis-check:
+        GET:
+            tag: Kafka
+    /v2/{project_id}/kafka/instances/{instance_id}/message-diagnosis-tasks:
+        DELETE:
+            tag: Kafka
+        GET:
+            tag: Kafka
+        POST:
+            tag: Kafka
+    /v2/{project_id}/kafka/instances/{instance_id}/message-diagnosis/{report_id}:
+        GET:
+            tag: Kafka

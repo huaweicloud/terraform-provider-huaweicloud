@@ -218,6 +218,16 @@ func DataSourceCtsTraces() *schema.Resource {
 							Computed:    true,
 							Description: `The trace name.`,
 						},
+						"read_only": {
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: `Whether a user request is read-only.`,
+						},
+						"operation_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The operation ID of the trace`,
+						},
 					},
 				},
 			},
@@ -357,6 +367,8 @@ func (w *TracesDSWrapper) listTracesToSchema(body *gjson.Result) error {
 					"service_type":  traces.Get("service_type").Value(),
 					"location_info": traces.Get("location_info").Value(),
 					"trace_name":    traces.Get("trace_name").Value(),
+					"read_only":     traces.Get("read_only").Value(),
+					"operation_id":  traces.Get("operation_id").Value(),
 				}
 			},
 		)),

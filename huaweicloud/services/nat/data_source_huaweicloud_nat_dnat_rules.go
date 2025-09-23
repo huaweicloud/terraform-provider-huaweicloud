@@ -13,7 +13,6 @@ import (
 
 	"github.com/chnsz/golangsdk/pagination"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -87,6 +86,16 @@ func DataSourceDnatRules() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "The IP address of the global EIP associated with the DNAT rule.",
+			},
+			"description": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The description of the DNAT rule.",
+			},
+			"created_at": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The creation time of the DNAT rule.",
 			},
 			"rules": {
 				Type:        schema.TypeList,
@@ -187,57 +196,53 @@ func dnatRuleSchema() *schema.Resource {
 }
 
 func dataSourceDnatRulesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// listDnatRules: Query the DNAT rule list
 	var (
-		listDnatRulesHttpUrl = "v2/{project_id}/dnat_rules"
-		listDnatRulesProduct = "nat"
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v2/{project_id}/dnat_rules"
+		product = "nat"
 	)
-	listDnatRulesClient, err := cfg.NewServiceClient(listDnatRulesProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating NAT client: %s", err)
 	}
 
-	listDnatRulesPath := listDnatRulesClient.Endpoint + listDnatRulesHttpUrl
-	listDnatRulesPath = strings.ReplaceAll(listDnatRulesPath, "{project_id}", listDnatRulesClient.ProjectID)
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath += buildListDnatRuleQueryParams(d)
 
-	listDnatRulesQueryParams := buildListDnatRuleQueryParams(d)
-	listDnatRulesPath += listDnatRulesQueryParams
-
-	listDnatRulesResp, err := pagination.ListAllItems(
-		listDnatRulesClient,
+	resp, err := pagination.ListAllItems(
+		client,
 		"marker",
-		listDnatRulesPath,
+		requestPath,
 		&pagination.QueryOpts{MarkerField: ""})
 
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving private DNAT rule")
+		return diag.Errorf("error retrieving DNAT rules %s", err)
 	}
 
-	listDnatRulesRespJson, err := json.Marshal(listDnatRulesResp)
+	respJson, err := json.Marshal(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	var listDnatRulesRespBody interface{}
-	err = json.Unmarshal(listDnatRulesRespJson, &listDnatRulesRespBody)
+	var respBody interface{}
+	err = json.Unmarshal(respJson, &respBody)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	generateUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(generateUUID)
 
 	var mErr *multierror.Error
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),
-		d.Set("rules", filterListDnatRuleResponseBody(flattenListDnatRulesResponseBody(listDnatRulesRespBody), d)),
+		d.Set("rules", filterListDnatRuleResponseBody(flattenListDnatRulesResponseBody(respBody), d)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -275,15 +280,18 @@ func flattenListDnatRulesResponseBody(resp interface{}) []interface{} {
 }
 
 func filterListDnatRuleResponseBody(all []interface{}, d *schema.ResourceData) []interface{} {
-	rst := make([]interface{}, 0, len(all))
+	var (
+		globalEipID      = d.Get("global_eip_id").(string)
+		globalEipAddress = d.Get("global_eip_address").(string)
+		rst              = make([]interface{}, 0, len(all))
+	)
+
 	for _, v := range all {
-		if param, ok := d.GetOk("global_eip_id"); ok &&
-			fmt.Sprint(param) != utils.PathSearch("global_eip_id", v, nil) {
+		if globalEipID != "" && globalEipID != utils.PathSearch("global_eip_id", v, nil) {
 			continue
 		}
 
-		if param, ok := d.GetOk("global_eip_address"); ok &&
-			fmt.Sprint(param) != utils.PathSearch("global_eip_address", v, nil) {
+		if globalEipAddress != "" && globalEipAddress != utils.PathSearch("global_eip_address", v, nil) {
 			continue
 		}
 
@@ -324,6 +332,12 @@ func buildListDnatRuleQueryParams(d *schema.ResourceData) string {
 	}
 	if v, ok := d.GetOk("external_service_port"); ok {
 		res = fmt.Sprintf("%s&external_service_port=%v", res, v)
+	}
+	if v, ok := d.GetOk("description"); ok {
+		res = fmt.Sprintf("%s&description=%v", res, v)
+	}
+	if v, ok := d.GetOk("created_at"); ok {
+		res = fmt.Sprintf("%s&created_at=%v", res, v)
 	}
 	if res != "" {
 		res = "?" + res[1:]

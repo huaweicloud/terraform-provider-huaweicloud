@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -119,11 +118,11 @@ func resourceFleetCreate(ctx context.Context, d *schema.ResourceData, meta inter
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("uid", createFleetRespBody)
-	if err != nil {
+	id := utils.PathSearch("uid", createFleetRespBody, "").(string)
+	if id == "" {
 		return diag.Errorf("error creating Fleet: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	if _, ok := d.GetOk("permissions"); ok {
 		err := updatePermissions(d, createFleetClient)

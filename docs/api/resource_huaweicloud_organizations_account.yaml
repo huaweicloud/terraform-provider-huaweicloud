@@ -23,6 +23,8 @@ paths:
     /v1/organizations/accounts/{account_id}:
         GET:
             tag: Organizations
+        PATCH:
+            tag: Organizations
     /v1/organizations/accounts/{account_id}/close:
         POST:
             tag: Organizations

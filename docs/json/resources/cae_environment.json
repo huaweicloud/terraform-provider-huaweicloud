@@ -1,0 +1,72 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cae_environment": {
+          "block": {
+            "attributes": {
+              "annotations": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "The additional attributes of the environment.",
+                "required": true,
+                "forcenew": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the environment, in RFC3339 format.",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The ID of the enterprise project to which the environment belongs.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "max_retries": {
+                "type": "number",
+                "description": "The maximum retry number in the create or delete operation.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the environment.",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the environment is located.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the environment.",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "The latest update time of the environment, in RFC3339 format.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CAE",
+            "name": "Cloud Application Engine",
+            "catalog": "CodeArts",
+            "name_cn": "云应用引擎",
+            "catalog_cn": "软件开发生产线"
+          }
+        }
+      }
+    }
+  }
+}

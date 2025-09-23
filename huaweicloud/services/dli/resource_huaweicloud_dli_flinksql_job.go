@@ -44,6 +44,9 @@ func ResourceFlinkSqlJob() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+
+		CustomizeDiff: config.MergeDefaultTags(),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
@@ -53,9 +56,8 @@ func ResourceFlinkSqlJob() *schema.Resource {
 			},
 
 			"name": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: validation.StringLenBetween(1, 57),
+				Type:     schema.TypeString,
+				Required: true,
 			},
 			"type": {
 				Type:     schema.TypeString,
@@ -71,9 +73,8 @@ func ResourceFlinkSqlJob() *schema.Resource {
 			},
 
 			"description": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringLenBetween(1, 512),
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 
 			"queue_name": {
@@ -421,13 +422,15 @@ func resourceFlinkSqlJobRead(ctx context.Context, d *schema.ResourceData, meta i
 		d.Set("operator_config", detail.JobConfig.OperatorConfig),
 		d.Set("static_estimator_config", detail.JobConfig.StaticEstimatorConfig),
 		d.Set("status", detail.Status),
+		d.Set("tags", d.Get("tags")),
 	)
 
 	if err = setTagsToResource(config, region, d); err != nil {
 		return diag.FromErr(err)
 	}
 
-	if d.Get("type").(string) == flinkjob.JobTypeFlinkOpenSourceSql {
+	_, ok := d.GetOk("graph_type")
+	if d.Get("type").(string) == flinkjob.JobTypeFlinkOpenSourceSql && ok {
 		v3Client, err := config.DliV3Client(region)
 		if err != nil {
 			return diag.Errorf("error creating DLI v3 client: %s", err)

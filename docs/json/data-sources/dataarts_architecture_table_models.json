@@ -1,0 +1,151 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dataarts_architecture_table_models": {
+          "block": {
+            "attributes": {
+              "created_by": {
+                "type": "string",
+                "description": "Specifies the name of the creator of the table model.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "model_id": {
+                "type": "string",
+                "description": "Specifies the model ID to which the table model belongs.",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the Chinese or English name of the table model.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the status of the table model.",
+                "optional": true
+              },
+              "subject_id": {
+                "type": "string",
+                "description": "Specifies the subject ID to which the table model belongs.",
+                "optional": true
+              },
+              "tables": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "attributes": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "code": "string",
+                            "created_at": "string",
+                            "data_type": "string",
+                            "data_type_extend": "string",
+                            "description": "string",
+                            "domain_type": "string",
+                            "extend_field": "bool",
+                            "id": "string",
+                            "is_foreign_key": "bool",
+                            "is_partition_key": "bool",
+                            "is_primary_key": "bool",
+                            "name": "string",
+                            "name_en": "string",
+                            "not_null": "bool",
+                            "ordinal": "number",
+                            "stand_row_id": "string",
+                            "updated_at": "string"
+                          }
+                        ]
+                      ],
+                      "business_asset_status": "string",
+                      "catalog_path": "string",
+                      "code": "string",
+                      "compression": "string",
+                      "configs": "string",
+                      "created_at": "string",
+                      "created_by": "string",
+                      "data_format": "string",
+                      "data_quality_status": "string",
+                      "db_name": "string",
+                      "description": "string",
+                      "dev_physical_table_status": "string",
+                      "dev_version": "string",
+                      "dirty_out_database": "string",
+                      "dirty_out_prefix": "string",
+                      "dirty_out_suffix": "string",
+                      "dirty_out_switch": "bool",
+                      "distribute": "string",
+                      "distribute_column": "string",
+                      "dlf_task_id": "string",
+                      "dw_id": "string",
+                      "dw_type": "string",
+                      "env_type": "string",
+                      "extend_info": "string",
+                      "has_related_logic_table": "bool",
+                      "has_related_physical_table": "bool",
+                      "id": "string",
+                      "is_partition": "bool",
+                      "logic_tb_guid": "string",
+                      "logic_tb_id": "string",
+                      "meta_data_link_status": "string",
+                      "model_id": "string",
+                      "obs_location": "string",
+                      "owner": "string",
+                      "parent_table_code": "string",
+                      "parent_table_id": "string",
+                      "parent_table_name": "string",
+                      "partition_conf": "string",
+                      "physical_table_name": "string",
+                      "physical_table_status": "string",
+                      "prod_version": "string",
+                      "queue_name": "string",
+                      "related_logic_table_id": "string",
+                      "schema": "string",
+                      "status": "string",
+                      "subject_id": "string",
+                      "summary_status": "string",
+                      "table_name": "string",
+                      "table_type": "string",
+                      "tb_guid": "string",
+                      "tb_id": "string",
+                      "technical_asset_status": "string",
+                      "updated_at": "string",
+                      "updated_by": "string",
+                      "use_recently_partition": "bool"
+                    }
+                  ]
+                ],
+                "description": "All table models that match the filter parameters.",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "Specifies the workspace ID of DataArts Architecture.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "DataArtsStudio",
+            "name": "DataArts Studio",
+            "catalog": "Analytics",
+            "name_cn": "数据治理中心",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

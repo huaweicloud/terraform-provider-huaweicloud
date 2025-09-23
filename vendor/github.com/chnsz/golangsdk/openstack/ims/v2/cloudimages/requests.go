@@ -157,6 +157,8 @@ type CreateByOBSOpts struct {
 	Name string `json:"name" required:"true"`
 	// Description of image
 	Description string `json:"description,omitempty"`
+	// The OS type of the image
+	OsType string `json:"os_type,omitempty"`
 	// the OS version
 	OsVersion string `json:"os_version,omitempty"`
 	// the URL of the external image file in the OBS bucket
@@ -177,6 +179,10 @@ type CreateByOBSOpts struct {
 	MaxRam int `json:"max_ram,omitempty"`
 	// the minimum memory of the image in the unit of MB
 	MinRam int `json:"min_ram,omitempty"`
+	// Whether to use the image file quick import method to create an image
+	IsQuickImport bool `json:"is_quick_import,omitempty"`
+	// The schema type of the image
+	Architecture string `json:"architecture,omitempty"`
 	// Enterprise project ID
 	EnterpriseProjectID string `json:"enterprise_project_id,omitempty"`
 }
@@ -211,6 +217,8 @@ type CreateWholeImageOpts struct {
 type CreateDataImageByServerOpts struct {
 	// the data disks to be converted
 	DataImages []DataImage `json:"data_images" required:"true"`
+	// Enterprise project ID
+	EnterpriseProjectID string `json:"enterprise_project_id,omitempty"`
 }
 
 // CreateOpts represents options used to create an image.
@@ -227,6 +235,32 @@ type CreateDataImageByOBSOpts struct {
 	MinDisk int `json:"min_disk" required:"true"`
 	// the master key used for encrypting an image
 	CmkId string `json:"cmk_id,omitempty"`
+	// One or more tag key and value pairs to associate with the image
+	ImageTags []ImageTag `json:"image_tags,omitempty"`
+	// Enterprise project ID
+	EnterpriseProjectID string `json:"enterprise_project_id,omitempty"`
+}
+
+// CreateSystemImageByVolumeOpts is the structure used to create a system image from EVS volume.
+type CreateSystemImageByVolumeOpts struct {
+	// The name of the system image.
+	Name string `json:"name" required:"true"`
+	// The data disk ID.
+	VolumeId string `json:"volume_id" required:"true"`
+	// The operating system version.
+	OsVersion string `json:"os_version,omitempty"`
+	// The image type, the value can be **ECS**, **FusionCompute**, **BMS**, or **Ironic**.
+	Type string `json:"type,omitempty"`
+	// The description of the image.
+	Description string `json:"description,omitempty"`
+	// The minimum memory of the image, in MB unit.
+	MinRam int `json:"min_ram,omitempty"`
+	// The maximum memory of the image, in MB unit.
+	MaxRam int `json:"max_ram,omitempty"`
+	// The image label list, **key.value** format.
+	Tags []string `json:"tags,omitempty"`
+	// One or more tag key and value pairs to associate with the image.
+	ImageTags []ImageTag `json:"image_tags,omitempty"`
 	// Enterprise project ID
 	EnterpriseProjectID string `json:"enterprise_project_id,omitempty"`
 }
@@ -266,6 +300,11 @@ func (opts CreateDataImageByOBSOpts) ToImageCreateMap() (map[string]interface{},
 }
 
 func (opts CreateWholeImageOpts) ToImageCreateMap() (map[string]interface{}, error) {
+	return golangsdk.BuildRequestBody(opts, "")
+}
+
+// ToImageCreateMap assembles a request body based on the contents of the CreateSystemImageByVolumeOpts.
+func (opts CreateSystemImageByVolumeOpts) ToImageCreateMap() (map[string]interface{}, error) {
 	return golangsdk.BuildRequestBody(opts, "")
 }
 

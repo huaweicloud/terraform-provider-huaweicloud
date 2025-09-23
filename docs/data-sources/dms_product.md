@@ -26,7 +26,7 @@ data "huaweicloud_dms_product" "product1" {
 
 ### Filter DMS kafka product list by underlying VM specification
 
-```
+```hcl
 data "huaweicloud_dms_product" "product2" {
   engine           = "kafka"
   version          = "2.3.0"

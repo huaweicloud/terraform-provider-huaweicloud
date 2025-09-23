@@ -1,0 +1,28 @@
+info:
+    version: ""
+    title: resource_huaweicloud_rds_dr_instance_dr_capability
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: RDS
+paths:
+    /v3/{project_id}/instances:
+        GET:
+            tag: RDS
+    /v3/{project_id}/instances/{instance_id}/action:
+        POST:
+            tag: RDS
+    /v3/{project_id}/instances/{instance_id}/delete-disaster-recovery:
+        DELETE:
+            tag: RDS
+    /v3/{project_id}/instances/disaster-recovery-infos:
+        POST:
+            tag: RDS
+    /v3/{project_id}/jobs:
+        GET:
+            tag: RDS
+    /v3/projects:
+        GET:
+            tag: IAM

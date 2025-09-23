@@ -33,6 +33,13 @@ type ChannelOpts struct {
 	// + 2: Server type.
 	// + 3: Microservice type.
 	Type int `json:"type,omitempty"`
+	// builtin: server type
+	// + microservice: microservice type
+	// + reference: reference load balance channel
+	// If vpc_channel_type is empty, the load balance channel type depends on the value of the type field.
+	// If vpc_channel_type is non-empty and type is non-empty or non-zero, an error occurs when they are specified.
+	// If vpc_channel_type is non-empty and type is empty or 0, the value of vpc_channel_type is used to specify the load balance channel type.
+	VpcChannelType string `json:"vpc_channel_type,omitempty"`
 	// Dictionary code of the channel.
 	// The value can contain letters, digits, hyphens (-), underscores (_), and periods (.).
 	DictCode string `json:"dict_code,omitempty"`
@@ -74,6 +81,9 @@ type MemberGroup struct {
 	// Tags of the backend server group.
 	// This parameter is supported only when the channel type is microservice.
 	MicroserviceLabels []MicroserviceLabel `json:"microservice_labels,omitempty"`
+	// ID of the reference load balance channel.
+	// This parameter is supported only when the VPC channel type is reference (vpc_channel_type=reference).
+	ReferenceVpcChannelId string `json:"reference_vpc_channel_id,omitempty"`
 }
 
 // MicroserviceLabel is an object that represents a specified microservice label.
@@ -111,7 +121,7 @@ type MemberInfo struct {
 	// Defaults to false.
 	IsBackup *bool `json:"is_backup,omitempty"`
 	// Backend server group name. The server group facilitates backend service address modification.
-	GroupName string `json:"group_name,omitempty"`
+	GroupName string `json:"member_group_name,omitempty"`
 	// Backend server status.
 	// + 1: available
 	// + 2: unavailable

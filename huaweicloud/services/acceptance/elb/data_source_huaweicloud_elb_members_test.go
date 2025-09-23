@@ -30,12 +30,23 @@ func TestAccDatasourceMembers_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "members.0.protocol_port"),
 					resource.TestCheckResourceAttrSet(rName, "members.0.subnet_id"),
 					resource.TestCheckResourceAttrSet(rName, "members.0.weight"),
+					resource.TestCheckResourceAttrSet(rName, "members.0.member_type"),
+					resource.TestCheckResourceAttrSet(rName, "members.0.instance_id"),
+					resource.TestCheckResourceAttrSet(rName, "members.0.ip_version"),
+					resource.TestCheckResourceAttrSet(rName, "members.0.operating_status"),
+					resource.TestCheckResourceAttrSet(rName, "members.0.reason.#"),
+					resource.TestCheckResourceAttrSet(rName, "members.0.status.#"),
+					resource.TestCheckResourceAttrSet(rName, "members.0.created_at"),
+					resource.TestCheckResourceAttrSet(rName, "members.0.updated_at"),
 					resource.TestCheckOutput("name_filter_is_useful", "true"),
 					resource.TestCheckOutput("member_id_filter_is_useful", "true"),
 					resource.TestCheckOutput("address_filter_is_useful", "true"),
 					resource.TestCheckOutput("protocol_port_filter_is_useful", "true"),
 					resource.TestCheckOutput("weight_filter_is_useful", "true"),
 					resource.TestCheckOutput("subnet_id_filter_is_useful", "true"),
+					resource.TestCheckOutput("instance_id_filter_is_useful", "true"),
+					resource.TestCheckOutput("ip_version_filter_is_useful", "true"),
+					resource.TestCheckOutput("operating_status_filter_is_useful", "true"),
 					resource.TestCheckOutput("member_type_filter_is_useful", "true"),
 				),
 			},
@@ -43,11 +54,35 @@ func TestAccDatasourceMembers_basic(t *testing.T) {
 	})
 }
 
-func testAccElbMemberConfig_basic(name string) string {
+func testAccDatasourceMembers_base(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
 data "huaweicloud_availability_zones" "test" {}
+
+data "huaweicloud_compute_flavors" "test" {
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  performance_type  = "normal"
+  cpu_core_count    = 2
+  memory_size       = 4
+}
+
+data "huaweicloud_images_image" "test" {
+  name        = "Ubuntu 22.04 server 64bit"
+  most_recent = true
+}
+
+resource "huaweicloud_compute_instance" "test" {
+  name               = "%[2]s"
+  image_id           = data.huaweicloud_images_image.test.id
+  flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
+  security_group_ids = [huaweicloud_networking_secgroup.test.id]
+  availability_zone  = data.huaweicloud_availability_zones.test.names[0]
+
+  network {
+    uuid = huaweicloud_vpc_subnet.test.id
+  }
+}
 
 resource "huaweicloud_elb_loadbalancer" "test" {
   name           = "%[2]s"
@@ -80,12 +115,12 @@ resource "huaweicloud_elb_pool" "test" {
 
 resource "huaweicloud_elb_member" "test" {
   name          = "%[2]s"
-  address       = "192.168.0.10"
+  address       = huaweicloud_compute_instance.test.access_ip_v4
   protocol_port = 8080
   pool_id       = huaweicloud_elb_pool.test.id
   subnet_id     = huaweicloud_vpc_subnet.test.ipv4_subnet_id
 }
-`, common.TestVpc(name), name)
+`, common.TestBaseNetwork(name), name)
 }
 
 func testAccDatasourceMembers_basic(name string) string {
@@ -189,16 +224,68 @@ output "subnet_id_filter_is_useful" {
   )  
 }
 
+data "huaweicloud_elb_members" "instance_id_filter" {
+  pool_id     = huaweicloud_elb_pool.test.id
+  instance_id = huaweicloud_elb_member.test.instance_id
+  depends_on  = [huaweicloud_elb_member.test]
+}
+
+locals {
+  instance_id = huaweicloud_elb_member.test.instance_id
+}
+
+output "instance_id_filter_is_useful" {
+  value = length(data.huaweicloud_elb_members.instance_id_filter.members) > 0 && alltrue(
+  [for v in data.huaweicloud_elb_members.instance_id_filter.members[*].instance_id : v == local.instance_id]
+  )  
+}
+
+data "huaweicloud_elb_members" "ip_version_filter" {
+  pool_id    = huaweicloud_elb_pool.test.id
+  ip_version = huaweicloud_elb_member.test.ip_version
+  depends_on = [huaweicloud_elb_member.test]
+}
+
+locals {
+  ip_version = huaweicloud_elb_member.test.ip_version
+}
+
+output "ip_version_filter_is_useful" {
+  value = length(data.huaweicloud_elb_members.ip_version_filter.members) > 0 && alltrue(
+  [for v in data.huaweicloud_elb_members.ip_version_filter.members[*].ip_version : v == local.ip_version]
+  )  
+}
+
+data "huaweicloud_elb_members" "operating_status_filter" {
+  pool_id          = huaweicloud_elb_pool.test.id
+  operating_status = huaweicloud_elb_member.test.operating_status
+  depends_on       = [huaweicloud_elb_member.test]
+}
+
+locals {
+  operating_status = huaweicloud_elb_member.test.operating_status
+}
+
+output "operating_status_filter_is_useful" {
+  value = length(data.huaweicloud_elb_members.operating_status_filter.members) > 0 && alltrue(
+  [for v in data.huaweicloud_elb_members.operating_status_filter.members[*].operating_status : v == local.operating_status]
+  )  
+}
+
 data "huaweicloud_elb_members" "member_type_filter" {
   pool_id     = huaweicloud_elb_pool.test.id
-  member_type = "instance"
+  member_type = huaweicloud_elb_member.test.member_type
   depends_on  = [huaweicloud_elb_member.test]
+}
+
+locals {
+  member_type = huaweicloud_elb_member.test.member_type
 }
 
 output "member_type_filter_is_useful" {
   value = length(data.huaweicloud_elb_members.member_type_filter.members) > 0 && alltrue(
-  [for v in data.huaweicloud_elb_members.member_type_filter.members[*].member_type : v == "instance"]
+  [for v in data.huaweicloud_elb_members.member_type_filter.members[*].member_type : v == local.member_type]
   )  
 }
-`, testAccElbMemberConfig_basic(name), name)
+`, testAccDatasourceMembers_base(name), name)
 }

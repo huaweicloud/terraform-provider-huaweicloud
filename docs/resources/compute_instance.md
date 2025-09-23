@@ -224,8 +224,6 @@ The following arguments are supported:
 * `description` - (Optional, String) Specifies the description of the instance. The description consists of 0 to 85
   characters, and can't contain '<' or '>'.
 
-* `hostname` - (Optional, String) Specifies the hostname of the instance.
-
 * `admin_pass` - (Optional, String) Specifies the administrative password to assign to the instance.
 
 * `key_pair` - (Optional, String) Specifies the SSH keypair name used for logging in to the instance.
@@ -347,7 +345,8 @@ The following arguments are supported:
   This parameter takes effect only when `charging_mode` is set to *spot*. If the price is not specified,
   the pay-per-use price is used by default. Changing this creates a new instance.
 
-* `spot_duration` - (Optional, Int, ForceNew) Specifies the service duration of the spot ECS in hours.
+* `spot_duration` - (Optional, Int, ForceNew) Specifies the service duration of the spot ECS in hours.  
+  The valid value is range from `1` to `6`.  
   This parameter takes effect only when `charging_mode` is set to *spot*.
   Changing this creates a new instance.
 
@@ -383,11 +382,9 @@ The following arguments are supported:
 
 The `network` block supports:
 
-* `uuid` - (Required, String, ForceNew) Specifies the network UUID to attach to the instance.
-  Changing this creates a new instance.
+* `uuid` - (Required, String) Specifies the network UUID to attach to the instance.
 
-* `fixed_ip_v4` - (Optional, String, ForceNew) Specifies a fixed IPv4 address to be used on this network.
-  Changing this creates a new instance.
+* `fixed_ip_v4` - (Optional, String) Specifies a fixed IPv4 address to be used on this network.
 
 * `ipv6_enable` - (Optional, Bool, ForceNew) Specifies whether the IPv6 function is enabled for the nic.
   Defaults to false. Changing this creates a new instance.
@@ -398,6 +395,8 @@ The `network` block supports:
 
 * `access_network` - (Optional, Bool) Specifies if this network should be used for provisioning access.
   Accepts true or false. Defaults to false.
+
+  ~> The `uuid` and `fixed_ip_v4` can be updated when there is only one network block.
 
 The `data_disks` block supports:
 
@@ -466,9 +465,32 @@ The `bandwidth` block supports:
 * `extend_param` - (Optional, Map, ForceNew) Specifies the additional EIP information.
   Changing this creates a new instance.
 
-  -> Currently, only the `charging_mode` key is supported and the value can be *prePaid* or *postPaid*.
-  This parameter is **mandatory** when the created ECS is billed in yearly/monthly payments and
-  bound with a pay-per-use EIP. In such a case, `charging_mode` must be set to *postPaid*.
+  -> Currently, only the `charging_mode` key is supported and the value can be **prePaid** or **postPaid**.  
+    The value combinations of the `charging_mode` of instance, this `charging_mode` and `charge_mode` are shown in this table.
+
+  <!-- markdownlint-disable MD033 -->
+  <table class="tg"><thead>
+    <tr>
+      <th class="tg-0pky"><span style="font-weight:bold">charging_mode</span> of instance</th>
+      <th class="tg-0pky">this <span style="font-weight:bold">charging_mode</span></th>
+      <th class="tg-0pky"><span style="font-weight:bold">charge_mode</span></th>
+    </tr></thead>
+  <tbody>
+    <tr>
+      <td class="tg-0pky" rowspan="2"><span style="font-weight:bold">prePaid</span></td>
+      <td class="tg-0pky"><span style="font-weight:bold">prePaid</span> (default value)</td>
+      <td class="tg-0pky"><span style="font-weight:bold">bandwidth</span></td>
+    </tr>
+    <tr>
+      <td class="tg-fymr"><span style="font-weight:bold">postPaid</span></td>
+      <td class="tg-0pky"><span style="font-weight:bold">traffic</span> or <span style="font-weight:bold">bandwidth</span></td>
+    </tr>
+    <tr>
+      <td class="tg-0pky"><span style="font-weight:bold">postPaid</span></td>
+      <td class="tg-0pky"><span style="font-weight:bold">postPaid</span> (default value)</td>
+      <td class="tg-0pky"><span style="font-weight:bold">traffic</span> or <span style="font-weight:bold">bandwidth</span></td>
+    </tr>
+  </tbody></table>
 
 The `scheduler_hints` block supports:
 
@@ -494,8 +516,10 @@ In addition to all arguments above, the following attributes are exported:
 * `public_ip` - The EIP address that is associated to the instance.
 * `access_ip_v4` - The first detected Fixed IPv4 address or the Floating IP.
 * `access_ip_v6` - The first detected Fixed IPv6 address.
+* `hostname` - The hostname of the instance.
 * `created_at` - The creation time, in UTC format.
 * `updated_at` - The last update time, in UTC format.
+* `expired_time` - The expired time of prePaid instance, in UTC format.
 
 * `network` - An array of one or more networks to attach to the instance.
   The [network object](#compute_instance_network_object) structure is documented below.
@@ -546,7 +570,7 @@ It is generally recommended running `terraform plan` after importing an instance
 You can then decide if changes should be applied to the instance, or the resource definition should be updated to
 align with the instance. Also you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_compute_instance" "myinstance" {
     ...
 

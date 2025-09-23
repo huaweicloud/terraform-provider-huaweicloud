@@ -1,23 +1,20 @@
 package apig
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"log"
-	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/channels"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
@@ -51,14 +48,8 @@ func ResourceChannel() *schema.Resource {
 				Description: "The ID of the dedicated instance to which the channel belongs.",
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[\x{4E00}-\x{9FFC}A-Za-z]([\x{4E00}-\x{9FFC}\w-.]*)?$`),
-						"Only chinese letters, english letters, digits hyphens (-), underscores (_) and dots (.) are "+
-							"allowed, and must start with a chinese or english letter."),
-					validation.StringLenBetween(3, 64),
-				),
+				Type:        schema.TypeString,
+				Required:    true,
 				Description: "The channel name.",
 			},
 			"port": {
@@ -78,13 +69,16 @@ func ResourceChannel() *schema.Resource {
 				Description: "The member type of the channel.",
 			},
 			"type": {
-				Type:        schema.TypeInt,
+				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
 				Description: "The type of the channel.",
+				DiffSuppressFunc: func(_, o, n string, _ *schema.ResourceData) bool {
+					return n == "2" && o == "builtin" || n == "3" && o == "microservice"
+				},
 			},
 			"member_group": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
 				Computed: true,
 				Elem: &schema.Resource{
@@ -124,6 +118,12 @@ func ResourceChannel() *schema.Resource {
 							Computed:    true,
 							Elem:        &schema.Schema{Type: schema.TypeString},
 							Description: "The microservice tags of the backend server group.",
+						},
+						"reference_vpc_channel_id": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: "The ID of the reference load balance channel.",
 						},
 					},
 				},
@@ -185,7 +185,6 @@ func ResourceChannel() *schema.Resource {
 						},
 					},
 				},
-				Set:         specialMembersOrderHash,
 				Description: "The backend servers of the channel.",
 			},
 			"health_check": {
@@ -363,24 +362,6 @@ func ResourceChannel() *schema.Resource {
 	}
 }
 
-// If the backend server is configured through host, the hash value is calculated through hHost, and if the backend
-// server is configured through ID and name, the hash value is calculated through ID.
-func specialMembersOrderHash(v interface{}) int {
-	var buf bytes.Buffer
-	m := v.(map[string]interface{})
-	id := m["id"].(string)
-	name := m["name"].(string)
-	// When configuring the backend server through host, the ID and name returned by the API both are host values.
-	if id == name {
-		// The values of ID and name are the same and both are host values.
-		buf.WriteString(m["host"].(string))
-	} else {
-		buf.WriteString(id)
-	}
-
-	return hashcode.String(buf.String())
-}
-
 func buildMicroserviceLabels(labels map[string]interface{}) []channels.MicroserviceLabel {
 	result := make([]channels.MicroserviceLabel, 0, len(labels))
 	for k, v := range labels {
@@ -392,21 +373,22 @@ func buildMicroserviceLabels(labels map[string]interface{}) []channels.Microserv
 	return result
 }
 
-func buildChannelMemberGroups(groups []interface{}) []channels.MemberGroup {
-	if len(groups) < 1 {
+func buildChannelMemberGroups(groups *schema.Set) []channels.MemberGroup {
+	if groups.Len() < 1 {
 		return nil
 	}
 
-	result := make([]channels.MemberGroup, len(groups))
-	for i, val := range groups {
+	result := make([]channels.MemberGroup, groups.Len())
+	for i, val := range groups.List() {
 		group := val.(map[string]interface{})
 		result[i] = channels.MemberGroup{
-			Name:                group["name"].(string),
-			Description:         group["description"].(string),
-			Weight:              group["weight"].(int),
-			MicroserviceVersion: group["microservice_version"].(string),
-			MicroservicePort:    group["microservice_port"].(int),
-			MicroserviceLabels:  buildMicroserviceLabels(group["microservice_labels"].(map[string]interface{})),
+			Name:                  group["name"].(string),
+			Description:           group["description"].(string),
+			Weight:                group["weight"].(int),
+			MicroserviceVersion:   group["microservice_version"].(string),
+			MicroservicePort:      group["microservice_port"].(int),
+			MicroserviceLabels:    buildMicroserviceLabels(group["microservice_labels"].(map[string]interface{})),
+			ReferenceVpcChannelId: group["reference_vpc_channel_id"].(string),
 		}
 	}
 
@@ -499,18 +481,30 @@ func buildChannelMicroserviceConfig(microserviceConfigs []interface{}) *channels
 }
 
 func buildChannelCreateOpts(d *schema.ResourceData) channels.ChannelOpts {
-	return channels.ChannelOpts{
+	result := channels.ChannelOpts{
 		InstanceId:         d.Get("instance_id").(string),
 		Name:               d.Get("name").(string),
 		Port:               d.Get("port").(int),
 		BalanceStrategy:    d.Get("balance_strategy").(int),
 		MemberType:         d.Get("member_type").(string),
-		Type:               d.Get("type").(int),
-		MemberGroups:       buildChannelMemberGroups(d.Get("member_group").([]interface{})),
+		MemberGroups:       buildChannelMemberGroups(d.Get("member_group").(*schema.Set)),
 		Members:            buildChannelMembers(d.Get("member").(*schema.Set)),
 		VpcHealthConfig:    buildChannelHealthCheckConfig(d.Get("health_check").([]interface{})),
 		MicroserviceConfig: buildChannelMicroserviceConfig(d.Get("microservice").([]interface{})),
 	}
+
+	cType := d.Get("type").(string)
+	switch cType {
+	// Due the type conversion of the terraform provider, the number can be convert to the string without errors.
+	case "2":
+		result.Type = 2
+	case "3":
+		result.Type = 3
+	default:
+		result.VpcChannelType = cType
+	}
+
+	return result
 }
 
 func resourceChannelCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -541,12 +535,13 @@ func flattenChannelMemberGroups(groups []channels.MemberGroup) []map[string]inte
 	result := make([]map[string]interface{}, len(groups))
 	for i, v := range groups {
 		result[i] = map[string]interface{}{
-			"name":                 v.Name,
-			"description":          v.Description,
-			"weight":               v.Weight,
-			"microservice_version": v.MicroserviceVersion,
-			"microservice_port":    v.MicroservicePort,
-			"microservice_labels":  flattenMicroserviceLabels(v.MicroserviceLabels),
+			"name":                     v.Name,
+			"description":              v.Description,
+			"weight":                   v.Weight,
+			"microservice_version":     v.MicroserviceVersion,
+			"microservice_port":        v.MicroservicePort,
+			"microservice_labels":      flattenMicroserviceLabels(v.MicroserviceLabels),
+			"reference_vpc_channel_id": v.ReferenceVpcChannelId,
 		}
 	}
 	return result
@@ -642,6 +637,13 @@ func flattenChannelMembers(members []channels.MemberInfo) []map[string]interface
 	return result
 }
 
+func parseChannelType(resp *channels.Channel) string {
+	if resp.VpcChannelType != "" {
+		return resp.VpcChannelType
+	}
+	return strconv.Itoa(resp.Type)
+}
+
 func resourceChannelRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -663,7 +665,7 @@ func resourceChannelRead(_ context.Context, d *schema.ResourceData, meta interfa
 		d.Set("port", resp.Port),
 		d.Set("balance_strategy", resp.BalanceStrategy),
 		d.Set("member_type", resp.MemberType),
-		d.Set("type", resp.Type),
+		d.Set("type", parseChannelType(resp)),
 		d.Set("member_group", flattenChannelMemberGroups(resp.MemberGroups)),
 		d.Set("member", flattenChannelMembers(resp.Members)),
 		d.Set("health_check", flattenHealthCheckConfig(resp.VpcHealthConfig)),

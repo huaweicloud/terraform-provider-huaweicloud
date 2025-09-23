@@ -17,6 +17,9 @@ paths:
             tag: Live
         PUT:
             tag: Live
+    /v1/{project_id}/domain/ipv6-switch:
+        PUT:
+            tag: Live
     /v1/{project_id}/domains_mapping:
         DELETE:
             tag: Live

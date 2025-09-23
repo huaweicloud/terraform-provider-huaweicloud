@@ -1,0 +1,86 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_opengauss_backups": {
+          "block": {
+            "attributes": {
+              "backup_id": {
+                "type": "string",
+                "description": "Specifies the ID of the backup.",
+                "optional": true
+              },
+              "backup_type": {
+                "type": "string",
+                "description": "Specifies the backup type.",
+                "optional": true
+              },
+              "backups": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "begin_time": "string",
+                      "datastore": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "type": "string",
+                            "version": "string"
+                          }
+                        ]
+                      ],
+                      "description": "string",
+                      "end_time": "string",
+                      "id": "string",
+                      "instance_id": "string",
+                      "name": "string",
+                      "size": "number",
+                      "status": "string",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of backups.",
+                "computed": true
+              },
+              "begin_time": {
+                "type": "string",
+                "description": "Specifies the query start time in the **yyyy-mm-ddThh:mm:ssZ** format.",
+                "optional": true
+              },
+              "end_time": {
+                "type": "string",
+                "description": "Specifies the query end time in the **yyyy-mm-ddThh:mm:ssZ** format.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the GaussDB OpenGauss instance",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDB",
+            "name": "GaussDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

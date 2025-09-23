@@ -18,3 +18,12 @@ paths:
             tag: CAE
         PUT:
             tag: CAE
+    /v1/{project_id}/cae/applications/{application_id}/components/{component_id}/action:
+        POST:
+            tag: CAE
+    /v1/{project_id}/cae/applications/{application_id}/components/{component_id}/configurations:
+        POST:
+            tag: CAE
+    /v1/{project_id}/cae/jobs/{job_id}:
+        GET:
+            tag: CAE

@@ -116,6 +116,8 @@ func ResourceVpcSubnetV1() *schema.Resource {
 			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 
+		CustomizeDiff: config.MergeDefaultTags(),
+
 		Schema: map[string]*schema.Schema{ // request and response parameters
 			"region": {
 				Type:     schema.TypeString,
@@ -145,11 +147,10 @@ func ResourceVpcSubnetV1() *schema.Resource {
 				ForceNew: true,
 			},
 			"availability_zone": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				ForceNew:    true,
-				Computed:    true,
-				Description: "schema: Required",
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -195,6 +196,15 @@ func ResourceVpcSubnetV1() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"dhcp_ipv6_lease_time": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"dhcp_domain_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"subnet_id": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -232,6 +242,15 @@ func buildDhcpOpts(d *schema.ResourceData, update bool) []subnets.ExtraDhcpOpt {
 		result = append(result, addressTime)
 	}
 
+	if v, ok := d.GetOk("dhcp_ipv6_lease_time"); ok {
+		ipv6AddressVal := v.(string)
+		ipv6AddressTime := subnets.ExtraDhcpOpt{
+			OptName:  "ipv6_addresstime",
+			OptValue: &ipv6AddressVal,
+		}
+		result = append(result, ipv6AddressTime)
+	}
+
 	if v, ok := d.GetOk("ntp_server_address"); ok {
 		ntpVal := v.(string)
 		ntp := subnets.ExtraDhcpOpt{
@@ -244,6 +263,20 @@ func buildDhcpOpts(d *schema.ResourceData, update bool) []subnets.ExtraDhcpOpt {
 			OptName: "ntp",
 		}
 		result = append(result, ntp)
+	}
+
+	if v, ok := d.GetOk("dhcp_domain_name"); ok {
+		domainNameVal := v.(string)
+		domainName := subnets.ExtraDhcpOpt{
+			OptName:  "domainname",
+			OptValue: &domainNameVal,
+		}
+		result = append(result, domainName)
+	} else if update {
+		domainName := subnets.ExtraDhcpOpt{
+			OptName: "domainname",
+		}
+		result = append(result, domainName)
 	}
 
 	return result
@@ -366,12 +399,17 @@ func resourceVpcSubnetRead(_ context.Context, d *schema.ResourceData, meta inter
 		return diag.Errorf("error creating VpcSubnet client: %s", err)
 	}
 
-	// set dhcp extra opts ntp and addresstime
+	// set dhcp extra opts ntp, addresstime, ipv6_addresstime, domainname
 	for _, val := range n.ExtraDhcpOpts {
-		if val.OptName == "ntp" {
+		switch val.OptName {
+		case "ntp":
 			mErr = multierror.Append(mErr, d.Set("ntp_server_address", val.OptValue))
-		} else if val.OptName == "addresstime" {
+		case "addresstime":
 			mErr = multierror.Append(mErr, d.Set("dhcp_lease_time", val.OptValue))
+		case "ipv6_addresstime":
+			mErr = multierror.Append(mErr, d.Set("dhcp_ipv6_lease_time", val.OptValue))
+		case "domainname":
+			mErr = multierror.Append(mErr, d.Set("dhcp_domain_name", val.OptValue))
 		}
 	}
 
@@ -390,7 +428,7 @@ func resourceVpcSubnetUpdate(ctx context.Context, d *schema.ResourceData, meta i
 	}
 
 	if d.HasChanges("name", "description", "dhcp_enable", "primary_dns", "secondary_dns", "dns_list",
-		"ipv6_enable", "dhcp_lease_time", "ntp_server_address") {
+		"ipv6_enable", "dhcp_lease_time", "ntp_server_address", "dhcp_ipv6_lease_time", "dhcp_domain_name") {
 		var updateOpts subnets.UpdateOpts
 
 		// name is mandatory while updating subnet
@@ -420,7 +458,7 @@ func resourceVpcSubnetUpdate(ctx context.Context, d *schema.ResourceData, meta i
 			dnsList := utils.ExpandToStringList(d.Get("dns_list").([]interface{}))
 			updateOpts.DnsList = &dnsList
 		}
-		if d.HasChanges("dhcp_lease_time", "ntp_server_address") {
+		if d.HasChanges("dhcp_lease_time", "ntp_server_address", "dhcp_ipv6_lease_time", "dhcp_domain_name") {
 			updateOpts.ExtraDhcpOpts = buildDhcpOpts(d, true)
 		}
 
@@ -535,10 +573,8 @@ func waitForVpcSubnetDelete(subnetClient *golangsdk.ServiceClient, vpcId string,
 				log.Printf("[DEBUG] Got 500 error when delting subnet %s, it should be stream control on API server, try again later", subnetId)
 				return r, "ACTIVE", nil
 			}
-			if errCode, ok := err.(golangsdk.ErrUnexpectedResponseCode); ok {
-				if errCode.Actual == 409 {
-					return r, "ACTIVE", nil
-				}
+			if _, ok := err.(golangsdk.ErrDefault409); ok {
+				return r, "ACTIVE", nil
 			}
 			return r, "ACTIVE", err
 		}

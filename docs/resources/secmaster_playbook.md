@@ -2,26 +2,32 @@
 subcategory: "SecMaster"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_secmaster_playbook"
-description: ""
+description: |-
+  Manages a SecMaster playbook resource within HuaweiCloud.
 ---
 
 # huaweicloud_secmaster_playbook
 
 Manages a SecMaster playbook resource within HuaweiCloud.
 
-~> This resource can only be used in region **cn-east-3** for now.
-
 ## Example Usage
+
+### Basic Example
 
 ```hcl
 variable "workspace_id" {}
+variable "name" {}
 
 resource "huaweicloud_secmaster_playbook" "test" {
   workspace_id = var.workspace_id
-  name         = "test"
+  name         = var.name
   description  = "created by terraform"
 }
 ```
+
+### More Examples
+
+For more detailed associated usage see [playbook instructions](/examples/secmaster/playbook/README.md)
 
 ## Argument Reference
 
@@ -37,10 +43,6 @@ The following arguments are supported:
 * `name` - (Required, String) Specifies the playbook name.
 
 * `description` - (Optional, String) Specifies the description of the playbook.
-
-* `enabled` - (Optional, Bool) Specifies whether to enable the playbook.
-
-* `active_version_id` - (Optional, String) Specifies the active version ID.
 
 ## Attribute Reference
 

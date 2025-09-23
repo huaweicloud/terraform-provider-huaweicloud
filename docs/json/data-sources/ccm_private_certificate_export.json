@@ -15,8 +15,7 @@
               },
               "certificate_id": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "enc_certificate": {
                 "type": "string",
@@ -68,16 +67,15 @@
               },
               "type": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "required": true
               }
             }
           },
           "product": {
             "short": "CCM",
-            "name": "Cloud Certificate Manager Service",
+            "name": "Cloud Certificate & Manager",
             "catalog": "Security & Compliance",
-            "name_cn": "云证书管理服务",
+            "name_cn": "云证书与管理服务",
             "catalog_cn": "安全与合规"
           }
         }

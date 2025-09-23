@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_lts_stream_charts
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: LTS
+paths:
+    /v2/{project_id}/groups/{log_group_id}/streams/{log_stream_id}/charts:
+        GET:
+            tag: LTS

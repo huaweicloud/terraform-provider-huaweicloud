@@ -37,6 +37,9 @@ func TestAccDatasourcePrivateSnatRules_basic(t *testing.T) {
 
 		byEps   = "data.huaweicloud_nat_private_snat_rules.filter_by_eps"
 		dcByEps = acceptance.InitDataSourceCheck(byEps)
+
+		byDescription   = "data.huaweicloud_nat_private_snat_rules.filter_by_description"
+		dcByDescription = acceptance.InitDataSourceCheck(byDescription)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -47,6 +50,15 @@ func TestAccDatasourcePrivateSnatRules_basic(t *testing.T) {
 				Config: testAccDatasourcePrivateSnatRules_basic(baseConfig),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
+					resource.TestCheckResourceAttrSet(dataSourceName, "rules.#"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.id"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.gateway_id"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.subnet_id"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.status"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.transit_ip_associations.#"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.transit_ip_associations.0.transit_ip_id"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.transit_ip_associations.0.transit_ip_address"),
+
 					dcBySnatId.CheckResourceExists(),
 					resource.TestCheckOutput("rule_id_filter_is_useful", "true"),
 
@@ -67,6 +79,9 @@ func TestAccDatasourcePrivateSnatRules_basic(t *testing.T) {
 
 					dcByEps.CheckResourceExists(),
 					resource.TestCheckOutput("eps_filter_is_useful", "true"),
+
+					dcByDescription.CheckResourceExists(),
+					resource.TestCheckOutput("description_filter_is_useful", "true"),
 				),
 			},
 		},
@@ -251,6 +266,25 @@ locals {
 
 output "subnet_id_filter_is_useful" {
   value = alltrue(local.subnet_id_filter_result) && length(local.subnet_id_filter_result) > 0
+}
+
+locals {
+  description = data.huaweicloud_nat_private_snat_rules.test.rules[0].description
+}
+
+data "huaweicloud_nat_private_snat_rules" "filter_by_description" {
+  description = [local.description]
+}
+
+locals {
+  description_filter_result = [
+    for v in data.huaweicloud_nat_private_snat_rules.filter_by_description.rules[*].description : 
+    v == local.description
+  ]
+}
+
+output "description_filter_is_useful" {
+  value = alltrue(local.description_filter_result) && length(local.description_filter_result) > 0
 }
 `, baseConfig)
 }

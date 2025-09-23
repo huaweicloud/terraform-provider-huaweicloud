@@ -67,15 +67,14 @@ func getDNSRecordsetResourceFunc(cfg *config.Config, state *terraform.ResourceSt
 }
 
 func TestAccDNSRecordset_basic(t *testing.T) {
-	var obj interface{}
+	var (
+		obj interface{}
 
-	name := fmt.Sprintf("acpttest-recordset-%s.com.", acctest.RandString(5))
-	rName := "huaweicloud_dns_recordset.test"
+		rName = "huaweicloud_dns_recordset.test"
+		rc    = acceptance.InitResourceCheck(rName, &obj, getDNSRecordsetResourceFunc)
 
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&obj,
-		getDNSRecordsetResourceFunc,
+		name              = fmt.Sprintf("acpttest-recordset-%s.com", acctest.RandString(5))
+		nameWithDotSuffix = fmt.Sprintf("%s.", name)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -87,12 +86,12 @@ func TestAccDNSRecordset_basic(t *testing.T) {
 				Config: testDNSRecordset_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "name", nameWithDotSuffix),
 					resource.TestCheckResourceAttr(rName, "type", "A"),
 					resource.TestCheckResourceAttr(rName, "description", "a recordset description"),
 					resource.TestCheckResourceAttr(rName, "status", "ENABLE"),
 					resource.TestCheckResourceAttr(rName, "ttl", "300"),
-					resource.TestCheckResourceAttr(rName, "records.0", "10.1.0.0"),
+					resource.TestCheckResourceAttr(rName, "records.#", "2"),
 					resource.TestCheckResourceAttr(rName, "line_id", "Dianxin_Shanxi"),
 					resource.TestCheckResourceAttr(rName, "weight", "3"),
 					resource.TestCheckResourceAttr(rName, "tags.key1", "value1"),
@@ -105,7 +104,7 @@ func TestAccDNSRecordset_basic(t *testing.T) {
 				Config: testDNSRecordset_basic_update(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "name", fmt.Sprintf("update.%s", name)),
+					resource.TestCheckResourceAttr(rName, "name", fmt.Sprintf("update.%s", nameWithDotSuffix)),
 					resource.TestCheckResourceAttr(rName, "type", "TXT"),
 					resource.TestCheckResourceAttr(rName, "description", "a recordset description update"),
 					resource.TestCheckResourceAttr(rName, "status", "DISABLE"),
@@ -126,15 +125,14 @@ func TestAccDNSRecordset_basic(t *testing.T) {
 }
 
 func TestAccDNSRecordset_publicZone(t *testing.T) {
-	var obj interface{}
+	var (
+		obj interface{}
 
-	name := fmt.Sprintf("acpttest-recordset-%s.com.", acctest.RandString(5))
-	rName := "huaweicloud_dns_recordset.test"
+		rName = "huaweicloud_dns_recordset.test"
+		rc    = acceptance.InitResourceCheck(rName, &obj, getDNSRecordsetResourceFunc)
 
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&obj,
-		getDNSRecordsetResourceFunc,
+		name              = fmt.Sprintf("acpttest-recordset-%s.com", acctest.RandString(5))
+		nameWithDotSuffix = fmt.Sprintf("%s.", name)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -146,7 +144,7 @@ func TestAccDNSRecordset_publicZone(t *testing.T) {
 				Config: testDNSRecordset_publicZone(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "name", nameWithDotSuffix),
 					resource.TestCheckResourceAttr(rName, "type", "A"),
 					resource.TestCheckResourceAttr(rName, "description", "a record set"),
 					resource.TestCheckResourceAttr(rName, "status", "ENABLE"),
@@ -162,7 +160,7 @@ func TestAccDNSRecordset_publicZone(t *testing.T) {
 				Config: testDNSRecordset_publicZone_update(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "name", fmt.Sprintf("update.%s", name)),
+					resource.TestCheckResourceAttr(rName, "name", fmt.Sprintf("update.%s", nameWithDotSuffix)),
 					resource.TestCheckResourceAttr(rName, "type", "TXT"),
 					resource.TestCheckResourceAttr(rName, "description", "an updated record set"),
 					resource.TestCheckResourceAttr(rName, "status", "DISABLE"),
@@ -177,15 +175,14 @@ func TestAccDNSRecordset_publicZone(t *testing.T) {
 }
 
 func TestAccDNSRecordset_privateZone(t *testing.T) {
-	var obj interface{}
+	var (
+		obj interface{}
 
-	name := fmt.Sprintf("acpttest-recordset-%s.com.", acctest.RandString(5))
-	rName := "huaweicloud_dns_recordset.test"
+		rName = "huaweicloud_dns_recordset.test"
+		rc    = acceptance.InitResourceCheck(rName, &obj, getDNSRecordsetResourceFunc)
 
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&obj,
-		getDNSRecordsetResourceFunc,
+		name              = fmt.Sprintf("acpttest-recordset-%s.com", acctest.RandString(5))
+		nameWithDotSuffix = fmt.Sprintf("%s.", name)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -197,7 +194,7 @@ func TestAccDNSRecordset_privateZone(t *testing.T) {
 				Config: testDNSRecordset_privateZone(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "name", nameWithDotSuffix),
 					resource.TestCheckResourceAttr(rName, "type", "A"),
 					resource.TestCheckResourceAttr(rName, "description", "a private record set"),
 					resource.TestCheckResourceAttr(rName, "status", "DISABLE"),
@@ -213,7 +210,7 @@ func TestAccDNSRecordset_privateZone(t *testing.T) {
 				Config: testDNSRecordset_privateZone_update(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "name", fmt.Sprintf("update.%s", name)),
+					resource.TestCheckResourceAttr(rName, "name", fmt.Sprintf("update.%s", nameWithDotSuffix)),
 					resource.TestCheckResourceAttr(rName, "type", "TXT"),
 					resource.TestCheckResourceAttr(rName, "description", "a private record set update"),
 					resource.TestCheckResourceAttr(rName, "status", "ENABLE"),
@@ -233,6 +230,30 @@ func TestAccDNSRecordset_privateZone(t *testing.T) {
 			},
 		},
 	})
+}
+
+func testAccDNSZone_private(zoneName string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_vpc" "default" {
+  name = "vpc-default"
+}
+
+resource "huaweicloud_dns_zone" "zone_1" {
+  name        = "%s"
+  email       = "email@example.com"
+  description = "a private zone"
+  zone_type   = "private"
+
+  router {
+    router_id = data.huaweicloud_vpc.default.id
+  }
+
+  tags = {
+    zone_type = "private"
+    owner     = "terraform"
+  }
+}
+`, zoneName)
 }
 
 func testAccRecordset_base(name string) string {
@@ -256,7 +277,7 @@ resource "huaweicloud_dns_recordset" "test" {
   description = "a recordset description"
   status      = "ENABLE"
   ttl         = 300
-  records     = ["10.1.0.0"]
+  records     = ["10.1.0.0", "9.1.0.0"]
   line_id     = "Dianxin_Shanxi"
   weight      = 3
 

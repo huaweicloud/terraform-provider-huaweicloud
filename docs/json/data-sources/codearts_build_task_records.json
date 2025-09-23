@@ -1,0 +1,126 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_codearts_build_task_records": {
+          "block": {
+            "attributes": {
+              "branches": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the list of branches to search.",
+                "optional": true
+              },
+              "build_project_id": {
+                "type": "string",
+                "description": "Specifies the build project ID.",
+                "required": true
+              },
+              "from_date": {
+                "type": "string",
+                "description": "Specifies the start date for the query, format: yyyy-MM-dd HH:mm:ss.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "records": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "branch": "string",
+                      "build_duration": "number",
+                      "build_no": "string",
+                      "build_record_type": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "is_rerun": "bool",
+                            "record_type": "string",
+                            "rerun": "bool",
+                            "trigger_type": "string"
+                          }
+                        ]
+                      ],
+                      "build_yml_path": "string",
+                      "build_yml_url": "string",
+                      "create_time": "string",
+                      "daily_build_no": "string",
+                      "daily_build_number": "string",
+                      "dev_cloud_build_type": "string",
+                      "display_name": "string",
+                      "duration": "number",
+                      "execution_id": "string",
+                      "finish_time": "string",
+                      "group_name": "string",
+                      "id": "string",
+                      "parameters": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "name": "string",
+                            "secret": "bool",
+                            "type": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ],
+                      "pending_duration": "number",
+                      "project_id": "string",
+                      "queued_time": "string",
+                      "repository": "string",
+                      "revision": "string",
+                      "schedule_time": "string",
+                      "scm_type": "string",
+                      "scm_web_url": "string",
+                      "start_time": "string",
+                      "status": "string",
+                      "status_code": "number",
+                      "trigger_name": "string",
+                      "trigger_type": "string",
+                      "user_id": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the build record list.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the list of tags to search.",
+                "optional": true
+              },
+              "to_date": {
+                "type": "string",
+                "description": "Specifies the end date for the query, format: yyyy-MM-dd HH:mm:ss.",
+                "optional": true
+              },
+              "triggers": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the list of triggers to search.",
+                "optional": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

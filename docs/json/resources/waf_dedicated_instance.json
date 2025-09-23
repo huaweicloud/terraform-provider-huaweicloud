@@ -35,11 +35,6 @@
                 "type": "string",
                 "optional": true
               },
-              "group_id": {
-                "type": "string",
-                "optional": true,
-                "forcenew": true
-              },
               "id": {
                 "type": "string",
                 "computed": true
@@ -85,6 +80,15 @@
               "subnet_id": {
                 "type": "string",
                 "required": true,
+                "forcenew": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true,
                 "forcenew": true
               },
               "upgradable": {

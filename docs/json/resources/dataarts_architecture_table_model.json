@@ -203,7 +203,7 @@
                 "computed": true
               },
               "reversed": {
-                "type": "string",
+                "type": "bool",
                 "optional": true,
                 "computed": true
               },

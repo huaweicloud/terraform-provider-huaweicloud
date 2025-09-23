@@ -67,6 +67,6 @@ This resource provides the following timeouts configuration options:
 Propagations can be imported using their `id` and the related `instance_id` and `route_table_id`, separated by
 slashes (/), e.g.
 
-```
-$ terraform import huaweicloud_er_propagation.test &ltinstance_id&gt/&ltroute_table_id&gt/&ltid&gt
+```bash
+$ terraform import huaweicloud_er_propagation.test <instance_id>/<route_table_id>/<id>
 ```

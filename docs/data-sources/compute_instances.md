@@ -51,6 +51,8 @@ The following arguments are supported:
 
 * `key_pair` - (Optional, String) Specifies the key pair that is used to authenticate the instance.
 
+* `tags` - (Optional, Map) Specifies the tags to qurey the instances.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -99,6 +101,10 @@ The `instances` block supports:
   The [scheduler hints](#compute_instances_scheduler_hint_object) structure is documented below.
 
 * `tags` - The key/value pairs to associate with the instance.
+
+* `charging_mode` - The charging mode of the instance. Valid values are **prePaid**, **postPaid** and **spot**.
+
+* `expired_time` - The expired time of prePaid instance, in UTC format.
 
 <a name="compute_instances_network_object"></a>
 The `network` block supports:

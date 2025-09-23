@@ -1,0 +1,103 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_secmasterv2_alert_rule_templates": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "records": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "accumulated_times": "number",
+                      "alert_description": "string",
+                      "alert_name": "string",
+                      "alert_remediation": "string",
+                      "alert_type": [
+                        "map",
+                        "string"
+                      ],
+                      "create_by": "string",
+                      "create_time": "number",
+                      "custom_properties": [
+                        "map",
+                        "string"
+                      ],
+                      "description": "string",
+                      "event_grouping": "bool",
+                      "job_mode": "string",
+                      "process_status": "string",
+                      "query": "string",
+                      "query_type": "string",
+                      "schedule": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "delay_interval": "number",
+                            "frequency_interval": "number",
+                            "frequency_unit": "string",
+                            "overtime_interval": "number",
+                            "period_interval": "number",
+                            "period_unit": "string"
+                          }
+                        ]
+                      ],
+                      "severity": "string",
+                      "simulation": "bool",
+                      "status": "string",
+                      "suppression": "bool",
+                      "table_name": "string",
+                      "template_id": "string",
+                      "template_name": "string",
+                      "triggers": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "accumulated_times": "number",
+                            "expression": "string",
+                            "job_id": "string",
+                            "mode": "string",
+                            "operator": "string",
+                            "severity": "string"
+                          }
+                        ]
+                      ],
+                      "update_by": "string",
+                      "update_time": "number",
+                      "update_time_by_user": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "severity": {
+                "type": "string",
+                "optional": true
+              },
+              "template_name": {
+                "type": "string",
+                "optional": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "required": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

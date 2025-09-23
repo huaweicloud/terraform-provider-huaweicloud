@@ -1,0 +1,113 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_secmaster_alert_rule_template_detail": {
+          "block": {
+            "attributes": {
+              "custom_properties": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "computed": true
+              },
+              "data_source": {
+                "type": "string",
+                "computed": true
+              },
+              "event_grouping": {
+                "type": "bool",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "query": {
+                "type": "string",
+                "computed": true
+              },
+              "query_type": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "rule_template_id": {
+                "type": "string",
+                "computed": true
+              },
+              "schedule": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "delay_interval": "number",
+                      "frequency_interval": "number",
+                      "frequency_unit": "string",
+                      "overtime_interval": "number",
+                      "period_interval": "number",
+                      "period_unit": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "severity": {
+                "type": "string",
+                "computed": true
+              },
+              "template_id": {
+                "type": "string",
+                "required": true
+              },
+              "template_name": {
+                "type": "string",
+                "computed": true
+              },
+              "triggers": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "accumulated_times": "number",
+                      "expression": "string",
+                      "mode": "string",
+                      "operator": "string",
+                      "severity": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "update_time": {
+                "type": "number",
+                "computed": true
+              },
+              "version": {
+                "type": "string",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

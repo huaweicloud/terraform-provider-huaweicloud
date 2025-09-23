@@ -1,0 +1,57 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_aad_domain_certificate": {
+          "block": {
+            "attributes": {
+              "cert_info": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "apply_domain": "string",
+                      "cert_name": "string",
+                      "expire_status": "number",
+                      "expire_time": "number",
+                      "id": "string"
+                    }
+                  ]
+                ],
+                "description": "The certificate information.",
+                "computed": true
+              },
+              "domain_id": {
+                "type": "string",
+                "description": "Specifies the AAD domain ID.",
+                "required": true
+              },
+              "domain_name": {
+                "type": "string",
+                "description": "The domain name.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "AAD",
+            "name": "Advanced Anti-DDoS",
+            "catalog": "Security & Compliance",
+            "name_cn": "DDoS高防",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

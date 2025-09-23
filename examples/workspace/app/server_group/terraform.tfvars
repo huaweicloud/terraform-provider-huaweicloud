@@ -1,0 +1,8 @@
+app_server_group_name             = "tf_test_server_group"
+app_server_group_app_type         = "SESSION_DESKTOP_APP"
+app_server_group_os_type          = "Windows"
+app_server_group_flavor_id        = "workspace.appstream.general.xlarge.4"
+app_server_group_image_id         = "2ac7b1fb-b198-422b-a45f-61ea285cb6e7"
+app_server_group_image_product_id = "OFFI886188719633408000"
+app_server_group_system_disk_type = "SAS"
+app_server_group_system_disk_size = 80

@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_eg_event_batch_action
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: EG
+paths:
+    /v1/{project_id}/channels/{channel_id}/events:
+        POST:
+            tag: EG

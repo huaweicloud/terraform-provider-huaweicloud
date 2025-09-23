@@ -2,7 +2,8 @@
 subcategory: "Log Tank Service (LTS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_lts_log_converge_switch"
-description: ""
+description: |-
+  Using this resource to enable the LTS log receiving status within HuaweiCloud.
 ---
 
 # huaweicloud_lts_log_converge_switch

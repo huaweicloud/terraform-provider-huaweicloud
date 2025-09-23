@@ -8,9 +8,18 @@ host: huaweicloud.com
 tags:
     - name: CPH
 paths:
+    /v1/{project_id}/{resource_type}/{resource_id}/tags:
+        GET:
+            tag: CPH
+    /v1/{project_id}/{resource_type}/{resource_id}/tags/action:
+        POST:
+            tag: CPH
     /v1/{project_id}/cloud-phone/servers/{server_id}:
         GET:
             tag: CPH
+        PUT:
+            tag: CPH
+    /v1/{project_id}/cloud-phone/servers/open-access:
         PUT:
             tag: CPH
     /v2/{project_id}/cloud-phone/servers:

@@ -1,0 +1,182 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_vpc_network_interfaces": {
+          "block": {
+            "attributes": {
+              "device_id": {
+                "type": "string",
+                "description": "Specifies the device ID of the interface.",
+                "optional": true
+              },
+              "device_owner": {
+                "type": "string",
+                "description": "Specifies the device owner of the interface.",
+                "optional": true
+              },
+              "enable_efi": {
+                "type": "bool",
+                "description": "Specifies whether EFI is enabled .",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise_project ID of the interface.",
+                "optional": true,
+                "default": "all_granted_eps"
+              },
+              "fixed_ips": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Filter by fixed_ips=ip_address or fixed_ips=subnet_id.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "interface_id": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the ID of the interface.",
+                "optional": true
+              },
+              "mac_address": {
+                "type": "string",
+                "description": "Specifies the MAC address of the interface.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the interface.",
+                "optional": true
+              },
+              "network_id": {
+                "type": "string",
+                "description": "Specifies the network ID of the interface.",
+                "optional": true
+              },
+              "ports": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "allowed_address_pairs": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "ip_address": "string",
+                            "mac_address": "string"
+                          }
+                        ]
+                      ],
+                      "binding_profile": [
+                        "map",
+                        "string"
+                      ],
+                      "binding_vif_details": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "ovs_hybrid_plug": "bool",
+                            "port_filter": "bool",
+                            "primary_interface": "bool"
+                          }
+                        ]
+                      ],
+                      "binding_vnic_type": "string",
+                      "device_id": "string",
+                      "device_owner": "string",
+                      "dns_assignment": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "fqdn": "string",
+                            "hostname": "string",
+                            "ip_address": "string"
+                          }
+                        ]
+                      ],
+                      "dns_name": "string",
+                      "enable_efi": "bool",
+                      "extra_dhcp_opts": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "opt_name": "string",
+                            "opt_value": "string"
+                          }
+                        ]
+                      ],
+                      "fixed_ips": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "ip_address": "string",
+                            "subnet_id": "string"
+                          }
+                        ]
+                      ],
+                      "id": "string",
+                      "instance_id": "string",
+                      "instance_type": "string",
+                      "ipv6_bandwidth_id": "string",
+                      "mac_address": "string",
+                      "name": "string",
+                      "network_id": "string",
+                      "port_security_enabled": "bool",
+                      "security_groups": [
+                        "list",
+                        "string"
+                      ],
+                      "status": "string",
+                      "zone_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of interfaces.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "security_groups": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the security group IDs of the interface.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the status of the interface.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "VPC",
+            "name": "Virtual Private Cloud",
+            "catalog": "Networking",
+            "name_cn": "虚拟私有云",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

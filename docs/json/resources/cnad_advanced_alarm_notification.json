@@ -1,0 +1,35 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cnad_advanced_alarm_notification": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_close_attack_source_flag": {
+                "type": "bool",
+                "description": "Whether to enable the alarm content to shield the attack source information.",
+                "computed": true
+              },
+              "topic_urn": {
+                "type": "string",
+                "description": "Specifies the topic urn of SMN.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "AAD",
+            "name": "Advanced Anti-DDoS",
+            "catalog": "Security & Compliance",
+            "name_cn": "DDoS高防",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

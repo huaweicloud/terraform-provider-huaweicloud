@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -19,9 +20,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API ASM POST /v1/meshes
-// @API ASM GET /v1/meshes/{mesh_id}
-// @API ASM DELETE /v1/meshes/{mesh_id}
+// @API ASM POST /v1/{project_id}/meshes
+// @API ASM GET /v1/{project_id}/meshes/{mesh_id}
+// @API ASM DELETE /v1/{project_id}/meshes/{mesh_id}
 
 var nonUpdatableParams = []string{
 	"name", "type", "version", "annotations", "labels", "tags", "extend_params",
@@ -51,7 +52,10 @@ func ResourceAsmMesh() *schema.Resource {
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 
-		CustomizeDiff: config.FlexibleForceNew(nonUpdatableParams),
+		CustomizeDiff: customdiff.All(
+			config.FlexibleForceNew(nonUpdatableParams),
+			config.MergeDefaultTags(),
+		),
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
@@ -224,7 +228,7 @@ func resourceAsmMeshCreate(ctx context.Context, d *schema.ResourceData, meta int
 	region := cfg.GetRegion(d)
 
 	var (
-		createMeshHttpUrl = "v1/meshes"
+		createMeshHttpUrl = "v1/{project_id}/meshes"
 		createMeshProduct = "asm"
 	)
 	createMeshClient, err := cfg.NewServiceClient(createMeshProduct, region)
@@ -405,7 +409,7 @@ func resourceAsmMeshRead(_ context.Context, d *schema.ResourceData, meta interfa
 	var mErr *multierror.Error
 
 	var (
-		getMeshHttpUrl = "v1/meshes/{mesh_id}"
+		getMeshHttpUrl = "v1/{project_id}/meshes/{mesh_id}"
 		getMeshProduct = "asm"
 	)
 	getMeshClient, err := cfg.NewServiceClient(getMeshProduct, region)
@@ -414,6 +418,7 @@ func resourceAsmMeshRead(_ context.Context, d *schema.ResourceData, meta interfa
 	}
 
 	getMeshPath := getMeshClient.Endpoint + getMeshHttpUrl
+	getMeshPath = strings.ReplaceAll(getMeshPath, "{project_id}", getMeshClient.ProjectID)
 	getMeshPath = strings.ReplaceAll(getMeshPath, "{mesh_id}", d.Id())
 
 	getPotectionRulesOpt := golangsdk.RequestOpts{
@@ -458,7 +463,7 @@ func resourceAsmMeshDelete(ctx context.Context, d *schema.ResourceData, meta int
 	region := cfg.GetRegion(d)
 
 	var (
-		deleteMeshHttpUrl = "v1/meshes/{mesh_id}"
+		deleteMeshHttpUrl = "v1/{project_id}/meshes/{mesh_id}"
 		deleteMeshProduct = "asm"
 	)
 	deleteMeshClient, err := cfg.NewServiceClient(deleteMeshProduct, region)
@@ -467,6 +472,7 @@ func resourceAsmMeshDelete(ctx context.Context, d *schema.ResourceData, meta int
 	}
 
 	deleteMeshPath := deleteMeshClient.Endpoint + deleteMeshHttpUrl
+	deleteMeshPath = strings.ReplaceAll(deleteMeshPath, "{project_id}", cfg.GetProjectID(region))
 	deleteMeshPath = strings.ReplaceAll(deleteMeshPath, "{mesh_id}", d.Id())
 
 	deleteMeshOpt := golangsdk.RequestOpts{
@@ -499,12 +505,13 @@ func resourceAsmMeshDelete(ctx context.Context, d *schema.ResourceData, meta int
 func meshStateRefreshFunc(client *golangsdk.ServiceClient, meshId string, targetStatus []string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		var (
-			getMeshHttpUrl  = "v1/meshes/{mesh_id}"
+			getMeshHttpUrl  = "v1/{project_id}/meshes/{mesh_id}"
 			status          string
 			getMeshRespBody interface{}
 		)
 
 		getMeshPath := client.Endpoint + getMeshHttpUrl
+		getMeshPath = strings.ReplaceAll(getMeshPath, "{project_id}", client.ProjectID)
 		getMeshPath = strings.ReplaceAll(getMeshPath, "{mesh_id}", meshId)
 
 		getPotectionRulesOpt := golangsdk.RequestOpts{

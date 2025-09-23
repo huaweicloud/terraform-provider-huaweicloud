@@ -1,0 +1,57 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_vpn_p2c_gateway_connections": {
+          "block": {
+            "attributes": {
+              "connections": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "client_ip": "string",
+                      "client_user_name": "string",
+                      "client_virtual_ip": "string",
+                      "connection_established_time": "string",
+                      "connection_id": "string",
+                      "inbound_bytes": "number",
+                      "inbound_packets": "number",
+                      "outbound_bytes": "number",
+                      "outbound_packets": "number",
+                      "timestamp": "string"
+                    }
+                  ]
+                ],
+                "description": "The connection list.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "p2c_gateway_id": {
+                "type": "string",
+                "description": "Specifies the ID of a P2C VPN gateway instance.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "VPN",
+            "name": "Virtual Private Network",
+            "catalog": "Networking",
+            "name_cn": "虚拟专用网络",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

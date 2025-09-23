@@ -233,7 +233,7 @@ func resourceGlobalConnectionBandwidthAssociateUpdate(ctx context.Context, d *sc
 	disassociateResources := oldResources.(*schema.Set).Difference(newResources.(*schema.Set))
 
 	if disassociateResources.Len() > 0 {
-		err := disassociateGlobalConnectionBandwidth(client, gcbID, cfg.DomainID, disassociateResources)
+		err := disassociateGlobalConnectionBandwidth(client, d, cfg.DomainID, disassociateResources)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -249,11 +249,11 @@ func resourceGlobalConnectionBandwidthAssociateUpdate(ctx context.Context, d *sc
 	return resourceGlobalConnectionBandwidthAssociateRead(ctx, d, meta)
 }
 
-func disassociateGlobalConnectionBandwidth(client *golangsdk.ServiceClient, gcbID, domainID string, resources *schema.Set) error {
+func disassociateGlobalConnectionBandwidth(client *golangsdk.ServiceClient, d *schema.ResourceData, domainID string, resources *schema.Set) error {
 	httpUrl := "v3/{domain_id}/gcb/gcbandwidths/{id}/disassociate-instance"
 	path := client.Endpoint + httpUrl
 	path = strings.ReplaceAll(path, "{domain_id}", domainID)
-	path = strings.ReplaceAll(path, "{id}", gcbID)
+	path = strings.ReplaceAll(path, "{id}", d.Id())
 
 	opt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -262,7 +262,7 @@ func disassociateGlobalConnectionBandwidth(client *golangsdk.ServiceClient, gcbI
 	opt.JSONBody = utils.RemoveNil(buildGlobalConnectionBandwidthAssociateBodyParams(resources))
 	resp, err := client.Request("POST", path, &opt)
 	if err != nil {
-		return fmt.Errorf("error disassociating the resource instance from the global connection bandwidth: %s", err)
+		return err
 	}
 
 	respBody, err := utils.FlattenResponse(resp)
@@ -287,7 +287,6 @@ func resourceGlobalConnectionBandwidthAssociateDelete(_ context.Context, d *sche
 	var (
 		cfg    = meta.(*config.Config)
 		region = cfg.GetRegion(d)
-		gcbID  = d.Id()
 	)
 
 	client, err := cfg.NewServiceClient("cc", region)
@@ -296,9 +295,11 @@ func resourceGlobalConnectionBandwidthAssociateDelete(_ context.Context, d *sche
 	}
 
 	disassociateResources, _ := d.GetChange("gcb_binding_resources")
-	err = disassociateGlobalConnectionBandwidth(client, gcbID, cfg.DomainID, disassociateResources.(*schema.Set))
+	err = disassociateGlobalConnectionBandwidth(client, d, cfg.DomainID, disassociateResources.(*schema.Set))
 	if err != nil {
-		return diag.FromErr(err)
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error_code", "GCB.0001"),
+			"error disassociating the resource instance from the global connection bandwidth")
 	}
 	return nil
 }

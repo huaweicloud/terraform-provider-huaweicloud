@@ -1,0 +1,135 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_ces_alarmrules": {
+          "block": {
+            "attributes": {
+              "alarm_id": {
+                "type": "string",
+                "description": "Specifies the alarm rule ID.",
+                "optional": true
+              },
+              "alarms": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "alarm_action_enabled": "bool",
+                      "alarm_actions": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "notification_list": [
+                              "list",
+                              "string"
+                            ],
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "alarm_description": "string",
+                      "alarm_enabled": "bool",
+                      "alarm_id": "string",
+                      "alarm_name": "string",
+                      "alarm_template_id": "string",
+                      "alarm_type": "string",
+                      "condition": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "alarm_level": "number",
+                            "comparison_operator": "string",
+                            "count": "number",
+                            "filter": "string",
+                            "metric_name": "string",
+                            "period": "number",
+                            "suppress_duration": "number",
+                            "unit": "string",
+                            "value": "number"
+                          }
+                        ]
+                      ],
+                      "enterprise_project_id": "string",
+                      "namespace": "string",
+                      "notification_begin_time": "string",
+                      "notification_end_time": "string",
+                      "ok_actions": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "notification_list": [
+                              "list",
+                              "string"
+                            ],
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "resources": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "dimensions": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "name": "string"
+                                }
+                              ]
+                            ],
+                            "resource_group_id": "string",
+                            "resource_group_name": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The alarm rule list.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of an alarm rule.",
+                "optional": true
+              },
+              "namespace": {
+                "type": "string",
+                "description": "Specifies the namespace of a service.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "resource_id": {
+                "type": "string",
+                "description": "Specifies the alarm resource ID.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CES",
+            "name": "Cloud Eye",
+            "catalog": "Management & Governance",
+            "name_cn": "云监控服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

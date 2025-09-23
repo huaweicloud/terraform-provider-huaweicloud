@@ -50,10 +50,7 @@
                       "restart_when_exception": "bool",
                       "resume_checkpoint": "bool",
                       "resume_max_num": "number",
-                      "runtime_config": [
-                        "map",
-                        "string"
-                      ],
+                      "runtime_config": "string",
                       "smn_topic": "string",
                       "status": "string",
                       "tm_cu_num": "number",
@@ -84,7 +81,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "tm_cu_num": {
                 "type": "number",

@@ -45,25 +45,28 @@ type CreateResponse struct {
 }
 
 type TaurusDBInstance struct {
-	Id              string   `json:"id"`
-	Name            string   `json:"name"`
-	Status          string   `json:"status"`
-	Type            string   `json:"type"`
-	Port            string   `json:"port"`
-	NodeCount       int      `json:"node_count"`
-	VpcId           string   `json:"vpc_id"`
-	SubnetId        string   `json:"subnet_id"`
-	SecurityGroupId string   `json:"security_group_id"`
-	ConfigurationId string   `json:"configuration_id"`
-	AZMode          string   `json:"az_mode"`
-	MasterAZ        string   `json:"master_az_code"`
-	TimeZone        string   `json:"time_zone"`
-	ProjectId       string   `json:"project_id"`
-	DbUserName      string   `json:"db_user_name"`
-	PublicIps       string   `json:"public_ips"`
-	PrivateIps      []string `json:"private_write_ips"`
-	Created         string   `json:"-"`
-	Updated         string   `json:"-"`
+	Id                string   `json:"id"`
+	Name              string   `json:"name"`
+	Alias             string   `json:"alias"`
+	Status            string   `json:"status"`
+	Type              string   `json:"type"`
+	Port              string   `json:"port"`
+	NodeCount         int      `json:"node_count"`
+	VpcId             string   `json:"vpc_id"`
+	SubnetId          string   `json:"subnet_id"`
+	SecurityGroupId   string   `json:"security_group_id"`
+	ConfigurationId   string   `json:"configuration_id"`
+	AZMode            string   `json:"az_mode"`
+	MasterAZ          string   `json:"master_az_code"`
+	TimeZone          string   `json:"time_zone"`
+	ProjectId         string   `json:"project_id"`
+	DbUserName        string   `json:"db_user_name"`
+	PublicIps         string   `json:"public_ips"`
+	PrivateDnsNames   []string `json:"private_dns_names"`
+	PrivateIps        []string `json:"private_write_ips"`
+	Created           string   `json:"created"`
+	Updated           string   `json:"updated"`
+	MaintenanceWindow string   `json:"maintenance_window"`
 
 	Volume         Volume         `json:"volume"`
 	Nodes          []Nodes        `json:"nodes"`
@@ -244,4 +247,95 @@ func ExtractDehResources(r pagination.Page) (ListDehResponse, error) {
 	var s ListDehResponse
 	err := (r.(DehResourcePage)).ExtractInto(&s)
 	return s, err
+}
+
+type UpdateAliasResponse struct {
+}
+
+type UpdateAliasResult struct {
+	commonResult
+}
+
+func (r UpdateAliasResult) ExtractUpdateAliasResponse() (*UpdateAliasResponse, error) {
+	job := new(UpdateAliasResponse)
+	err := r.ExtractInto(job)
+	return job, err
+}
+
+type UpdateMaintenanceWindowResponse struct {
+}
+
+type UpdateMaintenanceWindowResult struct {
+	commonResult
+}
+
+func (r UpdateMaintenanceWindowResult) ExtractUpdateMaintenanceWindowResponse() (*UpdateMaintenanceWindowResponse, error) {
+	job := new(UpdateMaintenanceWindowResponse)
+	err := r.ExtractInto(job)
+	return job, err
+}
+
+type SecondLevelMonitoring struct {
+	MonitorSwitch bool `json:"monitor_switch"`
+	Period        int  `json:"period"`
+}
+
+type GetSecondLevelMonitoringResult struct {
+	commonResult
+}
+
+func (r GetSecondLevelMonitoringResult) Extract() (*SecondLevelMonitoring, error) {
+	var secondLevelMonitoring SecondLevelMonitoring
+	err := r.ExtractInto(&secondLevelMonitoring)
+	return &secondLevelMonitoring, err
+}
+
+type Version struct {
+	UpgradeFlag bool      `json:"upgrade_flag"`
+	Datastore   Datastore `json:"datastore"`
+}
+
+type Datastore struct {
+	CurrentVersion       string `json:"current_version"`
+	CurrentKernelVersion string `json:"current_kernel_version"`
+	LatestVersion        string `json:"latest_version"`
+	LatestKernelVersion  string `json:"latest_kernel_version"`
+}
+
+type GetVersionResult struct {
+	commonResult
+}
+
+func (r GetVersionResult) Extract() (*Version, error) {
+	var version Version
+	err := r.ExtractInto(&version)
+	return &version, err
+}
+
+type UpdateSlowLogShowOriginalSwitchResponse struct {
+	Response string `json:"response"`
+}
+
+type UpdateSlowLogShowOriginalSwitchResult struct {
+	commonResult
+}
+
+func (r UpdateSlowLogShowOriginalSwitchResult) ExtractUpdateSlowLogShowOriginalSwitchResponse() (*UpdateSlowLogShowOriginalSwitchResponse, error) {
+	res := new(UpdateSlowLogShowOriginalSwitchResponse)
+	err := r.ExtractInto(res)
+	return res, err
+}
+
+type SlowLogShowOriginalSwitch struct {
+	OpenSlowLogSwitch string `json:"open_slow_log_switch"`
+}
+
+type GetSlowLogShowOriginalSwitchResult struct {
+	commonResult
+}
+
+func (r GetSlowLogShowOriginalSwitchResult) Extract() (*SlowLogShowOriginalSwitch, error) {
+	var slowLogShowOriginalSwitch SlowLogShowOriginalSwitch
+	err := r.ExtractInto(&slowLogShowOriginalSwitch)
+	return &slowLogShowOriginalSwitch, err
 }

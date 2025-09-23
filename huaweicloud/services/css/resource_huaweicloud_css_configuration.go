@@ -207,9 +207,10 @@ func resourceCssConfigurationRead(_ context.Context, d *schema.ResourceData, met
 	}
 
 	getConfigurationResp, err := getConfigurationClient.Request("GET", getConfigurationPath, &getConfigurationOpt)
-
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving CSS configuration")
+		// The cluster does not exist, http code is 403, key/value of error code is errCode/CSS.0015
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected403ErrInto404Err(err, "errCode", "CSS.0015"), "error retrieving CSS configuration")
 	}
 
 	getConfigurationRespBody, err := utils.FlattenResponse(getConfigurationResp)
@@ -264,7 +265,9 @@ func resourceCssConfigurationDelete(ctx context.Context, d *schema.ResourceData,
 	deleteConfigurationOpt.JSONBody = buildDeleteConfigurationBodyParams()
 	_, err = deleteConfigurationClient.Request("POST", deleteConfigurationPath, &deleteConfigurationOpt)
 	if err != nil {
-		return diag.Errorf("error deleting CSS configuration: %s", err)
+		// The cluster does not exist, http code is 403, key/value of error code is errCode/CSS.0015
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected403ErrInto404Err(err, "errCode", "CSS.0015"), "error deleting CSS configuration")
 	}
 
 	err = configurationWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutDelete))

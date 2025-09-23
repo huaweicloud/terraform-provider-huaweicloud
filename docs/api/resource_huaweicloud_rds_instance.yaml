@@ -25,6 +25,9 @@ paths:
     /v3.1/{project_id}/configurations/{config_id}/apply:
         PUT:
             tag: RDS
+    /v3.1/{project_id}/instances/{instance_id}/configurations:
+        PUT:
+            tag: RDS
     /v3/{project_id}/instances:
         GET:
             tag: RDS
@@ -37,6 +40,12 @@ paths:
         DELETE:
             tag: RDS
     /v3/{project_id}/instances/{instance_id}/action:
+        POST:
+            tag: RDS
+    /v3/{project_id}/instances/{instance_id}/action/shutdown:
+        POST:
+            tag: RDS
+    /v3/{project_id}/instances/{instance_id}/action/startup:
         POST:
             tag: RDS
     /v3/{project_id}/instances/{instance_id}/alias:
@@ -60,6 +69,11 @@ paths:
             tag: RDS
         PUT:
             tag: RDS
+    /v3/{project_id}/instances/{instance_id}/db-auto-upgrade:
+        GET:
+            tag: RDS
+        PUT:
+            tag: RDS
     /v3/{project_id}/instances/{instance_id}/disk-auto-expansion:
         GET:
             tag: RDS
@@ -74,10 +88,15 @@ paths:
     /v3/{project_id}/instances/{instance_id}/ip:
         PUT:
             tag: RDS
+    /v3/{project_id}/instances/{instance_id}/migrateslave:
+        POST:
+            tag: RDS
     /v3/{project_id}/instances/{instance_id}/modify-dns:
         PUT:
             tag: RDS
     /v3/{project_id}/instances/{instance_id}/msdtc/host:
+        DELETE:
+            tag: RDS
         POST:
             tag: RDS
     /v3/{project_id}/instances/{instance_id}/msdtc/hosts:
@@ -98,6 +117,9 @@ paths:
     /v3/{project_id}/instances/{instance_id}/readonly-status:
         PUT:
             tag: RDS
+    /v3/{project_id}/instances/{instance_id}/replication/status:
+        GET:
+            tag: RDS
     /v3/{project_id}/instances/{instance_id}/second-level-monitor:
         GET:
             tag: RDS
@@ -106,14 +128,23 @@ paths:
     /v3/{project_id}/instances/{instance_id}/security-group:
         PUT:
             tag: RDS
+    /v3/{project_id}/instances/{instance_id}/slowlog-sensitization/{status}:
+        PUT:
+            tag: RDS
     /v3/{project_id}/instances/{instance_id}/ssl:
         PUT:
+            tag: RDS
+    /v3/{project_id}/instances/{instance_id}/storage-used-space:
+        GET:
             tag: RDS
     /v3/{project_id}/instances/{instance_id}/tde:
         PUT:
             tag: RDS
     /v3/{project_id}/instances/{instance_id}/tde-status:
         GET:
+            tag: RDS
+    /v3/{project_id}/instances/{instance_id}/to-period:
+        POST:
             tag: RDS
     /v3/{project_id}/jobs:
         GET:

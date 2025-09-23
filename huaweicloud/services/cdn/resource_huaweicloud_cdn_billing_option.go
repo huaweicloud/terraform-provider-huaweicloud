@@ -7,7 +7,6 @@ package cdn
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 
 	"github.com/hashicorp/go-multierror"
@@ -15,8 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	cdnv2 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v2"
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/cdn/v2/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -71,104 +69,136 @@ func ResourceBillingOption() *schema.Resource {
 	}
 }
 
+func buildChangeBillingOptionBodyParams(d *schema.ResourceData) interface{} {
+	return map[string]interface{}{
+		"charge_mode":  d.Get("charge_mode").(string),
+		"product_type": d.Get("product_type").(string),
+		"service_area": d.Get("service_area").(string),
+	}
+}
+
+func changeBillingOption(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	chargePath := client.Endpoint + "v1.0/cdn/charge/charge-modes"
+	chargeOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		JSONBody:         buildChangeBillingOptionBodyParams(d),
+	}
+	_, err := client.Request("PUT", chargePath, &chargeOpt)
+
+	return err
+}
+
 func resourceBillingOptionCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	hcCdnClient, err := cfg.HcCdnV2Client(region)
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		product = "cdn"
+	)
+
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating CDN v2 client: %s", err)
+		return diag.Errorf("error creating CDN client: %s", err)
 	}
 
-	if err := changeBillingOption(hcCdnClient, d); err != nil {
-		return diag.FromErr(err)
+	if err := changeBillingOption(client, d); err != nil {
+		return diag.Errorf("error modifying CDN billing option in creation operation: %s", err)
 	}
 
 	generateUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
+
 	d.SetId(generateUUID)
 
 	return resourceBillingOptionRead(ctx, d, meta)
 }
 
-func resourceBillingOptionUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	hcCdnClient, err := cfg.HcCdnV2Client(region)
-	if err != nil {
-		return diag.Errorf("error creating CDN v2 client: %s", err)
-	}
-
-	if err := changeBillingOption(hcCdnClient, d); err != nil {
-		return diag.FromErr(err)
-	}
-
-	return resourceBillingOptionRead(ctx, d, meta)
+func buildBillingOptionQueryParams(productType string) string {
+	return fmt.Sprintf("?product_type=%v", productType)
 }
 
-func changeBillingOption(hcCdnClient *cdnv2.CdnClient, d *schema.ResourceData) error {
-	req := model.SetChargeModesRequest{
-		Body: &model.SetChargeModesBody{
-			ChargeMode:  d.Get("charge_mode").(string),
-			ProductType: d.Get("product_type").(string),
-			ServiceArea: d.Get("service_area").(string),
-		},
+func GetBillingOptionDetail(client *golangsdk.ServiceClient, productType string) (interface{}, error) {
+	getPath := client.Endpoint + "v1.0/cdn/charge/charge-modes"
+	getPath += buildBillingOptionQueryParams(productType)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
-	_, err := hcCdnClient.SetChargeModes(&req)
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return fmt.Errorf("error modifying CDN billing options: %s", err)
+		// The billing model is always valuable and there is no need to pay attention to scenarios where resource does
+		// not exist.
+		return nil, fmt.Errorf("error retrieving CDN billing option: %s", err)
 	}
-	return nil
+
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return nil, err
+	}
+
+	result := utils.PathSearch("result[0]", getRespBody, nil)
+	if result == nil {
+		return nil, fmt.Errorf("error retrieving CDN billing option: result is not found in API response")
+	}
+
+	return result, nil
 }
 
 func resourceBillingOptionRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	hcCdnClient, err := cfg.HcCdnV2Client(region)
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		product = "cdn"
+		mErr    *multierror.Error
+	)
+
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating CDN v2 client: %s", err)
+		return diag.Errorf("error creating CDN client: %s", err)
 	}
 
-	request := model.ShowChargeModesRequest{
-		ProductType: d.Get("product_type").(string),
-	}
-
-	resp, err := hcCdnClient.ShowChargeModes(&request)
+	result, err := GetBillingOptionDetail(client, d.Get("product_type").(string))
 	if err != nil {
-		return diag.Errorf("error retrieving CDN billing option: %s", err)
+		return diag.FromErr(err)
 	}
-
-	if resp == nil || resp.Result == nil || len(*resp.Result) == 0 {
-		return diag.Errorf("error retrieving CDN billing option: Result is not found in API response")
-	}
-
-	var mErr *multierror.Error
-	resultArray := *resp.Result
-	resultMap := resultArray[0]
 
 	mErr = multierror.Append(
 		mErr,
-		d.Set("product_type", resultMap["product_type"]),
-		d.Set("service_area", resultMap["service_area"]),
-		d.Set("created_at", flattenTimeStamp(resultMap["create_time"])),
-		d.Set("effective_time", flattenTimeStamp(resultMap["effective_time"])),
-		d.Set("status", resultMap["status"]),
-		d.Set("current_charge_mode", resultMap["charge_mode"]),
+		d.Set("product_type", utils.PathSearch("product_type", result, nil)),
+		d.Set("service_area", utils.PathSearch("service_area", result, nil)),
+		d.Set("created_at", flattenCreatedAt(result)),
+		d.Set("effective_time", flattenEffectiveTime(result)),
+		d.Set("status", utils.PathSearch("status", result, nil)),
+		d.Set("current_charge_mode", utils.PathSearch("charge_mode", result, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func flattenTimeStamp(timestamp interface{}) string {
-	if timestamp == nil {
-		return ""
-	}
-	timeInt64, err := timestamp.(json.Number).Int64()
+func flattenEffectiveTime(result interface{}) string {
+	effectiveTime := utils.PathSearch("effective_time", result, float64(0)).(float64)
+	return utils.FormatTimeStampRFC3339(int64(effectiveTime)/1000, false)
+}
+
+func resourceBillingOptionUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		product = "cdn"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return ""
+		return diag.Errorf("error creating CDN client: %s", err)
 	}
-	return utils.FormatTimeStampRFC3339(timeInt64/1000, false)
+
+	if err := changeBillingOption(client, d); err != nil {
+		return diag.Errorf("error modifying CDN billing option in update operation: %s", err)
+	}
+
+	return resourceBillingOptionRead(ctx, d, meta)
 }
 
 func resourceBillingOptionDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {

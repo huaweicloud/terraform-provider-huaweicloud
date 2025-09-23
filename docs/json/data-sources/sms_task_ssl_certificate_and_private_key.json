@@ -1,0 +1,70 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_sms_task_ssl_certificate_and_private_key": {
+          "block": {
+            "attributes": {
+              "ca": {
+                "type": "string",
+                "description": "Indicates the CA certificate.",
+                "computed": true
+              },
+              "cert": {
+                "type": "string",
+                "description": "Indicates the source certificate.",
+                "computed": true
+              },
+              "enable_ca_cert": {
+                "type": "bool",
+                "description": "Specifies whether to generate a CA certificate. The default value is **false**.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "private_key": {
+                "type": "string",
+                "description": "Indicates the source private key.",
+                "computed": true
+              },
+              "target_data_cert": {
+                "type": "string",
+                "description": "Indicates the certificate of the target server for data migration.",
+                "computed": true
+              },
+              "target_data_private_key": {
+                "type": "string",
+                "description": "Indicates the private key of the target server for data migration.",
+                "computed": true
+              },
+              "target_mgmt_cert": {
+                "type": "string",
+                "description": "Indicates the certificate of the target server for migration task management.",
+                "computed": true
+              },
+              "target_mgmt_private_key": {
+                "type": "string",
+                "description": "Indicates the private key of the target server for migration task management.",
+                "computed": true
+              },
+              "task_id": {
+                "type": "string",
+                "description": "Specifies the migration task ID.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "SMS",
+            "name": "Server Migration Service",
+            "catalog": "Migration",
+            "name_cn": "主机迁移服务",
+            "catalog_cn": "迁移"
+          }
+        }
+      }
+    }
+  }
+}

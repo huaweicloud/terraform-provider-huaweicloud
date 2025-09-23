@@ -118,7 +118,7 @@ The following arguments are supported:
 * `east_west_firewall_er_id` - (Optional, String) Specifies the ER ID of the east-west firewall.
 
 * `east_west_firewall_status` - (Optional, Int) Specifies the protection statue of the east-west firewall.
-  The value can be: **0**(enabled) and **1**(disabled). Defaults to **0**.
+  The value can be: `0`(enabled) and `1`(disabled). Defaults to `0`.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID of the firewall.
 
@@ -147,9 +147,9 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `ips_switch_status` - (Optional, Int) Specifies the IPS patch switch status of the firewall.
-  The value can be **0**(disabled) and **1**(enabled). Defaults to **0**.
+  The value can be `0`(disabled) and `1`(enabled). Defaults to `0`.
 
-* `ips_protection_mode` - (Optional, Int) Specifies the IPS protection mode of the firewall. Defaults to **0**.
+* `ips_protection_mode` - (Optional, Int) Specifies the IPS protection mode of the firewall. Defaults to `0`.
 
   Valid values are as follows:
   + **0**: Observation Mode.
@@ -262,7 +262,7 @@ recommended running `terraform plan` after importing an CFW firewall. You can th
 the firewall, or the resource definition should be updated to align with the firewall. Also you can ignore changes as
 below.
 
-```
+```hcl
 resource "huaweicloud_cfw_firewall" "test" {
     ...
 

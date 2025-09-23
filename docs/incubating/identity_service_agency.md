@@ -45,7 +45,7 @@ The following arguments are supported:
   Changing this will create a new service agency.
 
 * `duration` - (Optional, Int) Specifies the validity period of a service agency.
-  Default value is **3600**. The unit is seconds.
+  Default value is `3,600`. The unit is seconds.
 
 * `tags` - (Optional, Map) Specifies the tags of the service agency.
 
@@ -68,6 +68,6 @@ In addition to all arguments above, the following attributes are exported:
 
 Service agencies can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_identity_service_agency.test <id>
 ```

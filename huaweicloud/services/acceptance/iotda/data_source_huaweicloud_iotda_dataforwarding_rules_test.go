@@ -19,6 +19,7 @@ func TestAccDataSourceDataForwardingRules_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckHWIOTDAAccessAddress(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -37,42 +38,6 @@ func TestAccDataSourceDataForwardingRules_basic(t *testing.T) {
 					resource.TestCheckOutput("rule_id_filter_is_useful", "true"),
 					resource.TestCheckOutput("name_filter_is_useful", "true"),
 					resource.TestCheckOutput("resource_and_trigger_filter_is_useful", "true"),
-					resource.TestCheckOutput("app_type_filter_is_useful", "true"),
-					resource.TestCheckOutput("enabled_filter_is_useful", "true"),
-					resource.TestCheckOutput("not_found_validation_pass", "true"),
-				),
-			},
-		},
-	})
-}
-
-func TestAccDataSourceDataForwardingRules_derived(t *testing.T) {
-	var (
-		dataSourceName = "data.huaweicloud_iotda_dataforwarding_rules.test"
-		dc             = acceptance.InitDataSourceCheck(dataSourceName)
-		name           = acceptance.RandomAccResourceName()
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckHWIOTDAAccessAddress(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccDataSourceDataForwardingRules_basic(name),
-				Check: resource.ComposeTestCheckFunc(
-					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttrSet(dataSourceName, "rules.#"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.id"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.name"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.resource"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.trigger"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.app_type"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.enabled"),
-
-					resource.TestCheckOutput("rule_id_filter_is_useful", "true"),
 					resource.TestCheckOutput("app_type_filter_is_useful", "true"),
 					resource.TestCheckOutput("enabled_filter_is_useful", "true"),
 					resource.TestCheckOutput("not_found_validation_pass", "true"),

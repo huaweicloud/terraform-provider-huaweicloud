@@ -1,0 +1,20 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dms_rabbitmq_exchange
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: RabbitMQ
+paths:
+    /v2/rabbitmq/{project_id}/instances/{instance_id}/vhosts/{vhost}/exchanges:
+        GET:
+            tag: RabbitMQ
+        POST:
+            tag: RabbitMQ
+        PUT:
+            tag: RabbitMQ
+    /v2/rabbitmq/{project_id}/instances/{instance_id}/vhosts/{vhost}/exchanges/{exchange}/binding:
+        GET:
+            tag: RabbitMQ

@@ -12,7 +12,6 @@ import (
 
 	"github.com/chnsz/golangsdk"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -143,7 +142,7 @@ func dataSourceImageTagsRead(_ context.Context, d *schema.ResourceData, meta int
 	for {
 		listImageTagsResp, err := listImageTagsClient.Request("GET", listImageTagsPath, &listImageTagsOpt)
 		if err != nil {
-			return common.CheckDeletedDiag(d, err, "error retrieving SWR image tags")
+			return diag.Errorf("error querying SWR image tags: %s", err)
 		}
 
 		listImageTagsRespBody, err := utils.FlattenResponse(listImageTagsResp)

@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_cfw_capture_task_results
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CFW
+paths:
+    /v1/{project_id}/capture-task/capture-result:
+        GET:
+            tag: CFW

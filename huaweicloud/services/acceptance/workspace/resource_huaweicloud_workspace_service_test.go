@@ -2,6 +2,9 @@ package workspace
 
 import (
 	"fmt"
+	"log"
+	"regexp"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -93,8 +96,24 @@ func TestAccService_basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccCustomImportStateIdFunc(resourceName, "NA"),
+			},
 		},
 	})
+}
+
+func testAccCustomImportStateIdFunc(resourceName, customId string) resource.ImportStateIdFunc {
+	return func(s *terraform.State) (string, error) {
+		_, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return "", fmt.Errorf("the resource (%s) is not found in the tfstate", resourceName)
+		}
+		return customId, nil
+	}
 }
 
 func TestAccService_internetAccessPort(t *testing.T) {
@@ -136,11 +155,55 @@ func TestAccService_internetAccessPort(t *testing.T) {
 	})
 }
 
+func retrieveAdDomain(domainNames []string) string {
+	if len(domainNames) < 1 {
+		return ""
+	}
+
+	re := regexp.MustCompile(`^[^.]+\.(.*)$`)
+	match := re.FindStringSubmatch(domainNames[0])
+	if len(match) < 2 {
+		log.Printf("[ERROR] No match found for the AD domain: %s", domainNames[0])
+		return ""
+	}
+
+	return match[1]
+}
+
+// These method are parsed before precheck.
+// To avoid subscript out of bounds, the length is checked before the value is taken.
+func retrieveActiveDomainIpAddress(ipAddresses []string) string {
+	if len(ipAddresses) > 0 {
+		return ipAddresses[0]
+	}
+	return ""
+}
+
+func retrieveStandbyDomainIpAddress(ipAddresses []string) string {
+	if len(ipAddresses) > 1 {
+		return ipAddresses[1]
+	}
+	return ""
+}
+
+func retrieveActiveDomainName(domainNames []string) string {
+	if len(domainNames) > 0 {
+		return domainNames[0]
+	}
+	return ""
+}
+
+func retrieveStandbyDomainName(domainNames []string) string {
+	if len(domainNames) > 1 {
+		return domainNames[1]
+	}
+	return ""
+}
+
 func TestAccService_localAD(t *testing.T) {
 	var (
 		service      services.Service
 		resourceName = "huaweicloud_workspace_service.test"
-		rName        = acceptance.RandomAccResourceNameWithDash()
 	)
 
 	rc := acceptance.InitResourceCheck(
@@ -158,17 +221,20 @@ func TestAccService_localAD(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccService_localAD_step1(rName),
+				Config: testAccService_localAD_step1(),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "auth_type", "LOCAL_AD"),
-					resource.TestCheckResourceAttr(resourceName, "ad_domain.0.name", acceptance.HW_WORKSPACE_AD_DOMAIN_NAME),
-					resource.TestCheckResourceAttr(resourceName, "ad_domain.0.admin_account", "Administrator"),
+					resource.TestCheckResourceAttr(resourceName, "ad_domain.0.name",
+						retrieveAdDomain(strings.Split(acceptance.HW_WORKSPACE_AD_DOMAIN_NAMES, ","))),
+					resource.TestCheckResourceAttr(resourceName, "ad_domain.0.admin_account", acceptance.HW_WORKSPACE_AD_SERVER_ACCOUNT),
 					resource.TestCheckResourceAttr(resourceName, "ad_domain.0.password", acceptance.HW_WORKSPACE_AD_SERVER_PWD),
-					resource.TestCheckResourceAttr(resourceName, "ad_domain.0.active_domain_ip", acceptance.HW_WORKSPACE_AD_DOMAIN_IP),
 					resource.TestCheckResourceAttr(resourceName, "ad_domain.0.active_domain_name",
-						fmt.Sprintf("server.%s", acceptance.HW_WORKSPACE_AD_DOMAIN_NAME)),
-					resource.TestCheckResourceAttr(resourceName, "ad_domain.0.active_dns_ip", acceptance.HW_WORKSPACE_AD_DOMAIN_IP),
+						retrieveActiveDomainName(strings.Split(acceptance.HW_WORKSPACE_AD_DOMAIN_NAMES, ","))),
+					resource.TestCheckResourceAttr(resourceName, "ad_domain.0.active_domain_ip",
+						retrieveActiveDomainIpAddress(strings.Split(acceptance.HW_WORKSPACE_AD_DOMAIN_IPS, ","))),
+					resource.TestCheckResourceAttr(resourceName, "ad_domain.0.active_dns_ip",
+						retrieveActiveDomainIpAddress(strings.Split(acceptance.HW_WORKSPACE_AD_DOMAIN_IPS, ","))),
 					resource.TestCheckResourceAttr(resourceName, "access_mode", "INTERNET"),
 					resource.TestCheckResourceAttr(resourceName, "vpc_id", acceptance.HW_WORKSPACE_AD_VPC_ID),
 					resource.TestCheckResourceAttr(resourceName, "network_ids.0", acceptance.HW_WORKSPACE_AD_NETWORK_ID),
@@ -181,22 +247,23 @@ func TestAccService_localAD(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccService_localAD_step2(rName),
+				Config: testAccService_localAD_step2(),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "network_ids.0", acceptance.HW_WORKSPACE_AD_NETWORK_ID),
-					resource.TestCheckResourceAttrPair(resourceName, "network_ids.1",
-						"huaweicloud_vpc_subnet.master", "id"),
-					resource.TestCheckResourceAttrPair(resourceName, "network_ids.2",
-						"huaweicloud_vpc_subnet.standby", "id"),
+					resource.TestCheckResourceAttr(resourceName, "ad_domain.0.standby_domain_name",
+						retrieveStandbyDomainName(strings.Split(acceptance.HW_WORKSPACE_AD_DOMAIN_NAMES, ","))),
+					resource.TestCheckResourceAttr(resourceName, "ad_domain.0.standby_domain_ip",
+						retrieveStandbyDomainIpAddress(strings.Split(acceptance.HW_WORKSPACE_AD_DOMAIN_IPS, ","))),
+					resource.TestCheckResourceAttr(resourceName, "ad_domain.0.standby_dns_ip",
+						retrieveStandbyDomainIpAddress(strings.Split(acceptance.HW_WORKSPACE_AD_DOMAIN_IPS, ","))),
 					resource.TestCheckResourceAttrSet(resourceName, "internet_access_address"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_id", rName),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_id", "custom-workspace-service"),
 					resource.TestCheckResourceAttr(resourceName, "otp_config_info.0.enable", "true"),
 					resource.TestCheckResourceAttr(resourceName, "otp_config_info.0.receive_mode", "VMFA"),
 				),
 			},
 			{
-				Config: testAccService_localAD_step3(rName),
+				Config: testAccService_localAD_step3(),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "otp_config_info.0.rule_type", "ACCESS_MODE"),
@@ -219,7 +286,6 @@ func TestAccService_internetAccessPort_localAD(t *testing.T) {
 	var (
 		service      services.Service
 		resourceName = "huaweicloud_workspace_service.test"
-		rName        = acceptance.RandomAccResourceNameWithDash()
 	)
 
 	rc := acceptance.InitResourceCheck(
@@ -238,14 +304,14 @@ func TestAccService_internetAccessPort_localAD(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccService_localAD_step1(rName),
+				Config: testAccService_localAD_step1(),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(resourceName, "internet_access_port"),
 				),
 			},
 			{
-				Config: testAccService_localAD_internetAccessPort_update(rName),
+				Config: testAccService_localAD_internetAccessPort_update(),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "internet_access_port", acceptance.HW_WORKSPACE_INTERNET_ACCESS_PORT),
@@ -340,42 +406,16 @@ resource "huaweicloud_workspace_service" "test" {
 `, testAccService_base(rName), rName)
 }
 
-func testAccService_localAD_base(rName string) string {
+func testAccService_localAD_step1() string {
 	return fmt.Sprintf(`
-data "huaweicloud_vpc" "test" {
-  id = "%[1]s"
-}
-
-resource "huaweicloud_vpc_subnet" "master" {
-  vpc_id = "%[1]s"
-
-  name       = "%[2]s-master"
-  cidr       = cidrsubnet(data.huaweicloud_vpc.test.cidr, 4, 1)
-  gateway_ip = cidrhost(cidrsubnet(data.huaweicloud_vpc.test.cidr, 4, 1), 1)
-}
-
-resource "huaweicloud_vpc_subnet" "standby" {
-  vpc_id = "%[1]s"
-
-  name       = "%[2]s-standby"
-  cidr       = cidrsubnet(data.huaweicloud_vpc.test.cidr, 4, 2)
-  gateway_ip = cidrhost(cidrsubnet(data.huaweicloud_vpc.test.cidr, 4, 2), 1)
-}
-`, acceptance.HW_WORKSPACE_AD_VPC_ID, rName)
-}
-
-func testAccService_localAD_step1(rName string) string {
-	return fmt.Sprintf(`
-%[1]s
-
 resource "huaweicloud_workspace_service" "test" {
   ad_domain {
-    name               = "%[2]s"
-    admin_account      = "Administrator"
-    password           = "%[3]s"
-    active_domain_ip   = "%[4]s"
-    active_domain_name = "server.%[2]s"
-    active_dns_ip      = "%[4]s"
+    name               = try(element(regexall("\\w+\\.(.*)", element(split(",", "%[1]s"), 0))[0], 0), "")
+    active_domain_name = element(split(",", "%[1]s"), 0)
+    active_domain_ip   = element(split(",", "%[2]s"), 0)
+    active_dns_ip      = element(split(",", "%[2]s"), 0)
+    admin_account      = "%[3]s"
+    password           = "%[4]s"
   }
 
   auth_type   = "LOCAL_AD"
@@ -383,79 +423,70 @@ resource "huaweicloud_workspace_service" "test" {
   vpc_id      = "%[5]s"
   network_ids = ["%[6]s"]
 }
-`, testAccService_localAD_base(rName), acceptance.HW_WORKSPACE_AD_DOMAIN_NAME, acceptance.HW_WORKSPACE_AD_SERVER_PWD,
-		acceptance.HW_WORKSPACE_AD_DOMAIN_IP, acceptance.HW_WORKSPACE_AD_VPC_ID, acceptance.HW_WORKSPACE_AD_NETWORK_ID)
+`, acceptance.HW_WORKSPACE_AD_DOMAIN_NAMES,
+		acceptance.HW_WORKSPACE_AD_DOMAIN_IPS,
+		acceptance.HW_WORKSPACE_AD_SERVER_ACCOUNT,
+		acceptance.HW_WORKSPACE_AD_SERVER_PWD,
+		acceptance.HW_WORKSPACE_AD_VPC_ID,
+		acceptance.HW_WORKSPACE_AD_NETWORK_ID)
 }
 
-func testAccService_localAD_step2(rName string) string {
+func testAccService_localAD_step2() string {
 	return fmt.Sprintf(`
-%[1]s
-
 resource "huaweicloud_workspace_service" "test" {
-  depends_on = [
-    huaweicloud_vpc_subnet.master,
-	huaweicloud_vpc_subnet.standby,
-  ]
-
   ad_domain {
-    name               = "%[2]s"
-    admin_account      = "Administrator"
-    password           = "%[3]s"
-    active_domain_ip   = "%[4]s"
-    active_domain_name = "server.%[2]s"
-    active_dns_ip      = "%[4]s"
+    name                = try(element(regexall("\\w+\\.(.*)", element(split(",", "%[1]s"), 0))[0], 0), "")
+    active_domain_name  = element(split(",", "%[1]s"), 0)
+    active_domain_ip    = element(split(",", "%[2]s"), 0)
+    active_dns_ip       = element(split(",", "%[2]s"), 0)
+    standby_domain_name = element(split(",", "%[1]s"), 1)
+    standby_domain_ip   = element(split(",", "%[2]s"), 1)
+    standby_dns_ip      = element(split(",", "%[2]s"), 1)
+    admin_account       = "%[3]s"
+    password            = "%[4]s"
   }
 
   auth_type   = "LOCAL_AD"
   access_mode = "INTERNET"
   vpc_id      = "%[5]s"
-  network_ids = [
-    "%[6]s",
-    huaweicloud_vpc_subnet.master.id,
-    huaweicloud_vpc_subnet.standby.id,
-  ]
+  network_ids = ["%[6]s"]
 
-  enterprise_id        = "%[7]s"
+  enterprise_id = "custom-workspace-service"
 
   otp_config_info {
     enable       = true
     receive_mode = "VMFA"
   }
 }
-`, testAccService_localAD_base(rName), acceptance.HW_WORKSPACE_AD_DOMAIN_NAME, acceptance.HW_WORKSPACE_AD_SERVER_PWD,
-		acceptance.HW_WORKSPACE_AD_DOMAIN_IP, acceptance.HW_WORKSPACE_AD_VPC_ID, acceptance.HW_WORKSPACE_AD_NETWORK_ID,
-		rName)
+`, acceptance.HW_WORKSPACE_AD_DOMAIN_NAMES,
+		acceptance.HW_WORKSPACE_AD_DOMAIN_IPS,
+		acceptance.HW_WORKSPACE_AD_SERVER_ACCOUNT,
+		acceptance.HW_WORKSPACE_AD_SERVER_PWD,
+		acceptance.HW_WORKSPACE_AD_VPC_ID,
+		acceptance.HW_WORKSPACE_AD_NETWORK_ID)
 }
 
-func testAccService_localAD_step3(rName string) string {
+func testAccService_localAD_step3() string {
 	return fmt.Sprintf(`
-%[1]s
-
 resource "huaweicloud_workspace_service" "test" {
-  depends_on = [
-    huaweicloud_vpc_subnet.master,
-	huaweicloud_vpc_subnet.standby,
-  ]
-
   ad_domain {
-    name               = "%[2]s"
-    admin_account      = "Administrator"
-    password           = "%[3]s"
-    active_domain_ip   = "%[4]s"
-    active_domain_name = "server.%[2]s"
-    active_dns_ip      = "%[4]s"
+    name                = try(element(regexall("\\w+\\.(.*)", element(split(",", "%[1]s"), 0))[0], 0), "")
+    active_domain_name  = element(split(",", "%[1]s"), 0)
+    active_domain_ip    = element(split(",", "%[2]s"), 0)
+    active_dns_ip       = element(split(",", "%[2]s"), 0)
+    standby_domain_name = element(split(",", "%[1]s"), 1)
+    standby_domain_ip   = element(split(",", "%[2]s"), 1)
+    standby_dns_ip      = element(split(",", "%[2]s"), 1)
+    admin_account       = "%[3]s"
+    password            = "%[4]s"
   }
 
   auth_type   = "LOCAL_AD"
   access_mode = "INTERNET"
   vpc_id      = "%[5]s"
-  network_ids = [
-    "%[6]s",
-    huaweicloud_vpc_subnet.master.id,
-    huaweicloud_vpc_subnet.standby.id,
-  ]
+  network_ids = ["%[6]s"]
 
-  enterprise_id        = "%[7]s"
+  enterprise_id = "custom-workspace-service"
 
   otp_config_info {
     enable       = true
@@ -464,9 +495,12 @@ resource "huaweicloud_workspace_service" "test" {
     rule         = "PRIVATE"
   }
 }
-`, testAccService_localAD_base(rName), acceptance.HW_WORKSPACE_AD_DOMAIN_NAME, acceptance.HW_WORKSPACE_AD_SERVER_PWD,
-		acceptance.HW_WORKSPACE_AD_DOMAIN_IP, acceptance.HW_WORKSPACE_AD_VPC_ID, acceptance.HW_WORKSPACE_AD_NETWORK_ID,
-		rName)
+`, acceptance.HW_WORKSPACE_AD_DOMAIN_NAMES,
+		acceptance.HW_WORKSPACE_AD_DOMAIN_IPS,
+		acceptance.HW_WORKSPACE_AD_SERVER_ACCOUNT,
+		acceptance.HW_WORKSPACE_AD_SERVER_PWD,
+		acceptance.HW_WORKSPACE_AD_VPC_ID,
+		acceptance.HW_WORKSPACE_AD_NETWORK_ID)
 }
 
 func testAccService_internetAccessPort_update(rName string) string {
@@ -487,38 +521,31 @@ resource "huaweicloud_workspace_service" "test" {
 `, testAccService_base(rName), acceptance.HW_WORKSPACE_INTERNET_ACCESS_PORT, rName)
 }
 
-func testAccService_localAD_internetAccessPort_update(rName string) string {
+func testAccService_localAD_internetAccessPort_update() string {
 	return fmt.Sprintf(`
-%[1]s
-
 resource "huaweicloud_workspace_service" "test" {
-  depends_on = [
-    huaweicloud_vpc_subnet.master,
-	huaweicloud_vpc_subnet.standby,
-  ]
-
   ad_domain {
-    name               = "%[2]s"
-    admin_account      = "Administrator"
-    password           = "%[3]s"
-    active_domain_ip   = "%[4]s"
-    active_domain_name = "server.%[2]s"
-    active_dns_ip      = "%[4]s"
+    name               = try(element(regexall("\\w+\\.(.*)", element(split(",", "%[1]s"), 0))[0], 0), "")
+    active_domain_name = element(split(",", "%[1]s"), 0)
+    active_domain_ip   = element(split(",", "%[2]s"), 0)
+    active_dns_ip      = element(split(",", "%[2]s"), 0)
+    admin_account      = "%[3]s"
+    password           = "%[4]s"
   }
 
   auth_type   = "LOCAL_AD"
   access_mode = "INTERNET"
   vpc_id      = "%[5]s"
-  network_ids = [
-    "%[6]s",
-    huaweicloud_vpc_subnet.master.id,
-    huaweicloud_vpc_subnet.standby.id,
-  ]
+  network_ids = ["%[6]s"]
 
   internet_access_port = "%[7]s"
-  enterprise_id        = "%[8]s"
+  enterprise_id        = "custom-workspace-service"
 }
-`, testAccService_localAD_base(rName), acceptance.HW_WORKSPACE_AD_DOMAIN_NAME, acceptance.HW_WORKSPACE_AD_SERVER_PWD,
-		acceptance.HW_WORKSPACE_AD_DOMAIN_IP, acceptance.HW_WORKSPACE_AD_VPC_ID, acceptance.HW_WORKSPACE_AD_NETWORK_ID,
-		acceptance.HW_WORKSPACE_INTERNET_ACCESS_PORT, rName)
+`, acceptance.HW_WORKSPACE_AD_DOMAIN_NAMES,
+		acceptance.HW_WORKSPACE_AD_DOMAIN_IPS,
+		acceptance.HW_WORKSPACE_AD_SERVER_ACCOUNT,
+		acceptance.HW_WORKSPACE_AD_SERVER_PWD,
+		acceptance.HW_WORKSPACE_AD_VPC_ID,
+		acceptance.HW_WORKSPACE_AD_NETWORK_ID,
+		acceptance.HW_WORKSPACE_INTERNET_ACCESS_PORT)
 }

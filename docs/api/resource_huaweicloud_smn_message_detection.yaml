@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_smn_message_detection
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: SMN
+paths:
+    /v2/{project_id}/notifications/topics/{topic_urn}/detection:
+        POST:
+            tag: SMN
+    /v2/{project_id}/notifications/topics/{topic_urn}/detection/{task_id}:
+        GET:
+            tag: SMN

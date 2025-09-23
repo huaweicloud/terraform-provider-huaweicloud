@@ -5,7 +5,23 @@
         "huaweicloud_elb_listeners": {
           "block": {
             "attributes": {
+              "advanced_forwarding_enabled": {
+                "type": "string",
+                "optional": true
+              },
+              "ca_certificate": {
+                "type": "string",
+                "optional": true
+              },
+              "default_pool_id": {
+                "type": "string",
+                "optional": true
+              },
               "description": {
+                "type": "string",
+                "optional": true
+              },
+              "enable_member_retry": {
                 "type": "string",
                 "optional": true
               },
@@ -13,9 +29,17 @@
                 "type": "string",
                 "optional": true
               },
+              "http2_enable": {
+                "type": "string",
+                "optional": true
+              },
               "id": {
                 "type": "string",
                 "computed": true
+              },
+              "idle_timeout": {
+                "type": "number",
+                "optional": true
               },
               "listener_id": {
                 "type": "string",
@@ -29,29 +53,81 @@
                     {
                       "advanced_forwarding_enabled": "bool",
                       "ca_certificate": "string",
+                      "cps": "number",
+                      "created_at": "string",
                       "default_pool_id": "string",
                       "description": "string",
+                      "enable_member_retry": "bool",
+                      "enterprise_project_id": "string",
                       "forward_eip": "bool",
+                      "forward_elb": "bool",
                       "forward_host": "bool",
                       "forward_port": "bool",
+                      "forward_proto": "bool",
                       "forward_request_port": "bool",
+                      "forward_tls_certificate": "bool",
+                      "forward_tls_cipher": "bool",
+                      "forward_tls_protocol": "bool",
+                      "gzip_enable": "bool",
                       "http2_enable": "bool",
                       "id": "string",
                       "idle_timeout": "number",
+                      "ipgroup": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "enable_ipgroup": "bool",
+                            "ipgroup_id": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ],
                       "loadbalancer_id": "string",
+                      "max_connection": "number",
                       "name": "string",
+                      "port_ranges": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "end_port": "number",
+                            "start_port": "number"
+                          }
+                        ]
+                      ],
                       "protection_reason": "string",
                       "protection_status": "string",
                       "protocol": "string",
                       "protocol_port": "number",
+                      "proxy_protocol_enable": "bool",
+                      "quic_config": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "enable_quic_upgrade": "bool",
+                            "quic_listener_id": "string"
+                          }
+                        ]
+                      ],
+                      "real_ip": "bool",
                       "request_timeout": "number",
                       "response_timeout": "number",
+                      "security_policy_id": "string",
                       "server_certificate": "string",
                       "sni_certificate": [
                         "list",
                         "string"
                       ],
-                      "tls_ciphers_policy": "string"
+                      "sni_match_algo": "string",
+                      "ssl_early_data_enable": "bool",
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "tls_ciphers_policy": "string",
+                      "updated_at": "string"
                     }
                   ]
                 ],
@@ -61,7 +137,23 @@
                 "type": "string",
                 "optional": true
               },
+              "member_address": {
+                "type": "string",
+                "optional": true
+              },
+              "member_device_id": {
+                "type": "string",
+                "optional": true
+              },
+              "member_instance_id": {
+                "type": "string",
+                "optional": true
+              },
               "name": {
+                "type": "string",
+                "optional": true
+              },
+              "protection_status": {
                 "type": "string",
                 "optional": true
               },
@@ -73,9 +165,33 @@
                 "type": "number",
                 "optional": true
               },
+              "proxy_protocol_enable": {
+                "type": "string",
+                "optional": true
+              },
               "region": {
                 "type": "string",
                 "computed": true
+              },
+              "request_timeout": {
+                "type": "number",
+                "optional": true
+              },
+              "response_timeout": {
+                "type": "number",
+                "optional": true
+              },
+              "server_certificate": {
+                "type": "string",
+                "optional": true
+              },
+              "ssl_early_data_enable": {
+                "type": "string",
+                "optional": true
+              },
+              "tls_ciphers_policy": {
+                "type": "string",
+                "optional": true
               }
             }
           },

@@ -41,6 +41,8 @@ resource "huaweicloud_compute_instance" "instance" {
   + **saphana**: Large-memory HANA ECS
   + **diskintensive**: Disk-intensive
 
+* `storage_type` - (Optional, String) Specifies the storage type.
+
 * `generation` - (Optional, String) Specifies the generation of an ECS type. For example, **s3** indicates
   the general-purpose third-generation ECSs. For details, see
   [ECS Specifications](https://support.huaweicloud.com/intl/en-us/productdesc-ecs/ecs_01_0014.html).
@@ -68,5 +70,7 @@ The `flavors` block supports:
 * `memory_size` - The memory size in GB.
 
 * `performance_type` - The performance type of the flavor.
+
+* `storage_type` - The storage type of the flavor.
 
 * `generation` - The generation of the flavor.

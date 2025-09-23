@@ -1,0 +1,65 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_kms_data_encrypt_decrypt": {
+          "block": {
+            "attributes": {
+              "action": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "cipher_data": {
+                "type": "string",
+                "computed": true
+              },
+              "cipher_text": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "encryption_algorithm": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "key_id": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "plain_data": {
+                "type": "string",
+                "computed": true
+              },
+              "plain_text": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "plain_text_base64": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string"
+              }
+            }
+          },
+          "product": {
+            "short": "KMS",
+            "name": "Data Encryption Workshop KMS",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据加密服务-密钥管理",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_coc_script_orders": {
+          "block": {
+            "attributes": {
+              "creator": {
+                "type": "string",
+                "optional": true
+              },
+              "data": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "creator": "string",
+                      "execute_costs": "number",
+                      "execute_uuid": "string",
+                      "gmt_created": "number",
+                      "gmt_finished": "number",
+                      "order_id": "number",
+                      "order_name": "string",
+                      "properties": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "region_ids": "string"
+                          }
+                        ]
+                      ],
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "end_time": {
+                "type": "number",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "start_time": {
+                "type": "number",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "COC",
+            "name": "Cloud Operations Center",
+            "catalog": "Management & Governance",
+            "name_cn": "云运维中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

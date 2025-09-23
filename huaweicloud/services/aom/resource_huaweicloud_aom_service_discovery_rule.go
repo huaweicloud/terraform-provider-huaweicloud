@@ -2,9 +2,9 @@ package aom
 
 import (
 	"context"
-	"log"
-	"regexp"
+	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -13,8 +13,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
-
-	aom "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/aom/v2/model"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -60,12 +58,6 @@ func ResourceServiceDiscoveryRule() *schema.Resource {
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 
-		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(5 * time.Minute),
-			Update: schema.DefaultTimeout(5 * time.Minute),
-			Delete: schema.DefaultTimeout(5 * time.Minute),
-		},
-
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
@@ -76,12 +68,6 @@ func ResourceServiceDiscoveryRule() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(4, 63),
-					validation.StringMatch(regexp.MustCompile("^[a-z]([a-z0-9-]*[a-z0-9])?$"),
-						"The name can only consist of lowercase letters, digits and hyphens (-), "+
-							"and it must start with a lowercase letter but cannot end with a hyphen (-)."),
-				),
 			},
 			"service_type": {
 				Type:     schema.TypeString,
@@ -175,7 +161,15 @@ func ResourceServiceDiscoveryRule() *schema.Resource {
 					},
 				},
 			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"rule_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -183,108 +177,103 @@ func ResourceServiceDiscoveryRule() *schema.Resource {
 	}
 }
 
-func buildDiscoveryRuleOpts(rawRules []interface{}) []aom.DiscoveryRule {
-	discoveryRules := make([]aom.DiscoveryRule, len(rawRules))
-	for i, v := range rawRules {
+func buildServiceDiscoveryRuleBodyParams(d *schema.ResourceData, pid string) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"id":        d.Get("rule_id"),
+		"enable":    d.Get("discovery_rule_enabled"),
+		"eventName": "aom_inventory_rules_event",
+		"name":      d.Get("name"),
+		"projectid": pid,
+		"desc":      d.Get("description"),
+		"spec":      buildServiceDiscoveryRuleBodyParamsSpec(d),
+	}
+
+	return map[string]interface{}{
+		"appRules": []interface{}{bodyParams},
+	}
+}
+
+func buildServiceDiscoveryRuleBodyParamsSpec(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"appType":       d.Get("service_type"),
+		"detectLog":     strconv.FormatBool(d.Get("detect_log_enabled").(bool)),
+		"discoveryRule": buildDiscoveryRuleOpts(d.Get("discovery_rules").([]interface{})),
+		"isDefaultRule": strconv.FormatBool(d.Get("is_default_rule").(bool)),
+		"isDetect":      "false",
+		"logFileFix":    d.Get("log_file_suffix"),
+		"logPathRule":   buildBasicRuleOpts(d.Get("log_path_rules").([]interface{})),
+		"nameRule":      buildNameRuleOpts(d.Get("name_rules").([]interface{})),
+		"priority":      d.Get("priority"),
+	}
+
+	return bodyParams
+}
+
+func buildDiscoveryRuleOpts(rawRules []interface{}) []interface{} {
+	discoveryRules := make([]interface{}, 0, len(rawRules))
+	for _, v := range rawRules {
 		rawRule := v.(map[string]interface{})
-		discoveryRules[i].CheckContent = utils.ExpandToStringList(rawRule["check_content"].([]interface{}))
-		discoveryRules[i].CheckType = rawRule["check_type"].(string)
-		discoveryRules[i].CheckMode = rawRule["check_mode"].(string)
+		discoveryRules = append(discoveryRules, map[string]interface{}{
+			"checkContent": rawRule["check_content"],
+			"checkType":    rawRule["check_type"],
+			"checkMode":    rawRule["check_mode"],
+		})
 	}
 	return discoveryRules
 }
 
-func buildLogPathRuleOpts(rawRules []interface{}) *[]aom.LogPathRule {
-	logPathRules := make([]aom.LogPathRule, len(rawRules))
-	for i, v := range rawRules {
-		rawRule := v.(map[string]interface{})
-		logPathRules[i].Args = utils.ExpandToStringList(rawRule["args"].([]interface{}))
-		logPathRules[i].NameType = rawRule["name_type"].(string)
-		logPathRules[i].Value = utils.ExpandToStringList(rawRule["value"].([]interface{}))
+func buildBasicRuleOpts(rawRules []interface{}) []interface{} {
+	if len(rawRules) == 0 {
+		return nil
 	}
-	return &logPathRules
+
+	logPathRules := make([]interface{}, 0, len(rawRules))
+	for _, v := range rawRules {
+		rawRule := v.(map[string]interface{})
+		logPathRules = append(logPathRules, map[string]interface{}{
+			"args":     rawRule["args"],
+			"nameType": rawRule["name_type"],
+			"value":    rawRule["value"],
+		})
+	}
+	return logPathRules
 }
 
-func buildNameRuleOpts(rawRules []interface{}) *aom.NameRule {
+func buildNameRuleOpts(rawRules []interface{}) interface{} {
 	if len(rawRules) != 1 {
 		return nil
 	}
 	raw := rawRules[0].(map[string]interface{})
-	rawAppNameRule := raw["service_name_rule"].([]interface{})
-	rawApplicationNameRule := raw["application_name_rule"].([]interface{})
-
-	appNameRules := make([]aom.AppNameRule, len(rawAppNameRule))
-	for i, v := range rawAppNameRule {
-		rawRule := v.(map[string]interface{})
-		appNameRules[i].Args = utils.ExpandToStringList(rawRule["args"].([]interface{}))
-		appNameRules[i].NameType = rawRule["name_type"].(string)
-		appNameRules[i].Value = utils.ExpandToStringListPointer(rawRule["value"].([]interface{}))
+	return map[string]interface{}{
+		"appNameRule":         buildBasicRuleOpts(raw["service_name_rule"].([]interface{})),
+		"applicationNameRule": buildBasicRuleOpts(raw["application_name_rule"].([]interface{})),
 	}
-
-	applicationNameRule := make([]aom.ApplicationNameRule, len(rawApplicationNameRule))
-	for i, v := range rawApplicationNameRule {
-		rawRule := v.(map[string]interface{})
-		applicationNameRule[i].Args = utils.ExpandToStringList(rawRule["args"].([]interface{}))
-		applicationNameRule[i].NameType = rawRule["name_type"].(string)
-		applicationNameRule[i].Value = utils.ExpandToStringListPointer(rawRule["value"].([]interface{}))
-	}
-
-	nameRules := aom.NameRule{
-		AppNameRule:         appNameRules,
-		ApplicationNameRule: applicationNameRule,
-	}
-
-	return &nameRules
-}
-
-func FilterRules(allRules []aom.AppRules, name string) (*aom.AppRules, error) {
-	for _, rule := range allRules {
-		if rule.Name == name {
-			return &rule, nil
-		}
-	}
-	return nil, golangsdk.ErrDefault404{}
 }
 
 func resourceServiceDiscoveryRuleCreateOrUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, err := cfg.HcAomV2Client(cfg.GetRegion(d))
+	client, err := cfg.NewServiceClient("aom", cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating AOM client: %s", err)
 	}
 
-	createOpts := aom.AppRules{
-		Id:        d.Get("rule_id").(string),
-		Enable:    d.Get("discovery_rule_enabled").(bool),
-		EventName: "aom_inventory_rules_event",
-		Name:      d.Get("name").(string),
-		Projectid: cfg.HwClient.ProjectID,
-		Spec: &aom.AppRulesSpec{
-			AppType:       d.Get("service_type").(string),
-			DetectLog:     strconv.FormatBool(d.Get("detect_log_enabled").(bool)),
-			DiscoveryRule: buildDiscoveryRuleOpts(d.Get("discovery_rules").([]interface{})),
-			IsDefaultRule: strconv.FormatBool(d.Get("is_default_rule").(bool)),
-			IsDetect:      "false",
-			LogFileFix:    utils.ExpandToStringList(d.Get("log_file_suffix").([]interface{})),
-			LogPathRule:   buildLogPathRuleOpts(d.Get("log_path_rules").([]interface{})),
-			NameRule:      buildNameRuleOpts(d.Get("name_rules").([]interface{})),
-			Priority:      int32(d.Get("priority").(int)),
+	createHttpUrl := "v1/{project_id}/inv/servicediscoveryrules"
+	createPath := client.Endpoint + createHttpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
 		},
+		JSONBody: utils.RemoveNil(buildServiceDiscoveryRuleBodyParams(d, client.ProjectID)),
 	}
 
-	log.Printf("[DEBUG] Create or update %s Options: %#v", createOpts.Name, createOpts)
-
-	createReq := aom.AddOrUpdateServiceDiscoveryRulesRequest{
-		Body: &aom.AppRulesBody{
-			AppRules: &[]aom.AppRules{createOpts},
-		},
-	}
-	_, err = client.AddOrUpdateServiceDiscoveryRules(&createReq)
+	_, err = client.Request("PUT", createPath, &createOpt)
 	if err != nil {
-		return diag.Errorf("error creating or update AOM service discovery rule %s: %s", createOpts.Name, err)
+		return diag.Errorf("error AOM service discovery rule: %s", err)
 	}
 
-	d.SetId(createOpts.Name)
+	d.SetId(d.Get("name").(string))
 
 	// wait for the configuration to take effect
 	// lintignore:R018
@@ -295,41 +284,37 @@ func resourceServiceDiscoveryRuleCreateOrUpdate(ctx context.Context, d *schema.R
 
 func resourceServiceDiscoveryRuleRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, err := cfg.HcAomV2Client(cfg.GetRegion(d))
+	client, err := cfg.NewServiceClient("aom", cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating AOM client: %s", err)
 	}
 
-	response, err := client.ListServiceDiscoveryRules(&aom.ListServiceDiscoveryRulesRequest{})
+	rule, err := GetServiceDiscoveryRule(client, d.Id())
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving AOM service discovery rule")
 	}
 
-	allRules := *response.AppRules
-
-	rule, err := FilterRules(allRules, d.Id())
-	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving AOM service discovery rule")
-	}
-
-	log.Printf("[DEBUG] Retrieved AOM service discovery rule %s: %#v", d.Id(), rule)
-
-	isDefaultRule, _ := strconv.ParseBool(rule.Spec.IsDefaultRule)
-	detectLogEnabled, _ := strconv.ParseBool(rule.Spec.DetectLog)
+	isDefaultRule, _ := strconv.ParseBool(utils.PathSearch("spec.isDefaultRule", rule, "").(string))
+	detectLogEnabled, _ := strconv.ParseBool(utils.PathSearch("spec.detectLog", rule, "").(string))
+	createdAt, _ := strconv.ParseInt(utils.PathSearch("createTime", rule, "").(string), 10, 64)
 
 	mErr := multierror.Append(nil,
 		d.Set("region", cfg.GetRegion(d)),
-		d.Set("name", rule.Name),
-		d.Set("rule_id", rule.Id),
-		d.Set("discovery_rule_enabled", rule.Enable),
+		d.Set("name", utils.PathSearch("name", rule, nil)),
+		d.Set("rule_id", utils.PathSearch("id", rule, nil)),
+		d.Set("discovery_rule_enabled", utils.PathSearch("enable", rule, nil)),
 		d.Set("is_default_rule", isDefaultRule),
-		d.Set("log_file_suffix", rule.Spec.LogFileFix),
-		d.Set("service_type", rule.Spec.AppType),
+		d.Set("log_file_suffix", utils.PathSearch("spec.logFileFix", rule, nil)),
+		d.Set("service_type", utils.PathSearch("spec.appType", rule, nil)),
 		d.Set("detect_log_enabled", detectLogEnabled),
-		d.Set("priority", rule.Spec.Priority),
-		d.Set("discovery_rules", flattenDiscoveryRules(rule.Spec.DiscoveryRule)),
-		d.Set("log_path_rules", flattenLogPathRulesRules(rule.Spec.LogPathRule)),
-		d.Set("name_rules", flattenNameRulesRules(rule.Spec.NameRule)),
+		d.Set("priority", utils.PathSearch("spec.priority", rule, nil)),
+		d.Set("discovery_rules", flattenDiscoveryRules(
+			utils.PathSearch("spec.discoveryRule", rule, make([]interface{}, 0)).([]interface{}))),
+		d.Set("log_path_rules", flattenBasicRules(
+			utils.PathSearch("spec.logPathRule", rule, make([]interface{}, 0)).([]interface{}))),
+		d.Set("name_rules", flattenNameRulesRules(utils.PathSearch("spec.nameRule", rule, nil))),
+		d.Set("description", utils.PathSearch("desc", rule, nil)),
+		d.Set("created_at", utils.FormatTimeStampRFC3339(createdAt/1000, false)),
 	)
 
 	if err := mErr.ErrorOrNil(); err != nil {
@@ -339,73 +324,95 @@ func resourceServiceDiscoveryRuleRead(_ context.Context, d *schema.ResourceData,
 	return nil
 }
 
+func GetServiceDiscoveryRule(client *golangsdk.ServiceClient, name string) (interface{}, error) {
+	getHttpUrl := "v1/{project_id}/inv/servicediscoveryrules"
+	getPath := client.Endpoint + getHttpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, fmt.Errorf("error getting the service discovery rule: %s", err)
+	}
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return nil, fmt.Errorf("error flattening the response: %s", err)
+	}
+
+	searchPath := fmt.Sprintf("appRules[?name=='%s']|[0]", name)
+	rule := utils.PathSearch(searchPath, getRespBody, nil)
+	if rule == nil {
+		return nil, golangsdk.ErrDefault404{}
+	}
+
+	return rule, nil
+}
+
 func resourceServiceDiscoveryRuleDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, err := cfg.HcAomV2Client(cfg.GetRegion(d))
+	client, err := cfg.NewServiceClient("aom", cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating AOM client: %s", err)
 	}
 
-	deleteReq := aom.DeleteserviceDiscoveryRulesRequest{
-		AppRulesIds: []string{d.Get("rule_id").(string)},
+	deleteHttpUrl := "v1/{project_id}/inv/servicediscoveryrules?appRulesIds={rule_id}"
+	deletePath := client.Endpoint + deleteHttpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = strings.ReplaceAll(deletePath, "{rule_id}", d.Get("rule_id").(string))
+
+	deleteOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 	}
-	_, err = client.DeleteserviceDiscoveryRules(&deleteReq)
+
+	// return 200 even deleting a non exist rule
+	_, err = client.Request("DELETE", deletePath, &deleteOpt)
 	if err != nil {
-		return diag.Errorf("error deleting AOM service discovery rule %s: %s", d.Id(), err)
+		return common.CheckDeletedDiag(d, err, "error deleting the service discovery rule")
 	}
 
 	return nil
 }
 
-func flattenDiscoveryRules(rule []aom.DiscoveryRule) []map[string]interface{} {
+func flattenDiscoveryRules(rule []interface{}) []map[string]interface{} {
 	var discoveryRules []map[string]interface{}
 	for _, pairObject := range rule {
 		discoveryRule := make(map[string]interface{})
-		discoveryRule["check_content"] = pairObject.CheckContent
-		discoveryRule["check_mode"] = pairObject.CheckMode
-		discoveryRule["check_type"] = pairObject.CheckType
+		discoveryRule["check_content"] = utils.PathSearch("checkContent", pairObject, nil)
+		discoveryRule["check_mode"] = utils.PathSearch("checkMode", pairObject, nil)
+		discoveryRule["check_type"] = utils.PathSearch("checkType", pairObject, nil)
 
 		discoveryRules = append(discoveryRules, discoveryRule)
 	}
 	return discoveryRules
 }
 
-func flattenLogPathRulesRules(rule *[]aom.LogPathRule) []map[string]interface{} {
+func flattenBasicRules(rule []interface{}) []map[string]interface{} {
 	var logPathRules []map[string]interface{}
-	for _, pairObject := range *rule {
+	for _, pairObject := range rule {
 		logPathRule := make(map[string]interface{})
-		logPathRule["name_type"] = pairObject.NameType
-		logPathRule["args"] = pairObject.Args
-		logPathRule["value"] = pairObject.Value
+		logPathRule["name_type"] = utils.PathSearch("nameType", pairObject, nil)
+		logPathRule["args"] = utils.PathSearch("args", pairObject, nil)
+		logPathRule["value"] = utils.PathSearch("value", pairObject, nil)
 
 		logPathRules = append(logPathRules, logPathRule)
 	}
 	return logPathRules
 }
 
-func flattenNameRulesRules(rule *aom.NameRule) []interface{} {
-	var appNameRules []map[string]interface{}
-	for _, pairObject := range rule.AppNameRule {
-		appNameRule := make(map[string]interface{})
-		appNameRule["name_type"] = pairObject.NameType
-		appNameRule["args"] = pairObject.Args
-		appNameRule["value"] = pairObject.Value
-
-		appNameRules = append(appNameRules, appNameRule)
-	}
-
-	var applicationNameRules []map[string]interface{}
-	for _, pairObject := range rule.AppNameRule {
-		applicationNameRule := make(map[string]interface{})
-		applicationNameRule["name_type"] = pairObject.NameType
-		applicationNameRule["args"] = pairObject.Args
-		applicationNameRule["value"] = pairObject.Value
-
-		applicationNameRules = append(applicationNameRules, applicationNameRule)
-	}
+func flattenNameRulesRules(rule interface{}) []interface{} {
 	nameRule := map[string]interface{}{
-		"service_name_rule":     appNameRules,
-		"application_name_rule": applicationNameRules,
+		"service_name_rule": flattenBasicRules(
+			utils.PathSearch("appNameRule", rule, make([]interface{}, 0)).([]interface{})),
+		"application_name_rule": flattenBasicRules(
+			utils.PathSearch("applicationNameRule", rule, make([]interface{}, 0)).([]interface{})),
 	}
 	return []interface{}{nameRule}
 }

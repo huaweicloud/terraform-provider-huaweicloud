@@ -1,0 +1,73 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_sfs_turbo_du_task": {
+          "block": {
+            "attributes": {
+              "begin_time": {
+                "type": "string",
+                "computed": true
+              },
+              "dir_usage": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "file_count": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "block": "number",
+                            "char": "number",
+                            "dir": "number",
+                            "pipe": "number",
+                            "regular": "number",
+                            "socket": "number",
+                            "symlink": "number"
+                          }
+                        ]
+                      ],
+                      "message": "string",
+                      "path": "string",
+                      "used_capacity": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "end_time": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "path": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "share_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

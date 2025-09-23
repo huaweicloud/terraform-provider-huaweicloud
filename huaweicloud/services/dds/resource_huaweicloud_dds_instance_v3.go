@@ -19,7 +19,6 @@ import (
 	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/openstack/dds/v3/instances"
 	"github.com/chnsz/golangsdk/openstack/dds/v3/jobs"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -78,6 +77,8 @@ func ResourceDdsInstanceV3() *schema.Resource {
 			Update: schema.DefaultTimeout(60 * time.Minute),
 			Delete: schema.DefaultTimeout(60 * time.Minute),
 		},
+
+		CustomizeDiff: config.MergeDefaultTags(),
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -572,13 +573,13 @@ func resourceDdsInstanceV3Create(ctx context.Context, d *schema.ResourceData, me
 		}
 	}
 
+	// since the POST method has no `period`, update backup strategy for it
 	backupStrategyRaw := d.Get("backup_strategy").([]interface{})
 	if len(backupStrategyRaw) == 1 {
 		period := backupStrategyRaw[0].(map[string]interface{})["period"].(string)
 		if period != "" && !isEqualPeriod(period, "1,2,3,4,5,6,7") {
-			_, err = instances.CreateBackupPolicy(client, instance.Id, resourceDdsBackupStrategy(d))
-			if err != nil {
-				return diag.Errorf("error creating backup strategy of the DDS instance %s: %s", instance.Id, err)
+			if err := createBackupStrategy(ctx, client, d); err != nil {
+				return diag.FromErr(err)
 			}
 		}
 	}
@@ -591,16 +592,17 @@ func resourceDdsInstanceV3Create(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	if secondLevelMonitoringEnabled := d.Get("second_level_monitoring_enabled").(bool); secondLevelMonitoringEnabled {
-		_, err = instances.UpdateSecondsLevelMonitoring(client, instance.Id, secondLevelMonitoringEnabled)
+		err = UpdateSecondsLevelMonitoring(ctx, client, d.Timeout(schema.TimeoutCreate), instance.Id,
+			secondLevelMonitoringEnabled)
 		if err != nil {
-			return diag.Errorf("error setting second level monitoring of the DDS instance %s: %s", instance.Id, err)
+			return diag.FromErr(err)
 		}
 	}
 
 	if slowLogDesensitization := d.Get("slow_log_desensitization").(string); slowLogDesensitization == "off" {
-		err = instances.UpdateSlowLogStatus(client, instance.Id, slowLogDesensitization)
+		err = UpdateSlowLogStatus(ctx, client, d.Timeout(schema.TimeoutCreate), instance.Id, slowLogDesensitization)
 		if err != nil {
-			return diag.Errorf("error setting slow log desensitization of the DDS instance %s: %s", instance.Id, err)
+			return diag.FromErr(err)
 		}
 	}
 
@@ -650,6 +652,29 @@ func isEqualPeriod(old, new string) bool {
 	sort.Strings(newArray)
 
 	return reflect.DeepEqual(oldArray, newArray)
+}
+
+func createBackupStrategy(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	retryFunc := func() (interface{}, bool, error) {
+		_, err := instances.CreateBackupPolicy(client, d.Id(), resourceDdsBackupStrategy(d))
+		retry, err := handleMultiOperationsError(err)
+		return nil, retry, err
+	}
+	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     ddsInstanceStateRefreshFunc(client, d.Id()),
+		WaitTarget:   []string{"normal"},
+		Timeout:      d.Timeout(schema.TimeoutCreate),
+		DelayTimeout: 1 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+
+	if err != nil {
+		return fmt.Errorf("error creating backup strategy of the DDS instance: %s ", err)
+	}
+
+	return nil
 }
 
 func updateBalancerStatus(ctx context.Context, client *golangsdk.ServiceClient, timeout time.Duration,
@@ -752,6 +777,52 @@ func updateClientNetworkRanges(ctx context.Context, client *golangsdk.ServiceCli
 	})
 	if err != nil {
 		return fmt.Errorf("error updating client network ranges: %s", err)
+	}
+
+	return nil
+}
+
+func UpdateSecondsLevelMonitoring(ctx context.Context, client *golangsdk.ServiceClient, timeout time.Duration,
+	instanceId string, enabled bool) error {
+	retryFunc := func() (interface{}, bool, error) {
+		_, err := instances.UpdateSecondsLevelMonitoring(client, instanceId, enabled)
+		retry, err := handleMultiOperationsError(err)
+		return nil, retry, err
+	}
+	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     ddsInstanceStateRefreshFunc(client, instanceId),
+		WaitTarget:   []string{"normal"},
+		Timeout:      timeout,
+		DelayTimeout: 1 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating second level monitoring of the DDS instance %s: %s ", instanceId, err)
+	}
+
+	return nil
+}
+
+func UpdateSlowLogStatus(ctx context.Context, client *golangsdk.ServiceClient, timeout time.Duration,
+	instanceId, slowLogStatus string) error {
+	retryFunc := func() (interface{}, bool, error) {
+		err := instances.UpdateSlowLogStatus(client, instanceId, slowLogStatus)
+		retry, err := handleMultiOperationsError(err)
+		return nil, retry, err
+	}
+	_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+		Ctx:          ctx,
+		RetryFunc:    retryFunc,
+		WaitFunc:     ddsInstanceStateRefreshFunc(client, instanceId),
+		WaitTarget:   []string{"normal"},
+		Timeout:      timeout,
+		DelayTimeout: 1 * time.Second,
+		PollInterval: 10 * time.Second,
+	})
+	if err != nil {
+		return fmt.Errorf("error updating slow log desensitization of the DDS instance %s: %s", instanceId, err)
 	}
 
 	return nil
@@ -1001,10 +1072,10 @@ func waitForInstanceReady(ctx context.Context, client *golangsdk.ServiceClient, 
 }
 
 func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
+	cfg := meta.(*config.Config)
 	instanceId := d.Id()
-	region := conf.GetRegion(d)
-	client, err := conf.DdsV3Client(region)
+	region := cfg.GetRegion(d)
+	client, err := cfg.DdsV3Client(region)
 	if err != nil {
 		return diag.Errorf("Error creating DDS client: %s ", err)
 	}
@@ -1096,7 +1167,7 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 		}
 		resp := r.(*instances.UpdateResp)
 		if resp.OrderId != "" {
-			bssClient, err := conf.BssV2Client(region)
+			bssClient, err := cfg.BssV2Client(region)
 			if err != nil {
 				return diag.Errorf("error creating BSS v2 client: %s", err)
 			}
@@ -1201,42 +1272,18 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	if d.HasChange("second_level_monitoring_enabled") {
-		retryFunc := func() (interface{}, bool, error) {
-			_, err = instances.UpdateSecondsLevelMonitoring(client, instanceId, d.Get("second_level_monitoring_enabled").(bool))
-			retry, err := handleMultiOperationsError(err)
-			return nil, retry, err
-		}
-		_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
-			Ctx:          ctx,
-			RetryFunc:    retryFunc,
-			WaitFunc:     ddsInstanceStateRefreshFunc(client, instanceId),
-			WaitTarget:   []string{"normal"},
-			Timeout:      d.Timeout(schema.TimeoutUpdate),
-			DelayTimeout: 1 * time.Second,
-			PollInterval: 10 * time.Second,
-		})
+		err = UpdateSecondsLevelMonitoring(ctx, client, d.Timeout(schema.TimeoutUpdate), instanceId,
+			d.Get("second_level_monitoring_enabled").(bool))
 		if err != nil {
-			return diag.Errorf("error updating second level monitoring of the DDS instance %s: %s ", instanceId, err)
+			return diag.FromErr(err)
 		}
 	}
 
 	if d.HasChange("slow_log_desensitization") {
-		retryFunc := func() (interface{}, bool, error) {
-			err = instances.UpdateSlowLogStatus(client, instanceId, d.Get("slow_log_desensitization").(string))
-			retry, err := handleMultiOperationsError(err)
-			return nil, retry, err
-		}
-		_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
-			Ctx:          ctx,
-			RetryFunc:    retryFunc,
-			WaitFunc:     ddsInstanceStateRefreshFunc(client, instanceId),
-			WaitTarget:   []string{"normal"},
-			Timeout:      d.Timeout(schema.TimeoutUpdate),
-			DelayTimeout: 1 * time.Second,
-			PollInterval: 10 * time.Second,
-		})
+		err = UpdateSlowLogStatus(ctx, client, d.Timeout(schema.TimeoutUpdate), instanceId,
+			d.Get("slow_log_desensitization").(string))
 		if err != nil {
-			return diag.Errorf("error setting slow log desensitization of the DDS instance %s: %s", instanceId, err)
+			return diag.FromErr(err)
 		}
 	}
 
@@ -1249,19 +1296,19 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 
 			// The update operation of the number must at the last, lest the new node already has new size or spec-code.
 			if d.HasChange(volumeSizeIndex) {
-				err := flavorSizeUpdate(ctx, conf, client, d, i)
+				err := flavorSizeUpdate(ctx, cfg, client, d, i)
 				if err != nil {
 					return diag.FromErr(err)
 				}
 			}
 			if d.HasChange(specCodeIndex) {
-				err := flavorSpecCodeUpdate(ctx, conf, client, d, i)
+				err := flavorSpecCodeUpdate(ctx, cfg, client, d, i)
 				if err != nil {
 					return diag.FromErr(err)
 				}
 			}
 			if d.HasChange(numIndex) {
-				err := flavorNumUpdate(ctx, conf, client, d, i)
+				err := flavorNumUpdate(ctx, cfg, client, d, i)
 				if err != nil {
 					return diag.FromErr(err)
 				}
@@ -1299,13 +1346,13 @@ func resourceDdsInstanceV3Update(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	if d.HasChange("enterprise_project_id") {
-		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+		migrateOpts := config.MigrateResourceOpts{
 			ResourceId:   instanceId,
 			ResourceType: "dds",
 			RegionId:     region,
 			ProjectId:    client.ProjectID,
 		}
-		if err := common.MigrateEnterpriseProject(ctx, conf, d, migrateOpts); err != nil {
+		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
 	}

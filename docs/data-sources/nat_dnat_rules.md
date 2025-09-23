@@ -2,7 +2,8 @@
 subcategory: "NAT Gateway (NAT)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_nat_dnat_rules"
-description: ""
+description: |-
+  Use this data source to get the list of DNAT rules.
 ---
 
 # huaweicloud_nat_dnat_rules
@@ -59,6 +60,11 @@ The following arguments are supported:
 * `global_eip_id` - (Optional, String) Specifies the ID of the global EIP associated with the DNAT rule.
 
 * `global_eip_address` - (Optional, String) Specifies the IP address of the global EIP associated with the DNAT rule.
+
+* `description` - (Optional, String) Specifies the description of the DNAT rule.
+
+* `created_at` - (Optional, String) Specifies the creation time of the DNAT rule.
+  The format is **yyyy-mm-dd hh:mm:ss.SSSSSS**. e.g. **2024-12-20 15:03:04.000000**.
 
 ## Attribute Reference
 

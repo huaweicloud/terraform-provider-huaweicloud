@@ -5,6 +5,11 @@
         "huaweicloud_compute_volume_attach": {
           "block": {
             "attributes": {
+              "delete_on_termination": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "device": {
                 "type": "string",
                 "optional": true,

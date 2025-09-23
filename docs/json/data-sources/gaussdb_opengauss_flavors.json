@@ -1,0 +1,71 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_opengauss_flavors": {
+          "block": {
+            "attributes": {
+              "flavors": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "availability_zone": [
+                        "list",
+                        "string"
+                      ],
+                      "az_status": [
+                        "map",
+                        "string"
+                      ],
+                      "group_type": "string",
+                      "name": "string",
+                      "ram": "string",
+                      "spec_code": "string",
+                      "vcpus": "string",
+                      "version": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of the flavors.",
+                "computed": true
+              },
+              "ha_mode": {
+                "type": "string",
+                "description": "Specifies the instance type.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "spec_code": {
+                "type": "string",
+                "description": "Specifies the specification code.",
+                "optional": true
+              },
+              "version": {
+                "type": "string",
+                "description": "Specifies the version of the GaussDB OpenGauss.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDB",
+            "name": "GaussDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

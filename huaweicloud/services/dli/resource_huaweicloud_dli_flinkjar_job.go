@@ -39,6 +39,9 @@ func ResourceFlinkJarJob() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+
+		CustomizeDiff: config.MergeDefaultTags(),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
@@ -48,15 +51,13 @@ func ResourceFlinkJarJob() *schema.Resource {
 			},
 
 			"name": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: validation.StringLenBetween(1, 57),
+				Type:     schema.TypeString,
+				Required: true,
 			},
 
 			"description": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringLenBetween(1, 512),
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 
 			"queue_name": {
@@ -340,6 +341,7 @@ func resourceFlinkJarJobRead(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("checkpoint_path", detail.JobConfig.CheckpointPath),
 		setRuntimeConfigToState(d, detail.JobConfig.RuntimeConfig),
 		d.Set("status", detail.Status),
+		d.Set("tags", d.Get("tags")),
 	)
 
 	if err = setTagsToResource(config, region, d); err != nil {

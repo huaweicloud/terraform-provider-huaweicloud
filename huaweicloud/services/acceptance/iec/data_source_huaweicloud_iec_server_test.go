@@ -18,7 +18,7 @@ func TestAccServerDataSource_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckServerDestory,
+		CheckDestroy:      testAccCheckServerDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccServer_basic(rName),

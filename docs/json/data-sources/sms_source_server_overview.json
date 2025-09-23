@@ -1,0 +1,95 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_sms_source_server_overview": {
+          "block": {
+            "attributes": {
+              "cloning": {
+                "type": "number",
+                "description": "Indicates the number of servers whose paired target servers are being cloned.",
+                "computed": true
+              },
+              "cutovering": {
+                "type": "number",
+                "description": "Indicates the number of servers whose paired target servers are being launched.",
+                "computed": true
+              },
+              "deleting": {
+                "type": "number",
+                "description": "Indicates the number of servers that are in a deleting migration status.",
+                "computed": true
+              },
+              "error": {
+                "type": "number",
+                "description": "Indicates the number of servers that are in an error migration status.",
+                "computed": true
+              },
+              "finished": {
+                "type": "number",
+                "description": "Indicates the number of servers whose paired target servers have been launched.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "initialize": {
+                "type": "number",
+                "description": "Indicates the number of servers that are in an initializing migration status.",
+                "computed": true
+              },
+              "replicate": {
+                "type": "number",
+                "description": "Indicates the number of servers that are in a replicating migration status.",
+                "computed": true
+              },
+              "skipping": {
+                "type": "number",
+                "description": "Indicates the number of servers that are in a skipping migration status.",
+                "computed": true
+              },
+              "stopped": {
+                "type": "number",
+                "description": "Indicates the number of servers that are in a paused migration status.",
+                "computed": true
+              },
+              "stopping": {
+                "type": "number",
+                "description": "Indicates the number of servers that are in a stopping migration status.",
+                "computed": true
+              },
+              "syncing": {
+                "type": "number",
+                "description": "Indicates the number of servers that are in a synchronizing migration status.",
+                "computed": true
+              },
+              "unavailable": {
+                "type": "number",
+                "description": "Indicates the number of servers that fail the environment check.",
+                "computed": true
+              },
+              "unconfigured": {
+                "type": "number",
+                "description": "Indicates the number of servers that do not have target server configurations.",
+                "computed": true
+              },
+              "waiting": {
+                "type": "number",
+                "description": "Indicates the number of servers that are in a waiting migration status.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "SMS",
+            "name": "Server Migration Service",
+            "catalog": "Migration",
+            "name_cn": "主机迁移服务",
+            "catalog_cn": "迁移"
+          }
+        }
+      }
+    }
+  }
+}

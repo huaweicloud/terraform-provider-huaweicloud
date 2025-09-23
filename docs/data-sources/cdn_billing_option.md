@@ -2,12 +2,13 @@
 subcategory: Content Delivery Network (CDN)
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_cdn_billing_option"
-description: "Use this data source to get CDN billing option."
+description: |-
+  Use this data source to get CDN billing option within HuaweiCloud.
 ---
 
 # huaweicloud_cdn_billing_option
 
-Use this data source to get CDN billing option.
+Use this data source to get CDN billing option within HuaweiCloud.
 
 ## Example Usage
 

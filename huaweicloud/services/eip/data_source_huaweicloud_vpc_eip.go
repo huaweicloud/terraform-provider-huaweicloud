@@ -103,7 +103,7 @@ func dataSourceVpcEipRead(_ context.Context, d *schema.ResourceData, meta interf
 		listOpts.PublicIp = []string{publicIp.(string)}
 	}
 
-	listOpts.EnterpriseProjectId = cfg.DataGetEnterpriseProjectID(d)
+	listOpts.EnterpriseProjectId = cfg.GetEnterpriseProjectID(d, "all_granted_eps")
 
 	pages, err := eips.List(vpcClient, listOpts).AllPages()
 	if err != nil {

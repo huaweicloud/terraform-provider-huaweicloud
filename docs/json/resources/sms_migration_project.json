@@ -1,0 +1,78 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_sms_migration_project": {
+          "block": {
+            "attributes": {
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "enterprise_project": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "exist_server": {
+                "type": "bool",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_default": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "required": true
+              },
+              "speed_limit": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "start_network_check": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "start_target_server": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "syncing": {
+                "type": "bool",
+                "required": true
+              },
+              "type": {
+                "type": "string",
+                "required": true
+              },
+              "use_public_ip": {
+                "type": "bool",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "SMS",
+            "name": "Server Migration Service",
+            "catalog": "Migration",
+            "name_cn": "主机迁移服务",
+            "catalog_cn": "迁移"
+          }
+        }
+      }
+    }
+  }
+}

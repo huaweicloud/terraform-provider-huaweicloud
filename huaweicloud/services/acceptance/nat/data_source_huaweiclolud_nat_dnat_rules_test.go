@@ -40,6 +40,12 @@ func TestAccDatasourceDnatRules_basic(t *testing.T) {
 
 		byFloatingIpAddress   = "data.huaweicloud_nat_dnat_rules.filter_by_floating_ip_address"
 		dcByFloatingIpAddress = acceptance.InitDataSourceCheck(byFloatingIpAddress)
+
+		byDescription   = "data.huaweicloud_nat_dnat_rules.filter_by_description"
+		dcByDescription = acceptance.InitDataSourceCheck(byDescription)
+
+		byCreatedAt   = "data.huaweicloud_nat_dnat_rules.filter_by_created_at"
+		dcByCreatedAt = acceptance.InitDataSourceCheck(byCreatedAt)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -50,6 +56,15 @@ func TestAccDatasourceDnatRules_basic(t *testing.T) {
 				Config: testAccDatasourceDnatRules_basic(baseConfig),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
+					resource.TestCheckResourceAttrSet(dataSourceName, "rules.#"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.id"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.protocol"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.description"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.status"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.floating_ip_address"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.internal_service_port"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "rules.0.created_at"),
+
 					dcByRuleId.CheckResourceExists(),
 					resource.TestCheckOutput("rule_id_filter_is_useful", "true"),
 
@@ -73,6 +88,12 @@ func TestAccDatasourceDnatRules_basic(t *testing.T) {
 
 					dcByFloatingIpAddress.CheckResourceExists(),
 					resource.TestCheckOutput("floating_ip_address_filter_is_useful", "true"),
+
+					dcByDescription.CheckResourceExists(),
+					resource.TestCheckOutput("description_filter_is_useful", "true"),
+
+					dcByCreatedAt.CheckResourceExists(),
+					resource.TestCheckOutput("created_at_filter_is_useful", "true"),
 				),
 			},
 		},
@@ -284,6 +305,42 @@ locals {
 
 output "floating_ip_address_filter_is_useful" {
   value = alltrue(local.floating_ip_address_filter_result) && length(local.floating_ip_address_filter_result) > 0
+}
+
+locals {
+  description = data.huaweicloud_nat_dnat_rules.test.rules[0].description
+}
+
+data "huaweicloud_nat_dnat_rules" "filter_by_description" {
+  description = local.description
+}
+
+locals {
+  description_filter_result = [
+    for v in data.huaweicloud_nat_dnat_rules.filter_by_description.rules[*].description : v == local.description
+  ]
+}
+
+output "description_filter_is_useful" {
+  value = alltrue(local.description_filter_result) && length(local.description_filter_result) > 0
+}
+
+locals {
+  created_at = data.huaweicloud_nat_dnat_rules.test.rules[0].created_at
+}
+
+data "huaweicloud_nat_dnat_rules" "filter_by_created_at" {
+  created_at = local.created_at
+}
+
+locals {
+  created_at_filter_result = [
+    for v in data.huaweicloud_nat_dnat_rules.filter_by_created_at.rules[*].created_at : v == local.created_at
+  ]
+}
+
+output "created_at_filter_is_useful" {
+  value = alltrue(local.created_at_filter_result) && length(local.created_at_filter_result) > 0
 }
 `, baseConfig)
 }

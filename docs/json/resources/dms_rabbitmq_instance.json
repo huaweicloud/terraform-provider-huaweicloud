@@ -7,7 +7,7 @@
             "attributes": {
               "access_user": {
                 "type": "string",
-                "required": true,
+                "optional": true,
                 "forcenew": true
               },
               "auto_renew": {
@@ -44,6 +44,11 @@
               "description": {
                 "type": "string",
                 "optional": true
+              },
+              "enable_acl": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
               },
               "enable_public_ip": {
                 "type": "bool",
@@ -105,7 +110,7 @@
               },
               "password": {
                 "type": "string",
-                "required": true,
+                "optional": true,
                 "sensitive": true
               },
               "period": {
@@ -170,7 +175,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "type": {
                 "type": "string",

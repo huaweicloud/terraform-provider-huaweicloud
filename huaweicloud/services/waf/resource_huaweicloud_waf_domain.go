@@ -3,26 +3,29 @@ package waf
 import (
 	"context"
 	"fmt"
+	"log"
 	"strconv"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/waf_hw/v1/domains"
+	"github.com/chnsz/golangsdk/openstack/waf_hw/v1/policies"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-var PaidType = "prePaid"
-
 const (
-	protocolHTTP  = "HTTP"
-	protocolHTTPS = "HTTPS"
+	protectStatusEnable = 1
+
+	defaultBlockPageTemplate  = "default"
+	customBlockPageTemplate   = "custom"
+	redirectBlockPageTemplate = "redirect"
 )
 
 // @API WAF GET /v1/{project_id}/waf/instance/{instance_id}
@@ -30,6 +33,7 @@ const (
 // @API WAF DELETE /v1/{project_id}/waf/instance/{instance_id}
 // @API WAF POST /v1/{project_id}/waf/instance
 // @API WAF PUT /v1/{project_id}/waf/instance/{instance_id}/protect-status
+// @API WAF PUT /v1/{project_id}/waf/instance/{instance_id}/access-status
 // @API WAF DELETE /v1/{project_id}/waf/policy/{policy_id}
 // @API WAF PATCH /v1/{project_id}/waf/policy/{policy_id}
 func ResourceWafDomain() *schema.Resource {
@@ -87,10 +91,7 @@ func ResourceWafDomain() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-				Default:  PaidType,
-				ValidateFunc: validation.StringInSlice([]string{
-					"prePaid", "postPaid",
-				}, false),
+				Default:  "prePaid",
 			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
@@ -137,7 +138,7 @@ func ResourceWafDomain() *schema.Resource {
 				Optional: true,
 				Computed: true,
 				MaxItems: 1,
-				Elem:     dedicatedDomainTrafficMarkSchema(),
+				Elem:     domainTrafficMarkSchema(),
 			},
 			"website_name": {
 				Type:     schema.TypeString,
@@ -184,8 +185,15 @@ func ResourceWafDomain() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			// Due to environmental and permission restrictions, the API test for the `access_status` parameter has not
+			// been effective, and there is currently no testing in the test cases.
 			"access_status": {
 				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+			"access_code": {
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"protocol": {
@@ -196,31 +204,91 @@ func ResourceWafDomain() *schema.Resource {
 	}
 }
 
+func domainCustomPageSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"http_return_code": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"block_page_type": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"page_content": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+		},
+	}
+	return &sc
+}
+
+func domainTimeoutSettingSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"connection_timeout": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+			"read_timeout": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+			"write_timeout": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+		},
+	}
+	return &sc
+}
+
+func domainTrafficMarkSchema() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"ip_tags": {
+				Type:     schema.TypeList,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Optional: true,
+				Computed: true,
+			},
+			"session_tag": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"user_tag": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+		},
+	}
+	return &sc
+}
+
 func domainServerSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"client_protocol": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					protocolHTTP, protocolHTTPS,
-				}, false),
 			},
 			"server_protocol": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					protocolHTTP, protocolHTTPS,
-				}, false),
 			},
 			"address": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
 			"port": {
-				Type:         schema.TypeInt,
-				ValidateFunc: validation.IntBetween(0, 65535),
-				Required:     true,
+				Type:     schema.TypeInt,
+				Required: true,
 			},
 			"type": {
 				Type:        schema.TypeString,
@@ -252,6 +320,13 @@ func buildCreateDomainHostOpts(d *schema.ResourceData, cfg *config.Config) *doma
 		WebTag:              d.Get("website_name").(string),
 		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
 	}
+}
+
+func buildHostForwardHeaderMapOpts(d *schema.ResourceData) map[string]string {
+	if v, ok := d.GetOk("forward_header_map"); ok {
+		return utils.ExpandToStringMap(v.(map[string]interface{}))
+	}
+	return nil
 }
 
 func buildWafDomainServers(d *schema.ResourceData) []domains.ServerOpts {
@@ -518,6 +593,12 @@ func resourceWafDomainCreate(ctx context.Context, d *schema.ResourceData, meta i
 		}
 	}
 
+	if _, ok := d.GetOk("access_status"); ok {
+		if err := updateWafDomainAccessStatus(wafClient, d); err != nil {
+			return diag.Errorf("error update WAF domain `access_status` in creation operation: %s", err)
+		}
+	}
+
 	return resourceWafDomainRead(ctx, d, meta)
 }
 
@@ -532,6 +613,44 @@ func updateWafDomainProtectStatus(wafClient *golangsdk.ServiceClient, d *schema.
 	return nil
 }
 
+func updateWafDomainAccessStatus(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	var (
+		httpUrl           = "v1/{project_id}/waf/instance/{instance_id}/access-status"
+		inputAccessStatus = d.Get("access_status").(int)
+	)
+
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{instance_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json;charset=utf8",
+		},
+		JSONBody: map[string]interface{}{
+			"access_status": inputAccessStatus,
+		},
+	}
+
+	requestResp, err := client.Request("PUT", requestPath, &requestOpt)
+	if err != nil {
+		return fmt.Errorf("error update WAF domain access status: %s", err)
+	}
+
+	respBody, err := utils.FlattenResponse(requestResp)
+	if err != nil {
+		return err
+	}
+
+	respAccessStatus := utils.PathSearch("access_status", respBody, float64(0)).(float64)
+	if int(respAccessStatus) != inputAccessStatus {
+		return fmt.Errorf("failed to update WAF domain access status: expected value: %v,"+
+			" actual value: %v", inputAccessStatus, respAccessStatus)
+	}
+
+	return nil
+}
+
 func resourceWafDomainRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	wafClient, err := cfg.WafV1Client(cfg.GetRegion(d))
@@ -541,7 +660,8 @@ func resourceWafDomainRead(_ context.Context, d *schema.ResourceData, meta inter
 
 	dm, err := domains.GetWithEpsID(wafClient, d.Id(), cfg.GetEnterpriseProjectID(d)).Extract()
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "Error obtain WAF domain information")
+		// If the domain does not exist, the response HTTP status code of the details API is 404.
+		return common.CheckDeletedDiag(d, err, "error retrieving WAF domain")
 	}
 
 	// charging_mode not returned by API
@@ -554,6 +674,7 @@ func resourceWafDomainRead(_ context.Context, d *schema.ResourceData, meta inter
 		d.Set("proxy", dm.Proxy),
 		d.Set("protect_status", dm.ProtectStatus),
 		d.Set("access_status", dm.AccessStatus),
+		d.Set("access_code", dm.AccessCode),
 		d.Set("protocol", dm.Protocol),
 		d.Set("server", flattenDomainServerAttrs(dm)),
 		d.Set("custom_page", flattenDomainCustomPage(dm)),
@@ -607,7 +728,41 @@ func resourceWafDomainUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		}
 	}
 
+	if d.HasChanges("access_status") {
+		if err := updateWafDomainAccessStatus(wafClient, d); err != nil {
+			return diag.Errorf("error update WAF domain `access_status` in update operation: %s", err)
+		}
+	}
+
 	return resourceWafDomainRead(ctx, d, meta)
+}
+
+func updateWafDomainPolicyHost(d *schema.ResourceData, cfg *config.Config) error {
+	client, err := cfg.WafV1Client(cfg.GetRegion(d))
+	if err != nil {
+		return fmt.Errorf("error creating WAF client: %s", err)
+	}
+
+	oVal, nVal := d.GetChange("policy_id")
+	newPolicyId := nVal.(string)
+	oldPolicyId := oVal.(string)
+
+	epsID := cfg.GetEnterpriseProjectID(d)
+	updateHostsOpts := policies.UpdateHostsOpts{
+		Hosts:               []string{d.Id()},
+		EnterpriseProjectId: epsID,
+	}
+	log.Printf("[DEBUG] Bind WAF domain %s to policy %s", d.Id(), newPolicyId)
+
+	if _, err := policies.UpdateHosts(client, newPolicyId, updateHostsOpts).Extract(); err != nil {
+		return fmt.Errorf("error updating WAF policy hosts: %s", err)
+	}
+
+	if err := policies.DeleteWithEpsID(client, oldPolicyId, epsID).ExtractErr(); err != nil {
+		// If other domains are using this policy, the deletion will fail.
+		log.Printf("[WARN] error deleting WAF policy %s: %s", oldPolicyId, err)
+	}
+	return nil
 }
 
 func resourceWafDomainDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -623,7 +778,8 @@ func resourceWafDomainDelete(_ context.Context, d *schema.ResourceData, meta int
 	}
 	err = domains.Delete(wafClient, d.Id(), delOpts).ExtractErr()
 	if err != nil {
-		return diag.Errorf("error deleting WAF domain: %s", err)
+		// If the domain does not exist, the response HTTP status code of the deletion API is 404.
+		return common.CheckDeletedDiag(d, err, "error deleting WAF domain")
 	}
 
 	return nil

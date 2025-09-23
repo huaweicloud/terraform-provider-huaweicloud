@@ -1,0 +1,121 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_sms_server_templates": {
+          "block": {
+            "attributes": {
+              "availability_zone": {
+                "type": "string",
+                "description": "Specifies the availability zone.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the template name.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region ID."
+              },
+              "templates": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "availability_zone": "string",
+                      "data_volume_type": "string",
+                      "disk": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "device_use": "string",
+                            "disktype": "string",
+                            "id": "number",
+                            "index": "number",
+                            "name": "string",
+                            "size": "number"
+                          }
+                        ]
+                      ],
+                      "flavor": "string",
+                      "id": "string",
+                      "image_id": "string",
+                      "is_template": "string",
+                      "name": "string",
+                      "nics": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "cidr": "string",
+                            "id": "string",
+                            "ip": "string",
+                            "name": "string"
+                          }
+                        ]
+                      ],
+                      "project_id": "string",
+                      "publicip": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "bandwidth_share_type": "string",
+                            "bandwidth_size": "number",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "region": "string",
+                      "security_groups": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "name": "string"
+                          }
+                        ]
+                      ],
+                      "target_password": "string",
+                      "target_server_name": "string",
+                      "volume_type": "string",
+                      "vpc": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "cidr": "string",
+                            "id": "string",
+                            "name": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "Indicates the template information.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "SMS",
+            "name": "Server Migration Service",
+            "catalog": "Migration",
+            "name_cn": "主机迁移服务",
+            "catalog_cn": "迁移"
+          }
+        }
+      }
+    }
+  }
+}

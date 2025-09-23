@@ -3,13 +3,14 @@ package iotda
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -102,39 +103,61 @@ func DataSourceProducts() *schema.Resource {
 	}
 }
 
-func dataSourceProductsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	isDerived := WithDerivedAuth(cfg, region)
-	client, err := cfg.HcIoTdaV5Client(region, isDerived)
-	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+func buildProductsQueryParams(d *schema.ResourceData) string {
+	rst := ""
+	if v, ok := d.GetOk("space_id"); ok {
+		rst += fmt.Sprintf("&app_id=%v", v)
 	}
 
+	if v, ok := d.GetOk("product_name"); ok {
+		rst += fmt.Sprintf("&product_name=%v", v)
+	}
+
+	return rst
+}
+
+func dataSourceProductsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		allProducts []model.ProductSummary
-		limit       = int32(50)
-		offset      int32
+		cfg         = meta.(*config.Config)
+		region      = cfg.GetRegion(d)
+		httpUrl     = "v5/iot/{project_id}/products?limit=50"
+		product     = "iotda"
+		allProducts []interface{}
+		offset      = 0
 	)
 
+	isDerived := WithDerivedAuth(cfg, region)
+	client, err := cfg.NewServiceClientWithDerivedAuth(product, region, isDerived)
+	if err != nil {
+		return diag.Errorf("error creating IoTDA client: %s", err)
+	}
+
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath += buildProductsQueryParams(d)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
 	for {
-		listOpts := model.ListProductsRequest{
-			AppId:       utils.StringIgnoreEmpty(d.Get("space_id").(string)),
-			ProductName: utils.StringIgnoreEmpty(d.Get("product_name").(string)),
-			Limit:       utils.Int32(limit),
-			Offset:      &offset,
+		requestPathWithOffset := fmt.Sprintf("%s&offset=%d", requestPath, offset)
+		resp, err := client.Request("GET", requestPathWithOffset, &requestOpt)
+		if err != nil {
+			return diag.Errorf("error retrieving IoTDA products: %s", err)
 		}
 
-		listResp, listErr := client.ListProducts(&listOpts)
-		if listErr != nil {
-			return diag.Errorf("error querying IoTDA products: %s", listErr)
+		respBody, err := utils.FlattenResponse(resp)
+		if err != nil {
+			return diag.FromErr(err)
 		}
 
-		if len(*listResp.Products) == 0 {
+		products := utils.PathSearch("products", respBody, make([]interface{}, 0)).([]interface{})
+		if len(products) == 0 {
 			break
 		}
-		allProducts = append(allProducts, *listResp.Products...)
-		offset += limit
+
+		allProducts = append(allProducts, products...)
+		offset += len(products)
 	}
 
 	uuId, err := uuid.GenerateUUID()
@@ -152,25 +175,25 @@ func dataSourceProductsRead(_ context.Context, d *schema.ResourceData, meta inte
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func filterListProducts(products []model.ProductSummary, d *schema.ResourceData) []model.ProductSummary {
+func filterListProducts(products []interface{}, d *schema.ResourceData) []interface{} {
 	if len(products) == 0 {
 		return nil
 	}
 
-	rst := make([]model.ProductSummary, 0, len(products))
+	rst := make([]interface{}, 0, len(products))
 	for _, v := range products {
 		if productID, ok := d.GetOk("product_id"); ok &&
-			fmt.Sprint(productID) != utils.StringValue(v.ProductId) {
+			fmt.Sprint(productID) != utils.PathSearch("product_id", v, "").(string) {
 			continue
 		}
 
 		if spaceName, ok := d.GetOk("space_name"); ok &&
-			fmt.Sprint(spaceName) != utils.StringValue(v.AppName) {
+			fmt.Sprint(spaceName) != utils.PathSearch("app_name", v, "").(string) {
 			continue
 		}
 
 		if deviceType, ok := d.GetOk("device_type"); ok &&
-			fmt.Sprint(deviceType) != utils.StringValue(v.DeviceType) {
+			fmt.Sprint(deviceType) != utils.PathSearch("device_type", v, "").(string) {
 			continue
 		}
 
@@ -180,7 +203,7 @@ func filterListProducts(products []model.ProductSummary, d *schema.ResourceData)
 	return rst
 }
 
-func flattenProducts(products []model.ProductSummary) []interface{} {
+func flattenProducts(products []interface{}) []interface{} {
 	if len(products) == 0 {
 		return nil
 	}
@@ -188,17 +211,17 @@ func flattenProducts(products []model.ProductSummary) []interface{} {
 	rst := make([]interface{}, 0, len(products))
 	for _, v := range products {
 		rst = append(rst, map[string]interface{}{
-			"space_id":          v.AppId,
-			"space_name":        v.AppName,
-			"id":                v.ProductId,
-			"name":              v.Name,
-			"device_type":       v.DeviceType,
-			"protocol_type":     v.ProtocolType,
-			"data_type":         v.DataFormat,
-			"manufacturer_name": v.ManufacturerName,
-			"industry":          v.Industry,
-			"description":       v.Description,
-			"created_at":        v.CreateTime,
+			"space_id":          utils.PathSearch("app_id", v, nil),
+			"space_name":        utils.PathSearch("app_name", v, nil),
+			"id":                utils.PathSearch("product_id", v, nil),
+			"name":              utils.PathSearch("name", v, nil),
+			"device_type":       utils.PathSearch("device_type", v, nil),
+			"protocol_type":     utils.PathSearch("protocol_type", v, nil),
+			"data_type":         utils.PathSearch("data_format", v, nil),
+			"manufacturer_name": utils.PathSearch("manufacturer_name", v, nil),
+			"industry":          utils.PathSearch("industry", v, nil),
+			"description":       utils.PathSearch("description", v, nil),
+			"created_at":        utils.PathSearch("create_time", v, nil),
 		})
 	}
 

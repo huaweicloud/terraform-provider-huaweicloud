@@ -1,0 +1,101 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_vpc_sub_network_interfaces": {
+          "block": {
+            "attributes": {
+              "description": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the description of the supplementary network interface.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "interface_id": {
+                "type": "string",
+                "description": "Specifies the ID of the supplementary network interface.",
+                "optional": true
+              },
+              "ip_address": {
+                "type": "string",
+                "description": "Specifies the private IPv4 address of the supplementary network interface.",
+                "optional": true
+              },
+              "mac_address": {
+                "type": "string",
+                "description": "Specifies the MAC address of the supplementary network interface.",
+                "optional": true
+              },
+              "parent_id": {
+                "type": "string",
+                "description": "Specifies the ID of the elastic network interface",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "sub_network_interfaces": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "description": "string",
+                      "id": "string",
+                      "ip_address": "string",
+                      "ipv6_ip_address": "string",
+                      "mac_address": "string",
+                      "parent_device_id": "string",
+                      "parent_id": "string",
+                      "project_id": "string",
+                      "security_enabled": "bool",
+                      "security_groups": [
+                        "list",
+                        "string"
+                      ],
+                      "subnet_id": "string",
+                      "tags": [
+                        "list",
+                        "string"
+                      ],
+                      "vlan_id": "number",
+                      "vpc_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of supplementary network interfaces.",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "description": "Specifies the ID of the subnet to which the supplementary network interface belongs.",
+                "optional": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "description": "Specifies the ID of the VPC to which the supplementary network interface belongs.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "VPC",
+            "name": "Virtual Private Cloud",
+            "catalog": "Networking",
+            "name_cn": "虚拟私有云",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

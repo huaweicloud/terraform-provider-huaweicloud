@@ -223,8 +223,10 @@ output "not_found_name_filter_is_useful" {
 }
 
 # Filter by member_group_id
+# The member_group ID does not exist in the resource. Obtaining the member_group ID from the resource ID filtering result
+# to query can ensure the correct filtering results. 
 locals {
-  member_group_id = data.huaweicloud_apig_channels.test.vpc_channels[0].member_group[0].id
+  member_group_id = data.huaweicloud_apig_channels.filter_by_id.vpc_channels[0].member_group[0].id
 }
 
 data "huaweicloud_apig_channels" "filter_by_member_group_id" {
@@ -238,7 +240,7 @@ data "huaweicloud_apig_channels" "filter_by_member_group_id" {
 
 locals {
   member_group_id_filter_result = [
-    for v in data.huaweicloud_apig_channels.filter_by_member_group_id.vpc_channels[0].member_group[*].id : v == local.member_group_id
+    for v in flatten(data.huaweicloud_apig_channels.filter_by_member_group_id.vpc_channels[*].member_group[*].id) : v == local.member_group_id
   ]
 }
 
@@ -248,11 +250,11 @@ output "member_group_id_filter_is_useful" {
 
 # Filter by member_group_name
 locals {
-  member_group_name = data.huaweicloud_apig_channels.test.vpc_channels[0].member_group[0].name
+  member_group_name = huaweicloud_apig_channel.test.member_group[0].name
 }
 
 data "huaweicloud_apig_channels" "filter_by_member_group_name" {
-depends_on = [
+  depends_on = [
     huaweicloud_apig_channel.test
   ]
 

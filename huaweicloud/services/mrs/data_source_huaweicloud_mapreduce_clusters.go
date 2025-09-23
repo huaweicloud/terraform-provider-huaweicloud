@@ -17,7 +17,6 @@ import (
 
 	"github.com/chnsz/golangsdk"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -469,45 +468,80 @@ func mrsClustersClustersNodeGroupSchema() *schema.Resource {
 	return &sc
 }
 
-func resourceMrsClustersRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
+func buildClustersQueryParams(d *schema.ResourceData) string {
+	res := "?pageSize=100"
 
-	var mErr *multierror.Error
+	if v, ok := d.GetOk("name"); ok {
+		res = fmt.Sprintf("%s&clusterName=%v", res, v)
+	}
 
-	// getClusters: Query clusters
+	if v, ok := d.GetOk("status"); ok {
+		res = fmt.Sprintf("%s&clusterState=%v", res, v)
+	}
+
+	if v, ok := d.GetOk("enterprise_project_id"); ok {
+		res = fmt.Sprintf("%s&enterpriseProjectId=%v", res, v)
+	}
+
+	if v, ok := d.GetOk("tags"); ok {
+		res = fmt.Sprintf("%s&tags=%v", res, v)
+	}
+
+	return res
+}
+
+func listClusters(client *golangsdk.ServiceClient, d *schema.ResourceData) ([]interface{}, error) {
 	var (
-		getClustersHttpUrl = "v1.1/{project_id}/cluster_infos"
-		getClustersProduct = "mrs"
+		httpUrl     = "v1.1/{project_id}/cluster_infos"
+		currentPage = 1
+		result      = make([]interface{}, 0)
 	)
-	getClustersClient, err := cfg.NewServiceClient(getClustersProduct, region)
+	listPath := client.Endpoint + httpUrl
+	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
+	listPath += buildClustersQueryParams(d)
+
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+	}
+
+	for {
+		listPathWithPageNum := listPath + fmt.Sprintf("&currentPage=%d", currentPage)
+		requestResp, err := client.Request("GET", listPathWithPageNum, &opt)
+		if err != nil {
+			return nil, err
+		}
+		respBody, err := utils.FlattenResponse(requestResp)
+		if err != nil {
+			return nil, err
+		}
+		clusters := utils.PathSearch("clusters", respBody, make([]interface{}, 0)).([]interface{})
+		if len(clusters) < 1 {
+			break
+		}
+		result = append(result, clusters...)
+		currentPage++
+	}
+
+	return result, nil
+}
+
+func resourceMrsClustersRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg    = meta.(*config.Config)
+		region = cfg.GetRegion(d)
+	)
+
+	client, err := cfg.NewServiceClient("mrs", region)
 	if err != nil {
 		return diag.Errorf("error creating MRS client: %s", err)
 	}
 
-	getClustersPath := getClustersClient.Endpoint + getClustersHttpUrl
-	getClustersPath = strings.ReplaceAll(getClustersPath, "{project_id}", getClustersClient.ProjectID)
-
-	getClustersqueryParams := buildGetClustersQueryParams(d)
-	getClustersPath += getClustersqueryParams
-
-	getClustersOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-		MoreHeaders: map[string]string{"Content-Type": "application/json"},
-	}
-
-	getClustersResp, err := getClustersClient.Request("GET", getClustersPath, &getClustersOpt)
-
+	cluster, err := listClusters(client, d)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving MrsClusters")
-	}
-
-	getClustersRespBody, err := utils.FlattenResponse(getClustersResp)
-	if err != nil {
-		return diag.FromErr(err)
+		return diag.Errorf("error retrieving MRS clusters: %s", err)
 	}
 
 	uuid, err := uuid.GenerateUUID()
@@ -516,23 +550,17 @@ func resourceMrsClustersRead(_ context.Context, d *schema.ResourceData, meta int
 	}
 	d.SetId(uuid)
 
-	mErr = multierror.Append(
-		mErr,
+	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("clusters", flattenGetClustersResponseBodyClusters(getClustersRespBody)),
+		d.Set("clusters", flattenGetClustersResponseBodyClusters(cluster)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func flattenGetClustersResponseBodyClusters(resp interface{}) []interface{} {
-	if resp == nil {
-		return nil
-	}
-	curJson := utils.PathSearch("clusters", resp, make([]interface{}, 0))
-	curArray := curJson.([]interface{})
-	rst := make([]interface{}, 0, len(curArray))
-	for _, v := range curArray {
+func flattenGetClustersResponseBodyClusters(clusters []interface{}) []interface{} {
+	rst := make([]interface{}, 0, len(clusters))
+	for _, v := range clusters {
 		rst = append(rst, map[string]interface{}{
 			"id":                       utils.PathSearch("clusterId", v, nil),
 			"name":                     utils.PathSearch("clusterName", v, nil),
@@ -641,30 +669,4 @@ func flattenClustersNodeGroups(resp interface{}, key string) []interface{} {
 		})
 	}
 	return rst
-}
-
-func buildGetClustersQueryParams(d *schema.ResourceData) string {
-	res := ""
-	if v, ok := d.GetOk("name"); ok {
-		res = fmt.Sprintf("%s&clusterName=%v", res, v)
-	}
-
-	if v, ok := d.GetOk("status"); ok {
-		res = fmt.Sprintf("%s&clusterState=%v", res, v)
-	}
-
-	if v, ok := d.GetOk("enterprise_project_id"); ok {
-		res = fmt.Sprintf("%s&enterpriseProjectId=%v", res, v)
-	}
-
-	res = fmt.Sprintf("%s&pageSize=%v", res, 2147483646)
-
-	if v, ok := d.GetOk("tags"); ok {
-		res = fmt.Sprintf("%s&tags=%v", res, v)
-	}
-
-	if res != "" {
-		res = "?" + res[1:]
-	}
-	return res
 }

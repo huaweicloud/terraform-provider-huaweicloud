@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_gaussdb_opengauss_sync_sql_throttling_task
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: GaussDB
+paths:
+    /v3/{project_id}/instances/{instance_id}/sync-limit-task:
+        POST:
+            tag: GaussDB

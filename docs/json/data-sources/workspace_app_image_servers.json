@@ -1,0 +1,82 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_workspace_app_image_servers": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the ID of the enterprise project to which the image server belong.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specified the name of the image server.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "server_id": {
+                "type": "string",
+                "description": "Specified the ID of the image server.",
+                "optional": true
+              },
+              "servers": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "app_group_id": "string",
+                      "aps_server_group_id": "string",
+                      "aps_server_id": "string",
+                      "authorize_accounts": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "account": "string",
+                            "domain": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "created_at": "string",
+                      "description": "string",
+                      "enterprise_project_id": "string",
+                      "id": "string",
+                      "image_generated_product_id": "string",
+                      "image_id": "string",
+                      "image_type": "string",
+                      "name": "string",
+                      "spce_code": "string",
+                      "status": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "All image servers that match the filter parameters.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

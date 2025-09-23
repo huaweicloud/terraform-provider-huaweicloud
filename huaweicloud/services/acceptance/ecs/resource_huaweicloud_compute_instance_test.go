@@ -30,7 +30,6 @@ func TestAccComputeInstance_basic(t *testing.T) {
 					testAccCheckComputeInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "description", "terraform test"),
-					resource.TestCheckResourceAttr(resourceName, "hostname", "hostname-test"),
 					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
 					resource.TestCheckResourceAttrSet(resourceName, "system_disk_id"),
 					resource.TestCheckResourceAttrSet(resourceName, "security_groups.#"),
@@ -59,7 +58,6 @@ func TestAccComputeInstance_basic(t *testing.T) {
 					testAccCheckComputeInstanceExists(resourceName, &instance),
 					resource.TestCheckResourceAttr(resourceName, "name", rName+"-update"),
 					resource.TestCheckResourceAttr(resourceName, "description", "terraform test update"),
-					resource.TestCheckResourceAttr(resourceName, "hostname", "hostname-update"),
 					resource.TestCheckResourceAttr(resourceName, "system_disk_size", "60"),
 					resource.TestCheckResourceAttr(resourceName, "agency_name", "test222"),
 					resource.TestCheckResourceAttr(resourceName, "agent_list", "ces"),
@@ -104,6 +102,7 @@ func TestAccComputeInstance_prePaid(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "delete_eip_on_termination", "true"),
 					resource.TestCheckResourceAttr(resourceName, "auto_renew", "true"),
+					resource.TestCheckResourceAttrSet(resourceName, "expired_time"),
 				),
 			},
 			{
@@ -325,6 +324,42 @@ func TestAccComputeInstance_withEPS(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_changeNetwork(t *testing.T) {
+	var instance cloudservers.CloudServer
+
+	rName := acceptance.RandomAccResourceName()
+	resourceName := "huaweicloud_compute_instance.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckComputeInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_changeNetwork(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "description", "terraform test"),
+					resource.TestCheckResourceAttr(resourceName, "status", "ACTIVE"),
+					resource.TestCheckResourceAttrPair(resourceName, "network.0.uuid",
+						"huaweicloud_vpc_subnet.test1", "id"),
+				),
+			},
+			{
+				Config: testAccComputeInstance_changeNetworkUpdate(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(resourceName, &instance),
+					resource.TestCheckResourceAttr(resourceName, "name", rName+"-update"),
+					resource.TestCheckResourceAttr(resourceName, "description", "terraform test update"),
+					resource.TestCheckResourceAttrPair(resourceName, "network.0.uuid",
+						"huaweicloud_vpc_subnet.test2", "id"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckComputeInstanceDestroy(s *terraform.State) error {
 	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
 	computeClient, err := cfg.ComputeV1Client(acceptance.HW_REGION_NAME)
@@ -411,7 +446,6 @@ func testAccComputeInstance_basic(rName string) string {
 resource "huaweicloud_compute_instance" "test" {
   name                = "%s"
   description         = "terraform test"
-  hostname            = "hostname-test"
   image_id            = data.huaweicloud_images_image.test.id
   flavor_id           = data.huaweicloud_compute_flavors.test.ids[0]
   security_group_ids  = [data.huaweicloud_networking_secgroup.test.id]
@@ -458,7 +492,6 @@ func testAccComputeInstance_update(rName string) string {
 resource "huaweicloud_compute_instance" "test" {
   name                = "%s-update"
   description         = "terraform test update"
-  hostname            = "hostname-update"
   image_id            = data.huaweicloud_images_image.test.id
   flavor_id           = data.huaweicloud_compute_flavors.test.ids[0]
   security_group_ids  = [data.huaweicloud_networking_secgroup.test.id]
@@ -687,6 +720,89 @@ resource "huaweicloud_compute_instance" "test" {
     size       = "50"
     iops       = 5000
     throughput = 300
+  }
+}
+`, testAccCompute_data, rName)
+}
+
+func testAccComputeInstance_changeNetwork(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_vpc" "test" {
+  name = "%[2]s"
+  cidr = "192.168.0.0/16"
+}
+
+resource "huaweicloud_vpc_subnet" "test1" {
+  name       = "%[2]s-1"
+  cidr       = "192.168.1.0/24"
+  gateway_ip = "192.168.1.1"
+  vpc_id     = huaweicloud_vpc.test.id
+}
+
+resource "huaweicloud_compute_instance" "test" {
+  name               = "%[2]s"
+  description        = "terraform test"
+  image_id           = data.huaweicloud_images_image.test.id
+  flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
+  security_group_ids = [data.huaweicloud_networking_secgroup.test.id]
+
+  network {
+    uuid = huaweicloud_vpc_subnet.test1.id
+  }
+
+  system_disk_type = "SAS"
+  system_disk_size = 50
+
+  data_disks {
+    type = "SAS"
+    size = "10"
+  }
+}
+`, testAccCompute_data, rName)
+}
+
+func testAccComputeInstance_changeNetworkUpdate(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_vpc" "test" {
+  name = "%[2]s"
+  cidr = "192.168.0.0/16"
+}
+
+resource "huaweicloud_vpc_subnet" "test1" {
+  name       = "%[2]s-1"
+  cidr       = "192.168.1.0/24"
+  gateway_ip = "192.168.1.1"
+  vpc_id     = huaweicloud_vpc.test.id
+}
+
+resource "huaweicloud_vpc_subnet" "test2" {
+  name       = "%[2]s-2"
+  cidr       = "192.168.2.0/24"
+  gateway_ip = "192.168.2.1"
+  vpc_id     = huaweicloud_vpc.test.id
+}
+
+resource "huaweicloud_compute_instance" "test" {
+  name               = "%[2]s-update"
+  description        = "terraform test update"
+  image_id           = data.huaweicloud_images_image.test.id
+  flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
+  security_group_ids = [data.huaweicloud_networking_secgroup.test.id]
+
+  network {
+    uuid = huaweicloud_vpc_subnet.test2.id
+  }
+
+  system_disk_type = "SAS"
+  system_disk_size = 50
+
+  data_disks {
+    type = "SAS"
+    size = "10"
   }
 }
 `, testAccCompute_data, rName)

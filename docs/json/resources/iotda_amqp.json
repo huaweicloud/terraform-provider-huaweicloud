@@ -5,6 +5,10 @@
         "huaweicloud_iotda_amqp": {
           "block": {
             "attributes": {
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
               "id": {
                 "type": "string",
                 "computed": true
@@ -15,6 +19,10 @@
                 "forcenew": true
               },
               "region": {
+                "type": "string",
+                "computed": true
+              },
+              "updated_at": {
                 "type": "string",
                 "computed": true
               }

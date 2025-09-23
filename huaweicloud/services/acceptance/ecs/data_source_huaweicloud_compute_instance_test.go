@@ -57,6 +57,7 @@ func TestAccComputeInstanceDataSource_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(dataSourceName, "network.#"),
 					resource.TestCheckResourceAttrSet(dataSourceName, "volume_attached.#"),
 					resource.TestCheckResourceAttrSet("data.huaweicloud_compute_instance.byID", "status"),
+					resource.TestCheckResourceAttrSet("data.huaweicloud_compute_instance.byTags", "status"),
 					resource.TestCheckResourceAttrPair("data.huaweicloud_compute_instance.byIP", "network.0.fixed_ip_v4",
 						"huaweicloud_compute_instance.test", "network.0.fixed_ip_v4"),
 				),
@@ -67,10 +68,10 @@ func TestAccComputeInstanceDataSource_basic(t *testing.T) {
 
 func testAccComputeInstanceDataSource_basic(rName string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_compute_instance" "test" {
-  name               = "%s"
+  name               = "%[2]s"
   image_id           = data.huaweicloud_images_image.test.id
   flavor_id          = data.huaweicloud_compute_flavors.test.ids[0]
   security_group_ids = [data.huaweicloud_networking_secgroup.test.id]
@@ -78,6 +79,10 @@ resource "huaweicloud_compute_instance" "test" {
 
   network {
     uuid = data.huaweicloud_vpc_subnet.test.id
+  }
+
+  tags = {
+    server_name = "%[2]s"
   }
 }
 
@@ -91,6 +96,14 @@ data "huaweicloud_compute_instance" "byID" {
 
 data "huaweicloud_compute_instance" "byIP" {
   fixed_ip_v4 = huaweicloud_compute_instance.test.network[0].fixed_ip_v4
+}
+
+data "huaweicloud_compute_instance" "byTags" {
+  tags = {
+    server_name = "%[2]s"
+  }
+
+  depends_on = [huaweicloud_compute_instance.test]
 }
 `, testAccCompute_data, rName)
 }

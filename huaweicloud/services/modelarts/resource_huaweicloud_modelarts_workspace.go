@@ -7,7 +7,6 @@ package modelarts
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -16,7 +15,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -146,11 +144,11 @@ func resourceModelartsWorkspaceCreate(ctx context.Context, d *schema.ResourceDat
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("id", createWorkspaceRespBody)
-	if err != nil {
-		return diag.Errorf("error creating Modelarts workspace: ID is not found in API response")
+	workspaceId := utils.PathSearch("id", createWorkspaceRespBody, "").(string)
+	if workspaceId == "" {
+		return diag.Errorf("unable to find the ModelArts workspace ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(workspaceId)
 	return resourceModelartsWorkspaceRead(ctx, d, meta)
 }
 
@@ -158,7 +156,7 @@ func buildCreateWorkspaceBodyParams(d *schema.ResourceData, cfg *config.Config) 
 	bodyParams := map[string]interface{}{
 		"name":                  d.Get("name"),
 		"description":           d.Get("description"),
-		"enterprise_project_id": utils.ValueIgnoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
 		"auth_type":             utils.ValueIgnoreEmpty(d.Get("auth_type")),
 		"grants":                buildCreateWorkspaceRequestBodyGrants(d.Get("grants")),
 	}
@@ -215,7 +213,8 @@ func resourceModelartsWorkspaceRead(_ context.Context, d *schema.ResourceData, m
 	getWorkspaceResp, err := getWorkspaceClient.Request("GET", getWorkspacePath, &getWorkspaceOpt)
 
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseWorkspaceNotFoundError(err), "error retrieving Modelarts workspace")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", "ModelArts.7005"),
+			"error retrieving Modelarts workspace")
 	}
 
 	getWorkspaceRespBody, err := utils.FlattenResponse(getWorkspaceResp)
@@ -393,13 +392,8 @@ func deleteWorkspaceWaitingForStateCompleted(ctx context.Context, d *schema.Reso
 
 			deleteWorkspaceWaitingResp, err := deleteWorkspaceWaitingClient.Request("GET", deleteWorkspaceWaitingPath, &deleteWorkspaceWaitingOpt)
 			if err != nil {
-				if _, ok := err.(golangsdk.ErrDefault404); ok {
-					// When the error code is 404, the value of respBody is nil, and a non-null value is returned to avoid continuing the loop check.
-					return "Resource Not Found", "COMPLETED", nil
-				}
-
-				err = parseWorkspaceNotFoundError(err)
-				if _, ok := err.(golangsdk.ErrDefault404); ok {
+				parsedErr := common.ConvertExpected400ErrInto404Err(err, "error_code", "ModelArts.7005")
+				if _, ok := parsedErr.(golangsdk.ErrDefault404); ok {
 					// When the error code is 404, the value of respBody is nil, and a non-null value is returned to avoid continuing the loop check.
 					return "Resource Not Found", "COMPLETED", nil
 				}
@@ -410,12 +404,7 @@ func deleteWorkspaceWaitingForStateCompleted(ctx context.Context, d *schema.Reso
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`status`, deleteWorkspaceWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `status`)
-			}
-
-			status := fmt.Sprintf("%v", statusRaw)
+			status := utils.PathSearch(`status`, deleteWorkspaceWaitingRespBody, "").(string)
 
 			pendingStatus := []string{
 				"DELETING",
@@ -432,27 +421,4 @@ func deleteWorkspaceWaitingForStateCompleted(ctx context.Context, d *schema.Reso
 	}
 	_, err := stateConf.WaitForStateContext(ctx)
 	return err
-}
-
-func parseWorkspaceNotFoundError(respErr error) error {
-	var apiErr interface{}
-	if errCode, ok := respErr.(golangsdk.ErrDefault400); ok {
-		pErr := json.Unmarshal(errCode.Body, &apiErr)
-		if pErr != nil {
-			return pErr
-		}
-		errCode, err := jmespath.Search(`error_code`, apiErr)
-		if err != nil {
-			return fmt.Errorf("error parse errorCode from response body: %s", err.Error())
-		}
-
-		if errCode == `ModelArts.7005` {
-			return golangsdk.ErrDefault404{
-				ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
-					Body: []byte("the Modelarts workspace does not exist"),
-				},
-			}
-		}
-	}
-	return respErr
 }

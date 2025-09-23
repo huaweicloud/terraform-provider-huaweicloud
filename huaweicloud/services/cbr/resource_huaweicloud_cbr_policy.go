@@ -105,13 +105,6 @@ func ResourcePolicy() *schema.Resource {
 				Optional:    true,
 				Description: "The name of the replication destination region.",
 			},
-			"enable_acceleration": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: true,
-				Description: "Whether to enable the acceleration function to shorten the replication time for " +
-					"cross-region",
-			},
 			"destination_project_id": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -156,9 +149,8 @@ func ResourcePolicy() *schema.Resource {
 							Description: "The latest backup of each year is saved in the long term.",
 						},
 						"full_backup_interval": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							ValidateFunc: validation.IntBetween(-1, 100),
+							Type:     schema.TypeInt,
+							Optional: true,
 							Description: "How often (after how many incremental backups) a full backup is " +
 								"performed.",
 						},
@@ -174,6 +166,17 @@ func ResourcePolicy() *schema.Resource {
 				ValidateFunc: validation.StringMatch(regexp.MustCompile(`^UTC[+-]\d{2}:00$`),
 					"The time zone must be in UTC format, such as 'UTC+08:00'."),
 				Description: "The UTC time zone.",
+			},
+			"enable_acceleration": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+				Description: utils.SchemaDesc(
+					"Whether to enable the acceleration function to shorten the replication time for cross-region",
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
 			},
 		},
 	}

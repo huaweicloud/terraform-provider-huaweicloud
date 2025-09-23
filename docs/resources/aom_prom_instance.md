@@ -39,7 +39,7 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID of the
-  AOM prometheus instance. Changing this parameter will create a new resource.
+  AOM prometheus instance. Defaults to **0**. Changing this parameter will create a new resource.
 
 * `prom_version` - (Optional, String, ForceNew) Specifies the version of AOM prometheus instance.
 

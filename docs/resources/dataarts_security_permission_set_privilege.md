@@ -103,7 +103,7 @@ The following arguments are supported:
 
 In addition to all arguments above, the following attributes are exported:
 
-* `name` - The resource ID.
+* `id` - The resource ID.
 
 * `status` - The current synchronization status of the resource.
   The valid values are **UNKNOWN**, **NOT_SYNC**, **SYNC_SUCCESS** and **SYNC_FAIL**.
@@ -140,6 +140,7 @@ resource "huaweicloud_dataarts_security_permission_set_privilege" "test" {
 ## Appendix
 
 <a name="permissions_for_permission_set"></a>
+
 | Type | HIVE | DWS | DLI |
 | ---- | ---- | --- | --- |
 | Permissions | ALL<br>SELECT<br>UPDATE<br>CREATE<br>DROP<br>ALTER<br>INDEX<br>READ<br>WRITE<br> | ALL<br>SELECT<br>UPDATE<br>DROP<br>ALTER<br>INSERT<br>CREATE_TABLE<br>DELETE<br>CREATE_SCHEMA<br> | SELECT<br>DROP<br>ALTER<br>INSERT<br>CREATE_TABLE |

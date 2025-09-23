@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -124,11 +123,11 @@ func resourceApplicationQuotaCreate(ctx context.Context, d *schema.ResourceData,
 		return diag.FromErr(err)
 	}
 
-	quotaId, err := jmespath.Search("app_quota_id", createQuotaBody)
-	if err != nil {
-		return diag.Errorf("error creating APIG application quota: app_quota_id is not found in API response")
+	quotaId := utils.PathSearch("app_quota_id", createQuotaBody, "").(string)
+	if quotaId == "" {
+		return diag.Errorf("unable to find the APIG application quota ID from the API response")
 	}
-	d.SetId(quotaId.(string))
+	d.SetId(quotaId)
 
 	return resourceApplicationQuotaRead(ctx, d, meta)
 }

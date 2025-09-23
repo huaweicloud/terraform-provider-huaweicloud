@@ -1,0 +1,115 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_event_handle_history": {
+          "block": {
+            "attributes": {
+              "asset_value": {
+                "type": "string",
+                "optional": true
+              },
+              "attack_tag": {
+                "type": "string",
+                "optional": true
+              },
+              "data_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "asset_value": "string",
+                      "attack_tag": "string",
+                      "event_abstract": "string",
+                      "event_class_id": "string",
+                      "event_name": "string",
+                      "event_type": "number",
+                      "handle_status": "string",
+                      "handle_time": "number",
+                      "host_name": "string",
+                      "notes": "string",
+                      "occur_time": "number",
+                      "operate_type": "string",
+                      "private_ip": "string",
+                      "public_ip": "string",
+                      "severity": "string",
+                      "user_name": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "event_class_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "event_name": {
+                "type": "string",
+                "optional": true
+              },
+              "event_type": {
+                "type": "number",
+                "optional": true
+              },
+              "handle_status": {
+                "type": "string",
+                "optional": true
+              },
+              "host_ip": {
+                "type": "string",
+                "optional": true
+              },
+              "host_name": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "private_ip": {
+                "type": "string",
+                "optional": true
+              },
+              "public_ip": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "severity": {
+                "type": "string",
+                "optional": true
+              },
+              "sort_dir": {
+                "type": "string",
+                "optional": true
+              },
+              "sort_key": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

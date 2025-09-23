@@ -1,0 +1,38 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_eg_eventrouter_availability_zones": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "names": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The list of availability zone names.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the event router availability zones are located.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "EG",
+            "name": "EventGrid",
+            "catalog": "Middleware",
+            "name_cn": "事件网格",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

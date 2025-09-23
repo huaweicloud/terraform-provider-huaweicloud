@@ -30,6 +30,7 @@ resource "huaweicloud_dms_rocketmq_instance" "test" {
   availability_zones = var.availability_zones
   flavor_id          = "c6.4u8g.cluster"
   storage_spec_code  = "dms.physical.storage.high.v2"
+  broker_num         = 1
 }
 ```
 
@@ -41,7 +42,7 @@ The following arguments are supported:
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
 * `name` - (Required, String) Specifies the name of the DMS RocketMQ instance.
-  An instance name starts with a letter, consists of 4 to 64 characters, and can contain only letters,
+  An instance name starts with a letter, consists of `4` to `64` characters, and can contain only letters,
   digits, underscores (_), and hyphens (-).
 
 * `engine_version` - (Required, String, ForceNew) Specifies the version of the RocketMQ engine.
@@ -49,8 +50,8 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `storage_space` - (Required, Int) Specifies the message storage capacity, Unit: GB.
-  When `engine_version` is **4.8.0**, value ranges from **300** to **30000**.
-  When `engine_version` is **5.x**, value ranges from **200** to **60000**.
+  When `engine_version` is **4.8.0**, value ranges from `300` to `30,000`.
+  When `engine_version` is **5.x**, value ranges from `200` to `60,000`.
 
 * `vpc_id` - (Required, String, ForceNew) Specifies the ID of a VPC.
   Changing this parameter will create a new resource.
@@ -74,22 +75,23 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `description` - (Optional, String) Specifies the description of the DMS RocketMQ instance.
-  The description can contain a maximum of 1024 characters.
+  The description can contain a maximum of `1,024` characters.
 
-* `ssl_enable` - (Optional, Bool, ForceNew) Specifies whether the RocketMQ SASL_SSL is enabled. Defaults to false.
-  Changing this parameter will create a new resource.
+* `ssl_enable` - (Optional, Bool, ForceNew) Specifies whether the RocketMQ SASL_SSL is enabled. Defaults to **false**.
+  Changing this parameter will create a new resource.  
+  If this parameter is set to **true**, `tls_mode` can be omitted or must be set to **SSL**.
+  If this parameter is set to **false**, `tls_mode` cannot be set to **SSL**.
 
-* `ipv6_enable` - (Optional, Bool, ForceNew) Specifies whether to support IPv6. Defaults to false.
+* `ipv6_enable` - (Optional, Bool, ForceNew) Specifies whether to support IPv6. Defaults to **false**.
   Changing this parameter will create a new resource.
 
 * `enable_publicip` - (Optional, Bool) Specifies whether to enable public access. By default, public access is disabled.
 
 * `publicip_id` - (Optional, String) Specifies the ID of the EIP bound to the instance. Use commas (,) to separate
-  multiple EIP IDs. This parameter is mandatory if public access is enabled (that is, enable_publicip is set to true).
-  This parameter can not be updated if public access is disabled.
+  multiple EIP IDs. It is mandatory if `enable_publicip` is **true** and should be empty when `enable_publicip` is **false**.
 
-* `broker_num` - (Optional, Int) Specifies the broker numbers.
-  It's only valid when `engine_version` is **4.8.0**, and defaults to **1**.
+* `broker_num` - (Optional, Int) Specifies the broker numbers. It's **required** when instance architecture is
+  **cluster**. Defaults to `1` when instance architecture is **single node**.
 
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project id of the instance.
 
@@ -103,7 +105,7 @@ The following arguments are supported:
   Changing this creates a new resource.
 
 * `period` - (Optional, Int, ForceNew) Specifies the charging period of the instance. If `period_unit` is set to *month*
-  , the value ranges from 1 to 9. If `period_unit` is set to *year*, the value ranges from 1 to 3. This parameter is
+  , the value ranges from 1 to 9. If `period_unit` is set to *year*, the value ranges from `1` to `3`. This parameter is
   mandatory if `charging_mode` is set to *prePaid*. Changing this creates a new resource.
 
 * `auto_renew` - (Optional, String) Specifies whether auto renew is enabled. Valid values are "true" and "false".
@@ -113,6 +115,12 @@ The following arguments are supported:
 * `configs` - (Optional, List) Specifies the instance configs.
   The [configs](#dms_configs) structure is documented below.
 
+* `tls_mode` - (Optional, String) Specifies TLS mode of the instance.  
+  The valid values are as follows:
+  + **PLAINTEXT**
+  + **SSL**
+  + **PERMISSIVE**
+
 <a name="dms_configs"></a>
 The `configs` block supports:
 
@@ -120,7 +128,7 @@ The `configs` block supports:
 
 * `value` - (Required, String) Specifies the config value.
 
--> When `name` is **fileReservedTime**, `value` ranges from **1** to **720** and unit is **hour**. Defaults to **48**.
+-> When `name` is **fileReservedTime**, `value` ranges from `1` to `720` and unit is **hour**. Defaults to `48`.
 
 ## Attribute Reference
 
@@ -172,6 +180,6 @@ The `cross_vpc_accesses` block supports:
 
 The rocketmq instance can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_dms_rocketmq_instance.test 8d3c7938-dc47-4937-a30f-c80de381c5e3
 ```

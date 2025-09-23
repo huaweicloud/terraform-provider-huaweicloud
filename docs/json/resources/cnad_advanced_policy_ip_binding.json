@@ -1,0 +1,38 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cnad_advanced_policy_ip_binding": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ip_list": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the list of IP addresses to bind the policy.",
+                "required": true
+              },
+              "policy_id": {
+                "type": "string",
+                "description": "Specifies the ID of the protection policy.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "AAD",
+            "name": "Advanced Anti-DDoS",
+            "catalog": "Security & Compliance",
+            "name_cn": "DDoS高防",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

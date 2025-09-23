@@ -32,7 +32,7 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource. If omitted, the
   provider-level region will be used. Changing this creates a new resource.
 
-* `name` - (Required, String) Specifies the template name, which contains a maximum of 128 characters.
+* `name` - (Required, String) Specifies the template name, which contains a maximum of `128` characters.
 
 * `image_file` - (Required, String, ForceNew) Specifies the image file name, e.g. './test.png'.
   Changing this creates a new resource.
@@ -92,7 +92,7 @@ This resource provides the following timeouts configuration options:
 
 The template can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_vod_watermark_template.test 81ac58796e25842ee2e90a904aa8a719
 ```
 
@@ -102,7 +102,7 @@ It is generally recommended running `terraform plan` after importing a watermark
 You can then decide if changes should be applied to the watermark template, or the resource
 definition should be updated to align with the watermark template. Also you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_vod_watermark_template" "test" {
     ...
   lifecycle {

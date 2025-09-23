@@ -2,7 +2,8 @@
 subcategory: "Domain Name Service (DNS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_dns_recordset"
-description: ""
+description: |-
+  Manages a DNS record set resource within HuaweiCloud.
 ---
 
 # huaweicloud_dns_recordset
@@ -11,22 +12,18 @@ Manages a DNS record set resource within HuaweiCloud.
 
 ## Example Usage
 
-### Record Set with Multi-line
+### Record Set with Public Zone
 
 ```hcl
-resource "huaweicloud_dns_zone" "example_zone" {
-  name        = "example.com."
-  email       = "email2@example.com"
-  description = "a zone"
-  ttl         = 6000
-  zone_type   = "public"
-}
+variable "public_zone_id" {}
+variable "public_recordset_name" {}
+variable "description" {}
 
 resource "huaweicloud_dns_recordset" "test" {
-  zone_id     = huaweicloud_dns_zone.example_zone.id
-  name        = "test.example.com."
+  zone_id     = var.public_zone_id
+  name        = var.public_recordset_name
   type        = "A"
-  description = "a recordset description"
+  description = var.description
   status      = "ENABLE"
   ttl         = 300
   records     = ["10.1.0.0"]
@@ -40,42 +37,17 @@ resource "huaweicloud_dns_recordset" "test" {
 }
 ```
 
-### Record Set with Public Zone
-
-```hcl
-resource "huaweicloud_dns_zone" "example_zone" {
-  name        = "example.com."
-  email       = "email2@example.com"
-  description = "a public zone"
-  ttl         = 6000
-  zone_type   = "public"
-}
-
-resource "huaweicloud_dns_recordset" "test" {
-  zone_id     = huaweicloud_dns_zone.example_zone.id
-  name        = "rs.example.com."
-  description = "An example record set"
-  ttl         = 3000
-  type        = "A"
-  records     = ["10.0.0.1"]
-}
-```
-
 ### Record Set with Private Zone
 
 ```hcl
-resource "huaweicloud_dns_zone" "example_zone" {
-  name        = "example.com."
-  email       = "email2@example.com"
-  description = "a private zone"
-  ttl         = 6000
-  zone_type   = "private"
-}
+variable "private_zone_id" {}
+variable "private_recordset_name" {}
+variable "description" {}
 
 resource "huaweicloud_dns_recordset" "test" {
-  zone_id     = huaweicloud_dns_zone.example_zone.id
-  name        = "rs.example.com."
-  description = "An example record set"
+  zone_id     = var.private_zone_id
+  name        = var.private_recordset_name
+  description = var.description
   ttl         = 3000
   type        = "A"
   records     = ["10.0.0.1"]
@@ -89,45 +61,51 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `zone_id` - (Required, String, ForceNew) Specifies the zone ID.
+* `zone_id` - (Required, String, ForceNew) Specifies the ID of the zone to which the record set belongs.  
   Changing this parameter will create a new resource.
 
-* `name` - (Required, String) Specifies the name of the record set.
+* `name` - (Required, String) Specifies the name of the record set.  
   The name suffixed with a zone name, which is a complete host name ended with a dot.
 
-* `type` - (Required, String) Specifies the type of the record set.
-  Value options: **A**, **AAAA**, **MX**, **CNAME**, **TXT**, **NS**, **SRV**, **CAA**.
+* `type` - (Required, String) Specifies the type of the record set.  
+  + For the public record set, the valid values are **A**, **AAAA**, **MX**, **CNAME**, **TXT**, **NS**, **SRV** and **CAA**.
+  + For the private record set, the valid values are **A**, **AAAA**, **MX**, **CNAME**, **TXT** and **SRV**.
 
-* `records` - (Required, List) Specifies an array of DNS records. The value rules vary depending on the record set type.
+* `records` - (Required, List) Specifies the list of the records of the record set.  
+  The value depends on the `type` parameter, you can refer to this [document](https://support.huaweicloud.com/intl/en-us/usermanual-dns/dns_usermanual_0601.html#dns_usermanual_0601__table936244914119).
 
-* `ttl` - (Optional, Int) Specifies the time to live (TTL) of the record set (in seconds).
-  The value range is 1–2147483647. The default value is 300.
+* `ttl` - (Optional, Int) Specifies the time to live (TTL) of the record set (in seconds).  
+  The valid value is range from `1` to `2,147,483,647`. The default value is `300`.
 
-* `status` - (Optional, String) Specifies the status of the record set.
-  Value options: **ENABLE**, **DISABLE**. The default value is **ENABLE**.
+* `line_id` - (Optional, String, ForceNew) Specifies the resolution line ID.  
+  Changing this parameter will create a new resource.
 
-* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the DNS recordset.
+-> Only public zone support. You can use custom line or get more information about default resolution lines
+   from [Resolution Lines](https://support.huaweicloud.com/intl/en-us/api-dns/en-us_topic_0085546214.html).
+
+* `status` - (Optional, String) Specifies the status of the record set, defaults to **ENABLE**.  
+  The valid values are as follows:
+  + **ENABLE**
+  + **DISABLE**
+
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the DNS record set.
 
 * `description` - (Optional, String) Specifies the description of the record set.
 
-* `line_id` - (Optional, String, ForceNew) Specifies the resolution line ID.
-  Changing this parameter will create a new resource.
-
--> **NOTE:** Only public zone support. You can use custom line or get more information about default resolution lines
-from [Resolution Lines](https://support.huaweicloud.com/intl/en-us/api-dns/en-us_topic_0085546214.html).
-
 * `weight` - (Optional, Int) Specifies the weight of the record set.
-  Only public zone support. The value range is 0–1000.
+  Only public zone support. The valid value is range from `1` to `1,000`.
 
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - The resource ID.
+* `id` - The resource ID, consists of the `zone_id` and the record set ID, separated by a slash.
 
-* `zone_name` - The zone name of the record set.
+* `zone_name` - The name of the zone to which the record set belongs.
 
-* `zone_type` - The type of zone. The value can be **public** or **private**.
+* `zone_type` - The type of the zone to which the record set belongs.
+  + **public**
+  + **private**
 
 ## Timeouts
 
@@ -139,8 +117,8 @@ This resource provides the following timeouts configuration options:
 
 ## Import
 
-The DNS recordset can be imported using `zone_id`, `recordset_id`, separated by slashes, e.g.
+The DNS recordset can be imported using `id`, e.g.
 
 ```bash
-$ terraform import huaweicloud_dns_recordset.test <zone_id>/<recordset_id>
+$ terraform import huaweicloud_dns_recordset.test <id>
 ```

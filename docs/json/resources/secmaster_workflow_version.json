@@ -1,0 +1,82 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_secmaster_workflow_version": {
+          "block": {
+            "attributes": {
+              "aop_type": {
+                "type": "string",
+                "required": true
+              },
+              "creator_id": {
+                "type": "string",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "enabled": {
+                "type": "bool",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "owner_id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "taskconfig": {
+                "type": "string",
+                "required": true
+              },
+              "taskflow": {
+                "type": "string",
+                "required": true
+              },
+              "taskflow_type": {
+                "type": "string",
+                "required": true
+              },
+              "version": {
+                "type": "string",
+                "computed": true
+              },
+              "workflow_id": {
+                "type": "string",
+                "required": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

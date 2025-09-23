@@ -17,6 +17,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 // @API DNS DELETE /v2.1/endpoints/{endpoint_id}/ipaddresses/{ipaddress_id}
@@ -51,13 +52,15 @@ func ResourceDNSEndpoint() *schema.Resource {
 				ForceNew: true,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The name of the endpoint.`,
 			},
 			"direction": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The direction of the endpoint.`,
 			},
 			"ip_addresses": {
 				Type:     schema.TypeList,
@@ -67,52 +70,69 @@ func ResourceDNSEndpoint() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"subnet_id": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: `The subnet ID of the IP address.`,
 						},
 						"ip": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
+							Description: utils.SchemaDesc(
+								"The IP address associated with the endpoint.",
+								utils.SchemaDescInput{
+									Internal: true,
+								},
+							),
 						},
 						"ip_address_id": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The ID of the IP address.`,
 						},
 						"status": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The status of IP address.`,
 						},
 						"created_at": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The creation time of the IP address.`,
 						},
 						"updated_at": {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The latest update time of the endpoint.`,
 						},
 					},
 				},
+				Description: `The list of the IP addresses of the endpoint.`,
 			},
 			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The status of endpoint.`,
 			},
 			"vpc_id": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The ID of the VPC to which the subnet belongs.`,
 			},
 			"resolver_rule_count": {
-				Type:     schema.TypeInt,
-				Computed: true,
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The number of bound resolver rules.`,
 			},
 			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The creation time of the endpoint.`,
 			},
 			"updated_at": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The latest update time of the endpoint.`,
 			},
 		},
 	}

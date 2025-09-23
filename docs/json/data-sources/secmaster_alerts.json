@@ -1,0 +1,287 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_secmaster_alerts": {
+          "block": {
+            "attributes": {
+              "alerts": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "arrive_time": "string",
+                      "close_comment": "string",
+                      "close_reason": "string",
+                      "count": "number",
+                      "created_at": "string",
+                      "creator": "string",
+                      "data_class_id": "string",
+                      "data_source": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "product_feature": "string",
+                            "product_name": "string",
+                            "source_type": "number"
+                          }
+                        ]
+                      ],
+                      "debugging_data": "string",
+                      "description": "string",
+                      "domain_id": "string",
+                      "environment": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "cross_workspace_id": "string",
+                            "domain_id": "string",
+                            "project_id": "string",
+                            "region_id": "string",
+                            "vendor_type": "string"
+                          }
+                        ]
+                      ],
+                      "file_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "file_attr": "string",
+                            "file_content": "string",
+                            "file_hash": "string",
+                            "file_md5": "string",
+                            "file_new_path": "string",
+                            "file_path": "string",
+                            "file_sha256": "string"
+                          }
+                        ]
+                      ],
+                      "first_occurrence_time": "string",
+                      "id": "string",
+                      "labels": "string",
+                      "last_occurrence_time": "string",
+                      "level": "string",
+                      "malware": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "malware_class": "string",
+                            "malware_family": "string"
+                          }
+                        ]
+                      ],
+                      "name": "string",
+                      "network_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "dest_domain": "string",
+                            "dest_geo": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "city_code": "string",
+                                  "country_code": "string",
+                                  "latitude": "number",
+                                  "longitude": "number"
+                                }
+                              ]
+                            ],
+                            "dest_ip": "string",
+                            "dest_port": "string",
+                            "direction": "string",
+                            "protocol": "string",
+                            "src_domain": "string",
+                            "src_geo": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "city_code": "string",
+                                  "country_code": "string",
+                                  "latitude": "number",
+                                  "longitude": "number"
+                                }
+                              ]
+                            ],
+                            "src_ip": "string",
+                            "src_port": "string"
+                          }
+                        ]
+                      ],
+                      "owner": "string",
+                      "planned_closure_time": "string",
+                      "process": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "process_child_cmdline": "string",
+                            "process_child_name": "string",
+                            "process_child_path": "string",
+                            "process_child_pid": "number",
+                            "process_child_uid": "number",
+                            "process_cmdline": "string",
+                            "process_launche_time": "string",
+                            "process_name": "string",
+                            "process_parent_cmdline": "string",
+                            "process_parent_name": "string",
+                            "process_parent_path": "string",
+                            "process_parent_pid": "number",
+                            "process_parent_uid": "number",
+                            "process_path": "string",
+                            "process_pid": "number",
+                            "process_terminate_time": "string",
+                            "process_uid": "number"
+                          }
+                        ]
+                      ],
+                      "project_id": "string",
+                      "region_id": "string",
+                      "remediation": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "recommendation": "string",
+                            "url": "string"
+                          }
+                        ]
+                      ],
+                      "resource_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "domain_id": "string",
+                            "ep_id": "string",
+                            "ep_name": "string",
+                            "id": "string",
+                            "name": "string",
+                            "project_id": "string",
+                            "provider": "string",
+                            "region_id": "string",
+                            "tags": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "stage": "string",
+                      "status": "string",
+                      "type": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "alert_type": "string",
+                            "category": "string"
+                          }
+                        ]
+                      ],
+                      "updated_at": "string",
+                      "user_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "user_id": "string",
+                            "user_name": "string"
+                          }
+                        ]
+                      ],
+                      "verification_status": "string",
+                      "version": "string",
+                      "workspace_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The alert list.",
+                "computed": true
+              },
+              "from_date": {
+                "type": "string",
+                "description": "Specifies the search start time.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "to_date": {
+                "type": "string",
+                "description": "Specifies the search end time.",
+                "optional": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "Specifies the ID of the workspace to which the alert belongs.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "condition": {
+                "block": {
+                  "attributes": {
+                    "logics": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "Specifies the expression logic.",
+                      "optional": true
+                    }
+                  },
+                  "block_types": {
+                    "conditions": {
+                      "block": {
+                        "attributes": {
+                          "data": {
+                            "type": [
+                              "list",
+                              "string"
+                            ],
+                            "description": "Specifies the expression content.",
+                            "optional": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "Specifies the expression name.",
+                            "optional": true
+                          }
+                        },
+                        "description": "Specifies the condition expression list."
+                      },
+                      "nesting_mode": "list"
+                    }
+                  },
+                  "description": "Specifies the search condition expression."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

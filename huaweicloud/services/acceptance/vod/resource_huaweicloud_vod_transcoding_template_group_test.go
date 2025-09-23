@@ -2,12 +2,13 @@ package vod
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	vod "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vod/v1/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -15,26 +16,44 @@ import (
 )
 
 func getTemplateResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	c, err := conf.HcVodV1Client(acceptance.HW_REGION_NAME)
+	var (
+		region  = acceptance.HW_REGION_NAME
+		product = "vod"
+		httpUrl = "v1.0/{project_id}/asset/template_group/transcodings"
+	)
+
+	client, err := conf.NewServiceClient(product, region)
 	if err != nil {
 		return nil, fmt.Errorf("error creating VOD client: %s", err)
 	}
 
-	resp, err := c.ListTemplateGroup(&vod.ListTemplateGroupRequest{GroupId: utils.String(state.Primary.ID)})
+	requestPath := client.Endpoint + httpUrl
+	requestPath += fmt.Sprintf("?group_id=%s", state.Primary.ID)
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	resp, err := client.Request("GET", requestPath, &requestOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving VOD transcoding template: %s", err)
+		return nil, err
 	}
 
-	templateGroupList := *resp.TemplateGroupList
-	if len(templateGroupList) == 0 {
-		return nil, fmt.Errorf("unable to retrieve VOD transcoding template: %s", state.Primary.ID)
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return nil, err
 	}
 
-	return templateGroupList[0], nil
+	templateGroup := utils.PathSearch("template_group_list|[0]", respBody, nil)
+	if templateGroup == nil {
+		return nil, golangsdk.ErrDefault404{}
+	}
+
+	return templateGroup, nil
 }
 
 func TestAccTranscodingTemplateGroup_basic(t *testing.T) {
-	var template vod.TemplateGroup
+	var template interface{}
 	rName := acceptance.RandomAccResourceName()
 	rNameUpdate := rName + "_update"
 	resourceName := "huaweicloud_vod_transcoding_template_group.test"

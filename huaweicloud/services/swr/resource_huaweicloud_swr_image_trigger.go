@@ -371,7 +371,7 @@ func resourceSwrImageTriggerDelete(_ context.Context, d *schema.ResourceData, me
 	}
 	_, err = deleteSwrImageTriggerClient.Request("DELETE", deleteSwrImageTriggerPath, &deleteSwrImageTriggerOpt)
 	if err != nil {
-		return diag.Errorf("error deleting SWR image trigger: %s", err)
+		return common.CheckDeletedDiag(d, err, "error deleting SWR image trigger")
 	}
 
 	return nil

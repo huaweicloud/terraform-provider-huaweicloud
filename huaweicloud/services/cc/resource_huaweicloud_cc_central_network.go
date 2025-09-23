@@ -15,7 +15,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -43,6 +42,8 @@ func ResourceCentralNetwork() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
+		CustomizeDiff: config.MergeDefaultTags(),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
@@ -68,13 +69,7 @@ func ResourceCentralNetwork() *schema.Resource {
 				ForceNew:    true,
 				Description: `The enterprise project ID to which the central network belongs.`,
 			},
-			"tags": {
-				Type:        schema.TypeMap,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Optional:    true,
-				Computed:    true,
-				Description: `The key/value pairs to associate with the central network.`,
-			},
+			"tags": common.TagsSchema(),
 			"state": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -120,11 +115,11 @@ func resourceCentralNetworkCreate(ctx context.Context, d *schema.ResourceData, m
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("central_network.id", createCentralNetworkRespBody)
-	if err != nil {
+	id := utils.PathSearch("central_network.id", createCentralNetworkRespBody, "").(string)
+	if id == "" {
 		return diag.Errorf("error creating central network: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	err = centralNetworkWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
@@ -138,7 +133,7 @@ func buildCreateCentralNetworkBodyParams(d *schema.ResourceData, cfg *config.Con
 		"central_network": map[string]interface{}{
 			"name":                  d.Get("name"),
 			"description":           utils.ValueIgnoreEmpty(d.Get("description")),
-			"enterprise_project_id": utils.ValueIgnoreEmpty(common.GetEnterpriseProjectID(d, cfg)),
+			"enterprise_project_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
 			"tags":                  utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 		},
 	}
@@ -184,30 +179,22 @@ func centralNetworkWaitingForStateCompleted(ctx context.Context, d *schema.Resou
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`central_network.state`, createCentralNetworkWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `central_network.state`)
+			statusRaw := utils.PathSearch(`central_network.state`, createCentralNetworkWaitingRespBody, nil)
+			if statusRaw == nil {
+				return nil, "ERROR", fmt.Errorf("error parsing %s from response body", `central_network.state`)
 			}
 
 			status := fmt.Sprintf("%v", statusRaw)
 
-			targetStatus := []string{
-				"AVAILABLE",
+			if utils.StrSliceContains([]string{"FAILED", "DELETED"}, status) {
+				return createCentralNetworkWaitingRespBody, "", fmt.Errorf("unexpected status '%s'", status)
 			}
-			if utils.StrSliceContains(targetStatus, status) {
+
+			if status == "AVAILABLE" {
 				return createCentralNetworkWaitingRespBody, "COMPLETED", nil
 			}
 
-			pendingStatus := []string{
-				"CREATING",
-				"UPDATING",
-				"DELETING",
-			}
-			if utils.StrSliceContains(pendingStatus, status) {
-				return createCentralNetworkWaitingRespBody, "PENDING", nil
-			}
-
-			return createCentralNetworkWaitingRespBody, status, nil
+			return createCentralNetworkWaitingRespBody, "PENDING", nil
 		},
 		Timeout:      t,
 		Delay:        10 * time.Second,
@@ -354,7 +341,7 @@ func resourceCentralNetworkDelete(ctx context.Context, d *schema.ResourceData, m
 
 	_, err = deleteCentralNetworkClient.Request("DELETE", deleteCentralNetworkPath, &deleteCentralNetworkOpt)
 	if err != nil {
-		return diag.Errorf("error deleting central network: %s", err)
+		return common.CheckDeletedDiag(d, err, "error deleting central network")
 	}
 
 	err = deleteCentralNetworkWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutDelete))
@@ -407,28 +394,22 @@ func deleteCentralNetworkWaitingForStateCompleted(ctx context.Context, d *schema
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`central_network.state`, deleteCentralNetworkWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `central_network.state`)
+			statusRaw := utils.PathSearch(`central_network.state`, deleteCentralNetworkWaitingRespBody, nil)
+			if statusRaw == nil {
+				return nil, "ERROR", fmt.Errorf("error parsing %s from response body", `central_network.state`)
 			}
 
 			status := fmt.Sprintf("%v", statusRaw)
 
-			targetStatus := []string{
-				"DELETED",
+			if status == "FAILED" {
+				return deleteCentralNetworkWaitingRespBody, "", fmt.Errorf("unexpected status '%s'", status)
 			}
-			if utils.StrSliceContains(targetStatus, status) {
+
+			if status == "DELETED" {
 				return deleteCentralNetworkWaitingRespBody, "COMPLETED", nil
 			}
 
-			pendingStatus := []string{
-				"DELETING",
-			}
-			if utils.StrSliceContains(pendingStatus, status) {
-				return deleteCentralNetworkWaitingRespBody, "PENDING", nil
-			}
-
-			return deleteCentralNetworkWaitingRespBody, status, nil
+			return deleteCentralNetworkWaitingRespBody, "PENDING", nil
 		},
 		Timeout:      t,
 		Delay:        10 * time.Second,

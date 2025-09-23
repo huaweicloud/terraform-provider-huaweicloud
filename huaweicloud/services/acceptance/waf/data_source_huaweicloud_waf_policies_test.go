@@ -5,29 +5,37 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 )
 
-func TestAccDataSourceWafPoliciesV1_basic(t *testing.T) {
-	name := acceptance.RandomAccResourceName()
-	dataSourceName := "data.huaweicloud_waf_policies.policies_1"
+// Before running the test case, please ensure that there is at least one WAF instance in the current region.
+func TestAccDataSourcePolicies_basic(t *testing.T) {
+	var (
+		name = acceptance.RandomAccResourceName()
+
+		dataSourceName = "data.huaweicloud_waf_policies.test"
+		dc             = acceptance.InitDataSourceCheck(dataSourceName)
+
+		byName   = "data.huaweicloud_waf_policies.name_filter"
+		dcByName = acceptance.InitDataSourceCheck(byName)
+
+		byNonExist   = "data.huaweicloud_waf_policies.non_exist_filter"
+		dcByNonExist = acceptance.InitDataSourceCheck(byNonExist)
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPrecheckWafInstance(t)
+			acceptance.TestAccPreCheckEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccWafPoliciesV1_conf(name),
+				Config: testAccWafPolicies_basic(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckWafPoliciesID(dataSourceName),
-					resource.TestCheckResourceAttr(dataSourceName, "name", name),
-					resource.TestCheckResourceAttr(dataSourceName, "policies.0.name", name),
+					dc.CheckResourceExists(),
+					resource.TestCheckResourceAttrSet(dataSourceName, "policies.0.name"),
 					resource.TestCheckResourceAttrSet(dataSourceName, "policies.0.full_detection"),
 					resource.TestCheckResourceAttrSet(dataSourceName, "policies.0.protection_mode"),
 					resource.TestCheckResourceAttrSet(dataSourceName, "policies.0.robot_action"),
@@ -53,69 +61,60 @@ func TestAccDataSourceWafPoliciesV1_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(dataSourceName, "policies.0.options.0.bot_enable"),
 					resource.TestCheckResourceAttrSet(dataSourceName, "policies.0.options.0.known_attack_source"),
 					resource.TestCheckResourceAttrSet(dataSourceName, "policies.0.options.0.anti_crawler"),
+
+					dcByName.CheckResourceExists(),
+					resource.TestCheckOutput("name_filter_is_useful", "true"),
+
+					dcByNonExist.CheckResourceExists(),
+					resource.TestCheckOutput("non_exist_filter_is_useful", "true"),
 				),
 			},
 		},
 	})
 }
 
-func TestAccDataSourceWafPoliciesV1_withEpsID(t *testing.T) {
-	name := acceptance.RandomAccResourceName()
-	dataSourceName := "data.huaweicloud_waf_policies.policies_1"
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPrecheckWafInstance(t)
-			acceptance.TestAccPreCheckEpsID(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccWafPoliciesV1_conf_epsID(name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckWafPoliciesID(dataSourceName),
-					resource.TestCheckResourceAttr(dataSourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
-					resource.TestCheckResourceAttr(dataSourceName, "name", name),
-					resource.TestCheckResourceAttr(dataSourceName, "policies.#", "1"),
-					resource.TestCheckResourceAttr(dataSourceName, "policies.0.name", name),
-					resource.TestCheckResourceAttrSet(dataSourceName, "policies.0.options.0.blacklist"),
-				),
-			},
-		},
-	})
-}
-
-func testAccCheckWafPoliciesID(r string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[r]
-		if !ok {
-			return fmtp.Errorf("Can't find WAF policies data source: %s.", r)
-		}
-		if rs.Primary.ID == "" {
-			return fmtp.Errorf("The WAF policies data source ID does not set.")
-		}
-		return nil
-	}
-}
-
-func testAccWafPoliciesV1_conf(name string) string {
+func testAccWafPolicies_basic(name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
-data "huaweicloud_waf_policies" "policies_1" {
-  name = huaweicloud_waf_policy.policy_1.name
-}
-`, testAccWafPolicyV1_basic(name))
+data "huaweicloud_waf_policies" "test" {
+  enterprise_project_id = "%[2]s"
 }
 
-func testAccWafPoliciesV1_conf_epsID(name, epsID string) string {
-	return fmt.Sprintf(`
-%s
-
-data "huaweicloud_waf_policies" "policies_1" {
-  name                  = huaweicloud_waf_policy.policy_1.name
-  enterprise_project_id = "%s"
+# Filter by name
+locals {
+  name = data.huaweicloud_waf_policies.test.policies.0.name
 }
-`, testAccWafPolicyV1_basic_withEpsID(name, epsID), epsID)
+
+data "huaweicloud_waf_policies" "name_filter" {
+  name                  = local.name
+  enterprise_project_id = "%[2]s"
+}
+
+locals {
+  name_filter_result = [
+    for v in data.huaweicloud_waf_policies.name_filter.policies[*].name : v == local.name
+  ]
+}
+
+output "name_filter_is_useful" {
+  value = length(local.name_filter_result) > 0 && alltrue(local.name_filter_result)  
+}
+
+# Filter by non-exist name
+data "huaweicloud_waf_policies" "non_exist_filter" {
+  name                  = "non-exist"
+  enterprise_project_id = "%[2]s"
+}
+
+locals {
+  non_exist_filter_result = [
+    for v in data.huaweicloud_waf_policies.non_exist_filter.policies[*].name : v == local.name
+  ]
+}
+
+output "non_exist_filter_is_useful" {
+  value = length(local.non_exist_filter_result) == 0
+}
+`, testAccWafPolicy_basic(name), acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }

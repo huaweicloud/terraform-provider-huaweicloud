@@ -1,0 +1,206 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_coc_ticket_add": {
+          "block": {
+            "attributes": {
+              "approve_type": {
+                "type": "string",
+                "optional": true
+              },
+              "change_guides": {
+                "type": "string",
+                "optional": true
+              },
+              "change_notes": {
+                "type": "string",
+                "optional": true
+              },
+              "change_scene_id": {
+                "type": "string",
+                "optional": true
+              },
+              "change_scheme": {
+                "type": "string",
+                "optional": true
+              },
+              "change_type": {
+                "type": "string",
+                "optional": true
+              },
+              "commit_upload_attachment": {
+                "type": "string",
+                "optional": true
+              },
+              "current_cloud_service_id": {
+                "type": "string",
+                "optional": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "found_time": {
+                "type": "number",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_return_full_info": {
+                "type": "bool",
+                "computed": true
+              },
+              "is_start_process": {
+                "type": "bool",
+                "optional": true
+              },
+              "is_start_process_async": {
+                "type": "bool",
+                "computed": true
+              },
+              "is_update_null": {
+                "type": "bool",
+                "computed": true
+              },
+              "issue_contact_person": {
+                "type": "string",
+                "optional": true
+              },
+              "issue_ticket_type": {
+                "type": "string",
+                "optional": true
+              },
+              "level": {
+                "type": "string",
+                "optional": true
+              },
+              "location_id": {
+                "type": "string",
+                "optional": true
+              },
+              "plan_task_id": {
+                "type": "string",
+                "optional": true
+              },
+              "plan_task_name": {
+                "type": "string",
+                "optional": true
+              },
+              "plan_task_params": {
+                "type": "string",
+                "optional": true
+              },
+              "plan_task_sub_type": {
+                "type": "string",
+                "optional": true
+              },
+              "regions": {
+                "type": "string",
+                "optional": true
+              },
+              "root_cause_cloud_service": {
+                "type": "string",
+                "optional": true
+              },
+              "schedule_roles": {
+                "type": "string",
+                "optional": true
+              },
+              "schedule_roles_name": {
+                "type": "string",
+                "optional": true
+              },
+              "schedule_scenes": {
+                "type": "string",
+                "optional": true
+              },
+              "source": {
+                "type": "string",
+                "optional": true
+              },
+              "source_id": {
+                "type": "string",
+                "optional": true
+              },
+              "ticket_id": {
+                "type": "string",
+                "computed": true
+              },
+              "ticket_type": {
+                "type": "string",
+                "required": true
+              },
+              "title": {
+                "type": "string",
+                "required": true
+              },
+              "virtual_schedule_role": {
+                "type": "string",
+                "optional": true
+              },
+              "virtual_schedule_type": {
+                "type": "string",
+                "optional": true
+              }
+            },
+            "block_types": {
+              "sub_tickets": {
+                "block": {
+                  "attributes": {
+                    "app_name": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "cooperators": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "executors": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "expected_end_time": {
+                      "type": "number",
+                      "optional": true
+                    },
+                    "expected_start_time": {
+                      "type": "number",
+                      "optional": true
+                    },
+                    "region": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "target_type": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "target_value": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "COC",
+            "name": "Cloud Operations Center",
+            "catalog": "Management & Governance",
+            "name_cn": "云运维中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

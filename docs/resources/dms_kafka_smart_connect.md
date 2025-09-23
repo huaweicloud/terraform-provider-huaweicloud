@@ -33,7 +33,7 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `storage_spec_code` - (Required, String, ForceNew) Specifies the storage specification code of the connector.
+* `storage_spec_code` - (Optional, String, ForceNew) Specifies the storage specification code of the connector.
 
   Changing this parameter will create a new resource.
 
@@ -55,6 +55,6 @@ In addition to all arguments above, the following attribute is exported:
 
 The kafka smart connect can be imported using the kafka `instance_id` and `id` separated by a slash, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_dms_kafka_smart_connect.test <instance_id>/<id>
 ```

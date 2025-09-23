@@ -1,0 +1,19 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dds_primary_standby_switch
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DDS
+paths:
+    /v3/{project_id}/instances/{instance_id}/nodes/{node_id}/primary:
+        POST:
+            tag: DDS
+    /v3/{project_id}/instances/{instance_id}/switchover:
+        POST:
+            tag: DDS
+    /v3/{project_id}/jobs:
+        GET:
+            tag: DDS

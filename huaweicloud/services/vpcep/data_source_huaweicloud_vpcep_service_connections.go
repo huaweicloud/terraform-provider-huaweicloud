@@ -32,6 +32,10 @@ func DataSourceVPCEPServiceConnections() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"marker_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"status": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -50,6 +54,10 @@ func connectionsSchema() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"endpoint_id": {
 				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"marker_id": {
+				Type:     schema.TypeInt,
 				Computed: true,
 			},
 			"domain_id": {
@@ -88,6 +96,7 @@ func datasourceVpcepServiceConnectionsRead(_ context.Context, d *schema.Resource
 	serviceId := d.Get("service_id").(string)
 	listConnOpts := services.ListConnOpts{
 		EndpointID: d.Get("endpoint_id").(string),
+		MarkerID:   d.Get("marker_id").(string),
 		Status:     d.Get("status").(string),
 	}
 
@@ -118,6 +127,7 @@ func flattenListVPCEPServiceConnections(allConnections []services.Connection) []
 	for i, v := range allConnections {
 		connections[i] = map[string]interface{}{
 			"endpoint_id": v.EndpointID,
+			"marker_id":   v.MarkerID,
 			"domain_id":   v.DomainID,
 			"status":      v.Status,
 			"created_at":  v.Created,

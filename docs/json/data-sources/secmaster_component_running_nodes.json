@@ -1,0 +1,141 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_secmaster_component_running_nodes": {
+          "block": {
+            "attributes": {
+              "component_id": {
+                "type": "string",
+                "description": "Specifies the component ID.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "node_id": {
+                "type": "string",
+                "description": "Specifies the node ID.",
+                "optional": true
+              },
+              "node_name": {
+                "type": "string",
+                "description": "Specifies the node name.",
+                "optional": true
+              },
+              "records": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "component_id": "string",
+                      "component_name": "string",
+                      "config_status": "string",
+                      "create_time": "number",
+                      "fail_deploy_message": "string",
+                      "ip_address": "string",
+                      "list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "component_id": "string",
+                            "configuration_id": "string",
+                            "file_name": "string",
+                            "file_path": "string",
+                            "file_type": "string",
+                            "node_id": "string",
+                            "param": "string",
+                            "type": "string",
+                            "version": "number"
+                          }
+                        ]
+                      ],
+                      "monitor": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "cpu_idle": "string",
+                            "cpu_usage": "string",
+                            "disk_count": "string",
+                            "disk_usage": "string",
+                            "down_pps": "string",
+                            "health_status": "string",
+                            "heart_beat": "string",
+                            "heart_beat_time": "string",
+                            "memory_cache": "string",
+                            "memory_count": "string",
+                            "memory_free": "string",
+                            "memory_shared": "string",
+                            "memory_usage": "string",
+                            "mini_on_online": "string",
+                            "read_rate": "string",
+                            "up_pps": "string",
+                            "write_rate": "string"
+                          }
+                        ]
+                      ],
+                      "node_apply_fail_enum": "string",
+                      "node_expansion": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "custom_label": "string",
+                            "data_center": "string",
+                            "description": "string",
+                            "maintainer": "string",
+                            "network_plane": "string",
+                            "node_id": "string"
+                          }
+                        ]
+                      ],
+                      "node_id": "string",
+                      "node_name": "string",
+                      "private_ip_address": "string",
+                      "region": "string",
+                      "specification": "string",
+                      "vpc_endpoint_address": "string",
+                      "vpc_endpoint_id": "string"
+                    }
+                  ]
+                ],
+                "description": "The component running nodes list.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "sort_dir": {
+                "type": "string",
+                "description": "Specifies the sorting order. Supported values are **ASC** and **DESC**.",
+                "optional": true
+              },
+              "sort_key": {
+                "type": "string",
+                "description": "Specifies the attribute fields for sorting.",
+                "optional": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "Specifies the workspace ID.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

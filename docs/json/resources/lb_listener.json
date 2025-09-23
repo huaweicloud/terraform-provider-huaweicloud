@@ -5,20 +5,24 @@
         "huaweicloud_lb_listener": {
           "block": {
             "attributes": {
-              "connection_limit": {
-                "type": "number",
+              "client_ca_tls_container_ref": {
+                "type": "string",
                 "optional": true,
+                "computed": true
+              },
+              "created_at": {
+                "type": "string",
                 "computed": true
               },
               "default_pool_id": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "default_tls_container_ref": {
                 "type": "string",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "description": {
                 "type": "string",
@@ -26,8 +30,7 @@
               },
               "http2_enable": {
                 "type": "bool",
-                "optional": true,
-                "default": false
+                "optional": true
               },
               "id": {
                 "type": "string",
@@ -35,23 +38,29 @@
               },
               "loadbalancer_id": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "name": {
                 "type": "string",
                 "optional": true,
                 "computed": true
               },
+              "protection_reason": {
+                "type": "string",
+                "optional": true
+              },
+              "protection_status": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "protocol": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "protocol_port": {
                 "type": "number",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "region": {
                 "type": "string",
@@ -59,17 +68,48 @@
               },
               "sni_container_refs": {
                 "type": [
-                  "list",
+                  "set",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "tags": {
                 "type": [
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
+              },
+              "tls_ciphers_policy": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "insert_headers": {
+                "block": {
+                  "attributes": {
+                    "x_forwarded_elb_ip": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "x_forwarded_host": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
               }
             }
           },

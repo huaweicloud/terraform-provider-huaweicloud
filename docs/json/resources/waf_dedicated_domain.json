@@ -16,6 +16,30 @@
                 ],
                 "computed": true
               },
+              "block_page": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "custom_page": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "content": "string",
+                            "content_type": "string",
+                            "status_code": "string"
+                          }
+                        ]
+                      ],
+                      "redirect_url": "string",
+                      "template": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
               "certificate_id": {
                 "type": "string",
                 "optional": true
@@ -43,13 +67,35 @@
               },
               "domain": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "enterprise_project_id": {
                 "type": "string",
                 "optional": true,
-                "forcenew": true
+                "computed": true
+              },
+              "extend": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "computed": true
+              },
+              "flag": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cname": "string",
+                      "ipv6": "string",
+                      "is_dual_az": "string",
+                      "pci_3ds": "string",
+                      "pci_dss": "string"
+                    }
+                  ]
+                ],
+                "computed": true
               },
               "forward_header_map": {
                 "type": [
@@ -68,6 +114,21 @@
                 "optional": true,
                 "default": true
               },
+              "listener_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "loadbalancer_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "mode": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "pci_3ds": {
                 "type": "bool",
                 "optional": true,
@@ -83,6 +144,13 @@
                 "optional": true,
                 "computed": true
               },
+              "pool_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
               "protect_status": {
                 "type": "number",
                 "optional": true,
@@ -90,6 +158,11 @@
               },
               "protocol": {
                 "type": "string",
+                "computed": true
+              },
+              "protocol_port": {
+                "type": "number",
+                "optional": true,
                 "computed": true
               },
               "proxy": {
@@ -103,6 +176,10 @@
               },
               "region": {
                 "type": "string",
+                "computed": true
+              },
+              "timestamp": {
+                "type": "number",
                 "computed": true
               },
               "tls": {
@@ -192,39 +269,31 @@
                   "attributes": {
                     "address": {
                       "type": "string",
-                      "required": true,
-                      "forcenew": true
+                      "required": true
                     },
                     "client_protocol": {
                       "type": "string",
-                      "required": true,
-                      "forcenew": true
+                      "required": true
                     },
                     "port": {
                       "type": "number",
-                      "required": true,
-                      "forcenew": true
+                      "required": true
                     },
                     "server_protocol": {
                       "type": "string",
-                      "required": true,
-                      "forcenew": true
+                      "required": true
                     },
                     "type": {
                       "type": "string",
-                      "required": true,
-                      "forcenew": true
+                      "required": true
                     },
                     "vpc_id": {
                       "type": "string",
-                      "required": true,
-                      "forcenew": true
+                      "required": true
                     }
                   }
                 },
                 "nesting_mode": "list",
-                "forcenew": true,
-                "min_items": 1,
                 "max_items": 80
               },
               "timeout_settings": {

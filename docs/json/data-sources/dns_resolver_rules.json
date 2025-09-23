@@ -1,0 +1,82 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dns_resolver_rules": {
+          "block": {
+            "attributes": {
+              "domain_name": {
+                "type": "string",
+                "description": "Specifies the domain name of the endpoint rule to be queried.",
+                "optional": true
+              },
+              "endpoint_id": {
+                "type": "string",
+                "description": "Specifies the endpoint ID.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the endpoint rule to be queried.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "resolver_rule_id": {
+                "type": "string",
+                "description": "Specifies the ID of an endpoint rule.",
+                "optional": true
+              },
+              "resolver_rules": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "create_time": "string",
+                      "domain_name": "string",
+                      "endpoint_id": "string",
+                      "id": "string",
+                      "ipaddress_count": "number",
+                      "name": "string",
+                      "routers": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "router_id": "string",
+                            "router_region": "string",
+                            "status": "string"
+                          }
+                        ]
+                      ],
+                      "rule_type": "string",
+                      "status": "string",
+                      "update_time": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of endpoint rules.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DNS",
+            "name": "Domain Name Service",
+            "catalog": "Networking",
+            "name_cn": "云解析服务",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

@@ -10,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -23,11 +22,11 @@ import (
 // @API DNS GET /v2.1/linegroups/{linegroup_id}
 // @API DNS PUT /v2.1/linegroups/{linegroup_id}
 // @API DNS DELETE /v2.1/linegroups/{linegroup_id}
-func ResourceDNSLineGroup() *schema.Resource {
+func ResourceLineGroup() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceDNSLineGroupCreate,
-		UpdateContext: resourceDNSLineGroupUpdate,
-		ReadContext:   resourceDNSLineGroupRead,
+		CreateContext: resourceLineGroupCreate,
+		UpdateContext: resourceLineGroupUpdate,
+		ReadContext:   resourceLineGroupRead,
 		DeleteContext: resourceLineGroupDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -49,19 +48,19 @@ func ResourceDNSLineGroup() *schema.Resource {
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: `Specifies the line group name.`,
+				Description: `The line group name.`,
 			},
 			"lines": {
 				Type:        schema.TypeSet,
 				Required:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: `Specifies the lines.`,
+				Description: `The list of the resolution line IDs.`,
 				Set:         schema.HashString,
 			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specifies the line group description. A maximum of 255 characters are allowed.`,
+				Description: `The line group description.`,
 			},
 			"status": {
 				Type:        schema.TypeString,
@@ -71,187 +70,166 @@ func ResourceDNSLineGroup() *schema.Resource {
 			"created_at": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Resource creation time.`,
+				Description: `The creation time of the line group.`,
 			},
 			"updated_at": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Resource update time.`,
+				Description: `The latest update time of the line group.`,
 			},
 		},
 	}
 }
 
-func resourceDNSLineGroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceLineGroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	createDNSLineGroupClient, err := cfg.NewServiceClient("dns", region)
+	client, err := cfg.NewServiceClient("dns", cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating DNS client: %s", err)
 	}
 
-	// createDNSLineGroup: Create the DNS line group
-	if err := createDNSLineGroup(createDNSLineGroupClient, d); err != nil {
+	if err := createLineGroup(client, d); err != nil {
 		return diag.FromErr(err)
 	}
 
-	timeout := d.Timeout(schema.TimeoutCreate)
-	if err := waitForDNSLineGroupCreateOrUpdate(ctx, createDNSLineGroupClient, d, timeout); err != nil {
+	err = waitForLineGroupCreatedOrUpdated(ctx, client, d.Id(), d.Timeout(schema.TimeoutCreate))
+	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	return resourceDNSLineGroupRead(ctx, d, meta)
+	return resourceLineGroupRead(ctx, d, meta)
 }
 
-func createDNSLineGroup(lineGroupClient *golangsdk.ServiceClient, d *schema.ResourceData) error {
-	var createDNSLineGroupHttpUrl = "v2.1/linegroups"
-
-	createDNSLineGroupPath := lineGroupClient.Endpoint + createDNSLineGroupHttpUrl
-	createDNSLineGroupOpt := golangsdk.RequestOpts{
+func createLineGroup(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	createLineGroupHttpUrl := "v2.1/linegroups"
+	createLineGroupPath := client.Endpoint + createLineGroupHttpUrl
+	createLineGroupOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			202,
-		},
+		JSONBody:         utils.RemoveNil(buildCreateOrUpdateLineGroupBodyParams(d)),
 	}
-	createDNSLineGroupOpt.JSONBody = utils.RemoveNil(buildCreateOrUpdateDNSLineGroupBodyParams(d))
-	createDNSLineGroupResp, err := lineGroupClient.Request("POST", createDNSLineGroupPath,
-		&createDNSLineGroupOpt)
+	createLineGroupResp, err := client.Request("POST", createLineGroupPath, &createLineGroupOpt)
 	if err != nil {
 		return fmt.Errorf("error creating DNS line group: %s", err)
 	}
 
-	createDNSLineGroupRespBody, err := utils.FlattenResponse(createDNSLineGroupResp)
+	createLineGroupRespBody, err := utils.FlattenResponse(createLineGroupResp)
 	if err != nil {
 		return err
 	}
 
-	id, err := jmespath.Search("line_id", createDNSLineGroupRespBody)
-	if err != nil {
-		return fmt.Errorf("error creating DNS line group: ID is not found in API response")
+	lineId := utils.PathSearch("line_id", createLineGroupRespBody, "").(string)
+	if lineId == "" {
+		return fmt.Errorf("unable to find the related line ID of the DNS line group from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(lineId)
 	return nil
 }
 
-func waitForDNSLineGroupCreateOrUpdate(ctx context.Context, lineGroupClient *golangsdk.ServiceClient,
-	d *schema.ResourceData, timeout time.Duration) error {
+func waitForLineGroupCreatedOrUpdated(ctx context.Context, client *golangsdk.ServiceClient, lineGroupId string, timeOut time.Duration) error {
 	stateConf := &resource.StateChangeConf{
-		Target:       []string{"ACTIVE"},
+		Target:       []string{"COMPLETED"},
 		Pending:      []string{"PENDING_CREATE", "PENDING_UPDATE"},
-		Refresh:      dnsLineGroupStatusRefreshFunc(d, lineGroupClient),
-		Timeout:      timeout,
+		Refresh:      lineGroupStatusRefreshFunc(client, lineGroupId, []string{"ACTIVE"}),
+		Timeout:      timeOut,
 		Delay:        5 * time.Second,
 		PollInterval: 5 * time.Second,
 	}
 	_, err := stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmt.Errorf("error waiting for DNS line group (%s) to be ACTIVE: %s", d.Id(), err)
+		return fmt.Errorf("error waiting for DNS line group (%s) to be completed: %s", lineGroupId, err)
 	}
 	return nil
 }
 
-func buildCreateOrUpdateDNSLineGroupBodyParams(d *schema.ResourceData) map[string]interface{} {
+func buildCreateOrUpdateLineGroupBodyParams(d *schema.ResourceData) map[string]interface{} {
 	dnsLines := d.Get("lines").(*schema.Set).List()
 
 	return map[string]interface{}{
-		"name":        utils.ValueIgnoreEmpty(d.Get("name")),
+		// Required parameters.
+		"name":  d.Get("name"),
+		"lines": dnsLines,
+		// Optional parameters.
 		"description": utils.ValueIgnoreEmpty(d.Get("description")),
-		"lines":       utils.ValueIgnoreEmpty(dnsLines),
 	}
 }
 
-func resourceDNSLineGroupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
+// GetLineGroupById is a method used to get line group information by specified ID.
+func GetLineGroupById(client *golangsdk.ServiceClient, lineGroupId string) (interface{}, error) {
+	getLineGroupHttpUrl := "v2.1/linegroups/{linegroup_id}"
+	getLineGroupPath := client.Endpoint + getLineGroupHttpUrl
+	getLineGroupPath = strings.ReplaceAll(getLineGroupPath, "{linegroup_id}", lineGroupId)
 
-	// getDNSLineGroup: Query the DNS line group detail.
+	getLineGroupOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	getLineGroupResp, err := client.Request("GET", getLineGroupPath, &getLineGroupOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(getLineGroupResp)
+}
+
+func resourceLineGroupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		getDNSLineGroupHttpUrl = "v2.1/linegroups/{linegroup_id}"
-		getDNSLineGroupProduct = "dns"
+		cfg    = meta.(*config.Config)
+		region = cfg.GetRegion(d)
 	)
-	getDNSLineGroupClient, err := cfg.NewServiceClient(getDNSLineGroupProduct, region)
+
+	client, err := cfg.NewServiceClient("dns", region)
 	if err != nil {
 		return diag.Errorf("error creating DNS client: %s", err)
 	}
 
-	getDNSLineGroupPath := getDNSLineGroupClient.Endpoint + getDNSLineGroupHttpUrl
-	getDNSLineGroupPath = strings.ReplaceAll(getDNSLineGroupPath, "{linegroup_id}", d.Id())
-
-	getDNSLineGroupOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-	}
-	getDNSLineGroupResp, err := getDNSLineGroupClient.Request("GET", getDNSLineGroupPath,
-		&getDNSLineGroupOpt)
-
+	lineGroup, err := GetLineGroupById(client, d.Id())
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving DNS line group")
-	}
-
-	getDNSLineGroupRespBody, err := utils.FlattenResponse(getDNSLineGroupResp)
-	if err != nil {
-		return diag.FromErr(err)
 	}
 
 	mErr := multierror.Append(
 		nil,
 		d.Set("region", region),
-		d.Set("name", utils.PathSearch("name", getDNSLineGroupRespBody, nil)),
-		d.Set("lines", utils.PathSearch("lines", getDNSLineGroupRespBody, nil)),
-		d.Set("status", utils.PathSearch("status", getDNSLineGroupRespBody, nil)),
-		d.Set("description", utils.PathSearch("description", getDNSLineGroupRespBody, nil)),
-		d.Set("created_at", utils.PathSearch("created_at", getDNSLineGroupRespBody, nil)),
-		d.Set("updated_at", utils.PathSearch("updated_at", getDNSLineGroupRespBody, nil)),
+		d.Set("name", utils.PathSearch("name", lineGroup, nil)),
+		d.Set("lines", utils.PathSearch("lines", lineGroup, nil)),
+		d.Set("description", utils.PathSearch("description", lineGroup, nil)),
+		// Attributes
+		d.Set("status", utils.PathSearch("status", lineGroup, nil)),
+		d.Set("created_at", utils.PathSearch("created_at", lineGroup, nil)),
+		d.Set("updated_at", utils.PathSearch("updated_at", lineGroup, nil)),
 	)
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func resourceDNSLineGroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceLineGroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-	updateDNSLineGroupClient, err := cfg.NewServiceClient("dns", region)
+	client, err := cfg.NewServiceClient("dns", region)
 	if err != nil {
 		return diag.Errorf("error creating DNS client: %s", err)
 	}
 
-	updateDNSLineGroupChanges := []string{
-		"name",
-		"description",
-		"lines",
+	if err := updateLineGroup(client, d); err != nil {
+		return diag.FromErr(err)
 	}
 
-	if d.HasChanges(updateDNSLineGroupChanges...) {
-		// updateDNSLineGroup: Update the DNS line group
-		if err := updateDNSLineGroup(updateDNSLineGroupClient, d); err != nil {
-			return diag.FromErr(err)
-		}
-
-		timeout := d.Timeout(schema.TimeoutUpdate)
-		if err := waitForDNSLineGroupCreateOrUpdate(ctx, updateDNSLineGroupClient, d, timeout); err != nil {
-			return diag.FromErr(err)
-		}
+	err = waitForLineGroupCreatedOrUpdated(ctx, client, d.Id(), d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
-	return resourceDNSLineGroupRead(ctx, d, meta)
+	return resourceLineGroupRead(ctx, d, meta)
 }
 
-func updateDNSLineGroup(lineGroupClient *golangsdk.ServiceClient, d *schema.ResourceData) error {
-	var updateDNSLineGroupHttpUrl = "v2.1/linegroups/{linegroup_id}"
+func updateLineGroup(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	updateLineGroupHttpUrl := "v2.1/linegroups/{linegroup_id}"
+	updateLineGroupPath := client.Endpoint + updateLineGroupHttpUrl
+	updateLineGroupPath = strings.ReplaceAll(updateLineGroupPath, "{linegroup_id}", d.Id())
 
-	updateDNSLineGroupPath := lineGroupClient.Endpoint + updateDNSLineGroupHttpUrl
-	updateDNSLineGroupPath = strings.ReplaceAll(updateDNSLineGroupPath, "{linegroup_id}", d.Id())
-
-	updateDNSLineGroupOpt := golangsdk.RequestOpts{
+	updateLineGroupOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			202,
-		},
+		JSONBody:         utils.RemoveNil(buildCreateOrUpdateLineGroupBodyParams(d)),
 	}
-	updateDNSLineGroupOpt.JSONBody = utils.RemoveNil(buildCreateOrUpdateDNSLineGroupBodyParams(d))
-	_, err := lineGroupClient.Request("PUT", updateDNSLineGroupPath,
-		&updateDNSLineGroupOpt)
+	_, err := client.Request("PUT", updateLineGroupPath, &updateLineGroupOpt)
 	if err != nil {
 		return fmt.Errorf("error updating DNS line group: %s", err)
 	}
@@ -259,84 +237,66 @@ func updateDNSLineGroup(lineGroupClient *golangsdk.ServiceClient, d *schema.Reso
 }
 
 func resourceLineGroupDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// deleteDNSLineGroup: Delete the DNS line group
 	var (
-		deleteDNSLineGroupHttpUrl = "v2.1/linegroups/{linegroup_id}"
-		deleteDNSLineGroupProduct = "dns"
+		cfg                    = meta.(*config.Config)
+		region                 = cfg.GetRegion(d)
+		deleteLineGroupHttpUrl = "v2.1/linegroups/{linegroup_id}"
+		lineGroupId            = d.Id()
 	)
-	deleteDNSLineGroupClient, err := cfg.NewServiceClient(deleteDNSLineGroupProduct, region)
+	client, err := cfg.NewServiceClient("dns", region)
 	if err != nil {
 		return diag.Errorf("error creating DNS client: %s", err)
 	}
 
-	deleteDNSLineGroupPath := deleteDNSLineGroupClient.Endpoint + deleteDNSLineGroupHttpUrl
-	deleteDNSLineGroupPath = strings.ReplaceAll(deleteDNSLineGroupPath, "{linegroup_id}", d.Id())
+	deleteLineGroupPath := client.Endpoint + deleteLineGroupHttpUrl
+	deleteLineGroupPath = strings.ReplaceAll(deleteLineGroupPath, "{linegroup_id}", lineGroupId)
 
-	deleteDNSLineGroupOpt := golangsdk.RequestOpts{
+	deleteLineGroupOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			202,
-		},
 	}
-	_, err = deleteDNSLineGroupClient.Request("DELETE", deleteDNSLineGroupPath, &deleteDNSLineGroupOpt)
+	_, err = client.Request("DELETE", deleteLineGroupPath, &deleteLineGroupOpt)
 	if err != nil {
-		return diag.Errorf("error deleting DNS line group: %s", err)
+		return common.CheckDeletedDiag(d, err, "error deleting DNS line group")
 	}
 
-	if err := waitForDNSLineGroupDeleted(ctx, deleteDNSLineGroupClient, d); err != nil {
+	if err := waitForLineGroupDeleted(ctx, client, lineGroupId, d.Timeout(schema.TimeoutDelete)); err != nil {
 		return diag.FromErr(err)
 	}
 	return nil
 }
 
-func waitForDNSLineGroupDeleted(ctx context.Context, lineGroupClient *golangsdk.ServiceClient,
-	d *schema.ResourceData) error {
+func waitForLineGroupDeleted(ctx context.Context, client *golangsdk.ServiceClient, lineGroupId string, timeOut time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Target:       []string{"DELETED"},
 		Pending:      []string{"ACTIVE", "PENDING_CREATE", "PENDING_DELETE", "PENDING_UPDATE", "ERROR", "FREEZE", "DISABLE"},
-		Refresh:      dnsLineGroupStatusRefreshFunc(d, lineGroupClient),
-		Timeout:      d.Timeout(schema.TimeoutDelete),
+		Refresh:      lineGroupStatusRefreshFunc(client, lineGroupId, nil),
+		Timeout:      timeOut,
 		Delay:        5 * time.Second,
 		PollInterval: 5 * time.Second,
 	}
 	_, err := stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return fmt.Errorf("error waiting for DNS line group (%s) to be DELETED: %s", d.Id(), err)
+		return fmt.Errorf("error waiting for DNS line group (%s) to be deleted: %s", lineGroupId, err)
 	}
 	return nil
 }
 
-func dnsLineGroupStatusRefreshFunc(d *schema.ResourceData, client *golangsdk.ServiceClient) resource.StateRefreshFunc {
+func lineGroupStatusRefreshFunc(client *golangsdk.ServiceClient, lineGroupId string, targets []string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		var getDNSLineGroupHttpUrl = "v2.1/linegroups/{linegroup_id}"
-
-		getDNSLineGroupPath := client.Endpoint + getDNSLineGroupHttpUrl
-		getDNSLineGroupPath = strings.ReplaceAll(getDNSLineGroupPath, "{linegroup_id}", d.Id())
-		getDNSLineGroupOpt := golangsdk.RequestOpts{
-			KeepResponseBody: true,
-			OkCodes: []int{
-				200,
-			},
-		}
-
-		getDNSLineGroupResp, err := client.Request("GET", getDNSLineGroupPath, &getDNSLineGroupOpt)
+		lineGroup, err := GetLineGroupById(client, lineGroupId)
 		if err != nil {
-			if _, ok := err.(golangsdk.ErrDefault404); ok {
+			if _, ok := err.(golangsdk.ErrDefault404); ok && len(targets) < 1 {
 				// When the error code is 404, the value of respBody is nil, and a non-null value is returned to avoid continuing the loop check.
 				return "Resource Not Found", "DELETED", nil
 			}
 			return nil, "", err
 		}
 
-		getDNSLineGroupRespBody, err := utils.FlattenResponse(getDNSLineGroupResp)
-		if err != nil {
-			return nil, "", err
+		status := utils.PathSearch("status", lineGroup, "").(string)
+		if utils.StrSliceContains(targets, status) {
+			return lineGroup, "COMPLETED", nil
 		}
 
-		status := utils.PathSearch("status", getDNSLineGroupRespBody, "")
-		return getDNSLineGroupRespBody, parseStatus(status.(string)), nil
+		return lineGroup, status, nil
 	}
 }

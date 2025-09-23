@@ -59,8 +59,7 @@ The following arguments are supported:
 
 * `tags` - (Optional, Map) The key/value pairs to associate with the loadbalancer.
 
-* `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the loadbalancer. Changing this
-  creates a new loadbalancer.
+* `enterprise_project_id` - (Optional, String) The enterprise project id of the loadbalancer.
 
 * `protection_status` - (Optional, String) Specifies whether modification protection is enabled. Value options:
   + **nonProtection**: No protection.
@@ -116,7 +115,7 @@ This resource provides the following timeouts configuration options:
 
 Load balancers can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_lb_loadbalancer.test 3e3632db-36c6-4b28-a92e-e72e6562daa6
 ```
 

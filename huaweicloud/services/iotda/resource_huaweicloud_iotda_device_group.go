@@ -3,16 +3,13 @@ package iotda
 import (
 	"context"
 	"fmt"
-	"log"
-	"regexp"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	iotdav5 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5"
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -42,39 +39,37 @@ func ResourceDeviceGroup() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(1, 64),
-					validation.StringMatch(regexp.MustCompile(`^[A-Za-z-_0-9]*$`),
-						"Only letters, digits, underscores (_) and hyphens (-) are allowed."),
-				),
 			},
-
 			"space_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(0, 64),
-					validation.StringMatch(regexp.MustCompile(stringRegxp), stringFormatMsg),
-				),
 			},
-
 			"parent_group_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
-
+			"type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+			"dynamic_group_rule": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
 			"device_ids": {
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -85,88 +80,225 @@ func ResourceDeviceGroup() *schema.Resource {
 	}
 }
 
+func buildCreateDeviceGroupBodyParams(d *schema.ResourceData) map[string]interface{} {
+	return map[string]interface{}{
+		"name":               d.Get("name"),
+		"description":        utils.ValueIgnoreEmpty(d.Get("description")),
+		"super_group_id":     utils.ValueIgnoreEmpty(d.Get("parent_group_id")),
+		"app_id":             d.Get("space_id"),
+		"group_type":         utils.ValueIgnoreEmpty(d.Get("type")),
+		"dynamic_group_rule": utils.ValueIgnoreEmpty(d.Get("dynamic_group_rule")),
+	}
+}
+
 func resourceDeviceGroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	region := c.GetRegion(d)
-	isDerived := WithDerivedAuth(c, region)
-	client, err := c.HcIoTdaV5Client(region, isDerived)
+	var (
+		cfg       = meta.(*config.Config)
+		region    = cfg.GetRegion(d)
+		isDerived = WithDerivedAuth(cfg, region)
+		product   = "iotda"
+	)
+
+	client, err := cfg.NewServiceClientWithDerivedAuth(product, region, isDerived)
 	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+		return diag.Errorf("error creating IoTDA client: %s", err)
 	}
 
-	createOpts := model.AddDeviceGroupRequest{
-		Body: &model.AddDeviceGroupDto{
-			Name:         utils.String(d.Get("name").(string)),
-			Description:  utils.StringIgnoreEmpty(d.Get("description").(string)),
-			SuperGroupId: utils.StringIgnoreEmpty(d.Get("parent_group_id").(string)),
-			AppId:        utils.String(d.Get("space_id").(string)),
-		},
+	createPath := client.Endpoint + "v5/iot/{project_id}/device-group"
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildCreateDeviceGroupBodyParams(d)),
 	}
-	log.Printf("[DEBUG] Create IoTDA device group params: %#v", createOpts)
 
-	resp, err := client.AddDeviceGroup(&createOpts)
+	createResp, err := client.Request("POST", createPath, &createOpt)
 	if err != nil {
 		return diag.Errorf("error creating IoTDA device group: %s", err)
 	}
 
-	if resp.GroupId == nil {
-		return diag.Errorf("error creating IoTDA device group: id is not found in API response")
-	}
-
-	d.SetId(*resp.GroupId)
-
-	// add device to group
-	addIds := d.Get("device_ids").(*schema.Set)
-	err = addDevicesToGroup(client, d.Id(), addIds)
+	createRespBody, err := utils.FlattenResponse(createResp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
+
+	groupId := utils.PathSearch("group_id", createRespBody, "").(string)
+	if groupId == "" {
+		return diag.Errorf("error creating IoTDA device group: ID is not found in API response")
+	}
+
+	d.SetId(groupId)
+
+	// Add devices to group.
+	addDeviceIds := d.Get("device_ids").(*schema.Set)
+	err = addOrRemoveDevicesFromGroup(client, "addDevice", groupId, addDeviceIds)
+	if err != nil {
+		return diag.Errorf("error adding devices to IoTDA device group in creation operation: %s", err)
+	}
+
 	return resourceDeviceGroupRead(ctx, d, meta)
 }
 
-func resourceDeviceGroupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	region := c.GetRegion(d)
-	isDerived := WithDerivedAuth(c, region)
-	client, err := c.HcIoTdaV5Client(region, isDerived)
-	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+func buildAddOrRemoveDevicesFromGroupQueryParams(action, deviceId string) string {
+	return fmt.Sprintf("?action_id=%v&device_id=%v", action, deviceId)
+}
+
+func addOrRemoveDevicesFromGroup(client *golangsdk.ServiceClient, action, groupId string, addDeviceIds *schema.Set) error {
+	requestPath := client.Endpoint + "v5/iot/{project_id}/device-group/{group_id}/action"
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{group_id}", groupId)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
 
-	detail, err := client.ShowDeviceGroup(&model.ShowDeviceGroupRequest{GroupId: d.Id()})
+	for _, deviceId := range addDeviceIds.List() {
+		currentPath := requestPath + buildAddOrRemoveDevicesFromGroupQueryParams(action, deviceId.(string))
+		_, err := client.Request("POST", currentPath, &requestOpt)
+		if err != nil {
+			return fmt.Errorf("error operating device (%s) in the IoTDA device group (%s): %s", deviceId, groupId, err)
+		}
+	}
+
+	return nil
+}
+
+func resourceDeviceGroupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg       = meta.(*config.Config)
+		region    = cfg.GetRegion(d)
+		isDerived = WithDerivedAuth(cfg, region)
+		product   = "iotda"
+	)
+
+	client, err := cfg.NewServiceClientWithDerivedAuth(product, region, isDerived)
 	if err != nil {
+		return diag.Errorf("error creating IoTDA client: %s", err)
+	}
+
+	getPath := client.Endpoint + "v5/iot/{project_id}/device-group/{group_id}"
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{group_id}", d.Id())
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		// When the resource does not exist, the query API will return `404` error code.
 		return common.CheckDeletedDiag(d, err, "error retrieving IoTDA device group")
+	}
+
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
 	mErr := multierror.Append(
 		d.Set("region", region),
-		d.Set("name", detail.Name),
-		d.Set("description", detail.Description),
-		d.Set("parent_group_id", detail.SuperGroupId),
-		setDeviceIdsToState(d, client, d.Id()),
+		d.Set("name", utils.PathSearch("name", getRespBody, nil)),
+		d.Set("description", utils.PathSearch("description", getRespBody, nil)),
+		d.Set("parent_group_id", utils.PathSearch("super_group_id", getRespBody, nil)),
+		d.Set("type", utils.PathSearch("group_type", getRespBody, nil)),
+		d.Set("dynamic_group_rule", utils.PathSearch("dynamic_group_rule", getRespBody, nil)),
+	)
+
+	devicesIds, err := getDeviceIdsFromGroup(client, d.Id())
+	if err != nil {
+		return diag.Errorf("error setting device_ids field: %s", err)
+	}
+
+	mErr = multierror.Append(
+		mErr,
+		d.Set("device_ids", devicesIds),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
+func buildQueryDevicesFromGroupQueryParams(marker string) string {
+	if marker != "" {
+		return fmt.Sprintf("?marker=%v", marker)
+	}
+
+	return ""
+}
+
+func getDeviceIdsFromGroup(client *golangsdk.ServiceClient, groupId string) ([]string, error) {
+	var (
+		marker     string
+		devicesIds = make([]string, 0)
+	)
+
+	getPath := client.Endpoint + "v5/iot/{project_id}/device-group/{group_id}/devices"
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{group_id}", groupId)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	for {
+		currentPath := getPath + buildQueryDevicesFromGroupQueryParams(marker)
+		getResp, err := client.Request("GET", currentPath, &getOpt)
+		if err != nil {
+			return nil, fmt.Errorf("error retrieving devices in IoTDA device group: %s", err)
+		}
+
+		getRespBody, err := utils.FlattenResponse(getResp)
+		if err != nil {
+			return nil, err
+		}
+
+		devicesResp := utils.PathSearch("devices", getRespBody, make([]interface{}, 0)).([]interface{})
+		if len(devicesResp) == 0 {
+			break
+		}
+
+		for _, v := range devicesResp {
+			deviceId := utils.PathSearch("device_id", v, "").(string)
+			if deviceId != "" {
+				devicesIds = append(devicesIds, deviceId)
+			}
+		}
+
+		marker = utils.PathSearch("page.marker", getRespBody, "").(string)
+		if marker == "" {
+			break
+		}
+	}
+
+	return devicesIds, nil
+}
+
+func buildUpdateDeviceGroupBodyParams(d *schema.ResourceData) map[string]interface{} {
+	return map[string]interface{}{
+		"name":        d.Get("name"),
+		"description": utils.ValueIgnoreEmpty(d.Get("description")),
+	}
+}
+
 func resourceDeviceGroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	region := c.GetRegion(d)
-	isDerived := WithDerivedAuth(c, region)
-	client, err := c.HcIoTdaV5Client(region, isDerived)
+	var (
+		cfg       = meta.(*config.Config)
+		region    = cfg.GetRegion(d)
+		isDerived = WithDerivedAuth(cfg, region)
+		product   = "iotda"
+		groupId   = d.Id()
+	)
+
+	client, err := cfg.NewServiceClientWithDerivedAuth(product, region, isDerived)
 	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+		return diag.Errorf("error creating IoTDA client: %s", err)
 	}
 
 	if d.HasChanges("name", "description") {
-		updateOpts := &model.UpdateDeviceGroupRequest{
-			GroupId: d.Id(),
-			Body: &model.UpdateDeviceGroupDto{
-				Name:        utils.String(d.Get("name").(string)),
-				Description: utils.StringIgnoreEmpty(d.Get("description").(string)),
-			},
+		updatePath := client.Endpoint + "v5/iot/{project_id}/device-group/{group_id}"
+		updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+		updatePath = strings.ReplaceAll(updatePath, "{group_id}", groupId)
+		updateOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			JSONBody:         utils.RemoveNil(buildUpdateDeviceGroupBodyParams(d)),
 		}
-		_, err = client.UpdateDeviceGroup(updateOpts)
+
+		_, err := client.Request("PUT", updatePath, &updateOpt)
 		if err != nil {
 			return diag.Errorf("error updating IoTDA device group: %s", err)
 		}
@@ -177,18 +309,18 @@ func resourceDeviceGroupUpdate(ctx context.Context, d *schema.ResourceData, meta
 		oldIds := o.(*schema.Set)
 		newIds := n.(*schema.Set)
 
-		// remove device from group
+		// Remove devices from group.
 		deleteIds := oldIds.Difference(newIds)
-		err = deleteDevicesFromGroup(client, d.Id(), deleteIds)
+		err = addOrRemoveDevicesFromGroup(client, "removeDevice", groupId, deleteIds)
 		if err != nil {
-			return diag.FromErr(err)
+			return diag.Errorf("error deleting devices from IoTDA device group in update operation: %s", err)
 		}
 
-		// add device to group
+		// Add devices to group.
 		addIds := newIds.Difference(oldIds)
-		err = addDevicesToGroup(client, d.Id(), addIds)
+		err = addOrRemoveDevicesFromGroup(client, "addDevice", groupId, addIds)
 		if err != nil {
-			return diag.FromErr(err)
+			return diag.Errorf("error adding devices to IoTDA device group in update operation: %s", err)
 		}
 	}
 
@@ -196,78 +328,40 @@ func resourceDeviceGroupUpdate(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func resourceDeviceGroupDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	region := c.GetRegion(d)
-	isDerived := WithDerivedAuth(c, region)
-	client, err := c.HcIoTdaV5Client(region, isDerived)
+	var (
+		cfg       = meta.(*config.Config)
+		region    = cfg.GetRegion(d)
+		isDerived = WithDerivedAuth(cfg, region)
+		product   = "iotda"
+		groupId   = d.Id()
+	)
+
+	client, err := cfg.NewServiceClientWithDerivedAuth(product, region, isDerived)
 	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+		return diag.Errorf("error creating IoTDA client: %s", err)
 	}
 
-	// remove devices
-	addIds := d.Get("device_ids").(*schema.Set)
-	err = deleteDevicesFromGroup(client, d.Id(), addIds)
-	if err != nil {
-		return diag.FromErr(err)
+	// Remove devices from static device group, dynamic device group does not require this operation.
+	if d.Get("type").(string) == "STATIC" {
+		deleteDeviceIds := d.Get("device_ids").(*schema.Set)
+		err = addOrRemoveDevicesFromGroup(client, "removeDevice", groupId, deleteDeviceIds)
+		if err != nil {
+			return diag.Errorf("error deleting devices from IoTDA device group in deletion operation: %s", err)
+		}
 	}
 
-	deleteOpts := &model.DeleteDeviceGroupRequest{
-		GroupId: d.Id(),
+	deletePath := client.Endpoint + "v5/iot/{project_id}/device-group/{group_id}"
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = strings.ReplaceAll(deletePath, "{group_id}", groupId)
+	deleteOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
-	_, err = client.DeleteDeviceGroup(deleteOpts)
+
+	_, err = client.Request("DELETE", deletePath, &deleteOpt)
 	if err != nil {
-		return diag.Errorf("error deleting IoTDA device group: %s", err)
+		// When the resource does not exist, the delete API will return `404` error code.
+		return common.CheckDeletedDiag(d, err, "error deleting IoTDA device group")
 	}
 
 	return nil
-}
-
-func addDevicesToGroup(client *iotdav5.IoTDAClient, groupId string, addIds *schema.Set) error {
-	for _, v := range addIds.List() {
-		_, err := client.CreateOrDeleteDeviceInGroup(&model.CreateOrDeleteDeviceInGroupRequest{
-			GroupId:  groupId,
-			ActionId: "addDevice",
-			DeviceId: v.(string),
-		})
-
-		if err != nil {
-			return fmt.Errorf("error adding device=%s to IoTDA device group=%s: %s", v.(string), groupId, err)
-		}
-	}
-	return nil
-}
-
-func deleteDevicesFromGroup(client *iotdav5.IoTDAClient, groupId string, addIds *schema.Set) error {
-	for _, v := range addIds.List() {
-		_, err := client.CreateOrDeleteDeviceInGroup(&model.CreateOrDeleteDeviceInGroupRequest{
-			GroupId:  groupId,
-			ActionId: "removeDevice",
-			DeviceId: v.(string),
-		})
-
-		if err != nil {
-			return fmt.Errorf("error deleting device=%s from IoTDA device group=%s: %s", v.(string), groupId, err)
-		}
-	}
-	return nil
-}
-
-func setDeviceIdsToState(d *schema.ResourceData, client *iotdav5.IoTDAClient, groupId string) error {
-	var rst []string
-	var marker *string
-	for {
-		resp, err := client.ShowDevicesInGroup(&model.ShowDevicesInGroupRequest{GroupId: groupId, Marker: marker})
-		if err != nil {
-			return fmt.Errorf("error setting the device_ids: %s", err)
-		}
-		if resp.Devices == nil || len(*resp.Devices) == 0 {
-			break
-		}
-		for _, v := range *resp.Devices {
-			rst = append(rst, *v.DeviceId)
-		}
-		marker = resp.Page.Marker
-	}
-
-	return d.Set("device_ids", rst)
 }

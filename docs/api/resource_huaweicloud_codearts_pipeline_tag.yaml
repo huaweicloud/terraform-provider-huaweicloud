@@ -1,0 +1,22 @@
+info:
+    version: ""
+    title: resource_huaweicloud_codearts_pipeline_tag
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CodeArtsPipeline
+paths:
+    /v5/{project_id}/api/pipeline-tag/create:
+        POST:
+            tag: CodeArtsPipeline
+    /v5/{project_id}/api/pipeline-tag/delete:
+        DELETE:
+            tag: CodeArtsPipeline
+    /v5/{project_id}/api/pipeline-tag/list:
+        GET:
+            tag: CodeArtsPipeline
+    /v5/{project_id}/api/pipeline-tag/update:
+        POST:
+            tag: CodeArtsPipeline

@@ -1,13 +1,14 @@
 ---
-subcategory: "Scalable File Service (SFS)"
+subcategory: "SFS Turbo"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_sfs_turbo_dir"
-description: ""
+description: |-
+  Manages a SFS Turbo directory resource within HuaweiCloud.
 ---
 
 # huaweicloud_sfs_turbo_dir
 
-Provides an Shared File System (SFS) Turbo directory resource.
+Manages a SFS Turbo directory resource within HuaweiCloud.
 
 ## Example Usage
 

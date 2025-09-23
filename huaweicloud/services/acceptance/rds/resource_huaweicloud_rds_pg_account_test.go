@@ -135,25 +135,24 @@ func testPgAccount_base(name string) string {
 
 resource "huaweicloud_rds_instance" "test" {
   name              = "%[2]s"
-  description       = "test_description"
   flavor            = "rds.pg.n1.large.2"
   availability_zone = [data.huaweicloud_availability_zones.test.names[0]]
-  security_group_id = huaweicloud_networking_secgroup.test.id
+  security_group_id = data.huaweicloud_networking_secgroup.test.id
   subnet_id         = data.huaweicloud_vpc_subnet.test.id
   vpc_id            = data.huaweicloud_vpc.test.id
   time_zone         = "UTC+08:00"
 
   db {
     type    = "PostgreSQL"
-    version = "12"
+    version = "16"
   }
 
   volume {
     type = "CLOUDSSD"
-    size = 50
+    size = 40
   }
 }
-`, testAccRdsInstance_base(name), name)
+`, testAccRdsInstance_base(), name)
 }
 
 func testPgAccount_basic(name string) string {
@@ -163,14 +162,14 @@ func testPgAccount_basic(name string) string {
 resource "huaweicloud_rds_pg_account" "member" {
   instance_id = huaweicloud_rds_instance.test.id
   name        = "%[2]s_member"
-  password    = "Test@123456789"
+  password    = "Terraform145@"
 }
 
 resource "huaweicloud_rds_pg_account" "test" {
   depends_on  = [huaweicloud_rds_pg_account.member]
   instance_id = huaweicloud_rds_instance.test.id
   name        = "%[2]s"
-  password    = "Test@12345678"
+  password    = "Terraform145@"
   description = "test_description"
   memberof    = [huaweicloud_rds_pg_account.member.name]
 }
@@ -184,20 +183,20 @@ func testPgAccount_update(name string) string {
 resource "huaweicloud_rds_pg_account" "member" {
   instance_id = huaweicloud_rds_instance.test.id
   name        = "%[2]s_member"
-  password    = "Test@123456789"
+  password    = "Terraform145@"
 }
 
 resource "huaweicloud_rds_pg_account" "member_update" {
   instance_id = huaweicloud_rds_instance.test.id
   name        = "%[2]s_member_update"
-  password    = "Test@123456789"
+  password    = "Terraform145@"
 }
 
 resource "huaweicloud_rds_pg_account" "test" {
   depends_on  = [huaweicloud_rds_pg_account.member_update]
   instance_id = huaweicloud_rds_instance.test.id
   name        = "%[2]s"
-  password    = "Test@123456789"
+  password    = "Terraform145@"
   description = "test_description_update"
   memberof    = [huaweicloud_rds_pg_account.member_update.name]
 }

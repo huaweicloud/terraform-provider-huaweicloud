@@ -2,18 +2,17 @@ package rds
 
 import (
 	"context"
-	"sort"
+	"strings"
 
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	"github.com/chnsz/golangsdk/openstack/rds/v3/instances"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 // @API RDS GET /v3/{project_id}/datastores/{database_name}
@@ -29,10 +28,7 @@ func DataSourceRdsEngineVersionsV3() *schema.Resource {
 			"type": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"MySQL", "PostgreSQL", "SQLServer",
-				}, false),
-				Default: "MySQL",
+				Default:  "MySQL",
 			},
 			"versions": {
 				Type:     schema.TypeList,
@@ -55,37 +51,59 @@ func DataSourceRdsEngineVersionsV3() *schema.Resource {
 }
 
 func dataSourceRdsEngineVersionsV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.RdsV3Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	client, err := cfg.NewServiceClient("rds", region)
 	if err != nil {
-		return fmtp.DiagErrorf("Error creating Huaweicloud RDS v3 client: %s", err)
+		return diag.Errorf("error creating RDS client: %s", err)
 	}
 
-	engineType := d.Get("type").(string)
-	engine, err := instances.ListEngine(client, engineType)
+	httpUrl := "v3/{project_id}/datastores/{database_name}"
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{database_name}", d.Get("type").(string))
+
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return fmtp.DiagErrorf("Error getting version list of specific database engine: %s", err)
+		return diag.Errorf("error retrieving RDS version list of specific database engine: %s", err)
+	}
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
-	versions := engine.Versions
-	sort.Slice(versions, func(i, j int) bool {
-		return versions[i].Name < versions[j].Name
-	})
-	logp.Printf("After sorting, the engine version list is: %+v", versions)
+	dataSourceId, err := uuid.GenerateUUID()
+	if err != nil {
+		return diag.Errorf("unable to generate ID: %s", err)
+	}
+	d.SetId(dataSourceId)
 
-	ids := make([]string, len(versions))
-	result := make([]map[string]interface{}, len(versions))
+	mErr := multierror.Append(
+		d.Set("region", region),
+		d.Set("versions", flattenGetEngineVersionsResponseBody(getRespBody)),
+	)
 
-	for i, engine := range versions {
-		vMap := map[string]interface{}{
-			"id":   engine.ID,
-			"name": engine.Name,
-		}
-		result[i] = vMap
-		ids[i] = engine.ID
+	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func flattenGetEngineVersionsResponseBody(resp interface{}) []interface{} {
+	if resp == nil {
+		return nil
 	}
 
-	d.SetId(hashcode.Strings(ids))
-
-	return diag.FromErr(d.Set("versions", result))
+	curJson := utils.PathSearch("dataStores", resp, make([]interface{}, 0))
+	curArray := curJson.([]interface{})
+	res := make([]interface{}, 0, len(curArray))
+	for _, v := range curArray {
+		res = append(res, map[string]interface{}{
+			"id":   utils.PathSearch("id", v, nil),
+			"name": utils.PathSearch("name", v, nil),
+		})
+	}
+	return res
 }

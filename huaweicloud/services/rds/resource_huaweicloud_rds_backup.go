@@ -9,7 +9,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"regexp"
 	"strings"
 	"time"
 
@@ -18,7 +17,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -27,6 +25,9 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+var backupNonUpdatableParams = []string{"name", "instance_id", "description", "databases",
+	"databases.*.name"}
+
 // @API RDS DELETE /v3/{project_id}/backups/{id}
 // @API RDS GET /v3/{project_id}/backups
 // @API RDS POST /v3/{project_id}/backups
@@ -34,10 +35,13 @@ func ResourceBackup() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceBackupCreate,
 		ReadContext:   resourceBackupRead,
+		UpdateContext: resourceBackupUpdate,
 		DeleteContext: resourceBackupDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: backupImportState,
 		},
+
+		CustomizeDiff: config.FlexibleForceNew(backupNonUpdatableParams),
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
@@ -54,38 +58,24 @@ func ResourceBackup() *schema.Resource {
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Backup name.`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[A-Za-z-_0-9]*$`),
-						"the input is invalid"),
-					validation.StringLenBetween(4, 64),
-				),
 			},
 			"instance_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Instance ID.`,
 			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				ForceNew:    true,
 				Description: `The description about the backup.`,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[^>!<"&'=]+$`),
-						"the input is invalid"),
-					validation.StringLenBetween(0, 256),
-				),
 			},
 			"databases": {
 				Type:        schema.TypeList,
 				Elem:        BackupBackupDatabaseSchema(),
 				Optional:    true,
 				Computed:    true,
-				ForceNew:    true,
 				Description: `List of self-built Microsoft SQL Server databases that are partially backed up.`,
 			},
 			"begin_time": {
@@ -113,6 +103,12 @@ func ResourceBackup() *schema.Resource {
 				Computed:    true,
 				Description: `Whether a DDM instance has been associated.`,
 			},
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
+			},
 		},
 	}
 }
@@ -123,7 +119,6 @@ func BackupBackupDatabaseSchema() *schema.Resource {
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Database to be backed up for Microsoft SQL Server.`,
 			},
 		},
@@ -176,11 +171,11 @@ func resourceBackupCreate(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("backup.id", createBackupRespBody)
-	if err != nil {
-		return diag.Errorf("error creating Backup: ID is not found in API response")
+	backupId := utils.PathSearch("backup.id", createBackupRespBody, "").(string)
+	if backupId == "" {
+		return diag.Errorf("unable to find the RDS backup ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(backupId)
 
 	err = createBackupWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
@@ -268,16 +263,16 @@ func createBackupWaitingForStateCompleted(ctx context.Context, d *schema.Resourc
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			status, err := jmespath.Search(`backups[0].status`, createBackupWaitingRespBody)
+			status := utils.PathSearch(`backups[0].status`, createBackupWaitingRespBody, "").(string)
 			if err != nil {
 				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `backups[0].status`)
 			}
 
-			if utils.StrSliceContains(strings.Split(`FAILED`, ","), status.(string)) {
-				return createBackupWaitingRespBody, status.(string), nil
+			if utils.StrSliceContains(strings.Split(`FAILED`, ","), status) {
+				return createBackupWaitingRespBody, status, nil
 			}
 
-			if utils.StrSliceContains(strings.Split(`COMPLETED`, ","), status.(string)) {
+			if utils.StrSliceContains(strings.Split(`COMPLETED`, ","), status) {
 				return createBackupWaitingRespBody, "COMPLETED", nil
 			}
 
@@ -374,6 +369,10 @@ func buildGetBackupQueryParams(d *schema.ResourceData) string {
 		res = "?" + res[1:]
 	}
 	return res
+}
+
+func resourceBackupUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+	return nil
 }
 
 func resourceBackupDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -479,11 +478,7 @@ func deleteBackupWaitingForStateCompleted(ctx context.Context, d *schema.Resourc
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`total_count`, deleteBackupWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `total_count`)
-			}
-
+			statusRaw := utils.PathSearch(`total_count`, deleteBackupWaitingRespBody, nil)
 			status := fmt.Sprintf("%v", statusRaw)
 			if utils.StrSliceContains(strings.Split(`1`, ","), status) {
 				return deleteBackupWaitingRespBody, "PENDING", nil

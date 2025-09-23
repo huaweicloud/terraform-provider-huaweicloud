@@ -20,6 +20,20 @@
                       "description": "string",
                       "enterprise_project_id": "string",
                       "flavor_id": "string",
+                      "frozen_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "effect": "number",
+                            "scene": [
+                              "list",
+                              "string"
+                            ],
+                            "status": "number"
+                          }
+                        ]
+                      ],
                       "id": "string",
                       "ip_sets": [
                         "list",

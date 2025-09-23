@@ -1,0 +1,44 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_workspace_app_hda_latest_versions": {
+          "block": {
+            "attributes": {
+              "hda_latest_versions": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "hda_type": "string",
+                      "latest_version": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of HDA latest versions that matched filter parameters.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the HDA latest versions are located.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

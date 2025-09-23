@@ -1,0 +1,182 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cbr_organization_policy": {
+          "block": {
+            "attributes": {
+              "description": {
+                "type": "string",
+                "description": "The organization policy description.",
+                "optional": true
+              },
+              "domain_id": {
+                "type": "string",
+                "description": "The ID of the account to which the organization policy belongs.",
+                "computed": true
+              },
+              "domain_name": {
+                "type": "string",
+                "description": "The account to which the organizational policy belongs.",
+                "computed": true
+              },
+              "effective_scope": {
+                "type": "string",
+                "description": "The effective scope of the organization policy.",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The organization policy name.",
+                "required": true
+              },
+              "operation_type": {
+                "type": "string",
+                "description": "The organization policy type.",
+                "required": true
+              },
+              "policy_enabled": {
+                "type": "bool",
+                "description": "Whether the organization policy is enabled.",
+                "required": true
+              },
+              "policy_name": {
+                "type": "string",
+                "description": "The policy name.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the organization policy is located.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The organization policy status.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "policy_operation_definition": {
+                "block": {
+                  "attributes": {
+                    "day_backups": {
+                      "type": "number",
+                      "description": "Maximum number of daily backups that can be retained.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "destination_project_id": {
+                      "type": "string",
+                      "description": "The destination project ID for replication.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "destination_region": {
+                      "type": "string",
+                      "description": "The destination region for replication.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "enable_acceleration": {
+                      "type": "string",
+                      "description": "Whether to enable acceleration to shorten replication time for cross-region replication.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "full_backup_interval": {
+                      "type": "number",
+                      "description": "Defines how often a full backup is performed after incremental backups.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "max_backups": {
+                      "type": "number",
+                      "description": "Maximum number of backups that can be automatically created for a backup object.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "month_backups": {
+                      "type": "number",
+                      "description": "Maximum number of monthly backups that can be retained.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "retention_duration_days": {
+                      "type": "number",
+                      "description": "Duration of retaining a backup, in days.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "timezone": {
+                      "type": "string",
+                      "description": "The time zone where the user is located.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "week_backups": {
+                      "type": "number",
+                      "description": "Maximum number of weekly backups that can be retained.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "year_backups": {
+                      "type": "number",
+                      "description": "Maximum number of yearly backups that can be retained.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "The policy operation definition for backup and replication."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "policy_trigger": {
+                "block": {
+                  "block_types": {
+                    "properties": {
+                      "block": {
+                        "attributes": {
+                          "pattern": {
+                            "type": [
+                              "list",
+                              "string"
+                            ],
+                            "description": "The scheduling rules for policy execution.",
+                            "required": true
+                          }
+                        },
+                        "description": "The properties of policy trigger."
+                      },
+                      "nesting_mode": "list",
+                      "min_items": 1,
+                      "max_items": 1
+                    }
+                  },
+                  "description": "The policy execution time rule."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "CBR",
+            "name": "Cloud Backup and Recovery",
+            "catalog": "Storage",
+            "name_cn": "云备份",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}

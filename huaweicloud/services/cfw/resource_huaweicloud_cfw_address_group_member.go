@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -116,11 +115,11 @@ func resourceAddressGroupMemberCreate(ctx context.Context, d *schema.ResourceDat
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("data.items[0].id", createAddressGroupMemberRespBody)
-	if err != nil {
+	id := utils.PathSearch("data.items[0].id", createAddressGroupMemberRespBody, "").(string)
+	if id == "" {
 		return diag.Errorf("error creating AddressGroupMember: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	return resourceAddressGroupMemberRead(ctx, d, meta)
 }
@@ -155,7 +154,10 @@ func resourceAddressGroupMemberRead(_ context.Context, d *schema.ResourceData, m
 
 	addressGroupMembers, respBody, err := ReadAddressGroupMembers(d.Get("group_id").(string), getAddressGroupMemberClient)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving address group member")
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error_code", "CFW.00200005"),
+			"error retrieving address group member",
+		)
 	}
 
 	findAddressGroupMemberExpr := fmt.Sprintf("[?item_id == '%s']|[0]", d.Id())
@@ -241,7 +243,10 @@ func resourceAddressGroupMemberDelete(_ context.Context, d *schema.ResourceData,
 	}
 	_, err = deleteAddressGroupMemberClient.Request("DELETE", deleteAddressGroupMemberPath, &deleteAddressGroupMemberOpt)
 	if err != nil {
-		return diag.Errorf("error deleting AddressGroupMember: %s", err)
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error_code", "CFW.00200005"),
+			"error deleting address group member",
+		)
 	}
 
 	return nil

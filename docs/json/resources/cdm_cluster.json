@@ -16,11 +16,10 @@
               },
               "email": {
                 "type": [
-                  "list",
+                  "set",
                   "string"
                 ],
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "enterprise_project_id": {
                 "type": "string",
@@ -72,11 +71,10 @@
               },
               "phone_num": {
                 "type": [
-                  "list",
+                  "set",
                   "string"
                 ],
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "public_endpoint": {
                 "type": "string",

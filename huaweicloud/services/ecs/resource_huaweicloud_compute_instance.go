@@ -3,6 +3,7 @@ package ecs
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"strings"
@@ -18,7 +19,6 @@ import (
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/block_devices"
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/cloudservers"
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/powers"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 	"github.com/chnsz/golangsdk/openstack/evs/v2/cloudvolumes"
 	"github.com/chnsz/golangsdk/openstack/ims/v2/cloudimages"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/ports"
@@ -28,7 +28,6 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/evs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
@@ -52,8 +51,10 @@ var (
 // @API ECS POST /v1/{project_id}/cloudservers/{server_id}/tags/action
 // @API ECS POST /v2.1/{project_id}/servers/{server_id}/action
 // @API ECS GET /v1/{project_id}/cloudservers/{server_id}
+// @API ECS GET /v1.1/{project_id}/cloudservers/detail
 // @API ECS GET /v1/{project_id}/cloudservers/{server_id}/block_device/{volume_id}
 // @API ECS GET /v1/{project_id}/jobs/{job_id}
+// @API ECS POST /v1/{project_id}/cloudservers/{server_id}/changevpc
 // @API IMS GET /v2/cloudimages
 // @API EVS POST /v2.1/{project_id}/cloudvolumes/{volume_id}/action
 // @API EVS GET /v2/{project_id}/cloudvolumes/{volume_id}
@@ -77,6 +78,8 @@ func ResourceComputeInstance() *schema.Resource {
 			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
 
+		CustomizeDiff: config.MergeDefaultTags(),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
@@ -95,11 +98,6 @@ func ResourceComputeInstance() *schema.Resource {
 				Required: true,
 			},
 			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
-			"hostname": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
@@ -172,7 +170,6 @@ func ResourceComputeInstance() *schema.Resource {
 						"uuid": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							ForceNew:    true,
 							Computed:    true,
 							Description: "schema: Required",
 						},
@@ -191,7 +188,6 @@ func ResourceComputeInstance() *schema.Resource {
 						"fixed_ip_v4": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 							Computed: true,
 						},
 						"source_dest_check": {
@@ -442,10 +438,9 @@ func ResourceComputeInstance() *schema.Resource {
 				ConflictsWith: []string{"spot_duration", "spot_duration_count"},
 			},
 			"spot_duration": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.IntBetween(1, 6),
+				Type:     schema.TypeInt,
+				Optional: true,
+				ForceNew: true,
 			},
 			"spot_duration_count": {
 				Type:         schema.TypeInt,
@@ -455,7 +450,7 @@ func ResourceComputeInstance() *schema.Resource {
 				RequiredWith: []string{"spot_duration"},
 			},
 
-			"user_id": { // required if in prePaid charging mode with key_pair.
+			"user_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
@@ -470,11 +465,7 @@ func ResourceComputeInstance() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-			"tags": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
+			"tags": common.TagsSchema(),
 			"power_action": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -521,6 +512,14 @@ func ResourceComputeInstance() *schema.Resource {
 					},
 				},
 			},
+			"hostname": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				Description: utils.SchemaDesc("", utils.SchemaDescInput{
+					Computed: true,
+				}),
+			},
 			"system_disk_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -546,6 +545,10 @@ func ResourceComputeInstance() *schema.Resource {
 				Computed: true,
 			},
 			"updated_at": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"expired_time": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -584,11 +587,6 @@ func resourceComputeInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 	nicClient, err := cfg.NetworkingV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating networking v2 client: %s", err)
-	}
-
-	// user_id is required if in prePaid charging mode with key_pair
-	if err := validateComputeInstanceConfig(d, cfg); err != nil {
-		return diag.FromErr(err)
 	}
 
 	// Determines the Image ID using the following rules:
@@ -698,6 +696,9 @@ func resourceComputeInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 		if err != nil {
 			return diag.Errorf("error creating server: %s", err)
 		}
+		if len(n.ServerIDs) != 0 {
+			d.SetId(n.ServerIDs[0])
+		}
 		bssClient, err := cfg.BssV2Client(region)
 		if err != nil {
 			return diag.Errorf("error creating BSS v2 client: %s", err)
@@ -717,6 +718,9 @@ func resourceComputeInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 		if err != nil {
 			return diag.Errorf("error creating server: %s", err)
 		}
+		if len(n.ServerIDs) != 0 {
+			d.SetId(n.ServerIDs[0])
+		}
 		if err := cloudservers.WaitForJobSuccess(ecsClient, int(d.Timeout(schema.TimeoutCreate)/time.Second), n.JobID); err != nil {
 			return diag.FromErr(err)
 		}
@@ -735,18 +739,6 @@ func resourceComputeInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 		_, err := cloudservers.UpdateMetadata(ecsClient, d.Id(), metadataOpts).Extract()
 		if err != nil {
 			return diag.Errorf("error updating the metadata: %s", err)
-		}
-	}
-
-	// Update the hostname if necessary.
-	if v, ok := d.GetOk("hostname"); ok {
-		hostname := v.(string)
-		if err := updateInstanceHostname(ecsClient, hostname, d.Id()); err != nil {
-			return diag.FromErr(err)
-		}
-
-		if err = doPowerAction(ecsClient, d, "REBOOT"); err != nil {
-			return diag.Errorf("doing power reboot for instance (%s) failed: %s", d.Id(), err)
 		}
 	}
 
@@ -806,6 +798,7 @@ func resourceComputeInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 func resourceComputeInstanceRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
+	serverID := d.Id()
 	ecsClient, err := cfg.ComputeV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating compute V1 client: %s", err)
@@ -819,7 +812,7 @@ func resourceComputeInstanceRead(_ context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error creating image client: %s", err)
 	}
 
-	server, err := cloudservers.Get(ecsClient, d.Id()).Extract()
+	server, err := cloudservers.Get(ecsClient, serverID).Extract()
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving compute instance")
 	} else if server.Status == "DELETED" {
@@ -827,7 +820,7 @@ func resourceComputeInstanceRead(_ context.Context, d *schema.ResourceData, meta
 		return nil
 	}
 
-	log.Printf("[DEBUG] retrieved compute instance %s: %+v", d.Id(), server)
+	log.Printf("[DEBUG] retrieved compute instance %s: %+v", serverID, server)
 	// Set some attributes
 	d.Set("region", region)
 	d.Set("enterprise_project_id", server.EnterpriseProjectID)
@@ -842,6 +835,7 @@ func resourceComputeInstanceRead(_ context.Context, d *schema.ResourceData, meta
 	d.Set("created_at", server.Created.Format(time.RFC3339))
 	d.Set("updated_at", server.Updated.Format(time.RFC3339))
 	d.Set("auto_terminate_time", server.AutoTerminateTime)
+	d.Set("public_ip", computePublicIP(server))
 
 	flavorInfo := server.Flavor
 	d.Set("flavor_id", flavorInfo.ID)
@@ -854,9 +848,6 @@ func resourceComputeInstanceRead(_ context.Context, d *schema.ResourceData, meta
 
 	if server.KeyName != "" {
 		d.Set("key_pair", server.KeyName)
-	}
-	if eip := computePublicIP(server); eip != "" {
-		d.Set("public_ip", eip)
 	}
 
 	// Get the instance network and address information
@@ -921,7 +912,7 @@ func resourceComputeInstanceRead(_ context.Context, d *schema.ResourceData, meta
 			log.Printf("[DEBUG] retrieved volume %s: %#v", b.ID, volumeInfo)
 
 			// retrieve volume `pci_address`
-			va, err := block_devices.Get(ecsClient, d.Id(), b.ID).Extract()
+			va, err := block_devices.Get(ecsClient, serverID, b.ID).Extract()
 			if err != nil {
 				return diag.FromErr(err)
 			}
@@ -961,9 +952,49 @@ func resourceComputeInstanceRead(_ context.Context, d *schema.ResourceData, meta
 	}
 
 	// Set instance tags
-	d.Set("tags", flattenTagsToMap(server.Tags))
+	d.Set("tags", flattenTagsToMap(d, server.Tags))
+
+	// Set expired time for prePaid instance
+	if normalizeChargingMode(server.Metadata.ChargingMode) == "prePaid" {
+		expiredTime, err := getPrePaidExpiredTime(d, cfg, serverID)
+		if err != nil {
+			log.Printf("error get prePaid expired time: %s", err)
+		}
+
+		d.Set("expired_time", expiredTime)
+	}
 
 	return nil
+}
+
+func getPrePaidExpiredTime(d *schema.ResourceData, cfg *config.Config, instanceID string) (string, error) {
+	product := "ecsv11"
+	client, err := cfg.NewServiceClient(product, cfg.GetRegion(d))
+	if err != nil {
+		return "", fmt.Errorf("error creating EVS client: %s", err)
+	}
+
+	getPrePaidExpiredTimeHttpUrl := "v1.1/{project_id}/cloudservers/detail?id={instance_id}&expect-fields=market_info"
+	getPrePaidExpiredTimePath := client.Endpoint + getPrePaidExpiredTimeHttpUrl
+	getPrePaidExpiredTimePath = strings.ReplaceAll(getPrePaidExpiredTimePath, "{project_id}", client.ProjectID)
+	getPrePaidExpiredTimePath = strings.ReplaceAll(getPrePaidExpiredTimePath, "{instance_id}", instanceID)
+
+	getPrePaidExpiredTimeOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	getPrePaidExpiredTimeResp, err := client.Request("GET", getPrePaidExpiredTimePath, &getPrePaidExpiredTimeOpt)
+	if err != nil {
+		return "", err
+	}
+
+	getPrePaidExpiredTimeRespBody, err := utils.FlattenResponse(getPrePaidExpiredTimeResp)
+	if err != nil {
+		return "", err
+	}
+
+	expiredTime := utils.PathSearch("servers[0].market_info.prepaid_info.expired_time", getPrePaidExpiredTimeRespBody, "")
+
+	return expiredTime.(string), nil
 }
 
 func normalizeChargingMode(mode string) string {
@@ -1114,18 +1145,18 @@ func resourceComputeInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 	if d.HasChange("tags") {
 		tagErr := utils.UpdateResourceTags(ecsClient, d, "cloudservers", serverID)
 		if tagErr != nil {
-			return diag.Errorf("error updating tags of instance:%s, err:%s", serverID, err)
+			return diag.Errorf("error updating tags of instance:%s, err:%s", serverID, tagErr)
 		}
 	}
 
 	if d.HasChange("enterprise_project_id") {
-		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+		migrateOpts := config.MigrateResourceOpts{
 			ResourceId:   d.Id(),
 			ResourceType: "ecs",
 			RegionId:     region,
 			ProjectId:    ecsClient.ProjectID,
 		}
-		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
+		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -1174,7 +1205,7 @@ func resourceComputeInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 		stateConf := &resource.StateChangeConf{
 			Pending:    []string{"extending"},
 			Target:     []string{"available", "in-use"},
-			Refresh:    evs.CloudVolumeRefreshFunc(evsV2Client, systemDiskID),
+			Refresh:    cloudVolumeRefreshFunc(evsV2Client, systemDiskID),
 			Timeout:    d.Timeout(schema.TimeoutUpdate),
 			Delay:      10 * time.Second,
 			MinTimeout: 3 * time.Second,
@@ -1233,37 +1264,35 @@ func resourceComputeInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 			return diag.Errorf("error updating auto-terminate-time of server (%s): %s", serverID, err)
 		}
 	}
-	var diags diag.Diagnostics
-	if d.HasChanges("hostname") {
-		hostname := d.Get("hostname").(string)
-		if err := updateInstanceHostname(ecsClient, hostname, serverID); err != nil {
-			return diag.FromErr(err)
-		}
 
-		hostnameDiag := diag.Diagnostic{
-			Severity: diag.Warning,
-			Summary:  "Parameters Changed",
-			Detail:   "Parameters hostname changed which needs reboot.",
+	if d.HasChanges("network.0.uuid", "network.0.fixed_ip_v4") {
+		vpcClient, err := cfg.NetworkingV1Client(region)
+		if err != nil {
+			return diag.Errorf("error creating networking client: %s", err)
 		}
-		diags = append(diags, hostnameDiag)
+		err = updateInstanceNetwork(ctx, d, ecsClient, vpcClient, serverID)
+		if err != nil {
+			return diag.Errorf("error updating network of server (%s): %s", serverID, err)
+		}
 	}
 
-	readDiags := resourceComputeInstanceRead(ctx, d, meta)
-	diags = append(diags, readDiags...)
-
-	return diags
+	return resourceComputeInstanceRead(ctx, d, meta)
 }
 
-func updateInstanceHostname(ecsClient *golangsdk.ServiceClient, hostname, serverID string) error {
-	updateOpts := cloudservers.UpdateOpts{
-		Hostname: hostname,
+func cloudVolumeRefreshFunc(c *golangsdk.ServiceClient, volumeId string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		response, err := cloudvolumes.Get(c, volumeId).Extract()
+		if err != nil {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
+				return response, "deleted", nil
+			}
+			return response, "ERROR", err
+		}
+		if response != nil {
+			return response, response.Status, nil
+		}
+		return response, "ERROR", nil
 	}
-	err := cloudservers.Update(ecsClient, serverID, updateOpts).ExtractErr()
-	if err != nil {
-		return fmt.Errorf("error updating service (%s) hostname (%s): %s", serverID, hostname, err)
-	}
-
-	return nil
 }
 
 func updateInstanceMetaData(d *schema.ResourceData, client *golangsdk.ServiceClient, serverID string) error {
@@ -1304,6 +1333,85 @@ func updateInstanceMetaData(d *schema.ResourceData, client *golangsdk.ServiceCli
 	}
 
 	return nil
+}
+
+func updateInstanceNetwork(ctx context.Context, d *schema.ResourceData, client, vpcClient *golangsdk.ServiceClient, serverID string) error {
+	updateNetworkHttpUrl := "v1/{project_id}/cloudservers/{server_id}/changevpc"
+	updateNetworkPath := client.Endpoint + updateNetworkHttpUrl
+	updateNetworkPath = strings.ReplaceAll(updateNetworkPath, "{project_id}", client.ProjectID)
+	updateNetworkPath = strings.ReplaceAll(updateNetworkPath, "{server_id}", serverID)
+
+	vpcID, err := getVpcID(d, vpcClient)
+	if err != nil {
+		return err
+	}
+
+	updateNetworkOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildUpdateInstanceNetworkOpts(d, vpcID)),
+	}
+	updateNetworkResp, err := client.Request("POST", updateNetworkPath, &updateNetworkOpt)
+	if err != nil {
+		return fmt.Errorf("error udpating ECS network: %s", err)
+	}
+	updateNetworkRespBody, err := utils.FlattenResponse(updateNetworkResp)
+	if err != nil {
+		return err
+	}
+	jobID := utils.PathSearch("job_id", updateNetworkRespBody, "").(string)
+	if jobID == "" {
+		return errors.New("unable to find the job ID from the API response")
+	}
+
+	// Wait for job status become `SUCCESS`.
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"SUCCESS"},
+		Refresh:      getJobRefreshFunc(client, jobID),
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+	_, err = stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return fmt.Errorf("error waiting for ECS network updated: %s", err)
+	}
+
+	return nil
+}
+
+func buildUpdateInstanceNetworkOpts(d *schema.ResourceData, vpcID string) map[string]interface{} {
+	var ipAddress interface{}
+	networks := d.Get("network")
+
+	networkID := utils.PathSearch("[0].uuid", networks, nil)
+	if d.HasChange("network.0.fixed_ip_v4") {
+		ipAddress = utils.PathSearch("[0].fixed_ip_v4", networks, nil)
+	}
+
+	bodyParam := map[string]interface{}{
+		"vpc_id": vpcID,
+		"nic": map[string]interface{}{
+			"subnet_id":       networkID,
+			"ip_address":      utils.ValueIgnoreEmpty(ipAddress),
+			"security_groups": buildUpdateInstanceNetworkSecgroupOpts(d),
+		},
+	}
+
+	return bodyParam
+}
+
+func buildUpdateInstanceNetworkSecgroupOpts(d *schema.ResourceData) []map[string]interface{} {
+	secgroupIDs := d.Get("security_group_ids").(*schema.Set).List()
+	bodyParams := make([]map[string]interface{}, len(secgroupIDs))
+
+	for i, v := range secgroupIDs {
+		bodyParams[i] = map[string]interface{}{
+			"id": v,
+		}
+	}
+
+	return bodyParams
 }
 
 func resourceComputeInstanceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -1479,18 +1587,6 @@ func getOpSvcUserID(d *schema.ResourceData, conf *config.Config) string {
 		return v.(string)
 	}
 	return conf.UserID
-}
-
-func validateComputeInstanceConfig(d *schema.ResourceData, conf *config.Config) error {
-	_, hasSSH := d.GetOk("key_pair")
-	if d.Get("charging_mode").(string) == "prePaid" && hasSSH {
-		if getOpSvcUserID(d, conf) == "" {
-			return fmt.Errorf("user_id must be specified when charging_mode is set to prePaid and " +
-				"the ECS is logged in using an SSH key")
-		}
-	}
-
-	return nil
 }
 
 func buildInstanceNicsRequest(d *schema.ResourceData) []cloudservers.Nic {
@@ -1835,15 +1931,30 @@ func shouldUnsubscribeEIP(d *schema.ResourceData) bool {
 	return deleteEIP && eipAddr != "" && eipType != "" && !sharebw
 }
 
-func flattenTagsToMap(tags []string) map[string]string {
+func flattenTagsToMap(d *schema.ResourceData, tags []string) map[string]string {
 	result := make(map[string]string)
 
-	for _, tagStr := range tags {
-		tag := strings.SplitN(tagStr, "=", 2)
-		if len(tag) == 1 {
-			result[tag[0]] = ""
-		} else if len(tag) == 2 {
-			result[tag[0]] = tag[1]
+	tagsRaw := d.Get("tags").(map[string]interface{})
+
+	if len(tagsRaw) != 0 {
+		for _, tagStr := range tags {
+			tag := strings.Split(tagStr, "=")
+			if _, ok := tagsRaw[tag[0]]; ok {
+				if len(tag) == 1 {
+					result[tag[0]] = ""
+				} else if len(tag) == 2 {
+					result[tag[0]] = tag[1]
+				}
+			}
+		}
+	} else {
+		for _, tagStr := range tags {
+			tag := strings.Split(tagStr, "=")
+			if len(tag) == 1 {
+				result[tag[0]] = ""
+			} else if len(tag) == 2 {
+				result[tag[0]] = tag[1]
+			}
 		}
 	}
 

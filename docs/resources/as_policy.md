@@ -2,7 +2,8 @@
 subcategory: "Auto Scaling"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_as_policy"
-description: ""
+description: |-
+  Manages an AS policy resource within HuaweiCloud.
 ---
 
 # huaweicloud_as_policy
@@ -173,12 +174,15 @@ The `scaling_policy_action` block supports:
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID in UUID format.
+
 * `status` - The AS policy status. The value can be *INSERVICE*, *PAUSED* or *EXECUTING*.
+
+* `create_time` - The creation time of the AS policy, in UTC format.
 
 ## Import
 
 AS policies can be imported by their `id`, e.g.
 
-```
-$ terraform import huaweicloud_as_policy.test 9fcb65fe-fd79-4407-8fa0-07602044e1c3
+```bash
+$ terraform import huaweicloud_as_policy.test <id>
 ```

@@ -20,8 +20,7 @@
               "enterprise_project_id": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "expiration_time": {
                 "type": "string",
@@ -106,7 +105,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               }
             }
           },

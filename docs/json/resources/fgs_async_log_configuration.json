@@ -1,0 +1,62 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_fgs_async_log_configuration": {
+          "block": {
+            "attributes": {
+              "force_delete": {
+                "type": "bool",
+                "description": "Whether to force delete the LTS resources corresponding to the async log configuration.",
+                "optional": true,
+                "computed": true
+              },
+              "group_id": {
+                "type": "string",
+                "description": "The LTS log group ID used to manage async status logs.",
+                "computed": true
+              },
+              "group_name": {
+                "type": "string",
+                "description": "The LTS log group name used to manage async status logs.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "max_retries": {
+                "type": "number",
+                "description": "The maximum number of retries for the create operation when encountering internal service errors.",
+                "optional": true,
+                "default": 3
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the async log configuration is located.",
+                "computed": true
+              },
+              "stream_id": {
+                "type": "string",
+                "description": "The LTS log stream ID used to manage async status logs.",
+                "computed": true
+              },
+              "stream_name": {
+                "type": "string",
+                "description": "The LTS log stream name used to manage async status logs.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "FunctionGraph",
+            "name": "FunctionGraph",
+            "catalog": "Compute",
+            "name_cn": "函数工作流",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

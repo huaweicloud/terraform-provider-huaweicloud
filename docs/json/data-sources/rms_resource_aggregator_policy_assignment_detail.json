@@ -1,0 +1,186 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_rms_resource_aggregator_policy_assignment_detail": {
+          "block": {
+            "attributes": {
+              "account_id": {
+                "type": "string",
+                "required": true
+              },
+              "aggregator_id": {
+                "type": "string",
+                "required": true
+              },
+              "created": {
+                "type": "string",
+                "computed": true
+              },
+              "created_by": {
+                "type": "string",
+                "computed": true
+              },
+              "custom_policy": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "auth_type": "string",
+                      "auth_value": [
+                        "map",
+                        "string"
+                      ],
+                      "function_urn": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "computed": true
+              },
+              "parameters": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "computed": true
+              },
+              "period": {
+                "type": "string",
+                "computed": true
+              },
+              "policy_assignment_id": {
+                "type": "string",
+                "required": true
+              },
+              "policy_assignment_type": {
+                "type": "string",
+                "computed": true
+              },
+              "policy_definition_id": {
+                "type": "string",
+                "computed": true
+              },
+              "policy_filter": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "region_id": "string",
+                      "resource_id": "string",
+                      "resource_provider": "string",
+                      "resource_type": "string",
+                      "tag_key": "string",
+                      "tag_value": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "policy_filter_v2": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "exclude_tag_key_logic": "string",
+                      "exclude_tags": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "key": "string",
+                            "values": [
+                              "list",
+                              "string"
+                            ]
+                          }
+                        ]
+                      ],
+                      "region_ids": [
+                        "list",
+                        "string"
+                      ],
+                      "resource_ids": [
+                        "list",
+                        "string"
+                      ],
+                      "resource_types": [
+                        "list",
+                        "string"
+                      ],
+                      "tag_key_logic": "string",
+                      "tags": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "key": "string",
+                            "values": [
+                              "list",
+                              "string"
+                            ]
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "state": {
+                "type": "string",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "key": "string",
+                      "value": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "target_id": {
+                "type": "string",
+                "computed": true
+              },
+              "target_type": {
+                "type": "string",
+                "computed": true
+              },
+              "updated": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Config",
+            "name": "Config",
+            "catalog": "Management & Governance",
+            "name_cn": "配置审计",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

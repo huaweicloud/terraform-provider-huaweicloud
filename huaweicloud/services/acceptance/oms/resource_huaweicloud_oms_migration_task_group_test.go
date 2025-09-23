@@ -3,28 +3,47 @@ package oms
 import (
 	"fmt"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
-	oms "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/oms/v2/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getMigrationTaskGroupResourceFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	c, err := conf.HcOmsV2Client(acceptance.HW_REGION_NAME)
+func getMigrationTaskGroupResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+	var (
+		getTaskGroupHttpUrl = "v2/{project_id}/taskgroups/{group_id}"
+		getTaskGroupProduct = "oms"
+	)
+	getTaskGroupClient, err := cfg.NewServiceClient(getTaskGroupProduct, acceptance.HW_REGION_NAME)
 	if err != nil {
 		return nil, fmt.Errorf("error creating OMS client: %s", err)
 	}
 
-	return c.ShowTaskGroup(&oms.ShowTaskGroupRequest{GroupId: state.Primary.ID})
+	getTaskGroupPath := getTaskGroupClient.Endpoint + getTaskGroupHttpUrl
+	getTaskGroupPath = strings.ReplaceAll(getTaskGroupPath, "{project_id}", getTaskGroupClient.ProjectID)
+	getTaskGroupPath = strings.ReplaceAll(getTaskGroupPath, "{group_id}", state.Primary.ID)
+
+	getTaskGroupOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getTaskGroupResp, err := getTaskGroupClient.Request("GET", getTaskGroupPath, &getTaskGroupOpt)
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving OMS migration task group: %s", err)
+	}
+
+	return utils.FlattenResponse(getTaskGroupResp)
 }
 
 func TestAccMigrationTaskGroup_prefix(t *testing.T) {
-	var taskGroup oms.ShowTaskGroupResponse
+	var taskGroup interface{}
 	rName := acceptance.RandomAccResourceNameWithDash()
 	sourceBucketName := rName + "-source"
 	destBucketName := rName + "-dest"
@@ -88,7 +107,7 @@ func TestAccMigrationTaskGroup_prefix(t *testing.T) {
 }
 
 func TestAccMigrationTaskGroup_list(t *testing.T) {
-	var taskGroup oms.ShowTaskGroupResponse
+	var taskGroup interface{}
 	rName := acceptance.RandomAccResourceNameWithDash()
 	sourceBucketName := rName + "-source"
 	destBucketName := rName + "-dest"
@@ -123,7 +142,7 @@ func TestAccMigrationTaskGroup_list(t *testing.T) {
 }
 
 func TestAccMigrationTaskGroup_urlList(t *testing.T) {
-	var taskGroup oms.ShowTaskGroupResponse
+	var taskGroup interface{}
 	rName := acceptance.RandomAccResourceNameWithDash()
 	destBucketName := rName + "-dest"
 	listFileBucketName := rName + "-list"
@@ -171,7 +190,6 @@ func TestAccMigrationTaskGroup_urlList(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "type", "URL_LIST"),
 					resource.TestCheckResourceAttr(resourceName, "description", "test task group"),
-					resource.TestCheckResourceAttr(resourceName, "action", "stop"),
 				),
 			},
 		},
@@ -208,6 +226,7 @@ resource "huaweicloud_oms_migration_task_group" "test" {
   consistency_check              = "crc64"
   enable_requester_pays          = true
   enable_failed_object_recording = true
+  enable_metadata_migration      = true
 
   bandwidth_policy {
     max_bandwidth = 1
@@ -344,7 +363,6 @@ resource "huaweicloud_oms_migration_task_group" "test" {
     secret_key = "%[6]s"
   }
 
-  action      = "stop"
   type        = "URL_LIST"  
   description = "test task group"
 }

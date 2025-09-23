@@ -2,7 +2,8 @@
 subcategory: "Web Application Firewall (WAF)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_waf_rule_information_leakage_prevention"
-description: ""
+description: |-
+  Manages a WAF rule information leakage prevention resource within HuaweiCloud.
 ---
 
 # huaweicloud_waf_rule_information_leakage_prevention
@@ -10,7 +11,7 @@ description: ""
 Manages a WAF rule information leakage prevention resource within HuaweiCloud.
 
 -> **NOTE:** All WAF resources depend on WAF instances, and the WAF instances need to be purchased before they can be
-used. The information leakage prevention rule resource can be used in Cloud Mode, Dedicated Mode.
+used. The information leakage prevention rule resource can be used in Cloud Mode and Dedicated Mode.
 
 ## Example Usage
 
@@ -54,7 +55,7 @@ The following arguments are supported:
 * `protective_action` - (Required, String) Specifies the protective action. Valid values are **log** and **block**.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID of WAF information leakage
-  prevention rule.
+  prevention rule. For enterprise users, if omitted, default enterprise project will be used.
 
   Changing this parameter will create a new resource.
 

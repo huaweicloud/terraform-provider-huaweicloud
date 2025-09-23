@@ -2,13 +2,15 @@ package hss
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	hssv5model "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/hss/v5/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -115,109 +117,114 @@ func DataSourceQuotas() *schema.Resource {
 	}
 }
 
+func buildQuotasQueryParams(d *schema.ResourceData, epsId string) string {
+	queryParams := "?limit=20"
+	queryParams = fmt.Sprintf("%s&enterprise_project_id=%v", queryParams, epsId)
+	if v, ok := d.GetOk("category"); ok {
+		queryParams = fmt.Sprintf("%s&category=%v", queryParams, v)
+	}
+	if v, ok := d.GetOk("version"); ok {
+		queryParams = fmt.Sprintf("%s&version=%v", queryParams, v)
+	}
+	if v, ok := d.GetOk("status"); ok {
+		queryParams = fmt.Sprintf("%s&quota_status=%v", queryParams, v)
+	}
+	if v, ok := d.GetOk("used_status"); ok {
+		queryParams = fmt.Sprintf("%s&used_status=%v", queryParams, v)
+	}
+	if v, ok := d.GetOk("host_name"); ok {
+		queryParams = fmt.Sprintf("%s&host_name=%v", queryParams, v)
+	}
+	if v, ok := d.GetOk("quota_id"); ok {
+		queryParams = fmt.Sprintf("%s&resource_id=%v", queryParams, v)
+	}
+	if v, ok := d.GetOk("charging_mode"); ok {
+		queryParams = fmt.Sprintf("%s&charging_mode=%v", queryParams, v)
+	}
+
+	return queryParams
+}
+
 func dataSourceQuotasRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg       = meta.(*config.Config)
-		region    = cfg.GetRegion(d)
-		epsId     = cfg.DataGetEnterpriseProjectID(d)
-		limit     = int32(20)
-		offset    int32
-		allQuotas []hssv5model.QuotaResourcesResponseInfo
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		epsId   = cfg.GetEnterpriseProjectID(d, "all_granted_eps")
+		product = "hss"
+		httpUrl = "v5/{project_id}/billing/quotas-detail"
+		offset  = 0
+		result  = make([]interface{}, 0)
+		mErr    *multierror.Error
 	)
 
-	client, err := cfg.HcHssV5Client(region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating HSS v5 client: %s", err)
+		return diag.Errorf("error creating HSS client: %s", err)
+	}
+
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath += buildQuotasQueryParams(d, epsId)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
 	for {
-		request := hssv5model.ListQuotasDetailRequest{
-			Region:              &region,
-			EnterpriseProjectId: utils.String(epsId),
-			Limit:               utils.Int32(limit),
-			Offset:              utils.Int32(offset),
-			Category:            utils.StringIgnoreEmpty(d.Get("category").(string)),
-			Version:             utils.StringIgnoreEmpty(d.Get("version").(string)),
-			QuotaStatus:         utils.StringIgnoreEmpty(d.Get("status").(string)),
-			UsedStatus:          utils.StringIgnoreEmpty(d.Get("used_status").(string)),
-			HostName:            utils.StringIgnoreEmpty(d.Get("host_name").(string)),
-			ResourceId:          utils.StringIgnoreEmpty(d.Get("quota_id").(string)),
-			ChargingMode:        utils.StringIgnoreEmpty(convertChargingModeRequest(d.Get("charging_mode").(string))),
+		currentPath := fmt.Sprintf("%s&offset=%v", getPath, offset)
+		getResp, err := client.Request("GET", currentPath, &getOpt)
+		if err != nil {
+			return diag.Errorf("error retrieving HSS quotas, %s", err)
 		}
 
-		listResp, listErr := client.ListQuotasDetail(&request)
-		if listErr != nil {
-			return diag.Errorf("error querying HSS quotas: %s", listErr)
+		getRespBody, err := utils.FlattenResponse(getResp)
+		if err != nil {
+			return diag.FromErr(err)
 		}
 
-		if listResp == nil || listResp.DataList == nil {
-			break
-		}
-		if len(*listResp.DataList) == 0 {
+		quotasResp := utils.PathSearch("data_list", getRespBody, make([]interface{}, 0)).([]interface{})
+		if len(quotasResp) == 0 {
 			break
 		}
 
-		allQuotas = append(allQuotas, *listResp.DataList...)
-		offset += limit
+		result = append(result, quotasResp...)
+		offset += len(quotasResp)
 	}
 
-	uuId, err := uuid.GenerateUUID()
+	generateUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
 
-	d.SetId(uuId)
+	d.SetId(generateUUID)
 
-	mErr := multierror.Append(nil,
+	mErr = multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("quotas", flattenQuotas(allQuotas)),
+		d.Set("quotas", flattenQuotas(result)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func flattenQuotas(quotas []hssv5model.QuotaResourcesResponseInfo) []interface{} {
-	if len(quotas) == 0 {
-		return nil
-	}
-
-	rst := make([]interface{}, 0, len(quotas))
-	for _, v := range quotas {
-		expireTime := ""
-		if v.ExpireTime != nil {
-			expireTime = utils.FormatTimeStampRFC3339(*(v.ExpireTime)/1000, false)
-		}
-
-		rst = append(rst, map[string]interface{}{
-			"id":                      v.ResourceId,
-			"version":                 v.Version,
-			"status":                  v.QuotaStatus,
-			"used_status":             v.UsedStatus,
-			"host_id":                 v.HostId,
-			"host_name":               v.HostName,
-			"charging_mode":           convertChargingMode(v.ChargingMode),
-			"expire_time":             expireTime,
-			"shared_quota":            v.SharedQuota,
-			"enterprise_project_id":   v.EnterpriseProjectId,
-			"enterprise_project_name": v.EnterpriseProjectName,
-			"tags":                    flattenTags(v.Tags),
+func flattenQuotas(quotasResp []interface{}) []interface{} {
+	result := make([]interface{}, 0, len(quotasResp))
+	for _, v := range quotasResp {
+		expireTime := utils.PathSearch("expire_time", v, float64(0)).(float64)
+		result = append(result, map[string]interface{}{
+			"id":                      utils.PathSearch("resource_id", v, nil),
+			"version":                 utils.PathSearch("version", v, nil),
+			"status":                  utils.PathSearch("quota_status", v, nil),
+			"used_status":             utils.PathSearch("used_status", v, nil),
+			"host_id":                 utils.PathSearch("host_id", v, nil),
+			"host_name":               utils.PathSearch("host_name", v, nil),
+			"charging_mode":           flattenChargingMode(utils.PathSearch("charging_mode", v, "").(string)),
+			"expire_time":             utils.FormatTimeStampRFC3339(int64(expireTime)/1000, false),
+			"shared_quota":            utils.PathSearch("shared_quota", v, nil),
+			"enterprise_project_id":   utils.PathSearch("enterprise_project_id", v, nil),
+			"enterprise_project_name": utils.PathSearch("enterprise_project_name", v, nil),
+			"tags":                    utils.FlattenTagsToMap(utils.PathSearch("tags", v, nil)),
 		})
 	}
 
-	return rst
-}
-
-func flattenTags(tags *[]hssv5model.TagInfo) map[string]interface{} {
-	if tags == nil {
-		return nil
-	}
-
-	rst := make(map[string]interface{})
-	for _, tag := range *tags {
-		if tag.Key != nil {
-			rst[*tag.Key] = tag.Value
-		}
-	}
-
-	return rst
+	return result
 }

@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_aad_unblock_ip
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: AAD
+paths:
+    /v1/unblockservice/{domain_id}/unblock:
+        POST:
+            tag: AAD

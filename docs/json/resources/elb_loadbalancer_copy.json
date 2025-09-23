@@ -1,0 +1,198 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_elb_loadbalancer_copy": {
+          "block": {
+            "attributes": {
+              "auto_renew": {
+                "type": "string",
+                "optional": true
+              },
+              "availability_zone": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
+              "backend_subnets": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
+              "charge_mode": {
+                "type": "string",
+                "computed": true
+              },
+              "charging_mode": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "cross_vpc_backend": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "deletion_protection_enable": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "elb_virsubnet_type": {
+                "type": "string",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "force_delete": {
+                "type": "bool",
+                "optional": true
+              },
+              "frozen_scene": {
+                "type": "string",
+                "computed": true
+              },
+              "gw_flavor_id": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ipv4_address": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "ipv4_port_id": {
+                "type": "string",
+                "computed": true
+              },
+              "ipv4_subnet_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "ipv6_address": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "ipv6_bandwidth_id": {
+                "type": "string",
+                "optional": true
+              },
+              "ipv6_network_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "l4_flavor_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "l7_flavor_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "loadbalancer_id": {
+                "type": "string",
+                "required": true
+              },
+              "loadbalancer_type": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "operating_status": {
+                "type": "string",
+                "computed": true
+              },
+              "period": {
+                "type": "number",
+                "optional": true
+              },
+              "period_unit": {
+                "type": "string",
+                "optional": true
+              },
+              "protection_reason": {
+                "type": "string",
+                "optional": true
+              },
+              "protection_status": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "public_border_group": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "reuse_pool": {
+                "type": "string",
+                "optional": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "computed": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "computed": true
+              },
+              "waf_failure_action": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "ELB",
+            "name": "Elastic Load Balance",
+            "catalog": "Networking",
+            "name_cn": "弹性负载均衡",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

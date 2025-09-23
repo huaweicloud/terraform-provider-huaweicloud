@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_aad_domain_certificate
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: AAD
+paths:
+    /v1/{project_id}/aad/external/domains/certificate:
+        POST:
+            tag: AAD
+    /v2/aad/domains/{domain_id}/certificate:
+        GET:
+            tag: AAD

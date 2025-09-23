@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -35,6 +34,8 @@ func ResourceFlinkTemplate() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+
+		CustomizeDiff: config.MergeDefaultTags(),
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -67,14 +68,7 @@ func ResourceFlinkTemplate() *schema.Resource {
 				ForceNew:    true,
 				Description: `The type of the flink template.`,
 			},
-			"tags": {
-				Type:        schema.TypeMap,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Optional:    true,
-				Computed:    true,
-				ForceNew:    true,
-				Description: `The key/value pairs to associate with the flink template.`,
-			},
+			"tags": common.TagsForceNewSchema(),
 		},
 	}
 }
@@ -117,11 +111,11 @@ func resourceFlinkTemplateCreate(ctx context.Context, d *schema.ResourceData, me
 			utils.PathSearch("message", createFlinkTemplateRespBody, "Message Not Found"))
 	}
 
-	id, err := jmespath.Search("template.template_id", createFlinkTemplateRespBody)
-	if err != nil {
-		return diag.Errorf("error creating FlinkTemplate: ID is not found in API response")
+	templateId := utils.PathSearch("template.template_id", createFlinkTemplateRespBody, float64(0)).(float64)
+	if templateId == 0 {
+		return diag.Errorf("unable to find the Flink template ID from the API response")
 	}
-	d.SetId(fmt.Sprint(id))
+	d.SetId(fmt.Sprint(templateId))
 
 	return resourceFlinkTemplateRead(ctx, d, meta)
 }
@@ -193,6 +187,7 @@ func resourceFlinkTemplateRead(_ context.Context, d *schema.ResourceData, meta i
 		d.Set("sql", utils.PathSearch("sql_body", flinkTemplate, nil)),
 		d.Set("description", utils.PathSearch("desc", flinkTemplate, nil)),
 		d.Set("type", utils.PathSearch("job_type", flinkTemplate, nil)),
+		d.Set("tags", d.Get("tags")),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())

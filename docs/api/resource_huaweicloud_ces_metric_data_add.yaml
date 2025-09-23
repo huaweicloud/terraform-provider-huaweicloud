@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_ces_metric_data_add
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CES
+paths:
+    /V1.0/{project_id}/metric-data:
+        POST:
+            tag: CES

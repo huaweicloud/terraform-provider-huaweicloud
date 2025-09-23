@@ -12,7 +12,6 @@ import (
 
 	"github.com/chnsz/golangsdk/pagination"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -115,76 +114,99 @@ func healthChecksSchema() *schema.Resource {
 				Computed:    true,
 				Description: "The latest update time of the health check.",
 			},
+			"frozen_info": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `The frozen details of cloud services or resources.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"status": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `The status of a cloud service or resource.`,
+						},
+						"effect": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `The status of the resource after being forzen.`,
+						},
+						"scene": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Description: `The service scenario.`,
+						},
+					},
+				},
+			},
 		},
 	}
 	return &sc
 }
 
 func dataSourceHealthChecksRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// listHealthChecks: Query the list of health checks
 	var (
-		listHealthChecksHttpUrl = "v1/health-checks"
-		listHealthChecksProduct = "ga"
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1/health-checks"
+		product = "ga"
+		mErr    *multierror.Error
 	)
-	listHealthChecksClient, err := cfg.NewServiceClient(listHealthChecksProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating GA client: %s", err)
 	}
 
-	listHealthChecksPath := listHealthChecksClient.Endpoint + listHealthChecksHttpUrl
-
-	listHealthChecksqueryParams := buildListHealthChecksQueryParams(d)
-	listHealthChecksPath += listHealthChecksqueryParams
-
-	listHealthChecksResp, err := pagination.ListAllItems(
-		listHealthChecksClient,
+	requestPath := client.Endpoint + httpUrl
+	requestPath += buildListHealthChecksQueryParams(d)
+	resp, err := pagination.ListAllItems(
+		client,
 		"marker",
-		listHealthChecksPath,
+		requestPath,
 		&pagination.QueryOpts{MarkerField: ""})
 
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving health checks")
+		return diag.Errorf("error retrieving GA health checks: %s", err)
 	}
 
-	listHealthChecksRespJson, err := json.Marshal(listHealthChecksResp)
+	respJson, err := json.Marshal(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	var listHealthChecksRespBody interface{}
-	err = json.Unmarshal(listHealthChecksRespJson, &listHealthChecksRespBody)
+	var respBody interface{}
+	err = json.Unmarshal(respJson, &respBody)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	generateUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(generateUUID)
 
-	var mErr *multierror.Error
 	mErr = multierror.Append(
 		mErr,
-		d.Set("health_checks", filterListHealthChecksResponseBody(flattenListHealthChecksResponseBody(listHealthChecksRespBody), d)),
+		d.Set("health_checks", filterListHealthChecksResponseBody(flattenListHealthChecksResponseBody(respBody), d)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func filterListHealthChecksResponseBody(all []interface{}, d *schema.ResourceData) []interface{} {
-	rst := make([]interface{}, 0, len(all))
+	var (
+		protocol = d.Get("protocol").(string)
+		enabled  = d.Get("enabled").(string)
+		rst      = make([]interface{}, 0, len(all))
+	)
+
 	for _, v := range all {
-		if param, ok := d.GetOk("protocol"); ok &&
-			fmt.Sprint(param) != utils.PathSearch("protocol", v, nil) {
+		if protocol != "" && protocol != utils.PathSearch("protocol", v, "").(string) {
 			continue
 		}
 
-		if param, ok := d.GetOk("enabled"); ok &&
-			fmt.Sprint(param) != fmt.Sprint(utils.PathSearch("enabled", v, nil)) {
+		if enabled != "" && enabled != fmt.Sprint(utils.PathSearch("enabled", v, nil)) {
 			continue
 		}
 
@@ -214,9 +236,24 @@ func flattenListHealthChecksResponseBody(resp interface{}) []interface{} {
 			"enabled":           utils.PathSearch("enabled", v, nil),
 			"created_at":        utils.PathSearch("created_at", v, nil),
 			"updated_at":        utils.PathSearch("updated_at", v, nil),
+			"frozen_info":       flattenHealthChecksFrozenInfo(utils.PathSearch("frozen_info", v, nil)),
 		})
 	}
 	return rst
+}
+
+func flattenHealthChecksFrozenInfo(resp interface{}) []map[string]interface{} {
+	if resp == nil {
+		return nil
+	}
+
+	frozenInfo := map[string]interface{}{
+		"status": utils.PathSearch("status", resp, nil),
+		"effect": utils.PathSearch("effect", resp, nil),
+		"scene":  utils.PathSearch("scene", resp, []string{}),
+	}
+
+	return []map[string]interface{}{frozenInfo}
 }
 
 func buildListHealthChecksQueryParams(d *schema.ResourceData) string {

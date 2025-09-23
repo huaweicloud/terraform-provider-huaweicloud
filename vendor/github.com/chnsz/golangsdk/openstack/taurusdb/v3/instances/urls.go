@@ -18,36 +18,28 @@ func listURL(c *golangsdk.ServiceClient) string {
 	return c.ServiceURL("instances")
 }
 
-func enlargeURL(c *golangsdk.ServiceClient, instanceID string) string {
-	return c.ServiceURL("instances", instanceID, "nodes/enlarge")
+func updateURL(c *golangsdk.ServiceClient, instanceID string, update string) string {
+	return c.ServiceURL("instances", instanceID, update)
 }
 
 func deleteReplicaURL(c *golangsdk.ServiceClient, instanceID, nodeID string) string {
 	return c.ServiceURL("instances", instanceID, "nodes", nodeID)
 }
 
-func nameURL(c *golangsdk.ServiceClient, instanceID string) string {
-	return c.ServiceURL("instances", instanceID, "name")
-}
-
-func passwordURL(c *golangsdk.ServiceClient, instanceID string) string {
-	return c.ServiceURL("instances", instanceID, "password")
-}
-
-func volumeURL(c *golangsdk.ServiceClient, instanceID string) string {
-	return c.ServiceURL("instances", instanceID, "volume/extend")
-}
-
 func proxyURL(c *golangsdk.ServiceClient, instanceID string) string {
 	return c.ServiceURL("instances", instanceID, "proxy")
 }
 
-func proxyEnlargeURL(c *golangsdk.ServiceClient, instanceID string) string {
-	return c.ServiceURL("instances", instanceID, "proxy/enlarge")
+func secondLevelMonitoringURL(c *golangsdk.ServiceClient, instanceID string) string {
+	return c.ServiceURL("instances", instanceID, "monitor-policy")
 }
 
-func actionURL(c *golangsdk.ServiceClient, instanceID string) string {
-	return c.ServiceURL("instances", instanceID, "action")
+func versionURL(c *golangsdk.ServiceClient, instanceID string) string {
+	return c.ServiceURL("instances", instanceID, "database-version")
+}
+
+func slowLogShowOriginalSwitchURL(c *golangsdk.ServiceClient, instanceID string) string {
+	return c.ServiceURL("instances", instanceID, "slowlog/query")
 }
 
 func jobURL(sc *golangsdk.ServiceClient) string {

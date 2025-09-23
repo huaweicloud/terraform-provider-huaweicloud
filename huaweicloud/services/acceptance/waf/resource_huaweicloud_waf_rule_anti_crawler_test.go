@@ -23,7 +23,7 @@ func getRuleAntiCrawlerResourceFunc(cfg *config.Config, state *terraform.Resourc
 	)
 	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return nil, fmt.Errorf("error creating WAF Client: %s", err)
+		return nil, fmt.Errorf("error creating WAF client: %s", err)
 	}
 
 	getPath := client.Endpoint + httpUrl
@@ -51,133 +51,8 @@ func getRuleAntiCrawlerResourceFunc(cfg *config.Config, state *terraform.Resourc
 	return utils.FlattenResponse(getRuleResp)
 }
 
+// Before running the test case, please ensure that there is at least one WAF instance in the current region.
 func TestAccRuleAntiCrawler_basic(t *testing.T) {
-	var obj interface{}
-
-	name := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_waf_rule_anti_crawler.test"
-
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&obj,
-		getRuleAntiCrawlerResourceFunc,
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPrecheckWafInstance(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testRuleAntiCrawler_basic(name),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(rName, "policy_id",
-						"huaweicloud_waf_policy.policy_1", "id"),
-					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "protection_mode", "anticrawler_specific_url"),
-					resource.TestCheckResourceAttr(rName, "priority", "0"),
-					resource.TestCheckResourceAttr(rName, "description", "test description"),
-					resource.TestCheckResourceAttr(rName, "conditions.#", "2"),
-					resource.TestCheckResourceAttr(rName, "conditions.0.field", "user-agent"),
-					resource.TestCheckResourceAttr(rName, "conditions.0.logic", "contain"),
-					resource.TestCheckResourceAttr(rName, "conditions.0.content", "TR"),
-					resource.TestCheckResourceAttr(rName, "conditions.1.field", "url"),
-					resource.TestCheckResourceAttr(rName, "conditions.1.logic", "equal"),
-					resource.TestCheckResourceAttr(rName, "conditions.1.content", "/test/path"),
-					resource.TestCheckResourceAttrSet(rName, "status"),
-				),
-			},
-			{
-				Config: testRuleAntiCrawler_basic_update(name),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "name", fmt.Sprintf("%s_update", name)),
-					resource.TestCheckResourceAttr(rName, "priority", "65535"),
-					resource.TestCheckResourceAttr(rName, "description", "test description update"),
-					resource.TestCheckResourceAttr(rName, "conditions.#", "2"),
-					resource.TestCheckResourceAttr(rName, "conditions.0.field", "user-agent"),
-					resource.TestCheckResourceAttr(rName, "conditions.0.logic", "suffix_any"),
-					resource.TestCheckResourceAttrPair(rName, "conditions.0.reference_table_id",
-						"huaweicloud_waf_reference_table.ref_table", "id"),
-					resource.TestCheckResourceAttr(rName, "conditions.1.field", "user-agent"),
-					resource.TestCheckResourceAttr(rName, "conditions.1.logic", "prefix"),
-					resource.TestCheckResourceAttr(rName, "conditions.1.content", "RF"),
-				),
-			},
-			{
-				ResourceName:      rName,
-				ImportState:       true,
-				ImportStateVerify: true,
-				ImportStateIdFunc: testWAFRuleImportState(rName),
-			},
-		},
-	})
-}
-
-func TestAccRuleAntiCrawler_exceptProtectionMode(t *testing.T) {
-	var obj interface{}
-
-	name := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_waf_rule_anti_crawler.test"
-
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&obj,
-		getRuleAntiCrawlerResourceFunc,
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPrecheckWafInstance(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testRuleAntiCrawler_excepProtectionMode(name),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(rName, "policy_id",
-						"huaweicloud_waf_policy.policy_1", "id"),
-					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "protection_mode", "anticrawler_except_url"),
-					resource.TestCheckResourceAttr(rName, "priority", "500"),
-					resource.TestCheckResourceAttr(rName, "description", "test description"),
-					resource.TestCheckResourceAttr(rName, "conditions.0.field", "url"),
-					resource.TestCheckResourceAttr(rName, "conditions.0.logic", "not_contain_all"),
-					resource.TestCheckResourceAttrPair(rName, "conditions.0.reference_table_id",
-						"huaweicloud_waf_reference_table.ref_table", "id"),
-					resource.TestCheckResourceAttrSet(rName, "status"),
-				),
-			},
-			{
-				Config: testRuleAntiCrawler_excepProtectionMode_update(name),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "name", fmt.Sprintf("%s_update", name)),
-					resource.TestCheckResourceAttr(rName, "priority", "1000"),
-					resource.TestCheckResourceAttr(rName, "description", "test description update"),
-					resource.TestCheckResourceAttr(rName, "conditions.0.field", "user-agent"),
-					resource.TestCheckResourceAttr(rName, "conditions.0.logic", "contain"),
-					resource.TestCheckResourceAttr(rName, "conditions.0.content", "TR"),
-				),
-			},
-			{
-				ResourceName:      rName,
-				ImportState:       true,
-				ImportStateVerify: true,
-				ImportStateIdFunc: testWAFRuleImportState(rName),
-			},
-		},
-	})
-}
-
-func TestAccRuleAntiCrawler_withEpsID(t *testing.T) {
 	var obj interface{}
 
 	name := acceptance.RandomAccResourceName()
@@ -199,21 +74,40 @@ func TestAccRuleAntiCrawler_withEpsID(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testRuleAntiCrawler_withEpsID(name),
+				Config: testDataSourceRuleAntiCrawler_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttrPair(rName, "policy_id",
-						"huaweicloud_waf_policy.policy_1", "id"),
-					resource.TestCheckResourceAttr(rName, "enterprise_project_id",
-						acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+						"huaweicloud_waf_policy.test", "id"),
 					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "protection_mode", "anticrawler_except_url"),
-					resource.TestCheckResourceAttr(rName, "priority", "500"),
+					resource.TestCheckResourceAttr(rName, "protection_mode", "anticrawler_specific_url"),
+					resource.TestCheckResourceAttr(rName, "priority", "0"),
 					resource.TestCheckResourceAttr(rName, "description", "test description"),
+					resource.TestCheckResourceAttr(rName, "conditions.#", "2"),
 					resource.TestCheckResourceAttr(rName, "conditions.0.field", "user-agent"),
 					resource.TestCheckResourceAttr(rName, "conditions.0.logic", "contain"),
 					resource.TestCheckResourceAttr(rName, "conditions.0.content", "TR"),
+					resource.TestCheckResourceAttr(rName, "conditions.1.field", "url"),
+					resource.TestCheckResourceAttr(rName, "conditions.1.logic", "equal"),
+					resource.TestCheckResourceAttr(rName, "conditions.1.content", "/test/path"),
 					resource.TestCheckResourceAttrSet(rName, "status"),
+				),
+			},
+			{
+				Config: testDataSourceRuleAntiCrawler_basic_update(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", fmt.Sprintf("%s_update", name)),
+					resource.TestCheckResourceAttr(rName, "priority", "65535"),
+					resource.TestCheckResourceAttr(rName, "description", "test description update"),
+					resource.TestCheckResourceAttr(rName, "conditions.#", "2"),
+					resource.TestCheckResourceAttr(rName, "conditions.0.field", "user-agent"),
+					resource.TestCheckResourceAttr(rName, "conditions.0.logic", "suffix_any"),
+					resource.TestCheckResourceAttrPair(rName, "conditions.0.reference_table_id",
+						"huaweicloud_waf_reference_table.test", "id"),
+					resource.TestCheckResourceAttr(rName, "conditions.1.field", "user-agent"),
+					resource.TestCheckResourceAttr(rName, "conditions.1.logic", "prefix"),
+					resource.TestCheckResourceAttr(rName, "conditions.1.content", "RF"),
 				),
 			},
 			{
@@ -226,16 +120,17 @@ func TestAccRuleAntiCrawler_withEpsID(t *testing.T) {
 	})
 }
 
-func testRuleAntiCrawler_basic(name string) string {
+func testDataSourceRuleAntiCrawler_basic(name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 resource "huaweicloud_waf_rule_anti_crawler" "test" {
-  policy_id       = huaweicloud_waf_policy.policy_1.id
-  name            = "%s"
-  protection_mode = "anticrawler_specific_url"
-  priority        = 0
-  description     = "test description"
+  policy_id             = huaweicloud_waf_policy.test.id
+  name                  = "%[2]s"
+  protection_mode       = "anticrawler_specific_url"
+  priority              = 0
+  description           = "test description"
+  enterprise_project_id = "%[3]s"
 
   conditions {
     field   = "user-agent"
@@ -249,38 +144,36 @@ resource "huaweicloud_waf_rule_anti_crawler" "test" {
     content = "/test/path"
   }
 }
-`, testAccWafPolicyV1_basic(name), name)
+`, testAccWafPolicy_basic(name), name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }
 
-func testRuleAntiCrawler_basic_update(name string) string {
+func testDataSourceRuleAntiCrawler_basic_update(name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
-resource "huaweicloud_waf_reference_table" "ref_table" {
-  name        = "%s"
-  type        = "user-agent"
-  description = "test user agent"
+resource "huaweicloud_waf_reference_table" "test" {
+  name                  = "%[2]s"
+  type                  = "user-agent"
+  description           = "test user agent"
+  enterprise_project_id = "%[3]s"
 
   conditions = [
     "UA"
   ]
-
-  depends_on = [
-    huaweicloud_waf_dedicated_instance.instance_1
-  ]
 }
 
 resource "huaweicloud_waf_rule_anti_crawler" "test" {
-  policy_id       = huaweicloud_waf_policy.policy_1.id
-  name            = "%s_update"
-  protection_mode = "anticrawler_specific_url"
-  priority        = 65535
-  description     = "test description update"
+  policy_id             = huaweicloud_waf_policy.test.id
+  name                  = "%[2]s_update"
+  protection_mode       = "anticrawler_specific_url"
+  priority              = 65535
+  description           = "test description update"
+  enterprise_project_id = "%[3]s"
 
   conditions {
     field              = "user-agent"
     logic              = "suffix_any"
-    reference_table_id = huaweicloud_waf_reference_table.ref_table.id
+    reference_table_id = huaweicloud_waf_reference_table.test.id
   }
 
   conditions {
@@ -289,81 +182,5 @@ resource "huaweicloud_waf_rule_anti_crawler" "test" {
     content = "RF"
   }
 }
-`, testAccWafPolicyV1_basic(name), name, name)
-}
-
-func testRuleAntiCrawler_excepProtectionMode(name string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_waf_reference_table" "ref_table" {
-  name        = "%s"
-  type        = "url"
-  description = "test url"
-
-  conditions = [
-    "/test/path"
-  ]
-
-  depends_on = [
-    huaweicloud_waf_dedicated_instance.instance_1
-  ]
-}
-
-resource "huaweicloud_waf_rule_anti_crawler" "test" {
-  policy_id       = huaweicloud_waf_policy.policy_1.id
-  name            = "%s"
-  protection_mode = "anticrawler_except_url"
-  priority        = 500
-  description     = "test description"
-
-  conditions {
-    field              = "url"
-    logic              = "not_contain_all"
-    reference_table_id = huaweicloud_waf_reference_table.ref_table.id
-  }
-}
-`, testAccWafPolicyV1_basic(name), name, name)
-}
-
-func testRuleAntiCrawler_excepProtectionMode_update(name string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_waf_rule_anti_crawler" "test" {
-  policy_id       = huaweicloud_waf_policy.policy_1.id
-  name            = "%s_update"
-  protection_mode = "anticrawler_except_url"
-  priority        = 1000
-  description     = "test description update"
-
-  conditions {
-    field   = "user-agent"
-    logic   = "contain"
-    content = "TR"
-  }
-}
-`, testAccWafPolicyV1_basic(name), name)
-}
-
-func testRuleAntiCrawler_withEpsID(name string) string {
-	return fmt.Sprintf(`
-%s
-
-resource "huaweicloud_waf_rule_anti_crawler" "test" {
-  policy_id             = huaweicloud_waf_policy.policy_1.id
-  name                  = "%s"
-  protection_mode       = "anticrawler_except_url"
-  priority              = 500
-  description           = "test description"
-  enterprise_project_id = "%s"
-
-  conditions {
-    field   = "user-agent"
-    logic   = "contain"
-    content = "TR"
-  }
-}
-`, testAccWafPolicyV1_basic_withEpsID(name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST), name,
-		acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, testAccWafPolicy_basic(name), name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }

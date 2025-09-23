@@ -109,7 +109,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "user_domain_names": {
                 "type": [

@@ -1,0 +1,58 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cbr_vault_change_charge_mode": {
+          "block": {
+            "attributes": {
+              "charging_mode": {
+                "type": "string",
+                "description": "Specifies the charging mode of the vault.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_auto_renew": {
+                "type": "bool",
+                "description": "Specifies whether to auto-renew the vault when it expires.",
+                "optional": true
+              },
+              "period_num": {
+                "type": "number",
+                "description": "Specifies the number of periods to purchase.",
+                "required": true
+              },
+              "period_type": {
+                "type": "string",
+                "description": "Specifies the period type of the vault.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to create the resource. If omitted, the provider-level\nregion will be used.",
+                "computed": true
+              },
+              "vault_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the IDs of the vaults to change charge mode.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "CBR",
+            "name": "Cloud Backup and Recovery",
+            "catalog": "Storage",
+            "name_cn": "云备份",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}

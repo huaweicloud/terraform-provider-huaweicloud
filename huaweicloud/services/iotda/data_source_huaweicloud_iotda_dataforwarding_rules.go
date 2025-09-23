@@ -3,13 +3,14 @@ package iotda
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -106,47 +107,77 @@ func DataSourceDataForwardingRules() *schema.Resource {
 	}
 }
 
-func dataSourceDataForwardingRulesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	isDerived := WithDerivedAuth(cfg, region)
-	client, err := cfg.HcIoTdaV5Client(region, isDerived)
-	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+func buildDataForwardingRulesQueryParams(d *schema.ResourceData) string {
+	rst := ""
+	if v, ok := d.GetOk("name"); ok {
+		rst += fmt.Sprintf("&rule_name=%v", v)
 	}
 
+	if v, ok := d.GetOk("resource"); ok {
+		rst += fmt.Sprintf("&resource=%v", v)
+	}
+
+	if v, ok := d.GetOk("trigger"); ok {
+		rst += fmt.Sprintf("&event=%v", v)
+	}
+
+	if v, ok := d.GetOk("app_type"); ok {
+		rst += fmt.Sprintf("&app_type=%v", v)
+	}
+
+	if v, ok := d.GetOk("space_id"); ok {
+		rst += fmt.Sprintf("&app_id=%v", v)
+	}
+
+	if v, ok := d.GetOk("enabled"); ok {
+		rst += fmt.Sprintf("&active=%v", v)
+	}
+
+	return rst
+}
+
+func dataSourceDataForwardingRulesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		allRoutingRules []model.RoutingRule
-		limit           = int32(50)
-		offset          int32
+		cfg      = meta.(*config.Config)
+		region   = cfg.GetRegion(d)
+		httpUrl  = "v5/iot/{project_id}/routing-rule/rules?limit=50"
+		product  = "iotda"
+		allRules []interface{}
+		offset   = 0
 	)
 
+	isDerived := WithDerivedAuth(cfg, region)
+	client, err := cfg.NewServiceClientWithDerivedAuth(product, region, isDerived)
+	if err != nil {
+		return diag.Errorf("error creating IoTDA client: %s", err)
+	}
+
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath += buildDataForwardingRulesQueryParams(d)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
 	for {
-		listOpts := model.ListRoutingRulesRequest{
-			RuleName: utils.StringIgnoreEmpty(d.Get("name").(string)),
-			Resource: utils.StringIgnoreEmpty(d.Get("resource").(string)),
-			Event:    utils.StringIgnoreEmpty(d.Get("trigger").(string)),
-			AppType:  utils.StringIgnoreEmpty(d.Get("app_type").(string)),
-			AppId:    utils.StringIgnoreEmpty(d.Get("space_id").(string)),
-			Limit:    utils.Int32(limit),
-			Offset:   &offset,
+		requestPathWithOffset := fmt.Sprintf("%s&offset=%d", requestPath, offset)
+		resp, err := client.Request("GET", requestPathWithOffset, &requestOpt)
+		if err != nil {
+			return diag.Errorf("error querying IoTDA data forwarding rules: %s", err)
 		}
 
-		active, ok := d.GetOk("enabled")
-		if ok {
-			listOpts.Active = utils.StringToBool(active)
+		respBody, err := utils.FlattenResponse(resp)
+		if err != nil {
+			return diag.FromErr(err)
 		}
 
-		listResp, listErr := client.ListRoutingRules(&listOpts)
-		if listErr != nil {
-			return diag.Errorf("error querying IoTDA dataforwarding rules: %s", listErr)
-		}
-
-		if len(*listResp.Rules) == 0 {
+		rules := utils.PathSearch("rules", respBody, make([]interface{}, 0)).([]interface{})
+		if len(rules) == 0 {
 			break
 		}
-		allRoutingRules = append(allRoutingRules, *listResp.Rules...)
-		offset += limit
+
+		allRules = append(allRules, rules...)
+		offset += len(rules)
 	}
 
 	uuId, err := uuid.GenerateUUID()
@@ -156,7 +187,7 @@ func dataSourceDataForwardingRulesRead(_ context.Context, d *schema.ResourceData
 
 	d.SetId(uuId)
 
-	targetRoutingRules := filterListDataForwardingRules(allRoutingRules, d)
+	targetRoutingRules := filterListDataForwardingRules(allRules, d)
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
 		d.Set("rules", flattenDataForwardingRules(targetRoutingRules)),
@@ -165,15 +196,15 @@ func dataSourceDataForwardingRulesRead(_ context.Context, d *schema.ResourceData
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func filterListDataForwardingRules(routingRules []model.RoutingRule, d *schema.ResourceData) []model.RoutingRule {
-	if len(routingRules) == 0 {
+func filterListDataForwardingRules(allRules []interface{}, d *schema.ResourceData) []interface{} {
+	if len(allRules) == 0 {
 		return nil
 	}
 
-	rst := make([]model.RoutingRule, 0, len(routingRules))
-	for _, v := range routingRules {
+	rst := make([]interface{}, 0, len(allRules))
+	for _, v := range allRules {
 		if ruleId, ok := d.GetOk("rule_id"); ok &&
-			fmt.Sprint(ruleId) != utils.StringValue(v.RuleId) {
+			ruleId.(string) != utils.PathSearch("rule_id", v, "").(string) {
 			continue
 		}
 
@@ -183,24 +214,24 @@ func filterListDataForwardingRules(routingRules []model.RoutingRule, d *schema.R
 	return rst
 }
 
-func flattenDataForwardingRules(routingRules []model.RoutingRule) []interface{} {
-	if len(routingRules) == 0 {
+func flattenDataForwardingRules(allRules []interface{}) []interface{} {
+	if len(allRules) == 0 {
 		return nil
 	}
 
-	rst := make([]interface{}, 0, len(routingRules))
-	for _, v := range routingRules {
+	rst := make([]interface{}, 0, len(allRules))
+	for _, v := range allRules {
 		rst = append(rst, map[string]interface{}{
-			"id":          v.RuleId,
-			"name":        v.RuleName,
-			"description": v.Description,
-			"resource":    v.Subject.Resource,
-			"trigger":     v.Subject.Event,
-			"app_type":    v.AppType,
-			"space_id":    v.AppId,
-			"enabled":     v.Active,
-			"select":      v.Select,
-			"where":       v.Where,
+			"id":          utils.PathSearch("rule_id", v, nil),
+			"name":        utils.PathSearch("rule_name", v, nil),
+			"description": utils.PathSearch("description", v, nil),
+			"resource":    utils.PathSearch("subject.resource", v, nil),
+			"trigger":     utils.PathSearch("subject.event", v, nil),
+			"app_type":    utils.PathSearch("app_type", v, nil),
+			"space_id":    utils.PathSearch("app_id", v, nil),
+			"enabled":     utils.PathSearch("active", v, nil),
+			"select":      utils.PathSearch("select", v, nil),
+			"where":       utils.PathSearch("where", v, nil),
 		})
 	}
 

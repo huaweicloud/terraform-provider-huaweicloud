@@ -2,7 +2,8 @@
 subcategory: "Cloud Phone (CPH)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_cph_phone_flavors"
-description: ""
+description: |-
+  Use this data source to get available flavors of CPH phone.
 ---
 
 # huaweicloud_cph_phone_flavors
@@ -11,9 +12,9 @@ Use this data source to get available flavors of CPH phone.
 
 ## Example Usage
 
-```
+```hcl
 data "huaweicloud_cph_phone_flavors" "test" {
-  type = 1
+  type = "1"
 }
 ```
 
@@ -26,13 +27,13 @@ The following arguments are supported:
 
 * `status` - (Optional, String) The flavor status. Defaults to **1**.  
   The options are as follows:
-    - **0**: offline.
-    - **1**: normal.
+  + **0**: offline.
+  + **1**: normal.
 
 * `type` - (Optional, String) The cloud phone type.  
   The options are as follows:
-    - **0**: Cloud phone.
-    - **1**: Cloud mobile gaming.
+  + **0**: Cloud phone.
+  + **1**: Cloud mobile gaming.
 
 * `vcpus` - (Optional, Int) The vcpus of the CPH phone.
 
@@ -71,13 +72,13 @@ The `Flavors` block supports:
 
 * `status` - The flavor status.  
   The options are as follows:
-    - **0**: offline.
-    - **1**: normal.
+  + **0**: offline.
+  + **1**: normal.
 
 * `type` - The cloud phone type.  
   The options are as follows:
-    - **0**: Cloud phone.
-    - **1**: Cloud mobile gaming.
+  + **0**: Cloud phone.
+  + **1**: Cloud mobile gaming.
 
 * `image_label` - (Optional, String) The label of image.
   The valid values are **cloud_phone**, **cloud_game**, **qemu_phone**, **cloud_phone_1620**, and **cloud_game_1620**.

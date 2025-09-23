@@ -10,6 +10,7 @@ import (
 
 	"github.com/chnsz/golangsdk"
 
+	funccommon "github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
@@ -39,7 +40,7 @@ func getDatasourceConnectionPrivilegeResourceFunc(cfg *config.Config, state *ter
 	}
 	requestResp, err := client.Request("GET", getPath, &getOpts)
 	if err != nil {
-		return nil, dli.ParsePrivilegesQueryError(err, dli.ErrCodeConnNotFound)
+		return nil, funccommon.ConvertExpected400ErrInto404Err(err, "error_code", dli.ErrCodeConnNotFound)
 	}
 	respBody, err := utils.FlattenResponse(requestResp)
 	if err != nil {

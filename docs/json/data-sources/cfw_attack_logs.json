@@ -25,6 +25,11 @@
                 "description": "Specifies the intrusion event type.",
                 "optional": true
               },
+              "dst_city_name": {
+                "type": "string",
+                "description": "Specifies the destination city name.",
+                "optional": true
+              },
               "dst_ip": {
                 "type": "string",
                 "description": "Specifies the destination IP address.",
@@ -33,6 +38,11 @@
               "dst_port": {
                 "type": "number",
                 "description": "Specifies the destination port.",
+                "optional": true
+              },
+              "dst_province_name": {
+                "type": "string",
+                "description": "Specifies the destination province name.",
                 "optional": true
               },
               "dst_region_name": {
@@ -81,8 +91,12 @@
                       "attack_rule_id": "string",
                       "attack_type": "string",
                       "direction": "string",
+                      "dst_city_id": "string",
+                      "dst_city_name": "string",
                       "dst_ip": "string",
                       "dst_port": "number",
+                      "dst_province_id": "string",
+                      "dst_province_name": "string",
                       "dst_region_id": "string",
                       "dst_region_name": "string",
                       "event_time": "string",
@@ -106,8 +120,12 @@
                       ],
                       "protocol": "string",
                       "source": "string",
+                      "src_city_id": "string",
+                      "src_city_name": "string",
                       "src_ip": "string",
                       "src_port": "number",
+                      "src_province_id": "string",
+                      "src_province_name": "string",
                       "src_region_id": "string",
                       "src_region_name": "string"
                     }
@@ -121,6 +139,11 @@
                 "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
                 "computed": true
               },
+              "src_city_name": {
+                "type": "string",
+                "description": "Specifies the source city name.",
+                "optional": true
+              },
               "src_ip": {
                 "type": "string",
                 "description": "Specifies the source IP address.",
@@ -129,6 +152,11 @@
               "src_port": {
                 "type": "number",
                 "description": "Specifies the source port.",
+                "optional": true
+              },
+              "src_province_name": {
+                "type": "string",
+                "description": "Specifies the source province name.",
                 "optional": true
               },
               "src_region_name": {

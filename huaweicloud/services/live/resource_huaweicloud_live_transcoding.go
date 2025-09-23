@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -12,25 +12,25 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/live/v1/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API Live GET /v1/{project_id}/template/transcodings
 // @API Live POST /v1/{project_id}/template/transcodings
+// @API Live GET /v1/{project_id}/template/transcodings
 // @API Live PUT /v1/{project_id}/template/transcodings
 // @API Live DELETE /v1/{project_id}/template/transcodings
 func ResourceTranscoding() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceTranscodingCreate,
+		ReadContext:   resourceTranscodingRead,
 		UpdateContext: resourceTranscodingUpdate,
 		DeleteContext: resourceTranscodingDelete,
-		ReadContext:   resourceTranscodingRead,
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			StateContext: resourceTranscodingImportState,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -40,25 +40,21 @@ func ResourceTranscoding() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-
 			"domain_name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-
 			"app_name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-
 			"video_encoding": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validation.StringInSlice([]string{"H264", "H265"}, false),
 			},
-
 			"templates": {
 				Type:     schema.TypeList,
 				Required: true,
@@ -68,37 +64,57 @@ func ResourceTranscoding() *schema.Resource {
 						"name": {
 							Type:     schema.TypeString,
 							Required: true,
-							ValidateFunc: validation.StringMatch(regexp.MustCompile("[a-zA-Z0-9-]{1,64}$"),
-								"The name can contain a maximum of 64 characters, and only contains letters,"+
-									" digits and hyphens (-)."),
 						},
-
 						"width": {
 							Type:     schema.TypeInt,
 							Required: true,
 						},
-
 						"height": {
 							Type:     schema.TypeInt,
 							Required: true,
 						},
-
 						"bitrate": {
-							Type:         schema.TypeInt,
-							Required:     true,
-							ValidateFunc: validation.IntBetween(40, 30000),
+							Type:     schema.TypeInt,
+							Required: true,
 						},
-
 						"frame_rate": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							ValidateFunc: validation.IntBetween(0, 30),
-							Computed:     true,
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
+						},
+						"protocol": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"i_frame_interval": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"gop": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"bitrate_adaptive": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+						"i_frame_policy": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
 						},
 					},
 				},
 			},
-
+			// This field is not returned by API, so the Computed attribute is not added.
+			"trans_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"low_bitrate_hd": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -108,88 +124,199 @@ func ResourceTranscoding() *schema.Resource {
 	}
 }
 
+func buildCreateOrUpdateTranscodingBodyParams(d *schema.ResourceData) map[string]interface{} {
+	transcodingParams := map[string]interface{}{
+		"domain":       d.Get("domain_name"),
+		"app_name":     d.Get("app_name"),
+		"trans_type":   utils.ValueIgnoreEmpty(d.Get("trans_type")),
+		"quality_info": buildTemplatesBodyParams(d),
+	}
+	return transcodingParams
+}
+
+func buildTemplatesBodyParams(d *schema.ResourceData) []map[string]interface{} {
+	rawParams := d.Get("templates").([]interface{})
+
+	if len(rawParams) == 0 {
+		return nil
+	}
+
+	templates := make([]map[string]interface{}, 0, len(rawParams))
+	for _, v := range rawParams {
+		raw := v.(map[string]interface{})
+		params := map[string]interface{}{
+			"templateName":     raw["name"],
+			"quality":          "userdefine",
+			"hdlb":             buildTemplatesHdlb(d),
+			"codec":            d.Get("video_encoding"),
+			"width":            raw["width"],
+			"height":           raw["height"],
+			"bitrate":          raw["bitrate"],
+			"video_frame_rate": utils.ValueIgnoreEmpty(raw["frame_rate"]),
+			"protocol":         utils.ValueIgnoreEmpty(raw["protocol"]),
+			"iFrameInterval":   convertStrToInt(raw["i_frame_interval"].(string)),
+			"gop":              convertStrToInt(raw["gop"].(string)),
+			"bitrate_adaptive": utils.ValueIgnoreEmpty(raw["bitrate_adaptive"]),
+			"i_frame_policy":   utils.ValueIgnoreEmpty(raw["i_frame_policy"]),
+		}
+		templates = append(templates, params)
+	}
+
+	return templates
+}
+
+func buildTemplatesHdlb(d *schema.ResourceData) string {
+	var bitrateHdlb string
+	if _, ok := d.GetOk("low_bitrate_hd"); ok {
+		bitrateHdlb = "on"
+	} else {
+		bitrateHdlb = "off"
+	}
+	return bitrateHdlb
+}
+
 func resourceTranscodingCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	region := c.GetRegion(d)
-	client, err := c.HcLiveV1Client(region)
+	var (
+		cfg        = meta.(*config.Config)
+		region     = cfg.GetRegion(d)
+		domainName = d.Get("domain_name").(string)
+		appName    = d.Get("app_name").(string)
+	)
+
+	client, err := cfg.NewServiceClient("live", region)
 	if err != nil {
-		return diag.Errorf("error creating Live v1 client: %s", err)
+		return diag.Errorf("error creating Live client: %s", err)
 	}
 
-	transcodingParams, err := buildTranscodingParams(d)
-	if err != nil {
-		return diag.FromErr(err)
+	createHttpUrl := "v1/{project_id}/template/transcodings"
+	createPath := client.Endpoint + createHttpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildCreateOrUpdateTranscodingBodyParams(d)),
 	}
 
-	createOpts := &model.CreateTranscodingsTemplateRequest{
-		Body: transcodingParams,
-	}
-	log.Printf("[DEBUG] Create Live transcoding params: %#v", createOpts)
-
-	_, err = client.CreateTranscodingsTemplate(createOpts)
+	_, err = client.Request("POST", createPath, &createOpt)
 	if err != nil {
 		return diag.Errorf("error creating Live transcoding: %s", err)
 	}
 
-	d.SetId(fmt.Sprintf("%s/%s", createOpts.Body.Domain, createOpts.Body.AppName))
+	d.SetId(fmt.Sprintf("%s/%s", domainName, appName))
 
 	return resourceTranscodingRead(ctx, d, meta)
 }
 
 func resourceTranscodingRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	region := c.GetRegion(d)
-	client, err := c.HcLiveV1Client(region)
+	var (
+		cfg        = meta.(*config.Config)
+		region     = cfg.GetRegion(d)
+		domainName = d.Get("domain_name").(string)
+		appName    = d.Get("app_name").(string)
+	)
+
+	client, err := cfg.NewServiceClient("live", region)
 	if err != nil {
-		return diag.Errorf("error creating Live v1 client: %s", err)
+		return diag.Errorf("error creating Live client: %s", err)
 	}
 
-	domain, appName, err := parseTranscodingId(d.Id())
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	response, err := client.ShowTranscodingsTemplate(&model.ShowTranscodingsTemplateRequest{
-		Domain:  domain,
-		AppName: &appName,
-	})
+	getResp, err := GetTranscodingTemplates(client, domainName, appName)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving Live transcoding")
 	}
 
-	if response.Templates == nil || len(*response.Templates) != 1 {
-		return diag.Errorf("error retrieving Live transcoding")
-	}
-	r := *response.Templates
-	detail := r[0]
-
 	mErr := multierror.Append(
 		d.Set("region", region),
-		d.Set("domain_name", response.Domain),
-		d.Set("app_name", detail.AppName),
-		setTemplatesToState(d, detail.QualityInfo),
+		d.Set("domain_name", domainName),
+		d.Set("app_name", utils.PathSearch("app_name", getResp, nil)),
+		d.Set("templates", flattentranscodingTemplates(utils.PathSearch("quality_info", getResp, make([]interface{}, 0)))),
+		d.Set("video_encoding", utils.PathSearch("quality_info[0].codec", getResp, nil)),
+		d.Set("low_bitrate_hd", flattenTemplatesHdlb(utils.PathSearch("quality_info[0].hdlb", getResp, "").(string))),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
+func flattentranscodingTemplates(resp interface{}) []map[string]interface{} {
+	rawArray := resp.([]interface{})
+	if len(rawArray) == 0 {
+		return nil
+	}
+
+	rst := make([]map[string]interface{}, len(rawArray))
+	for i, v := range rawArray {
+		params := map[string]interface{}{
+			"name":             utils.PathSearch("templateName", v, nil),
+			"width":            utils.PathSearch("width", v, nil),
+			"height":           utils.PathSearch("height", v, nil),
+			"bitrate":          utils.PathSearch("bitrate", v, nil),
+			"frame_rate":       utils.PathSearch("video_frame_rate", v, nil),
+			"protocol":         utils.PathSearch("protocol", v, nil),
+			"i_frame_interval": convertIntToStr(int(utils.PathSearch("iFrameInterval", v, float64(0)).(float64))),
+			"gop":              convertIntToStr(int(utils.PathSearch("gop", v, float64(0)).(float64))),
+			"bitrate_adaptive": utils.PathSearch("bitrate_adaptive", v, nil),
+			"i_frame_policy":   utils.PathSearch("i_frame_policy", v, nil),
+		}
+		rst[i] = params
+	}
+
+	return rst
+}
+
+func flattenTemplatesHdlb(hdlb string) bool {
+	return hdlb == "on"
+}
+
+func GetTranscodingTemplates(client *golangsdk.ServiceClient, domainName, appName string) (interface{}, error) {
+	getHttpUrl := "v1/{project_id}/template/transcodings"
+	getPath := client.Endpoint + getHttpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = fmt.Sprintf("%s?domain=%s&app_name=%s", getPath, domainName, appName)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	resp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, common.ConvertExpected400ErrInto404Err(err, "error_code", domainNameNotExistsCode)
+	}
+
+	getRespBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return nil, err
+	}
+
+	template := utils.PathSearch("templates|[0]", getRespBody, nil)
+	if template == nil {
+		return nil, golangsdk.ErrDefault404{}
+	}
+
+	return template, nil
+}
+
 func resourceTranscodingUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	region := c.GetRegion(d)
-	client, err := c.HcLiveV1Client(region)
+	var (
+		cfg    = meta.(*config.Config)
+		region = cfg.GetRegion(d)
+	)
+
+	client, err := cfg.NewServiceClient("live", region)
 	if err != nil {
-		return diag.Errorf("error creating Live v1 client: %s", err)
+		return diag.Errorf("error creating Live client: %s", err)
 	}
 
-	transcodingParams, err := buildTranscodingParams(d)
-	if err != nil {
-		return diag.FromErr(err)
+	updateHttpUrl := "v1/{project_id}/template/transcodings"
+	updatePath := client.Endpoint + updateHttpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes: []int{
+			200, 201, 204,
+		},
+		JSONBody: utils.RemoveNil(buildCreateOrUpdateTranscodingBodyParams(d)),
 	}
 
-	_, err = client.UpdateTranscodingsTemplate(&model.UpdateTranscodingsTemplateRequest{
-		Body: transcodingParams,
-	})
-
+	_, err = client.Request("PUT", updatePath, &updateOpt)
 	if err != nil {
 		return diag.Errorf("error updating Live transcoding: %s", err)
 	}
@@ -198,122 +325,67 @@ func resourceTranscodingUpdate(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func resourceTranscodingDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	region := c.GetRegion(d)
-	client, err := c.HcLiveV1Client(region)
+	var (
+		cfg        = meta.(*config.Config)
+		region     = cfg.GetRegion(d)
+		domainName = d.Get("domain_name").(string)
+		appName    = d.Get("app_name").(string)
+	)
+
+	client, err := cfg.NewServiceClient("live", region)
 	if err != nil {
-		return diag.Errorf("error creating Live v1 client: %s", err)
+		return diag.Errorf("error creating Live client: %s", err)
 	}
 
-	deleteOpts := &model.DeleteTranscodingsTemplateRequest{
-		Domain:  d.Get("domain_name").(string),
-		AppName: d.Get("app_name").(string),
+	deleteHttpUrl := "v1/{project_id}/template/transcodings"
+	deletePath := client.Endpoint + deleteHttpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = fmt.Sprintf("%s?domain=%s&app_name=%s", deletePath, domainName, appName)
+
+	deleteOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
-	_, err = client.DeleteTranscodingsTemplate(deleteOpts)
+
+	_, err = client.Request("DELETE", deletePath, &deleteOpts)
 	if err != nil {
-		return diag.Errorf("error deleting Live transcoding: %s", err)
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", domainNameNotExistsCode),
+			"error deleting Live transcoding")
 	}
 
 	return nil
 }
 
-func buildTranscodingParams(d *schema.ResourceData) (*model.StreamTranscodingTemplate, error) {
-	var codec model.QualityInfoCodec
-	if err := codec.UnmarshalJSON([]byte(d.Get("video_encoding").(string))); err != nil {
-		return nil, fmt.Errorf("error parsing the argument %q: %s", "video_encoding", err)
+func resourceTranscodingImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData,
+	error) {
+	importedId := d.Id()
+	parts := strings.Split(importedId, "/")
+	if len(parts) != 2 {
+		return nil, fmt.Errorf("invalid format specified for import ID, want '<domain_name>/<app_name>', but got '%s'",
+			importedId)
 	}
 
-	var hdlb model.QualityInfoHdlb
-	if v, ok := d.GetOk("low_bitrate_hd"); ok {
-		if v.(bool) {
-			hdlb = model.GetQualityInfoHdlbEnum().ON
-		} else {
-			hdlb = model.GetQualityInfoHdlbEnum().OFF
-		}
-	}
+	mErr := multierror.Append(nil,
+		d.Set("domain_name", parts[0]),
+		d.Set("app_name", parts[1]),
+	)
 
-	templates := d.Get("templates").([]interface{})
-	qualityInfo := make([]model.QualityInfo, len(templates))
-	for i, v := range templates {
-		template := v.(map[string]interface{})
-
-		width := template["width"].(int)
-		height := template["height"].(int)
-
-		errFmt := "expected %s to be in the range (%d - %d) and must be a multiple of %d when " +
-			"video_encoding is %s, got %d"
-
-		if codec == model.GetQualityInfoCodecEnum().H264 {
-			if width < 32 || width > 3840 || width%2 != 0 {
-				return nil, fmt.Errorf(errFmt, "width", 32, 3840, 2, "H264", width)
-			}
-			if height < 32 || height > 2160 || height%2 != 0 {
-				return nil, fmt.Errorf(errFmt, "height", 32, 2160, 2, "H264", height)
-			}
-		} else if codec == model.GetQualityInfoCodecEnum().H265 {
-			if width < 320 || width > 3840 || width%4 != 0 {
-				return nil, fmt.Errorf(errFmt, "width", 320, 3840, 4, "H265", width)
-			}
-			if height < 240 || height > 2160 || height%4 != 0 {
-				return nil, fmt.Errorf(errFmt, "height", 240, 2160, 4, "H265", height)
-			}
-		}
-
-		qualityInfo[i] = model.QualityInfo{
-			TemplateName:   utils.String(template["name"].(string)),
-			Quality:        "userdefine",
-			Width:          utils.Int32(int32(width)),
-			Height:         utils.Int32(int32(height)),
-			Bitrate:        int32(template["bitrate"].(int)),
-			VideoFrameRate: utils.Int32(int32(template["frame_rate"].(int))),
-			Codec:          &codec,
-			Hdlb:           &hdlb,
-		}
-	}
-
-	req := model.StreamTranscodingTemplate{
-		Domain:      d.Get("domain_name").(string),
-		AppName:     d.Get("app_name").(string),
-		QualityInfo: qualityInfo,
-	}
-	return &req, nil
+	return []*schema.ResourceData{d}, mErr.ErrorOrNil()
 }
 
-func setTemplatesToState(d *schema.ResourceData, qualityInfo *[]model.QualityInfo) error {
-	if qualityInfo != nil || len(*qualityInfo) > 0 {
-		qualitys := *qualityInfo
-		rst := make([]map[string]interface{}, len(qualitys))
-		for i, v := range qualitys {
-			rst[i] = map[string]interface{}{
-				"name":       v.TemplateName,
-				"width":      v.Width,
-				"height":     v.Height,
-				"bitrate":    v.Bitrate,
-				"frame_rate": v.VideoFrameRate,
-			}
-		}
-
-		var hdlb bool
-		if utils.MarshalValue(qualitys[0].Hdlb) == "on" {
-			hdlb = true
-		}
-
-		mErr := multierror.Append(
-			d.Set("templates", rst),
-			// this two attribute is same in one template group
-			d.Set("video_encoding", utils.MarshalValue(qualitys[0].Codec)),
-			d.Set("low_bitrate_hd", hdlb),
-		)
-
-		return mErr.ErrorOrNil()
-	}
-	return nil
+func convertIntToStr(v interface{}) string {
+	return fmt.Sprintf("%v", v)
 }
 
-func parseTranscodingId(id string) (domainName string, appName string, err error) {
-	idArrays := strings.SplitN(id, "/", 2)
-	if len(idArrays) != 2 {
-		return "", "", fmt.Errorf("invalid format specified for import ID. Format must be <domain_name>/<app_name>")
+func convertStrToInt(str string) interface{} {
+	if str == "" {
+		return nil
 	}
-	return idArrays[0], idArrays[1], nil
+
+	resp, err := strconv.Atoi(str)
+	if err != nil {
+		log.Printf("[WARN] Failed to convert the string (%s) to int", str)
+		return 0
+	}
+
+	return resp
 }

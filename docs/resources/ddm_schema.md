@@ -2,7 +2,8 @@
 subcategory: "Distributed Database Middleware (DDM)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_ddm_schema"
-description: ""
+description: |-
+  Manages a DDM schema resource within HuaweiCloud.
 ---
 
 # huaweicloud_ddm_schema
@@ -42,12 +43,12 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `name` - (Required, String, ForceNew) Specifies the name of the DDM schema.
-  An instance name starts with a letter, consists of 2 to 48 characters, and can contain only lowercase letters,
+  An instance name starts with a letter, consists of `2` to `48` characters, and can contain only lowercase letters,
   digits, and underscores (_). Cannot contain keywords information_schema, mysql, performance_schema, or sys.
 
   Changing this parameter will create a new resource.
 
-* `shard_mode` - (Required, String, ForceNew) Specifies the sharding mode of the schema. Values option: **cluster**, **single**.
+* `shard_mode` - (Required, String, ForceNew) Specifies the sharding mode of the schema. Values option:
   + **cluster**: indicates that the schema is in sharded mode.
   + **single**: indicates that the schema is in non-sharded mode.
 
@@ -62,12 +63,12 @@ The following arguments are supported:
 * `data_nodes` - (Required, List, ForceNew) Specifies the RDS instances associated with the schema.
 
   Changing this parameter will create a new resource.
-  The [DataNode](#DdmSchema_DataNode) structure is documented below.
+  The [data_nodes](#data_nodes_struct) structure is documented below.
 
 * `delete_rds_data` - (Optional, String) Specifies whether data stored on the associated DB instances is deleted.
 
-<a name="DdmSchema_DataNode"></a>
-The `DataNode` block supports:
+<a name="data_nodes_struct"></a>
+The `data_nodes` block supports:
 
 * `id` - (Required, String, ForceNew) Specifies the ID of the RDS instance associated with the schema.
 
@@ -84,15 +85,15 @@ In addition to all arguments above, the following attributes are exported:
 * `status` - Indicates the schema status.
 
 * `shards` - Indicates the sharding information of the schema.
-  The [Shard](#DdmSchema_Shard) structure is documented below.
+  The [shards](#shards_struct) structure is documented below.
 
 * `data_nodes` - Indicates the RDS instances associated with the schema.
-  The [DataNode](#DdmSchema_DataNode) structure is documented below.
+  The [data_nodes](#data_nodes_struct) structure is documented below.
 
 * `data_vips` - Indicates the IP address and port number for connecting to the schema.
 
-<a name="DdmSchema_Shard"></a>
-The `Shard` block supports:
+<a name="shards_struct"></a>
+The `shards` block supports:
 
 * `db_slot` - Indicates the number of shards.
 
@@ -102,8 +103,8 @@ The `Shard` block supports:
 
 * `id` - Indicates the ID of the RDS instance where the shard is located.
 
-<a name="DdmSchema_DataNode"></a>
-The `DataNode` block supports:
+<a name="data_nodes_struct"></a>
+The `data_nodes` block supports:
 
 * `id` - Indicates the ID of the RDS instance associated with the schema.
 
@@ -120,8 +121,26 @@ This resource provides the following timeouts configuration options:
 
 ## Import
 
-The DDM schema can be imported using the `<instance_id>/<schema_name>`, e.g.
+The DDM schema can be imported using the `<instance_id>/<name>`, e.g.
 
+```bash
+$ terraform import huaweicloud_ddm_schema.test <instance_id>/<name>
 ```
-$ terraform import huaweicloud_ddm_schema.test 80e373f9-872e-4046-aae9-ccd9ddc55511/schema_name
+
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
+API response, security or some other reason. The missing attributes include: `data_nodes/admin_user`,
+`data_nodes/admin_password`. It is generally recommended running `terraform plan` after importing a DDM schema. You can
+then decide if changes should be applied to the DDM schema, or the resource definition should be updated to align with
+the DDM schema. Also you can ignore changes as below.
+
+```hcl
+resource "huaweicloud_ddm_schema" "test" {
+  ...
+
+  lifecycle {
+    ignore_changes = [
+      data_nodes.0.admin_user, data_nodes.0.admin_password
+    ]
+  }
+}
 ```

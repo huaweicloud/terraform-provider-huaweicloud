@@ -18,6 +18,11 @@
                 "type": "string",
                 "optional": true
               },
+              "cps": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
               "created_at": {
                 "type": "string",
                 "computed": true
@@ -34,6 +39,14 @@
               "enable_member_retry": {
                 "type": "bool",
                 "optional": true,
+                "computed": true
+              },
+              "enable_quic_upgrade": {
+                "type": "string",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
                 "computed": true
               },
               "force_delete": {
@@ -108,10 +121,20 @@
                 "type": "string",
                 "optional": true
               },
+              "ip_group_enable": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "loadbalancer_id": {
                 "type": "string",
                 "required": true,
                 "forcenew": true
+              },
+              "max_connection": {
+                "type": "number",
+                "optional": true,
+                "computed": true
               },
               "name": {
                 "type": "string",
@@ -195,7 +218,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "tls_ciphers_policy": {
                 "type": "string",

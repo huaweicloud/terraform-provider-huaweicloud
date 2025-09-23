@@ -1,0 +1,64 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dbss_audit_risk_rules": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the audit instance ID to which the risk rules belong.",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the risk rule. Supports fuzzy search.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "risk_level": {
+                "type": "string",
+                "description": "Specifies  the risk level of the risk rule.",
+                "optional": true
+              },
+              "rules": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "feature": "string",
+                      "id": "string",
+                      "name": "string",
+                      "rank": "number",
+                      "risk_level": "string",
+                      "status": "string",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the risk rules.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DBSS",
+            "name": "Database Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据库安全服务",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

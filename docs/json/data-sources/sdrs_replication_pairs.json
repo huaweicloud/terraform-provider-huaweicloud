@@ -1,0 +1,118 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_sdrs_replication_pairs": {
+          "block": {
+            "attributes": {
+              "availability_zone": {
+                "type": "string",
+                "description": "Specifies the AZ of the current production site of the protection group.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the replication pair. Supports fuzzy query.",
+                "optional": true
+              },
+              "protected_instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the protected instance bound to the replication pair.",
+                "optional": true
+              },
+              "protected_instance_ids": {
+                "type": "string",
+                "description": "Specifies the list of protected instance IDs (URL-encoded).",
+                "optional": true
+              },
+              "query_type": {
+                "type": "string",
+                "description": "Specifies the query type of the current production site. Valid values: \"status_abnormal\", \"general\"",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region where the SDRS replication pairs are located. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "replication_pairs": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "attachment": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "device": "string",
+                            "protected_instance": "string"
+                          }
+                        ]
+                      ],
+                      "created_at": "string",
+                      "description": "string",
+                      "failure_detail": "string",
+                      "fault_level": "string",
+                      "id": "string",
+                      "name": "string",
+                      "priority_station": "string",
+                      "progress": "number",
+                      "record_metadata": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "bootable": "bool",
+                            "multiattach": "bool",
+                            "volume_size": "number",
+                            "volume_type": "string"
+                          }
+                        ]
+                      ],
+                      "replication_model": "string",
+                      "replication_status": "string",
+                      "server_group_id": "string",
+                      "status": "string",
+                      "updated_at": "string",
+                      "volume_ids": "string"
+                    }
+                  ]
+                ],
+                "description": "The replication pair list.",
+                "computed": true
+              },
+              "server_group_id": {
+                "type": "string",
+                "description": "Specifies the protection group ID.",
+                "optional": true
+              },
+              "server_group_ids": {
+                "type": "string",
+                "description": "Specifies the list of protection group IDs (URL-encoded).",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the status of the replication pair.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "SDRS",
+            "name": "Storage Disaster Recovery Service",
+            "catalog": "Storage",
+            "name_cn": "存储容灾服务",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}

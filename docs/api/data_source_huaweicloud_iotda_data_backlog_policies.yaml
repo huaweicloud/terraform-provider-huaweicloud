@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_iotda_data_backlog_policies
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: IoTDA
+paths:
+    /v5/iot/{project_id}/routing-rule/backlog-policy:
+        GET:
+            tag: IoTDA

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"net/url"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -56,9 +55,6 @@ func ResourceCdmJob() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.StringMatch(regexp.MustCompile(`^[A-Za-z][\w]{1,240}$`),
-					"The name consists of 1 to 240 characters, starting with a letter. "+
-						"Only letters, digits and underscores (_) are allowed."),
 			},
 
 			"cluster_id": {

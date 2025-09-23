@@ -1,0 +1,190 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_identitycenter_application_instance": {
+          "block": {
+            "attributes": {
+              "active_certificate": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "algorithm": "string",
+                      "certificate": "string",
+                      "certificate_id": "string",
+                      "expiry_date": "string",
+                      "issue_date": "string",
+                      "key_size": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "client_id": {
+                "type": "string",
+                "description": "Specifies the ID of the IAM Identity Center application instance client.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description of the IAM Identity Center application instance.",
+                "optional": true,
+                "computed": true
+              },
+              "display_name": {
+                "type": "string",
+                "description": "Specifies the display name of the IAM Identity Center application instance.",
+                "optional": true,
+                "computed": true
+              },
+              "end_user_visible": {
+                "type": "bool",
+                "description": "Whether the IAM Identity Center application instance is visible for end user.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "identity_provider_config": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "issuer_url": "string",
+                      "metadata_url": "string",
+                      "remote_login_url": "string",
+                      "remote_logout_url": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the IAM Identity Center instance.",
+                "required": true
+              },
+              "managed_account": {
+                "type": "string",
+                "description": "Specifies the ID of the IAM Identity Center application instance account.",
+                "computed": true
+              },
+              "metadata": {
+                "type": "string",
+                "description": "Specifies the string of the application instance metadata.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the IAM Identity Center application instance.",
+                "required": true
+              },
+              "response_config": {
+                "type": "string",
+                "description": "Specifies the response configuration of the IAM Identity Center application instance.",
+                "optional": true,
+                "computed": true
+              },
+              "response_schema_config": {
+                "type": "string",
+                "description": "Specifies the response schema configuration of the IAM Identity Center application instance.",
+                "optional": true,
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the status of the application instance.",
+                "optional": true,
+                "computed": true
+              },
+              "template_id": {
+                "type": "string",
+                "description": "Specifies the ID of the IAM Identity Center application template.",
+                "required": true
+              },
+              "visible": {
+                "type": "bool",
+                "description": "Whether the IAM Identity Center application instance is visible.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "security_config": {
+                "block": {
+                  "attributes": {
+                    "ttl": {
+                      "type": "string",
+                      "description": "Specifies the ttl of the IAM Identity Center application instance certificate.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "Specifies the security configuration of the IAM Identity Center application instance."
+                },
+                "nesting_mode": "list"
+              },
+              "service_provider_config": {
+                "block": {
+                  "attributes": {
+                    "audience": {
+                      "type": "string",
+                      "description": "Specifies the audience of the IAM Identity Center application instance.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "require_request_signature": {
+                      "type": "bool",
+                      "description": "Whether the IAM Identity Center application instance require request signature.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "start_url": {
+                      "type": "string",
+                      "description": "Specifies the start url of the IAM Identity Center application instance.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "block_types": {
+                    "consumers": {
+                      "block": {
+                        "attributes": {
+                          "binding": {
+                            "type": "string",
+                            "description": "Specifies the binding method of the IAM Identity Center application instance.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "default_value": {
+                            "type": "bool",
+                            "description": "Whether the IAM Identity Center application instance consumer is default.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "location": {
+                            "type": "string",
+                            "description": "Specifies the location url of the IAM Identity Center application instance.",
+                            "optional": true,
+                            "computed": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list"
+                    }
+                  },
+                  "description": "Specifies the service provider configuration of the IAM Identity Center application instance."
+                },
+                "nesting_mode": "list"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

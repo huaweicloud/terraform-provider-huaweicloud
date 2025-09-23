@@ -72,11 +72,25 @@ The `instances` block supports:
 
 * `port` - Indicates the database port.
 
+* `private_dns_name_prefix` - Indicates the prefix of the private domain name.
+
+* `private_dns_name` - Indicates the private domain name.
+
 * `mode` - Indicates the instance mode.
 
 * `db_user_name` - Indicates the default username.
 
 * `private_write_ip` - Indicates the private IP address of the DB instance.
+
+* `maintain_begin` - Indicates the start time for a maintenance window.
+
+* `maintain_end` - Indicates the end time for a maintenance window.
+
+* `description` - Indicates the description of the instance.
+
+* `created_at` - Indicates the creation time in the **yyyy-mm-ddThh:mm:ssZ** format.
+
+* `updated_at` - Indicates the Update time in the **yyyy-mm-ddThh:mm:ssZ** format.
 
 * `nodes` - Indicates the instance nodes information. Structure is documented below.
 

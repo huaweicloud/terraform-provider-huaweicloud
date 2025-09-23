@@ -92,6 +92,7 @@ resource "huaweicloud_cbr_vault" "test" {
   protection_type = "backup"
   size            = 50
   auto_expand     = true
+  locked          = false
 
   resources {
     includes = var.evs_volume_ids
@@ -189,6 +190,9 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the CBR vault. If omitted, the
   provider-level region will be used. Changing this will create a new vault.
 
+* `cloud_type` - (Required, String, ForceNew) Specifies the cloud type of the vault.  
+  Changing this will create a new vault.
+
 * `name` - (Required, String) Specifies a unique name of the CBR vault. This parameter can contain a maximum of 64
   characters, which may consist of letters, digits, underscores(_) and hyphens (-).
 
@@ -222,6 +226,9 @@ The following arguments are supported:
   Defaults to **false**.
 
   -> You cannot configure `auto_expand` if the vault is **prePaid** mode.
+
+* `locked` - (Optional, Bool) Specifies whether the vault is locked. A locked vault cannot be unlocked.
+  Defaults to **false**.
 
 * `auto_bind` - (Optional, Bool) Specifies whether automatic association is enabled. Defaults to **false**.
 
@@ -314,7 +321,7 @@ This resource provides the following timeouts configuration options:
 
 Vaults can be imported by their `id`. For example,
 
-```
+```bash
 $ terraform import huaweicloud_cbr_vault.test 01c33779-7c83-4182-8b6b-24a671fcedf8
 ```
 
@@ -324,7 +331,7 @@ It is generally recommended running `terraform plan` after importing a vault.
 You can then decide if changes should be applied to the vault, or the resource definition should be updated to align
 with the vault. Also you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_cbr_vault" "test" {
   ...
 

@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -134,11 +133,11 @@ func resourceCNADAdvancedPolicyCreate(ctx context.Context, d *schema.ResourceDat
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("id", createPolicyRespBody)
-	if err != nil {
-		return diag.Errorf("error creating CNAD advanced policy: ID is not found in API response")
+	policyId := utils.PathSearch("id", createPolicyRespBody, "").(string)
+	if policyId == "" {
+		return diag.Errorf("unable to find the CNAD advanced policy ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(policyId)
 
 	_, ok1 := d.GetOk("threshold")
 	_, ok2 := d.GetOk("udp")

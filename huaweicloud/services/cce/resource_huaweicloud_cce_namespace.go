@@ -2,7 +2,6 @@ package cce
 
 import (
 	"context"
-	"regexp"
 	"strings"
 	"time"
 
@@ -10,7 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/cce/v1/namespaces"
@@ -51,28 +49,16 @@ func ResourceCCENamespaceV1() *schema.Resource {
 				ForceNew: true,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[a-z0-9]([-a-z0-9]*[a-z0-9])?$`),
-						"The name can only consist of lowercase letters, numbers, and hyphens (-), "+
-							"and it must start and end with a letter or digit."),
-					validation.StringLenBetween(1, 63),
-				),
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     true,
 				ExactlyOneOf: []string{"name", "prefix"},
 			},
 			"prefix": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^[a-z0-9]([-a-z0-9]*[a-z0-9])?$`),
-						"The name can only consist of lowercase letters, numbers, and hyphens (-), "+
-							"and it must start and end with a letter or digit."),
-					validation.StringLenBetween(1, 63),
-				),
 			},
 			"labels": {
 				Type:     schema.TypeMap,

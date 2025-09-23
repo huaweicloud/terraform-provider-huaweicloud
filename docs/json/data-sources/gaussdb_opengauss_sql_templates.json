@@ -1,0 +1,59 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_opengauss_sql_templates": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of a GaussDB OpenGauss instance.",
+                "required": true
+              },
+              "node_id": {
+                "type": "string",
+                "description": "Specifies the ID of a GaussDB OpenGauss instance node.",
+                "required": true
+              },
+              "node_limit_sql_model_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "sql_id": "string",
+                      "sql_model": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the information about the SQL template for SQL throttling.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "sql_model": {
+                "type": "string",
+                "description": "Specifies the SQL template.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDB",
+            "name": "GaussDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

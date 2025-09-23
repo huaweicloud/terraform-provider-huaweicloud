@@ -82,8 +82,8 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `period` - (Required, Int, ForceNew) Specifies the charging period of the CBH instance.
-  If `period_unit` is set to **month**, the value ranges from 1 to 9.
-  If `period_unit` is set to **year**, the value ranges from 1 to 3.
+  If `period_unit` is set to **month**, the value ranges from `1` to `9`.
+  If `period_unit` is set to **year**, the value ranges from `1` to `3`.
 
   Changing this parameter will create a new resource.
 
@@ -167,7 +167,7 @@ It is generally recommended running `terraform plan` after importing an instance
 You can then decide if changes should be applied to the instance, or the resource definition should be updated
 to align with the instance. Also, you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_cbh_instance" "test" {
     ...
 

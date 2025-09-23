@@ -2,7 +2,8 @@
 subcategory: "Dedicated Load Balance (Dedicated ELB)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_elb_ipgroup"
-description: ""
+description: |-
+  Manages a Dedicated ELB Ip Group resource within HuaweiCloud.
 ---
 
 # huaweicloud_elb_ipgroup
@@ -35,11 +36,12 @@ The following arguments are supported:
 * `description` - (Optional, String) Human-readable description for the ip group.
 
 * `ip_list` - (Required, List) Specifies an array of one or more ip addresses. The ip_list object structure is
-  documented below.
+  documented below. The [ip_list](#ELB_iplistResp) structure is documented below.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id of the ip group. Changing this
   creates a new ip group.
 
+<a name="ELB_iplistResp"></a>
 The `ip_list` block supports:
 
 * `ip` - (Required, String) IP address or CIDR block.
@@ -54,29 +56,14 @@ In addition to all arguments above, the following attributes are exported:
 
 * `listener_ids` - The listener IDs which the ip group associated with.
 
-* `created_at` - The create time of the ip group.
+* `created_at` - The creation time of the ip group.
 
 * `updated_at` - The update time of the ip group.
 
-ELB IP group can be imported using the IP group ID, e.g.
+## Import
 
-```
-$ terraform import huaweicloud_elb_ipgroup.group_1 5c20fdad-7288-11eb-b817-0255ac10158b
-```
+The ELB IP group can be imported using the `id`, e.g.
 
-Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
-API response, security or some other reason. The missing attributes include: `enterprise_project_id`.
-It is generally recommended running `terraform plan` after importing a IP group.
-You can then decide if changes should be applied to the IP group, or the resource
-definition should be updated to align with the IP group. Also you can ignore changes as below.
-
-```
-resource "huaweicloud_elb_ipgroup" "group_1" {
-    ...
-  lifecycle {
-    ignore_changes = [
-      enterprise_project_id,
-    ]
-  }
-}
+```bash
+$ terraform import huaweicloud_elb_ipgroup.test <id>
 ```

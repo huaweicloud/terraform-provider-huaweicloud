@@ -1,0 +1,91 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_eg_event_batch_action": {
+          "block": {
+            "attributes": {
+              "channel_id": {
+                "type": "string",
+                "description": "The ID of the event channel.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the event channel is located.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "events": {
+                "block": {
+                  "attributes": {
+                    "data": {
+                      "type": "string",
+                      "description": "The payload content of the event, in JSON format.",
+                      "optional": true
+                    },
+                    "data_content_type": {
+                      "type": "string",
+                      "description": "The content type of the event data.",
+                      "optional": true
+                    },
+                    "data_schema": {
+                      "type": "string",
+                      "description": "The URI of the event data schema.",
+                      "optional": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "description": "The ID of the event.",
+                      "required": true
+                    },
+                    "source": {
+                      "type": "string",
+                      "description": "The name of the event source.",
+                      "required": true
+                    },
+                    "spec_version": {
+                      "type": "string",
+                      "description": "The CloudEvents protocol version.",
+                      "required": true
+                    },
+                    "subject": {
+                      "type": "string",
+                      "description": "The subject of the event.",
+                      "optional": true
+                    },
+                    "time": {
+                      "type": "string",
+                      "description": "The time when the event occurred, in UTC format.",
+                      "optional": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The type of the event.",
+                      "required": true
+                    }
+                  },
+                  "description": "The list of events to be published."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "EG",
+            "name": "EventGrid",
+            "catalog": "Middleware",
+            "name_cn": "事件网格",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

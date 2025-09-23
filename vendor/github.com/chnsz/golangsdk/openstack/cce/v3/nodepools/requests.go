@@ -123,6 +123,43 @@ type CreateSpec struct {
 	PodSecurityGroups []PodSecurityGroupSpec `json:"podSecurityGroups,omitempty"`
 	// Node security group configurations
 	CustomSecurityGroups []string `json:"customSecurityGroups,omitempty"`
+	// label (k8s tag) policy on existing nodes
+	LabelPolicyOnExistingNodes string `json:"labelPolicyOnExistingNodes,omitempty"`
+	// tag policy on existing nodes
+	UserTagPolicyOnExistingNodes string `json:"userTagsPolicyOnExistingNodes,omitempty"`
+	// taint policy on existing nodes
+	TaintPolicyOnExistingNodes string `json:"taintPolicyOnExistingNodes,omitempty"`
+	// The list of extension scale groups
+	ExtensionScaleGroups []ExtensionScaleGroups `json:"extensionScaleGroups,omitempty"`
+}
+
+type ExtensionScaleGroups struct {
+	Metadata *ExtensionScaleGroupsMetadata `json:"metadata,omitempty"`
+	Spec     *ExtensionScaleGroupsSpec     `json:"spec,omitempty"`
+}
+
+type ExtensionScaleGroupsMetadata struct {
+	Uid  string `json:"uid,omitempty"`
+	Name string `json:"name,omitempty"`
+}
+
+type ExtensionScaleGroupsSpec struct {
+	Flavor                           string                            `json:"flavor,omitempty"`
+	Az                               string                            `json:"az,omitempty"`
+	CapacityReservationSpecification *CapacityReservationSpecification `json:"capacityReservationSpecification,omitempty"`
+	Autoscaling                      *Autoscaling                      `json:"autoscaling,omitempty"`
+}
+
+type CapacityReservationSpecification struct {
+	ID         string `json:"id,omitempty"`
+	Preference string `json:"preference,omitempty"`
+}
+
+type Autoscaling struct {
+	Enable            bool `json:"enable,omitempty"`
+	ExtensionPriority int  `json:"extensionPriority,omitempty"`
+	MinNodeCount      int  `json:"minNodeCount,omitempty"`
+	MaxNodeCount      int  `json:"maxNodeCount,omitempty"`
 }
 
 type PodSecurityGroupSpec struct {
@@ -212,7 +249,7 @@ type UpdateNodeTemplate struct {
 	// Number of nodes when creating in batch
 	Count int `json:"count,omitempty"`
 	// The node nic spec
-	NodeNicSpec *nodes.NodeNicSpec `json:"nodeNicSpec,omitempty"`
+	NodeNicSpecUpdate nodes.NodeNicSpec `json:"nodeNicSpecUpdate,omitempty"`
 	// Extended parameter
 	ExtendParam map[string]interface{} `json:"extendParam,omitempty"`
 	// UUID of an ECS group
@@ -229,6 +266,8 @@ type UpdateNodeTemplate struct {
 	Partition string `json:"partition,omitempty"`
 	// The initialized conditions
 	InitializedConditions []string `json:"initializedConditions,omitempty"`
+	// The enterprise project ID
+	ServerEnterpriseProjectID string `json:"serverEnterpriseProjectID,omitempty"`
 }
 
 // UpdateSpec describes Node pools update specification
@@ -238,9 +277,19 @@ type UpdateSpec struct {
 	// Node template
 	NodeTemplate UpdateNodeTemplate `json:"nodeTemplate"`
 	// Initial number of expected nodes
-	InitialNodeCount *int `json:"initialNodeCount" required:"true"`
+	InitialNodeCount int `json:"initialNodeCount,omitempty"`
+	// Whether to ignore the changes of IgnoreInitialNodeCount
+	IgnoreInitialNodeCount bool `json:"ignoreInitialNodeCount"`
 	// Auto scaling parameters
 	Autoscaling AutoscalingSpec `json:"autoscaling"`
+	// label (k8s tag) policy on existing nodes
+	LabelPolicyOnExistingNodes string `json:"labelPolicyOnExistingNodes,omitempty"`
+	// tag policy on existing nodes
+	UserTagPolicyOnExistingNodes string `json:"userTagsPolicyOnExistingNodes,omitempty"`
+	// taint policy on existing nodes
+	TaintPolicyOnExistingNodes string `json:"taintPolicyOnExistingNodes,omitempty"`
+	// The list of extension scale groups
+	ExtensionScaleGroups []ExtensionScaleGroups `json:"extensionScaleGroups,omitempty"`
 }
 
 // ToNodePoolUpdateMap builds an update body based on UpdateOpts.

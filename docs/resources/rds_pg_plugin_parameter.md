@@ -29,13 +29,9 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which to create the rds PostgreSQL plugin parameter resource.
   If omitted, the provider-level region will be used. Changing this will creates a new resource.
 
-* `instance_id` - (Required, String, ForceNew) Specifies the ID of RDS instance.
+* `instance_id` - (Required, String, NonUpdatable) Specifies the ID of RDS instance.
 
-  Changing this parameter will create a new resource.
-
-* `name` - (Required, String, ForceNew) Specifies the name of the plugin parameter.
-
-  Changing this parameter will create a new resource.
+* `name` - (Required, String, NonUpdatable) Specifies the name of the plugin parameter.
 
 * `values` - (Required, List) Specifies the list of plugin parameter values.
 

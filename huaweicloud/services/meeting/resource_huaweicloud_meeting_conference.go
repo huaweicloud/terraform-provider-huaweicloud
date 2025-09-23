@@ -257,18 +257,16 @@ func ResourceConference() *schema.Resource {
 
 			// Arguments
 			"topic": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: validation.StringLenBetween(1, 128),
+				Type:     schema.TypeString,
+				Required: true,
 			},
 			"meeting_room_id": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
 			"duration": {
-				Type:         schema.TypeInt,
-				Required:     true,
-				ValidateFunc: validation.IntBetween(15, 1440),
+				Type:     schema.TypeInt,
+				Required: true,
 			},
 			"start_time": {
 				Type:     schema.TypeString,
@@ -371,10 +369,9 @@ func ResourceConference() *schema.Resource {
 							Computed: true,
 						},
 						"name": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							Computed:     true,
-							ValidateFunc: validation.StringLenBetween(0, 96),
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
 						},
 						"role": {
 							Type:     schema.TypeInt,
@@ -443,9 +440,8 @@ func ResourceConference() *schema.Resource {
 							}, false),
 						},
 						"pre_remind": {
-							Type:         schema.TypeInt,
-							Required:     true,
-							ValidateFunc: validation.IntBetween(0, 30),
+							Type:     schema.TypeInt,
+							Required: true,
 						},
 						"start_date": {
 							Type:     schema.TypeString,
@@ -529,10 +525,9 @@ func ResourceConference() *schema.Resource {
 							Sensitive: true,
 						},
 						"prolong_time": {
-							Type:         schema.TypeInt,
-							Optional:     true,
-							Computed:     true,
-							ValidateFunc: validation.IntBetween(0, 60),
+							Type:     schema.TypeInt,
+							Optional: true,
+							Computed: true,
 						},
 						"waiting_room_enabled": {
 							Type:     schema.TypeBool,

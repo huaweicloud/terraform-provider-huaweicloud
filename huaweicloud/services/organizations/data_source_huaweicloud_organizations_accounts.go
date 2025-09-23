@@ -36,6 +36,11 @@ func DataSourceAccounts() *schema.Resource {
 				Optional:    true,
 				Description: `Specifies the name of the account.`,
 			},
+			"with_register_contact_info": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Whether to return email addresses and mobile numbers associated with the account.",
+			},
 			"accounts": {
 				Type:        schema.TypeList,
 				Elem:        organizationsAccountSchema(),
@@ -52,27 +57,52 @@ func organizationsAccountSchema() *schema.Resource {
 			"id": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Unique ID of an account`,
+				Description: `Unique ID of an account.`,
 			},
 			"name": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Name of the account`,
+				Description: `Name of the account.`,
 			},
 			"urn": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Uniform resource name of the account`,
+				Description: `Uniform resource name of the account.`,
+			},
+			"description": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Description of the account.`,
+			},
+			"status": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Status of the account.`,
 			},
 			"join_method": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `How an account joined an organization`,
+				Description: `How an account joined an organization.`,
 			},
 			"joined_at": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Time when an account joined an organization`,
+				Description: `Time when an account joined an organization.`,
+			},
+			"mobile_phone": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Mobile phone number.`,
+			},
+			"intl_number_prefix": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Prefix of a mobile phone number.`,
+			},
+			"email": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Email address associated with the account.`,
 			},
 		},
 	}
@@ -147,11 +177,16 @@ func flattenAccountsResp(resp interface{}, name string) []interface{} {
 	rst := make([]interface{}, 0, len(curArray))
 	for _, v := range curArray {
 		rst = append(rst, map[string]interface{}{
-			"id":          utils.PathSearch("id", v, nil),
-			"name":        utils.PathSearch("name", v, nil),
-			"urn":         utils.PathSearch("urn", v, nil),
-			"join_method": utils.PathSearch("join_method", v, nil),
-			"joined_at":   utils.PathSearch("joined_at", v, nil),
+			"id":                 utils.PathSearch("id", v, nil),
+			"name":               utils.PathSearch("name", v, nil),
+			"urn":                utils.PathSearch("urn", v, nil),
+			"description":        utils.PathSearch("description", v, nil),
+			"status":             utils.PathSearch("status", v, nil),
+			"join_method":        utils.PathSearch("join_method", v, nil),
+			"joined_at":          utils.PathSearch("joined_at", v, nil),
+			"mobile_phone":       utils.PathSearch("mobile_phone", v, nil),
+			"intl_number_prefix": utils.PathSearch("intl_number_prefix", v, nil),
+			"email":              utils.PathSearch("email", v, nil),
 		})
 	}
 	return rst
@@ -160,6 +195,8 @@ func flattenAccountsResp(resp interface{}, name string) []interface{} {
 func buildListAccountsQueryParams(d *schema.ResourceData, marker string) string {
 	// the default value of limit is 200
 	res := "?limit=200"
+
+	res = fmt.Sprintf("%s&with_register_contact_info=%v", res, d.Get("with_register_contact_info"))
 
 	if marker != "" {
 		res = fmt.Sprintf("%s&marker=%v", res, marker)

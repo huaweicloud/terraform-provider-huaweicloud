@@ -27,7 +27,7 @@ func TestAccSecurityGroupRuleResource_Basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      testAccCheckSecurityGroupRuleDestory,
+		CheckDestroy:      testAccCheckSecurityGroupRuleDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccSecurityGroupRule_Basic(rName),
@@ -78,7 +78,7 @@ func testAccCheckSecurityGroupRuleExists(n string, rule *rules.RespSecurityGroup
 	}
 }
 
-func testAccCheckSecurityGroupRuleDestory(state *terraform.State) error {
+func testAccCheckSecurityGroupRuleDestroy(state *terraform.State) error {
 	cfg := acceptance.TestAccProvider.Meta().(*config.Config)
 	iecClient, err := cfg.IECV1Client(acceptance.HW_REGION_NAME)
 	if err != nil {

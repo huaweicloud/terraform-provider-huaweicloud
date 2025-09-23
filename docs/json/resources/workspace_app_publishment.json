@@ -1,0 +1,114 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_workspace_app_publishment": {
+          "block": {
+            "attributes": {
+              "app_group_id": {
+                "type": "string",
+                "description": "The APP group ID to which the application belongs.",
+                "required": true,
+                "forcenew": true
+              },
+              "command_param": {
+                "type": "string",
+                "description": "The command line parameter used to start the application.",
+                "optional": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the application.",
+                "optional": true
+              },
+              "execute_path": {
+                "type": "string",
+                "description": "The location where the application file is installed.",
+                "required": true
+              },
+              "icon_index": {
+                "type": "number",
+                "description": "The icon index of the application.",
+                "optional": true,
+                "forcenew": true
+              },
+              "icon_path": {
+                "type": "string",
+                "description": "The path where the application icon is located.",
+                "optional": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the application.",
+                "required": true
+              },
+              "published_at": {
+                "type": "string",
+                "description": "The release time of the application, in RFC3339 format.",
+                "computed": true
+              },
+              "publisher": {
+                "type": "string",
+                "description": "The publisher of the application.",
+                "optional": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "sandbox_enable": {
+                "type": "bool",
+                "description": "Whether to run in sandbox mode.",
+                "optional": true
+              },
+              "source_image_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The list of image IDs corresponding to the server instance to which the application belongs.",
+                "optional": true,
+                "forcenew": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The current status of the application.",
+                "optional": true,
+                "computed": true
+              },
+              "type": {
+                "type": "number",
+                "description": "The type of the application.",
+                "required": true,
+                "forcenew": true
+              },
+              "version": {
+                "type": "string",
+                "description": "The version of the application.",
+                "optional": true
+              },
+              "work_path": {
+                "type": "string",
+                "description": "The publisher of the application.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

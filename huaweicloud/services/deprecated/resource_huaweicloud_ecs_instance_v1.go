@@ -38,6 +38,8 @@ func ResourceEcsInstanceV1() *schema.Resource {
 			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
 
+		CustomizeDiff: config.MergeDefaultTags(),
+
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
@@ -179,11 +181,7 @@ func ResourceEcsInstanceV1() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
-			"tags": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
+			"tags": common.TagsSchema(),
 			"auto_recovery": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -207,12 +205,12 @@ func ResourceEcsInstanceV1() *schema.Resource {
 }
 
 func resourceEcsInstanceV1Create(d *schema.ResourceData, meta interface{}) error {
-	config := meta.(*config.Config)
-	computeClient, err := config.ComputeV11Client(config.GetRegion(d))
+	cfg := meta.(*config.Config)
+	computeClient, err := cfg.ComputeV11Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud compute V1.1 client: %s", err)
 	}
-	computeV1Client, err := config.ComputeV1Client(config.GetRegion(d))
+	computeV1Client, err := cfg.ComputeV1Client(cfg.GetRegion(d))
 	if err != nil {
 		return fmtp.Errorf("Error creating HuaweiCloud compute V1 client: %s", err)
 	}
@@ -239,7 +237,7 @@ func resourceEcsInstanceV1Create(d *schema.ResourceData, meta interface{}) error
 		extendParam.IsAutoPay = "true"
 		extendParam.IsAutoRenew = d.Get("auto_renew").(string)
 	}
-	epsID := common.GetEnterpriseProjectID(d, config)
+	epsID := cfg.GetEnterpriseProjectID(d)
 	if epsID != "" {
 		extendParam.EnterpriseProjectId = epsID
 	}
@@ -265,7 +263,7 @@ func resourceEcsInstanceV1Create(d *schema.ResourceData, meta interface{}) error
 
 	var instance_id string
 	if d.Get("charging_mode") == "prePaid" {
-		bssV1Client, err := config.BssV1Client(config.GetRegion(d))
+		bssV1Client, err := cfg.BssV1Client(cfg.GetRegion(d))
 		if err != nil {
 			return fmtp.Errorf("Error creating HuaweiCloud bss V1 client: %s", err)
 		}

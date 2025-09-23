@@ -12,11 +12,11 @@ import (
 func TestAccDataSourceAsNotifications_basic(t *testing.T) {
 	var (
 		dataSourceName = "data.huaweicloud_as_notifications.test"
-		rName          = acceptance.RandomAccResourceName()
 		dc             = acceptance.InitDataSourceCheck(dataSourceName)
 
-		byName           = "data.huaweicloud_as_notifications.filter_by_topic_name"
-		dcByName         = acceptance.InitDataSourceCheck(byName)
+		byName   = "data.huaweicloud_as_notifications.filter_by_topic_name"
+		dcByName = acceptance.InitDataSourceCheck(byName)
+
 		byNameNotFound   = "data.huaweicloud_as_notifications.not_found"
 		dcByNameNotFound = acceptance.InitDataSourceCheck(byNameNotFound)
 	)
@@ -24,11 +24,14 @@ func TestAccDataSourceAsNotifications_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			// Please prepare the AS group containing the notifications in advance and configure the AS group ID into
+			// the environment variable.
+			acceptance.TestAccPreCheckASScalingGroupID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceAsNotifications_basic(rName),
+				Config: testDataSourceAsNotifications_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(dataSourceName, "topics.#"),
@@ -47,24 +50,19 @@ func TestAccDataSourceAsNotifications_basic(t *testing.T) {
 	})
 }
 
-func testDataSourceAsNotifications_basic(name string) string {
+func testDataSourceAsNotifications_basic() string {
 	return fmt.Sprintf(`
-%[1]s
-
 data "huaweicloud_as_notifications" "test" {
-  depends_on = [
-    huaweicloud_as_notification.test
-  ]
-
-  scaling_group_id = huaweicloud_as_group.acc_as_group.id
+  scaling_group_id = "%[1]s"
 }
 
+# Filter by topic_name
 locals {
   topic_name = data.huaweicloud_as_notifications.test.topics[0].topic_name
 }
 
 data "huaweicloud_as_notifications" "filter_by_topic_name" {
-  scaling_group_id = huaweicloud_as_group.acc_as_group.id
+  scaling_group_id = "%[1]s"
   topic_name       = local.topic_name
 }
 
@@ -79,12 +77,12 @@ output "topic_name_filter_is_useful" {
 }
 
 data "huaweicloud_as_notifications" "not_found" {
-  scaling_group_id = huaweicloud_as_group.acc_as_group.id
+  scaling_group_id = "%[1]s"
   topic_name       = "not_found"
 }
 
 output "is_not_found" {
   value = length(data.huaweicloud_as_notifications.not_found.topics) == 0
 }
-`, testAsNotification_basic(name))
+`, acceptance.HW_AS_SCALING_GROUP_ID)
 }

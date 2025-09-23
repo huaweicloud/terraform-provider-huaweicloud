@@ -12,7 +12,6 @@ import (
 
 	"github.com/chnsz/golangsdk/pagination"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -130,61 +129,81 @@ func listenersSchema() *schema.Resource {
 				Computed:    true,
 				Description: "The latest update time of the listener.",
 			},
+			"frozen_info": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `The frozen details of cloud services or resources.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"status": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `The status of a cloud service or resource.`,
+						},
+						"effect": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `The status of the resource after being forzen.`,
+						},
+						"scene": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Description: `The service scenario.`,
+						},
+					},
+				},
+			},
 		},
 	}
 	return &sc
 }
 
 func dataSourceListenersRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// listListeners: Query the list of listeners
 	var (
-		listListenersHttpUrl = "v1/listeners"
-		listListenersProduct = "ga"
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1/listeners"
+		product = "ga"
+		mErr    *multierror.Error
 	)
-	listListenersClient, err := cfg.NewServiceClient(listListenersProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating GA client: %s", err)
 	}
 
-	listListenersPath := listListenersClient.Endpoint + listListenersHttpUrl
-
-	listListenersqueryParams := buildListListenersQueryParams(d)
-	listListenersPath += listListenersqueryParams
-
-	listListenersResp, err := pagination.ListAllItems(
-		listListenersClient,
+	requestPath := client.Endpoint + httpUrl
+	requestPath += buildListListenersQueryParams(d)
+	resp, err := pagination.ListAllItems(
+		client,
 		"marker",
-		listListenersPath,
+		requestPath,
 		&pagination.QueryOpts{MarkerField: ""})
 
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving listeners")
+		return diag.Errorf("error retrieving GA listeners: %s", err)
 	}
 
-	listListenersRespJson, err := json.Marshal(listListenersResp)
+	respJson, err := json.Marshal(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	var listListenersRespBody interface{}
-	err = json.Unmarshal(listListenersRespJson, &listListenersRespBody)
+	var respBody interface{}
+	err = json.Unmarshal(respJson, &respBody)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	generateUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(generateUUID)
 
-	var mErr *multierror.Error
 	mErr = multierror.Append(
 		mErr,
-		d.Set("listeners", filterListListenersResponseBody(flattenListListenersResponseBody(listListenersRespBody), d)),
+		d.Set("listeners", filterListListenersResponseBody(flattenListListenersResponseBody(respBody), d)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -211,6 +230,7 @@ func flattenListListenersResponseBody(resp interface{}) []interface{} {
 			"tags":            utils.FlattenTagsToMap(utils.PathSearch("tags", v, nil)),
 			"created_at":      utils.PathSearch("created_at", v, nil),
 			"updated_at":      utils.PathSearch("updated_at", v, nil),
+			"frozen_info":     flattenListenerFrozenInfos(utils.PathSearch("frozen_info", v, nil)),
 		})
 	}
 	return rst
@@ -228,11 +248,27 @@ func flattenPortRanges(raw interface{}) []map[string]interface{} {
 	return result
 }
 
+func flattenListenerFrozenInfos(resp interface{}) []map[string]interface{} {
+	if resp == nil {
+		return nil
+	}
+
+	frozenInfo := map[string]interface{}{
+		"status": utils.PathSearch("status", resp, nil),
+		"effect": utils.PathSearch("effect", resp, nil),
+		"scene":  utils.PathSearch("scene", resp, []string{}),
+	}
+
+	return []map[string]interface{}{frozenInfo}
+}
+
 func filterListListenersResponseBody(all []interface{}, d *schema.ResourceData) []interface{} {
-	rst := make([]interface{}, 0, len(all))
+	var (
+		protocol = d.Get("protocol").(string)
+		rst      = make([]interface{}, 0, len(all))
+	)
 	for _, v := range all {
-		if param, ok := d.GetOk("protocol"); ok &&
-			fmt.Sprint(param) != utils.PathSearch("protocol", v, nil) {
+		if protocol != "" && protocol != utils.PathSearch("protocol", v, "").(string) {
 			continue
 		}
 

@@ -8,7 +8,6 @@ package cph
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -16,11 +15,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -155,7 +152,7 @@ func resourceServerFlavorsRead(_ context.Context, d *schema.ResourceData, meta i
 	)
 	listFlavorsClient, err := cfg.NewServiceClient(listFlavorsProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating CPH Client: %s", err)
+		return diag.Errorf("error creating CPH client: %s", err)
 	}
 
 	listFlavorsPath := listFlavorsClient.Endpoint + listFlavorsHttpUrl
@@ -166,14 +163,10 @@ func resourceServerFlavorsRead(_ context.Context, d *schema.ResourceData, meta i
 
 	listFlavorsOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
 	listFlavorsResp, err := listFlavorsClient.Request("GET", listFlavorsPath, &listFlavorsOpt)
-
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving ServerFlavors")
+		return diag.Errorf("error retrieving CPH server flavors: %s", err)
 	}
 
 	listFlavorsRespBody, err := utils.FlattenResponse(listFlavorsResp)
@@ -218,9 +211,8 @@ func flattenListServerModelsFlavors(resp interface{}) []interface{} {
 
 func flattenFlavorsExtendSpec(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("extend_spec", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing extend_spec from response= %#v", resp)
+	curJson := utils.PathSearch("extend_spec", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return rst
 	}
 

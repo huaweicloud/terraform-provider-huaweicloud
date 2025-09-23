@@ -1,0 +1,63 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_apig_api_batch_action": {
+          "block": {
+            "attributes": {
+              "action": {
+                "type": "string",
+                "description": "The action to perform on the APIs.",
+                "required": true
+              },
+              "apis": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The list of API IDs to perform the action on.",
+                "optional": true
+              },
+              "env_id": {
+                "type": "string",
+                "description": "The ID of the environment where the action will be performed.",
+                "required": true
+              },
+              "group_id": {
+                "type": "string",
+                "description": "The ID of the API group.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the dedicated instance to which the APIs belong.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the APIG instance to which the API belongs is located",
+                "computed": true
+              },
+              "remark": {
+                "type": "string",
+                "description": "The remark for the batch operation.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

@@ -46,6 +46,9 @@ func TestAccDatasourcePrivateDnatRules_basic(t *testing.T) {
 
 		byEps   = "data.huaweicloud_nat_private_dnat_rules.filter_by_eps"
 		dcByEps = acceptance.InitDataSourceCheck(byEps)
+
+		byDescription   = "data.huaweicloud_nat_private_dnat_rules.filter_by_description"
+		dcByDescription = acceptance.InitDataSourceCheck(byDescription)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -85,6 +88,9 @@ func TestAccDatasourcePrivateDnatRules_basic(t *testing.T) {
 
 					dcByEps.CheckResourceExists(),
 					resource.TestCheckOutput("eps_filter_is_useful", "true"),
+
+					dcByDescription.CheckResourceExists(),
+					resource.TestCheckOutput("description_filter_is_useful", "true"),
 				),
 			},
 		},
@@ -339,6 +345,25 @@ locals {
 
 output "eps_filter_is_useful" {
   value = alltrue(local.eps_filter_result) && length(local.eps_filter_result) > 0
+}
+
+locals {
+  description = data.huaweicloud_nat_private_dnat_rules.test.rules[0].description
+}
+
+data "huaweicloud_nat_private_dnat_rules" "filter_by_description" {
+  description = [local.description]
+}
+
+locals {
+  description_filter_result = [
+    for v in data.huaweicloud_nat_private_dnat_rules.filter_by_description.rules[*].description : 
+    v == local.description
+  ]
+}
+
+output "description_filter_is_useful" {
+  value = alltrue(local.description_filter_result) && length(local.description_filter_result) > 0
 }
 `, baseConfig)
 }

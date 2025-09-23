@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -21,9 +20,12 @@ import (
 const EPSTagKey string = "_sys_enterprise_project_id"
 
 // @API LTS POST /v2/{project_id}/groups/{log_group_id}/streams
-// @API LTS GET /v2/{project_id}/groups/{log_group_id}/streams
-// @API LTS DELETE /v2/{project_id}/groups/{log_group_id}/streams/{log_stream_id}
 // @API LTS POST /v1/{project_id}/{resource_type}/{resource_id}/tags/action
+// @API LTS POST /v1.0/{project_id}/lts/favorite
+// @API LTS GET /v2/{project_id}/groups/{log_group_id}/streams
+// @API LTS PUT /v2/{project_id}/groups/{log_group_id}/streams-ttl/{log_stream_id}
+// @API LTS DELETE /v1.0/{project_id}/lts/favorite/{fav_res_id}
+// @API LTS DELETE /v2/{project_id}/groups/{log_group_id}/streams/{log_stream_id}
 func ResourceLTSStream() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceStreamCreate,
@@ -33,6 +35,8 @@ func ResourceLTSStream() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceStreamImportState,
 		},
+
+		CustomizeDiff: config.MergeDefaultTags(),
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -53,8 +57,8 @@ func ResourceLTSStream() *schema.Resource {
 			},
 			"ttl_in_days": {
 				Type:     schema.TypeInt,
+				Computed: true,
 				Optional: true,
-				ForceNew: true,
 			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
@@ -63,6 +67,11 @@ func ResourceLTSStream() *schema.Resource {
 				ForceNew: true,
 			},
 			"tags": common.TagsSchema(),
+			"is_favorite": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Whether to favorite the log stream.`,
+			},
 			// Attributes
 			"filter_count": {
 				Type:     schema.TypeInt,
@@ -107,18 +116,24 @@ func resourceStreamCreate(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("log_stream_id", respBody)
-	if err != nil {
-		return diag.Errorf("error creating flow log: ID is not found in API response")
+	streamId := utils.PathSearch("log_stream_id", respBody, "").(string)
+	if streamId == "" {
+		return diag.Errorf("unable to find the LTS stream ID from the API response")
 	}
 
-	d.SetId(id.(string))
+	d.SetId(streamId)
 
 	if _, ok := d.GetOk("tags"); ok {
 		streamId := d.Id()
 		err = updateTags(client, "topics", streamId, d)
 		if err != nil {
 			return diag.Errorf("error creating tags of log stream %s: %s", streamId, err)
+		}
+	}
+
+	if d.Get("is_favorite").(bool) {
+		if err = favoriteLogStream(client, cfg, d); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
@@ -134,7 +149,7 @@ func buildCreateStreamBodyParams(cfg *config.Config, d *schema.ResourceData) map
 	userNoPermission := []string{"EPS.0004"}
 	epsId := cfg.GetEnterpriseProjectID(d)
 	if epsId == "" {
-		epsId = "0"
+		return bodyParams
 	}
 	epsInfo, err := getEnterpriseProjectById(cfg, cfg.GetRegion(d), epsId)
 	// If we catch error 403, it means that the user does not have EPS permissions, return immediately.
@@ -174,21 +189,11 @@ func getEnterpriseProjectById(cfg *config.Config, region, epsId string) (interfa
 	return respBody, nil
 }
 
-func resourceStreamRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	var (
-		cfg      = meta.(*config.Config)
-		region   = cfg.GetRegion(d)
-		httpUrl  = "v2/{project_id}/groups/{log_group_id}/streams"
-		streamId = d.Id()
-	)
-
-	client, err := cfg.NewServiceClient("lts", region)
-	if err != nil {
-		return diag.Errorf("error creating LTS client: %s", err)
-	}
+func GetLogStreams(client *golangsdk.ServiceClient, logGroupId string) (interface{}, error) {
+	httpUrl := "v2/{project_id}/groups/{log_group_id}/streams"
 	getPath := client.Endpoint + httpUrl
 	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
-	getPath = strings.ReplaceAll(getPath, "{log_group_id}", d.Get("group_id").(string))
+	getPath = strings.ReplaceAll(getPath, "{log_group_id}", logGroupId)
 
 	getOpts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -197,26 +202,59 @@ func resourceStreamRead(_ context.Context, d *schema.ResourceData, meta interfac
 
 	requestResp, err := client.Request("GET", getPath, &getOpts)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving log stream")
+		return nil, err
 	}
 
-	respBody, err := utils.FlattenResponse(requestResp)
+	return utils.FlattenResponse(requestResp)
+}
+
+func GetLogStreamById(client *golangsdk.ServiceClient, logGroupId, streamId string) (interface{}, error) {
+	streams, err := GetLogStreams(client, logGroupId)
 	if err != nil {
-		return diag.Errorf("error parsing the log stream: %s", err)
+		return nil, err
 	}
 
-	streamResult := utils.PathSearch(fmt.Sprintf("log_streams|[?log_stream_id=='%s']|[0]", streamId), respBody, nil)
+	streamResult := utils.PathSearch(fmt.Sprintf("log_streams|[?log_stream_id=='%s']|[0]", streamId), streams, nil)
 	if streamResult == nil {
+		return nil, golangsdk.ErrDefault404{
+			ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
+				Method:    "GET",
+				URL:       "v2/{project_id}/groups/{log_group_id}/streams",
+				RequestId: "NONE",
+				Body:      []byte(fmt.Sprintf("the log stream (%s) has been deleted", streamId)),
+			},
+		}
+	}
+
+	return streamResult, nil
+}
+
+func resourceStreamRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg      = meta.(*config.Config)
+		region   = cfg.GetRegion(d)
+		streamId = d.Id()
+	)
+
+	client, err := cfg.NewServiceClient("lts", region)
+	if err != nil {
+		return diag.Errorf("error creating LTS client: %s", err)
+	}
+
+	streamResult, err := GetLogStreamById(client, d.Get("group_id").(string), streamId)
+	if err != nil {
 		return common.CheckDeletedDiag(d, err, fmt.Sprintf("unable to find log stream by its ID (%s)", streamId))
 	}
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
 		d.Set("stream_name", utils.PathSearch("log_stream_name", streamResult, nil)),
+		d.Set("ttl_in_days", utils.PathSearch("ttl_in_days", streamResult, nil)),
 		d.Set("enterprise_project_id", utils.PathSearch("tag._sys_enterprise_project_id", streamResult, nil)),
 		d.Set("tags", ignoreSysEpsTag(utils.PathSearch("tag", streamResult, make(map[string]interface{})).(map[string]interface{}))),
+		d.Set("is_favorite", utils.PathSearch("is_favorite", streamResult, nil)),
 		d.Set("filter_count", utils.PathSearch("filter_count", streamResult, nil)),
-		d.Set("created_at", utils.FormatTimeStampRFC3339(int64(utils.PathSearch("creation_time", streamResult, 0).(float64))/1000, false)),
+		d.Set("created_at", utils.FormatTimeStampRFC3339(int64(utils.PathSearch("creation_time", streamResult, float64(0)).(float64))/1000, false)),
 	)
 	return diag.FromErr(mErr.ErrorOrNil())
 }
@@ -239,7 +277,94 @@ func resourceStreamUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 		}
 	}
 
+	if d.HasChange("ttl_in_days") {
+		if err = updateStreamTTL(client, d.Get("group_id").(string), streamId, d.Get("ttl_in_days")); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("is_favorite") {
+		isFavorite := d.Get("is_favorite").(bool)
+		if isFavorite {
+			err = favoriteLogStream(client, cfg, d)
+		} else {
+			err = removeFavoriteLogStream(client, streamId)
+		}
+
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
 	return resourceStreamRead(ctx, d, meta)
+}
+
+func updateStreamTTL(client *golangsdk.ServiceClient, logGroupId, logStreamId string, ttlInDays interface{}) error {
+	httpUrl := "v2/{project_id}/groups/{log_group_id}/streams-ttl/{log_stream_id}"
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{log_group_id}", logGroupId)
+	updatePath = strings.ReplaceAll(updatePath, "{log_stream_id}", logStreamId)
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		JSONBody: map[string]interface{}{
+			"ttl_in_days": ttlInDays,
+		},
+	}
+	_, err := client.Request("PUT", updatePath, &updateOpt)
+	if err != nil {
+		return fmt.Errorf("error updating ttl_in_days of the log stream (%s): %s", logStreamId, err)
+	}
+	return nil
+}
+
+func favoriteLogStream(client *golangsdk.ServiceClient, cfg *config.Config, d *schema.ResourceData) error {
+	var (
+		httpUrl     = "v1.0/{project_id}/lts/favorite"
+		logStreamId = d.Id()
+	)
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		JSONBody:         utils.RemoveNil(buildFavoriteLogStreamBodyParams(cfg, d, logStreamId)),
+	}
+	_, err := client.Request("POST", updatePath, &updateOpt)
+	if err != nil {
+		return fmt.Errorf("unable to favorite log stream (%s): %s", logStreamId, err)
+	}
+	return nil
+}
+
+func buildFavoriteLogStreamBodyParams(cfg *config.Config, d *schema.ResourceData, logStreamId string) map[string]interface{} {
+	return map[string]interface{}{
+		"eps_id":                 utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
+		"favorite_resource_id":   logStreamId,
+		"favorite_resource_type": "log_stream",
+		"log_group_id":           d.Get("group_id"),
+		"log_stream_id":          logStreamId,
+		"log_stream_name":        d.Get("stream_name"),
+		// This parameter must be set to `true`, otherwise the favoriting will not take effect.
+		"is_global": true,
+	}
+}
+
+func removeFavoriteLogStream(client *golangsdk.ServiceClient, logStreamId string) error {
+	httpUrl := "v1.0/{project_id}/lts/favorite/{fav_res_id}"
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{fav_res_id}", logStreamId)
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+	_, err := client.Request("DELETE", updatePath, &updateOpt)
+	if err != nil {
+		return fmt.Errorf("error removing favorite log stream (%s): %s", logStreamId, err)
+	}
+	return nil
 }
 
 func resourceStreamDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

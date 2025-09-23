@@ -1,0 +1,57 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_opengauss_quotas": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID.",
+                "optional": true
+              },
+              "eps_quotas": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "enterprise_project_id": "string",
+                      "enterprise_project_name": "string",
+                      "instance_eps_quota": "number",
+                      "instance_used": "number",
+                      "ram_eps_quota": "number",
+                      "ram_used": "number",
+                      "vcpus_eps_quota": "number",
+                      "vcpus_used": "number",
+                      "volume_eps_quota": "number",
+                      "volume_used": "number"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of enterprise project quota.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDB",
+            "name": "GaussDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

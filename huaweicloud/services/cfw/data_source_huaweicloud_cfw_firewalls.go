@@ -15,7 +15,6 @@ import (
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -315,8 +314,8 @@ func flattenListFirewallsBodyGetFirewallInstanceResponseRecord(resp interface{})
 
 func flattenGetFirewallInstanceResponseRecordFlavor(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("flavor", resp)
-	if err != nil {
+	curJson := utils.PathSearch("flavor", resp, nil)
+	if curJson == nil {
 		log.Printf("[ERROR] error parsing flavor from response= %#v", resp)
 		return rst
 	}

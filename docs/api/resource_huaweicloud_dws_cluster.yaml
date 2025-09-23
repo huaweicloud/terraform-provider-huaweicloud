@@ -16,6 +16,9 @@ paths:
             tag: DWS
         GET:
             tag: DWS
+    /v1.0/{project_id}/clusters/{cluster_id}/cluster-shrink:
+        POST:
+            tag: DWS
     /v1.0/{project_id}/clusters/{cluster_id}/expand-instance-storage:
         POST:
             tag: DWS
@@ -34,13 +37,24 @@ paths:
     /v1.0/{project_id}/job/{job_id}:
         GET:
             tag: DWS
+    /v1/{project_id}/clusters/{cluster_id}/description:
+        POST:
+            tag: DWS
     /v1/{project_id}/clusters/{cluster_id}/lts-logs/disable:
         POST:
             tag: DWS
     /v1/{project_id}/clusters/{cluster_id}/lts-logs/enable:
         POST:
             tag: DWS
+    /v1/{project_id}/clusters/{cluster_id}/security-group:
+        PUT:
+            tag: DWS
     /v2/{project_id}/clusters:
+        POST:
+            tag: DWS
+    /v2/{project_id}/clusters/{cluster_id}/eips/{eip_id}:
+        DELETE:
+            tag: DWS
         POST:
             tag: DWS
     /v2/{project_id}/clusters/{cluster_id}/elbs/{elb_id}:

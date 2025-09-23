@@ -2,6 +2,7 @@ package cce
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"strings"
@@ -9,9 +10,12 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/cce/v3/nodepools"
@@ -28,12 +32,42 @@ import (
 // @API CCE PUT /api/v3/projects/{project_id}/clusters/{cluster_id}/nodepools/{nodepool_id}
 // @API CCE DELETE /api/v3/projects/{project_id}/clusters/{cluster_id}/nodepools/{nodepool_id}
 
+var nodePoolNonUpdatableParams = []string{
+	"cluster_id", "flavor_id", "type",
+	"root_volume", "root_volume.*.size", "root_volume.*.volumetype", "root_volume.*.extend_params", "root_volume.*.kms_key_id",
+	"root_volume.*.dss_pool_id", "root_volume.*.iops", "root_volume.*.throughput", "root_volume.*.hw_passthrough", "root_volume.*.extend_param",
+	"data_volumes", "data_volumes.*.size", "data_volumes.*.volumetype", "data_volumes.*.extend_params", "data_volumes.*.kms_key_id",
+	"data_volumes.*.dss_pool_id", "data_volumes.*.iops", "data_volumes.*.throughput", "data_volumes.*.hw_passthrough",
+	"data_volumes.*.extend_param",
+	"availability_zone", "key_pair", "password",
+	"storage", "storage.*.selectors", "storage.*.selectors.*.name", "storage.*.selectors.*.type", "storage.*.selectors.*.match_label_size",
+	"storage.*.selectors.*.match_label_volume_type", "storage.*.selectors.*.match_label_metadata_encrypted",
+	"storage.*.selectors.*.match_label_metadata_cmkid", "storage.*.selectors.*.match_label_count",
+	"storage.*.groups", "storage.*.groups.*.name", "storage.*.groups.*.cce_managed", "storage.*.groups.*.selector_names",
+	"storage.*.groups.*.virtual_spaces",
+	"storage.*.groups.*.virtual_spaces.*.name", "storage.*.groups.*.virtual_spaces.*.size", "storage.*.groups.*.virtual_spaces.*.lvm_lv_type",
+	"storage.*.groups.*.virtual_spaces.*.lvm_path", "storage.*.groups.*.virtual_spaces.*.runtime_lv_type",
+	"charging_mode", "period_unit", "period", "auto_renew", "runtime",
+	"extend_params", "extend_params.*.max_pods", "extend_params.*.docker_base_size", "extend_params.*.preinstall",
+	"extend_params.*.postinstall", "extend_params.*.node_image_id", "extend_params.*.node_multi_queue", "extend_params.*.nic_threshold",
+	"extend_params.*.agency_name", "extend_params.*.kube_reserved_mem", "extend_params.*.system_reserved_mem",
+	"extend_params.*.security_reinforcement_type", "extend_params.*.market_type", "extend_params.*.spot_price",
+	"security_groups", "pod_security_groups", "ecs_group_id", "hostname_config", "hostname_config.*.type",
+	"max_pods", "preinstall", "postinstall", "extend_param", "partition",
+}
+
 func ResourceNodePool() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceNodePoolCreate,
 		ReadContext:   resourceNodePoolRead,
 		UpdateContext: resourceNodePoolUpdate,
 		DeleteContext: resourceNodePoolDelete,
+
+		CustomizeDiff: customdiff.All(
+			config.FlexibleForceNew(nodePoolNonUpdatableParams),
+			ignoreDiffIfScaleGroupsEqual(),
+			config.MergeDefaultTags(),
+		),
 
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceNodePoolImport,
@@ -58,21 +92,26 @@ func ResourceNodePool() *schema.Resource {
 			"initial_node_count": {
 				Type:     schema.TypeInt,
 				Required: true,
+				DiffSuppressFunc: func(_, oldVal, _ string, d *schema.ResourceData) bool {
+					return oldVal != "" && d.Get("ignore_initial_node_count").(bool)
+				},
 			},
 			"cluster_id": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"flavor_id": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
+			},
+			"ignore_initial_node_count": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
 			},
 			"type": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Computed: true,
 			},
 			"labels": { // (k8s_tags)
@@ -85,25 +124,21 @@ func ResourceNodePool() *schema.Resource {
 			"availability_zone": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Default:  "random",
 			},
 			"os": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Computed: true,
 			},
 			"key_pair": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ForceNew:     true,
 				ExactlyOneOf: []string{"password", "key_pair"},
 			},
 			"password": {
 				Type:      schema.TypeString,
 				Optional:  true,
-				ForceNew:  true,
 				Sensitive: true,
 			},
 			"storage": resourceNodeStorageSchema(),
@@ -128,27 +163,31 @@ func ResourceNodePool() *schema.Resource {
 			},
 			"tags": common.TagsSchema(),
 			// charge info: charging_mode, period_unit, period, auto_renew
-			"charging_mode": common.SchemaChargingMode(nil),
-			"period_unit":   common.SchemaPeriodUnit(nil),
-			"period":        common.SchemaPeriod(nil),
-			"auto_renew":    common.SchemaAutoRenew(nil),
+			"charging_mode": schemaChargingMode(nil),
+			"period_unit":   schemaPeriodUnit(nil),
+			"period":        schemaPeriod(nil),
+			"auto_renew":    schemaAutoRenewComputed(nil),
 
 			"runtime": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Computed: true,
 				ValidateFunc: validation.StringInSlice([]string{
 					"docker", "containerd",
 				}, false),
 			},
-			"extend_params": resourceNodeExtendParamsSchema([]string{
+			"extend_params": resourceNodePoolExtendParamsSchema([]string{
 				"max_pods", "preinstall", "postinstall", "extend_param",
 			}),
 			"subnet_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
+				Computed: true,
+			},
+			"subnet_list": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"scale_enable": {
 				Type:     schema.TypeBool,
@@ -173,14 +212,12 @@ func ResourceNodePool() *schema.Resource {
 			"security_groups": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"pod_security_groups": {
 				Type:     schema.TypeList,
 				Optional: true,
-				ForceNew: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -188,13 +225,57 @@ func ResourceNodePool() *schema.Resource {
 			"ecs_group_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 			},
 			"initialized_conditions": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			"label_policy_on_existing_nodes": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"tag_policy_on_existing_nodes": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"taint_policy_on_existing_nodes": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"hostname_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"type": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
+			},
+			"partition": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"extension_scale_groups": resourceExtensionScaleGroupsSchema(),
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
 			},
 			"current_node_count": {
 				Type:     schema.TypeInt,
@@ -213,32 +294,170 @@ func ResourceNodePool() *schema.Resource {
 			"max_pods": {
 				Type:        schema.TypeInt,
 				Optional:    true,
-				ForceNew:    true,
 				Computed:    true,
 				Description: "schema: Deprecated; This parameter can be configured in the 'extend_params' parameter.",
 			},
 			"preinstall": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				StateFunc:   utils.DecodeHashAndHexEncode,
 				Description: "schema: Deprecated; This parameter can be configured in the 'extend_params' parameter.",
 			},
 			"postinstall": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				StateFunc:   utils.DecodeHashAndHexEncode,
 				Description: "schema: Deprecated; This parameter can be configured in the 'extend_params' parameter.",
 			},
 			"extend_param": {
 				Type:        schema.TypeMap,
 				Optional:    true,
-				ForceNew:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: "schema: Deprecated; This parameter has been replaced by the 'extend_params' parameter.",
 			},
 		},
+	}
+}
+
+func resourceExtensionScaleGroupsSchema() *schema.Schema {
+	return &schema.Schema{
+		Type:     schema.TypeList,
+		Optional: true,
+		Computed: true,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"metadata": {
+					Type:     schema.TypeList,
+					Optional: true,
+					Computed: true,
+					MaxItems: 1,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"name": {
+								Type:     schema.TypeString,
+								Required: true,
+							},
+							"uid": {
+								Type:     schema.TypeString,
+								Computed: true,
+							},
+						},
+					},
+				},
+				"spec": {
+					Type:     schema.TypeList,
+					Optional: true,
+					Computed: true,
+					MaxItems: 1,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"flavor": {
+								Type:     schema.TypeString,
+								Optional: true,
+								Computed: true,
+							},
+							"az": {
+								Type:     schema.TypeString,
+								Optional: true,
+								Computed: true,
+							},
+							"capacity_reservation_specification": {
+								Type:     schema.TypeList,
+								Optional: true,
+								Computed: true,
+								MaxItems: 1,
+								Elem: &schema.Resource{
+									Schema: map[string]*schema.Schema{
+										"id": {
+											Type:     schema.TypeString,
+											Optional: true,
+											Computed: true,
+										},
+										"preference": {
+											Type:     schema.TypeString,
+											Optional: true,
+											Computed: true,
+										},
+									},
+								},
+							},
+							"autoscaling": {
+								Type:     schema.TypeList,
+								Optional: true,
+								Computed: true,
+								MaxItems: 1,
+								Elem: &schema.Resource{
+									Schema: map[string]*schema.Schema{
+										"enable": {
+											Type:     schema.TypeBool,
+											Optional: true,
+											Computed: true,
+										},
+										"extension_priority": {
+											Type:     schema.TypeInt,
+											Optional: true,
+											Computed: true,
+										},
+										"min_node_count": {
+											Type:     schema.TypeInt,
+											Optional: true,
+											Computed: true,
+										},
+										"max_node_count": {
+											Type:     schema.TypeInt,
+											Optional: true,
+											Computed: true,
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func ignoreDiffIfScaleGroupsEqual() schema.CustomizeDiffFunc {
+	return func(_ context.Context, d *schema.ResourceDiff, _ interface{}) error {
+		const key = "extension_scale_groups"
+
+		if !d.HasChange(key) {
+			return nil
+		}
+
+		oldRaw, newRaw := d.GetChange(key)
+
+		oldList, ok1 := oldRaw.([]interface{})
+		newList, ok2 := newRaw.([]interface{})
+		if !ok1 || !ok2 {
+			return nil
+		}
+
+		if len(oldList) != len(newList) {
+			return nil
+		}
+
+		oldSorted, err := jmespath.Search("sort_by(@, &metadata[0].uid)", oldList)
+		if err != nil {
+			return err
+		}
+		newSorted, err := jmespath.Search("sort_by(@, &metadata[0].uid)", newList)
+		if err != nil {
+			return err
+		}
+
+		oldJson, _ := json.Marshal(oldSorted)
+		newJson, _ := json.Marshal(newSorted)
+
+		if string(oldJson) == string(newJson) {
+			if err := d.Clear(key); err != nil {
+				return fmt.Errorf("failed to clear diff on %s: %s", key, err)
+			}
+		}
+
+		return nil
 	}
 }
 
@@ -255,7 +474,94 @@ func buildPodSecurityGroups(ids []interface{}) []nodepools.PodSecurityGroupSpec 
 	return groups
 }
 
-func buildNodePoolCreateOpts(d *schema.ResourceData) (*nodepools.CreateOpts, error) {
+func buildExtensionScaleGroups(d *schema.ResourceData) []nodepools.ExtensionScaleGroups {
+	if v, ok := d.GetOk("extension_scale_groups"); ok {
+		groups := v.([]interface{})
+		res := make([]nodepools.ExtensionScaleGroups, len(groups))
+		for i, v := range groups {
+			if group, ok := v.(map[string]interface{}); ok {
+				res[i] = nodepools.ExtensionScaleGroups{
+					Metadata: buildExtensionScaleGroupsMetadata(utils.PathSearch("metadata", group, nil)),
+					Spec:     buildExtensionScaleGroupsSpec(utils.PathSearch("spec", group, nil)),
+				}
+			}
+		}
+
+		return res
+	}
+
+	return nil
+}
+
+func buildExtensionScaleGroupsMetadata(metadata interface{}) *nodepools.ExtensionScaleGroupsMetadata {
+	if len(metadata.([]interface{})) == 0 {
+		return nil
+	}
+
+	res := nodepools.ExtensionScaleGroupsMetadata{
+		Uid:  utils.PathSearch("[0].uid", metadata, "").(string),
+		Name: utils.PathSearch("[0].name", metadata, "").(string),
+	}
+
+	return &res
+}
+
+func buildExtensionScaleGroupsSpec(spec interface{}) *nodepools.ExtensionScaleGroupsSpec {
+	if len(spec.([]interface{})) == 0 {
+		return nil
+	}
+
+	res := nodepools.ExtensionScaleGroupsSpec{
+		Flavor:      utils.PathSearch("[0].flavor", spec, "").(string),
+		Az:          utils.PathSearch("[0].az", spec, "").(string),
+		Autoscaling: buildAutoscaling(utils.PathSearch("[0].autoscaling", spec, nil)),
+		CapacityReservationSpecification: buildCapacityReservationSpecification(
+			utils.PathSearch("[0].capacity_reservation_specification", spec, nil)),
+	}
+
+	return &res
+}
+
+func buildCapacityReservationSpecification(capacityReservationSpecification interface{}) *nodepools.CapacityReservationSpecification {
+	if len(capacityReservationSpecification.([]interface{})) == 0 {
+		return nil
+	}
+
+	res := nodepools.CapacityReservationSpecification{
+		ID:         utils.PathSearch("[0].id", capacityReservationSpecification, "").(string),
+		Preference: utils.PathSearch("[0].preference", capacityReservationSpecification, "").(string),
+	}
+
+	return &res
+}
+
+func buildAutoscaling(autoscaling interface{}) *nodepools.Autoscaling {
+	if len(autoscaling.([]interface{})) == 0 {
+		return nil
+	}
+
+	res := nodepools.Autoscaling{
+		Enable:            utils.PathSearch("[0].enable", autoscaling, false).(bool),
+		ExtensionPriority: utils.PathSearch("[0].extension_priority", autoscaling, 0).(int),
+		MinNodeCount:      utils.PathSearch("[0].min_node_count", autoscaling, 0).(int),
+		MaxNodeCount:      utils.PathSearch("[0].max_node_count", autoscaling, 0).(int),
+	}
+
+	return &res
+}
+
+func buildResourceNodePoolNicSpec(d *schema.ResourceData) nodes.NodeNicSpec {
+	res := nodes.NodeNicSpec{
+		PrimaryNic: nodes.PrimaryNic{
+			SubnetId:   d.Get("subnet_id").(string),
+			SubnetList: utils.ExpandToStringList(d.Get("subnet_list").([]interface{})),
+		},
+	}
+
+	return res
+}
+
+func buildNodePoolCreateOpts(d *schema.ResourceData, cfg *config.Config) (*nodepools.CreateOpts, error) {
 	// Validate whether prepaid parameters are configured.
 	billingMode := 0
 	if d.Get("charging_mode").(string) == "prePaid" {
@@ -274,24 +580,22 @@ func buildNodePoolCreateOpts(d *schema.ResourceData) (*nodepools.CreateOpts, err
 		Spec: nodepools.CreateSpec{
 			Type: d.Get("type").(string),
 			NodeTemplate: nodes.Spec{
-				Flavor:      d.Get("flavor_id").(string),
-				Az:          d.Get("availability_zone").(string),
-				Os:          d.Get("os").(string),
-				RootVolume:  buildResourceNodeRootVolume(d),
-				DataVolumes: buildResourceNodeDataVolume(d),
-				Storage:     buildResourceNodeStorage(d),
-				K8sTags:     buildResourceNodeK8sTags(d),
-				BillingMode: billingMode,
-				Count:       1,
-				NodeNicSpec: nodes.NodeNicSpec{
-					PrimaryNic: nodes.PrimaryNic{
-						SubnetId: d.Get("subnet_id").(string),
-					},
-				},
-				ExtendParam:           buildExtendParams(d),
-				Taints:                buildResourceNodeTaint(d),
-				UserTags:              utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
-				InitializedConditions: utils.ExpandToStringList(d.Get("initialized_conditions").([]interface{})),
+				Flavor:                    d.Get("flavor_id").(string),
+				Az:                        d.Get("availability_zone").(string),
+				Os:                        d.Get("os").(string),
+				RootVolume:                buildResourceNodeRootVolume(d),
+				DataVolumes:               buildResourceNodeDataVolume(d),
+				Storage:                   buildResourceNodeStorage(d),
+				K8sTags:                   buildResourceNodeK8sTags(d),
+				BillingMode:               billingMode,
+				Count:                     1,
+				NodeNicSpec:               buildResourceNodePoolNicSpec(d),
+				ExtendParam:               buildExtendParams(d),
+				Taints:                    buildResourceNodeTaint(d),
+				UserTags:                  utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
+				InitializedConditions:     utils.ExpandToStringList(d.Get("initialized_conditions").([]interface{})),
+				HostnameConfig:            buildResourceNodeHostnameConfig(d),
+				ServerEnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
 			},
 			Autoscaling: nodepools.AutoscalingSpec{
 				Enable:                d.Get("scale_enable").(bool),
@@ -306,6 +610,10 @@ func buildNodePoolCreateOpts(d *schema.ResourceData) (*nodepools.CreateOpts, err
 			NodeManagement: nodepools.NodeManagementSpec{
 				ServerGroupReference: d.Get("ecs_group_id").(string),
 			},
+			LabelPolicyOnExistingNodes:   d.Get("label_policy_on_existing_nodes").(string),
+			UserTagPolicyOnExistingNodes: d.Get("tag_policy_on_existing_nodes").(string),
+			TaintPolicyOnExistingNodes:   d.Get("taint_policy_on_existing_nodes").(string),
+			ExtensionScaleGroups:         buildExtensionScaleGroups(d),
 		},
 	}
 
@@ -313,6 +621,10 @@ func buildNodePoolCreateOpts(d *schema.ResourceData) (*nodepools.CreateOpts, err
 		createOpts.Spec.NodeTemplate.RunTime = &nodes.RunTimeSpec{
 			Name: v.(string),
 		}
+	}
+
+	if v, ok := d.GetOk("partition"); ok {
+		createOpts.Spec.NodeTemplate.Partition = v.(string)
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
@@ -347,7 +659,7 @@ func resourceNodePoolCreate(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.Errorf("error waiting for CCE cluster to be available: %s", err)
 	}
 
-	createOpts, err := buildNodePoolCreateOpts(d)
+	createOpts, err := buildNodePoolCreateOpts(d, cfg)
 	if err != nil {
 		return diag.Errorf("error creating CreateOpts structure of 'Create' method for CCE node pool: %s", err)
 	}
@@ -393,7 +705,8 @@ func resourceNodePoolRead(_ context.Context, d *schema.ResourceData, meta interf
 	}
 
 	// The following parameters are not returned:
-	// password, subnet_id, extend_params, taints, initial_node_count, pod_security_groups
+	// password, ignore_initial_node_count, pod_security_groups
+	// extension_scale_groups not save, because the order of groups will change and computed not working in TypeSet
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
 		d.Set("name", s.Metadata.Name),
@@ -405,6 +718,7 @@ func resourceNodePoolRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("scale_enable", s.Spec.Autoscaling.Enable),
 		d.Set("min_node_count", s.Spec.Autoscaling.MinNodeCount),
 		d.Set("max_node_count", s.Spec.Autoscaling.MaxNodeCount),
+		d.Set("initial_node_count", s.Spec.InitialNodeCount),
 		d.Set("current_node_count", s.Status.CurrentNode),
 		d.Set("scale_down_cooldown_time", s.Spec.Autoscaling.ScaleDownCooldownTime),
 		d.Set("priority", s.Spec.Autoscaling.Priority),
@@ -417,10 +731,25 @@ func resourceNodePoolRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("data_volumes", flattenResourceNodeDataVolume(d, s.Spec.NodeTemplate.DataVolumes)),
 		d.Set("root_volume", flattenResourceNodeRootVolume(d, s.Spec.NodeTemplate.RootVolume)),
 		d.Set("initialized_conditions", s.Spec.NodeTemplate.InitializedConditions),
+		d.Set("label_policy_on_existing_nodes", s.Spec.LabelPolicyOnExistingNodes),
+		d.Set("tag_policy_on_existing_nodes", s.Spec.UserTagPolicyOnExistingNodes),
+		d.Set("taint_policy_on_existing_nodes", s.Spec.TaintPolicyOnExistingNodes),
+		d.Set("hostname_config", flattenResourceNodeHostnameConfig(s.Spec.NodeTemplate.HostnameConfig)),
+		d.Set("enterprise_project_id", s.Spec.NodeTemplate.ServerEnterpriseProjectID),
+		d.Set("subnet_id", s.Spec.NodeTemplate.NodeNicSpec.PrimaryNic.SubnetId),
+		d.Set("subnet_list", s.Spec.NodeTemplate.NodeNicSpec.PrimaryNic.SubnetList),
+		d.Set("extend_params", flattenExtendParams(s.Spec.NodeTemplate.ExtendParam)),
+		d.Set("taints", flattenResourceNodeTaints(s.Spec.NodeTemplate.Taints)),
+		d.Set("extension_scale_groups", flattenExtensionScaleGroups(s.Spec.ExtensionScaleGroups)),
 	)
 
 	if s.Spec.NodeTemplate.BillingMode != 0 {
-		mErr = multierror.Append(mErr, d.Set("charging_mode", "prePaid"))
+		mErr = multierror.Append(mErr,
+			d.Set("charging_mode", "prePaid"),
+			d.Set("period_unit", utils.PathSearch("periodType", s.Spec.NodeTemplate.ExtendParam, nil)),
+			d.Set("period", utils.PathSearch("periodNum", s.Spec.NodeTemplate.ExtendParam, nil)),
+			d.Set("auto_renew", utils.PathSearch("isAutoRenew", s.Spec.NodeTemplate.ExtendParam, nil)),
+		)
 	}
 
 	if s.Spec.NodeTemplate.RunTime != nil {
@@ -441,13 +770,103 @@ func resourceNodePoolRead(_ context.Context, d *schema.ResourceData, meta interf
 	return nil
 }
 
-func buildNodePoolUpdateOpts(d *schema.ResourceData) (*nodepools.UpdateOpts, error) {
+func flattenExtensionScaleGroups(extensionScaleGroups []nodepools.ExtensionScaleGroups) []map[string]interface{} {
+	if len(extensionScaleGroups) == 0 {
+		return nil
+	}
+
+	res := make([]map[string]interface{}, len(extensionScaleGroups))
+
+	for i, v := range extensionScaleGroups {
+		res[i] = map[string]interface{}{
+			"metadata": flattenExtensionScaleGroupsMetadata(v),
+			"spec":     flattenExtensionScaleGroupsSpec(v),
+		}
+	}
+
+	return res
+}
+
+func flattenExtensionScaleGroupsMetadata(extensionScaleGroup interface{}) []map[string]interface{} {
+	metadata := utils.PathSearch("metadata", extensionScaleGroup, nil)
+	if metadata == nil {
+		return nil
+	}
+
+	res := []map[string]interface{}{
+		{
+			"name": utils.PathSearch("name", metadata, nil),
+			"uid":  utils.PathSearch("uid", metadata, nil),
+		},
+	}
+
+	return res
+}
+
+func flattenExtensionScaleGroupsSpec(extensionScaleGroup interface{}) []map[string]interface{} {
+	spec := utils.PathSearch("spec", extensionScaleGroup, nil)
+	if spec == nil {
+		return nil
+	}
+
+	res := []map[string]interface{}{
+		{
+			"flavor":                             utils.PathSearch("flavor", spec, nil),
+			"az":                                 utils.PathSearch("az", spec, nil),
+			"capacity_reservation_specification": flattenExtensionScaleGroupsSpecCapacity(spec),
+			"autoscaling":                        flattenExtensionScaleGroupsSpecAutoscaling(spec),
+		},
+	}
+
+	return res
+}
+
+func flattenExtensionScaleGroupsSpecCapacity(spec interface{}) []map[string]interface{} {
+	capacity := utils.PathSearch("capacityReservationSpecification", spec, nil)
+	if capacity == nil {
+		return nil
+	}
+
+	res := []map[string]interface{}{
+		{
+			"preference": utils.PathSearch("preference", capacity, nil),
+			"id":         utils.PathSearch("id", capacity, nil),
+		},
+	}
+
+	return res
+}
+
+func flattenExtensionScaleGroupsSpecAutoscaling(spec interface{}) []map[string]interface{} {
+	autoscaling := utils.PathSearch("autoscaling", spec, nil)
+	if autoscaling == nil {
+		return nil
+	}
+
+	res := []map[string]interface{}{
+		{
+			"extension_priority": utils.PathSearch("extensionPriority", autoscaling, nil),
+			"max_node_count":     utils.PathSearch("maxNodeCount", autoscaling, nil),
+			"min_node_count":     utils.PathSearch("minNodeCount", autoscaling, nil),
+			"enable":             utils.PathSearch("enable", autoscaling, nil),
+		},
+	}
+
+	return res
+}
+
+func buildNodePoolUpdateOpts(d *schema.ResourceData, cfg *config.Config) (*nodepools.UpdateOpts, error) {
+	var initialNodeCount int
+	if !d.Get("ignore_initial_node_count").(bool) {
+		initialNodeCount = d.Get("initial_node_count").(int)
+	}
 	updateOpts := nodepools.UpdateOpts{
 		Metadata: nodepools.UpdateMetaData{
 			Name: d.Get("name").(string),
 		},
 		Spec: nodepools.UpdateSpec{
-			InitialNodeCount: utils.Int(d.Get("initial_node_count").(int)),
+			InitialNodeCount:       initialNodeCount,
+			IgnoreInitialNodeCount: d.Get("ignore_initial_node_count").(bool),
 			Autoscaling: nodepools.AutoscalingSpec{
 				Enable:                d.Get("scale_enable").(bool),
 				MinNodeCount:          d.Get("min_node_count").(int),
@@ -456,11 +875,18 @@ func buildNodePoolUpdateOpts(d *schema.ResourceData) (*nodepools.UpdateOpts, err
 				Priority:              d.Get("priority").(int),
 			},
 			NodeTemplate: nodepools.UpdateNodeTemplate{
-				UserTags:              utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
-				K8sTags:               buildResourceNodeK8sTags(d),
-				Taints:                buildResourceNodeTaint(d),
-				InitializedConditions: utils.ExpandToStringList(d.Get("initialized_conditions").([]interface{})),
+				UserTags:                  utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
+				K8sTags:                   buildResourceNodeK8sTags(d),
+				Taints:                    buildResourceNodeTaint(d),
+				InitializedConditions:     utils.ExpandToStringList(d.Get("initialized_conditions").([]interface{})),
+				ServerEnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
+				Os:                        d.Get("os").(string),
+				NodeNicSpecUpdate:         buildResourceNodePoolNicSpec(d),
 			},
+			LabelPolicyOnExistingNodes:   d.Get("label_policy_on_existing_nodes").(string),
+			UserTagPolicyOnExistingNodes: d.Get("tag_policy_on_existing_nodes").(string),
+			TaintPolicyOnExistingNodes:   d.Get("taint_policy_on_existing_nodes").(string),
+			ExtensionScaleGroups:         buildExtensionScaleGroups(d),
 		},
 	}
 	return &updateOpts, nil
@@ -473,7 +899,7 @@ func resourceNodePoolUpdate(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.Errorf("error creating CCE v3 client: %s", err)
 	}
 
-	updateOpts, err := buildNodePoolUpdateOpts(d)
+	updateOpts, err := buildNodePoolUpdateOpts(d, cfg)
 	if err != nil {
 		return diag.FromErr(err)
 	}

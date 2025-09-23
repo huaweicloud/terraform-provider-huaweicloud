@@ -1,0 +1,53 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cae_vpc_egress": {
+          "block": {
+            "attributes": {
+              "cidr": {
+                "type": "string",
+                "description": "The destination CIDR of the routing table corresponding to the subnet to which the CAE environment belongs.",
+                "required": true,
+                "forcenew": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The ID of the enterprise project to which the VPC egress belongs.",
+                "optional": true,
+                "forcenew": true
+              },
+              "environment_id": {
+                "type": "string",
+                "description": "The ID of the CAE environment.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "route_table_id": {
+                "type": "string",
+                "description": "The ID of the route table corresponding to the subnet to which the CAE environment belongs.",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "CAE",
+            "name": "Cloud Application Engine",
+            "catalog": "CodeArts",
+            "name_cn": "云应用引擎",
+            "catalog_cn": "软件开发生产线"
+          }
+        }
+      }
+    }
+  }
+}

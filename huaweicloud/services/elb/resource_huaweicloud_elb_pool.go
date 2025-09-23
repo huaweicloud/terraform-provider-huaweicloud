@@ -3,20 +3,24 @@ package elb
 import (
 	"context"
 	"fmt"
-	"log"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/elb/v3/pools"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
+
+var poolNonUpdatableParams = []string{"protocol", "loadbalancer_id", "listener_id", "ip_version", "any_port_enable",
+	"public_border_group"}
 
 // @API ELB POST /v3/{project_id}/elb/pools
 // @API ELB GET /v3/{project_id}/elb/pools/{pool_id}
@@ -31,6 +35,8 @@ func ResourcePoolV3() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+
+		CustomizeDiff: config.FlexibleForceNew(poolNonUpdatableParams),
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -48,19 +54,16 @@ func ResourcePoolV3() *schema.Resource {
 			"protocol": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 			"loadbalancer_id": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ForceNew:     true,
 				Computed:     true,
 				AtLeastOneOf: []string{"loadbalancer_id", "listener_id", "type"},
 			},
 			"listener_id": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ForceNew:     true,
 				Computed:     true,
 				AtLeastOneOf: []string{"loadbalancer_id", "listener_id", "type"},
 			},
@@ -133,13 +136,11 @@ func ResourcePoolV3() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 			},
 			"any_port_enable": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 			},
 			"deletion_protection_enable": {
 				Type:     schema.TypeBool,
@@ -161,7 +162,22 @@ func ResourcePoolV3() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"public_border_group": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
+			},
 			"monitor_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -178,215 +194,235 @@ func ResourcePoolV3() *schema.Resource {
 }
 
 func resourcePoolV3Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
+	conf := meta.(*config.Config)
+	region := conf.GetRegion(d)
+
+	var (
+		httpUrl = "v3/{project_id}/elb/pools"
+		product = "elb"
+	)
+	client, err := conf.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
-	var persistence pools.SessionPersistence
-	if p, ok := d.GetOk("persistence"); ok {
-		persistence, err = buildPersistence(p)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-	}
+	createPath := client.Endpoint + httpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
 
-	anyPortEnable := d.Get("any_port_enable").(bool)
-	deletionProtectionEnable := d.Get("deletion_protection_enable").(bool)
-	createOpts := pools.CreateOpts{
-		Name:                     d.Get("name").(string),
-		Description:              d.Get("description").(string),
-		Protocol:                 d.Get("protocol").(string),
-		LoadbalancerID:           d.Get("loadbalancer_id").(string),
-		ListenerID:               d.Get("listener_id").(string),
-		LBMethod:                 d.Get("lb_method").(string),
-		ProtectionStatus:         d.Get("protection_status").(string),
-		ProtectionReason:         d.Get("protection_reason").(string),
-		Type:                     d.Get("type").(string),
-		VpcId:                    d.Get("vpc_id").(string),
-		IpVersion:                d.Get("ip_version").(string),
-		AnyPortEnable:            &anyPortEnable,
-		DeletionProtectionEnable: &deletionProtectionEnable,
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
-
-	if v, ok := d.GetOk("slow_start_enabled"); ok {
-		createOpts.SlowStart = &pools.SlowStart{
-			Enable:   v.(bool),
-			Duration: d.Get("slow_start_duration").(int),
-		}
-	}
-
-	if v, ok := d.GetOk("connection_drain_enabled"); ok {
-		createOpts.ConnectionDrain = &pools.ConnectionDrain{
-			Enable:  v.(bool),
-			Timeout: d.Get("connection_drain_timeout").(int),
-		}
-	}
-
-	if v, ok := d.GetOk("minimum_healthy_member_count"); ok {
-		createOpts.PoolHealth = &pools.PoolHealth{
-			MinimumHealthyMemberCount: v.(int),
-		}
-	}
-
-	// Must omit if not set
-	if persistence != (pools.SessionPersistence{}) {
-		createOpts.Persistence = &persistence
-	}
-
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
-	pool, err := pools.Create(elbClient, createOpts).Extract()
+	createOpt.JSONBody = utils.RemoveNil(buildCreatePoolBodyParams(d))
+	createResp, err := client.Request("POST", createPath, &createOpt)
 	if err != nil {
-		return diag.Errorf("error creating pool: %s", err)
+		return diag.Errorf("error creating ELB pool: %s", err)
 	}
 
-	d.SetId(pool.ID)
+	createRespBody, err := utils.FlattenResponse(createResp)
+	if err != nil {
+		return diag.Errorf("error retrieving ELB pool: %s", err)
+	}
+	poolId := utils.PathSearch("pool.id", createRespBody, "").(string)
+	if poolId == "" {
+		return diag.Errorf("error creating ELB pool: ID is not found in API response")
+	}
 
-	timeout := d.Timeout(schema.TimeoutCreate)
-	err = waitForElbV3Pool(ctx, elbClient, d.Id(), "ACTIVE", nil, timeout)
+	d.SetId(poolId)
+
+	err = waitForPool(ctx, client, d.Id(), "ACTIVE", nil, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
 	return resourcePoolV3Read(ctx, d, meta)
+}
+
+func buildCreatePoolBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"name":                              utils.ValueIgnoreEmpty(d.Get("name")),
+		"description":                       utils.ValueIgnoreEmpty(d.Get("description")),
+		"protocol":                          d.Get("protocol"),
+		"loadbalancer_id":                   utils.ValueIgnoreEmpty(d.Get("loadbalancer_id")),
+		"listener_id":                       utils.ValueIgnoreEmpty(d.Get("listener_id")),
+		"lb_algorithm":                      d.Get("lb_method"),
+		"protection_status":                 utils.ValueIgnoreEmpty(d.Get("protection_status")),
+		"protection_reason":                 utils.ValueIgnoreEmpty(d.Get("protection_reason")),
+		"type":                              utils.ValueIgnoreEmpty(d.Get("type")),
+		"vpc_id":                            utils.ValueIgnoreEmpty(d.Get("vpc_id")),
+		"ip_version":                        utils.ValueIgnoreEmpty(d.Get("ip_version")),
+		"any_port_enable":                   utils.ValueIgnoreEmpty(d.Get("any_port_enable")),
+		"member_deletion_protection_enable": utils.ValueIgnoreEmpty(d.Get("deletion_protection_enable")),
+		"public_border_group":               utils.ValueIgnoreEmpty(d.Get("public_border_group")),
+		"session_persistence":               buildPersistence(d),
+	}
+	if _, ok := d.GetOk("slow_start_enabled"); ok {
+		bodyParams["slow_start"] = buildSlowStart(d)
+	}
+	if _, ok := d.GetOk("connection_drain_enabled"); ok {
+		bodyParams["connection_drain"] = buildConnectionDrain(d)
+	}
+	if _, ok := d.GetOk("minimum_healthy_member_count"); ok {
+		bodyParams["pool_health"] = buildPoolHealth(d)
+	}
+	return map[string]interface{}{"pool": bodyParams}
+}
+
+func buildSlowStart(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"enable":   d.Get("slow_start_enabled").(bool),
+		"duration": d.Get("slow_start_duration").(int),
+	}
+	return bodyParams
+}
+
+func buildConnectionDrain(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"enable":  d.Get("connection_drain_enabled").(bool),
+		"timeout": d.Get("connection_drain_timeout").(int),
+	}
+	return bodyParams
+}
+
+func buildPoolHealth(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"minimum_healthy_member_count": d.Get("minimum_healthy_member_count").(int),
+	}
+	return bodyParams
+}
+
+func buildPersistence(d *schema.ResourceData) map[string]interface{} {
+	rawPersistence, ok := d.GetOk("persistence")
+	if !ok {
+		return nil
+	}
+
+	persistence, ok := rawPersistence.([]interface{})[0].(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	bodyParams := map[string]interface{}{
+		"type": persistence["type"],
+	}
+	if persistence["timeout"].(int) != 0 {
+		bodyParams["persistence_timeout"] = persistence["timeout"]
+	}
+	if persistence["cookie_name"].(string) != "" {
+		bodyParams["cookie_name"] = persistence["cookie_name"]
+	}
+	return bodyParams
 }
 
 func resourcePoolV3Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-	elbClient, err := cfg.ElbV3Client(region)
+
+	var mErr *multierror.Error
+
+	var (
+		httpUrl = "v3/{project_id}/elb/pools/{pool_id}"
+		product = "elb"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
-	pool, err := pools.Get(elbClient, d.Id()).Extract()
-	if err != nil {
-		return common.CheckDeletedDiag(d, err, "pool")
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{pool_id}", d.Id())
+
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
 
-	log.Printf("[DEBUG] Retrieved pool %s: %#v", d.Id(), pool)
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, "error retrieving ELB pool")
+	}
 
-	mErr := multierror.Append(nil,
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	mErr = multierror.Append(
+		mErr,
 		d.Set("region", region),
-		d.Set("lb_method", pool.LBMethod),
-		d.Set("protocol", pool.Protocol),
-		d.Set("description", pool.Description),
-		d.Set("name", pool.Name),
-		d.Set("type", pool.Type),
-		d.Set("vpc_id", pool.VpcId),
-		d.Set("protection_status", pool.ProtectionStatus),
-		d.Set("protection_reason", pool.ProtectionReason),
-		d.Set("slow_start_enabled", pool.SlowStart.Enable),
-		d.Set("slow_start_duration", pool.SlowStart.Duration),
-		d.Set("connection_drain_enabled", pool.ConnectionDrain.Enable),
-		d.Set("connection_drain_timeout", pool.ConnectionDrain.Timeout),
-		d.Set("minimum_healthy_member_count", pool.PoolHealth.MinimumHealthyMemberCount),
-		d.Set("ip_version", pool.IpVersion),
-		d.Set("any_port_enable", pool.AnyPortEnable),
-		d.Set("deletion_protection_enable", d.Get("deletion_protection_enable").(bool)),
-		d.Set("monitor_id", pool.MonitorID),
-		d.Set("created_at", pool.CreatedAt),
-		d.Set("updated_at", pool.UpdatedAt),
+		d.Set("lb_method", utils.PathSearch("pool.lb_algorithm", getRespBody, nil)),
+		d.Set("protocol", utils.PathSearch("pool.protocol", getRespBody, nil)),
+		d.Set("description", utils.PathSearch("pool.description", getRespBody, nil)),
+		d.Set("name", utils.PathSearch("pool.name", getRespBody, nil)),
+		d.Set("type", utils.PathSearch("pool.type", getRespBody, nil)),
+		d.Set("vpc_id", utils.PathSearch("pool.vpc_id", getRespBody, nil)),
+		d.Set("protection_status", utils.PathSearch("pool.protection_status", getRespBody, nil)),
+		d.Set("protection_reason", utils.PathSearch("pool.protection_reason", getRespBody, nil)),
+		d.Set("slow_start_enabled", utils.PathSearch("pool.slow_start.enable", getRespBody, nil)),
+		d.Set("slow_start_duration", utils.PathSearch("pool.slow_start.duration", getRespBody, nil)),
+		d.Set("connection_drain_enabled", utils.PathSearch("pool.connection_drain.enable", getRespBody, nil)),
+		d.Set("connection_drain_timeout", utils.PathSearch("pool.connection_drain.timeout", getRespBody, nil)),
+		d.Set("minimum_healthy_member_count", utils.PathSearch("pool.pool_health.minimum_healthy_member_count",
+			getRespBody, nil)),
+		d.Set("ip_version", utils.PathSearch("pool.ip_version", getRespBody, nil)),
+		d.Set("any_port_enable", utils.PathSearch("pool.any_port_enable", getRespBody, nil)),
+		d.Set("deletion_protection_enable", utils.PathSearch("pool.member_deletion_protection_enable",
+			getRespBody, nil)),
+		d.Set("public_border_group", utils.PathSearch("pool.public_border_group", getRespBody, nil)),
+		d.Set("loadbalancer_id", utils.PathSearch("pool.loadbalancers[0].id", getRespBody, nil)),
+		d.Set("listener_id", utils.PathSearch("pool.listeners[0].id", getRespBody, nil)),
+		d.Set("persistence", flattenPoolPersistence(getRespBody)),
+		d.Set("monitor_id", utils.PathSearch("pool.healthmonitor_id", getRespBody, nil)),
+		d.Set("enterprise_project_id", utils.PathSearch("pool.enterprise_project_id", getRespBody, nil)),
+		d.Set("created_at", utils.PathSearch("pool.created_at", getRespBody, nil)),
+		d.Set("updated_at", utils.PathSearch("pool.updated_at", getRespBody, nil)),
 	)
 
-	if len(pool.Loadbalancers) != 0 {
-		mErr = multierror.Append(mErr, d.Set("loadbalancer_id", pool.Loadbalancers[0].ID))
+	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func flattenPoolPersistence(resp interface{}) []map[string]interface{} {
+	persistence := utils.PathSearch("pool.session_persistence", resp, nil)
+	if persistence == nil {
+		return nil
 	}
 
-	if len(pool.Listeners) != 0 {
-		mErr = multierror.Append(mErr, d.Set("listener_id", pool.Listeners[0].ID))
+	rst := []map[string]interface{}{
+		{
+			"cookie_name": utils.PathSearch("cookie_name", persistence, nil),
+			"type":        utils.PathSearch("type", persistence, nil),
+			"timeout":     utils.PathSearch("persistence_timeout", persistence, nil),
+		},
 	}
-
-	if pool.Persistence.Type != "" {
-		var persistence = make([]map[string]interface{}, 1)
-		params := make(map[string]interface{})
-		params["cookie_name"] = pool.Persistence.CookieName
-		params["type"] = pool.Persistence.Type
-		params["timeout"] = pool.Persistence.PersistenceTimeout
-		persistence[0] = params
-		mErr = multierror.Append(mErr, d.Set("persistence", persistence))
-	}
-
-	if err := mErr.ErrorOrNil(); err != nil {
-		return diag.Errorf("error setting Dedicated ELB pool fields: %s", err)
-	}
-
-	return nil
+	return rst
 }
 
 func resourcePoolV3Update(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
+	region := cfg.GetRegion(d)
+
+	var (
+		httpUrl = "v3/{project_id}/elb/pools/{pool_id}"
+		product = "elb"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
-	var updateOpts pools.UpdateOpts
-	if d.HasChange("lb_method") {
-		updateOpts.LBMethod = d.Get("lb_method").(string)
-	}
-	if d.HasChange("name") {
-		name := d.Get("name").(string)
-		updateOpts.Name = &name
-	}
-	if d.HasChange("description") {
-		description := d.Get("description").(string)
-		updateOpts.Description = &description
-	}
-	if d.HasChange("persistence") {
-		var persistence pools.SessionPersistence
-		if p, ok := d.GetOk("persistence"); ok {
-			persistence, err = buildPersistence(p)
-			if err != nil {
-				return diag.FromErr(err)
-			}
-		}
-		updateOpts.Persistence = &persistence
-	}
-	if d.HasChange("protection_status") {
-		updateOpts.ProtectionStatus = d.Get("protection_status").(string)
-	}
-	if d.HasChange("protection_reason") {
-		protectionReason := d.Get("protection_reason").(string)
-		updateOpts.ProtectionReason = &protectionReason
-	}
-	if d.HasChange("type") {
-		updateOpts.Type = d.Get("type").(string)
-	}
-	if d.HasChange("vpc_id") {
-		updateOpts.VpcId = d.Get("vpc_id").(string)
-	}
-	if d.HasChanges("slow_start_enabled", "slow_start_duration") {
-		updateOpts.SlowStart = &pools.SlowStart{
-			Enable:   d.Get("slow_start_enabled").(bool),
-			Duration: d.Get("slow_start_duration").(int),
-		}
-	}
-	if d.HasChanges("connection_drain_enabled", "connection_drain_timeout") {
-		updateOpts.ConnectionDrain = &pools.ConnectionDrain{
-			Enable:  d.Get("connection_drain_enabled").(bool),
-			Timeout: d.Get("connection_drain_timeout").(int),
-		}
-	}
-	if d.HasChanges("minimum_healthy_member_count") {
-		updateOpts.PoolHealth = &pools.PoolHealth{
-			MinimumHealthyMemberCount: d.Get("minimum_healthy_member_count").(int),
-		}
-	}
-	if d.HasChange("deletion_protection_enable") {
-		deletionProtectionEnable := d.Get("deletion_protection_enable").(bool)
-		updateOpts.DeletionProtectionEnable = &deletionProtectionEnable
-	}
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{pool_id}", d.Id())
 
-	log.Printf("[DEBUG] Updating pool %s with options: %#v", d.Id(), updateOpts)
-	_, err = pools.Update(elbClient, d.Id(), updateOpts).Extract()
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	updateOpt.JSONBody = buildUpdatePoolBodyParams(d)
+	_, err = client.Request("PUT", updatePath, &updateOpt)
 	if err != nil {
-		return diag.Errorf("unable to update pool %s: %s", d.Id(), err)
+		return diag.Errorf("error updating ELB pool: %s", err)
 	}
 
-	timeout := d.Timeout(schema.TimeoutUpdate)
-	err = waitForElbV3Pool(ctx, elbClient, d.Id(), "ACTIVE", nil, timeout)
+	err = waitForPool(ctx, client, d.Id(), "ACTIVE", nil, d.Timeout(schema.TimeoutUpdate))
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -394,22 +430,61 @@ func resourcePoolV3Update(ctx context.Context, d *schema.ResourceData, meta inte
 	return resourcePoolV3Read(ctx, d, meta)
 }
 
+func buildUpdatePoolBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"lb_algorithm":                      utils.ValueIgnoreEmpty(d.Get("lb_method")),
+		"name":                              d.Get("name"),
+		"description":                       d.Get("description"),
+		"session_persistence":               buildPersistence(d),
+		"protection_status":                 d.Get("protection_status"),
+		"protection_reason":                 d.Get("protection_reason"),
+		"member_deletion_protection_enable": d.Get("deletion_protection_enable"),
+	}
+	if d.HasChange("type") {
+		bodyParams["type"] = d.Get("type")
+	}
+	if d.HasChange("vpc_id") {
+		bodyParams["vpc_id"] = d.Get("vpc_id")
+	}
+	if d.HasChanges("slow_start_enabled", "slow_start_duration") {
+		bodyParams["slow_start"] = buildSlowStart(d)
+	}
+	if d.HasChanges("connection_drain_enabled", "connection_drain_timeout") {
+		bodyParams["connection_drain"] = buildConnectionDrain(d)
+	}
+	if d.HasChange("minimum_healthy_member_count") {
+		bodyParams["pool_health"] = buildPoolHealth(d)
+	}
+	return map[string]interface{}{"pool": bodyParams}
+}
+
 func resourcePoolV3Delete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	elbClient, err := cfg.ElbV3Client(cfg.GetRegion(d))
+	region := cfg.GetRegion(d)
+
+	var (
+		httpUrl = "v3/{project_id}/elb/pools/{pool_id}"
+		product = "elb"
+	)
+
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating ELB client: %s", err)
 	}
 
-	log.Printf("[DEBUG] Attempting to delete pool %s", d.Id())
-	err = pools.Delete(elbClient, d.Id()).ExtractErr()
+	deletePath := client.Endpoint + httpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = strings.ReplaceAll(deletePath, "{pool_id}", d.Id())
+
+	deleteOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+	_, err = client.Request("DELETE", deletePath, &deleteOpt)
 	if err != nil {
-		return diag.Errorf("unable to delete pool %s: %s", d.Id(), err)
+		return common.CheckDeletedDiag(d, err, "error deleting ELB pool")
 	}
 
-	// Wait for Pool to delete
-	timeout := d.Timeout(schema.TimeoutDelete)
-	err = waitForElbV3Pool(ctx, elbClient, d.Id(), "DELETED", nil, timeout)
+	err = waitForPool(ctx, client, d.Id(), "DELETED", nil, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -417,16 +492,13 @@ func resourcePoolV3Delete(ctx context.Context, d *schema.ResourceData, meta inte
 	return nil
 }
 
-func waitForElbV3Pool(ctx context.Context, elbClient *golangsdk.ServiceClient, id string, target string, pending []string,
+func waitForPool(ctx context.Context, client *golangsdk.ServiceClient, id string, target string, pending []string,
 	timeout time.Duration) error {
-	log.Printf("[DEBUG] Waiting for pool %s to become %s.", id, target)
-
 	stateConf := &resource.StateChangeConf{
 		Target:     []string{target},
 		Pending:    pending,
-		Refresh:    resourceElbV3PoolRefreshFunc(elbClient, id),
+		Refresh:    resourcePoolRefreshFunc(client, id),
 		Timeout:    timeout,
-		Delay:      5 * time.Second,
 		MinTimeout: 3 * time.Second,
 	}
 
@@ -446,9 +518,9 @@ func waitForElbV3Pool(ctx context.Context, elbClient *golangsdk.ServiceClient, i
 	return nil
 }
 
-func resourceElbV3PoolRefreshFunc(elbClient *golangsdk.ServiceClient, poolID string) resource.StateRefreshFunc {
+func resourcePoolRefreshFunc(client *golangsdk.ServiceClient, id string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		pool, err := pools.Get(elbClient, poolID).Extract()
+		pool, err := getPool(client, id)
 		if err != nil {
 			return nil, "", err
 		}
@@ -458,29 +530,23 @@ func resourceElbV3PoolRefreshFunc(elbClient *golangsdk.ServiceClient, poolID str
 	}
 }
 
-func buildPersistence(p interface{}) (pools.SessionPersistence, error) {
-	pV := (p.([]interface{}))[0].(map[string]interface{})
+func getPool(client *golangsdk.ServiceClient, id string) (interface{}, error) {
+	var (
+		httpUrl = "v3/{project_id}/elb/pools/{pool_id}"
+	)
 
-	persistence := pools.SessionPersistence{
-		Type: pV["type"].(string),
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{pool_id}", id)
+
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
 
-	if persistence.Type == "APP_COOKIE" {
-		if pV["cookie_name"].(string) == "" {
-			return persistence, fmt.Errorf(
-				"persistence cookie_name needs to be set if using 'APP_COOKIE' persistence type")
-		}
-		persistence.CookieName = pV["cookie_name"].(string)
-
-		if pV["timeout"].(int) != 0 {
-			return persistence, fmt.Errorf(
-				"persistence timeout is invalid when type is set to 'APP_COOKIE'")
-		}
-	} else if pV["cookie_name"].(string) != "" {
-		return persistence, fmt.Errorf(
-			"persistence cookie_name can only be set if using 'APP_COOKIE' persistence type")
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
 	}
 
-	persistence.PersistenceTimeout = pV["timeout"].(int)
-	return persistence, nil
+	return utils.FlattenResponse(getResp)
 }

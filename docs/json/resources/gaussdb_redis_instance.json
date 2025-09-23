@@ -130,7 +130,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "volume_size": {
                 "type": "number",
@@ -143,6 +144,25 @@
               }
             },
             "block_types": {
+              "availability_zone_detail": {
+                "block": {
+                  "attributes": {
+                    "primary_availability_zone": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    },
+                    "secondary_availability_zone": {
+                      "type": "string",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              },
               "backup_strategy": {
                 "block": {
                   "attributes": {

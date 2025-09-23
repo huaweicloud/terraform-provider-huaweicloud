@@ -165,7 +165,7 @@ The following arguments are supported:
 * `meeting_room_id` - (Required, String) Specifies the cloud meeting room ID.
 
 * `duration` - (Required, Int) Specifies the duration of the conference, in minutes.
-  The valid value is range from `15` to `1440`, defaults to `30`.
+  The valid value is range from `15` to `1,440`, defaults to `30`.
 
   -> After the conference starts, only support extend duration, shorten duration is not supported.
     And only the duration can be updated after the meeting starts.
@@ -190,12 +190,12 @@ The following arguments are supported:
   + **1**: Automatically start recording.
   + **0**: Do not start recording automatically.
 
-  The default value is **0** (not to start automatically).
+  The default value is `0` (not to start automatically).
 
 * `encrypt_mode` - (Optional, Int) Specifies the conference media encryption mode.
-  **0**: Adaptive encryption.
-  **1**: Force encryption.
-  **2**: Do not encrypt.
+  + **0**: Adaptive encryption.
+  + **1**: Force encryption.
+  + **2**: Do not encrypt.
 
   The default value is populated by enterprise-level configuration.
 
@@ -219,29 +219,29 @@ The following arguments are supported:
   + **2**: Record and broadcast.
   + **3**: Live + Recording.
 
-  The default value is **0** (disabled).
+  The default value is `0` (disabled).
 
 * `live_address` - (Optional, String) Specifies the mainstream live broadcast address, with a maximum of 255 characters.
-  Only available if `record_type` is **2** or **3**.
+  Only available if `record_type` is `2` or `3`.
 
 * `aux_address` - (Optional, String) Specifies the auxiliary streaming address, the maximum length is 255 characters.
-  Only available if `record_type` is **2** or **3**.
+  Only available if `record_type` is `2` or `3`.
 
 * `is_record_aux_stream` - (Optional, Int) Specifies whether to record auxiliary stream.
   + **0**: Do not record.
   + **1**: Record.
 
-  Only available if `record_type` is **2** or **3**, and the default value is **0**.
+  Only available if `record_type` is `2` or `3`, and the default value is `0`.
 
 * `record_auth_type` - (Optional, Int) Specifies the recording authentication method.
-  **0**: Viewable/downloadable via link.
-  **1**: Enterprise users can watch/download.
-  **2**: Attendees can watch/download.
+  + **0**: Viewable/downloadable via link.
+  + **1**: Enterprise users can watch/download.
+  + **2**: Attendees can watch/download.
 
-  Only available if `record_type` is **2** or **3**.
+  Only available if `record_type` is `2` or `3`.
 
 * `participant_number` - (Optional, Int) Specifies the number of parties in the conference, the maximum number of
-  participants in the conference. Defaults to **0** (Unlimited).
+  participants in the conference. Defaults to `0` (Unlimited).
 
 * `participant` - (Optional, List) Specifies the attendee list.
   The [object](#conference_participant) structure is documented below.
@@ -259,7 +259,8 @@ The `participant` block supports:
 
 * `account_id` - (Optional, String) Specifies the account ID of the participant.
 
-* `name` - (Optional, String) Specifies the attendee name or nickname.
+* `name` - (Optional, String) Specifies the attendee name or nickname.  
+  The valid length is limited from `1` to `96`.
 
 * `role` - (Optional, Int) Specifies the role in the conference. The valid values are as follows:
   + **0**: Normal attendee.
@@ -277,7 +278,7 @@ The `participant` block supports:
   + **0**: No mute.
   + **1**: Mute.
 
-  The default value is **0**.
+  The default value is `0`.
 
 * `is_auto_invite` - (Optional, Int) Specifies whether to automatically invite this participant when the conference
   starts. The valid values are as follows:
@@ -319,7 +320,7 @@ The `cycle_params` block supports:
 
 * `points` - (Optional, List) Specifies the conference point in the cycle. Only valid by **Week** and **Month**.
   For different `cycle` types, the value range of elements are as follows:
-  + **Week**: The valid value is range from `0` to `6`. The **0** means Sunday, **6** means Saturday.
+  + **Week**: The valid value is range from `0` to `6`. The `0` means Sunday, `6` means Saturday.
   + **Month**: The valid range for the elements is `1` to `31`. If the value does not exist in the current month, the
   value means the end of the month.
 
@@ -349,7 +350,7 @@ The `configuration` block supports:
 * `allow_guest_start` - (Optional, Bool) Specifies whether to allow guests to start conferences (only valid for random
   ID conferences).
 
-* `guest_password` - (Optional, String) Specifies the guest password (pure number which is 4 to 16 digits long).
+* `guest_password` - (Optional, String) Specifies the guest password (pure number which is `4` to `16` digits long).
 
 * `prolong_time` - (Optional, Int) Specifies the Automatically extend duration, the valid value is range from `0` to
   `60`.
@@ -452,14 +453,14 @@ parameters, separated by slashes, e.g.
 
 Import a conference and authenticated by account.
 
-```
-$ terraform import huaweicloud_meeting_conference.test &ltid&gt/&ltaccount_name&gt/&ltaccount_password&gt
+```bash
+$ terraform import huaweicloud_meeting_conference.test <id>/<account_name>/<account_password>
 ```
 
 Import a conference and authenticated by `APP ID`/`APP Key`.
 
-```
-$ terraform import huaweicloud_meeting_conference.test &ltid&gt/&ltapp_id&gt/&ltapp_key&gt/&ltcorp_id&gt/&ltuser_id&gt
+```bash
+$ terraform import huaweicloud_meeting_conference.test <id>/<app_id>/<app_key>/<corp_id>/<user_id>
 ```
 
 The slashes cannot be missing even corporation ID and user ID are empty.
@@ -467,7 +468,7 @@ The slashes cannot be missing even corporation ID and user ID are empty.
 Note that importing is not supported for expired conferences and the start time of the meeting is not imported along
 with it. You can ignore this change as below.
 
-```
+```hcl
 resource "huaweicloud_meeting_conference" "test" {
     ...
 

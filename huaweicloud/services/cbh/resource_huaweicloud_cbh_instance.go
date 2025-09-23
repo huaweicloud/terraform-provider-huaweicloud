@@ -12,10 +12,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/eips"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -64,6 +62,8 @@ func ResourceCBHInstance() *schema.Resource {
 			Update: schema.DefaultTimeout(60 * time.Minute),
 			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
+
+		CustomizeDiff: config.MergeDefaultTags(),
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -129,11 +129,10 @@ func ResourceCBHInstance() *schema.Resource {
 				Description: `Specifies the charging period unit of the instance.`,
 			},
 			"period": {
-				Type:         schema.TypeInt,
-				Required:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.IntBetween(1, 9),
-				Description:  `Specifies the charging period of the CBH instance.`,
+				Type:        schema.TypeInt,
+				Required:    true,
+				ForceNew:    true,
+				Description: `Specifies the charging period of the CBH instance.`,
 			},
 			"auto_renew": {
 				Type:        schema.TypeString,
@@ -240,12 +239,12 @@ func resourceCBHInstanceCreate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(err)
 	}
 	expression := fmt.Sprintf("[?resource_info.resource_id == '%s']|[0].server_id", resourceId)
-	serverId, err := jmespath.Search(expression, instances)
-	if err != nil || serverId == nil {
-		return diag.Errorf("error creating CBH instance: ID is not found in API response")
+	serverId := utils.PathSearch(expression, instances, "").(string)
+	if serverId == "" {
+		return diag.Errorf("unable to find the CBH instance ID from the API response")
 	}
 
-	d.SetId(serverId.(string))
+	d.SetId(serverId)
 	if err := waitingForCBHInstanceActive(ctx, client, d, d.Timeout(schema.TimeoutCreate)); err != nil {
 		return diag.Errorf("error waiting for CBH instance (%s) creation to active: %s", d.Id(), err)
 	}
@@ -296,11 +295,11 @@ func createCBHInstance(client *golangsdk.ServiceClient, d *schema.ResourceData, 
 		return "", err
 	}
 
-	orderId, err := jmespath.Search("order_id", createInstanceRespBody)
-	if err != nil || orderId == nil {
-		return "", fmt.Errorf("error creating CBH instance: order_id is not found in API response")
+	orderId := utils.PathSearch("order_id", createInstanceRespBody, "").(string)
+	if orderId == "" {
+		return "", fmt.Errorf("unable to find the order ID of the CBH instance from the API response")
 	}
-	return orderId.(string), nil
+	return orderId, nil
 }
 
 func buildCreateCBHInstanceBodyParam(d *schema.ResourceData, region string, epsId string, publicIp interface{}) map[string]interface{} {
@@ -755,13 +754,13 @@ func resourceCBHInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta
 				"resource ID is not found in list API response", ID)
 		}
 
-		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+		migrateOpts := config.MigrateResourceOpts{
 			ResourceId:   resourceId,
 			ResourceType: "cbh",
 			RegionId:     region,
 			ProjectId:    client.ProjectID,
 		}
-		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
+		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -889,12 +888,12 @@ func updateFlavorId(client *golangsdk.ServiceClient, resourceId, flavorId string
 		return "", err
 	}
 
-	orderId, err := jmespath.Search("order_id", updateInstanceRespBody)
-	if err != nil || orderId == nil {
-		return "", fmt.Errorf("error updating CBH instance flavor: order_id is not found in API response")
+	orderId := utils.PathSearch("order_id", updateInstanceRespBody, "").(string)
+	if orderId == "" {
+		return "", fmt.Errorf("unable to find the order ID of the CBH HA instance flavor from the API response")
 	}
 
-	return orderId.(string), nil
+	return orderId, nil
 }
 
 func updateAttachDiskSize(client *golangsdk.ServiceClient, resourceId string, attachDiskSize int32) (string, error) {
@@ -918,12 +917,12 @@ func updateAttachDiskSize(client *golangsdk.ServiceClient, resourceId string, at
 		return "", err
 	}
 
-	orderId, err := jmespath.Search("order_id", updateInstanceRespBody)
-	if err != nil || orderId == nil {
-		return "", fmt.Errorf("error updating CBH instance additional disk: order_id is not found in API response")
+	orderId := utils.PathSearch("order_id", updateInstanceRespBody, "").(string)
+	if orderId == "" {
+		return "", fmt.Errorf("unable to find the order ID of the CBH HA instance additional disk from the API response")
 	}
 
-	return orderId.(string), nil
+	return orderId, nil
 }
 
 func updateSecurityGroup(client *golangsdk.ServiceClient, resourceId string, sgIDs []string) error {
@@ -1138,7 +1137,9 @@ func resourceCBHInstanceDelete(ctx context.Context, d *schema.ResourceData, meta
 	expression := fmt.Sprintf("[?server_id == '%s']|[0]", d.Id())
 	instance := utils.PathSearch(expression, instances, nil)
 	if instance == nil {
-		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
+		// Before deleting the CBH instance, it is necessary to first call the query API to obtain the resource_id of
+		// the instance. If the instance cannot be found, then execute the logic of checkDeleted.
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "error deleting the CBH instance")
 	}
 
 	resourceId := utils.PathSearch("resource_info.resource_id", instance, "").(string)

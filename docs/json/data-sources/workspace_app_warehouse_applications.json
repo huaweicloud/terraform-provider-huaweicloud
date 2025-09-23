@@ -1,0 +1,76 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_workspace_app_warehouse_applications": {
+          "block": {
+            "attributes": {
+              "app_id": {
+                "type": "string",
+                "description": "The ID of the application.",
+                "optional": true
+              },
+              "applications": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "app_file_size": "string",
+                      "app_id": "string",
+                      "category": "string",
+                      "created_at": "string",
+                      "description": "string",
+                      "file_store_path": "string",
+                      "icon": "string",
+                      "id": "string",
+                      "name": "string",
+                      "os_type": "string",
+                      "updated_at": "string",
+                      "verify_status": "string",
+                      "version": "string",
+                      "version_name": "string"
+                    }
+                  ]
+                ],
+                "description": "All applications that match the filter parameters.",
+                "computed": true
+              },
+              "category": {
+                "type": "string",
+                "description": "The category of the application.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the application.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the warehouse applications are located.",
+                "computed": true
+              },
+              "verify_status": {
+                "type": "string",
+                "description": "The verification status of the application.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_workspace_users": {
+          "block": {
+            "attributes": {
+              "active_type": {
+                "type": "string",
+                "description": "The activation type of the user.",
+                "optional": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The user description for fuzzy matching.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The ID of the enterprise project.",
+                "optional": true
+              },
+              "group_name": {
+                "type": "string",
+                "description": "The user group name for exact matching.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_query_total_desktops": {
+                "type": "bool",
+                "description": "Whether to query the number of desktops bound to the user.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the users are located.",
+                "computed": true
+              },
+              "user_name": {
+                "type": "string",
+                "description": "The user name to be queried.",
+                "optional": true
+              },
+              "users": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "account_expired": "bool",
+                      "account_expires": "string",
+                      "active_type": "string",
+                      "description": "string",
+                      "disabled": "bool",
+                      "enable_change_password": "bool",
+                      "enterprise_project_id": "string",
+                      "group_names": [
+                        "list",
+                        "string"
+                      ],
+                      "id": "string",
+                      "is_pre_user": "bool",
+                      "locked": "bool",
+                      "next_login_change_password": "bool",
+                      "password_never_expired": "bool",
+                      "share_space_desktops": "number",
+                      "share_space_subscription": "bool",
+                      "sid": "string",
+                      "total_desktops": "number",
+                      "user_email": "string",
+                      "user_info_map": "string",
+                      "user_name": "string",
+                      "user_phone": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of users that matched filter parameters.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

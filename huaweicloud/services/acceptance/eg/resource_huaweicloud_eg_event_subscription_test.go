@@ -261,3 +261,295 @@ resource "huaweicloud_eg_event_subscription" "test" {
 `, testAccEventSubscription_base(name), name, uuidOfficialEG, uuidCustomHTTPS,
 		acceptance.HW_PROJECT_ID, acceptance.HW_REGION_NAME)
 }
+
+func TestAccEventSubscription_official(t *testing.T) {
+	var (
+		obj subscriptions.Subscription
+
+		rName              = "huaweicloud_eg_event_subscription.test"
+		name               = acceptance.RandomAccResourceNameWithDash()
+		uuidOfficialOBS, _ = uuid.GenerateUUID()
+		uuidOfficialFGS, _ = uuid.GenerateUUID()
+
+		rc = acceptance.InitResourceCheck(rName, &obj, getEventSubscriptionFunc)
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckProjectID(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccEventSubscription_official_step1(name, uuidOfficialOBS, uuidOfficialFGS),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(rName, "channel_id", "data.huaweicloud_eg_event_channels.test", "channels.0.id"),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "description", "Created by acceptance test"),
+					resource.TestCheckResourceAttrSet(rName, "created_at"),
+					// Sources check
+					resource.TestCheckResourceAttr(rName, "sources.#", "1"),
+					resource.TestCheckResourceAttr(rName, "sources.0.id", uuidOfficialOBS),
+					resource.TestCheckResourceAttr(rName, "sources.0.name", "HC.OBS.DWR"),
+					resource.TestCheckResourceAttr(rName, "sources.0.provider_type", "OFFICIAL"),
+					resource.TestCheckResourceAttr(rName, "sources.0.detail_name", "detail"),
+					resource.TestCheckResourceAttrSet(rName, "sources.0.detail"),
+					resource.TestCheckResourceAttrSet(rName, "sources.0.filter_rule"),
+					// Targets check
+					resource.TestCheckResourceAttr(rName, "targets.#", "1"),
+					resource.TestCheckResourceAttr(rName, "targets.0.id", uuidOfficialFGS),
+					resource.TestCheckResourceAttr(rName, "targets.0.name", "HC.FunctionGraph"),
+					resource.TestCheckResourceAttr(rName, "targets.0.provider_type", "OFFICIAL"),
+					resource.TestCheckResourceAttr(rName, "targets.0.detail_name", "detail"),
+					resource.TestCheckResourceAttrSet(rName, "targets.0.detail"),
+					resource.TestCheckResourceAttrSet(rName, "targets.0.transform"),
+				),
+			},
+			{
+				Config: testAccEventSubscription_official_step2(name, uuidOfficialOBS, uuidOfficialFGS),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttrPair(rName, "channel_id", "data.huaweicloud_eg_event_channels.test", "channels.0.id"),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "description", ""),
+					resource.TestCheckResourceAttrSet(rName, "created_at"),
+					resource.TestCheckResourceAttrSet(rName, "updated_at"),
+					// Sources check
+					resource.TestCheckResourceAttr(rName, "sources.#", "1"),
+					resource.TestCheckResourceAttr(rName, "sources.0.id", uuidOfficialOBS),
+					resource.TestCheckResourceAttr(rName, "sources.0.name", "HC.OBS.DWR"),
+					resource.TestCheckResourceAttr(rName, "sources.0.provider_type", "OFFICIAL"),
+					resource.TestCheckResourceAttr(rName, "sources.0.detail_name", "detail"),
+					resource.TestCheckResourceAttrSet(rName, "sources.0.detail"),
+					resource.TestCheckResourceAttrSet(rName, "sources.0.filter_rule"),
+					// Targets check
+					resource.TestCheckResourceAttr(rName, "targets.#", "1"),
+					resource.TestCheckResourceAttr(rName, "targets.0.id", uuidOfficialFGS),
+					resource.TestCheckResourceAttr(rName, "targets.0.name", "HC.FunctionGraph"),
+					resource.TestCheckResourceAttr(rName, "targets.0.provider_type", "OFFICIAL"),
+					resource.TestCheckResourceAttr(rName, "targets.0.detail_name", "detail"),
+					resource.TestCheckResourceAttrSet(rName, "targets.0.detail"),
+					resource.TestCheckResourceAttrSet(rName, "targets.0.transform"),
+				),
+			},
+			{
+				ResourceName:      rName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccEventSubscription_official_base(name string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_eg_event_channels" "test" {
+  provider_type = "OFFICIAL"
+}
+
+resource "huaweicloud_obs_bucket" "test" {
+  bucket = "%[1]s"
+  acl    = "private"
+}
+
+variable "request_resp_print_script_content" {
+  default = <<EOT
+exports.handler = async (event, context) => {
+    const result =
+    {
+        'repsonse_code': 200,
+        'headers':
+        {
+            'Content-Type': 'application/json'
+        },
+        'isBase64Encoded': false,
+        'body': JSON.stringify(event)
+    }
+    return result
+}
+EOT
+}
+
+resource "huaweicloud_fgs_function" "test" {
+  name        = "%[1]s"
+  app         = "default"
+  handler     = "index.handler"
+  memory_size = 128
+  timeout     = 3
+  code_type   = "inline"
+  runtime     = "Node.js12.13"
+  func_code   = base64encode(var.request_resp_print_script_content)
+}
+`, name)
+}
+
+func testAccEventSubscription_official_step1(name, uuidOfficialOBS, uuidOfficialFGS string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_eg_event_subscription" "test" {
+  channel_id  = data.huaweicloud_eg_event_channels.test.channels[0].id
+  name        = "%[2]s"
+  description = "Created by acceptance test"
+
+  sources {
+    id            = "%[3]s"
+    name          = "HC.OBS.DWR"
+    provider_type = "OFFICIAL"
+    detail_name   = "detail"
+    detail        = jsonencode({
+      "id": "%[3]s",
+      "channel_id": data.huaweicloud_eg_event_channels.test.channels[0].id,
+      "bucket": huaweicloud_obs_bucket.test.bucket,
+      "event_type": [
+          "ObjectCreated:PUT",
+          "ObjectCreated:POST",
+          "ObjectCreated:COPY",
+          "ObjectCreated:CompleteMultipartUpload",
+      ],
+      "objectKeyEncode": true,
+      "use_obs_message_layout": true
+    })
+    filter_rule  = jsonencode({
+      "source": [{
+        "op": "StringIn",
+        "values": ["HC.OBS.DWR"]
+      }],
+      "type": [{
+        "op": "StringIn",
+        "values": [
+          "OBS:DWR:ObjectCreated:PUT",
+          "OBS:DWR:ObjectCreated:POST",
+          "OBS:DWR:ObjectCreated:COPY",
+          "OBS:DWR:ObjectCreated:CompleteMultipartUpload",
+        ]
+      }],
+      "data": {
+        "obs": {
+          "bucket": {
+            "name": [{
+              "op": "StringIn",
+              "values": [huaweicloud_obs_bucket.test.bucket]
+            }]
+          }
+        }
+      }
+    })
+  }
+
+  targets {
+    id            = "%[4]s"
+    name          = "HC.FunctionGraph"
+    provider_type = "OFFICIAL"
+    detail_name   = "detail"
+    detail        = jsonencode({
+      "urn": huaweicloud_fgs_function.test.id,
+      "invoke_type": "ASYNC",
+      "agency_name": "EG_TARGET_AGENCY"
+    })
+    transform     = jsonencode({
+      "type": "ORIGINAL",
+      "value": ""
+    })
+  }
+}
+`, testAccEventSubscription_official_base(name), name, uuidOfficialOBS, uuidOfficialFGS)
+}
+
+func testAccEventSubscription_official_step2(name, uuidOfficialOBS, uuidOfficialFGS string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_eg_event_subscription" "test" {
+  channel_id = data.huaweicloud_eg_event_channels.test.channels[0].id
+  name       = "%[2]s"
+
+  sources {
+    id            = "%[3]s"
+    name          = "HC.OBS.DWR"
+    provider_type = "OFFICIAL"
+    detail_name   = "detail"
+    detail        = jsonencode({
+      "id": "%[3]s",
+      "channel_id": data.huaweicloud_eg_event_channels.test.channels[0].id,
+      "bucket": huaweicloud_obs_bucket.test.bucket,
+      "event_type": [
+          "ObjectCreated:PUT",
+          "ObjectCreated:POST",
+          "ObjectCreated:COPY",
+          "ObjectCreated:CompleteMultipartUpload",
+          "ObjectRemoved:Delete",
+          "ObjectRemoved:DeleteMarkerCreated"
+      ],
+      "prefix": "test",
+      "suffix": "jpg",
+      "objectKeyEncode": true,
+      "use_obs_message_layout": true
+    })
+    filter_rule  = jsonencode({
+      "source": [{
+        "op": "StringIn",
+        "values": ["HC.OBS.DWR"]
+      }],
+      "type": [{
+        "op": "StringIn",
+        "values": [
+          "OBS:DWR:ObjectCreated:PUT",
+          "OBS:DWR:ObjectCreated:POST",
+          "OBS:DWR:ObjectCreated:COPY",
+          "OBS:DWR:ObjectCreated:CompleteMultipartUpload",
+          "OBS:DWR:ObjectRemoved:Delete",
+          "OBS:DWR:ObjectRemoved:DeleteMarkerCreated"
+        ]
+      }],
+      "subject": {
+        "and": [
+          {
+            "op": "StringStartsWith",
+            "values": [
+              "test"
+            ]
+          },
+          {
+            "op": "StringEndsWith",
+            "values": [
+              "jpg"
+            ]
+          }
+        ]
+      },
+      "data": {
+        "obs": {
+          "bucket": {
+            "name": [{
+              "op": "StringIn",
+              "values": [huaweicloud_obs_bucket.test.bucket]
+            }]
+          }
+        }
+      }
+    })
+  }
+
+  targets {
+    id            = "%[4]s"
+    name          = "HC.FunctionGraph"
+    provider_type = "OFFICIAL"
+    detail_name   = "detail"
+    detail        = jsonencode({
+      "urn": huaweicloud_fgs_function.test.id,
+      "invoke_type": "ASYNC",
+      "agency_name": "EG_TARGET_AGENCY"
+    })
+    transform     = jsonencode({
+      "type": "VARIABLE",
+      "value": "{\"name\":\"$.data.name\"}",
+      "template": "My name is $${name}."
+    })
+  }
+}
+`, testAccEventSubscription_official_base(name), name, uuidOfficialOBS, uuidOfficialFGS)
+}

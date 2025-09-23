@@ -84,6 +84,6 @@ This resource provides the following timeouts configuration options:
 
 Organization Permissions can be imported using the `id` (organization name), e.g.
 
-```
+```bash
 $ terraform import huaweicloud_swr_organization_permissions.test terraform-test
 ```

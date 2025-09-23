@@ -2,7 +2,8 @@
 subcategory: "Web Application Firewall (WAF)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_waf_rule_anti_crawler"
-description: ""
+description: |-
+  Manages a WAF rule anti crawler resource within HuaweiCloud.
 ---
 
 # huaweicloud_waf_rule_anti_crawler
@@ -10,7 +11,7 @@ description: ""
 Manages a WAF rule anti crawler resource within HuaweiCloud.
 
 -> **NOTE:** All WAF resources depend on WAF instances, and the WAF instances need to be purchased before they can be
-used. The anti crawler rule resource can be used in Cloud Mode, Dedicated Mode.
+used. The anti crawler rule resource can be used in Cloud Mode and Dedicated Mode.
 
 ## Example Usage
 
@@ -58,17 +59,17 @@ The following arguments are supported:
 
   -> All rules in the current mode will take effect, while rules in another mode will become invalid.
 
-* `name` - (Required, String) Specifies the rule name. The value should be a maximum of 128 characters. Only letters,
+* `name` - (Required, String) Specifies the rule name. The value should be a maximum of `128` characters. Only letters,
   digits, hyphens (-), underscores (_), colons (:) and periods (.) are allowed.
 
 * `priority` - (Required, Int) Specifies the priority. A smaller value indicates a higher priority. If the value is
-  the same, the rule is created earlier and the priority is higher. Value ranges from **0** to **65535**.
+  the same, the rule is created earlier and the priority is higher. Value ranges from `0` to `65,535`.
 
 * `conditions` - (Required, List) Specifies the match condition list.
   The [conditions](#RuleAntiCrawler_conditions) structure is documented below.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID of WAF anti crawler rule.
-
+  For enterprise users, if omitted, default enterprise project will be used.
   Changing this parameter will create a new resource.
 
 * `description` - (Optional, String) Specifies the rule description.

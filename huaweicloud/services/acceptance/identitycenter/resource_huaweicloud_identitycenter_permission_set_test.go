@@ -68,8 +68,8 @@ func TestAccPermissionSet_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "description", "created by terraform"),
 					resource.TestCheckResourceAttrSet(rName, "urn"),
 					resource.TestCheckResourceAttrSet(rName, "created_at"),
-					resource.TestCheckResourceAttrPair(rName, "instance_id",
-						"data.huaweicloud_identitycenter_instance.system", "id"),
+					resource.TestCheckResourceAttrPair(rName, "instance_id", "data.huaweicloud_identitycenter_instance.system", "id"),
+					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
 				),
 			},
 			{
@@ -78,6 +78,7 @@ func TestAccPermissionSet_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttr(rName, "session_duration", "PT4H"),
 					resource.TestCheckResourceAttr(rName, "description", "updated by terraform"),
+					resource.TestCheckResourceAttr(rName, "tags.foo", "bar_update"),
 				),
 			},
 			{
@@ -123,6 +124,10 @@ resource "huaweicloud_identitycenter_permission_set" "test" {
   name             = "%s"
   session_duration = "PT8H"
   description      = "created by terraform"
+
+  tags = {
+    foo = "bar"
+  }
 }
 `, name)
 }
@@ -148,6 +153,10 @@ resource "huaweicloud_identitycenter_permission_set" "test" {
   instance_id      = data.huaweicloud_identitycenter_instance.system.id
   name             = "%s"
   session_duration = "PT4H"
+
+  tags = {
+    foo = "bar_update"
+  }
 }
 `, name)
 }

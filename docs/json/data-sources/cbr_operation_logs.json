@@ -1,0 +1,252 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cbr_operation_logs": {
+          "block": {
+            "attributes": {
+              "end_time": {
+                "type": "string",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "operation_logs": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "checkpoint_id": "string",
+                      "created_at": "string",
+                      "ended_at": "string",
+                      "error_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "code": "string",
+                            "message": "string"
+                          }
+                        ]
+                      ],
+                      "extra_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "backup": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "app_consistency_error_code": "string",
+                                  "app_consistency_error_message": "string",
+                                  "app_consistency_status": "string",
+                                  "backup_id": "string",
+                                  "backup_name": "string",
+                                  "incremental": "bool"
+                                }
+                              ]
+                            ],
+                            "common": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "progress": "number",
+                                  "request_id": "string",
+                                  "task_id": "string"
+                                }
+                              ]
+                            ],
+                            "delete": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "backup_id": "string",
+                                  "backup_name": "string"
+                                }
+                              ]
+                            ],
+                            "remove_resources": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "fail_count": "number",
+                                  "resources": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "extra_info": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "exclude_volumes": [
+                                                "list",
+                                                "string"
+                                              ]
+                                            }
+                                          ]
+                                        ],
+                                        "id": "string",
+                                        "name": "string",
+                                        "type": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "total_count": "number"
+                                }
+                              ]
+                            ],
+                            "replication": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "destination_backup_id": "string",
+                                  "destination_backup_name": "string",
+                                  "destination_checkpoint_id": "string",
+                                  "destination_project_id": "string",
+                                  "destination_region": "string",
+                                  "source_backup_id": "string",
+                                  "source_backup_name": "string",
+                                  "source_checkpoint_id": "string",
+                                  "source_project_id": "string",
+                                  "source_region": "string"
+                                }
+                              ]
+                            ],
+                            "resource": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "extra_info": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "exclude_volumes": [
+                                          "list",
+                                          "string"
+                                        ]
+                                      }
+                                    ]
+                                  ],
+                                  "id": "string",
+                                  "name": "string",
+                                  "type": "string"
+                                }
+                              ]
+                            ],
+                            "restore": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "backup_id": "string",
+                                  "backup_name": "string",
+                                  "target_resource_id": "string",
+                                  "target_resource_name": "string"
+                                }
+                              ]
+                            ],
+                            "sync": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "delete_backup_num": "number",
+                                  "err_sync_backup_num": "number",
+                                  "sync_backup_num": "number"
+                                }
+                              ]
+                            ],
+                            "vault_delete": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "fail_delete_count": "number",
+                                  "total_delete_count": "number"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "id": "string",
+                      "operation_type": "string",
+                      "policy_id": "string",
+                      "provider_id": "string",
+                      "started_at": "string",
+                      "status": "string",
+                      "updated_at": "string",
+                      "vault_id": "string",
+                      "vault_name": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "operation_type": {
+                "type": "string",
+                "optional": true
+              },
+              "provider_id": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "resource_id": {
+                "type": "string",
+                "optional": true
+              },
+              "resource_name": {
+                "type": "string",
+                "optional": true
+              },
+              "start_time": {
+                "type": "string",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "optional": true
+              },
+              "vault_id": {
+                "type": "string",
+                "optional": true
+              },
+              "vault_name": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CBR",
+            "name": "Cloud Backup and Recovery",
+            "catalog": "Storage",
+            "name_cn": "云备份",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}

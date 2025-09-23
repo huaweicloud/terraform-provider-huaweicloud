@@ -1,0 +1,81 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_apig_channel_member_groups": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the dedicated instance to which the VPC channel belongs.",
+                "required": true
+              },
+              "member_groups": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "create_time": "string",
+                      "description": "string",
+                      "id": "string",
+                      "microservice_labels": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "name": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ],
+                      "microservice_port": "number",
+                      "microservice_version": "string",
+                      "name": "string",
+                      "reference_vpc_channel_id": "string",
+                      "update_time": "string",
+                      "weight": "number"
+                    }
+                  ]
+                ],
+                "description": "The list of the member groups that matched filter parameters.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the member group for fuzzy matching.",
+                "optional": true
+              },
+              "precise_search": {
+                "type": "string",
+                "description": "The list of parameter names for exact matching.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the list of member groups are located.",
+                "computed": true
+              },
+              "vpc_channel_id": {
+                "type": "string",
+                "description": "The ID of the VPC channel to which the list of member groups belong.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

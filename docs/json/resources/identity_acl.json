@@ -29,8 +29,7 @@
                     }
                   }
                 },
-                "nesting_mode": "set",
-                "max_items": 200
+                "nesting_mode": "set"
               },
               "ip_ranges": {
                 "block": {
@@ -45,8 +44,7 @@
                     }
                   }
                 },
-                "nesting_mode": "set",
-                "max_items": 200
+                "nesting_mode": "set"
               }
             }
           },

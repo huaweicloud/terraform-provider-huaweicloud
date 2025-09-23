@@ -1,0 +1,64 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_workspace_app_group_authorizations": {
+          "block": {
+            "attributes": {
+              "account": {
+                "type": "string",
+                "description": "Specifies the name of the authorized account. Fuzzy search is supported.",
+                "optional": true
+              },
+              "account_type": {
+                "type": "string",
+                "description": "Specifies the type of the authorized account.",
+                "optional": true
+              },
+              "app_group_id": {
+                "type": "string",
+                "description": "Specifies the authorized application group ID.",
+                "optional": true
+              },
+              "authorizations": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "account": "string",
+                      "account_id": "string",
+                      "account_type": "string",
+                      "app_group_id": "string",
+                      "app_group_name": "string",
+                      "created_at": "string",
+                      "id": "string"
+                    }
+                  ]
+                ],
+                "description": "All authorizations that match the filter parameters.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the authorizations. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

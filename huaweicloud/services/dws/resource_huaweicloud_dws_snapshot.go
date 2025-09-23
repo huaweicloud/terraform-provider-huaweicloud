@@ -7,7 +7,6 @@ package dws
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -16,7 +15,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -106,7 +104,7 @@ func resourceDwsSnapshotCreate(ctx context.Context, d *schema.ResourceData, meta
 	)
 	createDwsSnapshotClient, err := cfg.NewServiceClient(createDwsSnapshotProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating DWS Client: %s", err)
+		return diag.Errorf("error creating DWS client: %s", err)
 	}
 
 	createDwsSnapshotPath := createDwsSnapshotClient.Endpoint + createDwsSnapshotHttpUrl
@@ -127,11 +125,11 @@ func resourceDwsSnapshotCreate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("snapshot.id", createDwsSnapshotRespBody)
-	if err != nil {
-		return diag.Errorf("error creating DWS snapshot: ID is not found in API response")
+	snapshotId := utils.PathSearch("snapshot.id", createDwsSnapshotRespBody, "").(string)
+	if snapshotId == "" {
+		return diag.Errorf("unable to find the DWS snapshot ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(snapshotId)
 
 	err = createDwsSnapshotWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
@@ -164,7 +162,7 @@ func createDwsSnapshotWaitingForStateCompleted(ctx context.Context, d *schema.Re
 			)
 			createDwsSnapshotWaitingClient, err := cfg.NewServiceClient(createDwsSnapshotWaitingProduct, region)
 			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error creating DWS Client: %s", err)
+				return nil, "ERROR", fmt.Errorf("error creating DWS client: %s", err)
 			}
 
 			createDwsSnapshotWaitingPath := createDwsSnapshotWaitingClient.Endpoint + createDwsSnapshotWaitingHttpUrl
@@ -186,12 +184,7 @@ func createDwsSnapshotWaitingForStateCompleted(ctx context.Context, d *schema.Re
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`snapshot.status`, createDwsSnapshotWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `snapshot.status`)
-			}
-
-			status := fmt.Sprintf("%v", statusRaw)
+			status := utils.PathSearch(`snapshot.status`, createDwsSnapshotWaitingRespBody, "").(string)
 
 			targetStatus := []string{
 				"AVAILABLE",
@@ -217,43 +210,40 @@ func createDwsSnapshotWaitingForStateCompleted(ctx context.Context, d *schema.Re
 	return err
 }
 
-func resourceDwsSnapshotRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
+// GetSnapshotById is a method used to query snapshot detail.
+func GetSnapshotById(client *golangsdk.ServiceClient, snapshotId string) (interface{}, error) {
+	httpUrl := "v1.0/{project_id}/snapshots/{snapshot_id}"
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{snapshot_id}", snapshotId)
 
-	var mErr *multierror.Error
-
-	// getDwsSnapshot: Query the DWS snapshot.
-	var (
-		getDwsSnapshotHttpUrl = "v1.0/{project_id}/snapshots/{snapshot_id}"
-		getDwsSnapshotProduct = "dws"
-	)
-	getDwsSnapshotClient, err := cfg.NewServiceClient(getDwsSnapshotProduct, region)
-	if err != nil {
-		return diag.Errorf("error creating DWS Client: %s", err)
-	}
-
-	getDwsSnapshotPath := getDwsSnapshotClient.Endpoint + getDwsSnapshotHttpUrl
-	getDwsSnapshotPath = strings.ReplaceAll(getDwsSnapshotPath, "{project_id}", getDwsSnapshotClient.ProjectID)
-	getDwsSnapshotPath = strings.ReplaceAll(getDwsSnapshotPath, "{snapshot_id}", d.Id())
-
-	getDwsSnapshotOpt := golangsdk.RequestOpts{
+	opt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders:      requestOpts.MoreHeaders,
 	}
-	getDwsSnapshotResp, err := getDwsSnapshotClient.Request("GET", getDwsSnapshotPath, &getDwsSnapshotOpt)
-
+	resp, err := client.Request("GET", getPath, &opt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseSnapshotNotFoundError(err), "error retrieving DWS snapshot")
+		// "DWS.5149": The copied snapshot does not exist.
+		return nil, common.ConvertExpected400ErrInto404Err(err, "error_code", "DWS.5149")
 	}
 
-	getDwsSnapshotRespBody, err := utils.FlattenResponse(getDwsSnapshotResp)
+	return utils.FlattenResponse(resp)
+}
+
+func resourceDwsSnapshotRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	getDwsSnapshotClient, err := cfg.NewServiceClient("dws", region)
 	if err != nil {
-		return diag.FromErr(err)
+		return diag.Errorf("error creating DWS client: %s", err)
 	}
 
-	mErr = multierror.Append(
-		mErr,
+	getDwsSnapshotRespBody, err := GetSnapshotById(getDwsSnapshotClient, d.Id())
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, "error retrieving DWS snapshot")
+	}
+
+	mErr := multierror.Append(
 		d.Set("region", region),
 		d.Set("name", utils.PathSearch("snapshot.name", getDwsSnapshotRespBody, nil)),
 		d.Set("cluster_id", utils.PathSearch("snapshot.cluster_id", getDwsSnapshotRespBody, nil)),
@@ -268,50 +258,35 @@ func resourceDwsSnapshotRead(_ context.Context, d *schema.ResourceData, meta int
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func parseSnapshotNotFoundError(respErr error) error {
-	var apiErr interface{}
-	if errCode, ok := respErr.(golangsdk.ErrDefault400); ok && errCode.Body != nil {
-		pErr := json.Unmarshal(errCode.Body, &apiErr)
-		if pErr != nil {
-			return pErr
-		}
-		errCode, err := jmespath.Search(`error_code`, apiErr)
-		if err != nil {
-			return fmt.Errorf("error parse errorCode from response body: %s", err.Error())
-		}
+// deleteSnapshotById is a method used to delete snapshot.
+func deleteSnapshotById(client *golangsdk.ServiceClient, snapshotId string) error {
+	deleteHttpUrl := "v1.0/{project_id}/snapshots/{snapshot_id}"
+	deletePath := client.Endpoint + deleteHttpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = strings.ReplaceAll(deletePath, "{snapshot_id}", snapshotId)
 
-		if errCode == `DWS.5149` {
-			return golangsdk.ErrDefault404{}
-		}
-	}
-	return respErr
-}
-
-func resourceDwsSnapshotDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// deleteDwsSnapshot: delete DWS snapshot
-	var (
-		deleteDwsSnapshotHttpUrl = "v1.0/{project_id}/snapshots/{snapshot_id}"
-		deleteDwsSnapshotProduct = "dws"
-	)
-	deleteDwsSnapshotClient, err := cfg.NewServiceClient(deleteDwsSnapshotProduct, region)
-	if err != nil {
-		return diag.Errorf("error creating DWS Client: %s", err)
-	}
-
-	deleteDwsSnapshotPath := deleteDwsSnapshotClient.Endpoint + deleteDwsSnapshotHttpUrl
-	deleteDwsSnapshotPath = strings.ReplaceAll(deleteDwsSnapshotPath, "{project_id}", deleteDwsSnapshotClient.ProjectID)
-	deleteDwsSnapshotPath = strings.ReplaceAll(deleteDwsSnapshotPath, "{snapshot_id}", d.Id())
-
-	deleteDwsSnapshotOpt := golangsdk.RequestOpts{
+	deleteOpt := golangsdk.RequestOpts{
 		MoreHeaders:      requestOpts.MoreHeaders,
 		KeepResponseBody: true,
 	}
-	_, err = deleteDwsSnapshotClient.Request("DELETE", deleteDwsSnapshotPath, &deleteDwsSnapshotOpt)
+	_, err := client.Request("DELETE", deletePath, &deleteOpt)
 	if err != nil {
-		return diag.Errorf("error deleting DWS snapshot: %s", err)
+		// "DWS.0001": The snapshot has been deleted.
+		return common.ConvertExpected400ErrInto404Err(err, "error_code", "DWS.0001")
+	}
+
+	return nil
+}
+func resourceDwsSnapshotDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	deleteDwsSnapshotClient, err := cfg.NewServiceClient("dws", region)
+	if err != nil {
+		return diag.Errorf("error creating DWS client: %s", err)
+	}
+
+	if err = deleteSnapshotById(deleteDwsSnapshotClient, d.Id()); err != nil {
+		return common.CheckDeletedDiag(d, err, "error deleting DWS snapshot")
 	}
 
 	return nil

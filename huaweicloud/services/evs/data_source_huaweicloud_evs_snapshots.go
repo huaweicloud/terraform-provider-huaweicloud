@@ -112,6 +112,23 @@ func snapshotSchema() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"metadata": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			"dedicated_storage_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"dedicated_storage_name": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"progress": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 	return &sc
@@ -175,7 +192,7 @@ func datasourceSnapshotsRead(_ context.Context, d *schema.ResourceData, meta int
 
 func buildEVSSnapshotsQueryParams(d *schema.ResourceData, cfg *config.Config) string {
 	res := ""
-	epsId := cfg.DataGetEnterpriseProjectID(d)
+	epsId := cfg.GetEnterpriseProjectID(d, "all_granted_eps")
 	if epsId != "" {
 		res = fmt.Sprintf("%s&enterprise_project_id=%v", res, epsId)
 	}
@@ -217,16 +234,22 @@ func flattenListSnapshotsBody(resp interface{}) []interface{} {
 	curArray := curJson.([]interface{})
 	rst := make([]interface{}, 0, len(curArray))
 	for _, v := range curArray {
+		progress := utils.PathSearch("\"os-extended-snapshot-attributes:progress\"", v, nil)
+
 		rst = append(rst, map[string]interface{}{
-			"id":           utils.PathSearch("id", v, nil),
-			"name":         utils.PathSearch("name", v, nil),
-			"status":       utils.PathSearch("status", v, nil),
-			"description":  utils.PathSearch("description", v, nil),
-			"size":         utils.PathSearch("size", v, nil),
-			"created_at":   utils.PathSearch("created_at", v, nil),
-			"updated_at":   utils.PathSearch("updated_at", v, nil),
-			"volume_id":    utils.PathSearch("volume_id", v, nil),
-			"service_type": utils.PathSearch("service_type", v, nil),
+			"id":                     utils.PathSearch("id", v, nil),
+			"name":                   utils.PathSearch("name", v, nil),
+			"status":                 utils.PathSearch("status", v, nil),
+			"description":            utils.PathSearch("description", v, nil),
+			"size":                   utils.PathSearch("size", v, nil),
+			"created_at":             utils.PathSearch("created_at", v, nil),
+			"updated_at":             utils.PathSearch("updated_at", v, nil),
+			"volume_id":              utils.PathSearch("volume_id", v, nil),
+			"service_type":           utils.PathSearch("service_type", v, nil),
+			"metadata":               utils.PathSearch("metadata", v, nil),
+			"dedicated_storage_id":   utils.PathSearch("dedicated_storage_id", v, nil),
+			"dedicated_storage_name": utils.PathSearch("dedicated_storage_name", v, nil),
+			"progress":               progress,
 		})
 	}
 	return rst

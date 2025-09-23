@@ -20,7 +20,8 @@
               },
               "enterprise_project_id": {
                 "type": "string",
-                "required": true
+                "optional": true,
+                "computed": true
               },
               "id": {
                 "type": "string",
@@ -43,7 +44,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "updated_at": {
                 "type": "string",
@@ -75,8 +77,7 @@
                     },
                     "destination_ip_address": {
                       "type": "string",
-                      "optional": true,
-                      "computed": true
+                      "optional": true
                     },
                     "destination_ip_address_group_id": {
                       "type": "string",
@@ -92,8 +93,7 @@
                     },
                     "name": {
                       "type": "string",
-                      "optional": true,
-                      "computed": true
+                      "optional": true
                     },
                     "protocol": {
                       "type": "string",
@@ -105,8 +105,7 @@
                     },
                     "source_ip_address": {
                       "type": "string",
-                      "optional": true,
-                      "computed": true
+                      "optional": true
                     },
                     "source_ip_address_group_id": {
                       "type": "string",
@@ -133,8 +132,7 @@
                     },
                     "destination_ip_address": {
                       "type": "string",
-                      "optional": true,
-                      "computed": true
+                      "optional": true
                     },
                     "destination_ip_address_group_id": {
                       "type": "string",
@@ -150,8 +148,7 @@
                     },
                     "name": {
                       "type": "string",
-                      "optional": true,
-                      "computed": true
+                      "optional": true
                     },
                     "protocol": {
                       "type": "string",
@@ -163,8 +160,7 @@
                     },
                     "source_ip_address": {
                       "type": "string",
-                      "optional": true,
-                      "computed": true
+                      "optional": true
                     },
                     "source_ip_address_group_id": {
                       "type": "string",

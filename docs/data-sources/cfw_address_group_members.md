@@ -15,7 +15,7 @@ Use this data source to get the list of CFW address group members.
 ```hcl
 variable "group_id" {}
 
-resource "huaweicloud_cfw_address_group_members" "test" {
+data "huaweicloud_cfw_address_group_members" "test" {
   group_id = var.group_id
 }
 ```
@@ -38,7 +38,8 @@ The following arguments are supported:
 * `fw_instance_id` - (Optional, String) Specifies the firewall instance ID.
 
 * `query_address_set_type` - (Optional, String) Specifies the query address group type.
-  **0** means custom define address set, **1** means predefined address set.
+  + **0** means custom define address set.
+  + **1** means predefined address set.
 
 ## Attribute Reference
 

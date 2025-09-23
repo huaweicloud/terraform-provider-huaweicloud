@@ -9,6 +9,10 @@
                 "type": "string",
                 "required": true
               },
+              "common_name": {
+                "type": "string",
+                "computed": true
+              },
               "create_time": {
                 "type": "string",
                 "computed": true
@@ -21,6 +25,14 @@
                 "type": "string",
                 "optional": true
               },
+              "enc_certificate": {
+                "type": "string",
+                "optional": true
+              },
+              "enc_private_key": {
+                "type": "string",
+                "optional": true
+              },
               "enterprise_project_id": {
                 "type": "string",
                 "optional": true,
@@ -28,6 +40,10 @@
                 "forcenew": true
               },
               "expire_time": {
+                "type": "string",
+                "computed": true
+              },
+              "fingerprint": {
                 "type": "string",
                 "computed": true
               },
@@ -47,11 +63,23 @@
                 "type": "string",
                 "computed": true
               },
+              "scm_certificate_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "subject_alternative_names": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              },
               "type": {
                 "type": "string",
                 "optional": true,
-                "forcenew": true,
-                "default": "server"
+                "computed": true,
+                "forcenew": true
               },
               "update_time": {
                 "type": "string",

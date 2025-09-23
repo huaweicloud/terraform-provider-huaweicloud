@@ -1,32 +1,36 @@
 ---
 subcategory: "API Gateway (Dedicated APIG)"
 layout: "huaweicloud"
-page_title: "HuaweiCloud: huaweicloud_apig_plugin_associate"
-description: ""
+page_title: "HuaweiCloud: huaweicloud_apig_plugin_batch_apis_associate"
+description: |-
+  Use this resource to bind the APIs to the specified plugin within HuaweiCloud.
 ---
 
-# huaweicloud_apig_plugin_associate
+# huaweicloud_apig_plugin_batch_apis_associate
 
-Use this resource to bind the APIs to the plugin within HuaweiCloud.
+Use this resource to bind the APIs to the specified plugin within HuaweiCloud.
 
--> A published API can only create one `huaweicloud_apig_plugin_associate` resource.
-   For each type of plugin, the API can only bind at most one.
+~> Before binding the API(s), please make sure all APIs have been published, otherwise you will receive a service error.
+
+-> If this resource was imported and no changes were deployed before deletion (a change must be triggered to apply the
+   `api_ids` configured in the script), terraform will delete all bound APIs for current configured plugin in
+   specified publish environment. Otherwise, terraform will only delete the bound API(s) managed by the last change.
 
 ## Example Usage
 
 ```hcl
 variable "instance_id" {}
 variable "plugin_id" {}
-variable "publish_environment_id" {}
-variable "bind_api_ids" {
+variable "published_env_id" {}
+variable "published_api_ids" {
   type = list(string)
 }
 
-resource "huaweicloud_apig_plugin_associate" "test" {
+resource "huaweicloud_apig_plugin_batch_apis_associate" "test" {
   instance_id = var.instance_id
   plugin_id   = var.plugin_id
-  env_id      = var.publish_environment_id
-  api_ids     = var.bind_api_ids
+  env_id      = var.published_env_id
+  api_ids     = var.published_api_ids
 }
 ```
 
@@ -61,5 +65,5 @@ Associate resources can be imported using their related dedicated instance ID of
 `env_id`, separated by slashes, e.g.
 
 ```bash
-$ terraform import huaweicloud_apig_plugin_associate.test <instance_id>/<plugin_id>/<env_id>
+$ terraform import huaweicloud_apig_plugin_batch_apis_associate.test <instance_id>/<plugin_id>/<env_id>
 ```

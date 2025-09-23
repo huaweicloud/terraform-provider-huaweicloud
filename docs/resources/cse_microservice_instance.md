@@ -9,18 +9,29 @@ description: ""
 
 Manages a dedicated microservice instance resource within HuaweiCloud.
 
+-> Before creating a configuration, make sure the engine has enabled the rules shown in the appendix
+   [table](#microservice_instance_default_engine_access_rules).
+
 ## Example Usage
 
 ### Create a microservice instance under a microservice with RBAC authentication of engine disabled
 
 ```hcl
-variable "engine_conn_addr" {}
+variable "microservice_engine_id" {} // Enable the EIP access
 variable "microservice_id" {}
 variable "region_name" {}
 variable "az_name" {}
 
+data "huaweicloud_cse_microservice_engines" "test" {}
+
+locals {
+  fileter_engines = [for o in data.huaweicloud_cse_microservice_engines.test.engines : o if o.id == var.microservice_engine_id]
+}
+
 resource "huaweicloud_cse_microservice_instance" "test" {
-  connect_address = var.engine_conn_addr
+  auth_address    = local.fileter_engines[0].service_registry_addresses[0].public
+  connect_address = local.fileter_engines[0].service_registry_addresses[0].public
+
   microservice_id = var.microservice_id
   host_name       = "localhost"
   endpoints       = ["grpc://127.0.1.132:9980", "rest://127.0.0.111:8081"]
@@ -49,14 +60,24 @@ resource "huaweicloud_cse_microservice_instance" "test" {
 ### Create a microservice instance under a microservice with RBAC authentication of engine enabled
 
 ```hcl
-variable "engine_conn_addr" {}
+variable "microservice_engine_id" {} // Enable the EIP access
+variable "microservice_engine_admin_password" {}
 variable "microservice_id" {}
 variable "region_name" {}
 variable "az_name" {}
-variable "admin_pass" {}
+
+data "huaweicloud_cse_microservice_engines" "test" {}
+
+locals {
+  fileter_engines = [for o in data.huaweicloud_cse_microservice_engines.test.engines : o if o.id == var.microservice_engine_id]
+}
 
 resource "huaweicloud_cse_microservice_instance" "test" {
-  connect_address = var.engine_conn_addr
+  auth_address    = local.fileter_engines[0].service_registry_addresses[0].public
+  connect_address = local.fileter_engines[0].service_registry_addresses[0].public
+  admin_user      = "root"
+  admin_pass      = var.microservice_engine_admin_password
+
   microservice_id = var.microservice_id
   host_name       = "localhost"
   endpoints       = ["grpc://127.0.1.132:9980", "rest://127.0.0.111:8081"]
@@ -79,9 +100,6 @@ resource "huaweicloud_cse_microservice_instance" "test" {
     region            = var.region_name
     availability_zone = var.az_name
   }
-
-  admin_user = "root"
-  admin_pass = var.admin_pass
 }
 ```
 
@@ -89,10 +107,31 @@ resource "huaweicloud_cse_microservice_instance" "test" {
 
 The following arguments are supported:
 
-* `connect_address` - (Required, String, ForceNew) Specifies the connection address of service registry center for the
-  specified dedicated CSE engine. Changing this will create a new microservice instance.
+* `auth_address` - (Required, String, ForceNew) Specifies the address that used to request the access token.  
+  Usually is the connection address of service center.  
+  Changing this will create a new resource.
 
--> We are only support IPv4 addresses yet.
+* `connect_address` - (Required, String, ForceNew) Specifies the address that used to access engine and manages
+  microservice instance.  
+  Usually is the connection address of service center.  
+  Changing this will create a new resource.
+
+-> We are only support IPv4 addresses yet (for `auth_address` and `connect_address`).
+
+* `admin_user` - (Optional, String, ForceNew) Specifies the account name for **RBAC** login.
+  Changing this will create a new resource.
+
+* `admin_pass` - (Optional, String, ForceNew) Specifies the account password for **RBAC** login.
+  The password format must meet the following conditions:
+  + Must be `8` to `32` characters long.
+  + A password must contain at least one digit, one uppercase letter, one lowercase letter, and one special character
+    (-~!@#%^*_=+?$&()|<>{}[]).
+  + Cannot be the account name or account name spelled backwards.
+  + The password can only start with a letter.
+
+  Changing this will create a new resource.
+
+-> Both `admin_user` and `admin_pass` are required if **RBAC** is enabled for the microservice engine.
 
 * `microservice_id` - (Required, String, ForceNew) Specifies the ID of the dedicated microservice to which the instance
   belongs. Changing this will create a new microservice instance.
@@ -168,17 +207,44 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Import
 
-Microservices can be imported using related `connect_address`, `microservice_id` and their `id`, separated by a
-slash (/), e.g.
+Microservice instances can be imported using related `auth_address`, `connect_address`, `microservice_id` and their `id`,
+separated by the slashes (/), e.g.
 
-```
-$ terraform import huaweicloud_cse_microservice_instance.test https://124.70.26.32:30100/f14960ba495e03f59f85aacaaafbdef3fbff3f0d/336e7428dd9411eca913fa163e7364b7
-```
-
-If you enabled the **RBAC** authorization, you also need to provide the account name and password, e.g.
-
-```
-$ terraform import huaweicloud_cse_microservice_instance.test 'https://124.70.26.32:30100/f14960ba495e03f59f85aacaaafbdef3fbff3f0d/336e7428dd9411eca913fa163e7364b7/root/Test!123'
+```bash
+$ terraform import huaweicloud_cse_microservice_instance.test <auth_address>/<connect_address>/<microservice_id>/<id>
 ```
 
-The single quotes can help you solve the problem of special characters reporting errors on bash.
+If you enabled the **RBAC** authorization in the microservice engine, it's necessary to provide the account
+name (`admin_user`) and password (`admin_pass`) of the microservice engine.
+All fields separated by the slashes (/), e.g.
+
+```bash
+$ terraform import huaweicloud_cse_microservice_instance.test <auth_address>/<connect_address>/<microservice_id>/<id>/<admin_user>/<admin_pass>
+```
+
+The single quotes (') or backslashes (\\) can help you solve the problem of special characters reporting errors on bash.
+
+```bash
+$ terraform import huaweicloud_cse_microservice_instance.test https://124.70.26.32:30100/https://124.70.26.32:30100/f14960ba495e03f59f85aacaaafbdef3fbff3f0d/336e7428dd9411eca913fa163e7364b7/root/Test\!123
+```
+
+```bash
+$ terraform import huaweicloud_cse_microservice_instance.test 'https://124.70.26.32:30100/https://124.70.26.32:30100/f14960ba495e03f59f85aacaaafbdef3fbff3f0d/336e7428dd9411eca913fa163e7364b7/root/Test!123'
+```
+
+## Appendix
+
+<a name="microservice_instance_default_engine_access_rules"></a>
+Security group rules required to access the engine:
+(Remote is not the minimum range and can be adjusted according to business needs)
+
+| Direction | Priority | Action | Protocol | Ports         | Ethertype | Remote                |
+| --------- | -------- | ------ | -------- | ------------- | --------- | --------------------- |
+| Ingress   | 1        | Allow  | ICMP     | All           | Ipv6      | ::/0                  |
+| Ingress   | 1        | Allow  | TCP      | 30100-30130   | Ipv6      | ::/0                  |
+| Ingress   | 1        | Allow  | All      | All           | Ipv6      | cse-engine-default-sg |
+| Ingress   | 1        | Allow  | ICMP     | All           | Ipv4      | 0.0.0.0/0             |
+| Ingress   | 1        | Allow  | TCP      | 30100-30130   | Ipv4      | 0.0.0.0/0             |
+| Ingress   | 1        | Allow  | All      | All           | Ipv4      | cse-engine-default-sg |
+| Egress    | 100      | Allow  | All      | All           | Ipv6      | ::/0                  |
+| Egress    | 100      | Allow  | All      | All           | Ipv4      | 0.0.0.0/0             |

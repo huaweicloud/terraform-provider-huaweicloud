@@ -88,14 +88,19 @@ func TestAccGateway_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "name", name+"-update"),
 					resource.TestCheckResourceAttrPair(rName, "local_subnets.0", "huaweicloud_vpc_subnet.test", "cidr"),
 					resource.TestCheckResourceAttr(rName, "local_subnets.1", "192.168.2.0/24"),
+					resource.TestCheckResourceAttr(rName, "flavor", "Professional2"),
+					resource.TestCheckResourceAttrPair(rName, "availability_zones.0",
+						"data.huaweicloud_vpn_gateway_availability_zones.test", "names.0"),
+					resource.TestCheckResourceAttrPair(rName, "availability_zones.1",
+						"data.huaweicloud_vpn_gateway_availability_zones.test", "names.1"),
 					resource.TestCheckResourceAttr(rName, "tags.key", "val"),
 					resource.TestCheckResourceAttr(rName, "tags.foo", "bar-update"),
 				),
 			},
 			{
-				ResourceName:      rName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            rName,
+				ImportState:             true,
+				ImportStateVerifyIgnore: []string{"delete_eip_on_termination"},
 			},
 		},
 	})
@@ -183,9 +188,9 @@ func TestAccGateway_activeStandbyHAMode(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      rName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            rName,
+				ImportState:             true,
+				ImportStateVerifyIgnore: []string{"delete_eip_on_termination"},
 			},
 		},
 	})
@@ -290,7 +295,7 @@ func TestAccGateway_certificate(t *testing.T) {
 			{
 				ResourceName:            rName,
 				ImportState:             true,
-				ImportStateVerifyIgnore: []string{"certificate"},
+				ImportStateVerifyIgnore: []string{"certificate", "delete_eip_on_termination"},
 			},
 		},
 	})
@@ -341,9 +346,9 @@ func TestAccGateway_deprecated(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      rName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            rName,
+				ImportState:             true,
+				ImportStateVerifyIgnore: []string{"delete_eip_on_termination"},
 			},
 		},
 	})
@@ -386,9 +391,60 @@ func TestAccGateway_withER(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      rName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            rName,
+				ImportState:             true,
+				ImportStateVerifyIgnore: []string{"delete_eip_on_termination"},
+			},
+		},
+	})
+}
+
+func TestAccGateway_deleteEipOnTermination(t *testing.T) {
+	var obj interface{}
+
+	name := acceptance.RandomAccResourceName()
+	rName := "huaweicloud_vpn_gateway.test"
+	eip1RName := "huaweicloud_vpc_eip.test1"
+	eip2RName := "huaweicloud_vpc_eip.test2"
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&obj,
+		getGatewayResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      nil,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccGateway_deleteEipOnTermination(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "ha_mode", "active-active"),
+					resource.TestCheckResourceAttr(rName, "delete_eip_on_termination", "false"),
+					resource.TestCheckResourceAttrPair(rName, "connect_subnet", "huaweicloud_vpc_subnet.test", "id"),
+					resource.TestCheckResourceAttrPair(rName, "vpc_id", "huaweicloud_vpc.test", "id"),
+					resource.TestCheckResourceAttr(rName, "status", "ACTIVE"),
+					resource.TestCheckResourceAttrPair(rName, "local_subnets.0", "huaweicloud_vpc_subnet.test", "cidr"),
+					resource.TestCheckResourceAttrPair(rName, "eip1.0.id", "huaweicloud_vpc_eip.test1", "id"),
+					resource.TestCheckResourceAttrPair(rName, "eip2.0.id", "huaweicloud_vpc_eip.test2", "id"),
+					resource.TestCheckResourceAttrPair(rName, "availability_zones.0",
+						"data.huaweicloud_vpn_gateway_availability_zones.test", "names.0"),
+					resource.TestCheckResourceAttrPair(rName, "availability_zones.1",
+						"data.huaweicloud_vpn_gateway_availability_zones.test", "names.1"),
+					resource.TestCheckResourceAttr(rName, "tags.key", "val"),
+					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
+				),
+			},
+			{
+				Config: testGateway_base(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(eip1RName, "id"),
+					resource.TestCheckResourceAttrSet(eip2RName, "id"),
+				),
 			},
 		},
 	})
@@ -478,6 +534,8 @@ resource "huaweicloud_vpn_gateway" "test" {
   vpc_id             = huaweicloud_vpc.test.id
   local_subnets      = [huaweicloud_vpc_subnet.test.cidr, "192.168.2.0/24"]
   connect_subnet     = huaweicloud_vpc_subnet.test.id
+  flavor             = "Professional2"
+  
   availability_zones = [
     data.huaweicloud_vpn_gateway_availability_zones.test.names[0],
     data.huaweicloud_vpn_gateway_availability_zones.test.names[1]
@@ -654,8 +712,8 @@ resource "huaweicloud_vpn_gateway" "test" {
 func testGateway_GMcertificate(name string, cert certificate) string {
 	return fmt.Sprintf(`
 data "huaweicloud_vpn_gateway_availability_zones" "test" {
-  attachment_type = "er"
-  flavor          = "GM"
+  attachment_type = "vpc"
+  flavor          = "gm"
 }
 
 resource "huaweicloud_vpc" "test" {
@@ -692,6 +750,38 @@ resource "huaweicloud_vpn_gateway" "test" {
   }
 }
 `, name, cert.name, cert.content, cert.privateKey, cert.certificateChain, cert.encCertificate, cert.encPrivateKey)
+}
+
+func testAccGateway_deleteEipOnTermination(name string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_vpn_gateway" "test" {
+  name                      = "%s"
+  vpc_id                    = huaweicloud_vpc.test.id
+  local_subnets             = [huaweicloud_vpc_subnet.test.cidr]
+  connect_subnet            = huaweicloud_vpc_subnet.test.id
+  delete_eip_on_termination = false
+
+  availability_zones = [
+    data.huaweicloud_vpn_gateway_availability_zones.test.names[0],
+    data.huaweicloud_vpn_gateway_availability_zones.test.names[1]
+  ]
+
+  eip1 {
+    id = huaweicloud_vpc_eip.test1.id
+  }
+
+  eip2 {
+    id = huaweicloud_vpc_eip.test2.id
+  }
+
+  tags = {
+    key = "val"
+    foo = "bar"
+  }
+}
+`, testGateway_base(name), name)
 }
 
 type certificate struct {

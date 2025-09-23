@@ -1,0 +1,72 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_access_analyzer_archive_rules": {
+          "block": {
+            "attributes": {
+              "analyzer_id": {
+                "type": "string",
+                "required": true
+              },
+              "archive_rules": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "filters": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "criterion": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "contains": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "eq": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "exists": "string",
+                                  "neq": [
+                                    "list",
+                                    "string"
+                                  ]
+                                }
+                              ]
+                            ],
+                            "key": "string"
+                          }
+                        ]
+                      ],
+                      "id": "string",
+                      "name": "string",
+                      "updated_at": "string",
+                      "urn": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

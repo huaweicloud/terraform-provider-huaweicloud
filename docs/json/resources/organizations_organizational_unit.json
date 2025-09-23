@@ -30,7 +30,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "urn": {
                 "type": "string",

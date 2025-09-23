@@ -54,6 +54,10 @@
                             "type": "string",
                             "optional": true
                           },
+                          "dimension": {
+                            "type": "string",
+                            "optional": true
+                          },
                           "name": {
                             "type": "string",
                             "required": true
@@ -74,6 +78,10 @@
                     "device_command": {
                       "block": {
                         "attributes": {
+                          "buffer_timeout": {
+                            "type": "number",
+                            "optional": true
+                          },
                           "command_body": {
                             "type": "string",
                             "required": true
@@ -85,6 +93,14 @@
                           "device_id": {
                             "type": "string",
                             "required": true
+                          },
+                          "mode": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "response_timeout": {
+                            "type": "number",
+                            "optional": true
                           },
                           "service_id": {
                             "type": "string",
@@ -100,7 +116,13 @@
                         "attributes": {
                           "message_content": {
                             "type": "string",
-                            "required": true
+                            "optional": true,
+                            "computed": true
+                          },
+                          "message_template_name": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
                           },
                           "message_title": {
                             "type": "string",
@@ -193,6 +215,13 @@
                             "type": "string",
                             "optional": true
                           },
+                          "in_values": {
+                            "type": [
+                              "list",
+                              "string"
+                            ],
+                            "optional": true
+                          },
                           "operator": {
                             "type": "string",
                             "required": true
@@ -212,7 +241,37 @@
                           },
                           "value": {
                             "type": "string",
-                            "required": true
+                            "optional": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "device_linkage_status_condition": {
+                      "block": {
+                        "attributes": {
+                          "device_id": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "duration": {
+                            "type": "number",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "product_id": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "status_list": {
+                            "type": [
+                              "list",
+                              "string"
+                            ],
+                            "optional": true,
+                            "computed": true
                           }
                         }
                       },

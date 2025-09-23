@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_cph_encode_servers
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CPH
+paths:
+    /v1/{project_id}/cloud-phone/encode-servers:
+        GET:
+            tag: CPH

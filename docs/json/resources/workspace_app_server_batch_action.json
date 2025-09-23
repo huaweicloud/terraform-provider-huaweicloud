@@ -1,0 +1,45 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_workspace_app_server_batch_action": {
+          "block": {
+            "attributes": {
+              "content": {
+                "type": "string",
+                "description": "The JSON string content for the batch operation (action) request.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "max_retries": {
+                "type": "number",
+                "description": "The maximum number of retries for the batch operation (action) when encountering 409 conflict errors.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the APP servers to be batch operated are located.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The batch operation (action) type for the APP servers.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

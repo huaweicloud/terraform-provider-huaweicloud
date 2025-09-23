@@ -2,6 +2,7 @@ package hss
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -9,72 +10,71 @@ import (
 
 	"github.com/chnsz/golangsdk"
 
-	hssv5model "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/hss/v5/model"
-
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/hss"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func getHostProtectionFunc(conf *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	client, err := conf.HcHssV5Client(acceptance.HW_REGION_NAME)
-	if err != nil {
-		return nil, fmt.Errorf("error creating HSS v5 client: %s", err)
-	}
-
+func getHostProtectionResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	var (
-		epsId = acceptance.HW_ENTERPRISE_PROJECT_ID_TEST
-		id    = state.Primary.ID
+		region = acceptance.HW_REGION_NAME
+		epsId  = hss.QueryAllEpsValue
+		id     = state.Primary.ID
 	)
 
-	// If the enterprise project ID is not set during query, query all enterprise projects.
-	if epsId == "" {
-		epsId = hss.QueryAllEpsValue
-	}
-	listHostOpts := hssv5model.ListHostStatusRequest{
-		Region:              &acceptance.HW_REGION_NAME,
-		EnterpriseProjectId: utils.String(epsId),
-		HostId:              utils.String(id),
-	}
-
-	resp, err := client.ListHostStatus(&listHostOpts)
+	client, err := cfg.NewServiceClient("hss", region)
 	if err != nil {
-		return nil, fmt.Errorf("error querying HSS hosts: %s", err)
+		return nil, fmt.Errorf("error creating HSS client: %s", err)
 	}
 
-	if resp == nil || resp.DataList == nil {
-		return nil, fmt.Errorf("the host (%s) for HSS host protection does not exist", id)
+	getPath := client.Endpoint + "v5/{project_id}/host-management/hosts"
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath += fmt.Sprintf("?enterprise_project_id=%v&host_id=%v", epsId, id)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
 
-	hostList := *resp.DataList
-	if len(hostList) == 0 || utils.StringValue(hostList[0].ProtectStatus) == string(hss.ProtectStatusClosed) {
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving HSS host, %s", err)
+	}
+
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return nil, err
+	}
+
+	hostResp := utils.PathSearch("data_list[0]", getRespBody, nil)
+	protectStatus := utils.PathSearch("protect_status", hostResp, "").(string)
+	if hostResp == nil || protectStatus == string(hss.ProtectStatusClosed) {
 		return nil, golangsdk.ErrDefault404{}
 	}
 
-	return hostList[0], nil
+	return hostResp, nil
 }
 
 func TestAccHostProtection_basic(t *testing.T) {
 	var (
-		host  *hssv5model.Host
+		host  interface{}
 		rName = "huaweicloud_hss_host_protection.test"
 	)
 
 	rc := acceptance.InitResourceCheck(
 		rName,
 		&host,
-		getHostProtectionFunc,
+		getHostProtectionResourceFunc,
 	)
 
+	// Because after closing the protection, the ECS instance will automatically switch to free basic protection,
+	// so avoid CheckDestroy here.
+	// lintignore:AT001
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckHSSHostProtectionHostId(t)
-			acceptance.TestAccPreCheckHSSHostProtectionQuotaId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccHostProtection_basic(),
@@ -83,8 +83,7 @@ func TestAccHostProtection_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "host_id", acceptance.HW_HSS_HOST_PROTECTION_HOST_ID),
 					resource.TestCheckResourceAttr(rName, "version", "hss.version.basic"),
 					resource.TestCheckResourceAttr(rName, "charging_mode", "prePaid"),
-					resource.TestCheckResourceAttr(rName, "quota_id", acceptance.HW_HSS_HOST_PROTECTION_QUOTA_ID),
-					resource.TestCheckResourceAttr(rName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttrSet(rName, "enterprise_project_id"),
 					resource.TestCheckResourceAttrSet(rName, "host_name"),
 					resource.TestCheckResourceAttrSet(rName, "host_status"),
 					resource.TestCheckResourceAttrSet(rName, "private_ip"),
@@ -95,6 +94,7 @@ func TestAccHostProtection_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "detect_result"),
 					resource.TestCheckResourceAttrSet(rName, "asset_value"),
 					resource.TestCheckResourceAttrSet(rName, "open_time"),
+					resource.TestCheckResourceAttrPair(rName, "quota_id", "huaweicloud_hss_quota.test", "id"),
 				),
 			},
 			{
@@ -104,7 +104,7 @@ func TestAccHostProtection_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "host_id", acceptance.HW_HSS_HOST_PROTECTION_HOST_ID),
 					resource.TestCheckResourceAttr(rName, "version", "hss.version.enterprise"),
 					resource.TestCheckResourceAttr(rName, "charging_mode", "postPaid"),
-					resource.TestCheckResourceAttr(rName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
+					resource.TestCheckResourceAttrSet(rName, "enterprise_project_id"),
 					resource.TestCheckResourceAttrSet(rName, "host_name"),
 					resource.TestCheckResourceAttrSet(rName, "host_status"),
 					resource.TestCheckResourceAttrSet(rName, "private_ip"),
@@ -122,34 +122,42 @@ func TestAccHostProtection_basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"quota_id",
+					"quota_id", "is_wait_host_available",
 				},
 			},
 		},
 	})
 }
 
+func testAccHostProtection_base() string {
+	return `
+resource "huaweicloud_hss_quota" "test" {
+  version     = "hss.version.basic"
+  period_unit = "month"
+  period      = 1
+}`
+}
+
 func testAccHostProtection_basic() string {
 	return fmt.Sprintf(`
+%[1]s
 
 resource "huaweicloud_hss_host_protection" "test" {
-  host_id               = "%[1]s"
-  version               = "hss.version.basic"
-  charging_mode         = "prePaid"
-  quota_id              = "%[2]s"
-  enterprise_project_id = "%[3]s"
+  host_id                = "%[2]s"
+  version                = "hss.version.basic"
+  charging_mode          = "prePaid"
+  quota_id               = huaweicloud_hss_quota.test.id
+  is_wait_host_available = true
 }
-`, acceptance.HW_HSS_HOST_PROTECTION_HOST_ID, acceptance.HW_HSS_HOST_PROTECTION_QUOTA_ID, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, testAccHostProtection_base(), acceptance.HW_HSS_HOST_PROTECTION_HOST_ID)
 }
 
 func testAccHostProtection_update() string {
 	return fmt.Sprintf(`
-
 resource "huaweicloud_hss_host_protection" "test" {
-  host_id               = "%[1]s"
-  version               = "hss.version.enterprise"
-  charging_mode         = "postPaid"
-  enterprise_project_id = "%[2]s"
+  host_id       = "%[1]s"
+  version       = "hss.version.enterprise"
+  charging_mode = "postPaid"
 }
-`, acceptance.HW_HSS_HOST_PROTECTION_HOST_ID, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, acceptance.HW_HSS_HOST_PROTECTION_HOST_ID)
 }

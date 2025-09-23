@@ -23,7 +23,8 @@
                       "generation": "string",
                       "id": "string",
                       "memory_size": "number",
-                      "performance_type": "string"
+                      "performance_type": "string",
+                      "storage_type": "string"
                     }
                   ]
                 ],
@@ -55,6 +56,10 @@
               "region": {
                 "type": "string",
                 "computed": true
+              },
+              "storage_type": {
+                "type": "string",
+                "optional": true
               }
             }
           },

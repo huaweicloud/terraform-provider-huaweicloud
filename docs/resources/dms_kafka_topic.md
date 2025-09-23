@@ -31,11 +31,11 @@ The following arguments are supported:
 * `instance_id` - (Required, String, ForceNew) Specifies the ID of the DMS kafka instance to which the topic belongs.
   Changing this creates a new resource.
 
-* `name` - (Required, String, ForceNew) Specifies the name of the topic. The name starts with a letter, consists of 4 to
-  64 characters, and supports only letters, digits, hyphens (-) and underscores (_). Changing this creates a new
-  resource.
+* `name` - (Required, String, ForceNew) Specifies the name of the topic. The name starts with a letter, consists of 3 to
+  200 characters, and supports only letters, digits, hyphens (-), underscores (_) and periods (.).
+  Changing this creates a new resource.
 
-* `partitions` - (Required, Int) Specifies the partition number. The value ranges from **1** to **100**.
+* `partitions` - (Required, Int) Specifies the partition number. The value ranges from `1` to `200`.
   
   -> Only support to add partitions.
 
@@ -44,10 +44,10 @@ The following arguments are supported:
   -> It's only valid when adding partitions.
 
 * `replicas` - (Optional, Int, ForceNew) Specifies the replica number.
-  The value ranges from **1** to **3** and defaults to **3**. Changing this creates a new resource.
+  The value ranges from `1` to `3` and defaults to `3`. Changing this creates a new resource.
 
 * `aging_time` - (Optional, Int) Specifies the aging time in hours.
-  The value ranges from **1** to **168** and defaults to **72**.
+  The value ranges from `1` to `720` and defaults to `72`.
 
 * `sync_replication` - (Optional, Bool) Whether or not to enable synchronous replication.
 
@@ -66,7 +66,7 @@ The `configs` block supports:
 
 * `value` - (Required, String) Specifies the configuration value.
 
-  -> When `name` is **max.message.bytes**, `value` ranges from **0** to **10485760**.
+  -> When `name` is **max.message.bytes**, `value` ranges from `0` to `10,485,760`.
   When `name` is **message.timestamp.type**, `value` can be **LogAppendTime** and **CreateTime**.
 
 ## Attribute Reference

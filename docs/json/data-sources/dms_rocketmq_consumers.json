@@ -1,0 +1,82 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dms_rocketmq_consumers": {
+          "block": {
+            "attributes": {
+              "clients": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "client_address": "string",
+                      "client_id": "string",
+                      "language": "string",
+                      "subscriptions": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "expression": "string",
+                            "topic": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "version": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of consumer subscription details.",
+                "computed": true
+              },
+              "group": {
+                "type": "string",
+                "description": "Specifies the consumer group name.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the instance ID.",
+                "required": true
+              },
+              "is_detail": {
+                "type": "bool",
+                "description": "Specifies whether to query the consumer details.",
+                "optional": true
+              },
+              "online": {
+                "type": "bool",
+                "description": "Indicates whether the consumer group is online.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "subscription_consistency": {
+                "type": "bool",
+                "description": "Indicates whether subscriptions are consistent.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "RocketMQ",
+            "name": "Distributed Message Service for RocketMQ",
+            "catalog": "Middleware",
+            "name_cn": "分布式消息服务 RocketMQ",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

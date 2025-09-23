@@ -15,7 +15,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -34,8 +33,9 @@ func ResourceCentralNetworkPolicyApply() *schema.Resource {
 		ReadContext:   resourceCentralNetworkPolicyApplyRead,
 		DeleteContext: resourceCentralNetworkPolicyApplyDelete,
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			StateContext: resourceCentralNetworkPolicyApplyImportState,
 		},
+
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
 			Update: schema.DefaultTimeout(10 * time.Minute),
@@ -157,25 +157,19 @@ func centralNetworkPolicyApplyWaitingForStateCompleted(ctx context.Context, d *s
 				return nil, "ERROR", err
 			}
 			jsonPath := fmt.Sprintf("central_network_policies[?id =='%s']|[0].is_applied", policyId)
-			statusRaw, err := jmespath.Search(jsonPath, applyPolicyRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `central_network_policies.is_applied`)
+			statusRaw := utils.PathSearch(jsonPath, applyPolicyRespBody, nil)
+			if statusRaw == nil {
+				return nil, "ERROR", fmt.Errorf("error parsing %s from response body", `central_network_policies.is_applied`)
 			}
 
 			status := fmt.Sprintf("%v", statusRaw)
 
-			targetStatus := []string{
-				"true",
-			}
-			if utils.StrSliceContains(targetStatus, status) {
-				return applyPolicyRespBody, "COMPLETED", nil
+			if status == "false" {
+				return applyPolicyRespBody, "PENDING", nil
 			}
 
-			pendingStatus := []string{
-				"false",
-			}
-			if utils.StrSliceContains(pendingStatus, status) {
-				return applyPolicyRespBody, "PENDING", nil
+			if status == "true" {
+				return applyPolicyRespBody, "COMPLETED", nil
 			}
 
 			return applyPolicyRespBody, status, nil
@@ -227,10 +221,10 @@ func resourceCentralNetworkPolicyApplyRead(_ context.Context, d *schema.Resource
 		return diag.FromErr(err)
 	}
 
-	getCentralNetworkPolicyApplyRespBody = utils.PathSearch("central_network_policies[?is_applied]|[0]",
-		getCentralNetworkPolicyApplyRespBody, nil)
+	jsonPath := fmt.Sprintf("central_network_policies[?id =='%s' && is_applied == `true`]|[0]", d.Get("policy_id").(string))
+	getCentralNetworkPolicyApplyRespBody = utils.PathSearch(jsonPath, getCentralNetworkPolicyApplyRespBody, nil)
 	if getCentralNetworkPolicyApplyRespBody == nil {
-		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "no data found")
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "no policy found")
 	}
 
 	mErr = multierror.Append(
@@ -282,9 +276,15 @@ func resourceCentralNetworkPolicyApplyDelete(ctx context.Context, d *schema.Reso
 		return diag.FromErr(err)
 	}
 
+	jsonPath := fmt.Sprintf("central_network_policies[?id =='%s' && is_applied == `true`]|[0]", d.Get("policy_id").(string))
+	appliedID := utils.PathSearch(jsonPath, getCentralNetworkPolicyApplyRespBody, nil)
+	if appliedID == nil {
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "no policy found")
+	}
+
 	defaultId := utils.PathSearch("central_network_policies[?version == `1`]|[0].id", getCentralNetworkPolicyApplyRespBody, nil)
 	if defaultId == nil {
-		return diag.Errorf("error applying central network policy to none: %s", err)
+		return diag.Errorf("error applying central network policy to none: no default policy found")
 	}
 
 	// apply default policy
@@ -293,4 +293,16 @@ func resourceCentralNetworkPolicyApplyDelete(ctx context.Context, d *schema.Reso
 		return diag.Errorf("error applying central network policy to none: %s", err)
 	}
 	return nil
+}
+
+func resourceCentralNetworkPolicyApplyImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
+	parts := strings.Split(d.Id(), "/")
+	if len(parts) != 2 {
+		return nil, fmt.Errorf("invalid format specified for import ID, must be <central_network_id>/<policy_id>")
+	}
+
+	d.SetId(parts[0])
+	d.Set("policy_id", parts[1])
+
+	return []*schema.ResourceData{d}, nil
 }

@@ -30,6 +30,11 @@
                 "computed": true,
                 "forcenew": true
               },
+              "bgp_route_limit": {
+                "type": "number",
+                "description": "The BGP route configuration.",
+                "computed": true
+              },
               "created_at": {
                 "type": "string",
                 "description": "The creation time of the virtual interface.",
@@ -70,8 +75,39 @@
                 "computed": true,
                 "forcenew": true
               },
+              "extend_attribute": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "detect_multiplier": "number",
+                      "ha_mode": "string",
+                      "ha_type": "string",
+                      "local_disclaim": "number",
+                      "min_rx_interval": "number",
+                      "min_tx_interval": "number",
+                      "remote_disclaim": "number"
+                    }
+                  ]
+                ],
+                "description": "The extended parameter information.",
+                "computed": true
+              },
+              "gateway_id": {
+                "type": "string",
+                "description": "The ID of the gateway associated with the virtual interface.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "id": {
                 "type": "string",
+                "computed": true
+              },
+              "ies_id": {
+                "type": "string",
+                "description": "The edge site ID.",
                 "computed": true
               },
               "lag_id": {
@@ -80,6 +116,11 @@
                 "optional": true,
                 "computed": true,
                 "forcenew": true
+              },
+              "lgw_id": {
+                "type": "string",
+                "description": "The ID of the local gateway, which is used in IES scenarios.",
+                "computed": true
               },
               "local_gateway_v4_ip": {
                 "type": "string",
@@ -97,6 +138,22 @@
                 "type": "string",
                 "description": "The name of the virtual interface.",
                 "required": true
+              },
+              "priority": {
+                "type": "string",
+                "description": "The priority of a virtual interface.",
+                "optional": true,
+                "computed": true
+              },
+              "rate_limit": {
+                "type": "bool",
+                "description": "Whether rate limiting is enabled on a virtual interface.",
+                "computed": true
+              },
+              "reason": {
+                "type": "string",
+                "description": "The error information if the status of a line is Error.",
+                "computed": true
               },
               "region": {
                 "type": "string",
@@ -129,11 +186,25 @@
                 "optional": true,
                 "forcenew": true
               },
+              "route_limit": {
+                "type": "number",
+                "description": "The remote subnet route configurations of the virtual interface.",
+                "computed": true
+              },
               "route_mode": {
                 "type": "string",
                 "description": "The route mode of the virtual interface.",
                 "required": true,
                 "forcenew": true
+              },
+              "service_ep_group": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The subnets that access Internet services through a connection.",
+                "optional": true,
+                "computed": true
               },
               "service_type": {
                 "type": "string",
@@ -152,7 +223,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "type": {
                 "type": "string",
@@ -160,10 +232,16 @@
                 "required": true,
                 "forcenew": true
               },
+              "updated_at": {
+                "type": "string",
+                "description": "The latest update time of the virtual interface.",
+                "computed": true
+              },
               "vgw_id": {
                 "type": "string",
                 "description": "The ID of the virtual gateway to which the virtual interface is connected.",
-                "required": true,
+                "optional": true,
+                "computed": true,
                 "forcenew": true
               },
               "vif_peers": {
@@ -191,6 +269,10 @@
                       ],
                       "remote_gateway_ip": "string",
                       "route_mode": "string",
+                      "service_ep_group": [
+                        "list",
+                        "string"
+                      ],
                       "status": "string",
                       "vif_id": "string"
                     }

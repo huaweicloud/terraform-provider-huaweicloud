@@ -1,0 +1,84 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_gaussdb_opengauss_database": {
+          "block": {
+            "attributes": {
+              "character_set": {
+                "type": "string",
+                "description": "Specifies the database character set.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "compatibility_type": {
+                "type": "string",
+                "description": "Indicates the database compatibility type.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the GaussDB instance.",
+                "required": true,
+                "forcenew": true
+              },
+              "lc_collate": {
+                "type": "string",
+                "description": "Specifies the database collation.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "lc_ctype": {
+                "type": "string",
+                "description": "Specifies the database classification.",
+                "optional": true,
+                "forcenew": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the database name.",
+                "required": true,
+                "forcenew": true
+              },
+              "owner": {
+                "type": "string",
+                "description": "Specifies the database user.",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "size": {
+                "type": "string",
+                "description": "Indicates the database size.",
+                "computed": true
+              },
+              "template": {
+                "type": "string",
+                "description": "Specifies the name of the database template.",
+                "optional": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDB",
+            "name": "GaussDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

@@ -6,8 +6,16 @@ import "github.com/chnsz/golangsdk"
 type CreateOpts struct {
 	// User name.
 	Name string `json:"user_name" required:"true"`
+	// The activation mode of the user. Defaults to USER_ACTIVATE.
+	// + USER_ACTIVATE: Activated by the user.
+	// + ADMIN_ACTIVATE: Activated by the administator.
+	ActiveType string `json:"active_type,omitempty"`
 	// User email. The value can contain from 1 to 64 characters.
-	Email string `json:"user_email" required:"true"`
+	Email string `json:"user_email,omitempty"`
+	// Mobile number of the user. At least one of email and phone number must be provided.
+	Phone string `json:"user_phone,omitempty"`
+	// Initial passowrd of the user. The parameter is required for the administator activation mode.
+	Password string `json:"password,omitempty"`
 	// The expires time of Workspace user. The format is "yyyy-MM-ddTHH:mm:ss.000 Z".
 	// 0 means it will never expire.
 	AccountExpires string `json:"account_expires,omitempty"`
@@ -81,10 +89,16 @@ func List(c *golangsdk.ServiceClient, opts ListOpts) (*QueryResp, error) {
 
 // UpdateOpts is the structure required by the Update method to change user information.
 type UpdateOpts struct {
+	// The activation mode of the user.
+	// + USER_ACTIVATE: Activated by the user.
+	// + ADMIN_ACTIVATE: Activated by the administator.
+	ActiveType string `json:"active_type,omitempty"`
 	// User email. The value can contain from 1 to 64 characters.
-	Email string `json:"user_email" required:"true"`
+	Email *string `json:"user_email,omitempty"`
 	// User description.
 	Description *string `json:"description,omitempty"`
+	// Mobile number of the user.
+	Phone *string `json:"user_phone,omitempty"`
 	// The expires time of Workspace user. The format is "yyyy-MM-ddTHH:mm:ss.000Z".
 	// 0 means it will never expire.
 	AccountExpires string `json:"account_expires,omitempty"`

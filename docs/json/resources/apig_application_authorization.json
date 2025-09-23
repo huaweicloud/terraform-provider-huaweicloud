@@ -10,7 +10,7 @@
                   "set",
                   "string"
                 ],
-                "description": "The authorized API IDs",
+                "description": "The list of API IDs to be authorized for the application.",
                 "required": true
               },
               "application_id": {

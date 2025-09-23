@@ -60,48 +60,50 @@ func groupsSchema() *schema.Resource {
 			"id": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Specifies the ID of the address group.`,
+				Description: `The ID of the address group.`,
 			},
 			"name": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Specifies the name of the address group.`,
-			},
-			"enterprise_project_id": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Specifies the enterprise project ID.`,
+				Description: `The name of the address group.`,
 			},
 			"ip_addresses": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Specifies the IP addresses or IP address ranges.`,
+				Description: `The IP addresses or IP address ranges.`,
 			},
 			"rules": {
 				Type:        schema.TypeList,
 				Elem:        rulesInfoSchema(),
 				Computed:    true,
-				Description: `Specifies the list of rules that use the IP address group.`,
+				Description: `The list of rules that use the IP address group.`,
 			},
 			"share_count": {
 				Type:        schema.TypeInt,
 				Computed:    true,
-				Description: `Specifies the number of the users share the address group.`,
+				Description: `The number of the users share the address group.`,
 			},
 			"accept_count": {
 				Type:        schema.TypeInt,
 				Computed:    true,
-				Description: `Specifies the number of users accept the address group.`,
+				Description: `The number of users accept the address group.`,
 			},
 			"process_status": {
 				Type:        schema.TypeInt,
 				Computed:    true,
-				Description: `Specifies the status of the processing.`,
+				Description: `The status of the processing.`,
 			},
 			"description": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Specifies the description of the address group.`,
+				Description: `The description of the address group.`,
+			},
+
+			// Deprecated
+			"enterprise_project_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `schema: Deprecated; The enterprise project ID.`,
 			},
 		},
 	}
@@ -137,46 +139,43 @@ func rulesInfoSchema() *schema.Resource {
 }
 
 func datasourceAddressGroupsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	var mErr *multierror.Error
-
-	// getWAFAddressGroup: Query WAF address group
 	var (
-		getWAFAddressGroupHttpUrl = "v1/{project_id}/waf/ip-groups"
-		getWAFAddressGroupProduct = "waf"
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		mErr    *multierror.Error
+		httpUrl = "v1/{project_id}/waf/ip-groups"
+		product = "waf"
 	)
-	getWAFAddressGroupClient, err := cfg.NewServiceClient(getWAFAddressGroupProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
-	getWAFAddressGroupsPath := getWAFAddressGroupClient.Endpoint + getWAFAddressGroupHttpUrl
-	getWAFAddressGroupsPath = strings.ReplaceAll(getWAFAddressGroupsPath, "{project_id}",
-		getWAFAddressGroupClient.ProjectID)
-	getWAFAddressGroupsPath += buildWAFAddressGroupsQueryParams(d, cfg)
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath += buildWAFAddressGroupsQueryParams(d, cfg)
 
-	getWAFAddressGroupsResp, err := pagination.ListAllItems(
-		getWAFAddressGroupClient,
+	resp, err := pagination.ListAllItems(
+		client,
 		"page",
-		getWAFAddressGroupsPath,
+		requestPath,
 		&pagination.QueryOpts{MarkerField: ""})
 
 	if err != nil {
-		return diag.Errorf("error retrieving address groups, %s", err)
+		return diag.Errorf("error retrieving WAF address groups, %s", err)
 	}
 
-	listWAFAddressGroupsRespJson, err := json.Marshal(getWAFAddressGroupsResp)
+	respJson, err := json.Marshal(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	var listWAFAddressGroupsRespBody interface{}
-	err = json.Unmarshal(listWAFAddressGroupsRespJson, &listWAFAddressGroupsRespBody)
+	var respBody interface{}
+	err = json.Unmarshal(respJson, &respBody)
 	if err != nil {
 		return diag.FromErr(err)
 	}
+
 	dataSourceId, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
@@ -186,7 +185,7 @@ func datasourceAddressGroupsRead(_ context.Context, d *schema.ResourceData, meta
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),
-		d.Set("groups", flattenListAddressGroupsBody(listWAFAddressGroupsRespBody)),
+		d.Set("groups", flattenListAddressGroupsBody(respBody)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())

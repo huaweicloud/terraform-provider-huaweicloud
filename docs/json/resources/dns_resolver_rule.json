@@ -7,15 +7,18 @@
             "attributes": {
               "created_at": {
                 "type": "string",
+                "description": "The creation time of the resolver rule.",
                 "computed": true
               },
               "domain_name": {
                 "type": "string",
+                "description": "The domain name.",
                 "required": true,
                 "forcenew": true
               },
               "endpoint_id": {
                 "type": "string",
+                "description": "The ID of the DNS endpoint to which the resolver rule belongs.",
                 "required": true,
                 "forcenew": true
               },
@@ -25,6 +28,7 @@
               },
               "name": {
                 "type": "string",
+                "description": "The resolver rule name.",
                 "required": true
               },
               "region": {
@@ -33,14 +37,17 @@
               },
               "rule_type": {
                 "type": "string",
+                "description": "The rule type of the resolver rule.",
                 "computed": true
               },
               "status": {
                 "type": "string",
+                "description": "The status of the resolver rule.",
                 "computed": true
               },
               "updated_at": {
                 "type": "string",
+                "description": "The latest update time of the resolver rule.",
                 "computed": true
               },
               "vpcs": {
@@ -64,11 +71,13 @@
                   "attributes": {
                     "ip": {
                       "type": "string",
+                      "description": "The IP of the IP address.",
                       "optional": true
                     }
-                  }
+                  },
+                  "description": "The IP address list of the DNS resolver rule."
                 },
-                "nesting_mode": "list",
+                "nesting_mode": "set",
                 "min_items": 1
               }
             }
@@ -76,9 +85,9 @@
           "product": {
             "short": "DNS",
             "name": "Domain Name Service",
-            "catalog": "Business Applications",
+            "catalog": "Networking",
             "name_cn": "云解析服务",
-            "catalog_cn": "企业应用"
+            "catalog_cn": "网络"
           }
         }
       }

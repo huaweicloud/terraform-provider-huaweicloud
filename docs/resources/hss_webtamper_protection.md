@@ -2,7 +2,8 @@
 subcategory: "Host Security Service (HSS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_hss_webtamper_protection"
-description: ""
+description: |-
+  Manages an HSS web tamper protection resource within HuaweiCloud.
 ---
 
 # huaweicloud_hss_webtamper_protection
@@ -38,8 +39,8 @@ The following arguments are supported:
 
   -> Before using HSS web tamper protection, it is necessary to ensure that the agent status of the host is **online**.
 
-* `quota_id` - (Optional, String) Specifies quota ID (yearly/monthly billing mode) for web tamper protection.
-  If omitted, an existing quota will be randomly selected.
+* `quota_id` - (Optional, String, ForceNew) Specifies quota ID (yearly/monthly billing mode) for web tamper protection.
+  If omitted, an existing quota will be randomly selected. Changing this parameter will create a new resource.
 
 * `is_dynamics_protect` - (Optional, Bool) Specifies whether to enable dynamic web tamper protection.
   Setting to **true** means enabling dynamic protection, while leaving it blank or setting to **false** means disabling
@@ -92,9 +93,9 @@ You can then decide if changes should be applied to the resource, or the resourc
 should be updated to align with the resource. Also, you can ignore changes as below.
 
 ```hcl
-resource "huaweicloud_hss_webtamper_protection" "test" { 
+resource "huaweicloud_hss_webtamper_protection" "test" {
   ...
-  
+
   lifecycle {
     ignore_changes = [
       quota_id, is_dynamics_protect, enterprise_project_id,

@@ -2,19 +2,20 @@ package dcs
 
 import (
 	"context"
-	"log"
+	"fmt"
 	"sort"
 	"strconv"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	"github.com/chnsz/golangsdk/openstack/dcs/v2/flavors"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 const (
@@ -33,6 +34,10 @@ func DataSourceDcsFlavorsV2() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"instance_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"capacity": {
 				Type:     schema.TypeFloat,
 				Optional: true,
@@ -41,9 +46,6 @@ func DataSourceDcsFlavorsV2() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "Redis",
-				ValidateFunc: validation.StringInSlice([]string{
-					"Redis", "Memcached",
-				}, false),
 			},
 			"engine_version": {
 				Type:     schema.TypeString,
@@ -52,9 +54,6 @@ func DataSourceDcsFlavorsV2() *schema.Resource {
 			"cache_mode": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"single", "ha", "cluster", "proxy", "ha_rw_split",
-				}, false),
 			},
 			"name": {
 				Type:     schema.TypeString,
@@ -63,9 +62,6 @@ func DataSourceDcsFlavorsV2() *schema.Resource {
 			"cpu_architecture": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"x86_64", "aarch64",
-				}, false),
 			},
 
 			"flavors": {
@@ -121,76 +117,132 @@ func DataSourceDcsFlavorsV2() *schema.Resource {
 func dataSourceDcsFlavorsV2Read(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-	client, err := cfg.DcsV2Client(region)
+
+	var mErr *multierror.Error
+
+	var (
+		httpUrl = "v2/{project_id}/flavors"
+		product = "dcs"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating DCS client: %s", err)
+	}
+
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+
+	getFlavorsQueryParams := buildGetDcsFlavorsDetailQueryParams(d)
+	getPath += getFlavorsQueryParams
+
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return diag.Errorf("error retrieving DCS flavors: %s", err)
+	}
+
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	dataSourceId, err := uuid.GenerateUUID()
+	if err != nil {
+		return diag.Errorf("unable to generate ID: %s", err)
+	}
+	d.SetId(dataSourceId)
+
+	flavorLists := flattenDcsFlavors(d, getRespBody)
+	sort.Slice(flavorLists, func(i, j int) bool {
+		a := flavorLists[i]
+		b := flavorLists[j]
+		v1 := a["ip_count"].(float64)
+		v2 := b["ip_count"].(float64)
+
+		return v1 <= v2
+	})
+
+	mErr = multierror.Append(nil,
+		d.Set("region", region),
+		d.Set("flavors", flavorLists),
+	)
+
+	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func flattenDcsFlavors(d *schema.ResourceData, resp interface{}) []map[string]interface{} {
+	if resp == nil {
+		return nil
 	}
 
 	var rawCapacity string
 	if c, ok := d.GetOk("capacity"); ok {
 		rawCapacity = strconv.FormatFloat(c.(float64), 'f', -1, floatBitSize)
 	}
-	// build a list options
-	opts := flavors.ListOpts{
-		CacheMode:     d.Get("cache_mode").(string),
-		Engine:        d.Get("engine").(string),
-		EngineVersion: d.Get("engine_version").(string),
-		Capacity:      rawCapacity,
-		SpecCode:      d.Get("name").(string),
-		CPUType:       d.Get("cpu_architecture").(string),
-	}
-	log.Printf("[DEBUG] The options of list DCS flavors : %#v", opts)
-
-	list, err := flavors.List(client, opts).Extract()
-	if err != nil {
-		return diag.Errorf("error getting dcs flavors list: %s", err)
-	}
-
-	ids := make([]string, 0)
-	flavorLists := make([]map[string]interface{}, 0, len(list))
-	for _, v := range list {
-		if len(v.AvailableZones) == 0 || len(v.AvailableZones[0].AzCodes) == 0 {
+	curJson := utils.PathSearch("flavors", resp, make([]interface{}, 0))
+	curArray := curJson.([]interface{})
+	rst := make([]map[string]interface{}, 0, len(curArray))
+	for _, v := range curArray {
+		availableZones := utils.PathSearch("flavors_available_zones", v, make([]interface{}, 0)).([]interface{})
+		if len(availableZones) == 0 {
 			continue
 		}
-		// for version 3.0, the result contain all az and capacity, they should be filtered and returned
-		for _, availableZones := range v.AvailableZones {
-			if rawCapacity != "" && rawCapacity != availableZones.Capacity {
+		azCodes := utils.PathSearch("[0].az_codes", availableZones, make([]interface{}, 0)).([]interface{})
+		if len(azCodes) == 0 {
+			continue
+		}
+		for _, availableZone := range availableZones {
+			capacity := utils.PathSearch("capacity", availableZone, "").(string)
+			if rawCapacity != "" && rawCapacity != capacity {
 				continue
 			}
-			capacity, _ := strconv.ParseFloat(availableZones.Capacity, floatBitSize)
-			fla := map[string]interface{}{
-				"name":             v.SpecCode,
-				"cache_mode":       v.CacheMode,
-				"engine":           v.Engine,
-				"engine_versions":  v.EngineVersion,
-				"cpu_architecture": v.CPUType,
-				"capacity":         capacity,
-				"available_zones":  availableZones.AzCodes,
-				"charging_modes":   v.BillingMode,
-				"ip_count":         v.TenantIPCount,
-			}
-			flavorLists = append(flavorLists, fla)
-			ids = append(ids, v.SpecCode)
+			capacityFloat, _ := strconv.ParseFloat(capacity, floatBitSize)
+			rst = append(rst, map[string]interface{}{
+				"name":             utils.PathSearch("spec_code", v, nil),
+				"cache_mode":       utils.PathSearch("cache_mode", v, nil),
+				"engine":           utils.PathSearch("engine", v, nil),
+				"engine_versions":  utils.PathSearch("engine_version", v, nil),
+				"cpu_architecture": utils.PathSearch("cpu_type", v, nil),
+				"capacity":         capacityFloat,
+				"available_zones":  azCodes,
+				"charging_modes":   utils.PathSearch("billing_mode", v, nil),
+				"ip_count":         utils.PathSearch("tenant_ip_count", v, nil),
+			})
 		}
 	}
+	return rst
+}
 
-	sort.Slice(flavorLists, func(i, j int) bool {
-		a := flavorLists[i]
-		b := flavorLists[j]
-		v1 := a["ip_count"].(int)
-		v2 := b["ip_count"].(int)
-
-		return v1 <= v2
-	})
-
-	d.SetId(hashcode.Strings(ids))
-	mErr := multierror.Append(nil,
-		d.Set("region", region),
-		d.Set("flavors", flavorLists),
-	)
-	if mErr.ErrorOrNil() != nil {
-		return diag.Errorf("error setting DCS flavors attributes: %s", mErr)
+func buildGetDcsFlavorsDetailQueryParams(d *schema.ResourceData) string {
+	res := ""
+	if v, ok := d.GetOk("instance_id"); ok {
+		res = fmt.Sprintf("%s&instance_id=%v", res, v)
+	}
+	if v, ok := d.GetOk("name"); ok {
+		res = fmt.Sprintf("%s&spec_code=%v", res, v)
+	}
+	if v, ok := d.GetOk("cache_mode"); ok {
+		res = fmt.Sprintf("%s&cache_mode=%v", res, v)
+	}
+	if v, ok := d.GetOk("engine"); ok {
+		res = fmt.Sprintf("%s&engine=%v", res, v)
+	}
+	if v, ok := d.GetOk("engine_version"); ok {
+		res = fmt.Sprintf("%s&engine_version=%v", res, v)
+	}
+	if v, ok := d.GetOk("cpu_architecture"); ok {
+		res = fmt.Sprintf("%s&cpu_type=%v", res, v)
+	}
+	if v, ok := d.GetOk("capacity"); ok {
+		res = fmt.Sprintf("%s&capacity=%v", res, v)
 	}
 
-	return nil
+	if res != "" {
+		res = "?" + res[1:]
+	}
+	return res
 }

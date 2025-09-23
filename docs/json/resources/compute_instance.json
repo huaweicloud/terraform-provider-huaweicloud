@@ -81,6 +81,10 @@
                 "optional": true,
                 "computed": true
               },
+              "expired_time": {
+                "type": "string",
+                "computed": true
+              },
               "flavor_id": {
                 "type": "string",
                 "required": true
@@ -91,7 +95,6 @@
               },
               "hostname": {
                 "type": "string",
-                "optional": true,
                 "computed": true
               },
               "id": {
@@ -236,7 +239,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "updated_at": {
                 "type": "string",
@@ -362,8 +366,7 @@
                     "fixed_ip_v4": {
                       "type": "string",
                       "optional": true,
-                      "computed": true,
-                      "forcenew": true
+                      "computed": true
                     },
                     "fixed_ip_v6": {
                       "type": "string",
@@ -389,8 +392,7 @@
                     },
                     "uuid": {
                       "type": "string",
-                      "required": true,
-                      "forcenew": true
+                      "required": true
                     }
                   }
                 },

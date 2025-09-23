@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_dbss_instances
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DBSS
+paths:
+    /v1/{project_id}/dbss/audit/instances:
+        GET:
+            tag: DBSS

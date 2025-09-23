@@ -1,0 +1,70 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dc_connect_gateway_geip_associate": {
+          "block": {
+            "attributes": {
+              "address_family": {
+                "type": "string",
+                "computed": true
+              },
+              "cidr": {
+                "type": "string",
+                "computed": true
+              },
+              "connect_gateway_id": {
+                "type": "string",
+                "required": true
+              },
+              "created_time": {
+                "type": "string",
+                "computed": true
+              },
+              "error_message": {
+                "type": "string",
+                "computed": true
+              },
+              "global_eip_id": {
+                "type": "string",
+                "required": true
+              },
+              "global_eip_segment_id": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ie_vtep_ip": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DC",
+            "name": "Direct Connect",
+            "catalog": "Networking",
+            "name_cn": "云专线",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"regexp"
 	"strings"
 	"time"
 
@@ -67,6 +66,7 @@ const (
 // @API EIP GET /v1/{project_id}/bandwidths/{id}
 // @API EIP PUT /v1/{project_id}/bandwidths/{id}
 // @API EIP PUT /v2.0/{project_id}/bandwidths/{ID}
+// @API EPS POST /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrat
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
 // @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
 // @API BSS POST /v2/orders/subscriptions/resources/autorenew/{instance_id}
@@ -87,6 +87,8 @@ func ResourceVpcEIPV1() *schema.Resource {
 			Update: schema.DefaultTimeout(5 * time.Minute),
 			Delete: schema.DefaultTimeout(5 * time.Minute),
 		},
+
+		CustomizeDiff: config.MergeDefaultTags(),
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -183,19 +185,13 @@ func ResourceVpcEIPV1() *schema.Resource {
 				Description: `The bandwidth configuration.`,
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile("^[\u4e00-\u9fa5\\w-.]*$"),
-						"The name can only contain letters, digits, underscores (_), hyphens (-), and periods (.)."),
-					validation.StringLenBetween(1, 64),
-				),
+				Type:        schema.TypeString,
+				Optional:    true,
 				Description: `The name of the EIP.`,
 			},
 			"enterprise_project_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Computed:    true,
 				Description: `The enterprise project ID to which the EIP belongs.`,
 			},
@@ -223,7 +219,6 @@ func ResourceVpcEIPV1() *schema.Resource {
 				Type:          schema.TypeInt,
 				Optional:      true,
 				RequiredWith:  []string{"period_unit"},
-				ValidateFunc:  validation.IntBetween(1, 9),
 				ConflictsWith: []string{"publicip.0.ip_address"},
 			},
 			"auto_renew": common.SchemaAutoRenewUpdatable([]string{"publicip.0.ip_address"}),
@@ -369,6 +364,8 @@ func createPostPaidEip(ctx context.Context, cfg *config.Config, client *golangsd
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        5 * time.Second,
 		PollInterval: 10 * time.Second,
+		// Max four retries will be executed.
+		NotFoundChecks: 3,
 	}
 
 	_, err = stateConf.WaitForStateContext(ctx)
@@ -444,10 +441,10 @@ func eipStatusRefreshFunc(networkingClient *golangsdk.ServiceClient, eipId strin
 				if len(targets) < 1 {
 					return resp, "COMPLETED", nil
 				}
-				return resp, "PENDING", nil
+				// The right pending status and nil response will trigger the NotFoundCheck logic.
+				return nil, "PENDING", nil
 			}
-
-			return nil, "", err
+			return resp, "ERROR", err
 		}
 		log.Printf("[DEBUG] The details of the EIP (%s) is: %+v", eipId, resp)
 
@@ -729,7 +726,7 @@ func resourceVpcEipUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 		if err != nil {
 			return diag.Errorf("error changing EIP (%s) to pre-paid billing mode: %s", d.Id(), err)
 		}
-		err = common.WaitOrderComplete(ctx, bssClient, orderID, d.Timeout(schema.TimeoutCreate))
+		err = common.WaitOrderComplete(ctx, bssClient, orderID, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -742,6 +739,18 @@ func resourceVpcEipUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 	if d.HasChange("bandwidth") {
 		err = updateEipBandwidth(vpcV1Client, cfg, d)
 		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("enterprise_project_id") {
+		migrateOpts := config.MigrateResourceOpts{
+			ResourceId:   d.Id(),
+			ResourceType: "eip",
+			RegionId:     region,
+			ProjectId:    cfg.GetProjectID(region),
+		}
+		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
 	}

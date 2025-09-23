@@ -2,37 +2,23 @@ package live
 
 import (
 	"context"
-	"fmt"
-	"log"
-	"regexp"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	livev1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/live/v1"
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/live/v1/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-const (
-	eventRecordNewFileStart = "RECORD_NEW_FILE_START"
-	eventRecordFileComplete = "RECORD_FILE_COMPLETE"
-	eventRecordOver         = "RECORD_OVER"
-	eventRecordFailed       = "RECORD_FAILED"
-
-	allAppName = "*"
-)
-
-// @API Live DELETE /v1/{project_id}/record/callbacks/{id}
+// @API Live POST /v1/{project_id}/record/callbacks
 // @API Live GET /v1/{project_id}/record/callbacks/{id}
 // @API Live PUT /v1/{project_id}/record/callbacks/{id}
-// @API Live GET /v1/{project_id}/record/callbacks
-// @API Live POST /v1/{project_id}/record/callbacks
+// @API Live DELETE /v1/{project_id}/record/callbacks/{id}
 func ResourceRecordCallback() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceRecordCallbackCreate,
@@ -50,185 +36,178 @@ func ResourceRecordCallback() *schema.Resource {
 				Computed: true,
 				ForceNew: true,
 			},
-
 			"domain_name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-
 			"url": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringMatch(regexp.MustCompile(`^http://|^https://`),
-						"The URL must start with http:// or https://."),
-					validation.StringDoesNotMatch(regexp.MustCompile(`\?{1}`), "The URL cannot contain parameters."),
-				),
 			},
-
 			"types": {
 				Type:     schema.TypeList,
 				Required: true,
-				MaxItems: 4,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-					ValidateFunc: validation.StringInSlice([]string{eventRecordNewFileStart, eventRecordFileComplete,
-						eventRecordOver, eventRecordFailed}, false),
-				},
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			"sign_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"key": {
+				Type:      schema.TypeString,
+				Optional:  true,
+				Sensitive: true,
+				Computed:  true,
 			},
 		},
 	}
 }
 
+func buildCreateOrUpdateCallbackBodyParams(d *schema.ResourceData) map[string]interface{} {
+	return map[string]interface{}{
+		"publish_domain":            d.Get("domain_name"),
+		"app":                       "*",
+		"notify_callback_url":       d.Get("url"),
+		"notify_event_subscription": d.Get("types").([]interface{}),
+		"sign_type":                 utils.ValueIgnoreEmpty(d.Get("sign_type")),
+		"key":                       utils.ValueIgnoreEmpty(d.Get("key")),
+	}
+}
+
 func resourceRecordCallbackCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	region := c.GetRegion(d)
-	client, err := c.HcLiveV1Client(region)
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1/{project_id}/record/callbacks"
+	)
+
+	client, err := cfg.NewServiceClient("live", region)
 	if err != nil {
-		return diag.Errorf("error creating Live v1 client: %s", err)
+		return diag.Errorf("error creating Live client: %s", err)
 	}
 
-	createBody, err := buildCallbackConfigParams(d)
+	createPath := client.Endpoint + httpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+	createOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildCreateOrUpdateCallbackBodyParams(d)),
+	}
+
+	requestResp, err := client.Request("POST", createPath, &createOpt)
+	if err != nil {
+		return diag.Errorf("error creating Live record callback configuration: %s", err)
+	}
+
+	respBody, err := utils.FlattenResponse(requestResp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	createOpts := &model.CreateRecordCallbackConfigRequest{
-		Body: createBody,
+
+	ruleId := utils.PathSearch("id", respBody, "").(string)
+	if ruleId == "" {
+		return diag.Errorf("error creating Live record callback configuration: ID is not found in API response")
 	}
 
-	log.Printf("[DEBUG] Create Live callback configuration params : %#v", createOpts)
-
-	_, err = client.CreateRecordCallbackConfig(createOpts)
-	if err != nil {
-		return diag.Errorf("error creating Live callback configuration: %s", err)
-	}
-
-	// ID is lost in CreateRecordCallbackConfig, so get from List API
-	id, err := getRecordCallBackId(client, createOpts.Body.PublishDomain, createOpts.Body.App)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	d.SetId(id)
+	d.SetId(ruleId)
 
 	return resourceRecordCallbackRead(ctx, d, meta)
 }
 
 func resourceRecordCallbackRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	region := c.GetRegion(d)
-	client, err := c.HcLiveV1Client(region)
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1/{project_id}/record/callbacks/{id}"
+	)
+
+	client, err := cfg.NewServiceClient("live", region)
 	if err != nil {
-		return diag.Errorf("error creating Live v1 client: %s", err)
+		return diag.Errorf("error creating Live client: %s", err)
 	}
 
-	response, err := client.ShowRecordCallbackConfig(&model.ShowRecordCallbackConfigRequest{Id: d.Id()})
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{id}", d.Id())
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	resp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving Live callback configuration")
+		return common.CheckDeletedDiag(d, err, "error retrieving Live record callback configuration")
+	}
+
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
 	mErr := multierror.Append(
 		d.Set("region", region),
-		d.Set("domain_name", response.PublishDomain),
-		setTypeToState(d, response.NotifyEventSubscription),
-		d.Set("url", response.NotifyCallbackUrl),
+		d.Set("domain_name", utils.PathSearch("publish_domain", respBody, nil)),
+		d.Set("types", utils.PathSearch("notify_event_subscription", respBody, make([]interface{}, 0))),
+		d.Set("url", utils.PathSearch("notify_callback_url", respBody, nil)),
+		d.Set("sign_type", utils.PathSearch("sign_type", respBody, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func resourceRecordCallbackUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	region := c.GetRegion(d)
-	client, err := c.HcLiveV1Client(region)
+	var (
+		cfg    = meta.(*config.Config)
+		region = cfg.GetRegion(d)
+	)
+
+	client, err := cfg.NewServiceClient("live", region)
 	if err != nil {
-		return diag.Errorf("error creating Live v1 client: %s", err)
+		return diag.Errorf("error creating Live client: %s", err)
 	}
 
-	updateBody, err := buildCallbackConfigParams(d)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	updateOpts := &model.UpdateRecordCallbackConfigRequest{
-		Id:   d.Id(),
-		Body: updateBody,
-	}
+	if d.HasChanges("url", "types", "sign_type", "key") {
+		httpUrl := "v1/{project_id}/record/callbacks/{id}"
+		updatePath := client.Endpoint + httpUrl
+		updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+		updatePath = strings.ReplaceAll(updatePath, "{id}", d.Id())
+		updateOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			JSONBody:         utils.RemoveNil(buildCreateOrUpdateCallbackBodyParams(d)),
+		}
 
-	_, err = client.UpdateRecordCallbackConfig(updateOpts)
-	if err != nil {
-		return diag.Errorf("error updating Live callback configuration: %s", err)
+		_, err := client.Request("PUT", updatePath, &updateOpt)
+		if err != nil {
+			return diag.Errorf("error updating Live record callback configuration: %s", err)
+		}
 	}
 
 	return resourceRecordCallbackRead(ctx, d, meta)
 }
 
 func resourceRecordCallbackDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	region := c.GetRegion(d)
-	client, err := c.HcLiveV1Client(region)
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1/{project_id}/record/callbacks/{id}"
+	)
+
+	client, err := cfg.NewServiceClient("live", region)
 	if err != nil {
-		return diag.Errorf("error creating Live v1 client: %s", err)
+		return diag.Errorf("error creating Live client: %s", err)
 	}
 
-	deleteOpts := &model.DeleteRecordCallbackConfigRequest{
-		Id: d.Id(),
+	deletePath := client.Endpoint + httpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = strings.ReplaceAll(deletePath, "{id}", d.Id())
+	deleteOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
-	_, err = client.DeleteRecordCallbackConfig(deleteOpts)
+
+	_, err = client.Request("DELETE", deletePath, &deleteOpt)
 	if err != nil {
-		return diag.Errorf("error deleting Live callback configuration: %s", err)
+		return common.CheckDeletedDiag(d, err, "error deleting Live record callback configuration")
 	}
 
-	return nil
-}
-
-func buildCallbackConfigParams(d *schema.ResourceData) (*model.RecordCallbackConfigRequest, error) {
-	v := d.Get("types").([]interface{})
-	events := make([]model.RecordCallbackConfigRequestNotifyEventSubscription, len(v))
-	for i, v := range v {
-		var event model.RecordCallbackConfigRequestNotifyEventSubscription
-		err := event.UnmarshalJSON([]byte(v.(string)))
-		if err != nil {
-			return nil, fmt.Errorf("error getting the argument %q: %s", "types", err)
-		}
-		events[i] = event
-	}
-
-	req := model.RecordCallbackConfigRequest{
-		PublishDomain:           d.Get("domain_name").(string),
-		App:                     allAppName,
-		NotifyEventSubscription: &events,
-		NotifyCallbackUrl:       utils.String(d.Get("url").(string)),
-	}
-
-	return &req, nil
-}
-
-func getRecordCallBackId(client *livev1.LiveClient, publishDomain, appName string) (string, error) {
-	resp, err := client.ListRecordCallbackConfigs(&model.ListRecordCallbackConfigsRequest{
-		PublishDomain: &publishDomain,
-		App:           &appName,
-	})
-	if err != nil {
-		return "", fmt.Errorf("error retrieving Live callback configuration: %s", err)
-	}
-
-	if resp == nil || resp.CallbackConfig == nil || len(*resp.CallbackConfig) < 1 {
-		return "", fmt.Errorf("error retrieving Live callback configuration: no data")
-	}
-
-	callbacks := *resp.CallbackConfig
-
-	return *callbacks[0].Id, nil
-}
-
-func setTypeToState(d *schema.ResourceData, event *[]model.ShowRecordCallbackConfigResponseNotifyEventSubscription) error {
-	if event != nil {
-		types := make([]string, len(*event))
-		for i, v := range *event {
-			event := utils.MarshalValue(v)
-			types[i] = event
-		}
-		return d.Set("types", types)
-	}
 	return nil
 }

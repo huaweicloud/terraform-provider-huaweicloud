@@ -1,0 +1,80 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dds_error_logs": {
+          "block": {
+            "attributes": {
+              "end_time": {
+                "type": "string",
+                "description": "Specifies the end time in the **yyyy-mm-ddThh:mm:ssZ** format.",
+                "required": true
+              },
+              "error_logs": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "log_time": "string",
+                      "node_id": "string",
+                      "node_name": "string",
+                      "raw_message": "string",
+                      "severity": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of the error logs.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the instance.",
+                "required": true
+              },
+              "keywords": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the full-text log search based on multiple keywords, indicating that all keywords are matched.",
+                "optional": true
+              },
+              "node_id": {
+                "type": "string",
+                "description": "Specifies the node ID.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource.",
+                "computed": true
+              },
+              "severity": {
+                "type": "string",
+                "description": "Specifies the log level.",
+                "optional": true
+              },
+              "start_time": {
+                "type": "string",
+                "description": "Specifies the start time in the **yyyy-mm-ddThh:mm:ssZ** format.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "DDS",
+            "name": "Document Database Service",
+            "catalog": "Databases",
+            "name_cn": "文档数据库服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

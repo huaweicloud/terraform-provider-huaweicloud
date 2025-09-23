@@ -1,0 +1,482 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_modelartsv2_service": {
+          "block": {
+            "attributes": {
+              "deploy_type": {
+                "type": "string",
+                "description": "The deploy type of the service.",
+                "optional": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the service.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the service.",
+                "required": true
+              },
+              "predict_url": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "type": "string",
+                      "urls": [
+                        "list",
+                        "string"
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The access addresses of the service.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the service is located.",
+                "computed": true
+              },
+              "runtime_config": {
+                "type": "string",
+                "description": "The configuration of the service runtime, in JSON format.",
+                "required": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the service.",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "The key/value pairs to associate with the service.",
+                "optional": true,
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The reasoning method of the service.",
+                "required": true
+              },
+              "upgrade_config": {
+                "type": "string",
+                "description": "The upgrade configuration of the service, in JSON format.",
+                "required": true
+              },
+              "version": {
+                "type": "string",
+                "description": "The version of the service.",
+                "required": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "The workspace ID of the service.",
+                "optional": true
+              }
+            },
+            "block_types": {
+              "group_configs": {
+                "block": {
+                  "attributes": {
+                    "count": {
+                      "type": "number",
+                      "description": "The number of service instances in the deployment scenario.",
+                      "required": true
+                    },
+                    "framework": {
+                      "type": "string",
+                      "description": "The algorithm framework.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "description": "The ID of the instance group.",
+                      "computed": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "The name of the instance group.",
+                      "required": true
+                    },
+                    "pool_id": {
+                      "type": "string",
+                      "description": "The ID of the dedicated resource pool for the instance group.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "weight": {
+                      "type": "number",
+                      "description": "The weight percentage of the instance group.",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "unit_configs": {
+                      "block": {
+                        "attributes": {
+                          "cmd": {
+                            "type": "string",
+                            "description": "The startup commands of the group unit.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "count": {
+                            "type": "number",
+                            "description": "The instance number of the group unit.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "envs": {
+                            "type": [
+                              "map",
+                              "string"
+                            ],
+                            "description": "The environment variables of the group unit.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "flavor": {
+                            "type": "string",
+                            "description": "The instance flavor of the group unit.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "id": {
+                            "type": "string",
+                            "description": "The ID of the unit configuration.",
+                            "computed": true
+                          },
+                          "port": {
+                            "type": "number",
+                            "description": "The port of the group unit.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "recovery": {
+                            "type": "string",
+                            "description": "The recovery strategy of the group unit.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "role": {
+                            "type": "string",
+                            "description": "The role of the group unit.",
+                            "optional": true,
+                            "computed": true
+                          }
+                        },
+                        "block_types": {
+                          "codes": {
+                            "block": {
+                              "attributes": {
+                                "address": {
+                                  "type": "string",
+                                  "description": "The source address of the code configuration.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "mount_path": {
+                                  "type": "string",
+                                  "description": "The path to mount into the container.",
+                                  "required": true
+                                },
+                                "source": {
+                                  "type": "string",
+                                  "description": "The source type of the code configuration.",
+                                  "required": true
+                                },
+                                "source_id": {
+                                  "type": "string",
+                                  "description": "The source ID of the code configuration.",
+                                  "optional": true,
+                                  "computed": true
+                                }
+                              },
+                              "description": "The code configuration of the group unit."
+                            },
+                            "nesting_mode": "list"
+                          },
+                          "custom_spec": {
+                            "block": {
+                              "attributes": {
+                                "ascend": {
+                                  "type": "number",
+                                  "description": "The number of Ascend chips.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "cpu": {
+                                  "type": "number",
+                                  "description": "The CPU number of the custom specification.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "gpu": {
+                                  "type": "number",
+                                  "description": "The GPU number of the custom specification.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "memory": {
+                                  "type": "number",
+                                  "description": "The memory size of the custom specification.",
+                                  "optional": true,
+                                  "computed": true
+                                }
+                              },
+                              "description": "The configuration of the custom resource specification."
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          },
+                          "image": {
+                            "block": {
+                              "attributes": {
+                                "id": {
+                                  "type": "string",
+                                  "description": "The image ID of the group unit.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "source": {
+                                  "type": "string",
+                                  "description": "The image type of the group unit.",
+                                  "required": true
+                                },
+                                "swr_path": {
+                                  "type": "string",
+                                  "description": "The SWR storage path of the group unit.",
+                                  "required": true
+                                }
+                              },
+                              "description": "The image configuration of the group unit."
+                            },
+                            "nesting_mode": "list",
+                            "min_items": 1,
+                            "max_items": 1
+                          },
+                          "liveness_health": {
+                            "block": {
+                              "attributes": {
+                                "check_method": {
+                                  "type": "string",
+                                  "description": "The method of the health check.",
+                                  "required": true
+                                },
+                                "command": {
+                                  "type": "string",
+                                  "description": "The commands configuration of the health check.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "failure_threshold": {
+                                  "type": "number",
+                                  "description": "The minimum number of consecutive detection failures.",
+                                  "required": true
+                                },
+                                "initial_delay_seconds": {
+                                  "type": "number",
+                                  "description": "The time to wait when performing the first probe.",
+                                  "required": true
+                                },
+                                "period_seconds": {
+                                  "type": "number",
+                                  "description": "The period time for performing health check.",
+                                  "required": true
+                                },
+                                "timeout_seconds": {
+                                  "type": "number",
+                                  "description": "The timeout for executing the probe.",
+                                  "required": true
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "description": "The request URL of the health check.",
+                                  "optional": true,
+                                  "computed": true
+                                }
+                              },
+                              "description": "The configuration of the liveness health check."
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          },
+                          "models": {
+                            "block": {
+                              "attributes": {
+                                "address": {
+                                  "type": "string",
+                                  "description": "The source address of the model configuration.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "mount_path": {
+                                  "type": "string",
+                                  "description": "The path to mount into the container.",
+                                  "required": true
+                                },
+                                "source": {
+                                  "type": "string",
+                                  "description": "The source type of the model configuration.",
+                                  "required": true
+                                },
+                                "source_id": {
+                                  "type": "string",
+                                  "description": "The source ID of the model configuration.",
+                                  "optional": true,
+                                  "computed": true
+                                }
+                              },
+                              "description": "The model configuration of the group unit."
+                            },
+                            "nesting_mode": "list"
+                          },
+                          "readiness_health": {
+                            "block": {
+                              "attributes": {
+                                "check_method": {
+                                  "type": "string",
+                                  "description": "The method of the health check.",
+                                  "required": true
+                                },
+                                "command": {
+                                  "type": "string",
+                                  "description": "The commands configuration of the health check.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "failure_threshold": {
+                                  "type": "number",
+                                  "description": "The minimum number of consecutive detection failures.",
+                                  "required": true
+                                },
+                                "initial_delay_seconds": {
+                                  "type": "number",
+                                  "description": "The time to wait when performing the first probe.",
+                                  "required": true
+                                },
+                                "period_seconds": {
+                                  "type": "number",
+                                  "description": "The period time for performing health check.",
+                                  "required": true
+                                },
+                                "timeout_seconds": {
+                                  "type": "number",
+                                  "description": "The timeout for executing the probe.",
+                                  "required": true
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "description": "The request URL of the health check.",
+                                  "optional": true,
+                                  "computed": true
+                                }
+                              },
+                              "description": "The configuration of the readiness health check."
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          },
+                          "startup_health": {
+                            "block": {
+                              "attributes": {
+                                "check_method": {
+                                  "type": "string",
+                                  "description": "The method of the health check.",
+                                  "required": true
+                                },
+                                "command": {
+                                  "type": "string",
+                                  "description": "The commands configuration of the health check.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "failure_threshold": {
+                                  "type": "number",
+                                  "description": "The minimum number of consecutive detection failures.",
+                                  "required": true
+                                },
+                                "initial_delay_seconds": {
+                                  "type": "number",
+                                  "description": "The time to wait when performing the first probe.",
+                                  "required": true
+                                },
+                                "period_seconds": {
+                                  "type": "number",
+                                  "description": "The period time for performing health check.",
+                                  "required": true
+                                },
+                                "timeout_seconds": {
+                                  "type": "number",
+                                  "description": "The timeout for executing the probe.",
+                                  "required": true
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "description": "The request URL of the health check.",
+                                  "optional": true,
+                                  "computed": true
+                                }
+                              },
+                              "description": "The configuration of the startup health check."
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          }
+                        },
+                        "description": "The unit configurations of the instance group."
+                      },
+                      "nesting_mode": "list",
+                      "min_items": 1
+                    }
+                  },
+                  "description": "The instance group configurations of the service."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              },
+              "log_configs": {
+                "block": {
+                  "attributes": {
+                    "log_group_id": {
+                      "type": "string",
+                      "description": "The ID of the LTS group.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "log_stream_id": {
+                      "type": "string",
+                      "description": "The ID of the LTS stream.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The type of LTS configuration.",
+                      "required": true
+                    }
+                  },
+                  "description": "The log configurations of the service."
+                },
+                "nesting_mode": "list"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

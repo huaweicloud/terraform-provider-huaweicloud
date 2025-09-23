@@ -18,42 +18,6 @@ func TestAccDataSourceDeviceCertificates_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccDataSourceDeviceCertificates_basic(),
-				Check: resource.ComposeTestCheckFunc(
-					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttrSet(dataSourceName, "certificates.#"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "certificates.0.id"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "certificates.0.cn"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "certificates.0.owner"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "certificates.0.status"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "certificates.0.verify_code"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "certificates.0.created_at"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "certificates.0.effective_date"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "certificates.0.expiry_date"),
-
-					resource.TestCheckOutput("is_space_id_filter_useful", "true"),
-					resource.TestCheckOutput("is_certificate_id_filter_useful", "true"),
-					resource.TestCheckOutput("is_status_filter_useful", "true"),
-					resource.TestCheckOutput("not_found_validation_pass", "true"),
-				),
-			},
-		},
-	})
-}
-
-func TestAccDataSourceDeviceCertificates_derived(t *testing.T) {
-	var (
-		dataSourceName = "data.huaweicloud_iotda_device_certificates.test"
-		dc             = acceptance.InitDataSourceCheck(dataSourceName)
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckHWIOTDAAccessAddress(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
@@ -72,7 +36,6 @@ func TestAccDataSourceDeviceCertificates_derived(t *testing.T) {
 					resource.TestCheckResourceAttrSet(dataSourceName, "certificates.0.effective_date"),
 					resource.TestCheckResourceAttrSet(dataSourceName, "certificates.0.expiry_date"),
 
-					resource.TestCheckOutput("is_space_id_filter_useful", "true"),
 					resource.TestCheckOutput("is_certificate_id_filter_useful", "true"),
 					resource.TestCheckOutput("is_status_filter_useful", "true"),
 					resource.TestCheckOutput("not_found_validation_pass", "true"),
@@ -90,8 +53,7 @@ func testDataSourceDeviceCertificates_base() string {
 %s
 
 resource "huaweicloud_iotda_device_certificate" "test" {
-  space_id = huaweicloud_iotda_space.test.id
-  content  = <<EOT
+  content = <<EOT
 -----BEGIN CERTIFICATE-----
 MIIDlTCCAn0CFDksqsC4D2sWd5aIJ/3kveD9bi1VMA0GCSqGSIb3DQEBCwUAMIGF
 MQswCQYDVQQGEwJDTjEQMA4GA1UECAwHYmVpamluZzEQMA4GA1UEBwwHYmVpamlu
@@ -125,22 +87,10 @@ func testAccDataSourceDeviceCertificates_basic() string {
 	return fmt.Sprintf(`
 %s
 
-data "huaweicloud_iotda_device_certificates" "test" {}
-
-# Filter using space ID.
-locals {
-  space_id = huaweicloud_iotda_space.test.id
-}
-
-data "huaweicloud_iotda_device_certificates" "space_id_filter" {
-  depends_on = [huaweicloud_iotda_device_certificate.test]
-
-  space_id = local.space_id
-}
-
-# For certificate resource, the API will not return the space ID attribute value.
-output "is_space_id_filter_useful" {
-  value = length(data.huaweicloud_iotda_device_certificates.space_id_filter.certificates) > 0
+data "huaweicloud_iotda_device_certificates" "test" {
+  depends_on = [
+    huaweicloud_iotda_device_certificate.test,
+  ]
 }
 
 # Filter using certificate ID.

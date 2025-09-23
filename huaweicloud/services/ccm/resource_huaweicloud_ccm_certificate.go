@@ -17,10 +17,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -280,11 +278,11 @@ func resourceCCMCertificateCreate(ctx context.Context, d *schema.ResourceData, m
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("cert|[0].cert_id", createRespBody)
-	if err != nil || id == nil {
-		return diag.Errorf("error creating CCM certificate: ID is not found in API response")
+	certId := utils.PathSearch("cert|[0].cert_id", createRespBody, "").(string)
+	if certId == "" {
+		return diag.Errorf("unable to find the CCM certificate ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(certId)
 
 	if err := waitingForCCMCertificatePaid(ctx, client, d.Id(), d.Timeout(schema.TimeoutCreate)); err != nil {
 		return diag.Errorf("error waiting for CCM certificate (%s) creation to PAID: %s", d.Id(), err)
@@ -412,13 +410,13 @@ func resourceCCMCertificateUpdate(ctx context.Context, d *schema.ResourceData, m
 	)
 
 	if d.HasChange("enterprise_project_id") {
-		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+		migrateOpts := config.MigrateResourceOpts{
 			ResourceId:   d.Id(),
 			ResourceType: "scm",
 			RegionId:     region,
 			ProjectId:    cfg.GetProjectID(region),
 		}
-		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
+		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
 	}

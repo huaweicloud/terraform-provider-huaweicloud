@@ -1,0 +1,110 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_ccm_private_cas": {
+          "block": {
+            "attributes": {
+              "cas": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "charging_mode": "string",
+                      "created_at": "string",
+                      "crl_configuration": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "crl_dis_point": "string",
+                            "crl_name": "string",
+                            "enabled": "bool",
+                            "obs_bucket_name": "string",
+                            "valid_days": "number"
+                          }
+                        ]
+                      ],
+                      "deleted_at": "string",
+                      "distinguished_name": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "common_name": "string",
+                            "country": "string",
+                            "locality": "string",
+                            "organization": "string",
+                            "organizational_unit": "string",
+                            "state": "string"
+                          }
+                        ]
+                      ],
+                      "enterprise_project_id": "string",
+                      "expired_at": "string",
+                      "free_quota": "number",
+                      "gen_mode": "string",
+                      "id": "string",
+                      "issuer_id": "string",
+                      "issuer_name": "string",
+                      "key_algorithm": "string",
+                      "path_length": "number",
+                      "serial_number": "string",
+                      "signature_algorithm": "string",
+                      "status": "string",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "The CA details.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the private CA name.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "sort_dir": {
+                "type": "string",
+                "description": "Specifies the sorting sequence.",
+                "optional": true
+              },
+              "sort_key": {
+                "type": "string",
+                "description": "Specifies the sorting attribute.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the private CA status.",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the private CA type.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CCM",
+            "name": "Cloud Certificate & Manager",
+            "catalog": "Security & Compliance",
+            "name_cn": "云证书与管理服务",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

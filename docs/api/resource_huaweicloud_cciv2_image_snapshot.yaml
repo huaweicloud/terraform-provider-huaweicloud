@@ -1,0 +1,18 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cciv2_image_snapshot
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CCI
+paths:
+    /apis/cci/v2/imagesnapshots:
+        POST:
+            tag: CCI
+    /apis/cci/v2/imagesnapshots/{name}:
+        DELETE:
+            tag: CCI
+        GET:
+            tag: CCI

@@ -42,7 +42,7 @@ func TestAccComponent_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccComponent_basic(randName),
+				Config: testAccComponent_basic_step1(randName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", randName),
@@ -51,14 +51,15 @@ func TestAccComponent_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "framework", "Mesher"),
 				),
 			},
+			// Unable to update the component name because the update method do not work.
 			{
-				Config: testAccComponent_update(randName),
+				Config: testAccComponent_basic_step2(randName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", randName+"-update"),
-					resource.TestCheckResourceAttr(resourceName, "type", "MicroService"),
+					resource.TestCheckResourceAttr(resourceName, "name", randName),
+					resource.TestCheckResourceAttr(resourceName, "type", "Common"),
 					resource.TestCheckResourceAttr(resourceName, "runtime", "Docker"),
-					resource.TestCheckResourceAttr(resourceName, "framework", "Mesher"),
+					resource.TestCheckResourceAttr(resourceName, "framework", ""),
 				),
 			},
 			{
@@ -115,7 +116,7 @@ func TestAccComponent_web(t *testing.T) {
 				Config: testAccComponent_webUpdate(randName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(resourceName, "name", randName+"-update"),
+					resource.TestCheckResourceAttr(resourceName, "name", randName),
 					resource.TestCheckResourceAttr(resourceName, "type", "Webapp"),
 					resource.TestCheckResourceAttr(resourceName, "runtime", "Nodejs14"),
 					resource.TestCheckResourceAttr(resourceName, "framework", "Web"),
@@ -154,7 +155,7 @@ func testAccComponentImportStateIdFunc() resource.ImportStateIdFunc {
 	}
 }
 
-func testAccComponent_basic(rName string) string {
+func testAccComponent_basic_step1(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_servicestage_application" "test" {
   name = "%[1]s"
@@ -171,7 +172,7 @@ resource "huaweicloud_servicestage_component" "test" {
 }`, rName)
 }
 
-func testAccComponent_update(rName string) string {
+func testAccComponent_basic_step2(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_servicestage_application" "test" {
   name = "%[1]s"
@@ -180,11 +181,10 @@ resource "huaweicloud_servicestage_application" "test" {
 resource "huaweicloud_servicestage_component" "test" {
   application_id = huaweicloud_servicestage_application.test.id
 
-  name = "%[1]s-update"
+  name = "%[1]s"
 
-  type      = "MicroService"
-  runtime   = "Docker"
-  framework = "Mesher"
+  type    = "Common"
+  runtime = "Docker"
 }`, rName)
 }
 
@@ -267,10 +267,9 @@ resource "huaweicloud_cce_node" "test" {
 resource "huaweicloud_servicestage_repo_token_authorization" "test" {
   type  = "github"
   name  = "%[1]s"
-  host  = "%[2]s"
-  token = "%[3]s"
+  token = "%[2]s"
 }
-`, rName, acceptance.HW_GITHUB_REPO_HOST, acceptance.HW_GITHUB_PERSONAL_TOKEN)
+`, rName, acceptance.HW_GITHUB_PERSONAL_TOKEN)
 }
 
 func testAccComponent_web(rName string) string {
@@ -326,7 +325,7 @@ resource "huaweicloud_servicestage_component" "test" {
   runtime        = "Nodejs14"
   framework      = "Web"
 
-  name = "%[2]s-update"
+  name = "%[2]s"
 
   source {
     type         = "package"

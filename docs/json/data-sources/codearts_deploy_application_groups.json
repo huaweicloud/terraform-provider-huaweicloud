@@ -1,0 +1,59 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_codearts_deploy_application_groups": {
+          "block": {
+            "attributes": {
+              "groups": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "application_count": "number",
+                      "children": [
+                        "list",
+                        "string"
+                      ],
+                      "created_by": "string",
+                      "id": "string",
+                      "name": "string",
+                      "ordinal": "number",
+                      "parent_id": "string",
+                      "path": "string",
+                      "updated_by": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the application group list.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "project_id": {
+                "type": "string",
+                "description": "Specifies the project ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CodeArtsDeploy",
+            "name": "CodeArts Deploy",
+            "catalog": "CodeArts",
+            "name_cn": "部署",
+            "catalog_cn": "软件开发生产线"
+          }
+        }
+      }
+    }
+  }
+}

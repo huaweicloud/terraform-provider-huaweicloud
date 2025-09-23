@@ -23,6 +23,20 @@
                     {
                       "created_at": "string",
                       "endpoint_group_id": "string",
+                      "frozen_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "effect": "number",
+                            "scene": [
+                              "list",
+                              "string"
+                            ],
+                            "status": "number"
+                          }
+                        ]
+                      ],
                       "health_state": "string",
                       "id": "string",
                       "ip_address": "string",

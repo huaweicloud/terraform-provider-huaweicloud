@@ -1,8 +1,9 @@
 ---
-subcategory: Dedicated Load Balance (Dedicated ELB)
+subcategory: "Dedicated Load Balance (Dedicated ELB)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_elb_l7policies"
-description: ""
+description: |-
+  Use this data source to get the list of ELB L7 policies.
 ---
 
 # huaweicloud_elb_l7policies
@@ -42,6 +43,8 @@ The following arguments are supported:
 
 * `priority` - (Optional, Int) Specifies the forwarding policy priority.
 
+* `provisioning_status` - (Optional, String) Specifies the provisioning status of the forwarding policy.
+
 * `redirect_listener_id` - (Optional, String) Specifies the ID of the listener to which requests are redirected.
 
 * `redirect_pool_id` - (Optional, String) Specifies the ID of the backend server group to which requests will be forwarded.
@@ -66,24 +69,36 @@ The `l7policies` block supports:
 
 * `description` - The supplementary information about the forwarding policy.
 
-* `action` - The requests will be forwarded. The value can be one of the following:
-  **REDIRECT_TO_POOL**, **REDIRECT_TO_LISTENER**, **REDIRECT_TO_URL**, **FIXED_RESPONSE**.
+* `enterprise_project_id` - The enterprise project ID.
+
+* `action` - The requests will be forwarded.
 
 * `listener_id` - The ID of the listener to which the forwarding policy is added.
 
 * `priority` - The forwarding policy priority.
 
+* `provisioning_status` - The provisioning status of the forwarding policy.
+
 * `redirect_pool_id` - The ID of the backend server group that requests will be forwarded to.
+
+* `redirect_pools_config` - The list of the backend server groups to which traffic is forwarded.
+  The [redirect_pools_config](#Elb_l7policies_redirect_pools_config) structure is documented below.
 
 * `redirect_listener_id` - The ID of the listener to which requests are redirected.
 
-* `rules` - The forwarding rules in the forwarding policy. The [rules](#Elb_l7policies_rules) structure is documented below.
+* `rules` - The forwarding rules in the forwarding policy.
+  The [rules](#Elb_l7policies_rules) structure is documented below.
 
-* `redirect_url_config` - The URL to which requests are forwarded. The [redirect_url_config](#Elb_l7policies_redirect_url_config)
-  structure is documented below.
+* `redirect_url_config` - The URL to which requests are forwarded.
+  The [redirect_url_config](#Elb_l7policies_redirect_url_config) structure is documented below.
 
 * `redirect_pools_extend_config` - The backend server group that the requests are forwarded to.
   The [redirect_pools_extend_config](#Elb_l7policies_redirect_pools_extend_config) structure is documented below.
+
+* `redirect_pools_sticky_session_config` - The session persistence between backend server groups which associated with
+  the policy.
+  The [redirect_pools_sticky_session_config](#Elb_l7policies_redirect_pools_sticky_session_config) structure is documented
+  below.
 
 * `fixed_response_config` - The configuration of the page that will be returned.
   The [fixed_response_config](#Elb_l7policies_fixed_response_config) structure is documented below.
@@ -91,6 +106,13 @@ The `l7policies` block supports:
 * `created_at` - The time when the forwarding policy was created.
 
 * `updated_at` - The time when the forwarding policy was updated.
+
+<a name="Elb_l7policies_redirect_pools_config"></a>
+The `redirect_pools_config` block supports:
+
+* `pool_id` - The ID of the backend server group.
+
+* `weight` - The weight of the backend server group.
 
 <a name="Elb_l7policies_rules"></a>
 The `rules` block supports:
@@ -112,6 +134,12 @@ The `redirect_url_config` block supports:
 
 * `status_code` - The status code returned after the requests are redirected.
 
+* `insert_headers_config` - The header parameters to be added.
+  The [insert_headers_config](#insert_headers_config_object) structure is documented below.
+
+* `remove_headers_config` - The header parameters to be removed.
+  The [remove_headers_config](#remove_headers_config_object) structure is documented below.
+
 <a name="Elb_l7policies_redirect_pools_extend_config"></a>
 The `redirect_pools_extend_config` block supports:
 
@@ -119,6 +147,22 @@ The `redirect_pools_extend_config` block supports:
 
 * `rewrite_url_config` - The URL for the backend server group that requests are forwarded to.
   The [rewrite_url_config](#Elb_l7policies_rewrite_url_config) structure is documented below.
+
+* `insert_headers_config` - The header parameters to be added.
+  The [insert_headers_config](#insert_headers_config_object) structure is documented below.
+
+* `remove_headers_config` - The header parameters to be removed.
+  The [remove_headers_config](#remove_headers_config_object) structure is documented below.
+
+* `traffic_limit_config` - The traffic limit config of the policy.
+  The [traffic_limit_config](#traffic_limit_config_object) structure is documented below.
+
+<a name="Elb_l7policies_redirect_pools_sticky_session_config"></a>
+The `redirect_pools_sticky_session_config` block supports:
+
+* `enable` - Whether enable config session persistence between backend server groups.
+
+* `timeout` - The timeout of the session persistence.
 
 <a name="Elb_l7policies_fixed_response_config"></a>
 The `fixed_response_config` block supports:
@@ -128,6 +172,50 @@ The `fixed_response_config` block supports:
 * `content_type` - The format of the response body.
 
 * `message_body` - The content of the response message body.
+
+* `insert_headers_config` - (Optional, List) The header parameters to be added.
+  The [insert_headers_config](#insert_headers_config_object) structure is documented below.
+
+* `remove_headers_config` - (Optional, List) The header parameters to be removed.
+  The [remove_headers_config](#remove_headers_config_object) structure is documented below.
+
+* `traffic_limit_config` - (Optional, List) The traffic limit config of the policy.
+  The [traffic_limit_config](#traffic_limit_config_object) structure is documented below.
+
+<a name="insert_headers_config_object"></a>
+The `insert_headers_config` block supports:
+
+* `configs` - (Required, List) The list of request header parameters to be added.
+  The [insert_header_configs](#insert_header_configs_object) structure is documented below.
+
+<a name="insert_header_configs_object"></a>
+The `insert_header_configs` block supports:
+
+* `key` - The parameter name of the added request header.
+
+* `value_type` - The value type of the parameter.
+
+* `value` - The value of the parameter.
+
+<a name="remove_headers_config_object"></a>
+The `remove_headers_config` block supports:
+
+* `configs` - The list of request header parameters to be removed.
+  The [remove_header_configs](#remove_header_configs_object) structure is documented below.
+
+<a name="remove_header_configs_object"></a>
+The `remove_header_configs` block supports:
+
+* `key` - The parameter name of the removed request header.
+
+<a name="traffic_limit_config_object"></a>
+The `traffic_limit_config` block supports:
+
+* `qps` - The overall qps of the policy.
+
+* `per_source_ip_qps` - The single source qps of the policy.
+
+* `burst` - (The qps buffer.
 
 <a name="Elb_l7policies_rewrite_url_config"></a>
 The `rewrite_url_config` block supports:

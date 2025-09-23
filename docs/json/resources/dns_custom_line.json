@@ -7,9 +7,8 @@
             "attributes": {
               "description": {
                 "type": "string",
-                "description": "Specifies the custom line description. A maximum of 255 characters are allowed.",
-                "optional": true,
-                "computed": true
+                "description": "The custom line description.",
+                "optional": true
               },
               "id": {
                 "type": "string",
@@ -17,15 +16,15 @@
               },
               "ip_segments": {
                 "type": [
-                  "list",
+                  "set",
                   "string"
                 ],
-                "description": "Specifies the IP address range.",
+                "description": "The IP address range.",
                 "required": true
               },
               "name": {
                 "type": "string",
-                "description": "Specifies the custom line name.",
+                "description": "The custom line name.",
                 "required": true
               },
               "region": {
@@ -42,9 +41,9 @@
           "product": {
             "short": "DNS",
             "name": "Domain Name Service",
-            "catalog": "Business Applications",
+            "catalog": "Networking",
             "name_cn": "云解析服务",
-            "catalog_cn": "企业应用"
+            "catalog_cn": "网络"
           }
         }
       }

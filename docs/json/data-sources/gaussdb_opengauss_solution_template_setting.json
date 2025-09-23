@@ -1,0 +1,55 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_opengauss_solution_template_setting": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "initial_node_num": {
+                "type": "number",
+                "description": "Indicates the number of initial nodes.",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the GaussDB OpenGauss instance ID.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "replica_num": {
+                "type": "number",
+                "description": "Indicates the number of replicas.",
+                "computed": true
+              },
+              "shard_num": {
+                "type": "number",
+                "description": "Indicates the number of shards.",
+                "computed": true
+              },
+              "solution": {
+                "type": "string",
+                "description": "Specifies the solution template name.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDB",
+            "name": "GaussDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

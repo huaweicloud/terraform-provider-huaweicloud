@@ -41,7 +41,7 @@ func TestAccDataSourceDataServiceApis_basic(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckDataArtsWorkSpaceID(t)
-			acceptance.TestAccPreCheckDataArtsManagerName(t)
+			acceptance.TestAccPreCheckDataArtsReviewerName(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -207,7 +207,7 @@ resource "huaweicloud_dataarts_dataservice_api" "test" {
     }
   }
 }
-`, acceptance.HW_DATAARTS_WORKSPACE_ID, name, acceptance.HW_DATAARTS_MANAGER_NAME)
+`, acceptance.HW_DATAARTS_WORKSPACE_ID, name, acceptance.HW_DATAARTS_REVIEWER_NAME)
 }
 
 func testAccDataSourceDataServiceApis_basic() string {

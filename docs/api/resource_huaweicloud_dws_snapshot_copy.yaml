@@ -1,0 +1,18 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dws_snapshot_copy
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DWS
+paths:
+    /v1.0/{project_id}/snapshots/{snapshot_id}:
+        DELETE:
+            tag: DWS
+        GET:
+            tag: DWS
+    /v1.0/{project_id}/snapshots/{snapshot_id}/linked-copy:
+        POST:
+            tag: DWS

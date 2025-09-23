@@ -2,14 +2,11 @@ package dataarts
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -167,12 +164,12 @@ func resourceSecurityRuleCreate(ctx context.Context, d *schema.ResourceData, met
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("uuid", createRuleRespBody)
-	if err != nil || id == nil {
-		return diag.Errorf("error creating DataArts Security data recognition rule: ID is not found in API response")
+	ruleId := utils.PathSearch("uuid", createRuleRespBody, "").(string)
+	if ruleId == "" {
+		return diag.Errorf("unable to find the recognition rule ID of the DataArts Security from the API response")
 	}
 
-	d.SetId(id.(string))
+	d.SetId(ruleId)
 
 	return resourceSecurityRuleRead(ctx, d, meta)
 }
@@ -200,7 +197,8 @@ func resourceSecurityRuleRead(_ context.Context, d *schema.ResourceData, meta in
 	}
 	getRuleResp, err := getRuleClient.Request("GET", getRulePath, &getRuleOpt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseSecurityRuleError(err), "error retrieving DataArts Security data recognition rule")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", "DLS.4106"),
+			"error retrieving DataArts Security data recognition rule")
 	}
 
 	getRuleRespBody, err := utils.FlattenResponse(getRuleResp)
@@ -229,26 +227,6 @@ func resourceSecurityRuleRead(_ context.Context, d *schema.ResourceData, meta in
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
-}
-
-// The example of error message is: {"error_code": "DLS.4106","error_msg": "Rule is not exist."}
-func parseSecurityRuleError(err error) error {
-	var errCode golangsdk.ErrDefault400
-	if errors.As(err, &errCode) {
-		var apiError interface{}
-		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
-			return err
-		}
-		errorCode, errorCodeErr := jmespath.Search("error_code", apiError)
-		if errorCodeErr != nil {
-			return err
-		}
-
-		if errorCode == "DLS.4106" {
-			return golangsdk.ErrDefault404(errCode)
-		}
-	}
-	return err
 }
 
 func resourceSecurityRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

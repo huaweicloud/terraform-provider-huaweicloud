@@ -13,8 +13,14 @@
               },
               "component_id": {
                 "type": "string",
-                "description": "The ID of the component to which the configurations belong.",
+                "description": "The ID of the component to be operated.",
                 "required": true,
+                "forcenew": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The ID of the enterprise project to which the component to be operated belongs.",
+                "optional": true,
                 "forcenew": true
               },
               "environment_id": {
@@ -29,12 +35,12 @@
               },
               "region": {
                 "type": "string",
-                "description": "The region in which to create the resource.",
+                "description": "The region where the component to be operated is located.",
                 "computed": true
               },
               "spec": {
                 "type": "string",
-                "description": "The specification detail of the action.",
+                "description": "The specification detail of the action, in JSON format.",
                 "optional": true
               }
             },
@@ -47,7 +53,7 @@
                         "map",
                         "string"
                       ],
-                      "description": "The resource configurations.",
+                      "description": "The key/value pairs parameters related to the component to be operated.",
                       "optional": true
                     },
                     "name": {

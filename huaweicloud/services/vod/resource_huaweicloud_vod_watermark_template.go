@@ -3,9 +3,9 @@ package vod
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -13,7 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	vod "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vod/v1/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -48,9 +48,8 @@ func ResourceWatermarkTemplate() *schema.Resource {
 				ForceNew: true,
 			},
 			"name": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: validation.StringLenBetween(1, 128),
+				Type:     schema.TypeString,
+				Required: true,
 			},
 			"image_file": {
 				Type:     schema.TypeString,
@@ -121,38 +120,6 @@ func ResourceWatermarkTemplate() *schema.Resource {
 	}
 }
 
-func buildCreateImageProcessOpts(imageProcess string) *vod.CreateWatermarkTemplateReqImageProcess {
-	var imageProcessResult vod.CreateWatermarkTemplateReqImageProcess
-	switch imageProcess {
-	case "ORIGINAL":
-		imageProcessResult = vod.GetCreateWatermarkTemplateReqImageProcessEnum().ORIGINAL
-	case "TRANSPARENT":
-		imageProcessResult = vod.GetCreateWatermarkTemplateReqImageProcessEnum().TRANSPARENT
-	case "GRAYED":
-		imageProcessResult = vod.GetCreateWatermarkTemplateReqImageProcessEnum().GRAYED
-	default:
-		return nil
-	}
-	return &imageProcessResult
-}
-
-func buildCreatePositionOpts(position string) *vod.CreateWatermarkTemplateReqPosition {
-	var positionResult vod.CreateWatermarkTemplateReqPosition
-	switch position {
-	case "TOPRIGHT":
-		positionResult = vod.GetCreateWatermarkTemplateReqPositionEnum().TOPRIGHT
-	case "TOPLEFT":
-		positionResult = vod.GetCreateWatermarkTemplateReqPositionEnum().TOPLEFT
-	case "BOTTOMLEFT":
-		positionResult = vod.GetCreateWatermarkTemplateReqPositionEnum().BOTTOMLEFT
-	case "BOTTOMRIGHT":
-		positionResult = vod.GetCreateWatermarkTemplateReqPositionEnum().BOTTOMRIGHT
-	default:
-		return nil
-	}
-	return &positionResult
-}
-
 func uploadImage(uploadUrl, fileName string, timeout time.Duration) error {
 	data, err := os.Open(fileName)
 	if err != nil {
@@ -175,162 +142,180 @@ func uploadImage(uploadUrl, fileName string, timeout time.Duration) error {
 	return nil
 }
 
+func buildWatermarkTemplateBodyParams(d *schema.ResourceData) map[string]interface{} {
+	return map[string]interface{}{
+		"name":              d.Get("name"),
+		"type":              d.Get("image_type"),
+		"image_process":     utils.ValueIgnoreEmpty(d.Get("image_process")),
+		"dx":                d.Get("horizontal_offset"),
+		"dy":                d.Get("vertical_offset"),
+		"position":          utils.ValueIgnoreEmpty(d.Get("position")),
+		"width":             d.Get("width"),
+		"height":            d.Get("height"),
+		"timeline_start":    d.Get("timeline_start"),
+		"timeline_duration": d.Get("timeline_duration"),
+	}
+}
+
+func createWatermarkTemplate(client *golangsdk.ServiceClient, d *schema.ResourceData) (interface{}, error) {
+	requestPath := client.Endpoint + "v1.0/{project_id}/template/watermark"
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildWatermarkTemplateBodyParams(d)),
+	}
+
+	resp, err := client.Request("POST", requestPath, &requestOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(resp)
+}
+
+func confirmImageUpload(client *golangsdk.ServiceClient, id string) error {
+	requestPath := client.Endpoint + "v1.0/{project_id}/watermark/status/uploaded"
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"id":     id,
+			"status": "SUCCEED",
+		},
+	}
+
+	_, err := client.Request("POST", requestPath, &requestOpt)
+	return err
+}
+
 func resourceWatermarkTemplateCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.HcVodV1Client(config.GetRegion(d))
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		product = "vod"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating VOD client: %s", err)
 	}
 
-	createOpts := vod.CreateWatermarkTemplateReq{
-		Name:             d.Get("name").(string),
-		Type:             d.Get("image_type").(string),
-		ImageProcess:     buildCreateImageProcessOpts(d.Get("image_process").(string)),
-		Dx:               utils.String(d.Get("horizontal_offset").(string)),
-		Dy:               utils.String(d.Get("vertical_offset").(string)),
-		Position:         buildCreatePositionOpts(d.Get("position").(string)),
-		Width:            utils.String(d.Get("width").(string)),
-		Height:           utils.String(d.Get("height").(string)),
-		TimelineStart:    utils.String(d.Get("timeline_start").(string)),
-		TimelineDuration: utils.String(d.Get("timeline_duration").(string)),
-	}
-	log.Printf("[DEBUG] Create VOD watermark template Options: %#v", createOpts)
-
-	createReq := vod.CreateWatermarkTemplateRequest{
-		Body: &createOpts,
-	}
-
-	resp, err := client.CreateWatermarkTemplate(&createReq)
+	respBody, err := createWatermarkTemplate(client, d)
 	if err != nil {
 		return diag.Errorf("error creating VOD watermark template: %s", err)
 	}
 
-	d.SetId(*resp.Id)
+	id := utils.PathSearch("id", respBody, "").(string)
+	if id == "" {
+		return diag.Errorf("error creating VOD watermark template: ID is not found in API response")
+	}
+	d.SetId(id)
 
-	err = uploadImage(*resp.UploadUrl, d.Get("image_file").(string), d.Timeout(schema.TimeoutCreate))
+	uploadUrl := utils.PathSearch("upload_url", respBody, "").(string)
+	if uploadUrl == "" {
+		return diag.Errorf("error creating VOD watermark template: upload_url is not found in API response")
+	}
+
+	err = uploadImage(uploadUrl, d.Get("image_file").(string), d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.Errorf("error uploading watermark image: %s", err)
 	}
 
-	confirmImageUploadReq := vod.ConfirmImageUploadReq{
-		Id:     *resp.Id,
-		Status: vod.GetConfirmImageUploadReqStatusEnum().SUCCEED,
-	}
-	_, err = client.ConfirmImageUpload(&vod.ConfirmImageUploadRequest{Body: &confirmImageUploadReq})
-	if err != nil {
-		return diag.Errorf("error condfirming watermark image upload: %s", err)
+	if err := confirmImageUpload(client, d.Id()); err != nil {
+		return diag.Errorf("error confirming watermark image upload: %s", err)
 	}
 
 	return resourceWatermarkTemplateRead(ctx, d, meta)
 }
 
 func resourceWatermarkTemplateRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.HcVodV1Client(config.GetRegion(d))
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1.0/{project_id}/template/watermark"
+		product = "vod"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating VOD client: %s", err)
 	}
 
-	resp, err := client.ListWatermarkTemplate(&vod.ListWatermarkTemplateRequest{Id: &[]string{d.Id()}})
+	requestPath := client.Endpoint + httpUrl
+	requestPath += fmt.Sprintf("?id=%s", d.Id())
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	resp, err := client.Request("GET", requestPath, &requestOpt)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving VOD watermark template")
 	}
 
-	if resp.Templates == nil || len(*resp.Templates) == 0 {
-		d.SetId("")
-		return diag.Diagnostics{
-			diag.Diagnostic{
-				Severity: diag.Warning,
-				Summary:  "Resource not found",
-				Detail:   fmt.Sprintf("unable to retrieve VOD watermark template: %s", d.Id()),
-			},
-		}
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
-	templateList := *resp.Templates
-	template := templateList[0]
+	template := utils.PathSearch("templates|[0]", respBody, nil)
+	if template == nil {
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
+	}
 
 	mErr := multierror.Append(nil,
-		d.Set("region", config.GetRegion(d)),
-		d.Set("name", template.Name),
-		d.Set("image_type", template.Type),
-		d.Set("image_process", template.ImageProcess),
-		d.Set("horizontal_offset", template.Dx),
-		d.Set("vertical_offset", template.Dy),
-		d.Set("position", template.Position),
-		d.Set("width", template.Width),
-		d.Set("height", template.Height),
-		d.Set("timeline_start", template.TimelineStart),
-		d.Set("timeline_duration", template.TimelineDuration),
-		d.Set("watermark_type", template.WatermarkType),
-		d.Set("image_url", template.ImageUrl),
+		d.Set("region", region),
+		d.Set("name", utils.PathSearch("name", template, nil)),
+		d.Set("image_type", utils.PathSearch("type", template, nil)),
+		d.Set("image_process", utils.PathSearch("image_process", template, nil)),
+		d.Set("horizontal_offset", utils.PathSearch("dx", template, nil)),
+		d.Set("vertical_offset", utils.PathSearch("dy", template, nil)),
+		d.Set("position", utils.PathSearch("position", template, nil)),
+		d.Set("width", utils.PathSearch("width", template, nil)),
+		d.Set("height", utils.PathSearch("height", template, nil)),
+		d.Set("timeline_start", utils.PathSearch("timeline_start", template, nil)),
+		d.Set("timeline_duration", utils.PathSearch("timeline_duration", template, nil)),
+		d.Set("watermark_type", utils.PathSearch("watermark_type", template, nil)),
+		d.Set("image_url", utils.PathSearch("image_url", template, nil)),
 	)
 
-	if err = mErr.ErrorOrNil(); err != nil {
-		return diag.Errorf("error setting VOD watermark template fields: %s", err)
-	}
-
-	return nil
+	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func buildUpdateImageProcessOpts(imageProcess string) *vod.UpdateWatermarkTemplateReqImageProcess {
-	var imageProcessResult vod.UpdateWatermarkTemplateReqImageProcess
-	switch imageProcess {
-	case "ORIGINAL":
-		imageProcessResult = vod.GetUpdateWatermarkTemplateReqImageProcessEnum().ORIGINAL
-	case "TRANSPARENT":
-		imageProcessResult = vod.GetUpdateWatermarkTemplateReqImageProcessEnum().TRANSPARENT
-	case "GRAYED":
-		imageProcessResult = vod.GetUpdateWatermarkTemplateReqImageProcessEnum().GRAYED
-	default:
-		return nil
+func buildUpdateWatermarkTemplateBodyParams(d *schema.ResourceData) map[string]interface{} {
+	return map[string]interface{}{
+		"id":                d.Id(),
+		"name":              d.Get("name"),
+		"image_process":     utils.ValueIgnoreEmpty(d.Get("image_process")),
+		"dx":                d.Get("horizontal_offset"),
+		"dy":                d.Get("vertical_offset"),
+		"position":          utils.ValueIgnoreEmpty(d.Get("position")),
+		"width":             d.Get("width"),
+		"height":            d.Get("height"),
+		"timeline_start":    d.Get("timeline_start"),
+		"timeline_duration": d.Get("timeline_duration"),
 	}
-	return &imageProcessResult
-}
-
-func buildUpdatePositionOpts(position string) *vod.UpdateWatermarkTemplateReqPosition {
-	var positionResult vod.UpdateWatermarkTemplateReqPosition
-	switch position {
-	case "TOPRIGHT":
-		positionResult = vod.GetUpdateWatermarkTemplateReqPositionEnum().TOPRIGHT
-	case "TOPLEFT":
-		positionResult = vod.GetUpdateWatermarkTemplateReqPositionEnum().TOPLEFT
-	case "BOTTOMLEFT":
-		positionResult = vod.GetUpdateWatermarkTemplateReqPositionEnum().BOTTOMLEFT
-	case "BOTTOMRIGHT":
-		positionResult = vod.GetUpdateWatermarkTemplateReqPositionEnum().BOTTOMRIGHT
-	default:
-		return nil
-	}
-	return &positionResult
 }
 
 func resourceWatermarkTemplateUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.HcVodV1Client(config.GetRegion(d))
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1.0/{project_id}/template/watermark"
+		product = "vod"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating VOD client: %s", err)
 	}
 
-	updateOpts := vod.UpdateWatermarkTemplateReq{
-		Id:               d.Id(),
-		Name:             d.Get("name").(string),
-		ImageProcess:     buildUpdateImageProcessOpts(d.Get("image_process").(string)),
-		Dx:               utils.String(d.Get("horizontal_offset").(string)),
-		Dy:               utils.String(d.Get("vertical_offset").(string)),
-		Position:         buildUpdatePositionOpts(d.Get("position").(string)),
-		Width:            utils.String(d.Get("width").(string)),
-		Height:           utils.String(d.Get("height").(string)),
-		TimelineStart:    utils.String(d.Get("timeline_start").(string)),
-		TimelineDuration: utils.String(d.Get("timeline_duration").(string)),
-	}
-	log.Printf("[DEBUG] Update VOD watermark template Options: %#v", updateOpts)
-
-	updateReq := vod.UpdateWatermarkTemplateRequest{
-		Body: &updateOpts,
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes:          []int{200, 201, 204},
+		JSONBody:         utils.RemoveNil(buildUpdateWatermarkTemplateBodyParams(d)),
 	}
 
-	_, err = client.UpdateWatermarkTemplate(&updateReq)
+	_, err = client.Request("PUT", requestPath, &requestOpt)
 	if err != nil {
 		return diag.Errorf("error updating VOD watermark template: %s", err)
 	}
@@ -339,13 +324,25 @@ func resourceWatermarkTemplateUpdate(ctx context.Context, d *schema.ResourceData
 }
 
 func resourceWatermarkTemplateDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.HcVodV1Client(config.GetRegion(d))
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1.0/{project_id}/template/watermark"
+		product = "vod"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
 		return diag.Errorf("error creating VOD client: %s", err)
 	}
 
-	_, err = client.DeleteWatermarkTemplate(&vod.DeleteWatermarkTemplateRequest{Id: d.Id()})
+	requestPath := client.Endpoint + httpUrl
+	requestPath += fmt.Sprintf("?id=%s", d.Id())
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	_, err = client.Request("DELETE", requestPath, &requestOpt)
 	if err != nil {
 		return diag.Errorf("error deleting VOD watermark template: %s", err)
 	}

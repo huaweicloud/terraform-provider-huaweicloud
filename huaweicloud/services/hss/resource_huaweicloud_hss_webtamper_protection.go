@@ -3,15 +3,13 @@ package hss
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
-
-	hssv5 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/hss/v5"
-	hssv5model "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/hss/v5/model"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -48,6 +46,7 @@ func ResourceWebTamperProtection() *schema.Resource {
 			"quota_id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				ForceNew: true,
 			},
 			"is_dynamics_protect": {
 				Type:     schema.TypeBool,
@@ -102,69 +101,95 @@ func ResourceWebTamperProtection() *schema.Resource {
 	}
 }
 
-func openWebTamperProtection(client *hssv5.HssClient, cfg *config.Config, hostId string, d *schema.ResourceData) error {
+func buildOpenWebTamperProtectionQueryParams(epsId string) string {
+	if epsId != "" {
+		return fmt.Sprintf("?enterprise_project_id=%v", epsId)
+	}
+
+	return ""
+}
+
+func buildOpenWebTamperProtectionBodyParams(d *schema.ResourceData, hostId string) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		// **true** means enable, **false** means disabled.
+		"status":        true,
+		"host_id_list":  []string{hostId},
+		"resource_id":   utils.StringIgnoreEmpty(d.Get("quota_id").(string)),
+		"charging_mode": chargingModePacketCycle,
+	}
+
+	return bodyParams
+}
+
+func openWebTamperProtection(client *golangsdk.ServiceClient, cfg *config.Config, d *schema.ResourceData, hostId string) error {
 	var (
 		region = cfg.GetRegion(d)
 		epsId  = cfg.GetEnterpriseProjectID(d)
 	)
 
-	requestBody := hssv5model.SetWtpProtectionStatusRequestInfo{
-		Status:       true,
-		HostIdList:   []string{hostId},
-		ChargingMode: utils.String(chargingModePacketCycle),
-		ResourceId:   utils.StringIgnoreEmpty(d.Get("quota_id").(string)),
-	}
-	opts := hssv5model.SetWtpProtectionStatusInfoRequest{
-		Region:              region,
-		EnterpriseProjectId: &epsId,
-		Body:                &requestBody,
+	requestPath := client.Endpoint + "v5/{project_id}/webtamper/static/status"
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath += buildOpenWebTamperProtectionQueryParams(epsId)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"region": region},
+		JSONBody:         utils.RemoveNil(buildOpenWebTamperProtectionBodyParams(d, hostId)),
 	}
 
-	_, err := client.SetWtpProtectionStatusInfo(&opts)
+	_, err := client.Request("POST", requestPath, &requestOpt)
 
 	return err
 }
 
-func openOrCloseDynamicProtection(client *hssv5.HssClient, cfg *config.Config, hostId string, d *schema.ResourceData) error {
+func buildOpenOrCloseDynamicProtectionBodyParams(d *schema.ResourceData, hostId string) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"status":       d.Get("is_dynamics_protect").(bool),
+		"host_id_list": []string{hostId},
+	}
+
+	return bodyParams
+}
+
+func openOrCloseDynamicProtection(client *golangsdk.ServiceClient, cfg *config.Config, d *schema.ResourceData, hostId string) error {
 	var (
 		region = cfg.GetRegion(d)
 		epsId  = cfg.GetEnterpriseProjectID(d)
 	)
 
-	requestBody := hssv5model.SetRaspSwitchRequestInfo{
-		HostIdList: &[]string{hostId},
-		Status:     utils.Bool(d.Get("is_dynamics_protect").(bool)),
-	}
-	opts := hssv5model.SetRaspSwitchRequest{
-		Region:              region,
-		EnterpriseProjectId: &epsId,
-		Body:                &requestBody,
+	requestPath := client.Endpoint + "v5/{project_id}/webtamper/rasp/status"
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath += buildOpenWebTamperProtectionQueryParams(epsId)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"region": region},
+		JSONBody:         buildOpenOrCloseDynamicProtectionBodyParams(d, hostId),
 	}
 
-	_, err := client.SetRaspSwitch(&opts)
+	_, err := client.Request("POST", requestPath, &requestOpt)
 
 	return err
 }
 
 func resourceWebTamperProtectionCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg    = meta.(*config.Config)
-		region = cfg.GetRegion(d)
-		epsId  = cfg.GetEnterpriseProjectID(d)
-		hostId = d.Get("host_id").(string)
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		epsId   = cfg.GetEnterpriseProjectID(d)
+		hostId  = d.Get("host_id").(string)
+		product = "hss"
 	)
 
-	client, err := cfg.HcHssV5Client(region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating HSS v5 client: %s", err)
+		return diag.Errorf("error creating HSS client: %s", err)
 	}
 
-	checkHostAvailableErr := checkHostAvailable(client, region, epsId, hostId)
+	checkHostAvailableErr := checkHostAvailable(client, epsId, hostId)
 	if checkHostAvailableErr != nil {
 		return diag.FromErr(checkHostAvailableErr)
 	}
 
-	err = openWebTamperProtection(client, cfg, hostId, d)
+	err = openWebTamperProtection(client, cfg, d, hostId)
 	if err != nil {
 		return diag.Errorf("error opening HSS web tamper protection: %s", err)
 	}
@@ -172,7 +197,7 @@ func resourceWebTamperProtectionCreate(ctx context.Context, d *schema.ResourceDa
 	d.SetId(hostId)
 
 	if d.Get("is_dynamics_protect").(bool) {
-		err = openOrCloseDynamicProtection(client, cfg, hostId, d)
+		err = openOrCloseDynamicProtection(client, cfg, d, hostId)
 		if err != nil {
 			return diag.Errorf("error opening HSS dynamic web tamper protection: %s", err)
 		}
@@ -181,58 +206,69 @@ func resourceWebTamperProtectionCreate(ctx context.Context, d *schema.ResourceDa
 	return resourceWebTamperProtectionRead(ctx, d, meta)
 }
 
+func buildWebTamperProtectionQueryParams(epsId, hostId string) string {
+	return fmt.Sprintf("?enterprise_project_id=%v&host_id=%v&protect_status=%v", epsId, hostId, ProtectStatusOpened)
+}
+
+func GetWebTamperProtectionHost(client *golangsdk.ServiceClient, region, epsId, hostId string) (interface{}, error) {
+	getPath := client.Endpoint + "v5/{project_id}/webtamper/hosts"
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath += buildWebTamperProtectionQueryParams(epsId, hostId)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"region": region},
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving HSS web tamper protection host: %s", err)
+	}
+
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return nil, err
+	}
+
+	hostResp := utils.PathSearch("data_list[0]", getRespBody, nil)
+	if hostResp == nil {
+		return nil, golangsdk.ErrDefault404{}
+	}
+
+	return hostResp, nil
+}
+
 func resourceWebTamperProtectionRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg    = meta.(*config.Config)
-		region = cfg.GetRegion(d)
-		hostId = d.Id()
-		epsId  = cfg.GetEnterpriseProjectID(d)
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		hostId  = d.Id()
+		epsId   = cfg.GetEnterpriseProjectID(d, QueryAllEpsValue)
+		product = "hss"
 	)
 
-	client, err := cfg.HcHssV5Client(region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating HSS v5 client: %s", err)
+		return diag.Errorf("error creating HSS client: %s", err)
 	}
 
-	// If the enterprise project ID is not set during query, query all enterprise projects.
-	if epsId == "" {
-		epsId = QueryAllEpsValue
-	}
-	listOpts := hssv5model.ListWtpProtectHostRequest{
-		Region:              region,
-		EnterpriseProjectId: utils.String(epsId),
-		HostId:              utils.String(hostId),
-		ProtectStatus:       utils.String(string(ProtectStatusOpened)),
-	}
-
-	resp, err := client.ListWtpProtectHost(&listOpts)
+	hostResp, err := GetWebTamperProtectionHost(client, region, epsId, hostId)
 	if err != nil {
-		return diag.Errorf("error querying HSS web tamper protection hosts: %s", err)
+		return common.CheckDeletedDiag(d, err, "HSS web tamper protection")
 	}
 
-	if resp == nil || resp.DataList == nil {
-		return diag.Errorf("the host (%s) for HSS web tamper protection does not exist", hostId)
-	}
-
-	wtpProtectHostList := *resp.DataList
-	if len(wtpProtectHostList) == 0 {
-		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "HSS web tamper protection")
-	}
-
-	host := wtpProtectHostList[0]
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("host_id", host.HostId),
-		d.Set("host_name", host.HostName),
-		d.Set("public_ip", host.PublicIp),
-		d.Set("private_ip", host.PrivateIp),
-		d.Set("group_name", host.GroupName),
-		d.Set("os_bit", host.OsBit),
-		d.Set("os_type", host.OsType),
-		d.Set("protect_status", host.ProtectStatus),
-		d.Set("rasp_protect_status", host.RaspProtectStatus),
-		d.Set("anti_tampering_times", host.AntiTamperingTimes),
-		d.Set("detect_tampering_times", host.DetectTamperingTimes),
+		d.Set("host_id", utils.PathSearch("host_id", hostResp, nil)),
+		d.Set("host_name", utils.PathSearch("host_name", hostResp, nil)),
+		d.Set("public_ip", utils.PathSearch("public_ip", hostResp, nil)),
+		d.Set("private_ip", utils.PathSearch("private_ip", hostResp, nil)),
+		d.Set("group_name", utils.PathSearch("group_name", hostResp, nil)),
+		d.Set("os_bit", utils.PathSearch("os_bit", hostResp, nil)),
+		d.Set("os_type", utils.PathSearch("os_type", hostResp, nil)),
+		d.Set("protect_status", utils.PathSearch("protect_status", hostResp, nil)),
+		d.Set("rasp_protect_status", utils.PathSearch("rasp_protect_status", hostResp, nil)),
+		d.Set("anti_tampering_times", utils.PathSearch("anti_tampering_times", hostResp, nil)),
+		d.Set("detect_tampering_times", utils.PathSearch("detect_tampering_times", hostResp, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
@@ -240,31 +276,25 @@ func resourceWebTamperProtectionRead(_ context.Context, d *schema.ResourceData, 
 
 func resourceWebTamperProtectionUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg    = meta.(*config.Config)
-		region = cfg.GetRegion(d)
-		epsId  = cfg.GetEnterpriseProjectID(d)
-		hostId = d.Id()
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		epsId   = cfg.GetEnterpriseProjectID(d)
+		hostId  = d.Id()
+		product = "hss"
 	)
 
-	client, err := cfg.HcHssV5Client(region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating HSS v5 client: %s", err)
+		return diag.Errorf("error creating HSS client: %s", err)
 	}
 
-	checkHostAvailableErr := checkHostAvailable(client, region, epsId, hostId)
+	checkHostAvailableErr := checkHostAvailable(client, epsId, hostId)
 	if checkHostAvailableErr != nil {
 		return diag.FromErr(checkHostAvailableErr)
 	}
 
-	if d.HasChange("quota_id") {
-		err = openWebTamperProtection(client, cfg, hostId, d)
-		if err != nil {
-			return diag.Errorf("error updating HSS web tamper protection: %s", err)
-		}
-	}
-
 	if d.HasChange("is_dynamics_protect") {
-		err = openOrCloseDynamicProtection(client, cfg, hostId, d)
+		err = openOrCloseDynamicProtection(client, cfg, d, hostId)
 		if err != nil {
 			return diag.Errorf("error updating HSS dynamic web tamper protection: %s", err)
 		}
@@ -273,30 +303,46 @@ func resourceWebTamperProtectionUpdate(ctx context.Context, d *schema.ResourceDa
 	return resourceWebTamperProtectionRead(ctx, d, meta)
 }
 
+func buildCloseWebTamperProtectionBodyParams(hostId string) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		// **true** means enable, **false** means disabled.
+		"status":       false,
+		"host_id_list": []string{hostId},
+	}
+
+	return bodyParams
+}
+
 func resourceWebTamperProtectionDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg    = meta.(*config.Config)
-		region = cfg.GetRegion(d)
-		epsId  = cfg.GetEnterpriseProjectID(d)
-		hostId = d.Id()
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		epsId   = cfg.GetEnterpriseProjectID(d)
+		hostId  = d.Id()
+		product = "hss"
 	)
 
-	client, err := cfg.HcHssV5Client(region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating HSS v5 client: %s", err)
+		return diag.Errorf("error creating HSS client: %s", err)
 	}
 
-	opts := hssv5model.SetWtpProtectionStatusInfoRequest{
-		Region:              region,
-		EnterpriseProjectId: &epsId,
-		Body: &hssv5model.SetWtpProtectionStatusRequestInfo{
-			Status:     false,
-			HostIdList: []string{hostId},
-		},
+	requestPath := client.Endpoint + "v5/{project_id}/webtamper/static/status"
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath += buildOpenWebTamperProtectionQueryParams(epsId)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"region": region},
+		JSONBody:         buildCloseWebTamperProtectionBodyParams(hostId),
 	}
 
-	_, err = client.SetWtpProtectionStatusInfo(&opts)
+	_, err = client.Request("POST", requestPath, &requestOpt)
 	if err != nil {
+		// Repeatedly closing web tamper protection, API will not report errors.
+		// If the host does not exist, closing web tamper protection will result in an error as follows:
+		// {"error_code": "00000010","error_description": "拒绝访问"}
+		// The API documentation does not provide any explanatory information about this error,
+		// so the logic of checkDeleted is not added.
 		return diag.Errorf("error closing HSS web tamper protection: %s", err)
 	}
 
@@ -306,17 +352,19 @@ func resourceWebTamperProtectionDelete(_ context.Context, d *schema.ResourceData
 func resourceWebTamperProtectionImportState(_ context.Context, d *schema.ResourceData, meta interface{}) (
 	[]*schema.ResourceData, error) {
 	var (
-		cfg    = meta.(*config.Config)
-		region = cfg.GetRegion(d)
-		hostId = d.Id()
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		hostId  = d.Id()
+		epsId   = cfg.GetEnterpriseProjectID(d, QueryAllEpsValue)
+		product = "hss"
 	)
 
-	client, err := cfg.HcHssV5Client(region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return []*schema.ResourceData{d}, fmt.Errorf("error creating HSS v5 client: %s", err)
+		return []*schema.ResourceData{d}, fmt.Errorf("error creating HSS client: %s", err)
 	}
 
-	checkHostAvailableErr := checkHostAvailable(client, region, QueryAllEpsValue, hostId)
+	checkHostAvailableErr := checkHostAvailable(client, epsId, hostId)
 
 	return []*schema.ResourceData{d}, checkHostAvailableErr
 }

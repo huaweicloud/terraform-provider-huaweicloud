@@ -2,6 +2,7 @@ package as
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -185,6 +186,9 @@ func TestAccASGroup_forceDelete(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "status", "INSERVICE"),
 					resource.TestCheckResourceAttr(resourceName, "delete_publicip", "true"),
 					resource.TestCheckResourceAttr(resourceName, "delete_volume", "true"),
+					resource.TestCheckResourceAttrSet(resourceName, "scaling_configuration_name"),
+					resource.TestCheckResourceAttrSet(resourceName, "is_scaling"),
+					resource.TestCheckResourceAttrSet(resourceName, "create_time"),
 				),
 			},
 		},
@@ -216,6 +220,11 @@ func TestAccASGroup_sourceDestCheck(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "networks.0.source_dest_check", "false"),
 					resource.TestCheckResourceAttr(resourceName, "status", "INSERVICE"),
 				),
+			},
+			{
+				Config: testASGroup_sourceDestErrorCheck(rName),
+				ExpectError: regexp.MustCompile("invalid parameters: it should be min_instance_number <=" +
+					" desire_instance_number <= max_instance_number"),
 			},
 		},
 	})
@@ -456,7 +465,35 @@ func testASGroup_sourceDestCheck(rName string) string {
 resource "huaweicloud_as_group" "acc_as_group"{
   scaling_group_name       = "%s"
   scaling_configuration_id = huaweicloud_as_configuration.acc_as_config.id
+  min_instance_number      = 0
+  max_instance_number      = 2
+  desire_instance_number   = 2
   vpc_id                   = huaweicloud_vpc.test.id
+  delete_instances         = "yes"
+
+  networks {
+    id                = huaweicloud_vpc_subnet.test.id
+    source_dest_check = false
+  }
+  security_groups {
+    id = huaweicloud_networking_secgroup.test.id
+  }
+}
+`, testASGroup_Base(rName), rName)
+}
+
+func testASGroup_sourceDestErrorCheck(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_as_group" "acc_as_group"{
+  scaling_group_name       = "%s"
+  scaling_configuration_id = huaweicloud_as_configuration.acc_as_config.id
+  min_instance_number      = 0
+  max_instance_number      = 0
+  desire_instance_number   = 2
+  vpc_id                   = huaweicloud_vpc.test.id
+  delete_instances         = "yes"
 
   networks {
     id                = huaweicloud_vpc_subnet.test.id

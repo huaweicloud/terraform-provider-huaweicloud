@@ -9,7 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
@@ -31,6 +30,7 @@ import (
 // @API ELB POST /v3/{project_id}/elb/loadbalancers/change-charge-mode
 // @API VPC PUT /v2.0/ports/{port_id}
 // @API VPC GET /v2.0/ports/{port_id}
+// @API EPS POST /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrat
 // @API BSS GET /v2/orders/customer-orders/details/{order_id}
 // @API BSS POST /v2/orders/suscriptions/resources/query
 // @API BSS POST /v2/orders/subscriptions/resources/unsubscribe
@@ -51,6 +51,8 @@ func ResourceLoadBalancer() *schema.Resource {
 			Update: schema.DefaultTimeout(10 * time.Minute),
 			Delete: schema.DefaultTimeout(5 * time.Minute),
 		},
+
+		CustomizeDiff: config.MergeDefaultTags(),
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -119,7 +121,6 @@ func ResourceLoadBalancer() *schema.Resource {
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Computed: true,
 			},
 
@@ -139,25 +140,18 @@ func ResourceLoadBalancer() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"prePaid", "postPaid",
-				}, false),
 			},
 
 			"period_unit": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				RequiredWith: []string{"period"},
-				ValidateFunc: validation.StringInSlice([]string{
-					"month", "year",
-				}, false),
 			},
 
 			"period": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				RequiredWith: []string{"period_unit"},
-				ValidateFunc: validation.IntBetween(1, 9),
 			},
 
 			"auto_renew": common.SchemaAutoRenewUpdatable(nil),
@@ -244,7 +238,7 @@ func resourceLoadBalancerV2Create(ctx context.Context, d *schema.ResourceData, m
 		AdminStateUp:        &adminStateUp,
 		Flavor:              d.Get("flavor").(string),
 		Provider:            lbProvider,
-		EnterpriseProjectID: common.GetEnterpriseProjectID(d, cfg),
+		EnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
 		ProtectionStatus:    d.Get("protection_status").(string),
 		ProtectionReason:    d.Get("protection_reason").(string),
 	}
@@ -521,6 +515,18 @@ func resourceLoadBalancerV2Update(ctx context.Context, d *schema.ResourceData, m
 		tagErr := utils.UpdateResourceTags(elbV2Client, d, "loadbalancers", d.Id())
 		if tagErr != nil {
 			return diag.Errorf("error updating tags of LoadBalancer:%s, err:%s", d.Id(), tagErr)
+		}
+	}
+
+	if d.HasChange("enterprise_project_id") {
+		migrateOpts := config.MigrateResourceOpts{
+			ResourceId:   d.Id(),
+			ResourceType: "loadbalancers",
+			RegionId:     region,
+			ProjectId:    cfg.GetProjectID(region),
+		}
+		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 

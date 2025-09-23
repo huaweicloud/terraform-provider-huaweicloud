@@ -10,6 +10,10 @@ func createURL(client *golangsdk.ServiceClient) string {
 	return client.ServiceURL(client.ProjectID, resourcePath)
 }
 
+func createURLWithEngine(engine string, client *golangsdk.ServiceClient) string {
+	return client.ServiceURL(engine, client.ProjectID, resourcePath)
+}
+
 // deleteURL will build the url of deletion
 func deleteURL(client *golangsdk.ServiceClient, id string) string {
 	return client.ServiceURL(client.ProjectID, resourcePath, id)

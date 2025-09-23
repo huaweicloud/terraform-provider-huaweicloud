@@ -9,8 +9,7 @@
                 "type": "string",
                 "description": "Specifies the database character set.",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "description": {
                 "type": "string",
@@ -24,35 +23,30 @@
               "instance_id": {
                 "type": "string",
                 "description": "Specifies the ID of the RDS PostgreSQL instance.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "is_revoke_public_privilege": {
                 "type": "bool",
                 "description": "Specifies whether to revoke the PUBLIC CREATE permission of the public schema.",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "lc_collate": {
                 "type": "string",
                 "description": "Specifies the database collocation.",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "lc_ctype": {
                 "type": "string",
                 "description": "Specifies the database classification.",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "name": {
                 "type": "string",
                 "description": "Specifies the database name.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "owner": {
                 "type": "string",
@@ -73,8 +67,7 @@
                 "type": "string",
                 "description": "Specifies the name of the database template.",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               }
             }
           },

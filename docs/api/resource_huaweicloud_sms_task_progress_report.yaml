@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_sms_task_progress_report
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: SMS
+paths:
+    /v3/tasks/{task_id}/progress:
+        PUT:
+            tag: SMS

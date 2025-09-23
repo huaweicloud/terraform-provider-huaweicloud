@@ -18,7 +18,7 @@ variable "lts_access_log_stream_id" {}
 variable "fw_instance_id" {}
 variable "lts_log_group_id" {}
 
-resource "huaweicloud_cfw_lts_log" test {
+resource "huaweicloud_cfw_lts_log" "test" {
   fw_instance_id               = var.fw_instance_id
   lts_log_group_id             = var.lts_log_group_id
   lts_attack_log_stream_enable = 1
@@ -44,13 +44,13 @@ The following arguments are supported:
 * `lts_log_group_id` - (Required, String) Specifies the LTS log group ID.
 
 * `lts_attack_log_stream_enable` - (Required, Int) Specifies whether to enable the attack log stream.
-  The valid values are **0** and **1**, where **0** means disable and **1** means enable.
+  The valid values are `0` and `1`, where `0` means disable and `1` means enable.
 
 * `lts_access_log_stream_enable` - (Required, Int) Specifies whether to enable the access log stream.
-  The valid values are **0** and **1**, where **0** means disable and **1** means enable.
+  The valid values are `0` and `1`, where `0` means disable and `1` means enable.
 
 * `lts_flow_log_stream_enable` - (Required, Int) Specifies whether to enable the flow log stream.
-  The valid values are **0** and **1**, where **0** means disable and **1** means enable.
+  The valid values are `0` and `1`, where `0` means disable and `1` means enable.
 
 * `lts_attack_log_stream_id` - (Optional, String) Specifies the attack log stream ID.
 

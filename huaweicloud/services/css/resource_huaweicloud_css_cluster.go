@@ -5,23 +5,18 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"net/http"
 	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
-
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/sdkerr"
-	cssv1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/css/v1"
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/css/v1/model"
-	cssv2model "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/css/v2/model"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -34,11 +29,413 @@ const (
 	InstanceTypeEssCold   = "ess-cold"
 	InstanceTypeEssMaster = "ess-master"
 	InstanceTypeEssClient = "ess-client"
+	InstanceTypeEmbedding = "embedding"
 
 	ClusterStatusInProcess   = "100" // The operation, such as instance creation, is in progress.
 	ClusterStatusAvailable   = "200"
 	ClusterStatusUnavailable = "303"
 )
+
+var embeddingTypes = []string{"chinese", "english", "arabic", "tools", "thai", "turkish", "portuguese", "chinese-english", "spanish"}
+
+var cssClusterSchema = map[string]*schema.Schema{
+	"region": {
+		Type:     schema.TypeString,
+		Optional: true,
+		Computed: true,
+		ForceNew: true,
+	},
+	"name": {
+		Type:     schema.TypeString,
+		Required: true,
+		ForceNew: true,
+	},
+	"engine_type": {
+		Type:     schema.TypeString,
+		Optional: true,
+		ForceNew: true,
+		Default:  "elasticsearch",
+	},
+	"engine_version": {
+		Type:     schema.TypeString,
+		Required: true,
+	},
+	"security_mode": {
+		Type:     schema.TypeBool,
+		Optional: true,
+	},
+	"password": {
+		Type:      schema.TypeString,
+		Sensitive: true,
+		Optional:  true,
+	},
+	"https_enabled": {
+		Type:         schema.TypeBool,
+		Optional:     true,
+		Computed:     true,
+		ForceNew:     true,
+		RequiredWith: []string{"security_mode"},
+	},
+	"ess_node_config": {
+		Type:          schema.TypeList,
+		Optional:      true,
+		MaxItems:      1,
+		ExactlyOneOf:  []string{"node_config", "ess_node_config"},
+		ConflictsWith: []string{"expect_node_num"},
+		Computed:      true,
+		Elem:          essOrColdNodeSchema(),
+		Description:   "schema: Required",
+	},
+	"master_node_config": {
+		Type:     schema.TypeList,
+		Optional: true,
+		MaxItems: 1,
+		Elem:     masterOrClientNodeSchema(),
+	},
+	"client_node_config": {
+		Type:     schema.TypeList,
+		Optional: true,
+		MaxItems: 1,
+		Elem:     masterOrClientNodeSchema(),
+	},
+	"cold_node_config": {
+		Type:     schema.TypeList,
+		Optional: true,
+		MaxItems: 1,
+		Elem:     essOrColdNodeSchema(),
+	},
+	"availability_zone": {
+		Type:             schema.TypeString,
+		Optional:         true,
+		RequiredWith:     []string{"vpc_id", "subnet_id", "security_group_id"},
+		Computed:         true,
+		DiffSuppressFunc: utils.SuppressStringSepratedByCommaDiffs,
+		Description:      "schema: Required",
+	},
+	"vpc_id": {
+		Type:        schema.TypeString,
+		Optional:    true,
+		ForceNew:    true,
+		Computed:    true,
+		Description: "schema: Required",
+	},
+	"subnet_id": {
+		Type:        schema.TypeString,
+		Optional:    true,
+		ForceNew:    true,
+		Computed:    true,
+		Description: "schema: Required",
+	},
+	"security_group_id": {
+		Type:        schema.TypeString,
+		Optional:    true,
+		Computed:    true,
+		Description: "schema: Required",
+	},
+	"backup_strategy": {
+		Type:     schema.TypeList,
+		Optional: true,
+		MaxItems: 1,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"start_time": {
+					Type:     schema.TypeString,
+					Required: true,
+				},
+				"keep_days": {
+					Type:     schema.TypeInt,
+					Optional: true,
+					Default:  7,
+				},
+				"prefix": {
+					Type:     schema.TypeString,
+					Optional: true,
+					Default:  "snapshot",
+				},
+				"bucket": {
+					Type:     schema.TypeString,
+					Optional: true,
+					Computed: true,
+				},
+				"backup_path": {
+					Type:     schema.TypeString,
+					Optional: true,
+					Computed: true,
+				},
+				"agency": {
+					Type:     schema.TypeString,
+					Optional: true,
+					Computed: true,
+				},
+			},
+		},
+	},
+	"public_access": {
+		Type:         schema.TypeList,
+		Optional:     true,
+		MaxItems:     1,
+		RequiredWith: []string{"password"},
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"bandwidth": {
+					Type:     schema.TypeInt,
+					Required: true,
+				},
+				"whitelist_enabled": {
+					Type:     schema.TypeBool,
+					Required: true,
+				},
+				"whitelist": {
+					Type:             schema.TypeString,
+					Optional:         true,
+					DiffSuppressFunc: utils.SuppressStringSepratedByCommaDiffs,
+				},
+				"public_ip": {
+					Type:     schema.TypeString,
+					Computed: true,
+				},
+			},
+		},
+	},
+	"vpcep_endpoint": { // none query API
+		Type:     schema.TypeList,
+		Optional: true,
+		MaxItems: 1,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"endpoint_with_dns_name": { // auto create private domain name
+					Type:     schema.TypeBool,
+					Required: true,
+				},
+				"whitelist": {
+					Type:     schema.TypeList,
+					Optional: true,
+					Elem:     &schema.Schema{Type: schema.TypeString},
+				},
+			},
+		},
+	},
+	"kibana_public_access": {
+		Type:         schema.TypeList,
+		Optional:     true,
+		MaxItems:     1,
+		RequiredWith: []string{"password"},
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"bandwidth": { // Mbit/s
+					Type:     schema.TypeInt,
+					Required: true,
+				},
+				"whitelist_enabled": {
+					Type:     schema.TypeBool,
+					Required: true,
+				},
+				"whitelist": {
+					Type:             schema.TypeString,
+					DiffSuppressFunc: utils.SuppressStringSepratedByCommaDiffs,
+					Optional:         true,
+				},
+				"public_ip": {
+					Type:     schema.TypeString,
+					Computed: true,
+				},
+			},
+		},
+	},
+	"tags": common.TagsSchema(),
+	"enterprise_project_id": {
+		Type:     schema.TypeString,
+		Optional: true,
+		Computed: true,
+	},
+	// charging_mode, period_unit and period only support changing post-paid to pre-paid billing mode.
+	"charging_mode": {
+		Type:     schema.TypeString,
+		Optional: true,
+		Computed: true,
+		ValidateFunc: validation.StringInSlice([]string{
+			"prePaid", "postPaid",
+		}, false),
+	},
+	"period_unit": {
+		Type:         schema.TypeString,
+		Optional:     true,
+		RequiredWith: []string{"period"},
+		ValidateFunc: validation.StringInSlice([]string{
+			"month", "year",
+		}, false),
+	},
+	"period": {
+		Type:         schema.TypeInt,
+		Optional:     true,
+		RequiredWith: []string{"period_unit"},
+	},
+	"auto_renew": common.SchemaAutoRenewUpdatable(nil),
+	"expect_node_num": {
+		Type:       schema.TypeInt,
+		Optional:   true,
+		Deprecated: "please use ess_node_config.instance_number instead",
+		Computed:   true,
+	},
+	"node_config": {
+		Type:          schema.TypeList,
+		Optional:      true,
+		Computed:      true,
+		ForceNew:      true,
+		Deprecated:    "please use ess_node_config instead",
+		ConflictsWith: []string{"master_node_config", "client_node_config", "cold_node_config", "availability_zone"},
+		MaxItems:      1,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"flavor": {
+					Type:     schema.TypeString,
+					Required: true,
+					ForceNew: true,
+				},
+				"volume": {
+					Type:     schema.TypeList,
+					Required: true,
+					ForceNew: true,
+					MaxItems: 1,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"size": {
+								Type:     schema.TypeInt,
+								Required: true,
+							},
+							"volume_type": {
+								Type:     schema.TypeString,
+								Required: true,
+								ForceNew: true,
+							},
+						},
+					},
+				},
+				"network_info": {
+					Type:     schema.TypeList,
+					Required: true,
+					ForceNew: true,
+					MaxItems: 1,
+					Elem: &schema.Resource{
+						Schema: map[string]*schema.Schema{
+							"security_group_id": {
+								Type:     schema.TypeString,
+								Required: true,
+								ForceNew: true,
+							},
+							"subnet_id": {
+								Type:     schema.TypeString,
+								Required: true,
+								ForceNew: true,
+							},
+							"vpc_id": {
+								Type:     schema.TypeString,
+								Required: true,
+								ForceNew: true,
+							},
+						},
+					},
+				},
+				"availability_zone": {
+					Type:     schema.TypeString,
+					Required: true,
+					ForceNew: true,
+				},
+			},
+		},
+	},
+	"nodes": {
+		Type:     schema.TypeList,
+		Computed: true,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"id": {
+					Type:     schema.TypeString,
+					Computed: true,
+				},
+				"name": {
+					Type:     schema.TypeString,
+					Computed: true,
+				},
+				"type": {
+					Type:     schema.TypeString,
+					Computed: true,
+				},
+				"availability_zone": {
+					Type:     schema.TypeString,
+					Computed: true,
+				},
+				"status": {
+					Type:     schema.TypeString,
+					Computed: true,
+				},
+				"spec_code": {
+					Type:     schema.TypeString,
+					Computed: true,
+				},
+				"ip": {
+					Type:     schema.TypeString,
+					Computed: true,
+				},
+				"resource_id": {
+					Type:     schema.TypeString,
+					Computed: true,
+				},
+			},
+		},
+	},
+	"endpoint": {
+		Type:     schema.TypeString,
+		Computed: true,
+	},
+	"status": {
+		Type:     schema.TypeString,
+		Computed: true,
+	},
+	"vpcep_endpoint_id": {
+		Type:     schema.TypeString,
+		Computed: true,
+	},
+	"vpcep_ip": {
+		Type:     schema.TypeString,
+		Computed: true,
+	},
+	"created_at": {
+		Type:     schema.TypeString,
+		Computed: true,
+	},
+	"updated_at": {
+		Type:     schema.TypeString,
+		Computed: true,
+	},
+	"bandwidth_resource_id": {
+		Type:     schema.TypeString,
+		Computed: true,
+	},
+	"is_period": {
+		Type:     schema.TypeBool,
+		Computed: true,
+	},
+	"backup_available": {
+		Type:     schema.TypeBool,
+		Computed: true,
+	},
+	"disk_encrypted": {
+		Type:     schema.TypeBool,
+		Computed: true,
+	},
+	"created": {
+		Type:        schema.TypeString,
+		Computed:    true,
+		Description: "schema: Deprecated; use created_at instead",
+	},
+	"enable_force_new": {
+		Type:         schema.TypeString,
+		Optional:     true,
+		ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+		Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
+	},
+}
 
 var clusterNonUpdatableParams = []string{"engine_version", "availability_zone"}
 
@@ -96,409 +493,16 @@ func ResourceCssCluster() *schema.Resource {
 			Delete: schema.DefaultTimeout(60 * time.Minute),
 		},
 
-		CustomizeDiff: config.FlexibleForceNew(clusterNonUpdatableParams),
+		CustomizeDiff: customdiff.All(
+			config.FlexibleForceNew(clusterNonUpdatableParams, cssClusterSchema),
+			config.MergeDefaultTags(),
+		),
 
-		Schema: map[string]*schema.Schema{
-			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-			},
-			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-			},
-			"engine_type": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				Default:      "elasticsearch",
-				ValidateFunc: validation.StringInSlice([]string{"elasticsearch", "logstash"}, false),
-			},
-			"engine_version": {
-				Type:     schema.TypeString,
-				Required: true,
-			},
-			"security_mode": {
-				Type:     schema.TypeBool,
-				Optional: true,
-			},
-			"password": {
-				Type:      schema.TypeString,
-				Sensitive: true,
-				Optional:  true,
-			},
-			"https_enabled": {
-				Type:         schema.TypeBool,
-				Optional:     true,
-				Computed:     true,
-				ForceNew:     true,
-				RequiredWith: []string{"security_mode"},
-			},
-			"ess_node_config": {
-				Type:          schema.TypeList,
-				Optional:      true,
-				MaxItems:      1,
-				ExactlyOneOf:  []string{"node_config", "ess_node_config"},
-				ConflictsWith: []string{"expect_node_num"},
-				Computed:      true,
-				Elem:          essOrColdNodeSchema(1, 200),
-				Description:   "schema: Required",
-			},
-			"master_node_config": {
-				Type:     schema.TypeList,
-				Optional: true,
-				MaxItems: 1,
-				Elem:     masterOrClientNodeSchema(3, 10),
-			},
-			"client_node_config": {
-				Type:     schema.TypeList,
-				Optional: true,
-				MaxItems: 1,
-				Elem:     masterOrClientNodeSchema(1, 32),
-			},
-			"cold_node_config": {
-				Type:     schema.TypeList,
-				Optional: true,
-				MaxItems: 1,
-				Elem:     essOrColdNodeSchema(1, 32),
-			},
-			"availability_zone": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				RequiredWith: []string{"vpc_id", "subnet_id", "security_group_id"},
-				Computed:     true,
-				Description:  "schema: Required",
-			},
-			"vpc_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				ForceNew:    true,
-				Computed:    true,
-				Description: "schema: Required",
-			},
-			"subnet_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				ForceNew:    true,
-				Computed:    true,
-				Description: "schema: Required",
-			},
-			"security_group_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: "schema: Required",
-			},
-			"backup_strategy": {
-				Type:     schema.TypeList,
-				Optional: true,
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"start_time": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"keep_days": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Default:  7,
-						},
-						"prefix": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Default:  "snapshot",
-						},
-						"bucket": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-						},
-						"backup_path": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-						},
-						"agency": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-						},
-					},
-				},
-			},
-			"public_access": {
-				Type:         schema.TypeList,
-				Optional:     true,
-				MaxItems:     1,
-				RequiredWith: []string{"password"},
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"bandwidth": {
-							Type:     schema.TypeInt,
-							Required: true,
-						},
-						"whitelist_enabled": {
-							Type:     schema.TypeBool,
-							Required: true,
-						},
-						"whitelist": {
-							Type:     schema.TypeString,
-							Optional: true,
-						},
-						"public_ip": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-					},
-				},
-			},
-			"vpcep_endpoint": { // none query API
-				Type:     schema.TypeList,
-				Optional: true,
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"endpoint_with_dns_name": { // auto create private domain name
-							Type:     schema.TypeBool,
-							Required: true,
-						},
-						"whitelist": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-						},
-					},
-				},
-			},
-			"kibana_public_access": {
-				Type:         schema.TypeList,
-				Optional:     true,
-				MaxItems:     1,
-				RequiredWith: []string{"password"},
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"bandwidth": { // Mbit/s
-							Type:     schema.TypeInt,
-							Required: true,
-						},
-						"whitelist_enabled": {
-							Type:     schema.TypeBool,
-							Required: true,
-						},
-						"whitelist": {
-							Type:     schema.TypeString,
-							Optional: true,
-						},
-						"public_ip": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-					},
-				},
-			},
-			"tags": common.TagsSchema(),
-			"enterprise_project_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
-			// charging_mode, period_unit and period only support changing post-paid to pre-paid billing mode.
-			"charging_mode": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"prePaid", "postPaid",
-				}, false),
-			},
-			"period_unit": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				RequiredWith: []string{"period"},
-				ValidateFunc: validation.StringInSlice([]string{
-					"month", "year",
-				}, false),
-			},
-			"period": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				RequiredWith: []string{"period_unit"},
-				ValidateFunc: validation.IntBetween(1, 9),
-			},
-			"auto_renew": common.SchemaAutoRenewUpdatable(nil),
-			"expect_node_num": {
-				Type:       schema.TypeInt,
-				Optional:   true,
-				Deprecated: "please use ess_node_config.instance_number instead",
-				Computed:   true,
-			},
-			"node_config": {
-				Type:          schema.TypeList,
-				Optional:      true,
-				Computed:      true,
-				ForceNew:      true,
-				Deprecated:    "please use ess_node_config instead",
-				ConflictsWith: []string{"master_node_config", "client_node_config", "cold_node_config", "availability_zone"},
-				MaxItems:      1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"flavor": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
-						},
-						"volume": {
-							Type:     schema.TypeList,
-							Required: true,
-							ForceNew: true,
-							MaxItems: 1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"size": {
-										Type:     schema.TypeInt,
-										Required: true,
-									},
-									"volume_type": {
-										Type:     schema.TypeString,
-										Required: true,
-										ForceNew: true,
-									},
-								},
-							},
-						},
-						"network_info": {
-							Type:     schema.TypeList,
-							Required: true,
-							ForceNew: true,
-							MaxItems: 1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"security_group_id": {
-										Type:     schema.TypeString,
-										Required: true,
-										ForceNew: true,
-									},
-									"subnet_id": {
-										Type:     schema.TypeString,
-										Required: true,
-										ForceNew: true,
-									},
-									"vpc_id": {
-										Type:     schema.TypeString,
-										Required: true,
-										ForceNew: true,
-									},
-								},
-							},
-						},
-						"availability_zone": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
-						},
-					},
-				},
-			},
-			"nodes": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"id": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"name": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"type": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"availability_zone": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"status": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"spec_code": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"ip": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"resource_id": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-					},
-				},
-			},
-			"endpoint": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"vpcep_endpoint_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"vpcep_ip": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"created_at": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"updated_at": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"bandwidth_resource_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"is_period": {
-				Type:     schema.TypeBool,
-				Computed: true,
-			},
-			"backup_available": {
-				Type:     schema.TypeBool,
-				Computed: true,
-			},
-			"disk_encrypted": {
-				Type:     schema.TypeBool,
-				Computed: true,
-			},
-			"created": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: "schema: Deprecated; use created_at instead",
-			},
-			"enable_force_new": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
-				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
-			},
-		},
+		Schema: cssClusterSchema,
 	}
 }
 
-func essOrColdNodeSchema(min, max int) *schema.Resource {
+func essOrColdNodeSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"flavor": {
@@ -507,9 +511,13 @@ func essOrColdNodeSchema(min, max int) *schema.Resource {
 			},
 
 			"instance_number": {
-				Type:         schema.TypeInt,
-				Required:     true,
-				ValidateFunc: validation.IntBetween(min, max),
+				Type:     schema.TypeInt,
+				Required: true,
+			},
+
+			"type": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 
 			"volume": {
@@ -521,9 +529,8 @@ func essOrColdNodeSchema(min, max int) *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"size": {
-							Type:         schema.TypeInt,
-							Required:     true,
-							ValidateFunc: validation.IntDivisibleBy(10),
+							Type:     schema.TypeInt,
+							Required: true,
 						},
 						"volume_type": {
 							Type:     schema.TypeString,
@@ -542,7 +549,7 @@ func essOrColdNodeSchema(min, max int) *schema.Resource {
 	}
 }
 
-func masterOrClientNodeSchema(min, max int) *schema.Resource {
+func masterOrClientNodeSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"flavor": {
@@ -551,9 +558,8 @@ func masterOrClientNodeSchema(min, max int) *schema.Resource {
 			},
 
 			"instance_number": {
-				Type:         schema.TypeInt,
-				Required:     true,
-				ValidateFunc: validation.IntBetween(min, max),
+				Type:     schema.TypeInt,
+				Required: true,
 			},
 
 			"volume": {
@@ -563,9 +569,8 @@ func masterOrClientNodeSchema(min, max int) *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"size": {
-							Type:         schema.TypeInt,
-							Required:     true,
-							ValidateFunc: validation.IntDivisibleBy(10),
+							Type:     schema.TypeInt,
+							Required: true,
 						},
 						"volume_type": {
 							Type:     schema.TypeString,
@@ -586,34 +591,48 @@ func masterOrClientNodeSchema(min, max int) *schema.Resource {
 func resourceCssClusterCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
-	cssV1Client, err := conf.HcCssV1Client(region)
+	v1client, err := conf.CssV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CSS V1 client: %s", err)
 	}
-	cssV2Client, err := conf.HcCssV2Client(region)
+
+	v2client, err := conf.CssV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CSS V2 client: %s", err)
 	}
 
-	createClusterOpts, paramErr := buildClusterCreateParameters(d, conf)
+	createClusterHttpUrl := "v2.0/{project_id}/clusters"
+	createClusterPath := v2client.Endpoint + createClusterHttpUrl
+	createClusterPath = strings.ReplaceAll(createClusterPath, "{project_id}", v2client.ProjectID)
+
+	createClusterOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	bodyParams, paramErr := buildClusterCreateParameters(d, conf)
 	if paramErr != nil {
 		return diag.FromErr(paramErr)
 	}
-
-	r, err := cssV2Client.CreateCluster(createClusterOpts)
+	createClusterOpt.JSONBody = utils.RemoveNil(bodyParams)
+	createClusterResp, err := v2client.Request("POST", createClusterPath, &createClusterOpt)
 	if err != nil {
 		return diag.Errorf("error creating CSS cluster, err: %s", err)
 	}
 
-	if (r.Cluster == nil || r.Cluster.Id == nil) && r.OrderId == nil {
-		return diag.Errorf("error creating CSS cluster: id is not found in API response,%#v", r)
+	createClusterRespBody, err := utils.FlattenResponse(createClusterResp)
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
-	if r.OrderId == nil {
-		if r.Cluster == nil || r.Cluster.Id == nil {
-			return diag.Errorf("error creating CSS cluster: id is not found in API response,%#v", r)
+	clusterId := utils.PathSearch("cluster.id", createClusterRespBody, "").(string)
+	orderId := utils.PathSearch("orderId", createClusterRespBody, "").(string)
+
+	if orderId == "" {
+		if clusterId == "" {
+			return diag.Errorf("error creating CSS cluster: id is not found in API response,%#v", createClusterRespBody)
 		}
-		d.SetId(*r.Cluster.Id)
+		d.SetId(clusterId)
 	} else {
 		bssClient, err := conf.BssV2Client(conf.GetRegion(d))
 		if err != nil {
@@ -621,20 +640,20 @@ func resourceCssClusterCreate(ctx context.Context, d *schema.ResourceData, meta 
 		}
 
 		// 1. If charging mode is PrePaid, wait for the order to be completed.
-		err = common.WaitOrderComplete(ctx, bssClient, *r.OrderId, d.Timeout(schema.TimeoutCreate))
+		err = common.WaitOrderComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
 			return diag.FromErr(err)
 		}
 
 		// 2. get the resource ID, must be after order success
-		resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, *r.OrderId, d.Timeout(schema.TimeoutCreate))
+		resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
 			return diag.FromErr(err)
 		}
 		d.SetId(resourceId)
 	}
 
-	createResultErr := checkClusterCreateResult(ctx, cssV1Client, d.Id(), d.Timeout(schema.TimeoutCreate))
+	createResultErr := checkClusterCreateResult(ctx, v1client, d.Id(), d.Timeout(schema.TimeoutCreate))
 	if createResultErr != nil {
 		return diag.FromErr(createResultErr)
 	}
@@ -642,58 +661,64 @@ func resourceCssClusterCreate(ctx context.Context, d *schema.ResourceData, meta 
 	return resourceCssClusterRead(ctx, d, meta)
 }
 
-func buildClusterCreateParameters(d *schema.ResourceData, conf *config.Config) (*cssv2model.CreateClusterRequest, error) {
-	createOpts := cssv2model.CreateClusterBody{
-		Name: d.Get("name").(string),
-		Datastore: &cssv2model.CreateClusterDatastoreBody{
-			Type:    d.Get("engine_type").(string),
-			Version: d.Get("engine_version").(string),
+func buildClusterCreateParameters(d *schema.ResourceData, conf *config.Config) (map[string]interface{}, error) {
+	cluster := map[string]interface{}{
+		"name": d.Get("name").(string),
+		"datastore": map[string]interface{}{
+			"type":    d.Get("engine_type"),
+			"version": d.Get("engine_version"),
 		},
-		EnterpriseProjectId: utils.StringIgnoreEmpty(conf.GetEnterpriseProjectID(d)),
-		Tags:                buildCssTags(d.Get("tags").(map[string]interface{})),
-		BackupStrategy:      resourceCssClusterCreateBackupStrategy(d.Get("backup_strategy").([]interface{})),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(conf.GetEnterpriseProjectID(d)),
+		"tags":                  utils.ExpandResourceTagsMap(d.Get("tags").(map[string]interface{})),
+		"backupStrategy":        buildCssClusterCreateBackupStrategy(d.Get("backup_strategy").([]interface{})),
 	}
 
+	roles := make([]interface{}, 0)
 	if ess, ok := d.GetOk("ess_node_config"); ok {
 		essNode := ess.([]interface{})[0].(map[string]interface{})
-		createOpts.Roles = append(createOpts.Roles, buildCreateClusterRole(essNode, InstanceTypeEss))
+		instanceType := InstanceTypeEss
+		if essNode["type"].(string) != "" {
+			instanceType = essNode["type"].(string)
+		}
+		roles = append(roles, buildCreateClusterRole(essNode, instanceType))
 
 		if v, ok := d.GetOk("master_node_config"); ok {
 			node := v.([]interface{})[0].(map[string]interface{})
-			createOpts.Roles = append(createOpts.Roles, buildCreateClusterRole(node, InstanceTypeEssMaster))
+			roles = append(roles, buildCreateClusterRole(node, InstanceTypeEssMaster))
 		}
 		if v, ok := d.GetOk("client_node_config"); ok {
 			node := v.([]interface{})[0].(map[string]interface{})
-			createOpts.Roles = append(createOpts.Roles, buildCreateClusterRole(node, InstanceTypeEssClient))
+			roles = append(roles, buildCreateClusterRole(node, InstanceTypeEssClient))
 		}
 		if v, ok := d.GetOk("cold_node_config"); ok {
 			node := v.([]interface{})[0].(map[string]interface{})
-			createOpts.Roles = append(createOpts.Roles, buildCreateClusterRole(node, InstanceTypeEssCold))
+			roles = append(roles, buildCreateClusterRole(node, InstanceTypeEssCold))
 		}
 
-		createOpts.AvailabilityZone = utils.StringIgnoreEmpty(d.Get("availability_zone").(string))
-		createOpts.Nics = &cssv2model.CreateClusterInstanceNicsBody{
-			VpcId:           d.Get("vpc_id").(string),
-			NetId:           d.Get("subnet_id").(string),
-			SecurityGroupId: d.Get("security_group_id").(string),
+		cluster["availability_zone"] = utils.StringIgnoreEmpty(d.Get("availability_zone").(string))
+		cluster["nics"] = map[string]interface{}{
+			"vpcId":           d.Get("vpc_id"),
+			"netId":           d.Get("subnet_id"),
+			"securityGroupId": d.Get("security_group_id"),
 		}
+		cluster["roles"] = roles
 	} else {
 		// Compatible with previous version
-		createOpts.AvailabilityZone = utils.StringIgnoreEmpty(d.Get("node_config.0.availability_zone").(string))
-		createOpts.Nics = &cssv2model.CreateClusterInstanceNicsBody{
-			VpcId:           d.Get("node_config.0.network_info.0.vpc_id").(string),
-			NetId:           d.Get("node_config.0.network_info.0.subnet_id").(string),
-			SecurityGroupId: d.Get("node_config.0.network_info.0.security_group_id").(string),
+		cluster["availability_zone"] = utils.StringIgnoreEmpty(d.Get("node_config.0.availability_zone").(string))
+		cluster["nics"] = map[string]interface{}{
+			"vpcId":           d.Get("node_config.0.network_info.0.vpc_id"),
+			"netId":           d.Get("node_config.0.network_info.0.subnet_id"),
+			"securityGroupId": d.Get("node_config.0.network_info.0.security_group_id"),
 		}
 
 		// add ess role
-		createOpts.Roles = append(createOpts.Roles, cssv2model.CreateClusterRolesBody{
-			FlavorRef:   d.Get("node_config.0.flavor").(string),
-			Type:        InstanceTypeEss,
-			InstanceNum: int32(d.Get("expect_node_num").(int)),
-			Volume: &cssv2model.CreateClusterInstanceVolumeBody{
-				Size:       int32(d.Get("node_config.0.volume.0.size").(int)),
-				VolumeType: d.Get("node_config.0.volume.0.volume_type").(string),
+		cluster["roles"] = append(roles, map[string]interface{}{
+			"flavorRef":   d.Get("node_config.0.flavor"),
+			"type":        InstanceTypeEss,
+			"instanceNum": d.Get("expect_node_num"),
+			"volume": map[string]interface{}{
+				"size":        d.Get("node_config.0.volume.0.size"),
+				"volume_type": d.Get("node_config.0.volume.0.volume_type"),
 			},
 		})
 	}
@@ -704,306 +729,319 @@ func buildClusterCreateParameters(d *schema.ResourceData, conf *config.Config) (
 		if adminPassword == "" {
 			return nil, fmt.Errorf("administrator password is required in security mode")
 		}
-		createOpts.AuthorityEnable = utils.Bool(true)
-		createOpts.AdminPwd = utils.String(adminPassword)
-
-		createOpts.HttpsEnable = utils.Bool(d.Get("https_enabled").(bool))
+		cluster["authorityEnable"] = true
+		cluster["adminPwd"] = adminPassword
+		cluster["httpsEnable"] = d.Get("https_enabled")
 	}
 
 	if _, ok := d.GetOk("vpcep_endpoint"); ok {
-		createOpts.LoadBalance = &cssv2model.CreateClusterLoadBalance{
-			EndpointWithDnsName: d.Get("vpcep_endpoint.0.endpoint_with_dns_name").(bool),
+		loadBalance := map[string]interface{}{
+			"endpointWithDnsName": d.Get("vpcep_endpoint.0.endpoint_with_dns_name"),
 		}
 
 		vpcPermissions := utils.ExpandToStringList(d.Get("vpcep_endpoint.0.whitelist").([]interface{}))
 		if len(vpcPermissions) > 0 {
-			createOpts.LoadBalance.VpcPermissions = &vpcPermissions
+			loadBalance["vpcPermissions"] = vpcPermissions
 		}
+		cluster["loadBalance"] = loadBalance
 	}
 
 	if _, ok := d.GetOk("kibana_public_access"); ok {
 		whitelist, ok := d.GetOk("kibana_public_access.0.whitelist")
-		createOpts.PublicKibanaReq = &cssv2model.CreateClusterPublicKibanaReq{
-			EipSize: int32(d.Get("kibana_public_access.0.bandwidth").(int)),
-			ElbWhiteList: &cssv2model.CreateClusterPublicKibanaElbWhiteList{
-				EnableWhiteList: ok,
-				WhiteList:       whitelist.(string),
+		cluster["publicKibanaReq"] = map[string]interface{}{
+			"eipSize": d.Get("kibana_public_access.0.bandwidth"),
+			"elbWhiteList": map[string]interface{}{
+				"enableWhiteList": ok,
+				"whiteList":       whitelist,
 			},
 		}
 	}
 
 	if _, ok := d.GetOk("public_access"); ok {
 		whitelist, ok := d.GetOk("public_access.0.whitelist")
-		createOpts.PublicIPReq = &cssv2model.CreateClusterPublicIpReq{
-			PublicBindType: "auto_assign",
-			Eip: &cssv2model.CreateClusterPublicEip{
-				BandWidth: &cssv2model.CreateClusterPublicEipSize{
-					Size: int32(d.Get("public_access.0.bandwidth").(int)),
+		cluster["publicIPReq"] = map[string]interface{}{
+			"publicBindType": "auto_assign",
+			"eip": map[string]interface{}{
+				"bandWidth": map[string]interface{}{
+					"size": d.Get("public_access.0.bandwidth"),
 				},
 			},
-			ElbWhiteListReq: &cssv2model.CreateClusterElbWhiteList{
-				EnableWhiteList: ok,
-				WhiteList:       utils.StringIgnoreEmpty(whitelist.(string)),
+			"elbWhiteListReq": map[string]interface{}{
+				"enableWhiteList": ok,
+				"whiteList":       whitelist,
 			},
 		}
 	}
 
 	if payModel, ok := d.GetOk("period_unit"); ok && d.Get("charging_mode").(string) != "postPaid" {
-		createOpts.PayInfo = &cssv2model.PayInfoBody{
-			Period:    int32(d.Get("period").(int)),
-			IsAutoPay: utils.Int32(1),
+		payInfo := map[string]interface{}{
+			"period":    d.Get("period"),
+			"isAutoPay": 1,
 		}
 
 		if payModel == "month" {
-			createOpts.PayInfo.PayModel = 2
+			payInfo["payModel"] = 2
 		} else {
-			createOpts.PayInfo.PayModel = 3
+			payInfo["payModel"] = 3
 		}
 
 		if d.Get("auto_renew").(string) == "true" {
-			createOpts.PayInfo.IsAutoRenew = utils.Int32(1)
+			payInfo["isAutoRenew"] = 1
 		}
+		cluster["payInfo"] = payInfo
 	}
 
-	return &cssv2model.CreateClusterRequest{Body: &cssv2model.CreateClusterReq{Cluster: &createOpts}}, nil
+	bodyParams := map[string]interface{}{
+		"cluster": cluster,
+	}
+	return bodyParams, nil
 }
 
-func buildCreateClusterRole(node map[string]interface{}, nodeType string) cssv2model.CreateClusterRolesBody {
-	clusterRolesBody := cssv2model.CreateClusterRolesBody{
-		FlavorRef:   node["flavor"].(string),
-		Type:        nodeType,
-		InstanceNum: int32(node["instance_number"].(int)),
+func buildCreateClusterRole(node map[string]interface{}, nodeType string) map[string]interface{} {
+	roleBoby := map[string]interface{}{
+		"flavorRef":   node["flavor"],
+		"type":        nodeType,
+		"instanceNum": node["instance_number"],
 	}
 
 	// Ess node and cold node support local disk. The volume value is empty.
 	// Master node and client node do not support local volume. The volume value is required.
 	if volumes := node["volume"].([]interface{}); len(volumes) > 0 {
 		volume := volumes[0].(map[string]interface{})
-		clusterRolesBody.Volume = &cssv2model.CreateClusterInstanceVolumeBody{
-			Size:       int32(volume["size"].(int)),
-			VolumeType: volume["volume_type"].(string),
+		roleBoby["volume"] = map[string]interface{}{
+			"size":        volume["size"],
+			"volume_type": volume["volume_type"],
 		}
 	}
-	return clusterRolesBody
+	return roleBoby
 }
 
-func buildCssTags(tagmap map[string]interface{}) *[]cssv2model.CreateClusterTagsBody {
-	var taglist []cssv2model.CreateClusterTagsBody
-
-	for k, v := range tagmap {
-		tag := cssv2model.CreateClusterTagsBody{
-			Key:   k,
-			Value: v.(string),
-		}
-		taglist = append(taglist, tag)
-	}
-
-	return &taglist
-}
-
-func resourceCssClusterCreateBackupStrategy(backupRaw []interface{}) *cssv2model.CreateClusterBackupStrategyBody {
+func buildCssClusterCreateBackupStrategy(backupRaw []interface{}) map[string]interface{} {
 	if len(backupRaw) == 0 {
 		return nil
 	}
 	raw := backupRaw[0].(map[string]interface{})
-	opts := cssv2model.CreateClusterBackupStrategyBody{
-		Prefix:   raw["prefix"].(string),
-		Period:   raw["start_time"].(string),
-		Keepday:  int32(raw["keep_days"].(int)),
-		Bucket:   utils.StringIgnoreEmpty(raw["bucket"].(string)),
-		BasePath: utils.StringIgnoreEmpty(raw["backup_path"].(string)),
-		Agency:   utils.StringIgnoreEmpty(raw["agency"].(string)),
+	return map[string]interface{}{
+		"prefix":   raw["prefix"],
+		"period":   raw["start_time"],
+		"keepday":  raw["keep_days"],
+		"bucket":   utils.ValueIgnoreEmpty(raw["bucket"]),
+		"basePath": utils.ValueIgnoreEmpty(raw["backup_path"]),
+		"agency":   utils.ValueIgnoreEmpty(raw["agency"]),
 	}
-	return &opts
 }
 
 func resourceCssClusterRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
-	cssV1Client, err := conf.HcCssV1Client(region)
+	v1Client, err := conf.CssV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CSS V1 client: %s", err)
 	}
 
-	clusterDetail, err := cssV1Client.ShowClusterDetail(&model.ShowClusterDetailRequest{ClusterId: d.Id()})
+	clusterDetail, err := getClusterDetails(v1Client, d.Id())
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "CSS cluster")
+		// "CSS.0015": The cluster does not exist. Status code is 403.
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected403ErrInto404Err(err, "errCode", "CSS.0015"), "error getting CSS cluster")
 	}
 
 	mErr := multierror.Append(
 		d.Set("region", region),
-		d.Set("name", clusterDetail.Name),
-		d.Set("engine_type", clusterDetail.Datastore.Type),
-		d.Set("engine_version", clusterDetail.Datastore.Version),
-		d.Set("enterprise_project_id", clusterDetail.EnterpriseProjectId),
-		d.Set("vpc_id", clusterDetail.VpcId),
-		d.Set("subnet_id", clusterDetail.SubnetId),
-		d.Set("security_group_id", clusterDetail.SecurityGroupId),
-		d.Set("nodes", flattenClusterNodes(clusterDetail.Instances)),
-		setNodeConfigsAndAzToState(d, clusterDetail),
-		setVpcEndpointIdToState(d, cssV1Client),
-		d.Set("vpcep_ip", clusterDetail.VpcepIp),
-		d.Set("kibana_public_access", flattenKibana(clusterDetail.PublicKibanaResp)),
-		d.Set("public_access", flattenPublicAccess(clusterDetail.ElbWhiteList, clusterDetail.BandwidthSize,
-			clusterDetail.PublicIp)),
-		d.Set("tags", flattenTags(clusterDetail.Tags)),
-		d.Set("created", clusterDetail.Created),
-		d.Set("endpoint", clusterDetail.Endpoint),
-		d.Set("status", clusterDetail.Status),
-		d.Set("security_mode", flattenSecurity(clusterDetail.AuthorityEnable)),
-		d.Set("https_enabled", clusterDetail.HttpsEnable),
-		setClusterBackupStrategy(d, cssV1Client),
-		d.Set("created_at", clusterDetail.Created),
-		d.Set("updated_at", clusterDetail.Updated),
-		d.Set("bandwidth_resource_id", clusterDetail.BandwidthResourceId),
-		d.Set("is_period", clusterDetail.Period),
-		d.Set("backup_available", clusterDetail.BackupAvailable),
-		d.Set("disk_encrypted", clusterDetail.DiskEncrypted),
+		d.Set("name", utils.PathSearch("name", clusterDetail, nil)),
+		d.Set("engine_type", utils.PathSearch("datastore.type", clusterDetail, nil)),
+		d.Set("engine_version", utils.PathSearch("datastore.version", clusterDetail, nil)),
+		d.Set("enterprise_project_id", utils.PathSearch("enterpriseProjectId", clusterDetail, nil)),
+		d.Set("vpc_id", utils.PathSearch("vpcId", clusterDetail, nil)),
+		d.Set("subnet_id", utils.PathSearch("subnetId", clusterDetail, nil)),
+		d.Set("security_group_id", utils.PathSearch("securityGroupId", clusterDetail, nil)),
+		d.Set("nodes", flattenClusterNodes(utils.PathSearch("instances", clusterDetail, make([]interface{}, 0)).([]interface{}))),
+		setNodeConfigsAndAzToState(clusterDetail, d),
+		d.Set("vpcep_ip", utils.PathSearch("vpcepIp", clusterDetail, nil)),
+		d.Set("kibana_public_access", flattenKibana(utils.PathSearch("publicKibanaResp", clusterDetail, nil))),
+		d.Set("public_access", flattenPublicAccess(clusterDetail)),
+		d.Set("tags", utils.FlattenTagsToMap(utils.PathSearch("tags", clusterDetail, nil))),
+		d.Set("created", utils.PathSearch("created", clusterDetail, nil)),
+		d.Set("endpoint", utils.PathSearch("endpoint", clusterDetail, nil)),
+		d.Set("status", utils.PathSearch("status", clusterDetail, nil)),
+		d.Set("security_mode", utils.PathSearch("authorityEnable", clusterDetail, false)),
+		d.Set("https_enabled", utils.PathSearch("httpsEnable", clusterDetail, nil)),
+		d.Set("created_at", utils.PathSearch("created", clusterDetail, nil)),
+		d.Set("updated_at", utils.PathSearch("updated", clusterDetail, nil)),
+		d.Set("bandwidth_resource_id", utils.PathSearch("bandwidthResourceId", clusterDetail, nil)),
+		d.Set("is_period", utils.PathSearch("period", clusterDetail, nil)),
+		d.Set("backup_available", utils.PathSearch("backupAvailable", clusterDetail, nil)),
+		d.Set("disk_encrypted", utils.PathSearch("diskEncrypted", clusterDetail, nil)),
 	)
+
+	getVpcepConnectionRespBody, err := getVpcepConnection(d, v1Client)
+	if err != nil {
+		return diag.Errorf("error extracting vpcep connection: %s", err)
+	}
+	mErr = multierror.Append(mErr,
+		d.Set("vpcep_endpoint_id", utils.PathSearch("connections|[0].id", getVpcepConnectionRespBody, nil)),
+	)
+
+	getAutoCreatePolicyRespBody, err := getAutoCreateBackupStrategy(d, v1Client)
+	if err != nil {
+		return diag.Errorf("error extracting cluster: backup_strategy, err: %s", err)
+	}
+	policyEnable := utils.PathSearch("enable", getAutoCreatePolicyRespBody, nil)
+	if policyEnable == "true" {
+		strategy := []map[string]interface{}{
+			{
+				"prefix":      utils.PathSearch("prefix", getAutoCreatePolicyRespBody, nil),
+				"start_time":  utils.PathSearch("period", getAutoCreatePolicyRespBody, nil),
+				"keep_days":   int(utils.PathSearch("keepday", getAutoCreatePolicyRespBody, float64(0)).(float64)),
+				"bucket":      utils.PathSearch("bucket", getAutoCreatePolicyRespBody, nil),
+				"backup_path": utils.PathSearch("basePath", getAutoCreatePolicyRespBody, nil),
+				"agency":      utils.PathSearch("agency", getAutoCreatePolicyRespBody, nil),
+			},
+		}
+		mErr = multierror.Append(mErr, d.Set("backup_strategy", strategy))
+	}
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func flattenClusterNodes(s *[]model.ClusterDetailInstances) []interface{} {
-	if s == nil {
-		return make([]interface{}, 0)
+func getClusterDetails(client *golangsdk.ServiceClient, clusterID string) (interface{}, error) {
+	getClusterDetailsHttpUrl := "v1.0/{project_id}/clusters/{cluster_id}"
+	getClusterDetailsPath := client.Endpoint + getClusterDetailsHttpUrl
+	getClusterDetailsPath = strings.ReplaceAll(getClusterDetailsPath, "{project_id}", client.ProjectID)
+	getClusterDetailsPath = strings.ReplaceAll(getClusterDetailsPath, "{cluster_id}", clusterID)
+
+	getClusterDetailsPathOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
-	rst := make([]interface{}, len(*s))
-	for i, v := range *s {
+	getClusterDetailsResp, err := client.Request("GET", getClusterDetailsPath, &getClusterDetailsPathOpt)
+	if err != nil {
+		return getClusterDetailsResp, err
+	}
+
+	return utils.FlattenResponse(getClusterDetailsResp)
+}
+
+func flattenClusterNodes(nodes []interface{}) []interface{} {
+	if len(nodes) == 0 {
+		return nil
+	}
+
+	rst := make([]interface{}, len(nodes))
+	for i, v := range nodes {
 		rst[i] = map[string]interface{}{
-			"id":                v.Id,
-			"type":              v.Type,
-			"name":              v.Name,
-			"availability_zone": v.AzCode,
-			"status":            v.Status,
-			"spec_code":         v.SpecCode,
-			"ip":                v.Ip,
-			"resource_id":       v.ResourceId,
+			"id":                utils.PathSearch("id", v, nil),
+			"type":              utils.PathSearch("type", v, nil),
+			"name":              utils.PathSearch("name", v, nil),
+			"availability_zone": utils.PathSearch("azCode", v, nil),
+			"status":            utils.PathSearch("status", v, nil),
+			"spec_code":         utils.PathSearch("specCode", v, nil),
+			"ip":                utils.PathSearch("ip", v, nil),
+			"resource_id":       utils.PathSearch("resourceId", v, nil),
 		}
 	}
 	return rst
 }
 
-func flattenSecurity(authorityEnable *bool) bool {
-	if authorityEnable == nil {
-		return false
-	}
-	return *authorityEnable
-}
+func getAutoCreateBackupStrategy(d *schema.ResourceData, client *golangsdk.ServiceClient) (interface{}, error) {
+	getAutoCreatePolicyHttpUrl := "v1.0/{project_id}/clusters/{cluster_id}/index_snapshot/policy"
+	getAutoCreatePolicyPath := client.Endpoint + getAutoCreatePolicyHttpUrl
+	getAutoCreatePolicyPath = strings.ReplaceAll(getAutoCreatePolicyPath, "{project_id}", client.ProjectID)
+	getAutoCreatePolicyPath = strings.ReplaceAll(getAutoCreatePolicyPath, "{cluster_id}", d.Id())
 
-func setClusterBackupStrategy(d *schema.ResourceData, client *cssv1.CssClient) error {
-	policy, err := client.ShowAutoCreatePolicy(&model.ShowAutoCreatePolicyRequest{ClusterId: d.Id()})
+	getAutoCreatePolicyPathOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	getClusterBackupStrategyResp, err := client.Request("GET", getAutoCreatePolicyPath, &getAutoCreatePolicyPathOpt)
 	if err != nil {
-		return fmt.Errorf("error extracting cluster: backup_strategy, err: %s", err)
+		return getClusterBackupStrategyResp, err
 	}
 
-	var strategy []map[string]interface{}
-	if utils.StringValue(policy.Enable) == "true" {
-		strategy = []map[string]interface{}{
-			{
-				"prefix":      policy.Prefix,
-				"start_time":  policy.Period,
-				"keep_days":   policy.Keepday,
-				"bucket":      policy.Bucket,
-				"backup_path": policy.BasePath,
-				"agency":      policy.Agency,
-			},
-		}
-	}
-	return d.Set("backup_strategy", strategy)
+	return utils.FlattenResponse(getClusterBackupStrategyResp)
 }
 
-func flattenTags(tags *[]model.ClusterDetailTags) map[string]string {
-	if tags == nil {
-		return nil
-	}
-
-	result := make(map[string]string)
-	for _, val := range *tags {
-		result[*val.Key] = utils.StringValue(val.Value)
-	}
-	return result
-}
-
-func flattenKibana(publicKibana *model.PublicKibanaRespBody) []interface{} {
-	if publicKibana == nil || publicKibana.ElbWhiteListResp == nil {
+func flattenKibana(publicKibana interface{}) []interface{} {
+	elbWhiteListResp := utils.PathSearch("elbWhiteListResp", publicKibana, nil)
+	if publicKibana == nil || elbWhiteListResp == nil {
 		return nil
 	}
 
 	result := map[string]interface{}{
-		"bandwidth":         int(*publicKibana.EipSize),
-		"whitelist_enabled": publicKibana.ElbWhiteListResp.EnableWhiteList,
-		"whitelist":         publicKibana.ElbWhiteListResp.WhiteList,
-		"public_ip":         publicKibana.PublicKibanaIp,
+		"bandwidth":         int(utils.PathSearch("eipSize", publicKibana, float64(0)).(float64)),
+		"whitelist_enabled": utils.PathSearch("enableWhiteList", elbWhiteListResp, nil),
+		"whitelist":         utils.PathSearch("whiteList", elbWhiteListResp, nil),
+		"public_ip":         utils.PathSearch("publicKibanaIp", publicKibana, nil),
 	}
 	return []interface{}{result}
 }
 
-func flattenPublicAccess(resp *model.ElbWhiteListResp, bandwidth *int32, publicIp *string) []interface{} {
-	if resp == nil || publicIp == nil {
+func flattenPublicAccess(clusterDetail interface{}) []interface{} {
+	elbWhiteList := utils.PathSearch("elbWhiteList", clusterDetail, nil)
+	bandwidth := int(utils.PathSearch("bandwidthSize", clusterDetail, float64(0)).(float64))
+	publicIp := utils.PathSearch("publicIp", clusterDetail, nil)
+	if elbWhiteList == nil || publicIp == nil {
 		return nil
 	}
 
 	result := map[string]interface{}{
-		"bandwidth":         int(*bandwidth),
-		"whitelist_enabled": resp.EnableWhiteList,
-		"whitelist":         resp.WhiteList,
+		"bandwidth":         bandwidth,
+		"whitelist_enabled": utils.PathSearch("enableWhiteList", elbWhiteList, nil),
+		"whitelist":         utils.PathSearch("whiteList", elbWhiteList, nil),
 		"public_ip":         publicIp,
 	}
 	return []interface{}{result}
 }
 
-func setVpcEndpointIdToState(d *schema.ResourceData, cssV1Client *cssv1.CssClient) error {
-	resp, err := cssV1Client.ShowVpcepConnection(&model.ShowVpcepConnectionRequest{ClusterId: d.Id()})
+func getVpcepConnection(d *schema.ResourceData, client *golangsdk.ServiceClient) (interface{}, error) {
+	getVpcepConnectionHttpUrl := "v1.0/{project_id}/clusters/{cluster_id}/vpcepservice/connections"
+	getVpcepConnectionPath := client.Endpoint + getVpcepConnectionHttpUrl
+	getVpcepConnectionPath = strings.ReplaceAll(getVpcepConnectionPath, "{project_id}", client.ProjectID)
+	getVpcepConnectionPath = strings.ReplaceAll(getVpcepConnectionPath, "{cluster_id}", d.Id())
+
+	getVpcepConnectionPathOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	getVpcepConnectionResp, err := client.Request("GET", getVpcepConnectionPath, &getVpcepConnectionPathOpt)
 	if err != nil {
-		if err, ok := err.(*sdkerr.ServiceResponseError); ok {
-			errCode := err.ErrorCode
-			// CSS.5182 : The VPC endpoint service is not enabled.
-			if errCode == "" {
-				var apiError ResponseError
-				pErr := json.Unmarshal([]byte(err.ErrorMessage), &apiError)
-				if pErr == nil && apiError.ErrorCode == "CSS.5182" {
-					return nil
-				}
-			}
+		// CSS.5182 : The VPC endpoint service is not enabled.
+		if hasErrorCode(err, "CSS.5182") {
+			return getVpcepConnectionResp, nil
 		}
-		return err
+		return getVpcepConnectionResp, err
 	}
 
-	var endpointId string
-	if resp.Connections != nil && len(*resp.Connections) != 0 {
-		connects := *resp.Connections
-		endpointId = utils.StringValue(connects[0].Id)
-	}
-
-	return d.Set("vpcep_endpoint_id", endpointId)
+	return utils.FlattenResponse(getVpcepConnectionResp)
 }
 
-func setNodeConfigsAndAzToState(d *schema.ResourceData, detail *model.ShowClusterDetailResponse) error {
-	if detail.Instances == nil || len(*detail.Instances) == 0 {
-		return nil
-	}
-	nodeConfigMap := make(map[string]map[string]interface{})
-	var azArray []string
-	for _, v := range *detail.Instances {
-		azArray = append(azArray, utils.StringValue(v.AzCode))
+func hasErrorCode(err error, expectCode string) bool {
+	if errCode, ok := err.(golangsdk.ErrDefault400); ok {
+		var response interface{}
+		if jsonErr := json.Unmarshal(errCode.Body, &response); jsonErr == nil {
+			errorCode, parseErr := jmespath.Search("errCode", response)
+			if parseErr != nil {
+				log.Printf("[WARN] failed to parse errCode from response body: %s", parseErr)
+			}
 
-		nodeType := utils.StringValue(v.Type)
-		if node, ok := nodeConfigMap[nodeType]; ok {
-			node["instance_number"] = node["instance_number"].(int) + 1
-		} else {
-			nodeConfigMap[nodeType] = map[string]interface{}{
-				"flavor":          v.SpecCode,
-				"instance_number": 1,
-				"volume": []interface{}{map[string]interface{}{
-					"size":        v.Volume.Size,
-					"volume_type": v.Volume.Type,
-				}},
-				"shrink_node_ids": nil,
+			if errorCode == expectCode {
+				return true
 			}
 		}
 	}
+
+	return false
+}
+
+func setNodeConfigsAndAzToState(clusterDetail interface{}, d *schema.ResourceData) error {
+	instances := utils.PathSearch("instances", clusterDetail, make([]interface{}, 0)).([]interface{})
+	if len(instances) == 0 {
+		return nil
+	}
+	nodeConfigMap, azArray := getNodeConfigMapAndAzArray(instances)
 	azArray = utils.RemoveDuplicateElem(azArray)
 	az := strings.Join(azArray, ",")
 	mErr := multierror.Append(
@@ -1013,24 +1051,24 @@ func setNodeConfigsAndAzToState(d *schema.ResourceData, detail *model.ShowCluste
 		switch k {
 		case InstanceTypeEss:
 			// old version nodeConfig, NO volume return, so get from state
-			volumeSize := utils.PathSearch("volume|[0]|size", v, 0).(*int32)
-			volumeType := utils.PathSearch("volume|[0]|volume_type", v, "").(*string)
+			volumeSize := utils.PathSearch("volume|[0]|size", v, 0).(int)
+			volumeType := utils.PathSearch("volume|[0]|volume_type", v, "").(string)
 			nodeConfig := map[string]interface{}{
 				"flavor":            v["flavor"],
 				"availability_zone": az,
 				"volume": []interface{}{map[string]interface{}{
-					"size":        *volumeSize,
-					"volume_type": *volumeType,
+					"size":        volumeSize,
+					"volume_type": volumeType,
 				}},
 				"network_info": []interface{}{map[string]interface{}{
-					"vpc_id":            detail.VpcId,
-					"subnet_id":         detail.SubnetId,
-					"security_group_id": detail.SecurityGroupId,
+					"vpc_id":            utils.PathSearch("vpcId", clusterDetail, nil),
+					"subnet_id":         utils.PathSearch("subnetId", clusterDetail, nil),
+					"security_group_id": utils.PathSearch("securityGroupId", clusterDetail, nil),
 				}},
 			}
 
 			// NO volume return, so get from state
-			if *volumeSize == 0 && *volumeType == "" {
+			if volumeSize == 0 && volumeType == "" {
 				v["volume"] = []interface{}{map[string]interface{}{
 					"size":        d.Get("ess_node_config.0.volume.0.size").(int),
 					"volume_type": d.Get("ess_node_config.0.volume.0.volume_type").(string),
@@ -1045,9 +1083,9 @@ func setNodeConfigsAndAzToState(d *schema.ResourceData, detail *model.ShowCluste
 				d.Set("expect_node_num", v["instance_number"]),
 			)
 		case InstanceTypeEssMaster:
-			volumeSize := utils.PathSearch("volume|[0]|size", v, 0).(*int32)
-			volumeType := utils.PathSearch("volume|[0]|volume_type", v, "").(*string)
-			if *volumeSize == 0 && *volumeType == "" {
+			volumeSize := utils.PathSearch("volume|[0]|size", v, 0).(int)
+			volumeType := utils.PathSearch("volume|[0]|volume_type", v, "").(string)
+			if volumeSize == 0 && volumeType == "" {
 				v["volume"] = []interface{}{map[string]interface{}{
 					"size":        d.Get("master_node_config.0.volume.0.size").(int),
 					"volume_type": d.Get("master_node_config.0.volume.0.volume_type").(string),
@@ -1060,9 +1098,9 @@ func setNodeConfigsAndAzToState(d *schema.ResourceData, detail *model.ShowCluste
 				d.Set("master_node_config", []interface{}{v}),
 			)
 		case InstanceTypeEssClient:
-			volumeSize := utils.PathSearch("volume|[0]|size", v, 0).(*int32)
-			volumeType := utils.PathSearch("volume|[0]|volume_type", v, "").(*string)
-			if *volumeSize == 0 && *volumeType == "" {
+			volumeSize := utils.PathSearch("volume|[0]|size", v, 0).(int)
+			volumeType := utils.PathSearch("volume|[0]|volume_type", v, "").(string)
+			if volumeSize == 0 && volumeType == "" {
 				v["volume"] = []interface{}{map[string]interface{}{
 					"size":        d.Get("client_node_config.0.volume.0.size").(int),
 					"volume_type": d.Get("client_node_config.0.volume.0.volume_type").(string),
@@ -1075,9 +1113,9 @@ func setNodeConfigsAndAzToState(d *schema.ResourceData, detail *model.ShowCluste
 				d.Set("client_node_config", []interface{}{v}),
 			)
 		case InstanceTypeEssCold:
-			volumeSize := utils.PathSearch("volume|[0]|size", v, 0).(*int32)
-			volumeType := utils.PathSearch("volume|[0]|volume_type", v, "").(*string)
-			if *volumeSize == 0 && *volumeType == "" {
+			volumeSize := utils.PathSearch("volume|[0]|size", v, 0).(int)
+			volumeType := utils.PathSearch("volume|[0]|volume_type", v, "").(string)
+			if volumeSize == 0 && volumeType == "" {
 				v["volume"] = []interface{}{map[string]interface{}{
 					"size":        d.Get("cold_node_config.0.volume.0.size").(int),
 					"volume_type": d.Get("cold_node_config.0.volume.0.volume_type").(string),
@@ -1089,6 +1127,21 @@ func setNodeConfigsAndAzToState(d *schema.ResourceData, detail *model.ShowCluste
 			mErr = multierror.Append(mErr,
 				d.Set("cold_node_config", []interface{}{v}),
 			)
+		case InstanceTypeEmbedding:
+			volumeSize := utils.PathSearch("volume|[0]|size", v, 0).(int)
+			volumeType := utils.PathSearch("volume|[0]|volume_type", v, "").(string)
+			if volumeSize == 0 && volumeType == "" {
+				v["volume"] = []interface{}{map[string]interface{}{
+					"size":        d.Get("ess_node_config.0.volume.0.size").(int),
+					"volume_type": d.Get("ess_node_config.0.volume.0.volume_type").(string),
+				}}
+			}
+			if ids, ok := d.GetOk("ess_node_config.0.shrink_node_ids"); ok {
+				v["shrink_node_ids"] = ids.([]interface{})
+			}
+			mErr = multierror.Append(mErr,
+				d.Set("ess_node_config", []interface{}{v}),
+			)
 		default:
 			log.Printf("[ERROR] Does not support to set the %s node config to state", k)
 		}
@@ -1096,16 +1149,40 @@ func setNodeConfigsAndAzToState(d *schema.ResourceData, detail *model.ShowCluste
 	return mErr.ErrorOrNil()
 }
 
-func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	region := conf.GetRegion(d)
-	clusterId := d.Id()
-	cssV1Client, err := conf.HcCssV1Client(region)
-	if err != nil {
-		return diag.Errorf("error creating CSS V1 client: %s", err)
+func getNodeConfigMapAndAzArray(instances []interface{}) (map[string]map[string]interface{}, []string) {
+	nodeConfigMap := make(map[string]map[string]interface{})
+	var azArray []string
+	for _, v := range instances {
+		azArray = append(azArray, utils.PathSearch("azCode", v, "").(string))
+
+		nodeType := utils.PathSearch("type", v, "").(string)
+		if utils.IsStrContainsSliceElement(nodeType, embeddingTypes, true, false) {
+			nodeType = InstanceTypeEmbedding
+		}
+		if node, ok := nodeConfigMap[nodeType]; ok {
+			node["instance_number"] = node["instance_number"].(int) + 1
+		} else {
+			nodeConfigMap[nodeType] = map[string]interface{}{
+				"flavor":          utils.PathSearch("specCode", v, nil),
+				"instance_number": 1,
+				"volume": []interface{}{map[string]interface{}{
+					"size":        int(utils.PathSearch("volume.size", v, float64(0)).(float64)),
+					"volume_type": utils.PathSearch("volume.type", v, nil),
+				}},
+				"shrink_node_ids": nil,
+			}
+		}
 	}
 
-	client, err := conf.CssV1Client(region)
+	return nodeConfigMap, azArray
+}
+
+func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	clusterId := d.Id()
+
+	client, err := cfg.CssV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CSS V1 client: %s", err)
 	}
@@ -1118,7 +1195,7 @@ func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 	}
 
 	if d.HasChanges(nodeConfigChanges...) {
-		err := updateNodeConfig(ctx, d, cssV1Client, conf)
+		err := updateNodeConfig(ctx, d, client, cfg)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -1126,23 +1203,22 @@ func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 
 	// update backup strategy
 	if d.HasChange("backup_strategy") {
-		err = updateBackupStrategy(d, cssV1Client)
+		err = updateBackupStrategy(d, client)
 		if err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
 	if d.HasChange("tags") {
-		oRaw, nRaw := d.GetChange("tags")
-		err = updateCssTags(cssV1Client, clusterId, oRaw.(map[string]interface{}), nRaw.(map[string]interface{}))
-		if err != nil {
-			return diag.Errorf("error updating tags of CSS cluster: %s, err: %s", clusterId, err)
+		tagErr := utils.UpdateResourceTags(client, d, "css-cluster", clusterId)
+		if tagErr != nil {
+			return diag.Errorf("error updating tags of CSS cluster:%s, err:%s", clusterId, tagErr)
 		}
 	}
 
 	// update vpc endpoint
 	if d.HasChange("vpcep_endpoint") {
-		err = updateVpcepEndpoint(ctx, d, cssV1Client)
+		err = updateVpcepEndpoint(ctx, d, client)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -1150,7 +1226,7 @@ func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 
 	// update security mode
 	if d.HasChange("security_mode") {
-		err = updateSafeMode(ctx, d, cssV1Client, client)
+		err = updateSafeMode(ctx, d, client)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -1158,7 +1234,7 @@ func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 
 	// update in safe mode
 	if d.Get("security_mode").(bool) {
-		err = updateInSafeMode(ctx, d, cssV1Client, client)
+		err = updateInSafeMode(ctx, d, client)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -1166,32 +1242,32 @@ func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 
 	// update security group ID
 	if d.HasChange("security_group_id") {
-		err = updateSecurityGroup(ctx, d, cssV1Client, client)
+		err = updateSecurityGroup(ctx, d, client)
 		if err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
 	if d.HasChanges("charging_mode", "auto_renew") {
-		bssClient, err := conf.BssV2Client(region)
+		bssClient, err := cfg.BssV2Client(region)
 		if err != nil {
 			return diag.Errorf("error creating BSS V2 client: %s", err)
 		}
 
-		err = updateChangingModeOrAutoRenew(ctx, d, cssV1Client, bssClient)
+		err = updateChangingModeOrAutoRenew(ctx, d, client, bssClient)
 		if err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
 	if d.HasChange("enterprise_project_id") {
-		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+		migrateOpts := config.MigrateResourceOpts{
 			ResourceId:   clusterId,
 			ResourceType: "css-cluster",
 			RegionId:     region,
-			ProjectId:    conf.GetProjectID(region),
+			ProjectId:    cfg.GetProjectID(region),
 		}
-		if err := common.MigrateEnterpriseProject(ctx, conf, d, migrateOpts); err != nil {
+		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -1199,11 +1275,10 @@ func resourceCssClusterUpdate(ctx context.Context, d *schema.ResourceData, meta 
 	return resourceCssClusterRead(ctx, d, meta)
 }
 
-func updateInSafeMode(ctx context.Context, d *schema.ResourceData,
-	cssV1Client *cssv1.CssClient, client *golangsdk.ServiceClient) error {
+func updateInSafeMode(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
 	// reset admin pasword
 	if d.HasChange("password") {
-		err := updateAdminPassword(ctx, d, cssV1Client, client)
+		err := updateAdminPassword(ctx, d, client)
 		if err != nil {
 			return err
 		}
@@ -1211,7 +1286,7 @@ func updateInSafeMode(ctx context.Context, d *schema.ResourceData,
 
 	// update kibana
 	if d.HasChange("kibana_public_access") {
-		err := updateKibanaPublicAccess(ctx, d, cssV1Client)
+		err := updateKibanaPublicAccess(ctx, d, client)
 		if err != nil {
 			return err
 		}
@@ -1219,7 +1294,7 @@ func updateInSafeMode(ctx context.Context, d *schema.ResourceData,
 
 	// update public_access
 	if d.HasChange("public_access") {
-		err := updatePublicAccess(ctx, d, cssV1Client)
+		err := updatePublicAccess(ctx, d, client)
 		if err != nil {
 			return err
 		}
@@ -1227,12 +1302,11 @@ func updateInSafeMode(ctx context.Context, d *schema.ResourceData,
 	return nil
 }
 
-func updateNodeConfig(ctx context.Context, d *schema.ResourceData,
-	cssV1Client *cssv1.CssClient, conf *config.Config) error {
+func updateNodeConfig(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, conf *config.Config) error {
 	addMasterNode := isAddNode(d, "master_node_config")
 	addClientNode := isAddNode(d, "client_node_config")
 
-	flavorList, err := getFlavorList(cssV1Client)
+	flavorList, err := getFlavorList(client)
 	if err != nil {
 		return err
 	}
@@ -1317,52 +1391,39 @@ func isAddNode(d *schema.ResourceData, node string) bool {
 	return len(oldRaws.([]interface{})) == 0 && len(newRaws.([]interface{})) == 1
 }
 
-func updateBackupStrategy(d *schema.ResourceData, cssV1Client *cssv1.CssClient) error {
+func updateBackupStrategy(d *schema.ResourceData, client *golangsdk.ServiceClient) error {
 	rawList := d.Get("backup_strategy").([]interface{})
 
 	if len(rawList) == 0 {
-		// stop auto backup strategy
-		_, err := cssV1Client.CreateAutoCreatePolicy(&model.CreateAutoCreatePolicyRequest{
-			ClusterId: d.Id(),
-			Body: &model.SetRdsBackupCnfReq{
-				Prefix:  utils.String("snapshot"),
-				Period:  utils.String("00:00 GMT+08:00"),
-				Keepday: utils.Int32(7),
-				Enable:  "false",
-			},
-		})
-
+		autoPolicyBodyParams := map[string]interface{}{
+			"prefix":  "snapshot",
+			"period":  "00:00 GMT+08:00",
+			"keepday": 7,
+			"enable":  "false",
+		}
+		err := createAutoCreatePolicy(client, d.Id(), autoPolicyBodyParams)
 		if err != nil {
 			return fmt.Errorf("error updating backup strategy: %s", err)
 		}
 	} else {
 		raw := rawList[0].(map[string]interface{})
-
-		if d.HasChanges("backup_strategy.0.bucket", "backup_strategy.0.backup_path",
-			"backup_strategy.0.agency") {
+		if d.HasChanges("backup_strategy.0.bucket", "backup_strategy.0.backup_path", "backup_strategy.0.agency") {
 			// If obs is specified, update basic configurations
-			_, err := cssV1Client.UpdateSnapshotSetting(&model.UpdateSnapshotSettingRequest{
-				ClusterId: d.Id(),
-				Body: &model.UpdateSnapshotSettingReq{
-					Bucket:   raw["bucket"].(string),
-					BasePath: raw["backup_path"].(string),
-					Agency:   raw["agency"].(string),
-				},
-			})
+			err := updateSnapshotSetting(client, d.Id(), raw)
 			if err != nil {
 				return fmt.Errorf("error modifying basic configurations of a cluster snapshot: %s", err)
 			}
 		}
 
 		// check backup strategy, if the policy was disabled, we should enable it
-		policy, err := cssV1Client.ShowAutoCreatePolicy(&model.ShowAutoCreatePolicyRequest{ClusterId: d.Id()})
+		getAutoCreatePolicyRespBody, err := getAutoCreateBackupStrategy(d, client)
 		if err != nil {
 			return fmt.Errorf("error extracting cluster backup_strategy, err: %s", err)
 		}
-
-		if utils.StringValue(policy.Enable) == "false" && raw["bucket"] == nil {
+		policyEnable := utils.PathSearch("enable", getAutoCreatePolicyRespBody, "").(string)
+		if policyEnable == "false" && raw["bucket"] == nil {
 			// If obs is not specified,  create  basic configurations automatically
-			_, err = cssV1Client.StartAutoSetting(&model.StartAutoSettingRequest{ClusterId: d.Id()})
+			err := startSnapshotAutoSetting(client, d.Id())
 			if err != nil {
 				return fmt.Errorf("error enable snapshot function: %s", err)
 			}
@@ -1371,16 +1432,13 @@ func updateBackupStrategy(d *schema.ResourceData, cssV1Client *cssv1.CssClient) 
 		// update policy
 		if d.HasChanges("backup_strategy.0.prefix", "backup_strategy.0.start_time",
 			"backup_strategy.0.keep_days") {
-			opts := &model.CreateAutoCreatePolicyRequest{
-				ClusterId: d.Id(),
-				Body: &model.SetRdsBackupCnfReq{
-					Prefix:  utils.String(raw["prefix"].(string)),
-					Period:  utils.String(raw["start_time"].(string)),
-					Keepday: utils.Int32(int32(raw["keep_days"].(int))),
-					Enable:  "true",
-				},
+			autoPolicyBodyParams := map[string]interface{}{
+				"prefix":  raw["prefix"],
+				"period":  raw["start_time"],
+				"keepday": raw["keep_days"],
+				"enable":  "true",
 			}
-			_, err = cssV1Client.CreateAutoCreatePolicy(opts)
+			err := createAutoCreatePolicy(client, d.Id(), autoPolicyBodyParams)
 			if err != nil {
 				return fmt.Errorf("error updating backup strategy: %s", err)
 			}
@@ -1389,32 +1447,94 @@ func updateBackupStrategy(d *schema.ResourceData, cssV1Client *cssv1.CssClient) 
 	return nil
 }
 
-func updateVpcepEndpoint(ctx context.Context, d *schema.ResourceData, cssV1Client *cssv1.CssClient) error {
+func createAutoCreatePolicy(client *golangsdk.ServiceClient, clusterId string, bodyParams map[string]interface{}) error {
+	createAutoCreatePolicyHttpUrl := "v1.0/{project_id}/clusters/{cluster_id}/index_snapshot/policy"
+	createAutoCreatePolicyPath := client.Endpoint + createAutoCreatePolicyHttpUrl
+	createAutoCreatePolicyPath = strings.ReplaceAll(createAutoCreatePolicyPath, "{project_id}", client.ProjectID)
+	createAutoCreatePolicyPath = strings.ReplaceAll(createAutoCreatePolicyPath, "{cluster_id}", clusterId)
+
+	createAutoCreatePolicyOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		JSONBody:         bodyParams,
+	}
+
+	_, err := client.Request("POST", createAutoCreatePolicyPath, &createAutoCreatePolicyOpt)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func updateSnapshotSetting(client *golangsdk.ServiceClient, clusterId string, raw map[string]interface{}) error {
+	updateSnapshotSettingHttpUrl := "v1.0/{project_id}/clusters/{cluster_id}/index_snapshot/setting"
+	updateSnapshotSettingPath := client.Endpoint + updateSnapshotSettingHttpUrl
+	updateSnapshotSettingPath = strings.ReplaceAll(updateSnapshotSettingPath, "{project_id}", client.ProjectID)
+	updateSnapshotSettingPath = strings.ReplaceAll(updateSnapshotSettingPath, "{cluster_id}", clusterId)
+
+	updateSnapshotSettingOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		JSONBody: map[string]interface{}{
+			"bucket":   raw["bucket"],
+			"basePath": raw["backup_path"],
+			"agency":   raw["agency"],
+		},
+	}
+
+	_, err := client.Request("POST", updateSnapshotSettingPath, &updateSnapshotSettingOpt)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func startSnapshotAutoSetting(client *golangsdk.ServiceClient, clusterId string) error {
+	startSnapshotAutoSettingHttpUrl := "v1.0/{project_id}/clusters/{cluster_id}/index_snapshot/auto_setting"
+	startSnapshotAutoSettingPath := client.Endpoint + startSnapshotAutoSettingHttpUrl
+	startSnapshotAutoSettingPath = strings.ReplaceAll(startSnapshotAutoSettingPath, "{project_id}", client.ProjectID)
+	startSnapshotAutoSettingPath = strings.ReplaceAll(startSnapshotAutoSettingPath, "{cluster_id}", clusterId)
+
+	startSnapshotAutoSettingOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	_, err := client.Request("POST", startSnapshotAutoSettingPath, &startSnapshotAutoSettingOpt)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func updateVpcepEndpoint(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
 	o, n := d.GetChange("vpcep_endpoint")
 	oValue := o.([]interface{})
 	nValue := n.([]interface{})
+	clusterId := d.Id()
 	switch len(nValue) - len(oValue) {
 	case -1: // delete vpc endpoint
-		_, err := cssV1Client.StopVpecp(&model.StopVpecpRequest{ClusterId: d.Id()})
+		err := stopVpcep(client, clusterId)
 		if err != nil {
-			return fmt.Errorf("error deleting the VPC endpoint of CSS cluster: %s, err: %s", d.Id(), err)
+			return fmt.Errorf("error deleting the VPC endpoint of CSS cluster: %s, err: %s", clusterId, err)
 		}
-		err = checkClusterOperationCompleted(ctx, cssV1Client, d.Id(), d.Timeout(schema.TimeoutUpdate))
+		err = checkClusterOperationResult(ctx, client, clusterId, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
 
 	case 1: // start vpc endpoint
-		_, err := cssV1Client.StartVpecp(&model.StartVpecpRequest{
-			ClusterId: d.Id(),
-			Body: &model.StartVpecpReq{
-				EndpointWithDnsName: utils.Bool(d.Get("vpcep_endpoint.0.endpoint_with_dns_name").(bool)),
-			},
-		})
-		if err != nil {
-			return fmt.Errorf("error creating the VPC endpoint of CSS cluster: %s, err: %s", d.Id(), err)
+		startVpcepBodyParams := map[string]interface{}{
+			"endpointWithDnsName": d.Get("vpcep_endpoint.0.endpoint_with_dns_name"),
 		}
-		err = checkClusterOperationCompleted(ctx, cssV1Client, d.Id(), d.Timeout(schema.TimeoutUpdate))
+		err := startVpcep(client, clusterId, startVpcepBodyParams)
+		if err != nil {
+			return fmt.Errorf("error creating the VPC endpoint of CSS cluster: %s, err: %s", clusterId, err)
+		}
+		err = checkClusterOperationResult(ctx, client, clusterId, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
@@ -1422,60 +1542,100 @@ func updateVpcepEndpoint(ctx context.Context, d *schema.ResourceData, cssV1Clien
 	case 0: // update vpc endpoint
 		// update whitelist
 		if d.HasChange("vpcep_endpoint.0.whitelist") {
-			_, err := cssV1Client.UpdateVpcepWhitelist(&model.UpdateVpcepWhitelistRequest{
-				ClusterId: d.Id(),
-				Body: &model.UpdateVpcepWhitelistReq{
-					VpcPermissions: utils.ExpandToStringList(d.Get("vpcep_endpoint.0.whitelist").([]interface{})),
-				},
-			})
+			updateVpcepWhitelistBodyParams := map[string]interface{}{
+				"vpcPermissions": d.Get("vpcep_endpoint.0.whitelist"),
+			}
+			err := updateVpcepWhitelist(client, clusterId, updateVpcepWhitelistBodyParams)
 			if err != nil {
-				return fmt.Errorf("error updating the VPC endpoint whitelist of CSS cluster: %s, err: %s", d.Id(), err)
+				return fmt.Errorf("error updating the VPC endpoint whitelist of CSS cluster: %s, err: %s", clusterId, err)
 			}
 		}
 	}
 	return nil
 }
 
-func updateKibanaPublicAccess(ctx context.Context, d *schema.ResourceData, cssV1Client *cssv1.CssClient) error {
+func stopVpcep(client *golangsdk.ServiceClient, clusterId string) error {
+	stopVpcepHttpUrl := "v1.0/{project_id}/clusters/{cluster_id}/vpcepservice/close"
+	stopVpcepPath := client.Endpoint + stopVpcepHttpUrl
+	stopVpcepPath = strings.ReplaceAll(stopVpcepPath, "{project_id}", client.ProjectID)
+	stopVpcepPath = strings.ReplaceAll(stopVpcepPath, "{cluster_id}", clusterId)
+
+	stopVpcepOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	_, err := client.Request("PUT", stopVpcepPath, &stopVpcepOpt)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func startVpcep(client *golangsdk.ServiceClient, clusterId string, bodyParams map[string]interface{}) error {
+	startVpcepHttpUrl := "v1.0/{project_id}/clusters/{cluster_id}/vpcepservice/open"
+	startVpcepPath := client.Endpoint + startVpcepHttpUrl
+	startVpcepPath = strings.ReplaceAll(startVpcepPath, "{project_id}", client.ProjectID)
+	startVpcepPath = strings.ReplaceAll(startVpcepPath, "{cluster_id}", clusterId)
+
+	startVpcepOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		JSONBody:         bodyParams,
+	}
+
+	_, err := client.Request("POST", startVpcepPath, &startVpcepOpt)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func updateVpcepWhitelist(client *golangsdk.ServiceClient, clusterId string, bodyParams map[string]interface{}) error {
+	updateVpcepWhitelistHttpUrl := "v1.0/{project_id}/clusters/{cluster_id}/vpcepservice/permissions"
+	updateVpcepWhitelistPath := client.Endpoint + updateVpcepWhitelistHttpUrl
+	updateVpcepWhitelistPath = strings.ReplaceAll(updateVpcepWhitelistPath, "{project_id}", client.ProjectID)
+	updateVpcepWhitelistPath = strings.ReplaceAll(updateVpcepWhitelistPath, "{cluster_id}", clusterId)
+
+	updateVpcepWhitelistOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		JSONBody:         bodyParams,
+	}
+
+	_, err := client.Request("POST", updateVpcepWhitelistPath, &updateVpcepWhitelistOpt)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func updateKibanaPublicAccess(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
 	o, n := d.GetChange("kibana_public_access")
 	oValue := o.([]interface{})
 	nValue := n.([]interface{})
+	clusterId := d.Id()
 
 	switch len(nValue) - len(oValue) {
 	case -1: // delete kibana_public_access
-		_, err := cssV1Client.UpdateCloseKibana(&model.UpdateCloseKibanaRequest{
-			ClusterId: d.Id(),
-			Body: &model.CloseKibanaPublicReq{
-				EipSize: utils.Int32(int32(utils.PathSearch("bandwidth", oValue[0], 0).(int))),
-				ElbWhiteList: &model.StartKibanaPublicReqElbWhitelist{
-					EnableWhiteList: utils.PathSearch("whitelist_enabled", oValue[0], false).(bool),
-					WhiteList:       utils.PathSearch("whitelist", oValue[0], "").(string),
-				},
-			},
-		})
+		err := closeKibanaPublic(client, clusterId, oValue)
 		if err != nil {
-			return fmt.Errorf("error diabling the kibana public access of CSS cluster: %s, err: %s", d.Id(), err)
+			return fmt.Errorf("error diabling the kibana public access of CSS cluster: %s, err: %s", clusterId, err)
 		}
-		err = checkClusterOperationCompleted(ctx, cssV1Client, d.Id(), d.Timeout(schema.TimeoutUpdate))
+		err = checkClusterOperationResult(ctx, client, clusterId, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
 
 	case 1: // enable kibana_public_access
-		_, err := cssV1Client.StartKibanaPublic(&model.StartKibanaPublicRequest{
-			ClusterId: d.Id(),
-			Body: &model.StartKibanaPublicReq{
-				EipSize: int32(d.Get("kibana_public_access.0.bandwidth").(int)),
-				ElbWhiteList: &model.StartKibanaPublicReqElbWhitelist{
-					EnableWhiteList: d.Get("kibana_public_access.0.whitelist_enabled").(bool),
-					WhiteList:       d.Get("kibana_public_access.0.whitelist").(string),
-				},
-			},
-		})
+		err := startKibanaPublic(client, clusterId, d)
 		if err != nil {
-			return fmt.Errorf("error enabling the kibana public access of CSS cluster: %s, err: %s", d.Id(), err)
+			return fmt.Errorf("error enabling the kibana public access of CSS cluster: %s, err: %s", clusterId, err)
 		}
-		err = checkClusterOperationCompleted(ctx, cssV1Client, d.Id(), d.Timeout(schema.TimeoutUpdate))
+		err = checkClusterOperationResult(ctx, client, clusterId, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
@@ -1483,17 +1643,9 @@ func updateKibanaPublicAccess(ctx context.Context, d *schema.ResourceData, cssV1
 	case 0:
 		// update bandwidth
 		if d.HasChange("kibana_public_access.0.bandwidth") {
-			_, err := cssV1Client.UpdateAlterKibana(&model.UpdateAlterKibanaRequest{
-				ClusterId: d.Id(),
-				Body: &model.UpdatePublicKibanaBandwidthReq{
-					BandWidth: &model.UpdatePublicKibanaBandwidthReqBandWidth{
-						Size: int32(d.Get("kibana_public_access.0.bandwidth").(int)),
-					},
-					IsAutoPay: utils.Int32(1),
-				},
-			})
+			err := updateKibanaPublicBandwidth(client, clusterId, d)
 			if err != nil {
-				return fmt.Errorf("error modifing bandwidth of the kibana public access of CSS cluster: %s, err: %s", d.Id(), err)
+				return fmt.Errorf("error modifing bandwidth of the kibana public access of CSS cluster: %s, err: %s", clusterId, err)
 			}
 		}
 
@@ -1501,21 +1653,14 @@ func updateKibanaPublicAccess(ctx context.Context, d *schema.ResourceData, cssV1
 		if d.HasChanges("kibana_public_access.0.whitelist", "kibana_public_access.0.whitelist_enabled") {
 			// disable whitelist
 			if !d.Get("kibana_public_access.0.whitelist_enabled").(bool) {
-				_, err := cssV1Client.StopPublicKibanaWhitelist(&model.StopPublicKibanaWhitelistRequest{
-					ClusterId: d.Id(),
-				})
+				err := stopKibanaPublicWhitelis(client, clusterId)
 				if err != nil {
-					return fmt.Errorf("error disabing the whitelist of the kibana public access of CSS cluster: %s, err: %s", d.Id(), err)
+					return fmt.Errorf("error disabing the whitelist of the kibana public access of CSS cluster: %s, err: %s", clusterId, err)
 				}
 			} else {
-				_, err := cssV1Client.UpdatePublicKibanaWhitelist(&model.UpdatePublicKibanaWhitelistRequest{
-					ClusterId: d.Id(),
-					Body: &model.UpdatePublicKibanaWhitelistReq{
-						WhiteList: d.Get("kibana_public_access.0.whitelist").(string),
-					},
-				})
+				err := updateKibanaPublicWhitelist(client, clusterId, d)
 				if err != nil {
-					return fmt.Errorf("error modifing whitelist of the kibana public access of CSS cluster: %s, err: %s", d.Id(), err)
+					return fmt.Errorf("error modifing whitelist of the kibana public access of CSS cluster: %s, err: %s", clusterId, err)
 				}
 			}
 		}
@@ -1524,63 +1669,157 @@ func updateKibanaPublicAccess(ctx context.Context, d *schema.ResourceData, cssV1
 	return nil
 }
 
-func updatePublicAccess(ctx context.Context, d *schema.ResourceData, cssV1Client *cssv1.CssClient) error {
+func updateKibanaPublicWhitelist(client *golangsdk.ServiceClient, clusterId string, d *schema.ResourceData) error {
+	updateKibanaPublicWhitelistHttpUrl := "v1.0/{project_id}/clusters/{cluster_id}/publickibana/whitelist/update"
+	updateKibanaPublicWhitelistPath := client.Endpoint + updateKibanaPublicWhitelistHttpUrl
+	updateKibanaPublicWhitelistPath = strings.ReplaceAll(updateKibanaPublicWhitelistPath, "{project_id}", client.ProjectID)
+	updateKibanaPublicWhitelistPath = strings.ReplaceAll(updateKibanaPublicWhitelistPath, "{cluster_id}", clusterId)
+
+	updateKibanaPublicWhitelistOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		JSONBody: map[string]interface{}{
+			"whiteList": d.Get("kibana_public_access.0.whitelist"),
+		},
+	}
+
+	_, err := client.Request("POST", updateKibanaPublicWhitelistPath, &updateKibanaPublicWhitelistOpt)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func stopKibanaPublicWhitelis(client *golangsdk.ServiceClient, clusterId string) error {
+	stopKibanaPublicWhitelisHttpUrl := "v1.0/{project_id}/clusters/{cluster_id}/publickibana/bandwidth"
+	stopKibanaPublicWhitelisPath := client.Endpoint + stopKibanaPublicWhitelisHttpUrl
+	stopKibanaPublicWhitelisPath = strings.ReplaceAll(stopKibanaPublicWhitelisPath, "{project_id}", client.ProjectID)
+	stopKibanaPublicWhitelisPath = strings.ReplaceAll(stopKibanaPublicWhitelisPath, "{cluster_id}", clusterId)
+
+	stopKibanaPublicWhitelisOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	_, err := client.Request("PUT", stopKibanaPublicWhitelisPath, &stopKibanaPublicWhitelisOpt)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func updateKibanaPublicBandwidth(client *golangsdk.ServiceClient, clusterId string, d *schema.ResourceData) error {
+	updateKibanaPublicBandwidthHttpUrl := "v1.0/{project_id}/clusters/{cluster_id}/publickibana/bandwidth"
+	updateKibanaPublicBandwidthPath := client.Endpoint + updateKibanaPublicBandwidthHttpUrl
+	updateKibanaPublicBandwidthPath = strings.ReplaceAll(updateKibanaPublicBandwidthPath, "{project_id}", client.ProjectID)
+	updateKibanaPublicBandwidthPath = strings.ReplaceAll(updateKibanaPublicBandwidthPath, "{cluster_id}", clusterId)
+
+	updateKibanaPublicBandwidthOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		JSONBody: map[string]interface{}{
+			"bandWidth": map[string]interface{}{
+				"size": d.Get("kibana_public_access.0.bandwidth"),
+			},
+			"isAutoPay": 1,
+		},
+	}
+
+	_, err := client.Request("POST", updateKibanaPublicBandwidthPath, &updateKibanaPublicBandwidthOpt)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func startKibanaPublic(client *golangsdk.ServiceClient, clusterId string, d *schema.ResourceData) error {
+	startKibanaPublicHttpUrl := "v1.0/{project_id}/clusters/{cluster_id}/publickibana/open"
+	startKibanaPublicPath := client.Endpoint + startKibanaPublicHttpUrl
+	startKibanaPublicPath = strings.ReplaceAll(startKibanaPublicPath, "{project_id}", client.ProjectID)
+	startKibanaPublicPath = strings.ReplaceAll(startKibanaPublicPath, "{cluster_id}", clusterId)
+
+	startKibanaPublicOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		JSONBody: map[string]interface{}{
+			"eipSize": d.Get("kibana_public_access.0.bandwidth"),
+			"elbWhiteList": map[string]interface{}{
+				"enableWhiteList": d.Get("kibana_public_access.0.whitelist_enabled"),
+				"whiteList":       d.Get("kibana_public_access.0.whitelist"),
+			},
+		},
+	}
+
+	_, err := client.Request("POST", startKibanaPublicPath, &startKibanaPublicOpt)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func closeKibanaPublic(client *golangsdk.ServiceClient, clusterId string, oValue []interface{}) error {
+	closeKibanaPublicHttpUrl := "v1.0/{project_id}/clusters/{cluster_id}/publickibana/close"
+	closeKibanaPublicPath := client.Endpoint + closeKibanaPublicHttpUrl
+	closeKibanaPublicPath = strings.ReplaceAll(closeKibanaPublicPath, "{project_id}", client.ProjectID)
+	closeKibanaPublicPath = strings.ReplaceAll(closeKibanaPublicPath, "{cluster_id}", clusterId)
+
+	closeKibanaPublicOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		JSONBody: map[string]interface{}{
+			"eipSize": utils.PathSearch("bandwidth", oValue[0], 0),
+			"elbWhiteList": map[string]interface{}{
+				"enableWhiteList": utils.PathSearch("whitelist_enabled", oValue[0], false),
+				"whiteList":       utils.PathSearch("whitelist", oValue[0], nil),
+			},
+		},
+	}
+
+	_, err := client.Request("PUT", closeKibanaPublicPath, &closeKibanaPublicOpt)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func updatePublicAccess(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
 	o, n := d.GetChange("public_access")
 	oValue := o.([]interface{})
 	nValue := n.([]interface{})
+	clusterId := d.Id()
 
 	switch len(nValue) - len(oValue) {
 	case -1: // delete public_access
-		_, err := cssV1Client.UpdateUnbindPublic(&model.UpdateUnbindPublicRequest{
-			ClusterId: d.Id(),
-			Body: &model.UnBindPublicReq{
-				Eip: &model.UnBindPublicReqEipReq{
-					BandWidth: &model.BindPublicReqEipBandWidth{
-						Size: int32(utils.PathSearch("bandwidth", oValue[0], 0).(int)),
-					},
-				},
-			},
-		})
+		err := closePublicAccess(client, clusterId, oValue)
 		if err != nil {
-			return fmt.Errorf("error diabling public access of CSS cluster: %s, err: %s", d.Id(), err)
+			return fmt.Errorf("error diabling public access of CSS cluster: %s, err: %s", clusterId, err)
 		}
-		err = checkClusterOperationCompleted(ctx, cssV1Client, d.Id(), d.Timeout(schema.TimeoutUpdate))
+		err = checkClusterOperationResult(ctx, client, clusterId, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
 
 	case 1:
 		// enable public_access
-		_, err := cssV1Client.CreateBindPublic(&model.CreateBindPublicRequest{
-			ClusterId: d.Id(),
-			Body: &model.BindPublicReq{
-				Eip: &model.BindPublicReqEip{
-					BandWidth: &model.BindPublicReqEipBandWidth{
-						Size: int32(d.Get("public_access.0.bandwidth").(int)),
-					},
-				},
-				IsAutoPay: utils.Int32(1),
-			},
-		})
-
+		err := startPublicAccess(client, clusterId, d)
 		if err != nil {
-			return fmt.Errorf("error enabling public access of CSS cluster: %s, err: %s", d.Id(), err)
+			return fmt.Errorf("error enabling public access of CSS cluster: %s, err: %s", clusterId, err)
 		}
 
-		err = checkClusterOperationCompleted(ctx, cssV1Client, d.Id(), d.Timeout(schema.TimeoutUpdate))
+		err = checkClusterOperationResult(ctx, client, clusterId, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return err
 		}
 
 		if whitelist, ok := d.GetOk("public_access.0.whitelist"); ok {
-			_, err := cssV1Client.StartPublicWhitelist(&model.StartPublicWhitelistRequest{
-				ClusterId: d.Id(),
-				Body: &model.StartPublicWhitelistReq{
-					WhiteList: whitelist.(string),
-				},
-			})
+			err := updatePublicWhitelist(client, clusterId, whitelist)
 			if err != nil {
-				return fmt.Errorf("error updating whitelist of public access of CSS cluster: %s, err: %s", d.Id(), err)
+				return fmt.Errorf("error updating whitelist of public access of CSS cluster: %s, err: %s", clusterId, err)
 			}
 		}
 
@@ -1588,38 +1827,144 @@ func updatePublicAccess(ctx context.Context, d *schema.ResourceData, cssV1Client
 		// disable whitelist
 		if d.HasChanges("public_access.0.whitelist", "public_access.0.whitelist_enabled") {
 			if !d.Get("public_access.0.whitelist_enabled").(bool) {
-				_, err := cssV1Client.StopPublicWhitelist(&model.StopPublicWhitelistRequest{ClusterId: d.Id()})
+				err := stopPublicWhitelist(client, clusterId)
 				if err != nil {
-					return fmt.Errorf("error disabling whitelist of public access of CSS cluster: %s, err: %s", d.Id(), err)
+					return fmt.Errorf("error disabling whitelist of public access of CSS cluster: %s, err: %s", clusterId, err)
 				}
 			} else {
-				_, err := cssV1Client.StartPublicWhitelist(&model.StartPublicWhitelistRequest{
-					ClusterId: d.Id(),
-					Body: &model.StartPublicWhitelistReq{
-						WhiteList: d.Get("public_access.0.whitelist").(string),
-					},
-				})
+				err := updatePublicWhitelist(client, clusterId, d.Get("public_access.0.whitelist"))
 				if err != nil {
-					return fmt.Errorf("error updating whitelist of public access of CSS cluster: %s, err: %s", d.Id(), err)
+					return fmt.Errorf("error updating whitelist of public access of CSS cluster: %s, err: %s", clusterId, err)
 				}
 			}
 		}
 
 		// update bandwidth
 		if d.HasChange("public_access.0.bandwidth") {
-			_, err := cssV1Client.UpdatePublicBandWidth(&model.UpdatePublicBandWidthRequest{
-				ClusterId: d.Id(),
-				Body: &model.BindPublicReqEipReq{
-					BandWidth: &model.BindPublicReqEipBandWidth{
-						Size: int32(d.Get("public_access.0.bandwidth").(int)),
-					},
-					IsAutoPay: utils.Int32(1),
-				},
-			})
+			err := updatePublicBandWidth(client, clusterId, d)
 			if err != nil {
-				return fmt.Errorf("error disabling the whitelist of the kibana public access of CSS cluster: %s, err: %s", d.Id(), err)
+				return fmt.Errorf("error disabling the whitelist of the kibana public access of CSS cluster: %s, err: %s", clusterId, err)
 			}
 		}
+	}
+
+	return nil
+}
+
+func updatePublicBandWidth(client *golangsdk.ServiceClient, clusterId string, d *schema.ResourceData) error {
+	updatePublicBandWidthHttpUrl := "v1.0/{project_id}/clusters/{cluster_id}/public/bandwidth"
+	updatePublicBandWidthPath := client.Endpoint + updatePublicBandWidthHttpUrl
+	updatePublicBandWidthPath = strings.ReplaceAll(updatePublicBandWidthPath, "{project_id}", client.ProjectID)
+	updatePublicBandWidthPath = strings.ReplaceAll(updatePublicBandWidthPath, "{cluster_id}", clusterId)
+
+	updatePublicBandWidthOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		JSONBody: map[string]interface{}{
+			"bandWidth": map[string]interface{}{
+				"size": d.Get("public_access.0.bandwidth"),
+			},
+			"isAutoPay": 1,
+		},
+	}
+
+	_, err := client.Request("POST", updatePublicBandWidthPath, &updatePublicBandWidthOpt)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func stopPublicWhitelist(client *golangsdk.ServiceClient, clusterId string) error {
+	stopPublicWhitelistHttpUrl := "v1.0/{project_id}/clusters/{cluster_id}/public/whitelist/close"
+	stopPublicWhitelistPath := client.Endpoint + stopPublicWhitelistHttpUrl
+	stopPublicWhitelistPath = strings.ReplaceAll(stopPublicWhitelistPath, "{project_id}", client.ProjectID)
+	stopPublicWhitelistPath = strings.ReplaceAll(stopPublicWhitelistPath, "{cluster_id}", clusterId)
+
+	stopPublicWhitelistOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	_, err := client.Request("PUT", stopPublicWhitelistPath, &stopPublicWhitelistOpt)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func updatePublicWhitelist(client *golangsdk.ServiceClient, clusterId string, whitelist interface{}) error {
+	updatePublicWhitelistHttpUrl := "v1.0/{project_id}/clusters/{cluster_id}/public/whitelist/update"
+	updatePublicWhitelistPath := client.Endpoint + updatePublicWhitelistHttpUrl
+	updatePublicWhitelistPath = strings.ReplaceAll(updatePublicWhitelistPath, "{project_id}", client.ProjectID)
+	updatePublicWhitelistPath = strings.ReplaceAll(updatePublicWhitelistPath, "{cluster_id}", clusterId)
+
+	updatePublicWhitelistOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		JSONBody: map[string]interface{}{
+			"whiteList": whitelist,
+		},
+	}
+
+	_, err := client.Request("POST", updatePublicWhitelistPath, &updatePublicWhitelistOpt)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func startPublicAccess(client *golangsdk.ServiceClient, clusterId string, d *schema.ResourceData) error {
+	startPublicAccessHttpUrl := "v1.0/{project_id}/clusters/{cluster_id}/public/open"
+	startPublicAccessPath := client.Endpoint + startPublicAccessHttpUrl
+	startPublicAccessPath = strings.ReplaceAll(startPublicAccessPath, "{project_id}", client.ProjectID)
+	startPublicAccessPath = strings.ReplaceAll(startPublicAccessPath, "{cluster_id}", clusterId)
+
+	startPublicAccessOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		JSONBody: map[string]interface{}{
+			"eip": map[string]interface{}{
+				"bandWidth": map[string]interface{}{
+					"size": d.Get("public_access.0.bandwidth"),
+				},
+			},
+			"isAutoPay": 1,
+		},
+	}
+
+	_, err := client.Request("POST", startPublicAccessPath, &startPublicAccessOpt)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func closePublicAccess(client *golangsdk.ServiceClient, clusterId string, oValue []interface{}) error {
+	closePublicAccessHttpUrl := "v1.0/{project_id}/clusters/{cluster_id}/public/close"
+	closePublicAccessPath := client.Endpoint + closePublicAccessHttpUrl
+	closePublicAccessPath = strings.ReplaceAll(closePublicAccessPath, "{project_id}", client.ProjectID)
+	closePublicAccessPath = strings.ReplaceAll(closePublicAccessPath, "{cluster_id}", clusterId)
+
+	closePublicAccessOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		JSONBody: map[string]interface{}{
+			"eip": map[string]interface{}{
+				"bandWidth": map[string]interface{}{
+					"size": utils.PathSearch("bandwidth", oValue[0], 0),
+				},
+			},
+		},
+	}
+
+	_, err := client.Request("PUT", closePublicAccessPath, &closePublicAccessOpt)
+	if err != nil {
+		return err
 	}
 
 	return nil
@@ -1628,35 +1973,46 @@ func updatePublicAccess(ctx context.Context, d *schema.ResourceData, cssV1Client
 func resourceCssClusterDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
-	cssV1Client, err := conf.HcCssV1Client(region)
+	clusterId := d.Id()
+	client, err := conf.CssV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CSS V1 client: %s", err)
 	}
 
-	_, err = cssV1Client.DeleteCluster(&model.DeleteClusterRequest{ClusterId: d.Id()})
-	if err != nil {
-		return diag.Errorf("delete CSS cluster %s failed, error: %s", d.Id(), err)
+	deleteClusterHttpUrl := "v1.0/{project_id}/clusters/{cluster_id}"
+	deleteClusterPath := client.Endpoint + deleteClusterHttpUrl
+	deleteClusterPath = strings.ReplaceAll(deleteClusterPath, "{project_id}", client.ProjectID)
+	deleteClusterPath = strings.ReplaceAll(deleteClusterPath, "{cluster_id}", clusterId)
+
+	deleteClusterOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
-	err = checkClusterDeleteResult(ctx, cssV1Client, d.Id(), d.Timeout(schema.TimeoutDelete))
+	_, err = client.Request("DELETE", deleteClusterPath, &deleteClusterOpt)
+	if err != nil {
+		// "CSS.0015": The cluster does not exist. Status code is 403.
+		return common.CheckDeletedDiag(d, common.ConvertExpected403ErrInto404Err(err, "errCode", "CSS.0015"), "error deleting the CSS cluster")
+	}
+
+	err = checkClusterDeleteResult(ctx, client, clusterId, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return diag.Errorf("failed to check the result of deletion %s", err)
 	}
-	d.SetId("")
 	return nil
 }
 
-func checkClusterCreateResult(ctx context.Context, cssV1Client *cssv1.CssClient, clusterId string,
+func checkClusterCreateResult(ctx context.Context, client *golangsdk.ServiceClient, clusterId string,
 	timeout time.Duration) error {
 	createStateConf := &resource.StateChangeConf{
 		Pending: []string{ClusterStatusInProcess},
 		Target:  []string{ClusterStatusAvailable},
 		Refresh: func() (interface{}, string, error) {
-			resp, err := cssV1Client.ShowClusterDetail(&model.ShowClusterDetailRequest{ClusterId: clusterId})
+			resp, err := getClusterDetails(client, clusterId)
 			if err != nil {
 				return nil, "failed", err
 			}
-			return resp, *resp.Status, err
+			return resp, utils.PathSearch("status", resp, nil).(string), err
 		},
 		Timeout:      timeout,
 		PollInterval: 10 * timeout,
@@ -1669,26 +2025,16 @@ func checkClusterCreateResult(ctx context.Context, cssV1Client *cssv1.CssClient,
 	return nil
 }
 
-func checkClusterDeleteResult(ctx context.Context, cssV1Client *cssv1.CssClient, clusterId string,
-	timeout time.Duration) error {
+func checkClusterDeleteResult(ctx context.Context, client *golangsdk.ServiceClient, clusterId string, timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{"Pending"},
 		Target:  []string{"Done"},
 		Refresh: func() (interface{}, string, error) {
-			_, err := cssV1Client.ShowClusterDetail(&model.ShowClusterDetailRequest{ClusterId: clusterId})
+			_, err := getClusterDetails(client, clusterId)
 			if err != nil {
-				if err, ok := err.(*sdkerr.ServiceResponseError); ok {
-					if err.StatusCode == http.StatusNotFound {
-						return true, "Done", nil
-					}
-
-					if err.StatusCode == 403 {
-						var apiError ResponseError
-						pErr := json.Unmarshal([]byte(err.ErrorMessage), &apiError)
-						if pErr == nil && apiError.ErrorCode == "CSS.0015" {
-							return true, "Done", nil
-						}
-					}
+				err = common.ConvertExpected403ErrInto404Err(err, "errCode", "CSS.0015")
+				if _, ok := err.(golangsdk.ErrDefault404); ok {
+					return true, "Done", nil
 				}
 				return nil, "ERROR", err
 			}
@@ -1705,13 +2051,12 @@ func checkClusterDeleteResult(ctx context.Context, cssV1Client *cssv1.CssClient,
 	return nil
 }
 
-func checkClusterOperationCompleted(ctx context.Context, cssV1Client *cssv1.CssClient, clusterId string,
-	timeout time.Duration) error {
+func checkClusterOperationResult(ctx context.Context, client *golangsdk.ServiceClient, clusterId string, timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{"Pending"},
 		Target:  []string{"Done"},
 		Refresh: func() (interface{}, string, error) {
-			resp, err := cssV1Client.ShowClusterDetail(&model.ShowClusterDetailRequest{ClusterId: clusterId})
+			resp, err := getClusterDetails(client, clusterId)
 			if err != nil {
 				return nil, "failed", err
 			}
@@ -1732,62 +2077,33 @@ func checkClusterOperationCompleted(ctx context.Context, cssV1Client *cssv1.CssC
 	return nil
 }
 
-func checkCssClusterIsReady(detail *model.ShowClusterDetailResponse) bool {
-	if utils.StringValue(detail.Status) != ClusterStatusAvailable {
+func checkCssClusterIsReady(detail interface{}) bool {
+	status := utils.PathSearch("status", detail, "").(string)
+	actions := utils.PathSearch("actions", detail, make([]interface{}, 0)).([]interface{})
+	instances := utils.PathSearch("instances", detail, make([]interface{}, 0)).([]interface{})
+	if status != ClusterStatusAvailable {
 		return false
 	}
 
 	// actions --- the behaviors on a cluster
-	if detail.Actions != nil && len(*detail.Actions) > 0 {
+	if len(actions) > 0 {
 		return false
 	}
 
-	if detail.Instances == nil {
+	if len(instances) == 0 {
 		return false
 	}
-	for _, v := range *detail.Instances {
-		if utils.StringValue(v.Status) != ClusterStatusAvailable {
+	for _, v := range instances {
+		status := utils.PathSearch("status", v, "").(string)
+		if status != ClusterStatusAvailable {
 			return false
 		}
 	}
 	return true
 }
 
-func updateCssTags(cssV1Client *cssv1.CssClient, id string, old, new map[string]interface{}) error {
-	// remove old tags
-	for k := range old {
-		_, err := cssV1Client.DeleteClustersTags(&model.DeleteClustersTagsRequest{
-			ResourceType: "css-cluster",
-			ClusterId:    id,
-			Key:          k,
-		})
-		if err != nil {
-			return err
-		}
-	}
-
-	// set new tags
-	for k, v := range new {
-		_, err := cssV1Client.CreateClustersTags(&model.CreateClustersTagsRequest{
-			ResourceType: "css-cluster",
-			ClusterId:    id,
-			Body: &model.TagReq{
-				Tag: &model.Tag{
-					Key:   k,
-					Value: v.(string),
-				},
-			},
-		})
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
 func updateFlavor(ctx context.Context, d *schema.ResourceData,
-	flavorsResp map[string]interface{}, conf *config.Config, addMasterNode, addClientNode bool) error {
+	flavorsResp interface{}, conf *config.Config, addMasterNode, addClientNode bool) error {
 	if d.HasChange("ess_node_config.0.flavor") {
 		err := updateFlavorByType(ctx, InstanceTypeEss, d, flavorsResp, conf)
 		if err != nil {
@@ -1820,13 +2136,9 @@ func updateFlavor(ctx context.Context, d *schema.ResourceData,
 }
 
 func updateFlavorByType(ctx context.Context, nodeType string, d *schema.ResourceData,
-	resp map[string]interface{}, conf *config.Config) error {
+	resp interface{}, conf *config.Config) error {
 	region := conf.GetRegion(d)
 	cssV1Client, err := conf.CssV1Client(region)
-	if err != nil {
-		return fmt.Errorf("error creating CSS V1 client: %s", err)
-	}
-	hcCssV1Client, err := conf.HcCssV1Client(region)
 	if err != nil {
 		return fmt.Errorf("error creating CSS V1 client: %s", err)
 	}
@@ -1876,14 +2188,14 @@ func updateFlavorByType(ctx context.Context, nodeType string, d *schema.Resource
 		}
 	}
 
-	err = checkClusterOperationCompleted(ctx, hcCssV1Client, d.Id(), d.Timeout(schema.TimeoutUpdate))
+	err = checkClusterOperationResult(ctx, cssV1Client, d.Id(), d.Timeout(schema.TimeoutUpdate))
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func flattenFlavorId(nodeType string, d *schema.ResourceData, resp map[string]interface{}) (string, error) {
+func flattenFlavorId(nodeType string, d *schema.ResourceData, resp interface{}) (string, error) {
 	version := d.Get("engine_version").(string)
 	var flavorName string
 	switch nodeType {
@@ -1907,22 +2219,22 @@ func flattenFlavorId(nodeType string, d *schema.ResourceData, resp map[string]in
 	return flavorId.(string), nil
 }
 
-func getFlavorList(cssV1Client *cssv1.CssClient) (map[string]interface{}, error) {
-	flavorsResp, err := cssV1Client.ListFlavors(&model.ListFlavorsRequest{})
-	if err != nil {
-		return nil, fmt.Errorf("unable to retrieve CSS flavors: %s ", err)
+func getFlavorList(client *golangsdk.ServiceClient) (interface{}, error) {
+	getEsFlavorHttpUrl := "v1.0/{project_id}/es-flavors"
+	getEsFlavorPath := client.Endpoint + getEsFlavorHttpUrl
+	getEsFlavorPath = strings.ReplaceAll(getEsFlavorPath, "{project_id}", client.ProjectID)
+
+	getEsFlavorOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
-	getFlavorsRespJson, err := json.Marshal(flavorsResp)
+	getEsFlavorResp, err := client.Request("GET", getEsFlavorPath, &getEsFlavorOpt)
 	if err != nil {
-		return nil, err
+		return getEsFlavorResp, err
 	}
-	var data map[string]interface{}
-	err = json.Unmarshal(getFlavorsRespJson, &data)
-	if err != nil {
-		return nil, err
-	}
-	return data, nil
+
+	return utils.FlattenResponse(getEsFlavorResp)
 }
 
 func extendInstanceNumber(ctx context.Context, d *schema.ResourceData, conf *config.Config,
@@ -2043,14 +2355,9 @@ func extendInstanceNumber(ctx context.Context, d *schema.ResourceData, conf *con
 	return nil
 }
 
-func updateExtendInstanceStorage(ctx context.Context, d *schema.ResourceData,
-	conf *config.Config, bodyParams map[string]interface{}) error {
+func updateExtendInstanceStorage(ctx context.Context, d *schema.ResourceData, conf *config.Config, bodyParams map[string]interface{}) error {
 	region := conf.GetRegion(d)
 	cssV1Client, err := conf.CssV1Client(region)
-	if err != nil {
-		return fmt.Errorf("error creating CSS V1 client: %s", err)
-	}
-	hcCssV1Client, err := conf.HcCssV1Client(region)
 	if err != nil {
 		return fmt.Errorf("error creating CSS V1 client: %s", err)
 	}
@@ -2090,7 +2397,7 @@ func updateExtendInstanceStorage(ctx context.Context, d *schema.ResourceData,
 		}
 	}
 
-	err = checkClusterOperationCompleted(ctx, hcCssV1Client, d.Id(), d.Timeout(schema.TimeoutUpdate))
+	err = checkClusterOperationResult(ctx, cssV1Client, d.Id(), d.Timeout(schema.TimeoutUpdate))
 	if err != nil {
 		return err
 	}
@@ -2189,10 +2496,6 @@ func addMastersOrClients(ctx context.Context, d *schema.ResourceData,
 	if err != nil {
 		return fmt.Errorf("error creating CSS V1 client: %s", err)
 	}
-	hcCssV1Client, err := conf.HcCssV1Client(region)
-	if err != nil {
-		return fmt.Errorf("error creating CSS V1 client: %s", err)
-	}
 
 	addNodeHttpUrl := "v1.0/{project_id}/clusters/{cluster_id}/type/{type}/independent"
 	addNodePath := cssV1Client.Endpoint + addNodeHttpUrl
@@ -2230,15 +2533,14 @@ func addMastersOrClients(ctx context.Context, d *schema.ResourceData,
 		}
 	}
 
-	err = checkClusterOperationCompleted(ctx, hcCssV1Client, d.Id(), d.Timeout(schema.TimeoutUpdate))
+	err = checkClusterOperationResult(ctx, cssV1Client, d.Id(), d.Timeout(schema.TimeoutUpdate))
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func updateSafeMode(ctx context.Context, d *schema.ResourceData,
-	cssV1Client *cssv1.CssClient, client *golangsdk.ServiceClient) error {
+func updateSafeMode(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
 	adminPassword := d.Get("password").(string)
 	if d.Get("security_mode").(bool) && adminPassword == "" {
 		return fmt.Errorf("administrator password is required when security mode changes")
@@ -2260,7 +2562,7 @@ func updateSafeMode(ctx context.Context, d *schema.ResourceData,
 		return fmt.Errorf("error updating CSS cluster security mode, cluster_id: %s, error: %s", d.Id(), err)
 	}
 
-	err = checkClusterOperationCompleted(ctx, cssV1Client, d.Id(), d.Timeout(schema.TimeoutUpdate))
+	err = checkClusterOperationResult(ctx, client, d.Id(), d.Timeout(schema.TimeoutUpdate))
 	if err != nil {
 		return err
 	}
@@ -2281,8 +2583,7 @@ func buildUpdateSafeModeParams(d *schema.ResourceData, adminPassword string) map
 	return body
 }
 
-func updateAdminPassword(ctx context.Context, d *schema.ResourceData,
-	cssV1Client *cssv1.CssClient, client *golangsdk.ServiceClient) error {
+func updateAdminPassword(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
 	adminPassword := d.Get("password").(string)
 	if adminPassword == "" {
 		return fmt.Errorf("administrator password is required when security mode changes")
@@ -2306,7 +2607,7 @@ func updateAdminPassword(ctx context.Context, d *schema.ResourceData,
 		return fmt.Errorf("error resetting CSS cluster administrator password, cluster_id: %s, error: %s", d.Id(), err)
 	}
 
-	err = checkClusterOperationCompleted(ctx, cssV1Client, d.Id(), d.Timeout(schema.TimeoutUpdate))
+	err = checkClusterOperationResult(ctx, client, d.Id(), d.Timeout(schema.TimeoutUpdate))
 	if err != nil {
 		return err
 	}
@@ -2314,8 +2615,7 @@ func updateAdminPassword(ctx context.Context, d *schema.ResourceData,
 	return nil
 }
 
-func updateSecurityGroup(ctx context.Context, d *schema.ResourceData,
-	cssV1Client *cssv1.CssClient, client *golangsdk.ServiceClient) error {
+func updateSecurityGroup(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
 	updateSecurityGroupHttpUrl := "v1.0/{project_id}/clusters/{cluster_id}/sg/change"
 	updateSecurityGroupPath := client.Endpoint + updateSecurityGroupHttpUrl
 	updateSecurityGroupPath = strings.ReplaceAll(updateSecurityGroupPath, "{project_id}", client.ProjectID)
@@ -2335,7 +2635,7 @@ func updateSecurityGroup(ctx context.Context, d *schema.ResourceData,
 		return fmt.Errorf("error updating CSS cluster security group ID, cluster_id: %s, error: %s", d.Id(), err)
 	}
 
-	err = checkClusterOperationCompleted(ctx, cssV1Client, d.Id(), d.Timeout(schema.TimeoutUpdate))
+	err = checkClusterOperationResult(ctx, client, d.Id(), d.Timeout(schema.TimeoutUpdate))
 	if err != nil {
 		return err
 	}
@@ -2350,14 +2650,10 @@ func updateShrinkInstance(ctx context.Context, d *schema.ResourceData, conf *con
 	if err != nil {
 		return fmt.Errorf("error creating CSS V1 client: %s", err)
 	}
-	hcClient, err := conf.HcCssV1Client(region)
-	if err != nil {
-		return fmt.Errorf("error creating CSS V1 client: %s", err)
-	}
 
 	if len(shrinkNodeIds) == 0 {
 		bodyParams := buildUpdateShrinkNodeByTypeBodyParams(nodeType, shrinkNodeSize)
-		err := updateShrinkInstanceNodeByType(ctx, d, hcClient, client, bodyParams)
+		err := updateShrinkInstanceNodeByType(ctx, d, client, bodyParams)
 		if err != nil {
 			return err
 		}
@@ -2366,7 +2662,7 @@ func updateShrinkInstance(ctx context.Context, d *schema.ResourceData, conf *con
 			return fmt.Errorf("instance_number changing number is inconsistent with the length"+
 				" of shrink_node_ids, node type: %s", nodeType)
 		}
-		err := updateShrinkInstanceNodeById(ctx, d, hcClient, client, shrinkNodeIds)
+		err := updateShrinkInstanceNodeById(ctx, d, client, shrinkNodeIds)
 		if err != nil {
 			return err
 		}
@@ -2387,8 +2683,8 @@ func buildUpdateShrinkNodeByTypeBodyParams(nodeType string, nodesize int) map[st
 	return bodyParams
 }
 
-func updateShrinkInstanceNodeByType(ctx context.Context, d *schema.ResourceData, hcClient *cssv1.CssClient,
-	client *golangsdk.ServiceClient, bodyParams map[string]interface{}) error {
+func updateShrinkInstanceNodeByType(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient,
+	bodyParams map[string]interface{}) error {
 	shrinkNodeHttpUrl := "v1.0/extend/{project_id}/clusters/{cluster_id}/role/shrink"
 	shrinkNodePath := client.Endpoint + shrinkNodeHttpUrl
 	shrinkNodePath = strings.ReplaceAll(shrinkNodePath, "{project_id}", client.ProjectID)
@@ -2406,7 +2702,7 @@ func updateShrinkInstanceNodeByType(ctx context.Context, d *schema.ResourceData,
 		return fmt.Errorf("error shrinking CSS cluster node by type, cluster_id: %s, error: %s", d.Id(), err)
 	}
 
-	err = checkClusterOperationCompleted(ctx, hcClient, d.Id(), d.Timeout(schema.TimeoutUpdate))
+	err = checkClusterOperationResult(ctx, client, d.Id(), d.Timeout(schema.TimeoutUpdate))
 	if err != nil {
 		return err
 	}
@@ -2414,8 +2710,7 @@ func updateShrinkInstanceNodeByType(ctx context.Context, d *schema.ResourceData,
 	return nil
 }
 
-func updateShrinkInstanceNodeById(ctx context.Context, d *schema.ResourceData, hcClient *cssv1.CssClient,
-	client *golangsdk.ServiceClient, nodeIds []interface{}) error {
+func updateShrinkInstanceNodeById(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, nodeIds []interface{}) error {
 	shrinkNodeHttpUrl := "v1.0/{project_id}/clusters/{cluster_id}/node/offline"
 	shrinkNodePath := client.Endpoint + shrinkNodeHttpUrl
 	shrinkNodePath = strings.ReplaceAll(shrinkNodePath, "{project_id}", client.ProjectID)
@@ -2435,7 +2730,7 @@ func updateShrinkInstanceNodeById(ctx context.Context, d *schema.ResourceData, h
 		return fmt.Errorf("error shrinking CSS cluster node by ID, cluster_id: %s, error: %s", d.Id(), err)
 	}
 
-	err = checkClusterOperationCompleted(ctx, hcClient, d.Id(), d.Timeout(schema.TimeoutUpdate))
+	err = checkClusterOperationResult(ctx, client, d.Id(), d.Timeout(schema.TimeoutUpdate))
 	if err != nil {
 		return err
 	}

@@ -18,7 +18,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
@@ -433,9 +432,8 @@ func flattenInstanceNodes(resp interface{}) []interface{} {
 
 func flattenInstanceDatastore(resp interface{}) interface{} {
 	var rst []map[string]interface{}
-	curJson, err := jmespath.Search("datastore", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing datastore from response= %#v", resp)
+	curJson := utils.PathSearch("datastore", resp, nil)
+	if curJson == nil {
 		return rst
 	}
 
@@ -451,9 +449,8 @@ func flattenInstanceDatastore(resp interface{}) interface{} {
 
 func flattenInstanceBackupStrategy(resp interface{}) interface{} {
 	var rst []map[string]interface{}
-	curJson, err := jmespath.Search("backup_strategy", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing backup_strategy from response= %#v", resp)
+	curJson := utils.PathSearch("backup_strategy", resp, nil)
+	if curJson == nil {
 		return rst
 	}
 

@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -33,6 +32,8 @@ func ResourceGlobalConnectionBandwidth() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+
+		CustomizeDiff: config.MergeDefaultTags(),
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -88,11 +89,7 @@ func ResourceGlobalConnectionBandwidth() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"tags": {
-				Type:     schema.TypeMap,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Optional: true,
-			},
+			"tags": common.TagsSchema(),
 			"binding_service": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -164,12 +161,12 @@ func resourceGlobalConnectionBandwidthCreate(ctx context.Context, d *schema.Reso
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	id, err := jmespath.Search("globalconnection_bandwidth.id", createGCBRespBody)
-	if err != nil {
-		return diag.Errorf("error creating global connection bandwidth: %s is not found in API response", "id")
+	id := utils.PathSearch("globalconnection_bandwidth.id", createGCBRespBody, "").(string)
+	if id == "" {
+		return diag.Errorf("error creating global connection bandwidth: ID is not found in API response")
 	}
 
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	if v, ok := d.GetOk("binding_service"); ok && v.(string) != "ALL" {
 		err = updateGCB(client, d, cfg.DomainID)
@@ -223,8 +220,8 @@ func resourceGlobalConnectionBandwidthRead(_ context.Context, d *schema.Resource
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	getGCBRespBody, err = jmespath.Search("globalconnection_bandwidth", getGCBRespBody)
-	if err != nil {
+	getGCBRespBody = utils.PathSearch("globalconnection_bandwidth", getGCBRespBody, nil)
+	if getGCBRespBody == nil {
 		return diag.Errorf("error getting global connection bandwidth: %s is not found in API response",
 			"globalconnection_bandwidth")
 	}
@@ -398,7 +395,7 @@ func resourceGlobalConnectionBandwidthDelete(_ context.Context, d *schema.Resour
 
 	_, err = client.Request("DELETE", deleteGCBPath, &deleteGCBOpt)
 	if err != nil {
-		return diag.Errorf("error deleting global connection bandwidth: %s", err)
+		return common.CheckDeletedDiag(d, err, "error deleting global connection bandwidth")
 	}
 
 	return nil

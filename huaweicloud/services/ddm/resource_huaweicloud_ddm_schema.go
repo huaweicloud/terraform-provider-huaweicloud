@@ -18,7 +18,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -62,11 +61,10 @@ func ResourceDdmSchema() *schema.Resource {
 				Description: `Specifies the ID of a DDM instance.`,
 			},
 			"name": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ForceNew:     true,
-				Description:  `Specifies the name of the DDM schema.`,
-				ValidateFunc: validation.StringLenBetween(2, 48),
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `Specifies the name of the DDM schema.`,
 			},
 			"shard_mode": {
 				Type:        schema.TypeString,
@@ -233,13 +231,9 @@ func resourceDdmSchemaCreate(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.FromErr(err)
 	}
 
-	schemas, err := jmespath.Search("databases", createSchemaRespBody)
-	if err != nil {
-		return diag.Errorf("error creating DdmSchema: Schema is not found in API response %s", err)
-	}
-	schemaName, err := jmespath.Search("name", schemas.([]interface{})[0])
-	if err != nil {
-		return diag.Errorf("error creating DdmSchema: Schema name is not found in API response %s", err)
+	schemaName := utils.PathSearch("databases[0].name", createSchemaRespBody, "").(string)
+	if schemaName == "" {
+		return diag.Errorf("unable to find the DDM schema name from the API response %s", err)
 	}
 
 	err = waitForInstanceRunning(ctx, d, createSchemaClient, instanceID, schema.TimeoutCreate)
@@ -247,7 +241,7 @@ func resourceDdmSchemaCreate(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.FromErr(err)
 	}
 
-	d.SetId(instanceID + "/" + schemaName.(string))
+	d.SetId(instanceID + "/" + schemaName)
 
 	return resourceDdmSchemaRead(ctx, d, meta)
 }
@@ -454,7 +448,7 @@ func handleOperationError(err error, operateType string, operateObj string) (boo
 	if err == nil {
 		return false, nil
 	}
-	if errCode, ok := err.(golangsdk.ErrUnexpectedResponseCode); ok && errCode.Actual == 409 {
+	if errCode, ok := err.(golangsdk.ErrDefault409); ok {
 		var apiError ddmError
 		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
 			return false, fmt.Errorf("error %s DDM %s: error format error: %s", operateType,
@@ -464,7 +458,7 @@ func handleOperationError(err error, operateType string, operateObj string) (boo
 			return true, err
 		}
 	}
-	return false, fmt.Errorf("error %s DDM %s: %s", operateType, operateObj, err)
+	return false, err
 }
 
 func waitForInstanceRunning(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient, instanceID string,

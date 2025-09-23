@@ -7,14 +7,11 @@ package dew
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -94,11 +91,11 @@ func resourceKmsDedicatedKeystoreCreate(ctx context.Context, d *schema.ResourceD
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("keystore.keystore_id", createRespBody)
-	if err != nil || id == nil {
-		return diag.Errorf("error creating KMS dedicated keystore: ID is not found in API response")
+	keystoreId := utils.PathSearch("keystore.keystore_id", createRespBody, "").(string)
+	if keystoreId == "" {
+		return diag.Errorf("unable to find the KMS dedicated keystore ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(keystoreId)
 
 	return resourceKmsDedicatedKeystoreRead(ctx, d, meta)
 }
@@ -134,7 +131,8 @@ func resourceKmsDedicatedKeystoreRead(_ context.Context, d *schema.ResourceData,
 
 	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseErrorToError404(err), "error retrieving KMS dedicated keystore")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error.error_code", "KMS.8003"),
+			"error retrieving KMS dedicated keystore")
 	}
 
 	getRespBody, err := utils.FlattenResponse(getResp)
@@ -149,26 +147,6 @@ func resourceKmsDedicatedKeystoreRead(_ context.Context, d *schema.ResourceData,
 		d.Set("hsm_cluster_id", utils.PathSearch("keystore.hsm_cluster_id", getRespBody, nil)),
 	)
 	return diag.FromErr(mErr.ErrorOrNil())
-}
-
-func parseErrorToError404(err error) error {
-	var errCode golangsdk.ErrDefault400
-	if errors.As(err, &errCode) {
-		var apiError interface{}
-		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
-			return err
-		}
-
-		errorCode, errorCodeErr := jmespath.Search("error.error_code", apiError)
-		if errorCodeErr != nil {
-			return err
-		}
-
-		if errorCode == "KMS.8003" {
-			return golangsdk.ErrDefault404(errCode)
-		}
-	}
-	return err
 }
 
 func resourceKmsDedicatedKeystoreDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

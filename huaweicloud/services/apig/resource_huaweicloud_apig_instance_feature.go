@@ -122,12 +122,12 @@ func resourceInstanceFeatureCreate(ctx context.Context, d *schema.ResourceData, 
 		return diag.FromErr(err)
 	}
 
-	featureName, err := jmespath.Search("name", creatRespBody)
-	if err != nil {
-		return diag.Errorf("error creating feature (%s) configuration under specified instance (%s): %s", name, instanceId, err)
+	featureName := utils.PathSearch("name", creatRespBody, "").(string)
+	if featureName == "" {
+		return diag.Errorf("unable to find the feature name from the API response")
 	}
 
-	d.SetId(featureName.(string))
+	d.SetId(featureName)
 	return resourceInstanceFeatureRead(ctx, d, meta)
 }
 
@@ -135,7 +135,7 @@ func handleOperationError409(err error) (bool, error) {
 	if err == nil {
 		return false, nil
 	}
-	if errCode, ok := err.(golangsdk.ErrUnexpectedResponseCode); ok && errCode.Actual == 409 {
+	if errCode, ok := err.(golangsdk.ErrDefault409); ok {
 		var apiError interface{}
 		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
 			return false, jsonErr

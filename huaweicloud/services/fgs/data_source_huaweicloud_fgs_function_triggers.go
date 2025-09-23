@@ -192,7 +192,7 @@ func flattenTriggers(triggers []interface{}) []interface{} {
 			"id":         utils.PathSearch("trigger_id", trigger, nil),
 			"type":       utils.PathSearch("trigger_type_code", trigger, nil),
 			"status":     utils.PathSearch("trigger_status", trigger, nil),
-			"event_data": parseEventData(utils.PathSearch("event_data", trigger, nil)),
+			"event_data": utils.JsonToString(utils.PathSearch("event_data", trigger, nil)),
 			"created_at": convertTimeToRFC339(utils.PathSearch("created_time", trigger, "").(string)),
 			"updated_at": convertTimeToRFC339(utils.PathSearch("last_updated_time", trigger, "").(string)),
 		})

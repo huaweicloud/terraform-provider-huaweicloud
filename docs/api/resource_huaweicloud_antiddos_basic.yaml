@@ -22,6 +22,9 @@ paths:
     /v1/{project_id}/publicips/{publicip_id}:
         GET:
             tag: EIP
+    /v2/{project_id}/query-task-status:
+        GET:
+            tag: Anti-DDoS
     /v2/{project_id}/warnalert/alertconfig/query:
         GET:
             tag: Anti-DDoS

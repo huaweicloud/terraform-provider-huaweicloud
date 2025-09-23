@@ -1,0 +1,209 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_coc_resources": {
+          "block": {
+            "attributes": {
+              "agent_state": {
+                "type": "string",
+                "description": "Specifies the unified agent status.",
+                "optional": true
+              },
+              "application_id": {
+                "type": "string",
+                "description": "Specifies the application ID of the cloud resource.",
+                "optional": true
+              },
+              "az_id": {
+                "type": "string",
+                "description": "Specifies the availability zone ID.",
+                "optional": true
+              },
+              "cce_cluster_id": {
+                "type": "string",
+                "description": "Specifies the CCE cluster ID.",
+                "optional": true
+              },
+              "charging_mode": {
+                "type": "string",
+                "description": "Specifies the billing type for the cloud server.",
+                "optional": true
+              },
+              "cloud_service_name": {
+                "type": "string",
+                "description": "Specifies the cloud service name.",
+                "required": true
+              },
+              "component_id": {
+                "type": "string",
+                "description": "Specifies the component ID of the cloud resource.",
+                "optional": true
+              },
+              "data": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "agent_id": "string",
+                      "agent_state": "string",
+                      "cloud_service_name": "string",
+                      "domain_id": "string",
+                      "ep_id": "string",
+                      "id": "string",
+                      "ingest_properties": [
+                        "map",
+                        "string"
+                      ],
+                      "is_delegated": "bool",
+                      "name": "string",
+                      "operable": "string",
+                      "project_id": "string",
+                      "properties": [
+                        "map",
+                        "string"
+                      ],
+                      "region_id": "string",
+                      "resource_id": "string",
+                      "tags": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "key": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ],
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the resource list.",
+                "computed": true
+              },
+              "ep_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID.",
+                "optional": true
+              },
+              "flavor_name": {
+                "type": "string",
+                "description": "Specifies the cloud resource specification name.",
+                "optional": true
+              },
+              "group_id": {
+                "type": "string",
+                "description": "Specifies the group ID of the cloud resource.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "image_name": {
+                "type": "string",
+                "description": "Specifies the image name.",
+                "optional": true
+              },
+              "ip": {
+                "type": "string",
+                "description": "Specifies the cloud resource IP.",
+                "optional": true
+              },
+              "ip_list": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the cloud resource IP list.",
+                "optional": true
+              },
+              "ip_type": {
+                "type": "string",
+                "description": "Specifies the IP type.",
+                "optional": true
+              },
+              "is_collected": {
+                "type": "bool",
+                "description": "Specifies whether it is a favorite.",
+                "optional": true
+              },
+              "is_delegated": {
+                "type": "bool",
+                "description": "Specifies whether the resource is delegated.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the cloud resource name.",
+                "optional": true
+              },
+              "operable": {
+                "type": "string",
+                "description": "Specifies whether the user defined resource can operate the instance.",
+                "optional": true
+              },
+              "os_type": {
+                "type": "string",
+                "description": "Specifies the cloud resource operating system type.",
+                "optional": true
+              },
+              "project_id": {
+                "type": "string",
+                "description": "Specifies the project ID.",
+                "optional": true
+              },
+              "region_id": {
+                "type": "string",
+                "description": "Specifies the region ID.",
+                "optional": true
+              },
+              "resource_id_list": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the resource ID list.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the resource status.",
+                "optional": true
+              },
+              "tag": {
+                "type": "string",
+                "description": "Specifies the tags for cloud resources. The format of the tag is **key.value**.",
+                "optional": true
+              },
+              "tag_key": {
+                "type": "string",
+                "description": "Specifies the tag key of the cloud resource.",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the resource type name.",
+                "required": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "description": "Specifies the virtual private cloud ID.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "COC",
+            "name": "Cloud Operations Center",
+            "catalog": "Management & Governance",
+            "name_cn": "云运维中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

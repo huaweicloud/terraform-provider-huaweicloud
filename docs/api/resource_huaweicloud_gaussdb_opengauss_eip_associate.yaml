@@ -1,0 +1,22 @@
+info:
+    version: ""
+    title: resource_huaweicloud_gaussdb_opengauss_eip_associate
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: GaussDB
+paths:
+    /v3/{project_id}/instances:
+        GET:
+            tag: GaussDB
+    /v3/{project_id}/instances/{instance_id}/nodes/{node_id}/public-ip:
+        POST:
+            tag: GaussDB
+    /v3/{project_id}/instances/{instance_id}/public-ips:
+        GET:
+            tag: GaussDB
+    /v3/{project_id}/jobs:
+        GET:
+            tag: GaussDB

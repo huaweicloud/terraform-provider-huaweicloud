@@ -32,7 +32,8 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `keep_days` - (Required, Int) Specifies the number of days for storing audit logs. The value ranges from 7 to 732.
+* `keep_days` - (Required, Int) Specifies the number of days for storing audit logs.  
+  The value ranges from `7` to `732`.
 
 * `audit_scope` - (Optional, String) Specifies the audit scope.
   If this parameter is left blank or set to **all**, all audit log policies are enabled.

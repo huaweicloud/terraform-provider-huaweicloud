@@ -16,34 +16,28 @@ import (
 )
 
 func getIpAddressGroupResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	region := acceptance.HW_REGION_NAME
-
-	// getIpAddressGroup: Query the GA IP address group detail
 	var (
-		getIpAddressGroupHttpUrl = "v1/ip-groups/{ip_group_id}"
-		getIpAddressGroupProduct = "ga"
+		region  = acceptance.HW_REGION_NAME
+		httpUrl = "v1/ip-groups/{ip_group_id}"
+		product = "ga"
 	)
 
-	getIpAddressGroupClient, err := cfg.NewServiceClient(getIpAddressGroupProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return nil, fmt.Errorf("error creating IP address group client: %s", err)
+		return nil, fmt.Errorf("error creating GA client: %s", err)
 	}
 
-	getIpAddressGroupPath := getIpAddressGroupClient.Endpoint + getIpAddressGroupHttpUrl
-	getIpAddressGroupPath = strings.ReplaceAll(getIpAddressGroupPath, "{ip_group_id}", state.Primary.ID)
-
-	getIpAddressGroupOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{ip_group_id}", state.Primary.ID)
+	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
 
-	getIpAddressGroupResp, err := getIpAddressGroupClient.Request("GET", getIpAddressGroupPath, &getIpAddressGroupOpt)
+	resp, err := client.Request("GET", requestPath, &requestOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving IP address group: %s", err)
+		return nil, fmt.Errorf("error retrieving GA IP address group: %s", err)
 	}
-	return utils.FlattenResponse(getIpAddressGroupResp)
+	return utils.FlattenResponse(resp)
 }
 
 func TestAccIpAddressGroup_basic(t *testing.T) {

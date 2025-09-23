@@ -2,7 +2,8 @@
 subcategory: "GaussDB(DWS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_dws_workload_queue"
-description: ""
+description: |-
+  Manages a GaussDB(DWS) workload queue resource within HuaweiCloud.
 ---
 
 # huaweicloud_dws_workload_queue
@@ -111,8 +112,8 @@ and **cpu_share** are exclusive, one of them must be set, and the **cpu_limit** 
     no restriction, unit: MB.
   + When the `resource name` is **activestatements**, the value range is from `-1` to `2,147,483,647`, where `-1` and
     `0` indicates no control.
-  + When the `resource name` is **cpu_limit**, the value range is from `0` to `99`, unit: %.
-  + When the `resource name` is **cpu_share**, the value range is from `0` to `99`, unit: %.
+  + When the `resource name` is **cpu_limit**, the value range is from `0` to `99`, `0` means unlimited, unit: %.
+  + When the `resource name` is **cpu_share**, the value range is from `1` to `99`, the default value is `20`, unit: %.
 
 ## Attribute Reference
 

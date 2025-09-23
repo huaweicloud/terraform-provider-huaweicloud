@@ -1,0 +1,73 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_fgs_async_invocations": {
+          "block": {
+            "attributes": {
+              "function_urn": {
+                "type": "string",
+                "description": "The function URN to which the async invocations belong.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "invocations": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "end_time": "string",
+                      "error_code": "string",
+                      "error_message": "string",
+                      "request_id": "string",
+                      "start_time": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of async invocations that matched filter parameters.",
+                "computed": true
+              },
+              "query_begin_time": {
+                "type": "string",
+                "description": "The begin time to query async invocations, in RFC3339 format (UTC time).",
+                "optional": true
+              },
+              "query_end_time": {
+                "type": "string",
+                "description": "The end time to query async invocations, in RFC3339 format (UTC time).",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the async invocations are located.",
+                "computed": true
+              },
+              "request_id": {
+                "type": "string",
+                "description": "The specified request ID of async invocation to be queried.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of async invocations to be queried.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "FunctionGraph",
+            "name": "FunctionGraph",
+            "catalog": "Compute",
+            "name_cn": "函数工作流",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

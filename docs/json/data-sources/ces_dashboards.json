@@ -1,0 +1,69 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_ces_dashboards": {
+          "block": {
+            "attributes": {
+              "dashboard_id": {
+                "type": "string",
+                "description": "Specifies the dashboard ID.",
+                "optional": true
+              },
+              "dashboards": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "creator_name": "string",
+                      "dashboard_id": "string",
+                      "enterprise_project_id": "string",
+                      "is_favorite": "bool",
+                      "name": "string",
+                      "row_widget_num": "number"
+                    }
+                  ]
+                ],
+                "description": "The dashboard list.",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_favorite": {
+                "type": "bool",
+                "description": "Specifies whether a dashboard in an enterprise project is added to favorites.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the dashboard name.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CES",
+            "name": "Cloud Eye",
+            "catalog": "Management & Governance",
+            "name_cn": "云监控服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

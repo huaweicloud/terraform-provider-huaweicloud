@@ -8,13 +8,11 @@ package swr
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/identity/v3.0/users"
@@ -205,9 +203,8 @@ func resourceSwrImagePermissionsRead(_ context.Context, d *schema.ResourceData, 
 
 func flattenGetImagePermissionsSelfPermissionResponseBody(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("self_auth", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing self_permission from response: %#v", resp)
+	curJson := utils.PathSearch("self_auth", resp, nil)
+	if curJson == nil {
 		return rst
 	}
 
@@ -301,7 +298,7 @@ func resourceSwrImagePermissionsDelete(_ context.Context, d *schema.ResourceData
 
 	err = deleteSwrImagePermissions(d, deleteSwrImagePermissionsClient, d.Get("users").([]interface{}))
 	if err != nil {
-		return diag.FromErr(err)
+		return common.CheckDeletedDiag(d, err, "error deleting SWR image permissions")
 	}
 
 	return nil
@@ -370,7 +367,7 @@ func deleteSwrImagePermissions(d *schema.ResourceData, client *golangsdk.Service
 	_, err := client.Request("DELETE", deleteSwrImagePermissionsPath,
 		&deleteSwrImagePermissionsOpt)
 	if err != nil {
-		return fmt.Errorf("error deleting SWR image permissions: %s", err)
+		return err
 	}
 	return nil
 }

@@ -70,7 +70,7 @@ func DataSourceCfwAccessControlLogs() *schema.Resource {
 			"enterprise_project_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specifies the enterprise project id.`,
+				Description: `Specifies the enterprise project ID.`,
 			},
 			"rule_name": {
 				Type:        schema.TypeString,
@@ -91,6 +91,26 @@ func DataSourceCfwAccessControlLogs() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `Specifies the destination region name.`,
+			},
+			"src_province_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the source province name.`,
+			},
+			"dst_province_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the destination province name.`,
+			},
+			"src_city_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the source city name.`,
+			},
+			"dst_city_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the destination city name.`,
 			},
 			"records": {
 				Type:        schema.TypeList,
@@ -156,7 +176,7 @@ func DataSourceCfwAccessControlLogs() *schema.Resource {
 						"src_region_id": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: `The source region id.`,
+							Description: `The source region ID.`,
 						},
 						"src_region_name": {
 							Type:        schema.TypeString,
@@ -166,12 +186,52 @@ func DataSourceCfwAccessControlLogs() *schema.Resource {
 						"dst_region_id": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: `The destination region id.`,
+							Description: `The destination region ID.`,
 						},
 						"dst_region_name": {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: `The destination region name.`,
+						},
+						"src_province_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The source province ID.`,
+						},
+						"src_province_name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The source province name.`,
+						},
+						"src_city_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The source city ID.`,
+						},
+						"src_city_name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The source city name.`,
+						},
+						"dst_province_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The distination province ID.`,
+						},
+						"dst_province_name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The distination province name.`,
+						},
+						"dst_city_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The distination city ID.`,
+						},
+						"dst_city_name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The distination city name.`,
 						},
 						"dst_host": {
 							Type:        schema.TypeString,
@@ -248,6 +308,10 @@ func (w *AccessControlLogsDSWrapper) ListAccessControlLogs() (*gjson.Result, err
 		"action":                w.Get("action"),
 		"src_region_name":       w.Get("src_region_name"),
 		"dst_region_name":       w.Get("dst_region_name"),
+		"src_province_name":     w.Get("src_province_name"),
+		"dst_province_name":     w.Get("dst_province_name"),
+		"src_city_name":         w.Get("src_city_name"),
+		"dst_city_name":         w.Get("dst_city_name"),
 		"limit":                 1000,
 	}
 	params = utils.RemoveNil(params)
@@ -266,22 +330,30 @@ func (w *AccessControlLogsDSWrapper) listAccessControlLogsToSchema(body *gjson.R
 		d.Set("records", schemas.SliceToList(body.Get("data.records"),
 			func(record gjson.Result) any {
 				return map[string]any{
-					"src_ip":          record.Get("src_ip").Value(),
-					"src_port":        record.Get("src_port").Value(),
-					"dst_port":        record.Get("dst_port").Value(),
-					"app":             record.Get("app").Value(),
-					"rule_name":       record.Get("rule_name").Value(),
-					"rule_id":         record.Get("rule_id").Value(),
-					"hit_time":        w.setDataRecHitTim(&record),
-					"log_id":          record.Get("log_id").Value(),
-					"dst_ip":          record.Get("dst_ip").Value(),
-					"protocol":        record.Get("protocol").Value(),
-					"action":          record.Get("action").Value(),
-					"src_region_id":   record.Get("src_region_id").Value(),
-					"src_region_name": record.Get("src_region_name").Value(),
-					"dst_region_id":   record.Get("dst_region_id").Value(),
-					"dst_region_name": record.Get("dst_region_name").Value(),
-					"dst_host":        record.Get("dst_host").Value(),
+					"src_ip":            record.Get("src_ip").Value(),
+					"src_port":          record.Get("src_port").Value(),
+					"dst_port":          record.Get("dst_port").Value(),
+					"app":               record.Get("app").Value(),
+					"rule_name":         record.Get("rule_name").Value(),
+					"rule_id":           record.Get("rule_id").Value(),
+					"hit_time":          w.setDataRecHitTim(&record),
+					"log_id":            record.Get("log_id").Value(),
+					"dst_ip":            record.Get("dst_ip").Value(),
+					"protocol":          record.Get("protocol").Value(),
+					"action":            record.Get("action").Value(),
+					"src_region_id":     record.Get("src_region_id").Value(),
+					"src_region_name":   record.Get("src_region_name").Value(),
+					"dst_region_id":     record.Get("dst_region_id").Value(),
+					"dst_region_name":   record.Get("dst_region_name").Value(),
+					"src_province_id":   record.Get("src_province_id").Value(),
+					"src_province_name": record.Get("src_province_name").Value(),
+					"src_city_id":       record.Get("src_city_id").Value(),
+					"src_city_name":     record.Get("src_city_name").Value(),
+					"dst_province_id":   record.Get("dst_province_id").Value(),
+					"dst_province_name": record.Get("dst_province_name").Value(),
+					"dst_city_id":       record.Get("dst_city_id").Value(),
+					"dst_city_name":     record.Get("dst_city_name").Value(),
+					"dst_host":          record.Get("dst_host").Value(),
 				}
 			},
 		)),

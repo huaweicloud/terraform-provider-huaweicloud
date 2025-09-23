@@ -2,7 +2,8 @@
 subcategory: "Cloud Connect (CC)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_cc_central_network_policies"
-description: ""
+description: |-
+  Use this data source to get the list of CC central network policies.
 ---
 
 # huaweicloud_cc_central_network_policies
@@ -15,7 +16,7 @@ Use this data source to get the list of CC central network policies.
 variable "central_network_id" {}
 variable "central_network_policy_id" {}
 
-resource "huaweicloud_cc_central_network_policies" "test" {
+data "huaweicloud_cc_central_network_policies" "test" {
   central_network_id = var.central_network_id
   policy_id          = var.central_network_policy_id
 }

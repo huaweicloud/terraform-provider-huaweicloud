@@ -68,8 +68,12 @@ func TestAccElbV3LoadBalancer_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
 					resource.TestCheckResourceAttr(resourceName, "charge_mode", "lcu"),
 					resource.TestCheckResourceAttr(resourceName, "guaranteed", "true"),
-					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
 					resource.TestCheckResourceAttr(resourceName, "waf_failure_action", "discard"),
+					resource.TestCheckResourceAttrSet(resourceName, "elb_virsubnet_type"),
+					resource.TestCheckResourceAttrSet(resourceName, "operating_status"),
+					resource.TestCheckResourceAttrSet(resourceName, "public_border_group"),
+					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
+					resource.TestCheckResourceAttrSet(resourceName, "updated_at"),
 				),
 			},
 			{
@@ -147,7 +151,15 @@ func TestAccElbV3LoadBalancer_withEpsId(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccElbV3LoadBalancerConfig_withEpsId(rName),
+				Config: testAccElbV3LoadBalancerConfig_withEpsId(rName, "0"),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
+				),
+			},
+			{
+				Config: testAccElbV3LoadBalancerConfig_withEpsId(rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
@@ -421,6 +433,59 @@ func TestAccElbV3LoadBalancer_withIpv6(t *testing.T) {
 	})
 }
 
+func TestAccElbV3LoadBalancer_gateway(t *testing.T) {
+	var lb loadbalancers.LoadBalancer
+	rName := acceptance.RandomAccResourceNameWithDash()
+	rNameUpdate := acceptance.RandomAccResourceNameWithDash()
+	resourceName := "huaweicloud_elb_loadbalancer.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&lb,
+		getELBResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckElbGatewayType(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccElbV3LoadBalancerConfig_gateway(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "loadbalancer_type", "gateway"),
+					resource.TestCheckResourceAttrPair(resourceName, "ipv4_subnet_id",
+						"huaweicloud_vpc_subnet.test", "ipv4_subnet_id"),
+					resource.TestCheckResourceAttrPair(resourceName, "ipv6_network_id",
+						"huaweicloud_vpc_subnet.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "description", "test gateway description"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
+					resource.TestCheckResourceAttrSet(resourceName, "gw_flavor_id"),
+				),
+			},
+			{
+				Config: testAccElbV3LoadBalancerConfig_gateway_update(rName, rNameUpdate),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "loadbalancer_type", "gateway"),
+					resource.TestCheckResourceAttrPair(resourceName, "ipv4_subnet_id",
+						"huaweicloud_vpc_subnet.test", "ipv4_subnet_id"),
+					resource.TestCheckResourceAttr(resourceName, "description", "test gateway description update"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key1", "value_update"),
+					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform_update"),
+					resource.TestCheckResourceAttrSet(resourceName, "gw_flavor_id"),
+				),
+			},
+		},
+	})
+}
+
 func testAccElbV3LoadBalancerConfig_basic(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
@@ -554,7 +619,7 @@ resource "huaweicloud_elb_loadbalancer" "test" {
 `, common.TestVpc(rName), rName, deletionProtection)
 }
 
-func testAccElbV3LoadBalancerConfig_withEpsId(rName string) string {
+func testAccElbV3LoadBalancerConfig_withEpsId(rName, enterpriseProjectId string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_vpc_subnet" "test" {
   name = "subnet-default"
@@ -563,9 +628,9 @@ data "huaweicloud_vpc_subnet" "test" {
 data "huaweicloud_availability_zones" "test" {}
 
 resource "huaweicloud_elb_loadbalancer" "test" {
-  name                  = "%s"
+  name                  = "%[1]s"
   ipv4_subnet_id        = data.huaweicloud_vpc_subnet.test.ipv4_subnet_id
-  enterprise_project_id = "%s"
+  enterprise_project_id = "%[2]s"
 
   availability_zone = [
     data.huaweicloud_availability_zones.test.names[0]
@@ -576,7 +641,7 @@ resource "huaweicloud_elb_loadbalancer" "test" {
     owner = "terraform"
   }
 }
-`, rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+`, rName, enterpriseProjectId)
 }
 
 func testAccElbV3LoadBalancerConfig_withEIP(rName string) string {
@@ -833,4 +898,68 @@ resource "huaweicloud_elb_loadbalancer" "test" {
   ipv6_address    = "2407:c080:1200:5f0:9bb8:4438:299b:9084"
 }
 `, rName)
+}
+
+func testAccElbV3LoadBalancerConfig_gateway_base(rName string) string {
+	return fmt.Sprintf(`
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_vpc" "test" {
+  name = "%[1]s"
+  cidr = "192.168.0.0/16"
+}
+
+resource "huaweicloud_vpc_subnet" "test" {
+  name        = "%[1]s"
+  vpc_id      = huaweicloud_vpc.test.id
+  cidr        = "192.168.0.0/24"
+  gateway_ip  = "192.168.0.1"
+  ipv6_enable = true
+}
+`, rName)
+}
+
+func testAccElbV3LoadBalancerConfig_gateway(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_elb_loadbalancer" "test" {
+  name              = "%[2]s"
+  vpc_id            = huaweicloud_vpc.test.id
+  ipv4_subnet_id    = huaweicloud_vpc_subnet.test.ipv4_subnet_id
+  ipv6_network_id   = huaweicloud_vpc_subnet.test.id
+  loadbalancer_type = "gateway"
+  description       = "test gateway description"
+  availability_zone = [
+    data.huaweicloud_availability_zones.test.names[0]
+  ]
+
+  tags = {
+    key   = "value"
+    owner = "terraform"
+  }
+}
+`, testAccElbV3LoadBalancerConfig_gateway_base(rName), rName)
+}
+
+func testAccElbV3LoadBalancerConfig_gateway_update(rName, rNameUpdate string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_elb_loadbalancer" "test" {
+  name              = "%[2]s"
+  vpc_id            = huaweicloud_vpc.test.id
+  ipv4_subnet_id    = huaweicloud_vpc_subnet.test.ipv4_subnet_id
+  loadbalancer_type = "gateway"
+  description       = "test gateway description update"
+  availability_zone = [
+    data.huaweicloud_availability_zones.test.names[0]
+  ]
+
+  tags = {
+    key1  = "value_update"
+    owner = "terraform_update"
+  }
+}
+`, testAccElbV3LoadBalancerConfig_gateway_base(rName), rName, rNameUpdate)
 }

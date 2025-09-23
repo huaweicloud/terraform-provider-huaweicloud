@@ -33,6 +33,9 @@ type Vpc struct {
 	//Specifies the range of available subnets in the VPC.
 	CIDR string `json:"cidr"`
 
+	// Whether enable local route enhance
+	EnhancedLocalRoute bool `json:"enhanced_local_route"`
+
 	//Enterprise Project ID.
 	EnterpriseProjectID string `json:"enterprise_project_id"`
 

@@ -3,7 +3,6 @@ package cfw
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"regexp"
 	"strings"
@@ -12,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/pagination"
@@ -154,7 +152,7 @@ func readDNSServers(client *golangsdk.ServiceClient, id string) (interface{}, er
 		&pagination.QueryOpts{MarkerField: ""})
 
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving CFW DNS resolution configuration: %s", err)
+		return nil, err
 	}
 
 	respJson, err := json.Marshal(resp)
@@ -223,24 +221,6 @@ func buildDNSServersBodyParams(userDefaultServers, differenceServers, userCustom
 	return result
 }
 
-func parseDNSServersError(err error) error {
-	var errCode golangsdk.ErrDefault400
-	if errors.As(err, &errCode) {
-		var apiError interface{}
-		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
-			return err
-		}
-		errorCode, errorCodeErr := jmespath.Search("error_code", apiError)
-		if errorCodeErr != nil {
-			return err
-		}
-		if errorCode == "CFW.00200005" {
-			return golangsdk.ErrDefault404(errCode)
-		}
-	}
-	return err
-}
-
 func resourceDNSResolutionRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
@@ -254,7 +234,10 @@ func resourceDNSResolutionRead(_ context.Context, d *schema.ResourceData, meta i
 
 	respBody, err := readDNSServers(client, d.Id())
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseDNSServersError(err), "error retrieving CFW DNS resolution configuration")
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error_code", "CFW.00200005"),
+			"error retrieving CFW DNS resolution configuration",
+		)
 	}
 
 	dnsServers := utils.PathSearch("data[?is_applied==`1`]", respBody, make([]interface{}, 0)).([]interface{})
@@ -293,13 +276,21 @@ func resourceDNSResolutionDelete(_ context.Context, d *schema.ResourceData, meta
 
 	respBody, err := readDNSServers(client, fwInstanceID)
 	if err != nil {
-		return diag.Errorf("error deleting CFW DNS resolution configuration: %s", err)
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error_code", "CFW.00200005"),
+			"error deleting CFW DNS resolution configuration",
+		)
 	}
 
 	expression := "data[?is_customized==`0`].server_ip"
 	servers := utils.PathSearch(expression, respBody, make([]interface{}, 0)).([]interface{})
 	if len(servers) == 0 {
 		return diag.Errorf("error deleting CFW DNS resolution configuration: the default DNS servers can not be found")
+	}
+
+	appliedServers := utils.PathSearch("data[?is_applied==`1`]", respBody, make([]interface{}, 0)).([]interface{})
+	if len(appliedServers) == 0 {
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "error retrieving CFW DNS resolution configuration")
 	}
 
 	path := client.Endpoint + httpUrl
@@ -312,7 +303,10 @@ func resourceDNSResolutionDelete(_ context.Context, d *schema.ResourceData, meta
 	opt.JSONBody = buildDeleteDNSConfigurationBodyParams(servers)
 	_, err = client.Request("PUT", path, &opt)
 	if err != nil {
-		return diag.Errorf("error deleting CFW DNS resolution configuration: %s", err)
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error_code", "CFW.00200005"),
+			"error deleting CFW DNS resolution configuration",
+		)
 	}
 
 	return nil

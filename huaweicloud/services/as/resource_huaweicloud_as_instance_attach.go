@@ -168,7 +168,9 @@ func resourceInstanceAttachRead(_ context.Context, d *schema.ResourceData, meta 
 	instanceID := parts[1]
 	ins, err := getGroupInstanceByID(asClient, groupID, instanceID)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "AS instance attach")
+		// When the group does not exist or the instance is not in the group, the method `getGroupInstanceByID` will
+		// specially handle these two scenarios into a 404 error code.
+		return common.CheckDeletedDiag(d, err, "error retrieving AS instance attach")
 	}
 
 	mErr := multierror.Append(nil,
@@ -254,6 +256,10 @@ func resourceInstanceAttachDelete(ctx context.Context, d *schema.ResourceData, m
 		},
 	}
 	if err := doBatchAction(ctx, asClient, d.Timeout(schema.TimeoutDelete), groupID, createActions); err != nil {
+		// When removing a non-existing instance from the scaling group, the error_code is "AS.4030", which means that
+		// the batch deletion of cloud servers failed.
+		// This error message is ambiguous and cannot be regarded as successfully deleted, so the checkDeleted
+		// verification is not performed.
 		return diag.Errorf("error disattaching instance %s from AS group %s: %s", instanceID, groupID, err)
 	}
 
@@ -296,7 +302,10 @@ func doBatchAction(ctx context.Context, client *golangsdk.ServiceClient, timeout
 func getGroupInstanceByID(client *golangsdk.ServiceClient, groupID, instanceID string) (*instances.Instance, error) {
 	page, err := instances.List(client, groupID, nil).AllPages()
 	if err != nil {
-		return nil, err
+		// When the group does not exist, the query instance list API response reports the following error:
+		// {"error":{"code":"AS.2007","message":"The AS group does not exist."}.
+		// It needs to be specially processed into 404
+		return nil, common.ConvertExpected400ErrInto404Err(err, "error.code", "AS.2007")
 	}
 
 	allInstances, err := page.(instances.InstancePage).Extract()
@@ -343,18 +352,18 @@ func waitASGroupInstanceDeleted(ctx context.Context, client *golangsdk.ServiceCl
 
 func refreshInstancesStatus(asClient *golangsdk.ServiceClient, groupID, instanceID string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		allIns, err := getInstancesInGroup(asClient, groupID, nil)
+		allIns, err := getAllInstancesInGroup(asClient, groupID)
 		if err != nil {
 			return nil, "ERROR", err
 		}
 
 		for _, ins := range allIns {
-			if instanceID != "" && ins.ID != instanceID {
+			if instanceID != "" && utils.PathSearch("instance_id", ins, "").(string) != instanceID {
 				continue
 			}
 
 			// the status may be PENDING, PENDING_WAIT, REMOVING, REMOVING_WAIT, ENTERING_STANDBY
-			if strings.Contains(ins.LifeCycleStatus, "ING") {
+			if strings.Contains(utils.PathSearch("life_cycle_state", ins, "").(string), "ING") {
 				return allIns, "PENDING", nil
 			}
 		}
@@ -365,13 +374,13 @@ func refreshInstancesStatus(asClient *golangsdk.ServiceClient, groupID, instance
 
 func checkInstanceDeleted(asClient *golangsdk.ServiceClient, groupID, instanceID string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		allIns, err := getInstancesInGroup(asClient, groupID, nil)
+		allIns, err := getAllInstancesInGroup(asClient, groupID)
 		if err != nil {
 			return nil, "ERROR", err
 		}
 
 		for _, ins := range allIns {
-			if ins.ID == instanceID {
+			if utils.PathSearch("instance_id", ins, "").(string) == instanceID {
 				return allIns, "REMOVING", nil
 			}
 		}

@@ -65,7 +65,8 @@ The following arguments are supported:
 
 * `is_body_send` - (Optional, Bool) Specifies whether to send the body.
 
-* `cache_age` - (Optional, Int) Specifies the maximum cache age.
+* `cache_age` - (Optional, Int) Specifies the maximum cache age.  
+  The valid value is range from `1` to `3,600`.
 
 * `user_data` - (Optional, String) Specifies the user data, which can contain a maximum of `2,048` characters.
   The user data is used by APIG to invoke the specified authentication function when accessing the backend service.

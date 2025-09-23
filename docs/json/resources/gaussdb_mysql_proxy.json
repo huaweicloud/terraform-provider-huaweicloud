@@ -5,14 +5,36 @@
         "huaweicloud_gaussdb_mysql_proxy": {
           "block": {
             "attributes": {
+              "access_control_type": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "address": {
+                "type": "string",
+                "computed": true
+              },
+              "can_upgrade": {
+                "type": "bool",
+                "computed": true
+              },
+              "connection_pool_type": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "consistence_mode": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "current_version": {
                 "type": "string",
                 "computed": true
               },
               "flavor": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "id": {
                 "type": "string",
@@ -23,17 +45,148 @@
                 "required": true,
                 "forcenew": true
               },
+              "new_node_auto_add_status": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "new_node_weight": {
+                "type": "number",
+                "optional": true
+              },
               "node_num": {
                 "type": "number",
                 "required": true
               },
+              "nodes": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "az_code": "string",
+                      "frozen_flag": "number",
+                      "id": "string",
+                      "name": "string",
+                      "role": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "open_access_control": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
               "port": {
                 "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "proxy_mode": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "proxy_name": {
+                "type": "string",
+                "optional": true,
                 "computed": true
               },
               "region": {
                 "type": "string",
                 "computed": true
+              },
+              "route_mode": {
+                "type": "number",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "switch_connection_pool_type_enabled": {
+                "type": "bool",
+                "computed": true
+              },
+              "transaction_split": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              }
+            },
+            "block_types": {
+              "access_control_ip_list": {
+                "block": {
+                  "attributes": {
+                    "description": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "ip": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "set"
+              },
+              "master_node_weight": {
+                "block": {
+                  "attributes": {
+                    "id": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "weight": {
+                      "type": "number",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "parameters": {
+                "block": {
+                  "attributes": {
+                    "elem_type": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "set"
+              },
+              "readonly_nodes_weight": {
+                "block": {
+                  "attributes": {
+                    "id": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "weight": {
+                      "type": "number",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "set"
               }
             }
           },

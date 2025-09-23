@@ -17,6 +17,12 @@
                 "optional": true,
                 "computed": true
               },
+              "dynamic_group_rule": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "id": {
                 "type": "string",
                 "computed": true
@@ -38,6 +44,12 @@
               "space_id": {
                 "type": "string",
                 "required": true,
+                "forcenew": true
+              },
+              "type": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
                 "forcenew": true
               }
             }

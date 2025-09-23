@@ -43,6 +43,11 @@
                 "description": "The region where the transit IP is located.",
                 "computed": true
               },
+              "status": {
+                "type": "string",
+                "description": "The status of the transit IP.",
+                "computed": true
+              },
               "subnet_id": {
                 "type": "string",
                 "description": "The ID of the transit subnet to which the transit IP belongs.",
@@ -54,7 +59,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "updated_at": {
                 "type": "string",

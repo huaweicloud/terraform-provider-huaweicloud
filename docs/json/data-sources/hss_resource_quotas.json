@@ -1,0 +1,72 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_resource_quotas": {
+          "block": {
+            "attributes": {
+              "charging_mode": {
+                "type": "string",
+                "description": "Specifies the billing mode.",
+                "optional": true
+              },
+              "data_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "available_num": "number",
+                      "available_resources_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "current_time": "string",
+                            "resource_id": "string",
+                            "shared_quota": "string"
+                          }
+                        ]
+                      ],
+                      "total_num": "number",
+                      "used_num": "number",
+                      "version": "string"
+                    }
+                  ]
+                ],
+                "description": "The quota information list.",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the ID of the enterprise project to which the resource belongs.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource.",
+                "computed": true
+              },
+              "version": {
+                "type": "string",
+                "description": "Specifies the HSS version.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,20 @@
+info:
+    version: ""
+    title: resource_huaweicloud_smn_subscription_filter_policy
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: SMN
+paths:
+    /v2/{project_id}/notifications/subscriptions/filter_polices:
+        DELETE:
+            tag: SMN
+        POST:
+            tag: SMN
+        PUT:
+            tag: SMN
+    /v2/{project_id}/notifications/topics/{topicUrn}/subscriptions:
+        GET:
+            tag: SMN

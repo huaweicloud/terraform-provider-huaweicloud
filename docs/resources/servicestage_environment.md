@@ -42,7 +42,7 @@ The following arguments are supported:
   If omitted, the provider-level region will be used. Changing this will create a new resource.
 
 * `name` - (Required, String) Specifies the environment name.
-  The name can contain of 2 to 64 characters, only letters, digits, hyphens (-) and underscores (_) are allowed.
+  The name can contain of `2` to `64` characters, only letters, digits, hyphens (-) and underscores (_) are allowed.
   The name must start with a letter and end with a letter or a digit.
 
 * `vpc_id` - (Required, String, ForceNew) Specifies the VPC ID to which the environment belongs.
@@ -58,7 +58,7 @@ The following arguments are supported:
   The [object](#servicestage_env_resources) structure is documented below.
 
 * `description` - (Optional, String) Specifies the environment description.
-  The description can contain a maximum of 128 characters.
+  The description can contain a maximum of `128` characters.
 
 <a name="servicestage_env_resources"></a>
 The `basic_resources` and `optional_resources` block supports:
@@ -82,6 +82,6 @@ In addition to all arguments above, the following attributes are exported:
 
 Environments can be imported using their `id`, e.g.:
 
-```
+```bash
 $ terraform import huaweicloud_servicestage_environment.test 17383329-b686-47e4-8f70-0d8dcddb65e9
 ```

@@ -7,8 +7,7 @@
             "attributes": {
               "access_user": {
                 "type": "string",
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "arch_type": {
                 "type": "string",
@@ -32,6 +31,10 @@
                 "optional": true,
                 "computed": true
               },
+              "cert_replaced": {
+                "type": "bool",
+                "computed": true
+              },
               "charging_mode": {
                 "type": "string",
                 "optional": true,
@@ -39,6 +42,18 @@
                 "forcenew": true
               },
               "connect_address": {
+                "type": "string",
+                "computed": true
+              },
+              "connector_id": {
+                "type": "string",
+                "computed": true
+              },
+              "connector_node_num": {
+                "type": "number",
+                "computed": true
+              },
+              "created_at": {
                 "type": "string",
                 "computed": true
               },
@@ -66,8 +81,7 @@
                   "set",
                   "string"
                 ],
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "engine": {
                 "type": "string",
@@ -83,12 +97,33 @@
                 "optional": true,
                 "computed": true
               },
+              "extend_times": {
+                "type": "number",
+                "computed": true
+              },
               "flavor_id": {
                 "type": "string",
                 "optional": true
               },
               "id": {
                 "type": "string",
+                "computed": true
+              },
+              "ipv6_connect_addresses": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              },
+              "ipv6_enable": {
+                "type": "bool",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "is_logical_volume": {
+                "type": "bool",
                 "computed": true
               },
               "maintain_begin": {
@@ -101,21 +136,9 @@
                 "optional": true,
                 "computed": true
               },
-              "management_connect_address": {
-                "type": "string",
+              "message_query_inst_enable": {
+                "type": "bool",
                 "computed": true
-              },
-              "manager_password": {
-                "type": "string",
-                "optional": true,
-                "forcenew": true,
-                "sensitive": true
-              },
-              "manager_user": {
-                "type": "string",
-                "optional": true,
-                "computed": true,
-                "forcenew": true
               },
               "name": {
                 "type": "string",
@@ -125,6 +148,17 @@
                 "type": "string",
                 "required": true,
                 "forcenew": true
+              },
+              "new_tenant_ips": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "node_num": {
+                "type": "number",
+                "computed": true
               },
               "partition_num": {
                 "type": "number",
@@ -145,6 +179,10 @@
                 "optional": true,
                 "forcenew": true
               },
+              "pod_connect_address": {
+                "type": "string",
+                "computed": true
+              },
               "port": {
                 "type": "number",
                 "computed": true
@@ -153,13 +191,23 @@
                 "type": "string",
                 "optional": true
               },
-              "public_ip_ids": {
+              "public_bandwidth": {
+                "type": "number",
+                "computed": true
+              },
+              "public_ip_address": {
                 "type": [
                   "list",
                   "string"
                 ],
-                "optional": true,
-                "forcenew": true
+                "computed": true
+              },
+              "public_ip_ids": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "optional": true
               },
               "region": {
                 "type": "string",
@@ -189,7 +237,15 @@
                 "computed": true,
                 "forcenew": true
               },
+              "ssl_two_way_enable": {
+                "type": "bool",
+                "computed": true
+              },
               "status": {
+                "type": "string",
+                "computed": true
+              },
+              "storage_resource_id": {
                 "type": "string",
                 "computed": true
               },
@@ -203,12 +259,17 @@
                 "required": true,
                 "forcenew": true
               },
+              "storage_type": {
+                "type": "string",
+                "computed": true
+              },
               "tags": {
                 "type": [
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "type": {
                 "type": "string",
@@ -225,6 +286,12 @@
               "user_name": {
                 "type": "string",
                 "computed": true
+              },
+              "vpc_client_plain": {
+                "type": "bool",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
               },
               "vpc_id": {
                 "type": "string",
@@ -271,6 +338,111 @@
                   }
                 },
                 "nesting_mode": "set"
+              },
+              "port_protocol": {
+                "block": {
+                  "attributes": {
+                    "private_plain_address": {
+                      "type": "string",
+                      "description": "The address of the private plaintext access.",
+                      "computed": true
+                    },
+                    "private_plain_domain_name": {
+                      "type": "string",
+                      "description": "The domain name of the private plaintext access.",
+                      "computed": true
+                    },
+                    "private_plain_enable": {
+                      "type": "bool",
+                      "description": "Whether to enable private plaintext access.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "private_sasl_plaintext_address": {
+                      "type": "string",
+                      "description": "The address of the private SASL plaintext access.",
+                      "computed": true
+                    },
+                    "private_sasl_plaintext_domain_name": {
+                      "type": "string",
+                      "description": "The domain name of the private SASL plaintext access.",
+                      "computed": true
+                    },
+                    "private_sasl_plaintext_enable": {
+                      "type": "bool",
+                      "description": "Whether to enable private SASL plaintext access.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "private_sasl_ssl_address": {
+                      "type": "string",
+                      "description": "The address of the private SASL SSL access.",
+                      "computed": true
+                    },
+                    "private_sasl_ssl_domain_name": {
+                      "type": "string",
+                      "description": "The domain name of the private SASL SSL access.",
+                      "computed": true
+                    },
+                    "private_sasl_ssl_enable": {
+                      "type": "bool",
+                      "description": "Whether to enable private SASL SSL access.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "public_plain_address": {
+                      "type": "string",
+                      "description": "The address of the public plaintext access.",
+                      "computed": true
+                    },
+                    "public_plain_domain_name": {
+                      "type": "string",
+                      "description": "The domain name of the public plaintext access.",
+                      "computed": true
+                    },
+                    "public_plain_enable": {
+                      "type": "bool",
+                      "description": "Whether to enable public plaintext access.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "public_sasl_plaintext_address": {
+                      "type": "string",
+                      "description": "The address of the public SASL plaintext access.",
+                      "computed": true
+                    },
+                    "public_sasl_plaintext_domain_name": {
+                      "type": "string",
+                      "description": "The domain name of the public SASL plaintext access.",
+                      "computed": true
+                    },
+                    "public_sasl_plaintext_enable": {
+                      "type": "bool",
+                      "description": "Whether to enable public SASL plaintext access.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "public_sasl_ssl_address": {
+                      "type": "string",
+                      "description": "The address of the public SASL SSL access.",
+                      "computed": true
+                    },
+                    "public_sasl_ssl_domain_name": {
+                      "type": "string",
+                      "description": "The domain name of the public SASL SSL access.",
+                      "computed": true
+                    },
+                    "public_sasl_ssl_enable": {
+                      "type": "bool",
+                      "description": "Whether to enable public SASL SSL access.",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "description": "The port protocol information of the Kafka instance."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
               }
             }
           },

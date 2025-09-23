@@ -7,7 +7,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	rules "github.com/chnsz/golangsdk/openstack/waf_hw/v1/whiteblackip_rules"
 
@@ -16,21 +15,12 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-const (
-	// block the request
-	protectionActionBlock = 0
-	// allow the request
-	protectionActionAllow = 1
-	// log the request only
-	protectionActionLog = 2
-)
-
 // @API WAF DELETE /v1/{project_id}/waf/policy/{policy_id}/whiteblackip/{rule_id}
 // @API WAF GET /v1/{project_id}/waf/policy/{policy_id}/whiteblackip/{rule_id}
 // @API WAF PUT /v1/{project_id}/waf/policy/{policy_id}/whiteblackip/{rule_id}
 // @API WAF POST /v1/{project_id}/waf/policy/{policy_id}/whiteblackip
 // @API WAF PUT /v1/{project_id}/waf/policy/{policy_id}/{rule_type}/{rule_id}/status
-func ResourceWafRuleBlackListV1() *schema.Resource {
+func ResourceWafRuleBlackList() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceWafRuleBlackListCreate,
 		ReadContext:   resourceWafRuleBlackListRead,
@@ -84,10 +74,6 @@ func ResourceWafRuleBlackListV1() *schema.Resource {
 			"action": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				Default:  protectionActionBlock,
-				ValidateFunc: validation.IntInSlice([]int{
-					protectionActionBlock, protectionActionAllow, protectionActionLog,
-				}),
 			},
 			"status": {
 				Type:     schema.TypeInt,
@@ -148,6 +134,7 @@ func resourceWafRuleBlackListRead(_ context.Context, d *schema.ResourceData, met
 	policyID := d.Get("policy_id").(string)
 	n, err := rules.GetWithEpsId(wafClient, policyID, d.Id(), cfg.GetEnterpriseProjectID(d)).Extract()
 	if err != nil {
+		// If the blacklist and whitelist rule does not exist, the response HTTP status code of the details API is 404.
 		return common.CheckDeletedDiag(d, err, "error retrieving WAF blacklist and whitelist rule")
 	}
 
@@ -227,7 +214,8 @@ func resourceWafRuleBlackListDelete(_ context.Context, d *schema.ResourceData, m
 	policyID := d.Get("policy_id").(string)
 	err = rules.DeleteWithEpsId(wafClient, policyID, d.Id(), cfg.GetEnterpriseProjectID(d)).ExtractErr()
 	if err != nil {
-		return diag.Errorf("error deleting WAF blacklist and whitelist rule: %s", err)
+		// If the blacklist and whitelist rule does not exist, the response HTTP status code of the deletion API is 404.
+		return common.CheckDeletedDiag(d, err, "error deleting WAF blacklist and whitelist rule")
 	}
 	return nil
 }

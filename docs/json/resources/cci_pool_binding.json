@@ -1,0 +1,180 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cci_pool_binding": {
+          "block": {
+            "attributes": {
+              "annotations": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
+              "api_version": {
+                "type": "string",
+                "optional": true,
+                "default": "loadbalancer.networking.openvessel.io/v1"
+              },
+              "creation_timestamp": {
+                "type": "string",
+                "computed": true
+              },
+              "deletion_grace_period_seconds": {
+                "type": "number",
+                "computed": true
+              },
+              "deletion_timestamp": {
+                "type": "string",
+                "computed": true
+              },
+              "finalizers": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
+              "generate_name": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "generation": {
+                "type": "number",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "kind": {
+                "type": "string",
+                "optional": true,
+                "default": "PoolBinding"
+              },
+              "labels": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "namespace": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "resource_version": {
+                "type": "string",
+                "computed": true
+              },
+              "uid": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "owner_references": {
+                "block": {
+                  "attributes": {
+                    "api_version": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "block_owner_deletion": {
+                      "type": "bool",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "controller": {
+                      "type": "bool",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "kind": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "uid": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "set"
+              },
+              "pool_ref": {
+                "block": {
+                  "attributes": {
+                    "id": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "target_ref": {
+                "block": {
+                  "attributes": {
+                    "group": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "kind": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "namespace": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "port": {
+                      "type": "number",
+                      "optional": true,
+                      "computed": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "CCI",
+            "name": "Cloud Container Instance",
+            "catalog": "Containers",
+            "name_cn": "云容器实例",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

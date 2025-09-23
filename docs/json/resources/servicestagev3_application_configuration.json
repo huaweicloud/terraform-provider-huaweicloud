@@ -1,0 +1,72 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_servicestagev3_application_configuration": {
+          "block": {
+            "attributes": {
+              "application_id": {
+                "type": "string",
+                "description": "The ID of the application to which the configuration belongs.",
+                "required": true
+              },
+              "environment_id": {
+                "type": "string",
+                "description": "The ID of the environment to which the configuration applies.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the environment and application are located.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "configuration": {
+                "block": {
+                  "attributes": {
+                    "assign_strategy": {
+                      "type": "bool",
+                      "description": "Whether the effective strategy is the continuously effective. ",
+                      "optional": true,
+                      "computed": true
+                    }
+                  },
+                  "block_types": {
+                    "env": {
+                      "block": {
+                        "attributes": {
+                          "name": {
+                            "type": "string",
+                            "description": "The name of the environment variable.",
+                            "required": true
+                          },
+                          "value": {
+                            "type": "string",
+                            "description": "The value of the environment variable.",
+                            "required": true
+                          }
+                        },
+                        "description": "The list of the environment variables."
+                      },
+                      "nesting_mode": "set",
+                      "min_items": 1
+                    }
+                  },
+                  "description": "The configuration of the application."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cciv2_pool_binding
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CCI
+paths:
+    /apis/loadbalancer.networking.openvessel.io/v1/namespaces/{namespace}/poolbindings:
+        POST:
+            tag: CCI
+    /apis/loadbalancer.networking.openvessel.io/v1/namespaces/{namespace}/poolbindings/{name}:
+        DELETE:
+            tag: CCI
+        GET:
+            tag: CCI

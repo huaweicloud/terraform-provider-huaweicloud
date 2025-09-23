@@ -1,0 +1,115 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dc_global_gateway_peer_links": {
+          "block": {
+            "attributes": {
+              "fields": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the list of fields to be displayed.",
+                "optional": true
+              },
+              "global_dc_gateway_id": {
+                "type": "string",
+                "description": "Specifies the global DC gateway ID.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "names": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the resource names for querying instances.",
+                "optional": true
+              },
+              "peer_link_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the resource IDs for querying instances.",
+                "optional": true
+              },
+              "peer_links": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "bandwidth_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "bandwidth_size": "number",
+                            "gcb_id": "string"
+                          }
+                        ]
+                      ],
+                      "create_owner": "string",
+                      "created_time": "string",
+                      "description": "string",
+                      "global_dc_gateway_id": "string",
+                      "id": "string",
+                      "instance_id": "string",
+                      "name": "string",
+                      "peer_site": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "gateway_id": "string",
+                            "link_id": "string",
+                            "project_id": "string",
+                            "region_id": "string",
+                            "site_code": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "reason": "string",
+                      "status": "string",
+                      "updated_time": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the peer links.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "sort_dir": {
+                "type": "string",
+                "description": "Specifies the sorting order of returned results.",
+                "optional": true
+              },
+              "sort_key": {
+                "type": "string",
+                "description": "Specifies the sorting field.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DC",
+            "name": "Direct Connect",
+            "catalog": "Networking",
+            "name_cn": "云专线",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

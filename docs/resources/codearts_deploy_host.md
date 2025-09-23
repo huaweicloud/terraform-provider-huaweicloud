@@ -102,7 +102,7 @@ The following arguments are supported:
   + When creating a target host with proxy access mode, both public and private IPv4 addresses are supported.
   + When creating a target host without proxy access mode, only public IPv4 addresses are supported.
 
-* `port` - (Required, Int) Specifies the SSH port of your server. The value ranges from 1 to 65535.
+* `port` - (Required, Int) Specifies the SSH port of your server. The value ranges from `1` to `65,535`.
 
 * `os_type` - (Required, String, ForceNew) Specifies the operating system. Valid values are **windows** and **linux**.
   The value must be consistent with the CodeArts deploy group.

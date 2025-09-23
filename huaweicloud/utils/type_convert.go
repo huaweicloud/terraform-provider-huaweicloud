@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"encoding/json"
 	"log"
 	"reflect"
 	"strconv"
@@ -100,7 +101,17 @@ func StringValue(v *string) string {
 
 // ValueIgnoreEmpty returns to the string value. if v is empty, return nil
 func ValueIgnoreEmpty(v interface{}) interface{} {
+	if v == nil {
+		return nil
+	}
+
 	vl := reflect.ValueOf(v)
+
+	if !vl.IsValid() {
+		log.Printf("[ERROR] The value (%#v) is invalid", v)
+		return nil
+	}
+
 	if (vl.Kind() != reflect.Bool) && vl.IsZero() {
 		return nil
 	}
@@ -110,4 +121,61 @@ func ValueIgnoreEmpty(v interface{}) interface{} {
 	}
 
 	return v
+}
+
+// Try to parse the string value as the JSON format, if the operation failed, returns an empty map result.
+func StringToJson(jsonStrObj string, defaultVal ...interface{}) interface{} {
+	if jsonStrObj == "" {
+		if len(defaultVal) > 0 {
+			return defaultVal[0]
+		}
+		return nil
+	}
+	jsonMap := make(map[string]interface{})
+	err := json.Unmarshal([]byte(jsonStrObj), &jsonMap)
+	if err != nil {
+		log.Printf("[ERROR] Unable to convert the JSON string to the map object: %s", err)
+	}
+	return jsonMap
+}
+
+// Try to parse the string value as the JSON array format, if the operation failed, returns an empty list result.
+func StringToJsonArray(jsonStrArray string) []map[string]interface{} {
+	if jsonStrArray == "" {
+		return nil
+	}
+
+	var jsonArray []map[string]interface{}
+	err := json.Unmarshal([]byte(jsonStrArray), &jsonArray)
+	if err != nil {
+		log.Printf("[ERROR] Unable to convert the JSON string to the JSON array: %s", err)
+		return make([]map[string]interface{}, 0)
+	}
+	return jsonArray
+}
+
+// Try to convert the JSON object to the string value, if the operation failed, returns an empty string.
+func JsonToString(jsonObj interface{}) string {
+	if jsonObj == nil {
+		return ""
+	}
+	jsonStr, err := json.Marshal(jsonObj)
+	if err != nil {
+		log.Printf("[ERROR] Unable to convert the JSON object to string: %s", err)
+	}
+	return string(jsonStr)
+}
+
+func TryMapValueAnalysis(v interface{}) map[string]interface{} {
+	result := make(map[string]interface{})
+	switch cv := v.(type) {
+	case map[string]interface{}:
+		// Valid type, no action required.
+		result = cv
+	case string:
+		result = TryMapValueAnalysis(StringToJson(cv, make(map[string]interface{})))
+	default:
+		log.Printf("[WARN][TryMapValueAnalysis] The value type to be analyzed is not map[string]interface{} or JSON string")
+	}
+	return result
 }

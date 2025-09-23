@@ -7,6 +7,7 @@ package rms
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -15,7 +16,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -25,13 +25,15 @@ import (
 )
 
 // @API Config POST /v1/resource-manager/organizations/{organization_id}/conformance-packs
-// @API Config GET /v1/resource-manager/organizations/{organization_id}/conformance-packs/detailed-statuses
+// @API Config GET /v1/resource-manager/organizations/{organization_id}/conformance-packs/statuses
 // @API Config GET /v1/resource-manager/organizations/{organization_id}/conformance-packs/{conformance_pack_id}
 // @API Config DELETE /v1/resource-manager/organizations/{organization_id}/conformance-packs/{conformance_pack_id}
+// @API Config PUT /v1/resource-manager/organizations/{organization_id}/conformance-packs/{conformance_pack_id}
 func ResourceOrgAssignmentPackage() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceOrgAssignmentPackageCreate,
 		ReadContext:   resourceOrgAssignmentPackageRead,
+		UpdateContext: resourceOrgAssignmentPackageUpdate,
 		DeleteContext: resourceOrgAssignmentPackageDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceOrgAssignmentPackageImportState,
@@ -39,6 +41,7 @@ func ResourceOrgAssignmentPackage() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
+			Update: schema.DefaultTimeout(30 * time.Minute),
 			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
 
@@ -52,7 +55,6 @@ func ResourceOrgAssignmentPackage() *schema.Resource {
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the assignment package name.`,
 			},
 			"excluded_accounts": {
@@ -60,7 +62,6 @@ func ResourceOrgAssignmentPackage() *schema.Resource {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Optional:    true,
 				Computed:    true,
-				ForceNew:    true,
 				Description: `Specifies the excluded accounts for conformance package deployment.`,
 			},
 			"template_key": {
@@ -90,7 +91,6 @@ func ResourceOrgAssignmentPackage() *schema.Resource {
 				Elem:        orgAssignmentPackageVarStructureSchema(),
 				Optional:    true,
 				Computed:    true,
-				ForceNew:    true,
 				Description: `Specifies the parameters of a conformance package.`,
 			},
 			"owner_id": {
@@ -159,7 +159,12 @@ func resourceOrgAssignmentPackageCreate(ctx context.Context, d *schema.ResourceD
 		KeepResponseBody: true,
 	}
 
-	createOrgAssignmentPackageOpt.JSONBody = utils.RemoveNil(buildCreateOrgAssignmentPackageBodyParams(d))
+	createOpts, err := buildCreateOrgAssignmentPackageBodyParams(d)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	createOrgAssignmentPackageOpt.JSONBody = utils.RemoveNil(createOpts)
 	createOrgAssignmentPackageResp, err := createOrgAssignmentPackageClient.Request("POST",
 		createOrgAssignmentPackagePath, &createOrgAssignmentPackageOpt)
 	if err != nil {
@@ -171,11 +176,11 @@ func resourceOrgAssignmentPackageCreate(ctx context.Context, d *schema.ResourceD
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("org_conformance_pack_id", createOrgAssignmentPackageRespBody)
-	if err != nil {
+	id := utils.PathSearch("org_conformance_pack_id", createOrgAssignmentPackageRespBody, "").(string)
+	if id == "" {
 		return diag.Errorf("error creating RMS organizational assignment package: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	stateConf := &resource.StateChangeConf{
 		Target:       []string{"CREATE_SUCCESSFUL", "ROLLBACK_SUCCESSFUL"},
@@ -187,40 +192,50 @@ func resourceOrgAssignmentPackageCreate(ctx context.Context, d *schema.ResourceD
 	}
 
 	if _, err = stateConf.WaitForStateContext(ctx); err != nil {
-		return diag.Errorf("error waiting for RMS organizational assignment Package (%s) to be created: %s",
-			id.(string), err)
+		return diag.Errorf("error waiting for RMS organizational assignment package (%s) to be created: %s",
+			id, err)
 	}
 
 	return resourceOrgAssignmentPackageRead(ctx, d, meta)
 }
 
-func buildCreateOrgAssignmentPackageBodyParams(d *schema.ResourceData) map[string]interface{} {
+func buildCreateOrgAssignmentPackageBodyParams(d *schema.ResourceData) (map[string]interface{}, error) {
+	varsStructure, err := buildOrgAssignmentPackageRequestBodyVarStructure(d.Get("vars_structure"))
+	if err != nil {
+		return nil, err
+	}
+
 	bodyParams := map[string]interface{}{
 		"name":              d.Get("name"),
 		"excluded_accounts": utils.ValueIgnoreEmpty(d.Get("excluded_accounts")),
 		"template_key":      utils.ValueIgnoreEmpty(d.Get("template_key")),
 		"template_body":     utils.ValueIgnoreEmpty(d.Get("template_body")),
 		"template_uri":      utils.ValueIgnoreEmpty(d.Get("template_uri")),
-		"vars_structure":    buildCreateOrgAssignmentPackageRequestBodyVarStructure(d.Get("vars_structure")),
+		"vars_structure":    varsStructure,
 	}
-	return bodyParams
+	return bodyParams, nil
 }
 
-func buildCreateOrgAssignmentPackageRequestBodyVarStructure(rawParams interface{}) []map[string]interface{} {
+func buildOrgAssignmentPackageRequestBodyVarStructure(rawParams interface{}) ([]map[string]interface{}, error) {
 	rawArray := rawParams.(*schema.Set).List()
 	if len(rawArray) == 0 {
-		return nil
+		return nil, nil
 	}
 
 	rst := make([]map[string]interface{}, len(rawArray))
 	for i, v := range rawArray {
 		raw := v.(map[string]interface{})
+		var value interface{}
+		err := json.Unmarshal([]byte(raw["var_value"].(string)), &value)
+		if err != nil {
+			return nil, err
+		}
 		rst[i] = map[string]interface{}{
 			"var_key":   utils.ValueIgnoreEmpty(raw["var_key"]),
-			"var_value": utils.ValueIgnoreEmpty(raw["var_value"]),
+			"var_value": value,
 		}
 	}
-	return rst
+	return rst, nil
 }
 
 func resourceOrgAssignmentPackageRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -286,10 +301,77 @@ func flattenGetOrgAssignmentPackageResponseBodyVarStructure(resp interface{}) []
 	for _, v := range curArray {
 		rst = append(rst, map[string]interface{}{
 			"var_key":   utils.PathSearch("var_key", v, nil),
-			"var_value": utils.PathSearch("var_value", v, nil),
+			"var_value": utils.JsonToString(utils.PathSearch("var_value", v, nil)),
 		})
 	}
 	return rst
+}
+
+func resourceOrgAssignmentPackageUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	// updateOrgAssignmentPackage: Update an existing RMS organizational assignment package
+	var (
+		updateOrgAssignmentPackageHttpUrl = "v1/resource-manager/organizations/{organization_id}/conformance-packs/{conformance_pack_id}"
+		updateOrgAssignmentPackageProduct = "rms"
+		conformancePackId                 = d.Id()
+	)
+	updateOrgAssignmentPackageClient, err := cfg.NewServiceClient(updateOrgAssignmentPackageProduct, region)
+	if err != nil {
+		return diag.Errorf("error creating Config client: %s", err)
+	}
+
+	updateOrgAssignmentPackagePath := updateOrgAssignmentPackageClient.Endpoint + updateOrgAssignmentPackageHttpUrl
+	updateOrgAssignmentPackagePath = strings.ReplaceAll(updateOrgAssignmentPackagePath, "{organization_id}",
+		d.Get("organization_id").(string))
+	updateOrgAssignmentPackagePath = strings.ReplaceAll(updateOrgAssignmentPackagePath, "{conformance_pack_id}", conformancePackId)
+
+	updateOrgAssignmentPackageOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	updateOpts, err := buildUpdateOrgAssignmentPackageBodyParams(d)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	updateOrgAssignmentPackageOpt.JSONBody = utils.RemoveNil(updateOpts)
+	_, err = updateOrgAssignmentPackageClient.Request("PUT",
+		updateOrgAssignmentPackagePath, &updateOrgAssignmentPackageOpt)
+	if err != nil {
+		return diag.Errorf("error updating RMS organizational assignment package: %s", err)
+	}
+
+	stateConf := &resource.StateChangeConf{
+		Target:       []string{"UPDATE_SUCCESSFUL", "ROLLBACK_SUCCESSFUL"},
+		Pending:      []string{"UPDATE_IN_PROGRESS"},
+		Refresh:      refreshDeployStatus(d, updateOrgAssignmentPackageClient),
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+
+	if _, err = stateConf.WaitForStateContext(ctx); err != nil {
+		return diag.Errorf("error waiting for RMS organizational assignment package (%s) to be updated: %s",
+			conformancePackId, err)
+	}
+
+	return resourceOrgAssignmentPackageRead(ctx, d, meta)
+}
+
+func buildUpdateOrgAssignmentPackageBodyParams(d *schema.ResourceData) (map[string]interface{}, error) {
+	varsStructure, err := buildOrgAssignmentPackageRequestBodyVarStructure(d.Get("vars_structure"))
+	if err != nil {
+		return nil, err
+	}
+
+	bodyParams := map[string]interface{}{
+		"name":              d.Get("name"),
+		"excluded_accounts": utils.ValueIgnoreEmpty(d.Get("excluded_accounts")),
+		"vars_structure":    varsStructure,
+	}
+	return bodyParams, nil
 }
 
 func resourceOrgAssignmentPackageDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -331,7 +413,7 @@ func resourceOrgAssignmentPackageDelete(ctx context.Context, d *schema.ResourceD
 	}
 
 	if _, err = stateConf.WaitForStateContext(ctx); err != nil {
-		return diag.Errorf("error waiting for RMS organizational assignment Package (%s) to be deleted: %s", d.Id(), err)
+		return diag.Errorf("error waiting for RMS organizational assignment package (%s) to be deleted: %s", d.Id(), err)
 	}
 
 	return nil
@@ -341,7 +423,7 @@ func refreshDeployStatus(d *schema.ResourceData, client *golangsdk.ServiceClient
 	return func() (result interface{}, state string, err error) {
 		// getDeployStatus: Query the RMS organizational assignment package
 		var (
-			getDeployStatusHttpUrl = "v1/resource-manager/organizations/{organization_id}/conformance-packs/detailed-statuses"
+			getDeployStatusHttpUrl = "v1/resource-manager/organizations/{organization_id}/conformance-packs/statuses"
 		)
 
 		getDeployStatusPath := client.Endpoint + getDeployStatusHttpUrl
@@ -363,8 +445,7 @@ func refreshDeployStatus(d *schema.ResourceData, client *golangsdk.ServiceClient
 		if err != nil {
 			return nil, "", err
 		}
-		return getDeployStatusRespBody, utils.PathSearch(fmt.Sprintf("statuses[?conformance_pack_name=='%s']|[0].state",
-			conformancePackName), getDeployStatusRespBody, "").(string), nil
+		return getDeployStatusRespBody, utils.PathSearch("statuses|[0].state", getDeployStatusRespBody, "").(string), nil
 	}
 }
 

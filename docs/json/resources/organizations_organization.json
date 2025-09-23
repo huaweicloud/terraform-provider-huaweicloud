@@ -47,7 +47,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "root_urn": {
                 "type": "string",

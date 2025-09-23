@@ -108,7 +108,7 @@ func dataSourceBandWidthsRead(_ context.Context, d *schema.ResourceData, meta in
 
 	listOpts := bandwidths.ListOpts{
 		ShareType:           "WHOLE",
-		EnterpriseProjectID: cfg.DataGetEnterpriseProjectID(d),
+		EnterpriseProjectID: cfg.GetEnterpriseProjectID(d, "all_granted_eps"),
 	}
 
 	allBWs, err := bandwidths.List(bwClient, listOpts).Extract()

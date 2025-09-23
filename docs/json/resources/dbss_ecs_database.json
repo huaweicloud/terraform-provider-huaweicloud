@@ -1,0 +1,98 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dbss_ecs_database": {
+          "block": {
+            "attributes": {
+              "agent_url": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              },
+              "audit_status": {
+                "type": "string",
+                "computed": true
+              },
+              "charset": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "db_classification": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "instance_name": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "ip": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "lts_audit_switch": {
+                "type": "number",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "os": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "port": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "version": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "DBSS",
+            "name": "Database Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据库安全服务",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

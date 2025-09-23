@@ -11,27 +11,45 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
-func TestAccImsImageDataSource_basic(t *testing.T) {
-	imageName := "CentOS 7.4 64bit"
-	dataSourceName := "data.huaweicloud_images_image.test"
-	dc := acceptance.InitDataSourceCheck(dataSourceName)
+func TestAccImageDataSource_basic(t *testing.T) {
+	var (
+		imageName      = "CentOS 7.4 64bit"
+		dataSourceName = "data.huaweicloud_images_image.test"
+		dc             = acceptance.InitDataSourceCheck(dataSourceName)
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccImsImageDataSource_publicName(imageName),
+				Config: testAccImageDataSource_public_queryByName(imageName),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(dataSourceName, "name", imageName),
 					resource.TestCheckResourceAttr(dataSourceName, "protected", "true"),
 					resource.TestCheckResourceAttr(dataSourceName, "visibility", "public"),
 					resource.TestCheckResourceAttr(dataSourceName, "status", "active"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "image_id"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "image_type"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "owner"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "os"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "architecture"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "os_version"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "file"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "schema"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "container_format"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "min_ram_mb"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "max_ram_mb"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "min_disk_gb"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "disk_format"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "size_bytes"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "created_at"),
+					resource.TestCheckResourceAttrSet(dataSourceName, "updated_at"),
 				),
 			},
 			{
-				Config: testAccImsImageDataSource_osVersion(imageName),
+				Config: testAccImageDataSource_public_queryByNameRegex("^CentOS 7.4"),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(dataSourceName, "protected", "true"),
@@ -40,16 +58,7 @@ func TestAccImsImageDataSource_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccImsImageDataSource_nameRegex("^CentOS 7.4"),
-				Check: resource.ComposeTestCheckFunc(
-					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(dataSourceName, "protected", "true"),
-					resource.TestCheckResourceAttr(dataSourceName, "visibility", "public"),
-					resource.TestCheckResourceAttr(dataSourceName, "status", "active"),
-				),
-			},
-			{
-				Config: testAccImsImageDataSource_market(),
+				Config: testAccImageDataSource_market(),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(dataSourceName, "protected", "true"),
@@ -61,39 +70,69 @@ func TestAccImsImageDataSource_basic(t *testing.T) {
 	})
 }
 
-func TestAccImsImageDataSource_testQueries(t *testing.T) {
-	var rName = fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
-	dataSourceName := "data.huaweicloud_images_image.test"
-	dc := acceptance.InitDataSourceCheck(dataSourceName)
+func TestAccImageDataSource_private(t *testing.T) {
+	var (
+		rName       = fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+		byImageId   = "data.huaweicloud_images_image.image_id_filter"
+		dcByImageId = acceptance.InitDataSourceCheck(byImageId)
+
+		byName   = "data.huaweicloud_images_image.name_filter"
+		dcByName = acceptance.InitDataSourceCheck(byName)
+
+		byFlavorId   = "data.huaweicloud_images_image.flavor_id_filter"
+		dcByFlavorId = acceptance.InitDataSourceCheck(byFlavorId)
+
+		byTag   = "data.huaweicloud_images_image.tag_filter"
+		dcByTag = acceptance.InitDataSourceCheck(byTag)
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccImsImageDataSource_base(rName),
+				Config: testAccImageDataSource_private_base(rName),
 			},
 			{
-				Config: testAccImsImageDataSource_queryName(rName),
+				Config: testAccImageDataSource_private_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
-					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(dataSourceName, "name", rName),
-					resource.TestCheckResourceAttr(dataSourceName, "protected", "false"),
-					resource.TestCheckResourceAttr(dataSourceName, "visibility", "private"),
-					resource.TestCheckResourceAttr(dataSourceName, "status", "active"),
-				),
-			},
-			{
-				Config: testAccImsImageDataSource_queryTag(rName),
-				Check: resource.ComposeTestCheckFunc(
-					dc.CheckResourceExists(),
+					dcByImageId.CheckResourceExists(),
+					resource.TestCheckResourceAttr(byImageId, "name", rName),
+					resource.TestCheckResourceAttr(byImageId, "visibility", "private"),
+					resource.TestCheckResourceAttr(byImageId, "status", "active"),
+					resource.TestCheckResourceAttrSet(byImageId, "image_id"),
+					resource.TestCheckResourceAttrSet(byImageId, "image_type"),
+					resource.TestCheckResourceAttrSet(byImageId, "owner"),
+					resource.TestCheckResourceAttrSet(byImageId, "os"),
+					resource.TestCheckResourceAttrSet(byImageId, "architecture"),
+					resource.TestCheckResourceAttrSet(byImageId, "enterprise_project_id"),
+					resource.TestCheckResourceAttrSet(byImageId, "os_version"),
+					resource.TestCheckResourceAttrSet(byImageId, "file"),
+					resource.TestCheckResourceAttrSet(byImageId, "schema"),
+					resource.TestCheckResourceAttrSet(byImageId, "description"),
+					resource.TestCheckResourceAttrSet(byImageId, "container_format"),
+					resource.TestCheckResourceAttrSet(byImageId, "min_ram_mb"),
+					resource.TestCheckResourceAttrSet(byImageId, "max_ram_mb"),
+					resource.TestCheckResourceAttrSet(byImageId, "min_disk_gb"),
+					resource.TestCheckResourceAttrSet(byImageId, "disk_format"),
+					resource.TestCheckResourceAttrSet(byImageId, "data_origin"),
+					resource.TestCheckResourceAttrSet(byImageId, "size_bytes"),
+					resource.TestCheckResourceAttrSet(byImageId, "active_at"),
+					resource.TestCheckResourceAttrSet(byImageId, "created_at"),
+					resource.TestCheckResourceAttrSet(byImageId, "updated_at"),
+					// Check whether filter parameter `name` is effective.
+					dcByName.CheckResourceExists(),
+					// Check whether filter parameter `flavor_id` is effective.
+					dcByFlavorId.CheckResourceExists(),
+					// Check whether filter parameter `tag` is effective.
+					dcByTag.CheckResourceExists(),
 				),
 			},
 		},
 	})
 }
 
-func testAccImsImageDataSource_publicName(imageName string) string {
+func testAccImageDataSource_public_queryByName(imageName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_images_image" "test" {
   name        = "%s"
@@ -103,39 +142,28 @@ data "huaweicloud_images_image" "test" {
 `, imageName)
 }
 
-func testAccImsImageDataSource_nameRegex(regexp string) string {
+func testAccImageDataSource_public_queryByNameRegex(regexp string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_images_image" "test" {
-  architecture = "x86"
   name_regex   = "%s"
   visibility   = "public"
+  architecture = "x86"
   most_recent  = true
 }
 `, regexp)
 }
 
-func testAccImsImageDataSource_osVersion(osVersion string) string {
-	return fmt.Sprintf(`
-data "huaweicloud_images_image" "test" {
-  architecture = "x86"
-  os_version   = "%s"
-  visibility   = "public"
-  most_recent  = true
-}
-`, osVersion)
-}
-
-func testAccImsImageDataSource_market() string {
+func testAccImageDataSource_market() string {
 	return `
 data "huaweicloud_images_image" "test" {
-  os          = "CentOS"
   visibility  = "market"
+  os          = "CentOS"
   most_recent = true
 }
 `
 }
 
-func testAccImsImageDataSource_base(rName string) string {
+func testAccImageDataSource_private_base(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
@@ -160,7 +188,7 @@ resource "huaweicloud_compute_instance" "test" {
   }
 }
 
-resource "huaweicloud_images_image" "test" {
+resource "huaweicloud_ims_ecs_system_image" "test" {
   name        = "%[2]s"
   instance_id = huaweicloud_compute_instance.test.id
   description = "created by Terraform AccTest"
@@ -173,25 +201,32 @@ resource "huaweicloud_images_image" "test" {
 `, common.TestBaseNetwork(rName), rName)
 }
 
-func testAccImsImageDataSource_queryName(rName string) string {
+func testAccImageDataSource_private_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
 
-data "huaweicloud_images_image" "test" {
+# Filter using image ID.
+data "huaweicloud_images_image" "image_id_filter" {
+  image_id = huaweicloud_ims_ecs_system_image.test.id
+}
+
+# Filter using name.
+data "huaweicloud_images_image" "name_filter" {
+  name        = huaweicloud_ims_ecs_system_image.test.name
   most_recent = true
-  name        = huaweicloud_images_image.test.name
-}
-`, testAccImsImageDataSource_base(rName))
 }
 
-func testAccImsImageDataSource_queryTag(rName string) string {
-	return fmt.Sprintf(`
-%s
+# Filter using flavor_id.
+data "huaweicloud_images_image" "flavor_id_filter" {
+  flavor_id   = huaweicloud_compute_instance.test.flavor_id
+  most_recent = true
+}
 
-data "huaweicloud_images_image" "test" {
+# Filter using tag.
+data "huaweicloud_images_image" "tag_filter" {
   most_recent = true
   visibility  = "private"
   tag         = "foo=bar"
 }
-`, testAccImsImageDataSource_base(rName))
+`, testAccImageDataSource_private_base(rName))
 }

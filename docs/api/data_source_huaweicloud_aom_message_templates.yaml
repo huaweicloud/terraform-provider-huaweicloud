@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_aom_message_templates
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: AOM
+paths:
+    /v2/{project_id}/events/notification/templates:
+        GET:
+            tag: AOM

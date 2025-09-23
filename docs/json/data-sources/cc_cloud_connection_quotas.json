@@ -1,0 +1,62 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cc_cloud_connection_quotas": {
+          "block": {
+            "attributes": {
+              "cloud_connection_id": {
+                "type": "string",
+                "description": "Specifies the cloud connection ID.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "quota_type": {
+                "type": "string",
+                "description": "Specifies the quota type.",
+                "required": true
+              },
+              "quotas": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cloud_connection_id": "string",
+                      "quota_number": "number",
+                      "quota_type": "string",
+                      "quota_used": "number",
+                      "region_id": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the quota list.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "region_id": {
+                "type": "string",
+                "description": "Specifies the region ID.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CC",
+            "name": "Cloud Connect",
+            "catalog": "Networking",
+            "name_cn": "云连接",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

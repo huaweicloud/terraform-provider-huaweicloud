@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_secmaster_playbook_approval
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: SecMaster
+paths:
+    /v1/{project_id}/workspaces/{workspace_id}/soc/playbooks/versions/{version_id}/approval:
+        POST:
+            tag: SecMaster

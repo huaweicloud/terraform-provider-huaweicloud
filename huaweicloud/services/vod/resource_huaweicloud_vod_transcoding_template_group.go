@@ -3,15 +3,14 @@ package vod
 import (
 	"context"
 	"fmt"
-	"log"
-	"regexp"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	vod "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/vod/v1/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -43,11 +42,6 @@ func ResourceTranscodingTemplateGroup() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(1, 128),
-					validation.StringMatch(regexp.MustCompile(`^\w+$`),
-						"The name can only consist of letters, digits and underscores (_)."),
-				),
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -120,31 +114,18 @@ func ResourceTranscodingTemplateGroup() *schema.Resource {
 									"width": {
 										Type:     schema.TypeInt,
 										Optional: true,
-										ValidateFunc: validation.Any(
-											validation.IntInSlice([]int{0}),
-											validation.IntBetween(128, 3840),
-										),
 									},
 									"height": {
 										Type:     schema.TypeInt,
 										Optional: true,
-										ValidateFunc: validation.Any(
-											validation.IntInSlice([]int{0}),
-											validation.IntBetween(128, 2160),
-										),
 									},
 									"bitrate": {
 										Type:     schema.TypeInt,
 										Optional: true,
-										ValidateFunc: validation.Any(
-											validation.IntInSlice([]int{0}),
-											validation.IntBetween(700, 3000),
-										),
 									},
 									"frame_rate": {
-										Type:         schema.TypeInt,
-										Optional:     true,
-										ValidateFunc: validation.IntBetween(1, 75),
+										Type:     schema.TypeInt,
+										Optional: true,
 									},
 								},
 							},
@@ -156,22 +137,16 @@ func ResourceTranscodingTemplateGroup() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"sample_rate": {
-										Type:         schema.TypeInt,
-										Required:     true,
-										ValidateFunc: validation.IntBetween(1, 6),
+										Type:     schema.TypeInt,
+										Required: true,
 									},
 									"channels": {
-										Type:         schema.TypeInt,
-										Required:     true,
-										ValidateFunc: validation.IntBetween(1, 2),
+										Type:     schema.TypeInt,
+										Required: true,
 									},
 									"bitrate": {
 										Type:     schema.TypeInt,
 										Optional: true,
-										ValidateFunc: validation.Any(
-											validation.IntInSlice([]int{0}),
-											validation.IntBetween(8, 1000),
-										),
 									},
 								},
 							},
@@ -187,257 +162,328 @@ func ResourceTranscodingTemplateGroup() *schema.Resource {
 	}
 }
 
-func buildCommonOpts(d *schema.ResourceData) *vod.Common {
-	commonOpts := vod.Common{
-		HlsInterval: utils.Int32(int32(d.Get("hls_segment_duration").(int))),
-	}
-
+func buildCommonPvcParams(d *schema.ResourceData) string {
 	if d.Get("low_bitrate_hd").(bool) {
-		commonOpts.Pvc = vod.GetCommonPvcEnum().E_1
-	} else {
-		commonOpts.Pvc = vod.GetCommonPvcEnum().E_0
+		return "1"
 	}
 
-	switch d.Get("video_codec").(string) {
-	case "H265":
-		videoCodec := vod.GetCommonVideoCodecEnum().H265
-		commonOpts.VideoCodec = &videoCodec
-	case "H264":
-		videoCodec := vod.GetCommonVideoCodecEnum().H264
-		commonOpts.VideoCodec = &videoCodec
-	default:
-		commonOpts.VideoCodec = nil
-	}
-
-	switch d.Get("audio_codec").(string) {
-	case "HEAAC1":
-		audioCodec := vod.GetCommonAudioCodecEnum().HEAAC1
-		commonOpts.AudioCodec = &audioCodec
-	case "HEAAC2":
-		audioCodec := vod.GetCommonAudioCodecEnum().HEAAC2
-		commonOpts.AudioCodec = &audioCodec
-	case "MP3":
-		audioCodec := vod.GetCommonAudioCodecEnum().MP3
-		commonOpts.AudioCodec = &audioCodec
-	case "AAC":
-		audioCodec := vod.GetCommonAudioCodecEnum().AAC
-		commonOpts.AudioCodec = &audioCodec
-	default:
-		commonOpts.AudioCodec = nil
-	}
-
-	return &commonOpts
+	return "0"
 }
 
-func buildAudioOpts(rawAudio []interface{}) *vod.AudioTemplateInfo {
-	if len(rawAudio) != 1 {
+func buildTemplateGroupCommonBodyParams(d *schema.ResourceData) map[string]interface{} {
+	return map[string]interface{}{
+		"hls_interval": d.Get("hls_segment_duration"),
+		"pvc":          buildCommonPvcParams(d),
+		"video_codec":  utils.ValueIgnoreEmpty(d.Get("video_codec")),
+		"audio_codec":  utils.ValueIgnoreEmpty(d.Get("audio_codec")),
+	}
+}
+
+func buildQualityInfoListVideoQualityParams(quality string) string {
+	if quality == "FHD" {
+		return "FULL_HD"
+	}
+
+	if quality == "LD" {
+		return "FLUENT"
+	}
+
+	return quality
+}
+
+func buildQualityInfoListVideoParams(rawArray []interface{}) map[string]interface{} {
+	if len(rawArray) == 0 {
 		return nil
 	}
 
-	audio := rawAudio[0].(map[string]interface{})
-	audioOpts := vod.AudioTemplateInfo{
-		SampleRate: int32(audio["sample_rate"].(int)),
-		Channels:   int32(audio["channels"].(int)),
-		Bitrate:    utils.Int32(int32(audio["bitrate"].(int))),
+	rawMap := rawArray[0].(map[string]interface{})
+	return map[string]interface{}{
+		"quality":    buildQualityInfoListVideoQualityParams(rawMap["quality"].(string)),
+		"width":      rawMap["width"],
+		"height":     rawMap["height"],
+		"bitrate":    rawMap["bitrate"],
+		"frame_rate": rawMap["frame_rate"],
 	}
-
-	return &audioOpts
 }
 
-func buildVideoOpts(rawVideo []interface{}) *vod.VideoTemplateInfo {
-	if len(rawVideo) != 1 {
+func buildQualityInfoListAudioParams(rawArray []interface{}) map[string]interface{} {
+	if len(rawArray) == 0 {
 		return nil
 	}
 
-	video := rawVideo[0].(map[string]interface{})
-	var quality vod.VideoTemplateInfoQuality
-	switch video["quality"].(string) {
-	case "4K":
-		quality = vod.GetVideoTemplateInfoQualityEnum().E_4_K
-	case "2K":
-		quality = vod.GetVideoTemplateInfoQualityEnum().E_2_K
-	case "FHD":
-		quality = vod.GetVideoTemplateInfoQualityEnum().FULL_HD
-	case "SD":
-		quality = vod.GetVideoTemplateInfoQualityEnum().SD
-	case "LD":
-		quality = vod.GetVideoTemplateInfoQualityEnum().FLUENT
-	default:
-		quality = vod.GetVideoTemplateInfoQualityEnum().HD
+	rawMap := rawArray[0].(map[string]interface{})
+	return map[string]interface{}{
+		"sample_rate": rawMap["sample_rate"],
+		"channels":    rawMap["channels"],
+		"bitrate":     rawMap["bitrate"],
 	}
-
-	videoOpts := vod.VideoTemplateInfo{
-		Quality:   quality,
-		Width:     utils.Int32(int32(video["width"].(int))),
-		Height:    utils.Int32(int32(video["height"].(int))),
-		Bitrate:   utils.Int32(int32(video["bitrate"].(int))),
-		FrameRate: utils.Int32(int32(video["frame_rate"].(int))),
-	}
-
-	return &videoOpts
 }
 
-func buildQualityInfoListOpts(qualityInfo []interface{}) *[]vod.QualityInfo {
-	if len(qualityInfo) == 0 {
+func buildQualityInfoListBodyParams(d *schema.ResourceData) []map[string]interface{} {
+	rawArray := d.Get("quality_info").([]interface{})
+	if len(rawArray) == 0 {
 		return nil
 	}
 
-	qualityInfoOpts := make([]vod.QualityInfo, len(qualityInfo))
-	for i, v := range qualityInfo {
-		info := v.(map[string]interface{})
-		var outputFormat vod.QualityInfoFormat
-		switch info["output_format"].(string) {
-		case "MP4":
-			outputFormat = vod.GetQualityInfoFormatEnum().MP4
-		case "DASH":
-			outputFormat = vod.GetQualityInfoFormatEnum().DASH
-		case "DASH_HLS":
-			outputFormat = vod.GetQualityInfoFormatEnum().DASH_HLS
-		case "MP3":
-			outputFormat = vod.GetQualityInfoFormatEnum().MP3
-		case "ADTS":
-			outputFormat = vod.GetQualityInfoFormatEnum().ADTS
-		default:
-			outputFormat = vod.GetQualityInfoFormatEnum().HLS
-		}
-		qualityInfoOpts[i] = vod.QualityInfo{
-			Video:  buildVideoOpts(info["video"].([]interface{})),
-			Audio:  buildAudioOpts(info["audio"].([]interface{})),
-			Format: outputFormat,
-		}
+	rst := make([]map[string]interface{}, 0, len(rawArray))
+	for _, v := range rawArray {
+		rawMap := v.(map[string]interface{})
+		rst = append(rst, map[string]interface{}{
+			"format": rawMap["output_format"],
+			"video":  buildQualityInfoListVideoParams(rawMap["video"].([]interface{})),
+			"audio":  buildQualityInfoListAudioParams(rawMap["audio"].([]interface{})),
+		})
 	}
 
-	return &qualityInfoOpts
+	return rst
 }
 
-func resourceTranscodingTemplateGroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.HcVodV1Client(config.GetRegion(d))
-	if err != nil {
-		return diag.Errorf("error creating VOD client : %s", err)
-	}
-
-	createOpts := vod.TransTemplateGroup{
-		Name:                 d.Get("name").(string),
-		Type:                 vod.GetTransTemplateGroupTypeEnum().CUSTOM_TEMPLATE_GROUP,
-		Description:          utils.String(d.Get("description").(string)),
-		WatermarkTemplateIds: utils.ExpandToStringListPointer(d.Get("watermark_template_ids").([]interface{})),
-		Common:               buildCommonOpts(d),
-		QualityInfoList:      buildQualityInfoListOpts(d.Get("quality_info").(([]interface{}))),
-	}
-
+func buildAutoEncryptParam(d *schema.ResourceData) interface{} {
 	if d.Get("auto_encrypt").(bool) {
-		createOpts.AutoEncrypt = utils.Int32(int32(1))
-	}
-
-	if d.Get("is_default").(bool) {
-		status := vod.GetTransTemplateGroupStatusEnum().E_1
-		createOpts.Status = &status
-	}
-
-	createReq := vod.CreateTemplateGroupRequest{
-		Body: &createOpts,
-	}
-	log.Printf("[DEBUG] Create VOD transcoding template group Options: %#v", createOpts)
-
-	resp, err := client.CreateTemplateGroup(&createReq)
-	if err != nil {
-		return diag.Errorf("error creating VOD transcoding template group: %s", err)
-	}
-
-	d.SetId(*resp.GroupId)
-
-	return resourceTranscodingTemplateGroupRead(ctx, d, meta)
-}
-
-func resourceTranscodingTemplateGroupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.HcVodV1Client(config.GetRegion(d))
-	if err != nil {
-		return diag.Errorf("error creating VOD client : %s", err)
-	}
-
-	resp, err := client.ListTemplateGroup(&vod.ListTemplateGroupRequest{GroupId: utils.String(d.Id())})
-	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving VOD transcoding template group")
-	}
-
-	if resp.TemplateGroupList == nil || len(*resp.TemplateGroupList) == 0 {
-		d.SetId("")
-		return diag.Diagnostics{
-			diag.Diagnostic{
-				Severity: diag.Warning,
-				Summary:  "Resource not found",
-				Detail:   fmt.Sprintf("unable to retrieve VOD transcoding template group: %s", d.Id()),
-			},
-		}
-	}
-	templateGroupList := *resp.TemplateGroupList
-	templateGroup := templateGroupList[0]
-
-	var autoEncrypt bool
-	if templateGroup.AutoEncrypt != nil && *templateGroup.AutoEncrypt == 1 {
-		autoEncrypt = true
-	}
-
-	var isDefault bool
-	if templateGroup.Status != nil && *templateGroup.Status == "1" {
-		isDefault = true
-	}
-
-	mErr := multierror.Append(nil,
-		d.Set("region", config.GetRegion(d)),
-		d.Set("name", templateGroup.Name),
-		d.Set("auto_encrypt", autoEncrypt),
-		d.Set("is_default", isDefault),
-		d.Set("description", templateGroup.Description),
-		d.Set("type", templateGroup.Type),
-		d.Set("watermark_template_ids", templateGroup.WatermarkTemplateIds),
-		d.Set("quality_info", flattenQualityInfoList(templateGroup.QualityInfoList)),
-		setCommonAttrs(d, templateGroup.Common),
-	)
-
-	if err = mErr.ErrorOrNil(); err != nil {
-		return diag.Errorf("error setting VOD transcoding template group fields: %s", err)
+		return 1
 	}
 
 	return nil
 }
 
-func resourceTranscodingTemplateGroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.HcVodV1Client(config.GetRegion(d))
-	if err != nil {
-		return diag.Errorf("error creating VOD client : %s", err)
-	}
-
-	updateOpts := vod.ModifyTransTemplateGroup{
-		GroupId:              d.Id(),
-		Name:                 d.Get("name").(string),
-		Description:          utils.String(d.Get("description").(string)),
-		WatermarkTemplateIds: utils.ExpandToStringListPointer(d.Get("watermark_template_ids").([]interface{})),
-		Common:               buildCommonOpts(d),
-		QualityInfoList:      buildQualityInfoListOpts(d.Get("quality_info").(([]interface{}))),
-	}
-
-	if d.Get("auto_encrypt").(bool) {
-		updateOpts.AutoEncrypt = utils.Int32(int32(1))
-	}
-
-	var status vod.ModifyTransTemplateGroupStatus
+func buildStatusParam(d *schema.ResourceData) interface{} {
 	if d.Get("is_default").(bool) {
-		status = vod.GetModifyTransTemplateGroupStatusEnum().E_1
-	} else {
-		status = vod.GetModifyTransTemplateGroupStatusEnum().E_0
-	}
-	updateOpts.Status = &status
-	log.Printf("[DEBUG] Update VOD transcoding template group Options: %#v", updateOpts)
-
-	updateReq := vod.UpdateTemplateGroupRequest{
-		Body: &updateOpts,
+		return "1"
 	}
 
-	_, err = client.UpdateTemplateGroup(&updateReq)
+	return nil
+}
+
+func buildCreateTemplateGroupBodyParams(d *schema.ResourceData) map[string]interface{} {
+	return map[string]interface{}{
+		"name":                   d.Get("name"),
+		"type":                   "custom_template_group",
+		"description":            d.Get("description"),
+		"watermark_template_ids": d.Get("watermark_template_ids"),
+		"common":                 buildTemplateGroupCommonBodyParams(d),
+		"quality_info_list":      buildQualityInfoListBodyParams(d),
+		"auto_encrypt":           buildAutoEncryptParam(d),
+		"status":                 buildStatusParam(d),
+	}
+}
+
+func resourceTranscodingTemplateGroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1.0/{project_id}/asset/template_group/transcodings"
+		product = "vod"
+	)
+	client, err := cfg.NewServiceClient(product, region)
+	if err != nil {
+		return diag.Errorf("error creating VOD client: %s", err)
+	}
+
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildCreateTemplateGroupBodyParams(d)),
+	}
+
+	resp, err := client.Request("POST", requestPath, &requestOpt)
+	if err != nil {
+		return diag.Errorf("error creating VOD transcoding template group: %s", err)
+	}
+
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	groupID := utils.PathSearch("group_id", respBody, "").(string)
+	if groupID == "" {
+		return diag.Errorf("error creating VOD transcoding template group: ID is not found in API response")
+	}
+	d.SetId(groupID)
+
+	return resourceTranscodingTemplateGroupRead(ctx, d, meta)
+}
+
+func flattenVideoQualityAttribute(quality string) string {
+	if quality == "FULL_HD" {
+		return "FHD"
+	}
+
+	if quality == "FLUENT" {
+		return "LD"
+	}
+
+	return quality
+}
+
+func flattenVideoAttribute(respBody interface{}) []interface{} {
+	rawMap := utils.PathSearch("video", respBody, nil)
+	if rawMap == nil {
+		return nil
+	}
+
+	videoResult := map[string]interface{}{
+		"quality":    flattenVideoQualityAttribute(utils.PathSearch("quality", rawMap, "").(string)),
+		"bitrate":    utils.PathSearch("bitrate", rawMap, nil),
+		"frame_rate": utils.PathSearch("frame_rate", rawMap, nil),
+		"width":      utils.PathSearch("width", rawMap, nil),
+		"height":     utils.PathSearch("height", rawMap, nil),
+	}
+
+	return []interface{}{videoResult}
+}
+
+func flattenAudioAttribute(respBody interface{}) []interface{} {
+	rawMap := utils.PathSearch("audio", respBody, nil)
+	if rawMap == nil {
+		return nil
+	}
+
+	audioResult := map[string]interface{}{
+		"sample_rate": utils.PathSearch("sample_rate", rawMap, nil),
+		"channels":    utils.PathSearch("channels", rawMap, nil),
+		"bitrate":     utils.PathSearch("bitrate", rawMap, nil),
+	}
+
+	return []interface{}{audioResult}
+}
+
+func flattenQualityInfoAttribute(respBody interface{}) []interface{} {
+	rawArray := utils.PathSearch("quality_info_list", respBody, make([]interface{}, 0)).([]interface{})
+	if len(rawArray) == 0 {
+		return nil
+	}
+
+	rst := make([]interface{}, 0, len(rawArray))
+	for _, v := range rawArray {
+		rst = append(rst, map[string]interface{}{
+			"output_format": utils.PathSearch("format", v, nil),
+			"video":         flattenVideoAttribute(v),
+			"audio":         flattenAudioAttribute(v),
+		})
+	}
+
+	return rst
+}
+
+func flattenVideoCodecAttribute(commonResp interface{}) string {
+	rawString := utils.PathSearch("video_codec", commonResp, "").(string)
+	if rawString == "H265" || rawString == "H264" {
+		return rawString
+	}
+
+	return ""
+}
+
+func setCommonAttributes(d *schema.ResourceData, meta interface{}) error {
+	if meta == nil {
+		return nil
+	}
+
+	mErr := multierror.Append(
+		d.Set("low_bitrate_hd", utils.PathSearch("pvc", meta, "").(string) == "1"),
+		d.Set("video_codec", flattenVideoCodecAttribute(meta)),
+		d.Set("audio_codec", utils.PathSearch("audio_codec", meta, nil)),
+		d.Set("hls_segment_duration", utils.PathSearch("hls_interval", meta, nil)),
+	)
+
+	return mErr
+}
+
+func resourceTranscodingTemplateGroupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1.0/{project_id}/asset/template_group/transcodings"
+		product = "vod"
+	)
+	client, err := cfg.NewServiceClient(product, region)
+	if err != nil {
+		return diag.Errorf("error creating VOD client: %s", err)
+	}
+
+	requestPath := client.Endpoint + httpUrl
+	requestPath += fmt.Sprintf("?group_id=%s", d.Id())
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	resp, err := client.Request("GET", requestPath, &requestOpt)
+	if err != nil {
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error_code", "VOD.10053"),
+			"error retrieving VOD transcoding template group")
+	}
+
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	templateGroup := utils.PathSearch("template_group_list|[0]", respBody, nil)
+	if templateGroup == nil {
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
+	}
+
+	mErr := multierror.Append(
+		d.Set("region", region),
+		d.Set("name", utils.PathSearch("name", templateGroup, nil)),
+		d.Set("auto_encrypt", int(utils.PathSearch("auto_encrypt", templateGroup, float64(0)).(float64)) == 1),
+		d.Set("is_default", utils.PathSearch("status", templateGroup, "").(string) == "1"),
+		d.Set("description", utils.PathSearch("description", templateGroup, nil)),
+		d.Set("type", utils.PathSearch("type", templateGroup, nil)),
+		d.Set("watermark_template_ids", utils.PathSearch("watermark_template_ids", templateGroup, nil)),
+		d.Set("quality_info", flattenQualityInfoAttribute(templateGroup)),
+		setCommonAttributes(d, utils.PathSearch("common", templateGroup, nil)),
+	)
+
+	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func buildUpdateStatusParam(d *schema.ResourceData) string {
+	if d.Get("is_default").(bool) {
+		return "1"
+	}
+
+	return "0"
+}
+
+func buildUpdateTemplateGroupBodyParams(d *schema.ResourceData) map[string]interface{} {
+	return map[string]interface{}{
+		"group_id":               d.Id(),
+		"name":                   d.Get("name"),
+		"description":            d.Get("description"),
+		"watermark_template_ids": d.Get("watermark_template_ids"),
+		"common":                 buildTemplateGroupCommonBodyParams(d),
+		"quality_info_list":      buildQualityInfoListBodyParams(d),
+		"auto_encrypt":           buildAutoEncryptParam(d),
+		"status":                 buildUpdateStatusParam(d),
+	}
+}
+
+func resourceTranscodingTemplateGroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1.0/{project_id}/asset/template_group/transcodings"
+		product = "vod"
+	)
+	client, err := cfg.NewServiceClient(product, region)
+	if err != nil {
+		return diag.Errorf("error creating VOD client: %s", err)
+	}
+
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes:          []int{200, 201, 204},
+		JSONBody:         utils.RemoveNil(buildUpdateTemplateGroupBodyParams(d)),
+	}
+
+	_, err = client.Request("PUT", requestPath, &requestOpt)
 	if err != nil {
 		return diag.Errorf("error updating VOD transcoding template group: %s", err)
 	}
@@ -446,143 +492,28 @@ func resourceTranscodingTemplateGroupUpdate(ctx context.Context, d *schema.Resou
 }
 
 func resourceTranscodingTemplateGroupDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	client, err := config.HcVodV1Client(config.GetRegion(d))
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1.0/{project_id}/asset/template_group/transcodings"
+		product = "vod"
+	)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating VOD client : %s", err)
+		return diag.Errorf("error creating VOD client: %s", err)
 	}
 
-	_, err = client.DeleteTemplateGroup(&vod.DeleteTemplateGroupRequest{GroupId: d.Id()})
+	requestPath := client.Endpoint + httpUrl
+	requestPath += fmt.Sprintf("?group_id=%s", d.Id())
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	_, err = client.Request("DELETE", requestPath, &requestOpt)
 	if err != nil {
 		return diag.Errorf("error deleting VOD transcoding template group: %s", err)
 	}
 
 	return nil
-}
-
-func setCommonAttrs(d *schema.ResourceData, common *vod.Common) error {
-	if common == nil {
-		return nil
-	}
-
-	var lowBitrateHd bool
-	if common.Pvc == vod.GetCommonPvcEnum().E_1 {
-		lowBitrateHd = true
-	}
-
-	var videoCodec string
-	if common.VideoCodec != nil {
-		if *common.VideoCodec == vod.GetCommonVideoCodecEnum().H265 {
-			videoCodec = "H265"
-		}
-		if *common.VideoCodec == vod.GetCommonVideoCodecEnum().H264 {
-			videoCodec = "H264"
-		}
-	}
-
-	var audioCodec string
-	if common.AudioCodec != nil {
-		switch *common.AudioCodec {
-		case vod.GetCommonAudioCodecEnum().HEAAC1:
-			audioCodec = "HEAAC1"
-		case vod.GetCommonAudioCodecEnum().HEAAC2:
-			audioCodec = "HEAAC2"
-		case vod.GetCommonAudioCodecEnum().MP3:
-			audioCodec = "MP3"
-		case vod.GetCommonAudioCodecEnum().AAC:
-			audioCodec = "AAC"
-		default:
-			audioCodec = ""
-		}
-	}
-
-	mErr := multierror.Append(nil,
-		d.Set("low_bitrate_hd", lowBitrateHd),
-		d.Set("video_codec", videoCodec),
-		d.Set("audio_codec", audioCodec),
-		d.Set("hls_segment_duration", common.HlsInterval),
-	)
-
-	return mErr
-}
-
-func flattenAudio(audio *vod.AudioTemplateInfo) []map[string]interface{} {
-	if audio == nil {
-		return nil
-	}
-
-	audioResult := map[string]interface{}{
-		"sample_rate": audio.SampleRate,
-		"channels":    audio.Channels,
-		"bitrate":     audio.Bitrate,
-	}
-
-	return []map[string]interface{}{audioResult}
-}
-
-func flattenVideo(video *vod.VideoTemplateInfo) []map[string]interface{} {
-	if video == nil {
-		return nil
-	}
-
-	var quality string
-	switch video.Quality {
-	case vod.GetVideoTemplateInfoQualityEnum().E_4_K:
-		quality = "4K"
-	case vod.GetVideoTemplateInfoQualityEnum().E_2_K:
-		quality = "2K"
-	case vod.GetVideoTemplateInfoQualityEnum().FULL_HD:
-		quality = "FHD"
-	case vod.GetVideoTemplateInfoQualityEnum().SD:
-		quality = "SD"
-	case vod.GetVideoTemplateInfoQualityEnum().FLUENT:
-		quality = "LD"
-	case vod.GetVideoTemplateInfoQualityEnum().HD:
-		quality = "HD"
-	default:
-		quality = ""
-	}
-
-	videoResult := map[string]interface{}{
-		"quality":    quality,
-		"bitrate":    video.Bitrate,
-		"frame_rate": video.FrameRate,
-		"width":      video.Width,
-		"height":     video.Height,
-	}
-
-	return []map[string]interface{}{videoResult}
-}
-
-func flattenQualityInfoList(qualityInfo *[]vod.QualityInfo) []map[string]interface{} {
-	if qualityInfo == nil {
-		return nil
-	}
-
-	QualityInfoResult := make([]map[string]interface{}, len(*qualityInfo))
-	for i, info := range *qualityInfo {
-		var outputFormat string
-		switch info.Format {
-		case vod.GetQualityInfoFormatEnum().MP4:
-			outputFormat = "MP4"
-		case vod.GetQualityInfoFormatEnum().DASH:
-			outputFormat = "DASH"
-		case vod.GetQualityInfoFormatEnum().DASH_HLS:
-			outputFormat = "DASH_HLS"
-		case vod.GetQualityInfoFormatEnum().MP3:
-			outputFormat = "MP3"
-		case vod.GetQualityInfoFormatEnum().ADTS:
-			outputFormat = "ADTS"
-		case vod.GetQualityInfoFormatEnum().HLS:
-			outputFormat = "HLS"
-		default:
-			outputFormat = ""
-		}
-		QualityInfoResult[i] = map[string]interface{}{
-			"video":         flattenVideo(info.Video),
-			"audio":         flattenAudio(info.Audio),
-			"output_format": outputFormat,
-		}
-	}
-	return QualityInfoResult
 }

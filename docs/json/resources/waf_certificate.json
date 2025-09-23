@@ -10,12 +10,16 @@
                 "required": true,
                 "sensitive": true
               },
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
               "enterprise_project_id": {
                 "type": "string",
                 "optional": true,
                 "forcenew": true
               },
-              "expiration": {
+              "expired_at": {
                 "type": "string",
                 "computed": true
               },

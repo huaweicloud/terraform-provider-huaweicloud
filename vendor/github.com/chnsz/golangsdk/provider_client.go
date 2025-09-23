@@ -12,6 +12,8 @@ import (
 	"sync"
 
 	"github.com/chnsz/golangsdk/auth"
+
+	"github.com/chnsz/golangsdk/auth/core/signer"
 )
 
 // DefaultUserAgent is the default User-Agent string set in the request header.
@@ -311,18 +313,36 @@ func (client *ProviderClient) doRequest(method, url string, options *RequestOpts
 
 	prereqtok := req.Header.Get("X-Auth-Token")
 
-	if client.AKSKAuthOptions.AccessKey != "" {
-		if err := auth.Sign(req, client.AKSKAuthOptions.AccessKey, client.AKSKAuthOptions.SecretKey); err != nil {
+	authOpts := client.AKSKAuthOptions
+	if authOpts.AccessKey != "" {
+		var err error
+		if authOpts.IsDerived {
+			err = auth.SignDerived(req, authOpts.AccessKey, authOpts.SecretKey, authOpts.DerivedAuthServiceName, authOpts.Region)
+		} else if authOpts.SigningAlgorithm == "" || authOpts.SigningAlgorithm == signer.HmacSHA256 {
+			err = auth.Sign(req, authOpts.AccessKey, authOpts.SecretKey)
+		} else {
+			sn, err := signer.GetSigner(signer.SigningAlgorithm(authOpts.SigningAlgorithm))
+			if err != nil {
+				return nil, err
+			}
+
+			_, err = sn.Sign(req, authOpts.AccessKey, authOpts.SecretKey)
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		if err != nil {
 			return nil, err
 		}
-		if client.AKSKAuthOptions.ProjectId != "" {
-			req.Header.Set("X-Project-Id", client.AKSKAuthOptions.ProjectId)
+		if authOpts.ProjectId != "" {
+			req.Header.Set("X-Project-Id", authOpts.ProjectId)
 		}
-		if client.AKSKAuthOptions.DomainID != "" {
-			req.Header.Set("X-Domain-Id", client.AKSKAuthOptions.DomainID)
+		if authOpts.DomainID != "" {
+			req.Header.Set("X-Domain-Id", authOpts.DomainID)
 		}
-		if client.AKSKAuthOptions.SecurityToken != "" {
-			req.Header.Set("X-Security-Token", client.AKSKAuthOptions.SecurityToken)
+		if authOpts.SecurityToken != "" {
+			req.Header.Set("X-Security-Token", authOpts.SecurityToken)
 		}
 	}
 
@@ -409,6 +429,11 @@ func (client *ProviderClient) doRequest(method, url string, options *RequestOpts
 			if error404er, ok := errType.(Err404er); ok {
 				err = error404er.Error404(respErr)
 			}
+		case http.StatusConflict:
+			err = ErrDefault409{respErr}
+			if error409er, ok := errType.(Err409er); ok {
+				err = error409er.Error409(respErr)
+			}
 		case http.StatusMethodNotAllowed:
 			err = ErrDefault405{respErr}
 			if error405er, ok := errType.(Err405er); ok {
@@ -445,6 +470,11 @@ func (client *ProviderClient) doRequest(method, url string, options *RequestOpts
 			err = ErrDefault500{respErr}
 			if error500er, ok := errType.(Err500er); ok {
 				err = error500er.Error500(respErr)
+			}
+		case http.StatusBadGateway:
+			err = ErrDefault502{respErr}
+			if error502er, ok := errType.(Err502er); ok {
+				err = error502er.Error502(respErr)
 			}
 		case http.StatusServiceUnavailable:
 			err = ErrDefault503{respErr}

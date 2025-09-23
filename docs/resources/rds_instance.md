@@ -64,8 +64,9 @@ resource "huaweicloud_rds_instance" "instance" {
   subnet_id           = var.subnet_id
   security_group_id   = var.secgroup_id
   availability_zone   = [
-    var.availability_zone_1,
-    var.availability_zone_2]
+    var.availability_zone1,
+    var.availability_zone2,
+  ]
 
   db {
     type     = "PostgreSQL"
@@ -170,8 +171,11 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which to create the rds instance resource. If omitted, the
   provider-level region will be used. Changing this creates a new rds instance resource.
 
-* `availability_zone` - (Required, List, ForceNew) Specifies the list of AZ name. Changing this parameter will create a
-  new resource.
+* `availability_zone` - (Required, List) Specifies the list of AZ name.
+  + If add standby node az to the list, then the instance will change from Single instance to Primary/Standby instance.
+    The value of `flavor` will be changed to the ha mode value, so the value of `flavor` in the script should be changed
+    to the ha mode value too.
+  + If change the standby node az, then the standby node will migrate to new az.
 
 * `name` - (Required, String) Specifies the DB instance name. The DB instance name of the same type must be unique for
   the same tenant. The value must be 4 to 64 characters in length and start with a letter. It is case-sensitive and can
@@ -182,6 +186,8 @@ The following arguments are supported:
   -> **NOTE:** Services will be interrupted for 5 to 10 minutes when you change RDS instance flavor.If this parameter is
   changed, a temporary instance will be generated. This temporary instance will occupy the association of the VPC
   security group and cannot be deleted for 12 hours.
+
+* `is_flexus` - (Optional, Bool) Specifies whether to create flexus RDS instance. Defaults to **false**.
 
 * `db` - (Required, List, ForceNew) Specifies the database information. Structure is documented below. Changing this
   parameter will create a new resource.
@@ -232,16 +238,15 @@ The following arguments are supported:
   
   Defaults to **reliability**.
 
-* `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the RDS DB instance. Valid values are
-  **prePaid** and **postPaid**, defaults to **postPaid**. Changing this creates a new resource.
+* `charging_mode` - (Optional, String) Specifies the charging mode of the RDS DB instance. Valid values are **prePaid**
+  and **postPaid**, defaults to **postPaid**.
 
-* `period_unit` - (Optional, String, ForceNew) Specifies the charging period unit of the RDS DB instance. Valid values
-  are **month** and **year**. This parameter is mandatory if `charging_mode` is set to **prePaid**. Changing this
-  creates a new resource.
+* `period_unit` - (Optional, String) Specifies the charging period unit of the RDS DB instance. Valid values are **month**
+  and **year**. This parameter is mandatory if `charging_mode` is set to **prePaid**.
 
-* `period` - (Optional, Int, ForceNew) Specifies the charging period of the RDS DB instance. If `period_unit` is set
-  to **month**, the value ranges from `1` to `9`. If `period_unit` is set to **year**, the value ranges from `1` to `3`.
-  This parameter is mandatory if `charging_mode` is set to **prePaid**. Changing this creates a new resource.
+* `period` - (Optional, Int) Specifies the charging period of the RDS DB instance. If `period_unit` is set to **month**,
+  the value ranges from `1` to `9`. If `period_unit` is set to **year**, the value ranges from `1` to `3`. This parameter
+  is mandatory if `charging_mode` is set to **prePaid**.
 
 * `auto_renew` - (Optional, String) Specifies whether auto-renew is enabled. Valid values are "true" and "false".
 
@@ -271,7 +276,7 @@ The following arguments are supported:
   launched. You can check on console to see which parameters supported. Structure is documented below.
 
 * `binlog_retention_hours` - (Optional, Int) Specify the binlog retention period in hours. This parameter applies only to
-  MySQL Server databases. Value range: **0** to **168 (7x24)**.
+  MySQL Server databases. Value range: `0` to `168` (7x24).
 
 * `msdtc_hosts` - (Optional, List) Specify the host information for MSDTC.
   The [msdtc_hosts](#RdsInstance_MsdtcHosts) structure is documented below.
@@ -305,10 +310,12 @@ The following arguments are supported:
 * `seconds_level_monitoring_enabled` - (Optional, Bool) Specifies whether to enable seconds level monitoring.
 
 * `seconds_level_monitoring_interval` - (Optional, Int) Specifies the seconds level monitoring interval. Valid values:
-  **1**, **5**. It is mandatory when `seconds_level_monitoring_enabled` is **true**.
+  `1`, `5`. It is mandatory when `seconds_level_monitoring_enabled` is **true**.
+
+* `minor_version_auto_upgrade_enabled` - (Optional, Bool) Specifies whether to enable minor version auto upgrade.
 
 * `private_dns_name_prefix` - (Optional, String) Specifies the prefix of the private domain name. The value contains
-  **8** to **64** characters. Only uppercase letters, lowercase letters, and digits are allowed.
+  `8` to `64` characters. Only uppercase letters, lowercase letters, and digits are allowed.
 
 * `slow_log_show_original_status` - (Optional, String) Specifies the slow log show original status of the instance.
   Only **MySQL** and **PostgreSQL** are supported. Value options: **on**, **off**.
@@ -418,7 +425,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `created` - Indicates the creation time.
 
-* `nodes` - Indicates the instance nodes information. Structure is documented below.
+* `nodes` - Indicates the instance nodes information.
+  The [nodes](#nodes_struct) structure is documented below.
 
 * `private_ips` - Indicates the private IP address list. It is a blank string until an ECS is created.
 
@@ -429,6 +437,12 @@ In addition to all arguments above, the following attributes are exported:
 * `msdtc_hosts` - Indicates the host information for MSDTC.
   The [msdtc_hosts](#RdsInstance_MsdtcHostsResp) structure is documented below.
 
+* `storage_used_space` - Indicates the storage usage of the instance.
+  The [storage_used_space](#storage_used_space_struct) structure is documented below.
+
+* `replication_status` - Indicates the replication status of the instance.
+
+<a name="nodes_struct"></a>
 The `nodes` block contains:
 
 * `availability_zone` - Indicates the AZ.
@@ -447,6 +461,13 @@ The `msdtc_hosts` block supports:
 
 * `id` - Indicates the host ID.
 
+<a name="storage_used_space_struct"></a>
+The `storage_used_space` block supports:
+
+* `node_id` - Indicates the instance node ID.
+
+* `used` - Indicates the used storage, in GB.
+
 ## Timeouts
 
 This resource provides the following timeouts configuration options:
@@ -459,15 +480,17 @@ This resource provides the following timeouts configuration options:
 
 RDS instance can be imported using the `id`, e.g.
 
-```
-$ terraform import huaweicloud_rds_instance.instance_1 52e4b497d2c94df88a2eb4c661314903in01
+```bash
+$ terraform import huaweicloud_rds_instance.instance_1 <id>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
-API response, security or some other reason. The missing attributes include: `db`, `collation`, `availability_zone`,
-`lower_case_table_names`,`slow_log_show_original_status`. It is generally recommended running `terraform plan` after
-importing a RDS instance. You can then decide if changes should be applied to the instance, or the resource definition
-should be updated to align with the instance. Also, you can ignore changes as below.
+API response, security or some other reason. The missing attributes include: `db`, `restore`,`param_group_id`,
+`power_action`, `availability_zone`, `read_write_permissions`, `rotate_day`, `secret_id`, `secret_name`, `secret_version`,
+`dss_pool_id`, `lower_case_table_names`, `slow_log_show_original_status`, `charging_mode`, `period_unit`, `period`,
+`auto_renew`, `auto_pay`, `is_flexus`. It is generally recommended running `terraform plan` after importing a RDS instance.
+You can then decide if changes should be applied to the instance, or the resource definition should be updated to align
+with the instance. Also, you can ignore changes as below.
 
 ```hcl
 resource "huaweicloud_rds_instance" "instance_1" {
@@ -475,7 +498,9 @@ resource "huaweicloud_rds_instance" "instance_1" {
 
   lifecycle {
     ignore_changes = [
-      "db", "collation", "availability_zone", "lower_case_table_names", "slow_log_show_original_status"
+      "db", "restore", "param_group_id", "power_action", "availability_zone", "read_write_permissions", "rotate_day",
+      "secret_id", "secret_name", "secret_version", "dss_pool_id", "lower_case_table_names", "slow_log_show_original_status",
+      "charging_mode", "period_unit", "period", "auto_renew", "auto_pay", "is_flexus",
     ]
   }
 }

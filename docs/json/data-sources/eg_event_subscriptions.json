@@ -1,0 +1,124 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_eg_event_subscriptions": {
+          "block": {
+            "attributes": {
+              "channel_id": {
+                "type": "string",
+                "description": "The ID of the event channel to filter subscriptions.",
+                "optional": true
+              },
+              "connection_id": {
+                "type": "string",
+                "description": "The ID of the target connection to filter subscriptions.",
+                "optional": true
+              },
+              "fuzzy_name": {
+                "type": "string",
+                "description": "The name of the subscription to be queried for fuzzy matching.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The exact name of the subscription to be queried.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the subscriptions are located.",
+                "computed": true
+              },
+              "sort": {
+                "type": "string",
+                "description": "The sorting method for query results.",
+                "optional": true
+              },
+              "subscriptions": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "channel_id": "string",
+                      "channel_name": "string",
+                      "created_time": "string",
+                      "description": "string",
+                      "id": "string",
+                      "name": "string",
+                      "sources": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "created_time": "string",
+                            "detail": "string",
+                            "filter": "string",
+                            "id": "string",
+                            "name": "string",
+                            "provider_type": "string",
+                            "updated_time": "string"
+                          }
+                        ]
+                      ],
+                      "status": "string",
+                      "targets": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "apigw_detail": "string",
+                            "connection_id": "string",
+                            "created_time": "string",
+                            "dead_letter_queue": "string",
+                            "detail": "string",
+                            "eg_detail": "string",
+                            "id": "string",
+                            "kafka_detail": "string",
+                            "name": "string",
+                            "provider_type": "string",
+                            "retry_times": "number",
+                            "smn_detail": "string",
+                            "transform": "string",
+                            "updated_time": "string"
+                          }
+                        ]
+                      ],
+                      "type": "string",
+                      "updated_time": "string",
+                      "used": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "description": "string",
+                            "owner": "string",
+                            "resource_id": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The list of the subscriptions that matched filter parameters.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "EG",
+            "name": "EventGrid",
+            "catalog": "Middleware",
+            "name_cn": "事件网格",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

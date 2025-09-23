@@ -38,7 +38,7 @@ The following arguments are supported:
   Changing this creates a new resource.
 
 * `cert_object` - (Required, String, ForceNew) Specifies the certificate file path to upload in the OBS bucket.
-  The certificate name ranges from **4** to **32** digits, must start with a letter and end with
+  The certificate name ranges from `4` to `32` digits, must start with a letter and end with
   (.cer|.crt|.rsa|.jks|.pem|.p10|.pfx|.p12|.csr|.der|.keystore), it can contain letters, numbers,
   dashes, underlines or decimal points, but cannot contain other special characters.
   Changing this creates a new resource.

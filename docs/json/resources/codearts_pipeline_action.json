@@ -1,0 +1,194 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_codearts_pipeline_action": {
+          "block": {
+            "attributes": {
+              "action": {
+                "type": "string",
+                "description": "Specifies the action.",
+                "required": true
+              },
+              "choose_jobs": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "description": "Specifies the selected pipeline jobs.",
+                "optional": true
+              },
+              "choose_stages": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "description": "Specifies the selected pipeline stages.",
+                "optional": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the running description.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "job_run_id": {
+                "type": "string",
+                "description": "Specifies the pipeline job run ID.",
+                "optional": true
+              },
+              "pipeline_id": {
+                "type": "string",
+                "description": "Specifies the pipeline ID.",
+                "required": true
+              },
+              "pipeline_run_id": {
+                "type": "string",
+                "description": "Specifies the pipeline run ID.",
+                "optional": true,
+                "computed": true
+              },
+              "project_id": {
+                "type": "string",
+                "description": "Specifies the CodeArts project ID.",
+                "required": true
+              },
+              "queue_id": {
+                "type": "string",
+                "description": "Specifies the queued pipeline step run ID.",
+                "optional": true,
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "step_run_id": {
+                "type": "string",
+                "description": "Specifies the pipeline step run ID.",
+                "optional": true
+              }
+            },
+            "block_types": {
+              "sources": {
+                "block": {
+                  "attributes": {
+                    "type": {
+                      "type": "string",
+                      "description": "Specifies the pipeline source type.",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "params": {
+                      "block": {
+                        "attributes": {
+                          "alias": {
+                            "type": "string",
+                            "description": "Specifies the code repository alias.",
+                            "optional": true
+                          },
+                          "change_request_ids": {
+                            "type": [
+                              "set",
+                              "string"
+                            ],
+                            "description": "Specifies the change IDs of the change-triggered pipeline.",
+                            "optional": true
+                          },
+                          "codehub_id": {
+                            "type": "string",
+                            "description": "Specifies the CodeArts Repo code repository ID.",
+                            "optional": true
+                          },
+                          "default_branch": {
+                            "type": "string",
+                            "description": "Specifies the default branch of the code repository for pipeline execution.",
+                            "optional": true
+                          },
+                          "endpoint_id": {
+                            "type": "string",
+                            "description": "Specifies the ID of the code source endpoint.",
+                            "optional": true
+                          },
+                          "git_type": {
+                            "type": "string",
+                            "description": "Specifies the code repository type.",
+                            "required": true
+                          },
+                          "git_url": {
+                            "type": "string",
+                            "description": "Specifies the HTTPS address of the Git repository.",
+                            "required": true
+                          }
+                        },
+                        "block_types": {
+                          "build_params": {
+                            "block": {
+                              "attributes": {
+                                "build_type": {
+                                  "type": "string",
+                                  "description": "Specifies the code repository trigger type.",
+                                  "required": true
+                                },
+                                "event_type": {
+                                  "type": "string",
+                                  "description": "Specifies the event type that triggers the pipeline execution.",
+                                  "optional": true
+                                },
+                                "tag": {
+                                  "type": "string",
+                                  "description": "Specifies the tag that triggers the pipeline execution.",
+                                  "optional": true
+                                },
+                                "target_branch": {
+                                  "type": "string",
+                                  "description": "Specifies the branch that triggers the pipeline execution.",
+                                  "optional": true
+                                }
+                              },
+                              "description": "Specifies the detailed build parameters."
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          }
+                        },
+                        "description": "Specifies the source parameters."
+                      },
+                      "nesting_mode": "list",
+                      "min_items": 1,
+                      "max_items": 1
+                    }
+                  },
+                  "description": "Specifies the code source information list."
+                },
+                "nesting_mode": "set"
+              },
+              "variables": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "description": "Specifies the parameter name.",
+                      "required": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "description": "Specifies the parameter value.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the custom parameters used."
+                },
+                "nesting_mode": "set"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

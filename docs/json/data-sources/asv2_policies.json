@@ -1,0 +1,126 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_asv2_policies": {
+          "block": {
+            "attributes": {
+              "alarm_id": {
+                "type": "string",
+                "description": "Specifies the alarm rule ID associate with the AS policy.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "order": {
+                "type": "string",
+                "description": "Specifies the sorting order of the AS policies.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "scaling_policies": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "alarm_id": "string",
+                      "cool_down_time": "number",
+                      "create_time": "string",
+                      "description": "string",
+                      "meta_data": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "metadata_bandwidth_share_type": "string",
+                            "metadata_eip_address": "string",
+                            "metadata_eip_id": "string"
+                          }
+                        ]
+                      ],
+                      "policy_status": "string",
+                      "scaling_policy_action": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "limits": "number",
+                            "operation": "string",
+                            "percentage": "number",
+                            "size": "number"
+                          }
+                        ]
+                      ],
+                      "scaling_policy_id": "string",
+                      "scaling_policy_name": "string",
+                      "scaling_policy_type": "string",
+                      "scaling_resource_id": "string",
+                      "scaling_resource_type": "string",
+                      "scheduled_policy": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "end_time": "string",
+                            "launch_time": "string",
+                            "recurrence_type": "string",
+                            "recurrence_value": "string",
+                            "start_time": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The list of the AS policies.",
+                "computed": true
+              },
+              "scaling_policy_id": {
+                "type": "string",
+                "description": "Specifies the AS policy ID.",
+                "optional": true
+              },
+              "scaling_policy_name": {
+                "type": "string",
+                "description": "Specifies the AS policy name.",
+                "optional": true
+              },
+              "scaling_policy_type": {
+                "type": "string",
+                "description": "Specifies the AS policy type.",
+                "optional": true
+              },
+              "scaling_resource_id": {
+                "type": "string",
+                "description": "Specifies the ID of the resource associate with the AS policy.",
+                "optional": true
+              },
+              "scaling_resource_type": {
+                "type": "string",
+                "description": "Specifies the resource type associate with the AS policy.",
+                "optional": true
+              },
+              "sort_by": {
+                "type": "string",
+                "description": "Specifies the sorting method of the AS policies.",
+                "optional": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

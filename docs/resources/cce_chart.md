@@ -71,7 +71,7 @@ API response, security or some other reason. The missing attributes include:
 You can then decide if changes should be applied to the chart, or the resource definition should be updated to align
 with the chart. Also you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_cce_chart" "test" {
     ...
 

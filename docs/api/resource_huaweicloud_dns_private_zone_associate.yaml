@@ -1,0 +1,19 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dns_private_zone_associate
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DNS
+paths:
+    /v2/zones/{zone_id}:
+        GET:
+            tag: DNS
+    /v2/zones/{zone_id}/associaterouter:
+        POST:
+            tag: DNS
+    /v2/zones/{zone_id}/disassociaterouter:
+        POST:
+            tag: DNS

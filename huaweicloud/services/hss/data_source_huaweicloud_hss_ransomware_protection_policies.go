@@ -2,13 +2,15 @@ package hss
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	hssv5model "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/hss/v5/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -117,100 +119,112 @@ func DataSourceRansomwareProtectionPolicies() *schema.Resource {
 	}
 }
 
+func buildRansomwareProtectionPoliciesQueryParams(d *schema.ResourceData, epsId string) string {
+	queryParams := "?limit=20"
+	queryParams = fmt.Sprintf("%s&enterprise_project_id=%v", queryParams, epsId)
+	if v, ok := d.GetOk("policy_id"); ok {
+		queryParams = fmt.Sprintf("%s&protect_policy_id=%v", queryParams, v)
+	}
+	if v, ok := d.GetOk("name"); ok {
+		queryParams = fmt.Sprintf("%s&policy_name=%v", queryParams, v)
+	}
+	if v, ok := d.GetOk("operating_system"); ok {
+		queryParams = fmt.Sprintf("%s&operating_system=%v", queryParams, v)
+	}
+
+	return queryParams
+}
+
 func datasourceRansomwareProtectionPoliciesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg         = meta.(*config.Config)
-		region      = cfg.GetRegion(d)
-		epsId       = cfg.DataGetEnterpriseProjectID(d)
-		limit       = int32(20)
-		offset      int32
-		allPolicies []hssv5model.ProtectionPolicyInfo
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		epsId   = cfg.GetEnterpriseProjectID(d, QueryAllEpsValue)
+		product = "hss"
+		httpUrl = "v5/{project_id}/ransomware/protection/policy"
+		offset  = 0
+		result  = make([]interface{}, 0)
+		mErr    *multierror.Error
 	)
 
-	client, err := cfg.HcHssV5Client(region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating HSS v5 client: %s", err)
+		return diag.Errorf("error creating HSS client: %s", err)
+	}
+
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath += buildRansomwareProtectionPoliciesQueryParams(d, epsId)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"region": region},
 	}
 
 	for {
-		request := hssv5model.ListProtectionPolicyRequest{
-			Region:              region,
-			EnterpriseProjectId: utils.String(epsId),
-			Limit:               utils.Int32(limit),
-			Offset:              utils.Int32(offset),
-			ProtectPolicyId:     utils.StringIgnoreEmpty(d.Get("policy_id").(string)),
-			PolicyName:          utils.StringIgnoreEmpty(d.Get("name").(string)),
-			OperatingSystem:     utils.StringIgnoreEmpty(d.Get("operating_system").(string)),
+		currentPath := fmt.Sprintf("%s&offset=%v", getPath, offset)
+		getResp, err := client.Request("GET", currentPath, &getOpt)
+		if err != nil {
+			return diag.Errorf("error retrieving HSS ransomware protection policies: %s", err)
 		}
 
-		listResp, listErr := client.ListProtectionPolicy(&request)
-		if listErr != nil {
-			return diag.Errorf("error querying HSS ransomware protection policies: %s", listErr)
+		getRespBody, err := utils.FlattenResponse(getResp)
+		if err != nil {
+			return diag.FromErr(err)
 		}
 
-		if listResp == nil || listResp.DataList == nil {
-			break
-		}
-		if len(*listResp.DataList) == 0 {
+		policiesResp := utils.PathSearch("data_list", getRespBody, make([]interface{}, 0)).([]interface{})
+		if len(policiesResp) == 0 {
 			break
 		}
 
-		allPolicies = append(allPolicies, *listResp.DataList...)
-		offset += limit
+		result = append(result, policiesResp...)
+		offset += len(policiesResp)
 	}
 
-	uuId, err := uuid.GenerateUUID()
+	generateUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
 
-	d.SetId(uuId)
+	d.SetId(generateUUID)
 
-	mErr := multierror.Append(nil,
+	mErr = multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("policies", flattenPolicies(allPolicies)),
+		d.Set("policies", flattenPolicies(result)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func flattenPolicies(policies []hssv5model.ProtectionPolicyInfo) []interface{} {
-	if len(policies) == 0 {
-		return nil
-	}
-
-	rst := make([]interface{}, 0, len(policies))
-	for _, v := range policies {
+func flattenPolicies(policiesResp []interface{}) []interface{} {
+	rst := make([]interface{}, 0, len(policiesResp))
+	for _, v := range policiesResp {
 		rst = append(rst, map[string]interface{}{
-			"id":                       v.PolicyId,
-			"name":                     v.PolicyName,
-			"protection_mode":          v.ProtectionMode,
-			"bait_protection_status":   v.BaitProtectionStatus,
-			"deploy_mode":              v.DeployMode,
-			"protection_directory":     v.ProtectionDirectory,
-			"protection_type":          v.ProtectionType,
-			"exclude_directory":        v.ExcludeDirectory,
-			"runtime_detection_status": v.RuntimeDetectionStatus,
-			"count_associated_server":  v.CountAssociatedServer,
-			"operating_system":         v.OperatingSystem,
-			"process_whitelist":        flattenProcessWhitelist(v.ProcessWhitelist),
-			"default_policy":           v.DefaultPolicy,
+			"id":                       utils.PathSearch("policy_id", v, nil),
+			"name":                     utils.PathSearch("policy_name", v, nil),
+			"protection_mode":          utils.PathSearch("protection_mode", v, nil),
+			"bait_protection_status":   utils.PathSearch("bait_protection_status", v, nil),
+			"deploy_mode":              utils.PathSearch("deploy_mode", v, nil),
+			"protection_directory":     utils.PathSearch("protection_directory", v, nil),
+			"protection_type":          utils.PathSearch("protection_type", v, nil),
+			"exclude_directory":        utils.PathSearch("exclude_directory", v, nil),
+			"runtime_detection_status": utils.PathSearch("runtime_detection_status", v, nil),
+			"count_associated_server":  utils.PathSearch("count_associated_server", v, nil),
+			"operating_system":         utils.PathSearch("operating_system", v, nil),
+			"process_whitelist":        flattenProcessWhitelist(utils.PathSearch("process_whitelist", v, make([]interface{}, 0)).([]interface{})),
+			"default_policy":           utils.PathSearch("default_policy", v, nil),
 		})
 	}
 
 	return rst
 }
 
-func flattenProcessWhitelist(processWhitelist *[]hssv5model.TrustProcessInfo) []interface{} {
-	if processWhitelist == nil {
-		return nil
-	}
-
-	rst := make([]interface{}, 0, len(*processWhitelist))
-	for _, v := range *processWhitelist {
+func flattenProcessWhitelist(processWhitelistResp []interface{}) []interface{} {
+	rst := make([]interface{}, 0, len(processWhitelistResp))
+	for _, v := range processWhitelistResp {
 		rst = append(rst, map[string]interface{}{
-			"path": v.Path,
-			"hash": v.Hash,
+			"path": utils.PathSearch("path", v, nil),
+			"hash": utils.PathSearch("hash", v, nil),
 		})
 	}
 

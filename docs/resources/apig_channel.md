@@ -112,7 +112,7 @@ resource "huaweicloud_apig_channel" "test" {
   port             = 80
   balance_strategy = 1
   member_type      = "ip"
-  type             = 3
+  type             = "microservice"
 
   dynamic "member_group" {
     for_each = var.member_groups_config
@@ -151,6 +151,43 @@ resource "huaweicloud_apig_channel" "test" {
 }
 ```
 
+### Create a channel of type reference
+
+```hcl
+variable "instance_id" {}
+variable "channel_name" {}
+variable "member_group_name" {}
+variable "reference_channel_id" {}
+
+resource "huaweicloud_apig_channel" "test" {
+  instance_id      = var.instance_id
+  name             = var.channel_name
+  port             = 82
+  balance_strategy = 2
+  member_type      = "ecs"
+  type             = "reference"
+
+  member_group {
+    name                     = var.member_group_name
+    description              = "Created by terraform script"
+    weight                   = 2
+    reference_vpc_channel_id = var.reference_channel_id
+  }
+
+  health_check {
+    protocol           = "HTTPS"
+    threshold_normal   = 2
+    threshold_abnormal = 5
+    interval           = 10
+    timeout            = 5
+    path               = "/terraform/"
+    method             = "GET"
+    port               = "50"
+    http_codes         = "500"
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -163,9 +200,9 @@ The following arguments are supported:
   Changing this will create a new resource.
 
 * `name` - (Required, String) Specifies the channel name.  
-  The valid length is limited from `3` to `64`, only chinese and english letters, digits, hyphens (-), underscores (_)
-  and dots (.) are allowed.  
-  The name must start with a Chinese or English letter.
+  The valid length is limited from `3` to `64`, only chinese characters, english letters, digits, hyphens (-),
+  underscores (_) and dots (.) are allowed.  
+  The name must start with a Chinese character or English letter.
 
 * `port` - (Required, Int) Specifies the default port for health check in channel.  
   The valid value ranges from `1` to `65,535`.
@@ -182,18 +219,19 @@ The following arguments are supported:
   + **ip**.
   + **ecs**.
 
-* `type` - (Optional, Int) Specifies the type of the channel.  
+* `type` - (Optional, String) Specifies the type of the channel.  
   The valid values are as follows:
-  + **2**: Server type.
-  + **3**: Microservice type.
+  + **builtin**: Server type.
+  + **microservice**: Microservice type.
+  + **reference**: Reference load balance channel type.
 
-  Defaults to **2** (server type).
+  Defaults to `builtin` (server type).
 
 * `member_group` - (Optional, List) Specifies the backend (server) groups of the channel.  
   The [object](#channel_member_group) structure is documented below.
 
 * `member` - (Optional, List) Specifies the backend servers of the channel.  
-  This parameter is required and only available if the `type` is **2**.  
+  This parameter is required and only available if the `type` is `builtin`.  
   The [object](#channel_members) structure is documented below.
 
 * `health_check` - (Optional, List) Specifies the health configuration of cloud servers associated with the load balance
@@ -221,6 +259,9 @@ The `member_group` block supports:
   The valid value ranges from `0` to `65,535`.
 
 * `microservice_labels` - (Optional, Map) Specifies the microservice tags of the backend server group.
+
+* `reference_vpc_channel_id` - (Optional, String) Specifies the ID of the reference load balance channel.
+  This parameter is only available if the `type` is **reference**.
 
 <a name="channel_members"></a>
 The `member` block supports:
@@ -299,7 +340,7 @@ The `health_check` block supports:
   + **1**: Normal.
   + **2**: Abnormal.
 
-  Defaults to **1** (normal).
+  Defaults to `1` (normal).
 
 <a name="channel_microservice"></a>
 The `microservice` block supports:

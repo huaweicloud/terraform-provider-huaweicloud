@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dws_cluster_restart
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DDM
+paths:
+    /v1.0/{project_id}/clusters/{cluster_id}:
+        GET:
+            tag: DWS
+    /v1.0/{project_id}/clusters/{cluster_id}/restart:
+        POST:
+            tag: DDM

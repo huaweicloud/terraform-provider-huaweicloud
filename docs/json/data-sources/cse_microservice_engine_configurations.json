@@ -1,0 +1,71 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cse_microservice_engine_configurations": {
+          "block": {
+            "attributes": {
+              "admin_pass": {
+                "type": "string",
+                "description": "The user password that used to pass the RBAC control.",
+                "optional": true,
+                "sensitive": true
+              },
+              "admin_user": {
+                "type": "string",
+                "description": "The user name that used to pass the RBAC control.",
+                "optional": true
+              },
+              "auth_address": {
+                "type": "string",
+                "description": "The address that used to request the access token.",
+                "required": true
+              },
+              "configurations": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "create_revision": "number",
+                      "created_at": "string",
+                      "id": "string",
+                      "key": "string",
+                      "status": "string",
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "update_revision": "number",
+                      "updated_at": "string",
+                      "value": "string",
+                      "value_type": "string"
+                    }
+                  ]
+                ],
+                "description": "All queried configurations of the dedicated microservice engine.",
+                "computed": true
+              },
+              "connect_address": {
+                "type": "string",
+                "description": "The address that used to send requests and manage configuration.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CSE",
+            "name": "Cloud Service Engine",
+            "catalog": "Middleware",
+            "name_cn": "微服务引擎",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

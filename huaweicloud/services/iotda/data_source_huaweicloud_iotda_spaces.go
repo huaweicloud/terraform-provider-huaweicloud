@@ -3,13 +3,14 @@ package iotda
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -67,54 +68,70 @@ func DataSourceSpaces() *schema.Resource {
 }
 
 func dataSourceSpacesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	isDerived := WithDerivedAuth(cfg, region)
-	client, err := cfg.HcIoTdaV5Client(region, isDerived)
+	var (
+		cfg       = meta.(*config.Config)
+		region    = cfg.GetRegion(d)
+		isDerived = WithDerivedAuth(cfg, region)
+		httpUrl   = "v5/iot/{project_id}/apps"
+	)
+
+	client, err := cfg.NewServiceClientWithDerivedAuth("iotda", region, isDerived)
 	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+		return diag.Errorf("error creating IoTDA client: %s", err)
 	}
 
-	listOpts := &model.ShowApplicationsRequest{}
+	listPath := client.Endpoint + httpUrl
+	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
 	isDefault := d.Get("is_default").(string)
 	if isDefault == "true" || isDefault == "false" {
-		listOpts.DefaultApp = utils.StringToBool(isDefault)
+		listPath = fmt.Sprintf("%s?default_app=%s", listPath, isDefault)
 	}
 
-	listResp, listErr := client.ShowApplications(listOpts)
-	if listErr != nil {
-		return diag.Errorf("error querying IoTDA spaces: %s", listErr)
+	listOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
 
-	uuId, err := uuid.GenerateUUID()
+	listResp, err := client.Request("GET", listPath, &listOpt)
+	if err != nil {
+		return diag.Errorf("error retrieving IoTDA spaces: %s", err)
+	}
+
+	listRespBody, err := utils.FlattenResponse(listResp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	listSpaceArray := utils.PathSearch("applications", listRespBody, make([]interface{}, 0)).([]interface{})
+
+	dataSourceId, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuId)
 
-	targetSpaces := filterListSpaces(*listResp.Applications, d)
+	d.SetId(dataSourceId)
+
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("spaces", flattenSpaces(targetSpaces)),
+		d.Set("spaces", flattenListSpaces(filterListSpaces(listSpaceArray, d))),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func filterListSpaces(spaces []model.ApplicationDto, d *schema.ResourceData) []model.ApplicationDto {
+func filterListSpaces(spaces []interface{}, d *schema.ResourceData) []interface{} {
 	if len(spaces) == 0 {
 		return nil
 	}
 
-	rst := make([]model.ApplicationDto, 0, len(spaces))
+	rst := make([]interface{}, 0, len(spaces))
 	for _, v := range spaces {
-		if spaceID, ok := d.GetOk("space_id"); ok &&
-			fmt.Sprint(spaceID) != utils.StringValue(v.AppId) {
+		if spaceId, ok := d.GetOk("space_id"); ok &&
+			fmt.Sprint(spaceId) != utils.PathSearch("app_id", v, "").(string) {
 			continue
 		}
 
 		if spaceName, ok := d.GetOk("space_name"); ok &&
-			fmt.Sprint(spaceName) != utils.StringValue(v.AppName) {
+			fmt.Sprint(spaceName) != utils.PathSearch("app_name", v, "").(string) {
 			continue
 		}
 
@@ -124,20 +141,19 @@ func filterListSpaces(spaces []model.ApplicationDto, d *schema.ResourceData) []m
 	return rst
 }
 
-func flattenSpaces(spaces []model.ApplicationDto) []interface{} {
+func flattenListSpaces(spaces []interface{}) []interface{} {
 	if len(spaces) == 0 {
 		return nil
 	}
 
-	rst := make([]interface{}, 0, len(spaces))
+	result := make([]interface{}, 0, len(spaces))
 	for _, v := range spaces {
-		rst = append(rst, map[string]interface{}{
-			"id":         v.AppId,
-			"name":       v.AppName,
-			"created_at": v.CreateTime,
-			"is_default": v.DefaultApp,
+		result = append(result, map[string]interface{}{
+			"id":         utils.PathSearch("app_id", v, nil),
+			"name":       utils.PathSearch("app_name", v, nil),
+			"created_at": utils.PathSearch("create_time", v, nil),
+			"is_default": utils.PathSearch("default_app", v, nil),
 		})
 	}
-
-	return rst
+	return result
 }

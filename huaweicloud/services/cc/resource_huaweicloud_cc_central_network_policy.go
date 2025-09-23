@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -221,11 +220,11 @@ func resourceCentralNetworkPolicyCreate(ctx context.Context, d *schema.ResourceD
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("central_network_policy.id", createCentralNetworkPolicyRespBody)
-	if err != nil {
+	id := utils.PathSearch("central_network_policy.id", createCentralNetworkPolicyRespBody, "").(string)
+	if id == "" {
 		return diag.Errorf("error creating CentralNetworkPolicy: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	return resourceCentralNetworkPolicyRead(ctx, d, meta)
 }
@@ -488,7 +487,7 @@ func resourceCentralNetworkPolicyDelete(_ context.Context, d *schema.ResourceDat
 	_, err = deleteCentralNetworkPolicyClient.Request("DELETE", deleteCentralNetworkPolicyPath,
 		&deleteCentralNetworkPolicyOpt)
 	if err != nil {
-		return diag.Errorf("error deleting CentralNetworkPolicy: %s", err)
+		return common.CheckDeletedDiag(d, err, "error deleting CentralNetworkPolicy")
 	}
 
 	return nil

@@ -1,0 +1,15 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cfw_alarm_config
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CFW
+paths:
+    /v1/{project_id}/cfw/alarm/config:
+        GET:
+            tag: CFW
+        PUT:
+            tag: CFW

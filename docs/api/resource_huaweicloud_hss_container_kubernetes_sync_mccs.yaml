@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_hss_container_kubernetes_sync_mccs
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: HSS
+paths:
+    /v5/{project_id}/container/kubernetes/multi-cloud/clusters/status-synchronize:
+        POST:
+            tag: HSS

@@ -9,20 +9,35 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDatasourceWAFDedicatedDomains_basic(t *testing.T) {
-	name := acceptance.RandomAccResourceName()
-	rName := "data.huaweicloud_waf_dedicated_domains.test"
-	dc := acceptance.InitDataSourceCheck(rName)
+// Before running the test case, please ensure that there is at least one WAF dedicated instance in the current region.
+func TestAccDataSourceDedicatedDomains_basic(t *testing.T) {
+	var (
+		name            = acceptance.RandomAccResourceName()
+		certificateBody = generateCertificateBody()
+
+		rName = "data.huaweicloud_waf_dedicated_domains.test"
+		dc    = acceptance.InitDataSourceCheck(rName)
+
+		byDomain   = "data.huaweicloud_waf_dedicated_domains.domain_filter"
+		dcByDomain = acceptance.InitDataSourceCheck(byDomain)
+
+		byProtectStatus   = "data.huaweicloud_waf_dedicated_domains.protect_status_filter"
+		dcByProtectStatus = acceptance.InitDataSourceCheck(byProtectStatus)
+
+		byAllParameters   = "data.huaweicloud_waf_dedicated_domains.all_parameters_filter"
+		dcByAllParameters = acceptance.InitDataSourceCheck(byAllParameters)
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPrecheckWafInstance(t)
+			acceptance.TestAccPreCheckEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDatasourceDedicatedDomains_basic(name),
+				Config: testAccDatasourceDedicatedDomains_basic(name, certificateBody),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(rName, "domains.0.domain"),
@@ -38,65 +53,87 @@ func TestAccDatasourceWAFDedicatedDomains_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "domains.0.access_status"),
 					resource.TestCheckResourceAttrSet(rName, "domains.0.website_name"),
 
+					dcByDomain.CheckResourceExists(),
 					resource.TestCheckOutput("domain_filter_is_useful", "true"),
 
+					dcByProtectStatus.CheckResourceExists(),
 					resource.TestCheckOutput("protect_status_filter_is_useful", "true"),
 
-					resource.TestCheckOutput("enterprise_project_id_filter_is_useful", "true"),
+					dcByAllParameters.CheckResourceExists(),
+					resource.TestCheckOutput("all_parameters_filter_is_useful", "true"),
 				),
 			},
 		},
 	})
 }
 
-func testAccDatasourceDedicatedDomains_basic(name string) string {
+func testAccDatasourceDedicatedDomains_basic(name, certificateBody string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 data "huaweicloud_waf_dedicated_domains" "test" {
-  depends_on = [huaweicloud_waf_dedicated_domain.domain_1]
+  enterprise_project_id = "%[2]s"
+
+  depends_on = [huaweicloud_waf_dedicated_domain.test]
+}
+
+# Filter by domain
+locals {
+  domain = data.huaweicloud_waf_dedicated_domains.test.domains.0.domain
 }
 
 data "huaweicloud_waf_dedicated_domains" "domain_filter" {
-  domain = data.huaweicloud_waf_dedicated_domains.test.domains.0.domain
+  domain                = local.domain
+  enterprise_project_id = "%[2]s"
 }
 
 locals {
-  domain = data.huaweicloud_waf_dedicated_domains.test.domains.0.domain
+  domain_filter_result = [
+    for v in data.huaweicloud_waf_dedicated_domains.domain_filter.domains[*].domain : v == local.domain
+  ]
 }
 
 output "domain_filter_is_useful" {
-  value = length(data.huaweicloud_waf_dedicated_domains.domain_filter.domains) > 0 && alltrue(
-    [for v in data.huaweicloud_waf_dedicated_domains.domain_filter.domains[*].domain : v == local.domain]
-  )  
+  value = length(local.domain_filter_result) > 0 && alltrue(local.domain_filter_result)  
+}
+
+# Filter by protect_status
+locals {
+  protect_status = tostring(data.huaweicloud_waf_dedicated_domains.test.domains.0.protect_status)
 }
 
 data "huaweicloud_waf_dedicated_domains" "protect_status_filter" {
-  protect_status = data.huaweicloud_waf_dedicated_domains.test.domains.0.protect_status
+  protect_status        = local.protect_status
+  enterprise_project_id = "%[2]s"
 }
   
 locals {
-  protect_status = data.huaweicloud_waf_dedicated_domains.test.domains.0.protect_status
+  protect_status_filter_result = [
+    for v in data.huaweicloud_waf_dedicated_domains.protect_status_filter.domains[*].protect_status :
+    tostring(v) == local.protect_status
+  ]
 }
-  
+
 output "protect_status_filter_is_useful" {
-  value = length(data.huaweicloud_waf_dedicated_domains.protect_status_filter.domains) > 0 && alltrue(
-    [for v in data.huaweicloud_waf_dedicated_domains.protect_status_filter.domains[*].protect_status : v == local.protect_status]
-  )  
+  value = length(local.protect_status_filter_result) > 0 && alltrue(local.protect_status_filter_result)  
 }
 
-data "huaweicloud_waf_dedicated_domains" "enterprise_project_id_filter" {
-  enterprise_project_id = data.huaweicloud_waf_dedicated_domains.test.domains.0.enterprise_project_id
+# Filter by all parameters
+data "huaweicloud_waf_dedicated_domains" "all_parameters_filter" {
+  domain                = local.domain
+  protect_status        = local.protect_status
+  enterprise_project_id = "%[2]s"
 }
-	
+
 locals {
-  enterprise_project_id = data.huaweicloud_waf_dedicated_domains.test.domains.0.enterprise_project_id
+  all_parameters_filter_result = [
+    for v in data.huaweicloud_waf_dedicated_domains.all_parameters_filter.domains[*] :
+    tostring(v.protect_status) == local.protect_status && v.domain == local.domain
+  ]
 }
 
-output "enterprise_project_id_filter_is_useful" {
-  value = length(data.huaweicloud_waf_dedicated_domains.enterprise_project_id_filter.domains) > 0 && alltrue(
-    [for v in data.huaweicloud_waf_dedicated_domains.enterprise_project_id_filter.domains[*].enterprise_project_id : v == local.enterprise_project_id]
-  )  
+output "all_parameters_filter_is_useful" {
+  value = length(local.all_parameters_filter_result) > 0 && alltrue(local.all_parameters_filter_result)  
 }
-`, testAccWafDedicatedDomainV1_basic(name))
+`, testAccWafDedicatedDomain_basic(name, certificateBody), acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }

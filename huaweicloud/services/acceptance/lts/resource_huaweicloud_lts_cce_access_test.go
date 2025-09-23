@@ -54,239 +54,171 @@ func getCceAccessConfigResourceFunc(cfg *config.Config, state *terraform.Resourc
 	return listCceAccessConfigRespBody, nil
 }
 
-func TestAccCceAccessConfig_containerFile(t *testing.T) {
-	var obj interface{}
+func TestAccCceAccessConfig_basic(t *testing.T) {
+	var (
+		name       = acceptance.RandomAccResourceName()
+		updateName = acceptance.RandomAccResourceName()
 
-	name := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_lts_cce_access.container_file"
+		accessConfig        interface{}
+		withContainerFile   = "huaweicloud_lts_cce_access.with_container_file"
+		rcWithContainerFile = acceptance.InitResourceCheck(withContainerFile, &accessConfig, getCceAccessConfigResourceFunc)
 
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&obj,
-		getCceAccessConfigResourceFunc,
+		withContainerStdout   = "huaweicloud_lts_cce_access.with_container_stdout"
+		rcWithContainerStdout = acceptance.InitResourceCheck(withContainerStdout, &accessConfig, getCceAccessConfigResourceFunc)
+
+		withHostFile   = "huaweicloud_lts_cce_access.with_host_file"
+		rcWithHostFile = acceptance.InitResourceCheck(withHostFile, &accessConfig, getCceAccessConfigResourceFunc)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckLTSCCEAccess(t)
-			acceptance.TestAccPreCheckLTSHostGroup(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
+		CheckDestroy: resource.ComposeTestCheckFunc(
+			rcWithContainerFile.CheckResourceDestroy(),
+			rcWithContainerStdout.CheckResourceDestroy(),
+			rcWithHostFile.CheckResourceDestroy(),
+		),
 		Steps: []resource.TestStep{
 			{
-				Config: testCceAccessConfigContainerFile(name, ""),
+				Config: testAccCceAccessConfig_basic_step1(name),
 				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttrSet(rName, "log_group_name"),
-					resource.TestCheckResourceAttrSet(rName, "log_stream_name"),
-					resource.TestCheckResourceAttr(rName, "tags.key", "value"),
-					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
-					resource.TestCheckResourceAttr(rName, "access_type", "K8S_CCE"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.paths.0", "/var"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.black_paths.0", "/var/a.log"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.path_type", "container_file"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.name_space_regex", "namespace"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.pod_name_regex", "podname"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.container_name_regex", "containername"),
-
-					resource.TestCheckResourceAttr(rName, "access_config.0.log_labels.loglabelkey1", "bar1"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.log_labels.loglabelkey2", "bar"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.include_labels.includeKey1", "incval1"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.include_labels.includeKey2", "incval"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.exclude_labels.excludeKey1", "excval1"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.exclude_labels.excludeKey2", "excval"),
-
-					resource.TestCheckResourceAttr(rName, "access_config.0.log_envs.envKey1", "envval1"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.log_envs.envKey2", "envval"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.include_envs.inEnvKey1", "incval1"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.include_envs.inEnvKey2", "incval"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.exclude_envs.exEnvKey1", "excval1"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.exclude_envs.exEnvKey2", "excval"),
-
-					resource.TestCheckResourceAttr(rName, "access_config.0.log_k8s.k8sKey1", "k8sval1"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.log_k8s.k8sKey2", "k8sval"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.include_k8s_labels.ink8sKey1", "ink8sval1"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.include_k8s_labels.ink8sKey2", "ink8sval"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.exclude_k8s_labels.exk8sKey1", "exk8sval1"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.exclude_k8s_labels.exk8sKey2", "exk8sval"),
+					rcWithContainerFile.CheckResourceExists(),
+					// Check Required parameters.
+					resource.TestCheckResourceAttr(withContainerFile, "name", name),
+					resource.TestCheckResourceAttrPair(withContainerFile, "log_group_id", "huaweicloud_lts_group.test", "id"),
+					resource.TestCheckResourceAttrPair(withContainerFile, "log_stream_id", "huaweicloud_lts_stream.test", "id"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.path_type", "container_file"),
+					// Check optional parameters.
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.paths.0", "/var"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.black_paths.0", "/var/a.log"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.name_space_regex", "namespace"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.pod_name_regex", "podname"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.container_name_regex", "containername"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.log_labels.loglabelkey1", "bar1"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.log_labels.loglabelkey2", "bar"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.include_labels.includeKey1", "incval1"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.include_labels.includeKey2", "incval"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.include_labels_logical", "or"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.exclude_labels.excludeKey1", "excval1"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.exclude_labels.excludeKey2", "excval"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.exclude_labels_logical", "or"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.log_envs.envKey1", "envval1"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.log_envs.envKey2", "envval"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.include_envs.inEnvKey1", "incval1"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.include_envs.inEnvKey2", "incval"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.include_envs_logical", "or"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.exclude_envs.exEnvKey1", "excval1"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.exclude_envs.exEnvKey2", "excval"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.exclude_envs_logical", "or"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.log_k8s.k8sKey1", "k8sval1"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.log_k8s.k8sKey2", "k8sval"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.include_k8s_labels.ink8sKey1", "ink8sval1"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.include_k8s_labels.ink8sKey2", "ink8sval"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.include_k8s_labels_logical", "or"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.exclude_k8s_labels.exk8sKey1", "exk8sval1"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.exclude_k8s_labels.exk8sKey2", "exk8sval"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.exclude_k8s_labels_logical", "or"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.system_fields.#", "1"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.system_fields.0", "pathFile"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.repeat_collect", "true"),
+					resource.TestCheckResourceAttrPair(withContainerFile, "host_group_ids.0", "huaweicloud_lts_host_group.test", "id"),
+					resource.TestCheckResourceAttr(withContainerFile, "tags.key", "value"),
+					resource.TestCheckResourceAttr(withContainerFile, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(withContainerFile, "log_split", "true"),
+					resource.TestCheckResourceAttrSet(withContainerFile, "demo_log"),
+					resource.TestCheckResourceAttr(withContainerFile, "demo_fields.#", "2"),
+					resource.TestCheckResourceAttrSet(withContainerFile, "demo_fields.0.field_name"),
+					resource.TestCheckResourceAttrSet(withContainerFile, "demo_fields.0.field_value"),
+					resource.TestCheckResourceAttr(withContainerFile, "processor_type", "SPLIT"),
+					resource.TestCheckResourceAttr(withContainerFile, "processors.#", "2"),
+					resource.TestCheckResourceAttr(withContainerFile, "encoding_format", "UTF-8"),
+					resource.TestCheckResourceAttr(withContainerFile, "incremental_collect", "true"),
+					// Check attributes.
+					resource.TestCheckResourceAttr(withContainerFile, "access_type", "K8S_CCE"),
+					resource.TestCheckResourceAttrSet(withContainerFile, "log_group_name"),
+					resource.TestCheckResourceAttrSet(withContainerFile, "log_stream_name"),
+					resource.TestCheckResourceAttrSet(withContainerFile, "created_at"),
+					rcWithContainerStdout.CheckResourceExists(),
+					resource.TestCheckResourceAttr(withContainerStdout, "access_config.0.path_type", "container_stdout"),
+					resource.TestCheckResourceAttr(withContainerStdout, "access_config.0.stdout", "true"),
+					resource.TestCheckResourceAttr(withContainerStdout, "access_config.0.multi_log_format.0.mode", "time"),
+					resource.TestCheckResourceAttr(withContainerStdout, "access_config.0.multi_log_format.0.value", "YYYY-MM-DD hh:mm:ss"),
+					resource.TestCheckResourceAttr(withContainerStdout, "access_config.0.system_fields.#", "2"),
+					resource.TestCheckResourceAttr(withContainerStdout, "access_config.0.repeat_collect", "false"),
+					resource.TestCheckResourceAttr(withContainerStdout, "encoding_format", "GBK"),
+					resource.TestCheckResourceAttr(withContainerStdout, "incremental_collect", "false"),
+					rcWithHostFile.CheckResourceExists(),
+					resource.TestCheckResourceAttr(withHostFile, "access_config.0.paths.#", "2"),
+					resource.TestCheckResourceAttr(withHostFile, "access_config.0.black_paths.#", "2"),
+					resource.TestCheckResourceAttr(withHostFile, "access_config.0.path_type", "host_file"),
 				),
 			},
 			{
-				Config: testCceAccessConfigContainerFile(name, "-update"),
+				Config: testAccCceAccessConfig_basic_step2(name, updateName),
 				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "tags.foo", "bar-update"),
-					resource.TestCheckResourceAttr(rName, "access_type", "K8S_CCE"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.name_space_regex", "namespace-update"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.pod_name_regex", "podname-update"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.container_name_regex", "containername-update"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.log_labels.loglabelkey2", "bar-update"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.include_labels.includeKey2", "incval-update"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.exclude_labels.excludeKey2", "excval-update"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.log_envs.envKey2", "envval-update"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.include_envs.inEnvKey2", "incval-update"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.exclude_envs.exEnvKey2", "excval-update"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.log_k8s.k8sKey2", "k8sval-update"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.include_k8s_labels.ink8sKey2", "ink8sval-update"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.exclude_k8s_labels.exk8sKey2", "exk8sval-update"),
+					rcWithContainerFile.CheckResourceExists(),
+					resource.TestCheckResourceAttr(withContainerFile, "name", updateName),
+					resource.TestCheckResourceAttr(withContainerFile, "tags.foo", "bar_update"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.name_space_regex", "namespace_update"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.pod_name_regex", "podname_update"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.container_name_regex", "containername_update"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.log_labels.%", "1"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.log_labels.loglabelkey2", "bar_update"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.include_labels_logical", "and"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.include_labels.%", "1"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.include_labels.includeKey2", "incval_update"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.exclude_labels_logical", "and"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.exclude_labels.%", "1"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.exclude_labels.excludeKey2", "excval_update"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.log_envs.%", "1"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.log_envs.envKey2", "envval_update"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.include_envs_logical", "and"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.include_envs.%", "1"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.include_envs.inEnvKey2", "incval_update"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.exclude_envs_logical", "and"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.exclude_envs.%", "1"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.exclude_envs.exEnvKey2", "excval_update"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.log_k8s.%", "1"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.log_k8s.k8sKey2", "k8sval_update"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.include_k8s_labels_logical", "and"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.include_k8s_labels.%", "1"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.include_k8s_labels.ink8sKey2", "ink8sval_update"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.exclude_k8s_labels_logical", "and"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.exclude_k8s_labels.%", "1"),
+					resource.TestCheckResourceAttr(withContainerFile, "access_config.0.exclude_k8s_labels.exk8sKey2", "exk8sval_update"),
+					resource.TestCheckResourceAttr(withContainerFile, "log_split", "false"),
+					resource.TestCheckResourceAttr(withContainerFile, "demo_log", ""),
+					resource.TestCheckResourceAttr(withContainerFile, "demo_fields.#", "0"),
+					resource.TestCheckResourceAttr(withContainerFile, "processor_type", "SPLIT"),
+					rcWithContainerStdout.CheckResourceExists(),
+					resource.TestCheckResourceAttr(withContainerStdout, "access_config.0.repeat_collect", "true"),
+					resource.TestCheckResourceAttr(withContainerStdout, "encoding_format", "UTF-8"),
+					resource.TestCheckResourceAttr(withContainerStdout, "incremental_collect", "true"),
+					rcWithHostFile.CheckResourceExists(),
+					resource.TestCheckResourceAttr(withHostFile, "access_config.0.black_paths.#", "0"),
 				),
 			},
 			{
-				ResourceName:      rName,
+				ResourceName:            withContainerFile,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateIdFunc:       testAccCceAccessConfigImportStateFunc(withContainerFile),
+				ImportStateVerifyIgnore: []string{"processors"},
+			},
+			{
+				ResourceName:      withContainerStdout,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccCceAccessConfigImportStateFunc(rName),
-			},
-		},
-	})
-}
-
-func TestAccCceAccessConfig_containerStdout(t *testing.T) {
-	var obj interface{}
-
-	name := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_lts_cce_access.container_stdout"
-
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&obj,
-		getCceAccessConfigResourceFunc,
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckLTSCCEAccess(t)
-			acceptance.TestAccPreCheckLTSHostGroup(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testCceAccessConfigContainerStdout(name, ""),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttrSet(rName, "log_group_name"),
-					resource.TestCheckResourceAttrSet(rName, "log_stream_name"),
-					resource.TestCheckResourceAttr(rName, "tags.key", "value"),
-					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
-					resource.TestCheckResourceAttr(rName, "access_type", "K8S_CCE"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.path_type", "container_stdout"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.stdout", "true"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.name_space_regex", "namespace"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.pod_name_regex", "podname"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.container_name_regex", "containername"),
-
-					resource.TestCheckResourceAttr(rName, "access_config.0.log_labels.loglabelkey1", "bar1"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.log_labels.loglabelkey2", "bar"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.include_labels.includeKey1", "incval1"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.include_labels.includeKey2", "incval"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.exclude_labels.excludeKey1", "excval1"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.exclude_labels.excludeKey2", "excval"),
-
-					resource.TestCheckResourceAttr(rName, "access_config.0.log_envs.envKey1", "envval1"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.log_envs.envKey2", "envval"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.include_envs.inEnvKey1", "incval1"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.include_envs.inEnvKey2", "incval"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.exclude_envs.exEnvKey1", "excval1"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.exclude_envs.exEnvKey2", "excval"),
-
-					resource.TestCheckResourceAttr(rName, "access_config.0.log_k8s.k8sKey1", "k8sval1"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.log_k8s.k8sKey2", "k8sval"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.include_k8s_labels.ink8sKey1", "ink8sval1"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.include_k8s_labels.ink8sKey2", "ink8sval"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.exclude_k8s_labels.exk8sKey1", "exk8sval1"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.exclude_k8s_labels.exk8sKey2", "exk8sval"),
-				),
+				ImportStateIdFunc: testAccCceAccessConfigImportStateFunc(withContainerStdout),
 			},
 			{
-				Config: testCceAccessConfigContainerStdout(name, "-update"),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "tags.foo", "bar-update"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.name_space_regex", "namespace-update"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.pod_name_regex", "podname-update"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.container_name_regex", "containername-update"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.log_labels.loglabelkey2", "bar-update"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.include_labels.includeKey2", "incval-update"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.exclude_labels.excludeKey2", "excval-update"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.log_envs.envKey2", "envval-update"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.include_envs.inEnvKey2", "incval-update"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.exclude_envs.exEnvKey2", "excval-update"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.log_k8s.k8sKey2", "k8sval-update"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.include_k8s_labels.ink8sKey2", "ink8sval-update"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.exclude_k8s_labels.exk8sKey2", "exk8sval-update"),
-				),
-			},
-			{
-				ResourceName:      rName,
+				ResourceName:      withHostFile,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testAccCceAccessConfigImportStateFunc(rName),
-			},
-		},
-	})
-}
-
-func TestAccCceAccessConfig_hostFile(t *testing.T) {
-	var obj interface{}
-
-	name := acceptance.RandomAccResourceName()
-	rName := "huaweicloud_lts_cce_access.host_file"
-
-	rc := acceptance.InitResourceCheck(
-		rName,
-		&obj,
-		getCceAccessConfigResourceFunc,
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckLTSCCEAccess(t)
-			acceptance.TestAccPreCheckLTSHostGroup(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testCceAccessConfigHostFile(name),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttrSet(rName, "log_group_name"),
-					resource.TestCheckResourceAttrSet(rName, "log_stream_name"),
-					resource.TestCheckResourceAttr(rName, "tags.key", "value"),
-					resource.TestCheckResourceAttr(rName, "tags.foo", "bar"),
-					resource.TestCheckResourceAttr(rName, "access_type", "K8S_CCE"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.paths.0", "/var"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.black_paths.0", "/var/a.log"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.path_type", "host_file"),
-				),
-			},
-			{
-				Config: testCceAccessConfigHostFileUpdate(name),
-				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "name", name),
-					resource.TestCheckResourceAttr(rName, "tags.key", "value-updated"),
-					resource.TestCheckResourceAttr(rName, "tags.owner", "terraform"),
-					resource.TestCheckResourceAttr(rName, "access_type", "K8S_CCE"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.paths.0", "/var/logs"),
-					resource.TestCheckResourceAttr(rName, "access_config.0.black_paths.0", "/var/logs/a.log"),
-				),
-			},
-			{
-				ResourceName:      rName,
-				ImportState:       true,
-				ImportStateVerify: true,
-				ImportStateIdFunc: testAccCceAccessConfigImportStateFunc(rName),
+				ImportStateIdFunc: testAccCceAccessConfigImportStateFunc(withHostFile),
 			},
 		},
 	})
@@ -307,13 +239,13 @@ func testAccCceAccessConfigImportStateFunc(rName string) resource.ImportStateIdF
 	}
 }
 
-func testCceAccessConfig_base(name string) string {
+func testAccCceAccessConfig_base(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_lts_group" "test" {
   group_name  = "%[1]s"
   ttl_in_days = 30
 }
-	  
+
 resource "huaweicloud_lts_stream" "test" {
   group_id    = huaweicloud_lts_group.test.id
   stream_name = "%[1]s"
@@ -321,31 +253,31 @@ resource "huaweicloud_lts_stream" "test" {
 }
 
 resource "huaweicloud_lts_host_group" "test" {
-  name     = "%[1]s"
-  type     = "linux"
-  host_ids = split(",", "%[2]s")
+  name = "%[1]s"
+  type = "linux"
 }
-`, name, acceptance.HW_LTS_HOST_IDS)
+`, name)
 }
 
-func testCceAccessConfigContainerFile(name, suffix string) string {
+func testAccCceAccessConfig_basic_step1(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-resource "huaweicloud_lts_cce_access" "container_file" {
+resource "huaweicloud_lts_cce_access" "with_container_file" {
   name           = "%[2]s"
   log_group_id   = huaweicloud_lts_group.test.id
   log_stream_id  = huaweicloud_lts_stream.test.id
   host_group_ids = [huaweicloud_lts_host_group.test.id]
   cluster_id     = "%[3]s"
+  log_split      = true
 
   access_config {
     path_type            = "container_file"
     paths                = ["/var"]
     black_paths          = ["/var/a.log"]
-    name_space_regex     = "namespace%[4]s"
-    pod_name_regex       = "podname%[4]s"
-    container_name_regex = "containername%[4]s"
+    name_space_regex     = "namespace"
+    pod_name_regex       = "podname"
+    container_name_regex = "containername"
 
     windows_log_info {
       categorys        = ["System", "Application"]
@@ -360,160 +292,87 @@ resource "huaweicloud_lts_cce_access" "container_file" {
 
     log_labels = {
       loglabelkey1 = "bar1"
-      loglabelkey2 = "bar%[4]s"
+      loglabelkey2 = "bar"
     }
 
     include_labels = {
       includeKey1 = "incval1"
-      includeKey2 = "incval%[4]s"
+      includeKey2 = "incval"
     }
 
     exclude_labels = {
       excludeKey1 = "excval1"
-      excludeKey2 = "excval%[4]s"
+      excludeKey2 = "excval"
     }
 
     log_envs = {
       envKey1 = "envval1"
-      envKey2 = "envval%[4]s"
+      envKey2 = "envval"
     }
 
     include_envs = {
       inEnvKey1 = "incval1"
-      inEnvKey2 = "incval%[4]s"
+      inEnvKey2 = "incval"
     }
 
     exclude_envs = {
       exEnvKey1 = "excval1"
-      exEnvKey2 = "excval%[4]s"
+      exEnvKey2 = "excval"
     }
 
     log_k8s = {
       k8sKey1 = "k8sval1"
-      k8sKey2 = "k8sval%[4]s"
+      k8sKey2 = "k8sval"
     }
 
     include_k8s_labels = {
       ink8sKey1 = "ink8sval1"
-      ink8sKey2 = "ink8sval%[4]s"
+      ink8sKey2 = "ink8sval"
     }
 
     exclude_k8s_labels = {
       exk8sKey1 = "exk8sval1"
-      exk8sKey2 = "exk8sval%[4]s"
+      exk8sKey2 = "exk8sval"
+    }
+
+    custom_key_value = {
+      customkey = "custom_val"
     }
   }
 
-  tags = {
-    key = "value"
-    foo = "bar%[4]s"
+  demo_log       = "2025-04-28 10:59:07.000 a.log:1 level:warn|error"
+  processor_type = "SPLIT"
+
+  demo_fields {
+    field_name  = "field2"
+    field_value = "error"
   }
-}
-`, testCceAccessConfig_base(name), name, acceptance.HW_LTS_CCE_CLUSTER_ID, suffix)
-}
-
-func testCceAccessConfigContainerStdout(name, suffix string) string {
-	return fmt.Sprintf(`
-%[1]s
-
-resource "huaweicloud_lts_cce_access" "container_stdout" {
-  name           = "%[2]s"
-  log_group_id   = huaweicloud_lts_group.test.id
-  log_stream_id  = huaweicloud_lts_stream.test.id
-  host_group_ids = [huaweicloud_lts_host_group.test.id]
-  cluster_id     = "%[3]s"
-
-  access_config {
-    path_type            = "container_stdout"
-    stdout               = true
-    name_space_regex     = "namespace%[4]s"
-    pod_name_regex       = "podname%[4]s"
-    container_name_regex = "containername%[4]s"
-
-    windows_log_info {
-      categorys        = ["System", "Application"]
-      event_level      = ["warning", "error"]
-      time_offset_unit = "day"
-      time_offset      = 7
-    }
-
-    single_log_format {
-      mode = "system"
-    }
-
-    log_labels = {
-      loglabelkey1 = "bar1"
-      loglabelkey2 = "bar%[4]s"
-    }
-
-    include_labels = {
-      includeKey1 = "incval1"
-      includeKey2 = "incval%[4]s"
-    }
-
-    exclude_labels = {
-      excludeKey1 = "excval1"
-      excludeKey2 = "excval%[4]s"
-    }
-
-    log_envs = {
-      envKey1 = "envval1"
-      envKey2 = "envval%[4]s"
-    }
-
-    include_envs = {
-      inEnvKey1 = "incval1"
-      inEnvKey2 = "incval%[4]s"
-    }
-
-    exclude_envs = {
-      exEnvKey1 = "excval1"
-      exEnvKey2 = "excval%[4]s"
-    }
-
-    log_k8s = {
-      k8sKey1 = "k8sval1"
-      k8sKey2 = "k8sval%[4]s"
-    }
-
-    include_k8s_labels = {
-      ink8sKey1 = "ink8sval1"
-      ink8sKey2 = "ink8sval%[4]s"
-    }
-
-    exclude_k8s_labels = {
-      exk8sKey1 = "exk8sval1"
-      exk8sKey2 = "exk8sval%[4]s"
-    }
+  demo_fields {
+    field_name  = "field1"
+    field_value = "2025-04-28 10:59:07.000 a.log:1 level:warn"
   }
 
-  tags = {
-    key = "value"
-    foo = "bar%[4]s"
+  processors {
+    type = "processor_filter_regex"
+
+    detail = jsonencode({
+      "include" : {
+        "name1" : "^terraform"
+      },
+      "exclude" : {
+        "black" : "test"
+      }
+    })
   }
-}
-`, testCceAccessConfig_base(name), name, acceptance.HW_LTS_CCE_CLUSTER_ID, suffix)
-}
+  processors {
+    type = "processor_split_string"
 
-func testCceAccessConfigHostFile(name string) string {
-	return fmt.Sprintf(`
-%[1]s
-
-resource "huaweicloud_lts_cce_access" "host_file" {
-  name           = "%[2]s"
-  log_group_id   = huaweicloud_lts_group.test.id
-  log_stream_id  = huaweicloud_lts_stream.test.id
-  host_group_ids = [huaweicloud_lts_host_group.test.id]
-  cluster_id     = "%[3]s"
-
-  access_config {
-    path_type   = "host_file"
-    paths       = ["/var"]
-    black_paths = ["/var/a.log"]
-
-    single_log_format {
-      mode = "system"
-    }
+    detail = jsonencode({
+      "split_sep" : "|",
+      "keys" : ["field1", "field2"],
+      "keep_source" : false,
+      "keep_source_if_parse_error" : false
+    })
   }
 
   tags = {
@@ -521,34 +380,167 @@ resource "huaweicloud_lts_cce_access" "host_file" {
     foo = "bar"
   }
 }
-`, testCceAccessConfig_base(name), name, acceptance.HW_LTS_CCE_CLUSTER_ID)
+
+resource "huaweicloud_lts_cce_access" "with_container_stdout" {
+  name                = "%[2]s_container_file"
+  log_group_id        = huaweicloud_lts_group.test.id
+  log_stream_id       = huaweicloud_lts_stream.test.id
+  cluster_id          = "%[3]s"
+  encoding_format     = "GBK"
+  incremental_collect = false
+
+  access_config {
+    path_type      = "container_stdout"
+    stdout         = true
+    repeat_collect = false
+    system_fields  = ["pathFile", "hostName"]
+
+    multi_log_format  {
+      mode  = "time"
+      value = "YYYY-MM-DD hh:mm:ss"
+    }
+  }
 }
 
-func testCceAccessConfigHostFileUpdate(name string) string {
-	return fmt.Sprintf(`
-%[1]s
-
-resource "huaweicloud_lts_cce_access" "host_file" {
-  name           = "%[2]s"
-  log_group_id   = huaweicloud_lts_group.test.id
-  log_stream_id  = huaweicloud_lts_stream.test.id
-  host_group_ids = [huaweicloud_lts_host_group.test.id]
-  cluster_id     = "%[3]s"
+resource "huaweicloud_lts_cce_access" "with_host_file" {
+  name          = "%[2]s_host_file"
+  log_group_id  = huaweicloud_lts_group.test.id
+  log_stream_id = huaweicloud_lts_stream.test.id
+  cluster_id    = "%[3]s"
 
   access_config {
     path_type   = "host_file"
-    paths       = ["/var/logs"]
-    black_paths = ["/var/logs/a.log"]
+    paths       = ["/var", "/temp"]
+    black_paths = ["/var/temp.log", "/var/a.log"]
 
     single_log_format {
       mode = "system"
     }
   }
+}
+`, testAccCceAccessConfig_base(name), name, acceptance.HW_LTS_CCE_CLUSTER_ID)
+}
+
+func testAccCceAccessConfig_basic_step2(name, updateName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_lts_cce_access" "with_container_file" {
+  name           = "%[2]s"
+  log_group_id   = huaweicloud_lts_group.test.id
+  log_stream_id  = huaweicloud_lts_stream.test.id
+  host_group_ids = [huaweicloud_lts_host_group.test.id]
+  cluster_id     = "%[3]s"
+  log_split      = false
+
+  access_config {
+    path_type                  = "container_file"
+    paths                      = ["/var"]
+    black_paths                = ["/var/a.log"]
+    name_space_regex           = "namespace_update"
+    pod_name_regex             = "podname_update"
+    container_name_regex       = "containername_update"
+    exclude_envs_logical       = "and"
+    include_envs_logical       = "and"
+    exclude_labels_logical     = "and"
+    include_labels_logical     = "and"
+    exclude_k8s_labels_logical = "and"
+    include_k8s_labels_logical = "and"
+
+    windows_log_info {
+      categorys        = ["System", "Application"]
+      event_level      = ["warning", "error"]
+      time_offset_unit = "day"
+      time_offset      = 7
+    }
+
+    single_log_format {
+      mode = "system"
+    }
+
+    log_labels = {
+      loglabelkey2 = "bar_update"
+    }
+
+    include_labels = {
+      includeKey2 = "incval_update"
+    }
+
+    exclude_labels = {
+      excludeKey2 = "excval_update"
+    }
+
+    log_envs = {
+      envKey2 = "envval_update"
+    }
+
+    include_envs = {
+      inEnvKey2 = "incval_update"
+    }
+
+    exclude_envs = {
+      exEnvKey2 = "excval_update"
+    }
+
+    log_k8s = {
+      k8sKey2 = "k8sval_update"
+    }
+
+    include_k8s_labels = {
+      ink8sKey2 = "ink8sval_update"
+    }
+
+    exclude_k8s_labels = {
+      exk8sKey2 = "exk8sval_update"
+    }
+
+    custom_key_value = {
+      customkey = "custom_val"
+    }
+  }
+
+  processor_type = "SPLIT"
+  processors {}
 
   tags = {
-    key   = "value-updated"
-    owner = "terraform"
+    foo = "bar_update"
   }
 }
-`, testCceAccessConfig_base(name), name, acceptance.HW_LTS_CCE_CLUSTER_ID)
+
+resource "huaweicloud_lts_cce_access" "with_container_stdout" {
+  name                = "%[2]s_container_file"
+  log_group_id        = huaweicloud_lts_group.test.id
+  log_stream_id       = huaweicloud_lts_stream.test.id
+  cluster_id          = "%[3]s"
+  encoding_format     = "UTF-8"
+  incremental_collect = true
+
+  access_config {
+    path_type      = "container_stdout"
+    stdout         = true
+    repeat_collect = true
+
+    multi_log_format  {
+      mode  = "time"
+      value = "YYYY-MM-DD hh:mm:ss"
+    }
+  }
+}
+
+resource "huaweicloud_lts_cce_access" "with_host_file" {
+  name          = "%[2]s_host_file"
+  log_group_id  = huaweicloud_lts_group.test.id
+  log_stream_id = huaweicloud_lts_stream.test.id
+  cluster_id    = "%[3]s"
+
+  access_config {
+    path_type = "host_file"
+    paths     = ["/var", "/temp"]
+
+    single_log_format {
+      mode = "system"
+    }
+  }
+}
+`, testAccCceAccessConfig_base(name), updateName, acceptance.HW_LTS_CCE_CLUSTER_ID)
 }

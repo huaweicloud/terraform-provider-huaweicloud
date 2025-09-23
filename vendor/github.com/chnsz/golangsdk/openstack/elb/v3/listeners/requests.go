@@ -79,6 +79,12 @@ type CreateOpts struct {
 	// The client timeout of the Listener.
 	ClientTimeout *int `json:"client_timeout,omitempty"`
 
+	// The maximum number of concurrent connections that a listener can handle per second.
+	Connection *int `json:"connection,omitempty"`
+
+	// The maximum number of new connections that a listener can handle per second.
+	Cps *int `json:"cps,omitempty"`
+
 	// The member timeout of the Listener.
 	MemberTimeout *int `json:"member_timeout,omitempty"`
 
@@ -118,8 +124,8 @@ type CreateOpts struct {
 
 type IpGroup struct {
 	IpGroupId string `json:"ipgroup_id" required:"true"`
-	Enable    bool   `json:"enable_ipgroup" required:"true"`
-	Type      string `json:"type" required:"true"`
+	Enable    *bool  `json:"enable_ipgroup,omitempty"`
+	Type      string `json:"type,omitempty"`
 }
 
 type PortRange struct {
@@ -129,7 +135,7 @@ type PortRange struct {
 
 type QuicConfig struct {
 	QuicListenerId    string `json:"quic_listener_id" required:"true"`
-	EnableQuicUpgrade bool   `json:"enable_quic_upgrade,omitempty"`
+	EnableQuicUpgrade *bool  `json:"enable_quic_upgrade,omitempty"`
 }
 
 type InsertHeaders struct {
@@ -182,6 +188,7 @@ type UpdateOptsBuilder interface {
 type IpGroupUpdate struct {
 	IpGroupId string `json:"ipgroup_id,omitempty"`
 	Type      string `json:"type,omitempty"`
+	Enable    *bool  `json:"enable_ipgroup,omitempty"`
 }
 
 // UpdateOpts represents options for updating a Listener.
@@ -228,6 +235,12 @@ type UpdateOpts struct {
 
 	// The client timeout of the Listener.
 	ClientTimeout *int `json:"client_timeout,omitempty"`
+
+	// The maximum number of concurrent connections that a listener can handle per second.
+	Connection *int `json:"connection,omitempty"`
+
+	// The maximum number of new connections that a listener can handle per second.
+	Cps *int `json:"cps,omitempty"`
 
 	// The member timeout of the Listener.
 	MemberTimeout *int `json:"member_timeout,omitempty"`

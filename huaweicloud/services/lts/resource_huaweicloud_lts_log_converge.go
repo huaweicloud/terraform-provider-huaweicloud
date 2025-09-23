@@ -1,6 +1,7 @@
 package lts
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"strings"
@@ -15,6 +16,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
@@ -126,6 +128,17 @@ func ResourceLogConverge() *schema.Resource {
 					},
 				},
 				Description: `The log converge configurations.`,
+				// Since this structure uses full coverage logic, only the overall changes need to be identified.
+				DiffSuppressFunc: func(_, _, _ string, d *schema.ResourceData) bool {
+					oldConfig, newConfig := d.GetChange("log_mapping_config")
+					return buildLogMappingConfigCompareObj(oldConfig.(*schema.Set)) == buildLogMappingConfigCompareObj(newConfig.(*schema.Set))
+				},
+			},
+			"management_project_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `The administrator project ID that required for first-time use.`,
 			},
 			"created_at": {
 				Type:        schema.TypeString,
@@ -141,53 +154,132 @@ func ResourceLogConverge() *schema.Resource {
 	}
 }
 
-func buildLogMappingStreamConfigsBodyParams(streamConfigs *schema.Set) []interface{} {
-	if streamConfigs.Len() < 1 {
-		return nil
+// Use fields other than target_log_stream_id to calculate hash value.
+// Since the target_log_stream_name field is a required field, and the ID is strongly related to the name (the service
+// will verify it). If the ID is changed, the name will definitely change accordingly.
+// So, only the ID needs to be calculated.
+func buildLogStreamConfigCompareObj(obj *schema.Set) int {
+	var buf bytes.Buffer
+	for _, val := range obj.List() {
+		m := val.(map[string]interface{})
+		if m["source_log_stream_id"] != nil {
+			buf.WriteString(fmt.Sprintf("%v-", m["source_log_stream_id"]))
+		}
+		if m["target_log_stream_ttl"] != nil {
+			buf.WriteString(fmt.Sprintf("%v-", m["target_log_stream_ttl"]))
+		}
+		if m["target_log_stream_name"] != nil {
+			buf.WriteString(fmt.Sprintf("%v-", m["target_log_stream_name"]))
+		}
 	}
+	return hashcode.String(buf.String())
+}
 
-	result := make([]interface{}, 0, streamConfigs.Len())
-	for _, streamConfig := range streamConfigs.List() {
-		result = append(result, map[string]interface{}{
+// Use fields other than target_log_group_id to calculate hash value.
+// Since the target_log_group_name field is a required field, and the ID is strongly related to the name (the service
+// will verify it). If the ID is changed, the name will definitely change accordingly.
+// So, only the ID needs to be calculated.
+func buildLogMappingConfigCompareObj(obj *schema.Set) int {
+	var buf bytes.Buffer
+	for _, val := range obj.List() {
+		m := val.(map[string]interface{})
+		if m["source_log_group_id"] != nil {
+			buf.WriteString(fmt.Sprintf("%v-", m["source_log_group_id"]))
+		}
+		if m["target_log_group_name"] != nil {
+			buf.WriteString(fmt.Sprintf("%v-", m["target_log_group_name"]))
+		}
+		if cfg := m["log_stream_config"]; cfg != nil {
+			configs := cfg.(*schema.Set)
+			buf.WriteString(fmt.Sprintf("%v-", buildLogStreamConfigCompareObj(configs)))
+		}
+	}
+	return hashcode.String(buf.String())
+}
+
+func buildLogStreamConfigsBodyParams(oldStreamConfigs, newStreamConfigs *schema.Set) []interface{} {
+	result := make([]interface{}, 0, newStreamConfigs.Len())
+
+	for _, streamConfig := range newStreamConfigs.List() {
+		newSourceLogStreamId := utils.PathSearch("source_log_stream_id", streamConfig, "").(string)
+		newTargetLogStreamName := utils.PathSearch("target_log_stream_name", streamConfig, "").(string)
+		oldStreamConfig := findTargetObjFromSetBySpecStr(oldStreamConfigs, "source_log_stream_id", newSourceLogStreamId)
+
+		configElem := map[string]interface{}{
 			// Required parameters
-			"source_log_stream_id":   utils.PathSearch("source_log_stream_id", streamConfig, nil),
-			"target_log_stream_name": utils.PathSearch("target_log_stream_name", streamConfig, nil),
+			"source_log_stream_id": newSourceLogStreamId,
+			// If the group does not exist, the log group name that you want to create just ok.
+			"target_log_stream_name": newTargetLogStreamName,
 			"target_log_stream_ttl":  utils.PathSearch("target_log_stream_ttl", streamConfig, nil),
-			// Optional parameters
-			"target_log_stream_id": utils.ValueIgnoreEmpty(utils.PathSearch("target_log_stream_id", streamConfig, nil)),
-		})
+		}
+		if newTargetStreamId := utils.PathSearch("target_log_stream_id", streamConfig, "").(string); newTargetStreamId != "" {
+			// If the value of the parameter 'target_log_stream_id' in the new stream configuration is not empty, using this value.
+			configElem["target_log_stream_id"] = newTargetStreamId
+		} else if oldStreamConfig != nil && utils.PathSearch("target_log_stream_name", oldStreamConfig, "").(string) == newTargetLogStreamName {
+			// Both new values of the parameter 'target_log_stream_name' and 'target_log_stream_name' are exist in the
+			// old config, means the config is going to update, not create a new one.
+			// Find the value of the parameter 'target_log_stream_id' in the old stream configuration.
+			configElem["target_log_stream_id"] = utils.PathSearch("target_log_stream_id", oldStreamConfig, "")
+		}
+		result = append(result, configElem)
 	}
 	return result
 }
 
-func buildLogMappingConfigsBodyParams(mappingConfigs *schema.Set) []interface{} {
-	if mappingConfigs.Len() < 1 {
-		return nil
+func findTargetObjFromSetBySpecStr(targets *schema.Set, specKey, specStr string) interface{} {
+	if targets.Len() > 0 {
+		for _, val := range targets.List() {
+			if utils.PathSearch(specKey, val, "").(string) == specStr {
+				return val
+			}
+		}
 	}
+	return nil
+}
 
-	result := make([]interface{}, 0, mappingConfigs.Len())
-	for _, groupConfig := range mappingConfigs.List() {
-		result = append(result, map[string]interface{}{
-			// Required parameters
-			"source_log_group_id":   utils.PathSearch("source_log_group_id", groupConfig, nil),
-			"target_log_group_name": utils.PathSearch("target_log_group_name", groupConfig, nil),
+func buildLogMappingConfigsBodyParams(oldMappingConfigs, newMappingConfigs *schema.Set) []interface{} {
+	result := make([]interface{}, 0, newMappingConfigs.Len())
+
+	for _, mappingConfig := range newMappingConfigs.List() {
+		newSourceLogGroupId := utils.PathSearch("source_log_group_id", mappingConfig, "").(string)
+		newTargetLogGroupName := utils.PathSearch("target_log_group_name", mappingConfig, "").(string)
+		oldMappingConfig := findTargetObjFromSetBySpecStr(oldMappingConfigs, "source_log_group_id", newSourceLogGroupId)
+
+		configElem := map[string]interface{}{
+			// Required parameters ;
+			"source_log_group_id":   newSourceLogGroupId,
+			"target_log_group_name": newTargetLogGroupName,
 			// Optional parameters
-			"target_log_group_id": utils.ValueIgnoreEmpty(utils.PathSearch("target_log_group_id", groupConfig, nil)),
-			"log_stream_config": buildLogMappingStreamConfigsBodyParams(utils.PathSearch("log_stream_config",
-				groupConfig, schema.NewSet(schema.HashString, nil)).(*schema.Set)),
-		})
+			"log_stream_config": buildLogStreamConfigsBodyParams(
+				utils.PathSearch("log_stream_config", oldMappingConfig, schema.NewSet(schema.HashString, nil)).(*schema.Set),
+				utils.PathSearch("log_stream_config", mappingConfig, schema.NewSet(schema.HashString, nil)).(*schema.Set),
+			),
+		}
+		if newTargetLogGroupId := utils.PathSearch("target_log_group_id", mappingConfig, "").(string); newTargetLogGroupId != "" {
+			// If the value of the parameter 'target_log_group_id' in the new mapping configuration is not empty, using this value.
+			configElem["target_log_group_id"] = newTargetLogGroupId
+		} else if oldMappingConfig != nil && utils.PathSearch("target_log_group_name", oldMappingConfig, "").(string) == newTargetLogGroupName {
+			// Both new values of the parameter 'source_log_group_id' and 'target_log_group_name' are exist in the
+			// old config, means the config is going to update, not create a new one.
+			// If the group exist, the request body can only input the log group ID.
+			configElem["target_log_group_id"] = utils.PathSearch("target_log_group_id", oldMappingConfig, "")
+		}
+		result = append(result, configElem)
 	}
 	return result
 }
 
 func buildModifyLogConvergeBodyParams(d *schema.ResourceData) map[string]interface{} {
+	oldM, newM := d.GetChange("log_mapping_config")
+
 	return map[string]interface{}{
 		// Required parameters
 		"organization_id":       d.Get("organization_id"),
 		"management_account_id": d.Get("management_account_id"),
 		"member_account_id":     d.Get("member_account_id"),
+		"log_mapping_config":    buildLogMappingConfigsBodyParams(oldM.(*schema.Set), newM.(*schema.Set)),
 		// Optional parameters
-		"log_mapping_config": buildLogMappingConfigsBodyParams(d.Get("log_mapping_config").(*schema.Set)),
+		"management_project_id": utils.ValueIgnoreEmpty(d.Get("management_project_id")),
 	}
 }
 
@@ -257,7 +349,7 @@ func GetLogConvergeConfigsById(client *golangsdk.ServiceClient, memberAccountId 
 	}
 	requestResp, err := client.Request("GET", getPath, &getOpts)
 	if err != nil {
-		return nil, parseQueryError500(err, logConvergeNotFoundCodes)
+		return nil, common.ConvertExpected500ErrInto404Err(err, "error_code", logConvergeNotFoundCodes...)
 	}
 	respBody, err := utils.FlattenResponse(requestResp)
 	if err != nil {
@@ -267,6 +359,41 @@ func GetLogConvergeConfigsById(client *golangsdk.ServiceClient, memberAccountId 
 		return nil, golangsdk.ErrDefault404{}
 	}
 	return respBody, nil
+}
+
+func flattenLogMappingConfigs(configs []interface{}) []interface{} {
+	if len(configs) < 1 {
+		return nil
+	}
+
+	result := make([]interface{}, 0, len(configs))
+	for _, val := range configs {
+		result = append(result, map[string]interface{}{
+			"source_log_group_id":   utils.PathSearch("source_log_group_id", val, nil),
+			"target_log_group_name": utils.PathSearch("target_log_group_name", val, nil),
+			"target_log_group_id":   utils.PathSearch("target_log_group_id", val, nil),
+			"log_stream_config":     flattenLogStreamConfigs(utils.PathSearch("log_stream_config", val, make([]interface{}, 0)).([]interface{})),
+		})
+	}
+	return result
+}
+
+func flattenLogStreamConfigs(configs []interface{}) []interface{} {
+	if len(configs) < 1 {
+		return nil
+	}
+
+	result := make([]interface{}, 0, len(configs))
+	for _, val := range configs {
+		result = append(result, map[string]interface{}{
+			"source_log_stream_id":     utils.PathSearch("source_log_stream_id", val, nil),
+			"target_log_stream_ttl":    utils.PathSearch("target_log_stream_ttl", val, nil),
+			"target_log_stream_name":   utils.PathSearch("target_log_stream_name", val, nil),
+			"target_log_stream_id":     utils.PathSearch("target_log_stream_id", val, nil),
+			"target_log_stream_eps_id": utils.PathSearch("target_log_stream_eps_id", val, nil),
+		})
+	}
+	return result
 }
 
 func resourceLogConvergeRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -290,7 +417,9 @@ func resourceLogConvergeRead(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("organization_id", utils.PathSearch("organization_id", respBody, nil)),
 		d.Set("member_account_id", utils.PathSearch("member_account_id", respBody, nil)),
 		d.Set("management_account_id", utils.PathSearch("management_account_id", respBody, nil)),
-		d.Set("log_mapping_config", utils.PathSearch("log_mapping_config", respBody, nil)),
+		d.Set("log_mapping_config", flattenLogMappingConfigs(utils.PathSearch("log_mapping_config",
+			respBody, make([]interface{}, 0)).([]interface{}))),
+		d.Set("management_project_id", utils.PathSearch("management_project_id", respBody, nil)),
 		// Attributes
 		d.Set("created_at", utils.FormatTimeStampRFC3339(
 			int64(utils.PathSearch("create_time", respBody, float64(0)).(float64))/1000, false)),

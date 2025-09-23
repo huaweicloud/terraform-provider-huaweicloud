@@ -1,0 +1,75 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_codearts_pipeline_group": {
+          "block": {
+            "attributes": {
+              "children": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Indicates the child group name list.",
+                "computed": true
+              },
+              "create_time": {
+                "type": "number",
+                "description": "Indicates the create time.",
+                "computed": true
+              },
+              "creator": {
+                "type": "string",
+                "description": "Indicates the creator ID.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the group name.",
+                "required": true
+              },
+              "ordinal": {
+                "type": "number",
+                "description": "Indicates the group ordinal",
+                "computed": true
+              },
+              "parent_id": {
+                "type": "string",
+                "description": "Specifies the group parent ID.",
+                "optional": true
+              },
+              "path_id": {
+                "type": "string",
+                "description": "Indicates the path ID.",
+                "computed": true
+              },
+              "project_id": {
+                "type": "string",
+                "description": "Specifies the CodeArts project ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "update_time": {
+                "type": "number",
+                "description": "Indicates the update time.",
+                "computed": true
+              },
+              "updater": {
+                "type": "string",
+                "description": "Indicates the updater ID.",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

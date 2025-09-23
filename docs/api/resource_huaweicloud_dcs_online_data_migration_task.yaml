@@ -1,0 +1,31 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dcs_online_data_migration_task
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DCS
+paths:
+    /v2/{project_id}/jobs/{job_id}:
+        GET:
+            tag: DCS
+    /v2/{project_id}/migration-task/{task_id}:
+        GET:
+            tag: DCS
+    /v2/{project_id}/migration-task/{task_id}/stop:
+        POST:
+            tag: DCS
+    /v2/{project_id}/migration-tasks:
+        GET:
+            tag: DCS
+    /v2/{project_id}/migration-tasks/delete:
+        DELETE:
+            tag: DCS
+    /v2/{project_id}/migration/{task_id}/task:
+        POST:
+            tag: DCS
+    /v2/{project_id}/migration/instance:
+        POST:
+            tag: DCS

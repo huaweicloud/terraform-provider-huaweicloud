@@ -2,7 +2,8 @@
 subcategory: "Organizations"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_organizations_account"
-description: ""
+description: |-
+  Manages an Organizations account resource within HuaweiCloud.
 ---
 
 # huaweicloud_organizations_account
@@ -52,6 +53,8 @@ The following arguments are supported:
 * `agency_name` - (Optional, String, ForceNew) Specifies the agency name of the account.
   Changing this parameter will create a new resource.
 
+* `description` - (Optional, String) Specifies the description of the account.
+
 * `parent_id` - (Optional, String) Specifies the ID of the root or organization unit in which you want to create a new
   account. The default is root ID.
 
@@ -62,6 +65,8 @@ The following arguments are supported:
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID.
+
+* `intl_number_prefix` - Indicates the prefix of a mobile number.
 
 * `urn` - Indicates the uniform resource name of the account.
 
@@ -84,11 +89,9 @@ $ terraform import huaweicloud_organizations_account.test <id>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
-API response, security or some other reason.
-The missing attributes include `email`, `phone` and `agency_name`.
-It is generally recommended running `terraform plan` after importing an account.
-You can then decide if changes should be applied to the account, or the resource definition should be updated to
-align with the account. Also you can ignore changes as below.
+API response, security or some other reason. The missing attributes include `agency_name`. It is generally recommended
+running `terraform plan` after importing an account. You can then decide if changes should be applied to the account,
+or the resource definition should be updated to align with the account. Also you can ignore changes as below.
 
 ```hcl
 resource "huaweicloud_organizations_account" "test" {
@@ -96,7 +99,7 @@ resource "huaweicloud_organizations_account" "test" {
 
   lifecycle {
     ignore_changes = [
-      email, phone, agency_name,
+      agency_name,
     ]
   }
 }

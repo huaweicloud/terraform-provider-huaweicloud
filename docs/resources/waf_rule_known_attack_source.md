@@ -2,7 +2,8 @@
 subcategory: "Web Application Firewall (WAF)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_waf_rule_known_attack_source"
-description: ""
+description: |-
+  Manages a WAF rule known attack source resource within HuaweiCloud.
 ---
 
 # huaweicloud_waf_rule_known_attack_source
@@ -10,7 +11,7 @@ description: ""
 Manages a WAF rule known attack source resource within HuaweiCloud.
 
 -> **NOTE:** All WAF resources depend on WAF instances, and the WAF instances need to be purchased before they can be
-used. The known attack source rule resource can be used in Cloud Mode, Dedicated Mode.
+used. The known attack source rule resource can be used in Cloud Mode and Dedicated Mode.
 
 ## Example Usage
 
@@ -51,8 +52,8 @@ The following arguments are supported:
   + **short_params_block**: Short-term Params blocking.
 
 * `block_time` - (Required, Int) Specifies the blocking time in seconds.
-  + If the prefix of `block_type` is **long**, the value ranges from 301 to 1800.
-  + If the prefix of `block_type` is **short**, the value ranges from 1 to 300.
+  + If the prefix of `block_type` is **long**, the value ranges from `301` to `1,800`.
+  + If the prefix of `block_type` is **short**, the value ranges from `1` to `300`.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID of WAF known attack
   source rule.

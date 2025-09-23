@@ -16,7 +16,7 @@ variable "central_network_id" {}
 variable "connection_id" {}
 variable "global_connection_bandwidth_id" {}
 
-resource "huaweicloud_cc_central_network_connection_bandwidth_associate" test {
+resource "huaweicloud_cc_central_network_connection_bandwidth_associate" "test" {
   central_network_id             = var.central_network_id
   connection_id                  = var.connection_id
   global_connection_bandwidth_id = var.global_connection_bandwidth_id

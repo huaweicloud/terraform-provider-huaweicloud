@@ -7,8 +7,6 @@ package dataarts
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -16,7 +14,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -247,11 +244,11 @@ func resourceBusinessMetricCreate(ctx context.Context, d *schema.ResourceData, m
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("data.value.id", createRespBody)
-	if err != nil || id == nil {
-		return diag.Errorf("error creating DataArts Architecture business metric: ID is not found in API response")
+	metricId := utils.PathSearch("data.value.id", createRespBody, "").(string)
+	if metricId == "" {
+		return diag.Errorf("unable to find the DataArts Architecture business metric ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(metricId)
 
 	return resourceBusinessMetricRead(ctx, d, meta)
 }
@@ -294,7 +291,8 @@ func resourceBusinessMetricRead(_ context.Context, d *schema.ResourceData, meta 
 
 	getResp, err := readBusinessMetric(client, d)
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseBusinessMetricError(err), "error retrieving DataArts Architecture business metric")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "errors|[0].error_code", "DLG.3903"),
+			"error retrieving DataArts Architecture business metric")
 	}
 
 	getRespBody, err := utils.FlattenResponse(getResp)
@@ -356,26 +354,6 @@ func readBusinessMetric(client *golangsdk.ServiceClient, d *schema.ResourceData)
 	}
 
 	return client.Request("GET", getPath, &getOpt)
-}
-
-// The example of error message is: {"errors": [{"error_code": "DLG.3903","error_msg": "Definition [XXX] does not exist"}]}
-func parseBusinessMetricError(err error) error {
-	var errCode golangsdk.ErrDefault400
-	if errors.As(err, &errCode) {
-		var apiError interface{}
-		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
-			return err
-		}
-		errorCode, errorCodeErr := jmespath.Search("errors|[0].error_code", apiError)
-		if errorCodeErr != nil {
-			return err
-		}
-
-		if errorCode == "DLG.3903" {
-			return golangsdk.ErrDefault404(errCode)
-		}
-	}
-	return err
 }
 
 func resourceBusinessMetricUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -440,7 +418,8 @@ func resourceBusinessMetricDelete(_ context.Context, d *schema.ResourceData, met
 		return diag.Errorf("error deleting DataArts Architecture business metric: the business metric still exists")
 	}
 
-	return common.CheckDeletedDiag(d, parseBusinessMetricError(err), "error deleting DataArts Architecture business metric")
+	return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "errors|[0].error_code", "DLG.3903"),
+		"error deleting DataArts Architecture business metric")
 }
 
 func buildDeleteBusinessMetricBodyParams(d *schema.ResourceData) map[string]interface{} {

@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_waf_rule_web_tamper_protection_refresh
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: WAF
+paths:
+    /v1/{project_id}/waf/policy/{policy_id}/antitamper/{rule_id}/refresh:
+        POST:
+            tag: WAF

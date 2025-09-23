@@ -1,0 +1,269 @@
+package dew
+
+import (
+	"context"
+	"fmt"
+	"strings"
+	"time"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+
+	"github.com/chnsz/golangsdk"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+)
+
+var keypairDisassociateNonUpdatableParams = []string{
+	"server",
+	"server.*.id",
+	"server.*.auth",
+	"server.*.port",
+	"server.*.auth.*.type",
+	"server.*.auth.*.key",
+}
+
+// @API DEW POST /v3/{project_id}/keypairs/disassociate
+// @API DEW GET /v3/{project_id}/tasks/{task_id}
+func ResourceKpsKeypairDisassociate() *schema.Resource {
+	return &schema.Resource{
+		CreateContext: resourceKpsKeypairDisassociateCreate,
+		ReadContext:   resourceKpsKeypairDisassociateRead,
+		UpdateContext: resourceKpsKeypairDisassociateUpdate,
+		DeleteContext: resourceKpsKeypairDisassociateDelete,
+
+		CustomizeDiff: config.FlexibleForceNew(keypairDisassociateNonUpdatableParams),
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(30 * time.Minute),
+		},
+
+		Schema: map[string]*schema.Schema{
+			"region": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `Specifies the region in which to query the resource.`,
+			},
+			"server": {
+				Type:        schema.TypeList,
+				Required:    true,
+				MaxItems:    1,
+				Elem:        resourceServerSchema(),
+				Description: `Specifies the ECS information.`,
+			},
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
+			},
+		},
+	}
+}
+
+func resourceServerSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"id": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `Specifies ID of the ECS.`,
+			},
+			"auth": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				MaxItems:    1,
+				Elem:        resourceServerAuthSchema(),
+				Description: `Specifies the authentication type.`,
+			},
+			"port": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: `Specifies the SSH listening port.`,
+			},
+		},
+	}
+}
+
+func resourceServerAuthSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"type": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the value of an enumeration type.`,
+			},
+			"key": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the value of the key.`,
+			},
+		},
+	}
+}
+
+func buildKeypairDisassociateBodyParams(d *schema.ResourceData) map[string]interface{} {
+	return map[string]interface{}{
+		"server": utils.RemoveNil(buildServerBodyParams(d.Get("server").([]interface{}))),
+	}
+}
+
+func buildServerAuthBodyParams(auths []interface{}) map[string]interface{} {
+	if len(auths) == 0 || auths[0] == nil {
+		return nil
+	}
+
+	auth, ok := auths[0].(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	bodyParams := map[string]interface{}{
+		"type": utils.ValueIgnoreEmpty(auth["type"]),
+		"key":  utils.ValueIgnoreEmpty(auth["key"]),
+	}
+
+	return bodyParams
+}
+
+func buildServerBodyParams(servers []interface{}) map[string]interface{} {
+	if (len(servers) == 0) || servers[0] == nil {
+		return nil
+	}
+
+	bodyParams := make(map[string]interface{}, 0)
+	for _, v := range servers {
+		item := v.(map[string]interface{})
+		bodyParams = map[string]interface{}{
+			"id":   item["id"],
+			"auth": buildServerAuthBodyParams(item["auth"].([]interface{})),
+			"port": utils.ValueIgnoreEmpty(item["port"]),
+		}
+	}
+
+	return bodyParams
+}
+
+func getKeypairDisassociateTask(client *golangsdk.ServiceClient, taskId string) (interface{}, error) {
+	var (
+		httpUrl = "v3/{project_id}/tasks/{task_id}"
+		getOpt  = golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		}
+	)
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{task_id}", taskId)
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return getResp, fmt.Errorf("error retrieving KPS keypair disassociate task: %s", err)
+	}
+
+	return utils.FlattenResponse(getResp)
+}
+
+func taskStatusRefreshFunc(taskId string, client *golangsdk.ServiceClient) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		getTaskBody, err := getKeypairDisassociateTask(client, taskId)
+		if err != nil {
+			return getTaskBody, "ERROR", err
+		}
+
+		taskStatus := utils.PathSearch("task_status", getTaskBody, "").(string)
+		if taskStatus == "SUCCESS_UNBIND" {
+			return getTaskBody, "COMPLETED", nil
+		}
+
+		if taskStatus == "FAILED_UNBIND" {
+			return getTaskBody, "ERROR", fmt.Errorf("unexpect status (%s)", taskStatus)
+		}
+
+		return getTaskBody, "PENDING", nil
+	}
+}
+
+func waitForKeypairDisassociateStatusCompleted(ctx context.Context, client *golangsdk.ServiceClient, taskId string,
+	timeout time.Duration) error {
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      taskStatusRefreshFunc(taskId, client),
+		Timeout:      timeout,
+		Delay:        10 * time.Second,
+		PollInterval: 20 * time.Second,
+	}
+
+	_, err := stateConf.WaitForStateContext(ctx)
+
+	return err
+}
+
+func resourceKpsKeypairDisassociateCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v3/{project_id}/keypairs/disassociate"
+		product = "kms"
+	)
+	client, err := cfg.NewServiceClient(product, region)
+	if err != nil {
+		return diag.Errorf("error creating KPS client: %s", err)
+	}
+
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		JSONBody:         utils.RemoveNil(buildKeypairDisassociateBodyParams(d)),
+	}
+	resp, err := client.Request("POST", requestPath, &requestOpt)
+	if err != nil {
+		return diag.Errorf("error disassociating the KPS keypair from ECS: %s", err)
+	}
+
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	taskId := utils.PathSearch("task_id", respBody, "").(string)
+	if taskId == "" {
+		return diag.Errorf("unable to find KPS task ID from API response")
+	}
+	d.SetId(taskId)
+
+	err = waitForKeypairDisassociateStatusCompleted(ctx, client, taskId, d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return diag.Errorf("error waiting for the task (%s) completed: %s", taskId, err)
+	}
+
+	return nil
+}
+
+func resourceKpsKeypairDisassociateRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+	// No processing is performed in the 'Read()' method because the resource is a one-time action resource.
+	return nil
+}
+
+func resourceKpsKeypairDisassociateUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+	// No processing is performed in the 'Update()' method because the resource is a one-time action resource.
+	return nil
+}
+
+func resourceKpsKeypairDisassociateDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+	errorMsg := `This resource is a one-time action resource using to disassociate a SSH keypair to a specified ECS.
+Deleting this resource will not change the current SSH keypair, but will only remove the resource information from the tfstate file.`
+	return diag.Diagnostics{
+		diag.Diagnostic{
+			Severity: diag.Warning,
+			Summary:  errorMsg,
+		},
+	}
+}

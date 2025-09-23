@@ -2,7 +2,8 @@
 subcategory: "Live"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_live_domain"
-description: ""
+description: |-
+  Manages a Live domain within HuaweiCloud.
 ---
 
 # huaweicloud_live_domain
@@ -34,13 +35,13 @@ resource "huaweicloud_live_domain" "streamingDomain" {
 The following arguments are supported:
 
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the Live domain resource. If omitted,
-the provider-level region will be used. Changing this parameter will create a new resource.
+  the provider-level region will be used. Changing this parameter will create a new resource.
 
 * `name` - (Required, String, ForceNew) Specifies the domain name. Changing this parameter will create a new resource.
 
--> A level-1 domain name cannot be used as an ingest domain or streaming domain. If your domain name is **example.com**,
-you can use sub-domain names, for example, **test-push.example.com** and **test-play.example.com**,
-as the ingest domain name and streaming domain name.
+  -> A level-1 domain name cannot be used as an ingest domain or streaming domain. If your domain name is **example.com**,
+    you can use subdomain names, for example, **test-push.example.com** and **test-play.example.com**, as the ingest
+    domain name and streaming domain name.
 
 * `type` - (Required, String, ForceNew) Specifies the type of domain name. The options are as follows:
   + **pull**: streaming domain name.
@@ -48,8 +49,21 @@ as the ingest domain name and streaming domain name.
 
   Changing this parameter will create a new resource.
 
+* `service_area` - (Optional, String, ForceNew) Specifies the domain name acceleration service area. Valid values are:
+  + **mainland_china**: Chinese mainland.
+  + **outside_mainland_china**: Outside the Chinese mainland.
+  + **global**: Global acceleration.
+
+  Defaults to **mainland_china**. Changing this parameter will create a new resource.
+
+* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID.
+  Changing this parameter will create a new resource.
+
 * `ingest_domain_name` - (Optional, String) Specifies the ingest domain name, which associates with the streaming
-domain name to push streams to nearby CDN nodes.
+  domain name to push streams to nearby CDN nodes.
+
+* `is_ipv6` - (Optional, Bool) Specifies whether enable IPv6 switch. Defaults to **false**.
+  This field can only be edited when `status` is **on**.
 
 * `status` - (Optional, String) Specifies status of the domain name. The options are as follows:
   + **on**: enable the domain name.
@@ -77,6 +91,6 @@ This resource provides the following timeouts configuration options:
 
 Domains can be imported using the `name`, e.g.
 
-```
-$ terraform import huaweicloud_live_domain.test domainName
+```bash
+$ terraform import huaweicloud_live_domain.test <name>
 ```

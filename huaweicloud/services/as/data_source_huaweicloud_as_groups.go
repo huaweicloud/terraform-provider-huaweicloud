@@ -15,6 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 // @API AS GET /autoscaling-api/v1/{project_id}/scaling_group_tag/{id}/tags
@@ -239,6 +240,16 @@ func groupDataSourceLBaasListenersSchema() *schema.Resource {
 				Description: "The weight, which determines the portion of requests a backend " +
 					"ECS processes compared to other backend ECSs added to the same listener.",
 			},
+			"listener_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The ID of the listener associate with the ELB.",
+			},
+			"protocol_version": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The version of IP addresses of backend servers to be bound with the ELB.",
+			},
 		},
 	}
 }
@@ -289,9 +300,11 @@ func flattenDataSourceLBaaSListeners(listeners []groups.LBaaSListener) []map[str
 	res := make([]map[string]interface{}, len(listeners))
 	for i, item := range listeners {
 		res[i] = map[string]interface{}{
-			"pool_id":       item.PoolID,
-			"protocol_port": item.ProtocolPort,
-			"weight":        item.Weight,
+			"pool_id":          item.PoolID,
+			"protocol_port":    item.ProtocolPort,
+			"weight":           item.Weight,
+			"protocol_version": item.ProtocolVersion,
+			"listener_id":      item.ListenerID,
 		}
 	}
 	return res
@@ -323,7 +336,7 @@ func flattenDataSourceSecurityGroups(sgs []groups.SecurityGroup) []map[string]in
 // getDataSourceInstancesIDs using to collecting total instance IDs in AS group.
 // When the query API reports an error, only the failure log is printed and the program is not terminated.
 func getDataSourceInstancesIDs(asClient *golangsdk.ServiceClient, groupID string) []string {
-	allIns, err := getInstancesInGroup(asClient, groupID, nil)
+	allIns, err := getAllInstancesInGroup(asClient, groupID)
 	if err != nil {
 		log.Printf("[WARN] Error fetching instances in AS group (%s): %s", groupID, err)
 		return nil
@@ -331,8 +344,8 @@ func getDataSourceInstancesIDs(asClient *golangsdk.ServiceClient, groupID string
 
 	allIDs := make([]string, 0, len(allIns))
 	for _, ins := range allIns {
-		if ins.ID != "" {
-			allIDs = append(allIDs, ins.ID)
+		if instanceID := utils.PathSearch("instance_id", ins, "").(string); instanceID != "" {
+			allIDs = append(allIDs, instanceID)
 		}
 	}
 

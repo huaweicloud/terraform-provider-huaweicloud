@@ -9,6 +9,14 @@
                 "type": "string",
                 "optional": true
               },
+              "dedicated_storage_id": {
+                "type": "string",
+                "optional": true
+              },
+              "dedicated_storage_name": {
+                "type": "string",
+                "optional": true
+              },
               "enterprise_project_id": {
                 "type": "string",
                 "optional": true
@@ -17,6 +25,18 @@
                 "type": "string",
                 "computed": true
               },
+              "ids": {
+                "type": "string",
+                "optional": true
+              },
+              "metadata": {
+                "type": "string",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
               "region": {
                 "type": "string"
               },
@@ -24,8 +44,20 @@
                 "type": "string",
                 "optional": true
               },
+              "service_type": {
+                "type": "string",
+                "optional": true
+              },
               "shareable": {
                 "type": "bool",
+                "optional": true
+              },
+              "sort_dir": {
+                "type": "string",
+                "optional": true
+              },
+              "sort_key": {
+                "type": "string",
                 "optional": true
               },
               "status": {
@@ -37,6 +69,14 @@
                   "map",
                   "string"
                 ],
+                "optional": true
+              },
+              "volume_id": {
+                "type": "string",
+                "optional": true
+              },
+              "volume_type_id": {
+                "type": "string",
                 "optional": true
               },
               "volumes": {
@@ -52,30 +92,77 @@
                           {
                             "attached_at": "string",
                             "attached_mode": "string",
+                            "attached_volume_id": "string",
                             "device_name": "string",
+                            "host_name": "string",
                             "id": "string",
-                            "server_id": "string"
+                            "server_id": "string",
+                            "volume_id": "string"
                           }
                         ]
                       ],
                       "availability_zone": "string",
                       "bootable": "bool",
                       "create_at": "string",
+                      "dedicated_storage_id": "string",
+                      "dedicated_storage_name": "string",
                       "description": "string",
                       "enterprise_project_id": "string",
                       "id": "string",
                       "iops": "number",
+                      "iops_attribute": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "frozened": "bool",
+                            "id": "string",
+                            "total_val": "number"
+                          }
+                        ]
+                      ],
+                      "links": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "href": "string",
+                            "rel": "string"
+                          }
+                        ]
+                      ],
+                      "metadata": [
+                        "map",
+                        "string"
+                      ],
                       "name": "string",
+                      "serial_number": "string",
                       "service_type": "string",
                       "shareable": "bool",
                       "size": "number",
+                      "snapshot_id": "string",
                       "status": "string",
                       "tags": [
                         "map",
                         "string"
                       ],
                       "throughput": "number",
+                      "throughput_attribute": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "frozened": "bool",
+                            "id": "string",
+                            "total_val": "number"
+                          }
+                        ]
+                      ],
                       "update_at": "string",
+                      "volume_image_metadata": [
+                        "map",
+                        "string"
+                      ],
                       "volume_type": "string",
                       "wwn": "string"
                     }

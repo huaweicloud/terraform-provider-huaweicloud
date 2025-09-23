@@ -1,0 +1,112 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_secmaster_metric_results": {
+          "block": {
+            "attributes": {
+              "cache": {
+                "type": "string",
+                "description": "Specifies whether the cache is enabled.",
+                "optional": true
+              },
+              "field_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the indicator card IDs.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "interactive_params": {
+                "type": [
+                  "list",
+                  [
+                    "map",
+                    "string"
+                  ]
+                ],
+                "description": "Specifies the interactive parameters.",
+                "optional": true
+              },
+              "metric_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the metrics IDs.",
+                "required": true
+              },
+              "metric_results": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "data_rows": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "data_row": [
+                              "list",
+                              "string"
+                            ]
+                          }
+                        ]
+                      ],
+                      "id": "string",
+                      "labels": [
+                        "list",
+                        "string"
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The metric results.",
+                "computed": true
+              },
+              "params": {
+                "type": [
+                  "list",
+                  [
+                    "map",
+                    "string"
+                  ]
+                ],
+                "description": "Specifies the parameter list of the metric.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the data source. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "timespan": {
+                "type": "string",
+                "description": "Specifies the time range for querying metrics.",
+                "optional": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "Specifies the workspace ID.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

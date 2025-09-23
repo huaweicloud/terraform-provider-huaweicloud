@@ -2,7 +2,8 @@
 subcategory: "Web Application Firewall (WAF)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_waf_dedicated_domains"
-description: ""
+description: |-
+  Use this data source to get a list of WAF dedicated domains.
 ---
 
 # huaweicloud_waf_dedicated_domains
@@ -12,10 +13,10 @@ Use this data source to get a list of WAF dedicated domains.
 ## Example Usage
 
 ```hcl
-variable domain {}
+variable "domain" {}
 variable "enterprise_project_id" {}
 
-data "huaweicloud_waf_dedicated_domains" "domains" {
+data "huaweicloud_waf_dedicated_domains" "test" {
   domain                = var.domain
   enterprise_project_id = var.enterprise_project_id
 }
@@ -25,16 +26,21 @@ data "huaweicloud_waf_dedicated_domains" "domains" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String) The region in which to query the WAF dedicated domains.
+* `region` - (Optional, String) Specifies the region in which to query the WAF dedicated domains.
   If omitted, the provider-level region will be used.
 
-* `domain` - (Optional, String) The protected domain name or IP address (port allowed).
+* `domain` - (Optional, String) Specifies the protected domain name or IP address (port allowed).
 
-* `policy_name` - (Optional, String) The policy name associated with the domain.
+* `policy_name` - (Optional, String) Specifies the policy name associated with the domain.
 
-* `protect_status` - (Optional, Int) The protection status of domain.
+* `protect_status` - (Optional, String) Specifies the protection status of domain. Valid values are:
+  + `0`: The WAF protection is suspended. WAF only forwards requests for the domain name but does not detect attacks.
+  + `1`: The WAF protection is enabled. WAF detects attacks based on the policy you configure.
 
-* `enterprise_project_id` - (Optional, String) The enterprise project ID.
+  If omitted, all domains in different protection status will be queried.
+
+* `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID.
+  For enterprise users, if omitted, default enterprise project will be used.
 
 ## Attribute Reference
 
@@ -62,7 +68,7 @@ The `domains` block supports:
 
 * `policy_id` - The policy ID associated with the domain.
 
-* `protect_status` - The protection status of domain,  `0`: suspended, `1`: enabled. Default value is `0`.
+* `protect_status` - The protection status of domain, `0`: suspended, `1`: enabled.
 
 * `access_status` - Whether a domain name is connected to WAF. Valid values are:
   + `0` - The domain name is not connected to WAF,

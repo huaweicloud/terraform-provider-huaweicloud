@@ -1,0 +1,190 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_rds_mysql_proxy": {
+          "block": {
+            "attributes": {
+              "address": {
+                "type": "string",
+                "computed": true
+              },
+              "alt_flag": {
+                "type": "bool",
+                "computed": true
+              },
+              "connection_pool_type": {
+                "type": "string",
+                "computed": true
+              },
+              "delay_threshold_in_seconds": {
+                "type": "number",
+                "computed": true
+              },
+              "dns_name": {
+                "type": "string",
+                "computed": true
+              },
+              "flavor": {
+                "type": "string",
+                "required": true
+              },
+              "flavor_group_type": {
+                "type": "string",
+                "computed": true
+              },
+              "force_read_only": {
+                "type": "bool",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "memory": {
+                "type": "string",
+                "computed": true
+              },
+              "mode": {
+                "type": "string",
+                "computed": true
+              },
+              "node_num": {
+                "type": "number",
+                "required": true
+              },
+              "nodes": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "az_code": "string",
+                      "frozen_flag": "number",
+                      "id": "string",
+                      "role": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "pay_mode": {
+                "type": "string",
+                "computed": true
+              },
+              "port": {
+                "type": "number",
+                "computed": true
+              },
+              "proxy_mode": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "proxy_name": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "route_mode": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "seconds_level_monitor_fun_status": {
+                "type": "string",
+                "computed": true
+              },
+              "ssl_option": {
+                "type": "bool",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "support_balance_route_mode": {
+                "type": "bool",
+                "computed": true
+              },
+              "support_proxy_ssl": {
+                "type": "bool",
+                "computed": true
+              },
+              "support_switch_connection_pool_type": {
+                "type": "bool",
+                "computed": true
+              },
+              "support_transaction_split": {
+                "type": "bool",
+                "computed": true
+              },
+              "transaction_split": {
+                "type": "string",
+                "computed": true
+              },
+              "vcpus": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "master_node_weight": {
+                "block": {
+                  "attributes": {
+                    "id": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "weight": {
+                      "type": "number",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "readonly_nodes_weight": {
+                "block": {
+                  "attributes": {
+                    "id": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "weight": {
+                      "type": "number",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "set"
+              }
+            }
+          },
+          "product": {
+            "short": "RDS",
+            "name": "Relational Database Service",
+            "catalog": "Databases",
+            "name_cn": "云数据库",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

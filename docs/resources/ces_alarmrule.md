@@ -155,6 +155,40 @@ resource "huaweicloud_ces_alarmrule" "test" {
 }
 ```
 
+### Alarm rule using the alarm template
+
+```hcl
+variable "topic_urn" {}
+variable "alarm_template_id" {}
+variable "instance_id" {}
+
+resource "huaweicloud_ces_alarmrule" "test" {
+  alarm_name           = "rule-test"
+  alarm_enabled        = true
+  alarm_action_enabled = true
+  alarm_type           = "MULTI_INSTANCE"
+  alarm_template_id    = var.alarm_template_id
+
+  metric {
+    namespace = "SYS.ECS"
+  }
+
+  resources {
+    dimensions {
+      name  = "instance_id"
+      value = var.instance_id
+    }
+  }
+
+  alarm_actions {
+    type              = "notification"
+    notification_list = [
+      var.topic_urn
+    ]
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -162,13 +196,19 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) The region in which to create the alarm rule resource. If omitted, the
   provider-level region will be used. Changing this creates a new resource.
 
-* `alarm_name` - (Required, String) Specifies the name of an alarm rule. The value can be a string of 1 to 128
-  characters that can consist of letters, digits, underscores (_), hyphens (-) and chinese characters.
+* `alarm_name` - (Required, String) Specifies the name of an alarm rule. The value can be a string of `1` to `128`
+  characters that can consist of English letters, Chinese characters, digits, underscores (_), hyphens (-).
 
 * `metric` - (Required, List, ForceNew) Specifies the alarm metrics. The structure is described below. Changing this
   creates a new resource.
 
-* `condition` - (Required, List) Specifies the alarm triggering condition. The structure is described below.
+* `alarm_template_id` - (Optional, String, ForceNew) Specifies the ID of the alarm template.
+  When using `alarm_template_id`, the fields `alarm_name`, `alarm_description`, `alarm_action_enabled`, `alarm_actions`
+  and `ok_actions` cannot be updated.
+  Changing this creates a new resource.
+
+* `condition` - (Optional, List) Specifies the alarm triggering condition.
+  The [condition](#Condition) structure is documented below.
 
 * `resources` - (Optional, List) Specifies the list of the resources to add into the alarm rule.
   The structure is described below.
@@ -189,11 +229,12 @@ The following arguments are supported:
 * `alarm_action_enabled` - (Optional, Bool) Specifies whether to enable the action to be triggered by an alarm. The
   default value is true.
 
-* `notification_begin_time` - (Optional, String, ForceNew) Specifies the alarm notification start time, for
-  example: **05:30**. Changing this creates a new resource.
+* `notification_begin_time` - (Optional, String) Specifies the alarm notification start time, for example: **05:30**.
 
-* `notification_end_time` - (Optional, String, ForceNew) Specifies the alarm notification stop time, for
-  example: **22:10**. Changing this creates a new resource.
+* `notification_end_time` - (Optional, String) Specifies the alarm notification stop time, for example: **22:10**.
+
+* `effective_timezone` - (Optional, String) Specifies the time zone, for example: **GMT-08:00**, **GMT+08:00** or
+  **GMT+0:00**.
 
 * `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID of the alarm rule.
 
@@ -219,6 +260,7 @@ The `dimensions` block supports:
 * `value` - (Optional, String) Specifies the dimension value. The value can be a string of 1 to 64 characters
   that must start with a letter or a number and contain only letters, digits, underscores (_), and hyphens (-).
 
+<a name="Condition"></a>
 The `condition` block supports:
 
 * `period` - (Required, Int) Specifies the alarm checking period in seconds. The value can be 0, 1, 300, 1200, 3600, 14400,
@@ -253,7 +295,7 @@ The `condition` block supports:
   + **43200**: Cloud Eye triggers the alarm every 12 hour;
   + **86400**: Cloud Eye triggers the alarm every day.
 
-  The default value is **0**.
+  The default value is `0`.
 
 * `metric_name` - (Required, String) Specifies the metric name of the condition. The value can be a string of
   1 to 64 characters that must start with a letter and contain only letters, digits, and underscores (_).
@@ -310,6 +352,6 @@ This resource provides the following timeouts configuration options:
 
 CES alarm rules can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_ces_alarmrule.alarm_rule al1619578509719Ga0X1RGWv
 ```

@@ -1,0 +1,72 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_container_kubernetes_endpoints": {
+          "block": {
+            "attributes": {
+              "cluster_name": {
+                "type": "string",
+                "optional": true
+              },
+              "endpoint_info_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "association_service": "bool",
+                      "cluster_name": "string",
+                      "cluster_type": "string",
+                      "creation_timestamp": "number",
+                      "id": "string",
+                      "name": "string",
+                      "namespace": "string",
+                      "service_name": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "last_update_time": {
+                "type": "number",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "namespace": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "total_num": {
+                "type": "number",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

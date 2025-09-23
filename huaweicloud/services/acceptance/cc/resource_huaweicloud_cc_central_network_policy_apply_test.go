@@ -92,6 +92,7 @@ func TestAccCentralNetworkPolicyApply_basic(t *testing.T) {
 				ResourceName:      rName,
 				ImportState:       true,
 				ImportStateVerify: true,
+				ImportStateIdFunc: testCentralNetworkPolicyApplyImportState(rName),
 			},
 		},
 	})
@@ -108,4 +109,22 @@ resource "huaweicloud_cc_central_network_policy_apply" "test" {
   policy_id          = huaweicloud_cc_central_network_policy.test.id
 }
 `, policyConfig)
+}
+
+func testCentralNetworkPolicyApplyImportState(name string) resource.ImportStateIdFunc {
+	return func(s *terraform.State) (string, error) {
+		rs, ok := s.RootModule().Resources[name]
+		if !ok {
+			return "", fmt.Errorf("resource (%s) not found: %s", name, rs)
+		}
+		if rs.Primary.ID == "" {
+			return "", fmt.Errorf("attribute (ID) of resource (%s) not found: %s", name, rs)
+		}
+
+		if rs.Primary.Attributes["policy_id"] == "" {
+			return "", fmt.Errorf("attribute (policy_id) of resource (%s) not found: %s", name, rs)
+		}
+
+		return rs.Primary.ID + "/" + rs.Primary.Attributes["policy_id"], nil
+	}
 }

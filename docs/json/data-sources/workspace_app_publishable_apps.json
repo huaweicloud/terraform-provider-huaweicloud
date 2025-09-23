@@ -1,0 +1,69 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_workspace_app_publishable_apps": {
+          "block": {
+            "attributes": {
+              "app_group_id": {
+                "type": "string",
+                "description": "Specifies the ID of the application group.",
+                "required": true
+              },
+              "apps": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "command_param": "string",
+                      "description": "string",
+                      "execute_path": "string",
+                      "icon_index": "number",
+                      "icon_path": "string",
+                      "name": "string",
+                      "publishable": "bool",
+                      "publisher": "string",
+                      "source_image_ids": [
+                        "list",
+                        "string"
+                      ],
+                      "version": "string",
+                      "work_path": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the publishable applications.",
+                "computed": true
+              },
+              "group_images": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The list of image IDs under the server group.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

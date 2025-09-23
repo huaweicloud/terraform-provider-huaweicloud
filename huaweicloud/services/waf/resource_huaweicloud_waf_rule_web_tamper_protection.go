@@ -21,7 +21,7 @@ import (
 // @API WAF GET /v1/{project_id}/waf/policy/{policy_id}/antitamper/{rule_id}
 // @API WAF DELETE /v1/{project_id}/waf/policy/{policy_id}/antitamper/{rule_id}
 // @API WAF PUT /v1/{project_id}/waf/policy/{policy_id}/{rule_type}/{rule_id}/status
-func ResourceWafRuleWebTamperProtectionV1() *schema.Resource {
+func ResourceWafRuleWebTamperProtection() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceWafRuleWebTamperProtectionCreate,
 		UpdateContext: resourceWafRuleWebTamperProtectionUpdate,
@@ -131,6 +131,7 @@ func resourceWafRuleWebTamperProtectionRead(_ context.Context, d *schema.Resourc
 	epsID := cfg.GetEnterpriseProjectID(d)
 	n, err := rules.GetWithEpsID(wafClient, policyID, d.Id(), epsID).Extract()
 	if err != nil {
+		// If the web tamper protection rule does not exist, the response HTTP status code of the details API is 404.
 		return common.CheckDeletedDiag(d, err, "error retrieving WAF web tamper protection rule")
 	}
 
@@ -156,7 +157,8 @@ func resourceWafRuleWebTamperProtectionDelete(_ context.Context, d *schema.Resou
 	epsID := cfg.GetEnterpriseProjectID(d)
 	err = rules.DeleteWithEpsID(wafClient, policyID, d.Id(), epsID).ExtractErr()
 	if err != nil {
-		return diag.Errorf("error deleting WAF web tamper protection rule: %s", err)
+		// If the web tamper protection rule does not exist, the response HTTP status code of the deletion API is 404.
+		return common.CheckDeletedDiag(d, err, "error deleting WAF web tamper protection rule")
 	}
 	return nil
 }

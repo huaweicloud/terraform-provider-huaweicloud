@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -17,6 +16,12 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
+
+var tableModelErrCodes = []string{
+	"DLG.0818", // Workspace not found.
+	"DLG.6019", // Resource not found.
+	"DLG.3902", // Resource ID value is incorrect.
+}
 
 // @API DataArtsStudio POST /v2/{project_id}/design/table-model
 // @API DataArtsStudio DELETE /v2/{project_id}/design/table-model
@@ -529,7 +534,7 @@ func ResourceArchitectureTableModel() *schema.Resource {
 				Computed: true,
 			},
 			"reversed": {
-				Type:     schema.TypeString,
+				Type:     schema.TypeBool,
 				Optional: true,
 				Computed: true,
 			},
@@ -666,12 +671,12 @@ func resourceTableModelCreate(ctx context.Context, d *schema.ResourceData, meta 
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	tableModel := utils.PathSearch("data.value", createTableModelRespBody, nil)
-	id, err := jmespath.Search("id", tableModel)
-	if err != nil {
-		return diag.Errorf("error creating DataArts Architecture table model: %s is not found in API response", "id")
+
+	modelId := utils.PathSearch("data.value.id", createTableModelRespBody, "").(string)
+	if modelId == "" {
+		return diag.Errorf("unable to find the DataArts Architecture table model ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(modelId)
 
 	return resourceTableModelRead(ctx, d, meta)
 }
@@ -705,7 +710,7 @@ func buildCreateOrUpdateTableModelBodyParams(d *schema.ResourceData) map[string]
 		"data_format":                    utils.ValueIgnoreEmpty(d.Get("data_format")),
 		"dlf_task_id":                    utils.ValueIgnoreEmpty(d.Get("dlf_task_id")),
 		"use_recently_partition":         utils.ValueIgnoreEmpty(d.Get("use_recently_partition")),
-		"reversed":                       utils.ValueIgnoreEmpty(d.Get("reversed")),
+		"reversed":                       d.Get("reversed"),
 		"db_name":                        utils.ValueIgnoreEmpty(d.Get("db_name")),
 		"queue_name":                     utils.ValueIgnoreEmpty(d.Get("queue_name")),
 		"schema":                         utils.ValueIgnoreEmpty(d.Get("schema")),
@@ -894,10 +899,8 @@ func resourceTableModelRead(_ context.Context, d *schema.ResourceData, meta inte
 
 	getTableModelResp, err := getTableModelClient.Request("GET", getTableModelPath, &getTableModelOpt)
 	if err != nil {
-		if hasErrorCode(err, "DLG.6019") {
-			err = golangsdk.ErrDefault404{}
-		}
-		return common.CheckDeletedDiag(d, err, "error retrieving table model")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "errors|[0].error_code", tableModelErrCodes...),
+			"error retrieving table model")
 	}
 	getTableModelRespBody, err := utils.FlattenResponse(getTableModelResp)
 	if err != nil {
@@ -932,7 +935,7 @@ func resourceTableModelRead(_ context.Context, d *schema.ResourceData, meta inte
 		d.Set("data_format", utils.PathSearch("data_format", tableModel, nil)),
 		d.Set("dlf_task_id", utils.PathSearch("dlf_task_id", tableModel, nil)),
 		d.Set("use_recently_partition", utils.PathSearch("use_recently_partition", tableModel, false)),
-		d.Set("reversed", utils.PathSearch("reversed", tableModel, nil)),
+		d.Set("reversed", utils.PathSearch("reversed", tableModel, false)),
 		d.Set("db_name", utils.PathSearch("db_name", tableModel, nil)),
 		d.Set("queue_name", utils.PathSearch("queue_name", tableModel, nil)),
 		d.Set("schema", utils.PathSearch("schema", tableModel, nil)),

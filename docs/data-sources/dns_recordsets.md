@@ -60,6 +60,18 @@ The following arguments are supported:
 
   If not specified, fuzzy matching will be used.
 
+* `sort_key` - (Optional, String) Specifies the sorting field for the list of the recordsets to be queried.  
+  The parameter is left blank by default, indicating that the query results are not sorted.  
+  The valid values are as follows:
+  + **name**: The name of the recordset.
+  + **type**: The type of the recordset.
+
+* `sort_dir` - (Optional, String) Specifies the sorting mode for the list of the recordsets to be queried.  
+  The parameter is left blank by default, indicating that the query results are not sorted.  
+  The valid values are as follows:
+  + **asc**: Ascending order.
+  + **desc**: Descending order.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -96,3 +108,7 @@ The `recordsets` block supports:
 * `line_id` - The resolution line ID. This attribute is only valid when `zone_id` is a public zone ID.
 
 * `weight` - The weight of the recordset. This attribute is only valid when `zone_id` is a public zone ID.
+
+* `created_at` - The creation time of the recordset, in RFC3339 format.
+
+* `updated_at` - The latest update time of the recordset, in RFC3339 format.

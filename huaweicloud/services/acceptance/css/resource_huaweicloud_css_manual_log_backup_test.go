@@ -7,7 +7,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -44,10 +43,7 @@ func getManualLogBackupResourceFunc(cfg *config.Config, state *terraform.Resourc
 		if err != nil {
 			return getLogBackupJobRespBody, err
 		}
-		logBackupJob, err := jmespath.Search(expression, getLogBackupJobRespBody)
-		if err != nil {
-			return nil, err
-		}
+		logBackupJob := utils.PathSearch(expression, getLogBackupJobRespBody, nil)
 		if logBackupJob != nil {
 			return logBackupJob, nil
 		}

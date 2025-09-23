@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -147,30 +146,27 @@ func conditionsSchema() *schema.Resource {
 
 func resourceRulePreciseProtectionCreate(ctx context.Context, d *schema.ResourceData,
 	meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
 	var (
-		preciseProtectionHttpUrl = "v1/{project_id}/waf/policy/{policy_id}/custom"
-		preciseProtectionProduct = "waf"
+		cfg      = meta.(*config.Config)
+		region   = cfg.GetRegion(d)
+		httpUrl  = "v1/{project_id}/waf/policy/{policy_id}/custom"
+		product  = "waf"
+		policyID = d.Get("policy_id").(string)
 	)
-	preciseProtectionClient, err := cfg.NewServiceClient(preciseProtectionProduct, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating WAF Client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
-	createPath := preciseProtectionClient.Endpoint + preciseProtectionHttpUrl
-	createPath = strings.ReplaceAll(createPath, "{project_id}", preciseProtectionClient.ProjectID)
-	createPath = strings.ReplaceAll(createPath, "{policy_id}", fmt.Sprintf("%v", d.Get("policy_id")))
-	createPath += buildQueryParams(d, cfg)
-	createOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{policy_id}", policyID)
+	requestPath += buildQueryParams(d, cfg)
+	requestOpt := golangsdk.RequestOpts{
 		MoreHeaders: map[string]string{
 			"Content-Type": "application/json;charset=utf8",
 		},
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
 
 	bodyParam, err := buildCreateOrUpdateBodyParams(d)
@@ -178,25 +174,25 @@ func resourceRulePreciseProtectionCreate(ctx context.Context, d *schema.Resource
 		return diag.FromErr(err)
 	}
 
-	createOpt.JSONBody = utils.RemoveNil(bodyParam)
-	createResp, err := preciseProtectionClient.Request("POST", createPath, &createOpt)
+	requestOpt.JSONBody = utils.RemoveNil(bodyParam)
+	resp, err := client.Request("POST", requestPath, &requestOpt)
 	if err != nil {
-		return diag.Errorf("error creating RulePreciseProtection: %s", err)
+		return diag.Errorf("error creating WAF precise protection rule: %s", err)
 	}
 
-	createRespBody, err := utils.FlattenResponse(createResp)
+	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("id", createRespBody)
-	if err != nil {
-		return diag.Errorf("error creating RulePreciseProtection: ID is not found in API response")
+	protectionId := utils.PathSearch("id", respBody, "").(string)
+	if protectionId == "" {
+		return diag.Errorf("error creating WAF precise protection rule: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(protectionId)
 
 	if d.Get("status").(int) == 0 {
-		if err := updateRuleStatus(preciseProtectionClient, d, cfg, "custom"); err != nil {
+		if err := updateRuleStatus(client, d, cfg, "custom"); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -206,28 +202,25 @@ func resourceRulePreciseProtectionCreate(ctx context.Context, d *schema.Resource
 func updateRuleStatus(client *golangsdk.ServiceClient, d *schema.ResourceData, cfg *config.Config,
 	ruleType string) error {
 	var (
-		updateWAFRuleStatusHttpUrl = "v1/{project_id}/waf/policy/{policy_id}/{rule_type}/{rule_id}/status"
-		policyID                   = fmt.Sprintf("%v", d.Get("policy_id"))
+		httpUrl  = "v1/{project_id}/waf/policy/{policy_id}/{rule_type}/{rule_id}/status"
+		policyID = d.Get("policy_id").(string)
 	)
 
-	updateStatusPath := client.Endpoint + updateWAFRuleStatusHttpUrl
-	updateStatusPath = strings.ReplaceAll(updateStatusPath, "{project_id}", client.ProjectID)
-	updateStatusPath = strings.ReplaceAll(updateStatusPath, "{policy_id}", policyID)
-	updateStatusPath = strings.ReplaceAll(updateStatusPath, "{rule_type}", ruleType)
-	updateStatusPath = strings.ReplaceAll(updateStatusPath, "{rule_id}", d.Id())
-	updateStatusPath += buildQueryParams(d, cfg)
-
-	updateWAFRuleStatusOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{policy_id}", policyID)
+	requestPath = strings.ReplaceAll(requestPath, "{rule_type}", ruleType)
+	requestPath = strings.ReplaceAll(requestPath, "{rule_id}", d.Id())
+	requestPath += buildQueryParams(d, cfg)
+	requestOpt := golangsdk.RequestOpts{
 		MoreHeaders: map[string]string{
 			"Content-Type": "application/json;charset=utf8",
 		},
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
+		JSONBody:         utils.RemoveNil(buildUpdateWAFRuleStatusBodyParams(d)),
 	}
-	updateWAFRuleStatusOpt.JSONBody = utils.RemoveNil(buildUpdateWAFRuleStatusBodyParams(d))
-	_, err := client.Request("PUT", updateStatusPath, &updateWAFRuleStatusOpt)
+
+	_, err := client.Request("PUT", requestPath, &requestOpt)
 	if err != nil {
 		return fmt.Errorf("error updating %s rule status: %s", ruleType, err)
 	}
@@ -323,58 +316,55 @@ func buildQueryParams(d *schema.ResourceData, cfg *config.Config) string {
 }
 
 func resourceRulePreciseProtectionRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	var mErr *multierror.Error
-
 	var (
-		preciseProtectionHttpUrl = "v1/{project_id}/waf/policy/{policy_id}/custom/{rule_id}"
-		product                  = "waf"
+		cfg      = meta.(*config.Config)
+		region   = cfg.GetRegion(d)
+		mErr     *multierror.Error
+		httpUrl  = "v1/{project_id}/waf/policy/{policy_id}/custom/{rule_id}"
+		product  = "waf"
+		policyID = d.Get("policy_id").(string)
 	)
-	preciseProtectionClient, err := cfg.NewServiceClient(product, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating WAF Client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
-	getRulePath := preciseProtectionClient.Endpoint + preciseProtectionHttpUrl
-	getRulePath = strings.ReplaceAll(getRulePath, "{project_id}", preciseProtectionClient.ProjectID)
-	getRulePath = strings.ReplaceAll(getRulePath, "{policy_id}", fmt.Sprintf("%v", d.Get("policy_id")))
-	getRulePath = strings.ReplaceAll(getRulePath, "{rule_id}", d.Id())
-	getRulePath += buildQueryParams(d, cfg)
-
-	getRuleOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{policy_id}", policyID)
+	requestPath = strings.ReplaceAll(requestPath, "{rule_id}", d.Id())
+	requestPath += buildQueryParams(d, cfg)
+	requestOpt := golangsdk.RequestOpts{
 		MoreHeaders: map[string]string{
 			"Content-Type": "application/json;charset=utf8",
 		},
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
-	getRuleResp, err := preciseProtectionClient.Request("GET", getRulePath, &getRuleOpt)
 
+	resp, err := client.Request("GET", requestPath, &requestOpt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving RulePreciseProtection")
+		// If the rule does not exist, the response HTTP status code of the details API is 404.
+		return common.CheckDeletedDiag(d, err, "error retrieving WAF precise protection rule")
 	}
 
-	getRuleRespBody, err := utils.FlattenResponse(getRuleResp)
+	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
+
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),
-		d.Set("name", utils.PathSearch("name", getRuleRespBody, nil)),
-		d.Set("policy_id", utils.PathSearch("policyid", getRuleRespBody, nil)),
-		d.Set("description", utils.PathSearch("description", getRuleRespBody, nil)),
-		d.Set("priority", utils.PathSearch("priority", getRuleRespBody, nil)),
-		d.Set("status", utils.PathSearch("status", getRuleRespBody, nil)),
-		d.Set("conditions", flattenRulePreciseProtectionConditions(getRuleRespBody)),
-		d.Set("action", utils.PathSearch("action.category", getRuleRespBody, nil)),
-		d.Set("known_attack_source_id", utils.PathSearch("action.followed_action_id", getRuleRespBody, nil)),
-		d.Set("start_time", flattenRulePreciseProtectionTime(getRuleRespBody, "start")),
-		d.Set("end_time", flattenRulePreciseProtectionTime(getRuleRespBody, "terminal")),
+		d.Set("name", utils.PathSearch("name", respBody, nil)),
+		d.Set("policy_id", utils.PathSearch("policyid", respBody, nil)),
+		d.Set("description", utils.PathSearch("description", respBody, nil)),
+		d.Set("priority", utils.PathSearch("priority", respBody, nil)),
+		d.Set("status", utils.PathSearch("status", respBody, nil)),
+		d.Set("conditions", flattenRulePreciseProtectionConditions(respBody)),
+		d.Set("action", utils.PathSearch("action.category", respBody, nil)),
+		d.Set("known_attack_source_id", utils.PathSearch("action.followed_action_id", respBody, nil)),
+		d.Set("start_time", flattenRulePreciseProtectionTime(respBody, "start")),
+		d.Set("end_time", flattenRulePreciseProtectionTime(respBody, "terminal")),
 	)
 	return diag.FromErr(mErr.ErrorOrNil())
 }
@@ -413,9 +403,9 @@ func resourceRulePreciseProtectionUpdate(ctx context.Context, d *schema.Resource
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
-	preciseProtectionClient, err := cfg.NewServiceClient("waf", region)
+	client, err := cfg.NewServiceClient("waf", region)
 	if err != nil {
-		return diag.Errorf("error creating WAF Client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
 	updateWAFRulePreciseProtectionChanges := []string{
@@ -430,37 +420,32 @@ func resourceRulePreciseProtectionUpdate(ctx context.Context, d *schema.Resource
 	}
 
 	if d.HasChanges(updateWAFRulePreciseProtectionChanges...) {
-		updateHttpUrl := "v1/{project_id}/waf/policy/{policy_id}/custom/{rule_id}"
-
-		updatePath := preciseProtectionClient.Endpoint + updateHttpUrl
-		updatePath = strings.ReplaceAll(updatePath, "{project_id}", preciseProtectionClient.ProjectID)
-		updatePath = strings.ReplaceAll(updatePath, "{policy_id}", d.Get("policy_id").(string))
-		updatePath = strings.ReplaceAll(updatePath, "{rule_id}", d.Id())
-		updatePath += buildQueryParams(d, cfg)
-
-		updateOpt := golangsdk.RequestOpts{
+		requestPath := client.Endpoint + "v1/{project_id}/waf/policy/{policy_id}/custom/{rule_id}"
+		requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+		requestPath = strings.ReplaceAll(requestPath, "{policy_id}", d.Get("policy_id").(string))
+		requestPath = strings.ReplaceAll(requestPath, "{rule_id}", d.Id())
+		requestPath += buildQueryParams(d, cfg)
+		requestOpt := golangsdk.RequestOpts{
 			MoreHeaders: map[string]string{
 				"Content-Type": "application/json;charset=utf8",
 			},
 			KeepResponseBody: true,
-			OkCodes: []int{
-				200,
-			},
 		}
+
 		bodyParam, err := buildCreateOrUpdateBodyParams(d)
 		if err != nil {
 			return diag.FromErr(err)
 		}
+		requestOpt.JSONBody = utils.RemoveNil(bodyParam)
 
-		updateOpt.JSONBody = utils.RemoveNil(bodyParam)
-		_, err = preciseProtectionClient.Request("PUT", updatePath, &updateOpt)
+		_, err = client.Request("PUT", requestPath, &requestOpt)
 		if err != nil {
-			return diag.Errorf("error updating RulePreciseProtection: %s", err)
+			return diag.Errorf("error updating WAF precise protection rule: %s", err)
 		}
 	}
 
 	if d.HasChange("status") {
-		if err := updateRuleStatus(preciseProtectionClient, d, cfg, "custom"); err != nil {
+		if err := updateRuleStatus(client, d, cfg, "custom"); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -468,36 +453,34 @@ func resourceRulePreciseProtectionUpdate(ctx context.Context, d *schema.Resource
 }
 
 func resourceRulePreciseProtectionDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
 	var (
-		deleteHttpUrl = "v1/{project_id}/waf/policy/{policy_id}/custom/{rule_id}"
-		product       = "waf"
+		cfg      = meta.(*config.Config)
+		region   = cfg.GetRegion(d)
+		httpUrl  = "v1/{project_id}/waf/policy/{policy_id}/custom/{rule_id}"
+		product  = "waf"
+		policyID = d.Get("policy_id").(string)
 	)
-	preciseProtectionClient, err := cfg.NewServiceClient(product, region)
+	client, err := cfg.NewServiceClient(product, region)
 	if err != nil {
-		return diag.Errorf("error creating WAF Client: %s", err)
+		return diag.Errorf("error creating WAF client: %s", err)
 	}
 
-	deletePath := preciseProtectionClient.Endpoint + deleteHttpUrl
-	deletePath = strings.ReplaceAll(deletePath, "{project_id}", preciseProtectionClient.ProjectID)
-	deletePath = strings.ReplaceAll(deletePath, "{policy_id}", d.Get("policy_id").(string))
-	deletePath = strings.ReplaceAll(deletePath, "{rule_id}", d.Id())
-	deletePath += buildQueryParams(d, cfg)
-
-	deleteOpt := golangsdk.RequestOpts{
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{policy_id}", policyID)
+	requestPath = strings.ReplaceAll(requestPath, "{rule_id}", d.Id())
+	requestPath += buildQueryParams(d, cfg)
+	requestOpt := golangsdk.RequestOpts{
 		MoreHeaders: map[string]string{
 			"Content-Type": "application/json;charset=utf8",
 		},
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
-	_, err = preciseProtectionClient.Request("DELETE", deletePath, &deleteOpt)
+
+	_, err = client.Request("DELETE", requestPath, &requestOpt)
 	if err != nil {
-		return diag.Errorf("error deleting RulePreciseProtection: %s", err)
+		// If the rule does not exist, the response HTTP status code of the deletion API is 404.
+		return common.CheckDeletedDiag(d, err, "error deleting WAF precise protection rule")
 	}
 	return nil
 }

@@ -93,6 +93,7 @@ type Instance struct {
 	AccessUser               string             `json:"access_user"`
 	Task                     Task               `json:"task"`
 	Tags                     []tags.ResourceTag `json:"tags"`
+	EnableAcl                bool               `json:"enable_acl"`
 }
 
 type Task struct {

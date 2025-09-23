@@ -3,13 +3,14 @@ package eg
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/chnsz/golangsdk/openstack/eg/v1/channel/custom"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -28,22 +29,27 @@ func DataSourceCustomEventChannels() *schema.Resource {
 			"region": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "The region where the custom event channels are located.",
+				Description: `The region where the custom event channels are located.`,
 			},
 			"channel_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "The channel ID used to query specified custom event channel.",
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: utils.SchemaDesc(
+					`The channel ID used to query specified custom event channel.`,
+					utils.SchemaDescInput{
+						Deprecated: true,
+					},
+				),
 			},
 			"name": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "The channel name used to query specified custom event channel.",
+				Description: `The channel name used to query specified custom event channel.`,
 			},
 			"enterprise_project_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "The ID of the enterprise project to which the custom event channels belong.",
+				Description: `The ID of the enterprise project to which the custom event channels belong.`,
 			},
 			"channels": {
 				Type:     schema.TypeList,
@@ -53,43 +59,43 @@ func DataSourceCustomEventChannels() *schema.Resource {
 						"id": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "The ID of the custom event channel.",
+							Description: `The ID of the custom event channel.`,
 						},
 						"name": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "The name of the custom event channel.",
+							Description: `The name of the custom event channel.`,
 						},
 						"description": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "The description of the custom event channel.",
+							Description: `The description of the custom event channel.`,
 						},
 						"provider_type": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "The type of the custom event channel.",
+							Description: `The type of the custom event channel.`,
 						},
 						"enterprise_project_id": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "The ID of the enterprise project to which the custom event channel belongs.",
+							Description: `The ID of the enterprise project to which the custom event channel belongs.`,
 						},
 						"cross_account_ids": {
-							Type:        schema.TypeSet,
+							Type:        schema.TypeList,
 							Computed:    true,
-							Description: "The list of domain IDs (other tenants) for the cross-account policy.",
+							Description: `The list of domain IDs (other tenants) for the cross-account policy.`,
 							Elem:        &schema.Schema{Type: schema.TypeString},
 						},
 						"created_at": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "The creation time of the custom event channel.",
+							Description: `The creation time of the custom event channel.`,
 						},
 						"updated_at": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "The latest update time of the custom event channel.",
+							Description: `The latest update time of the custom event channel.`,
 						},
 					},
 				},
@@ -98,35 +104,88 @@ func DataSourceCustomEventChannels() *schema.Resource {
 	}
 }
 
-func filterCustomEventChannels(channels []custom.Channel, epsId string) ([]interface{}, error) {
-	filter := map[string]interface{}{
-		"EnterpriseProjectId": epsId,
+func buildEventChannelsQueryParams(d *schema.ResourceData, providerTypeInput ...string) string {
+	res := ""
+	if channelName, ok := d.GetOk("name"); ok {
+		res = fmt.Sprintf("%s&name=%v", res, channelName)
+	}
+	if channelId, ok := d.GetOk("channel_id"); ok {
+		res = fmt.Sprintf("%s&channel_id=%v", res, channelId)
 	}
 
-	filterResult, err := utils.FilterSliceWithField(channels, filter)
-	if err != nil {
-		return nil, fmt.Errorf("error filting list of custom event channels: %s", err)
+	if len(providerTypeInput) > 0 {
+		res = fmt.Sprintf("%s&provider_type=%v", res, providerTypeInput[0])
+	} else if typeVal, ok := d.GetOk("provider_type"); ok {
+		res = fmt.Sprintf("%s&provider_type=%v", res, typeVal)
 	}
-	return filterResult, nil
+	return res
 }
 
-func flattenCustomEventChannels(channels []interface{}) []map[string]interface{} {
-	if len(channels) < 1 {
-		return nil
+func queryEventChannels(client *golangsdk.ServiceClient, d *schema.ResourceData, providerTypeInput ...string) ([]interface{}, error) {
+	var (
+		httpUrl      = "v1/{project_id}/channels?limit=100"
+		offset       = 0
+		result       = make([]interface{}, 0)
+		providerType string
+	)
+	listPath := client.Endpoint + httpUrl
+	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
+	listPath = strings.ReplaceAll(listPath, "{provider_type}", providerType)
+	listPath += buildEventChannelsQueryParams(d, providerTypeInput...)
+
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 	}
 
-	result := make([]map[string]interface{}, len(channels))
-	for i, val := range channels {
-		channel := val.(custom.Channel)
-		result[i] = map[string]interface{}{
-			"id":                    channel.ID,
-			"name":                  channel.Name,
-			"provider_type":         channel.ProviderType,
-			"enterprise_project_id": channel.EnterpriseProjectId,
-			"cross_account_ids":     channel.Policy.Principal.IAM,
-			"created_at":            channel.CreatedTime,
-			"updated_at":            channel.UpdatedTime,
+	for {
+		listPathWithOffset := listPath + fmt.Sprintf("&offset=%d", offset)
+		requestResp, err := client.Request("GET", listPathWithOffset, &opt)
+		if err != nil {
+			return nil, err
 		}
+		respBody, err := utils.FlattenResponse(requestResp)
+		if err != nil {
+			return nil, err
+		}
+		channels := utils.PathSearch("items", respBody, make([]interface{}, 0)).([]interface{})
+		if len(channels) < 1 {
+			break
+		}
+		result = append(result, channels...)
+		offset += len(channels)
+	}
+
+	return result, nil
+}
+
+func flattenDataEventChannels(channels []interface{}) []interface{} {
+	result := make([]interface{}, 0, len(channels))
+
+	for _, channel := range channels {
+		result = append(result, map[string]interface{}{
+			"id":                    utils.PathSearch("id", channel, nil),
+			"name":                  utils.PathSearch("name", channel, nil),
+			"description":           utils.PathSearch("description", channel, nil),
+			"provider_type":         utils.PathSearch("provider_type", channel, nil),
+			"enterprise_project_id": utils.PathSearch("eps_id", channel, nil),
+			"cross_account_ids":     utils.PathSearch("policy.Principal.IAM", channel, make([]interface{}, 0)),
+			"created_at":            utils.PathSearch("created_time", channel, nil),
+			"updated_at":            utils.PathSearch("updated_time", channel, nil),
+		})
+	}
+
+	return result
+}
+
+func filterDataEventChannels(cfg *config.Config, d *schema.ResourceData, channels []interface{}) []interface{} {
+	// Copy slice contents without having to worry about underlying reuse issues.
+	result := channels
+	// Pending the issue fixed for the filter parameter 'eps_id' that it is unable to use.
+	if epsId := cfg.GetEnterpriseProjectID(d); epsId != "" {
+		result = utils.PathSearch(fmt.Sprintf("[?eps_id=='%s']", epsId), result, make([]interface{}, 0)).([]interface{})
 	}
 	return result
 }
@@ -135,24 +194,15 @@ func dataSourceCustomEventChannelsRead(_ context.Context, d *schema.ResourceData
 	var (
 		cfg    = meta.(*config.Config)
 		region = cfg.GetRegion(d)
-		opts   = custom.ListOpts{
-			ChannelId:    d.Get("channel_id").(string),
-			ProviderType: "CUSTOM",
-			Name:         d.Get("name").(string),
-		}
 	)
-	client, err := cfg.EgV1Client(region)
+	client, err := cfg.NewServiceClient("eg", region)
 	if err != nil {
-		return diag.Errorf("error creating EG v1 client: %s", err)
+		return diag.Errorf("error creating EG client: %s", err)
 	}
 
-	resp, err := custom.List(client, opts)
+	channels, err := queryEventChannels(client, d, "CUSTOM")
 	if err != nil {
 		return diag.Errorf("error querying custom event channels: %s", err)
-	}
-	filterResult, err := filterCustomEventChannels(resp, cfg.GetEnterpriseProjectID(d))
-	if err != nil {
-		return diag.FromErr(err)
 	}
 
 	uuid, err := uuid.GenerateUUID()
@@ -163,7 +213,7 @@ func dataSourceCustomEventChannelsRead(_ context.Context, d *schema.ResourceData
 
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("channels", flattenCustomEventChannels(filterResult)),
+		d.Set("channels", flattenDataEventChannels(filterDataEventChannels(cfg, d, channels))),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error saving data source fields of EG custom event channels: %s", err)

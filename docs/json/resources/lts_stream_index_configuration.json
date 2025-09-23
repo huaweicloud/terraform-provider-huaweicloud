@@ -1,0 +1,161 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_lts_stream_index_configuration": {
+          "block": {
+            "attributes": {
+              "group_id": {
+                "type": "string",
+                "description": "The ID of the log group to which the index configuration belongs.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "stream_id": {
+                "type": "string",
+                "description": "The ID of the log stream to which the index configuration belongs.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "fields": {
+                "block": {
+                  "attributes": {
+                    "ascii": {
+                      "type": [
+                        "set",
+                        "string"
+                      ],
+                      "description": "The list of the ASCII delimiters.",
+                      "optional": true
+                    },
+                    "case_sensitive": {
+                      "type": "bool",
+                      "description": "Whether letters are case sensitive.",
+                      "optional": true
+                    },
+                    "field_analysis_alias": {
+                      "type": "string",
+                      "description": "The alias name of the field.",
+                      "optional": true
+                    },
+                    "field_name": {
+                      "type": "string",
+                      "description": "The name of the field.",
+                      "required": true
+                    },
+                    "field_type": {
+                      "type": "string",
+                      "description": "The type of the field.",
+                      "required": true
+                    },
+                    "include_chinese": {
+                      "type": "bool",
+                      "description": "Whether to include Chinese.",
+                      "optional": true
+                    },
+                    "quick_analysis": {
+                      "type": "bool",
+                      "description": "Whether to enable quick analysis.",
+                      "optional": true
+                    },
+                    "tokenizer": {
+                      "type": "string",
+                      "description": "The custom delimiter.",
+                      "optional": true
+                    }
+                  },
+                  "block_types": {
+                    "lts_sub_fields_info_list": {
+                      "block": {
+                        "attributes": {
+                          "field_analysis_alias": {
+                            "type": "string",
+                            "description": "The alias name of the field.",
+                            "optional": true
+                          },
+                          "field_name": {
+                            "type": "string",
+                            "description": "The name of the field.",
+                            "required": true
+                          },
+                          "field_type": {
+                            "type": "string",
+                            "description": "The type of the field.",
+                            "required": true
+                          },
+                          "quick_analysis": {
+                            "type": "bool",
+                            "description": "Whether to enable quick analysis.",
+                            "optional": true
+                          }
+                        },
+                        "description": "The list of of the JSON fields."
+                      },
+                      "nesting_mode": "list"
+                    }
+                  },
+                  "description": "The list of the index fields."
+                },
+                "nesting_mode": "list"
+              },
+              "full_text_index": {
+                "block": {
+                  "attributes": {
+                    "ascii": {
+                      "type": [
+                        "set",
+                        "string"
+                      ],
+                      "description": "The list of the ASCII delimiters.",
+                      "optional": true
+                    },
+                    "case_sensitive": {
+                      "type": "bool",
+                      "description": "Whether letters are case-sensitive.",
+                      "optional": true
+                    },
+                    "enable": {
+                      "type": "bool",
+                      "description": "Whether to enable the full-text index.",
+                      "optional": true,
+                      "default": true
+                    },
+                    "include_chinese": {
+                      "type": "bool",
+                      "description": "Whether to include Chinese.",
+                      "optional": true,
+                      "default": true
+                    },
+                    "tokenizer": {
+                      "type": "string",
+                      "description": "The custom delimiter.",
+                      "optional": true
+                    }
+                  },
+                  "description": "The full-text index configuration."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "LTS",
+            "name": "Log Tank Service",
+            "catalog": "Management & Governance",
+            "name_cn": "云日志服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

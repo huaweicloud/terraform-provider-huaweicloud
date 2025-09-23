@@ -5,6 +5,11 @@
         "huaweicloud_lts_transfer": {
           "block": {
             "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the log transfer, in RFC3339 format.",
+                "computed": true
+              },
               "id": {
                 "type": "string",
                 "computed": true
@@ -133,6 +138,11 @@
                             "optional": true,
                             "computed": true
                           },
+                          "invalid_field_value": {
+                            "type": "string",
+                            "description": "The value of the invalid field fill.",
+                            "optional": true
+                          },
                           "kafka_id": {
                             "type": "string",
                             "description": "Kafka ID.",
@@ -144,6 +154,14 @@
                             "description": "Kafka topic.",
                             "optional": true,
                             "computed": true
+                          },
+                          "lts_tags": {
+                            "type": [
+                              "set",
+                              "string"
+                            ],
+                            "description": "The list of built-in fields and custom tags to be transferred.",
+                            "optional": true
                           },
                           "obs_bucket_name": {
                             "type": "string",
@@ -210,6 +228,22 @@
                             "description": "OBS bucket path, which is the log transfer destination.",
                             "optional": true,
                             "computed": true
+                          },
+                          "stream_tags": {
+                            "type": [
+                              "set",
+                              "string"
+                            ],
+                            "description": "The list of stream tag fields to be transferred.",
+                            "optional": true
+                          },
+                          "struct_fields": {
+                            "type": [
+                              "set",
+                              "string"
+                            ],
+                            "description": "The list of structured fields to be transferred.",
+                            "optional": true
                           }
                         }
                       },

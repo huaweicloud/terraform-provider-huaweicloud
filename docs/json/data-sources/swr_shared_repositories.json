@@ -1,0 +1,74 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_swr_shared_repositories": {
+          "block": {
+            "attributes": {
+              "center": {
+                "type": "string",
+                "required": true
+              },
+              "domain_name": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "organization": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "repositories": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "category": "string",
+                      "created_at": "string",
+                      "description": "string",
+                      "domain_name": "string",
+                      "internal_path": "string",
+                      "is_public": "bool",
+                      "name": "string",
+                      "num_download": "number",
+                      "num_images": "number",
+                      "organization": "string",
+                      "path": "string",
+                      "size": "number",
+                      "status": "bool",
+                      "tags": [
+                        "list",
+                        "string"
+                      ],
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "SWR",
+            "name": "Software Repository for Container",
+            "catalog": "Containers",
+            "name_cn": "容器镜像服务",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

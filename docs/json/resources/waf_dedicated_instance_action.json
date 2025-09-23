@@ -1,0 +1,152 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_waf_dedicated_instance_action": {
+          "block": {
+            "attributes": {
+              "access_status": {
+                "type": "number",
+                "computed": true
+              },
+              "action": {
+                "type": "string",
+                "required": true
+              },
+              "arch": {
+                "type": "string",
+                "computed": true
+              },
+              "charge_mode": {
+                "type": "number",
+                "computed": true
+              },
+              "cloud_service_type": {
+                "type": "string",
+                "computed": true
+              },
+              "cluster_id": {
+                "type": "string",
+                "computed": true
+              },
+              "cpu_flavor": {
+                "type": "string",
+                "computed": true
+              },
+              "float_ip": {
+                "type": "string",
+                "computed": true
+              },
+              "hosts": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "hostname": "string",
+                      "id": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "required": true
+              },
+              "instancename": {
+                "type": "string",
+                "computed": true
+              },
+              "params": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "pool_id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "resource_spec_code": {
+                "type": "string",
+                "computed": true
+              },
+              "resource_type": {
+                "type": "string",
+                "computed": true
+              },
+              "run_status": {
+                "type": "number",
+                "computed": true
+              },
+              "security_group_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              },
+              "server_id": {
+                "type": "string",
+                "computed": true
+              },
+              "service_ip": {
+                "type": "string",
+                "computed": true
+              },
+              "service_ipv6": {
+                "type": "string",
+                "computed": true
+              },
+              "specification": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "number",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "computed": true
+              },
+              "upgradable": {
+                "type": "number",
+                "computed": true
+              },
+              "volume_type": {
+                "type": "string",
+                "computed": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "computed": true
+              },
+              "zone": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "WAF",
+            "name": "Web Application Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "Web应用防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,5 @@
+function_name        = "tf_test_timer_function"
+function_description = "Created by Terraform for timer trigger example"
+trigger_name         = "tf_test_timer_cron"
+trigger_user_event   = "Timer trigger with Cron schedule type, triggered every three days"
+trigger_schedule     = "@every 3d"

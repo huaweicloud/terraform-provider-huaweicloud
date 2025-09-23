@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strconv"
 	"strings"
 	"time"
 
@@ -13,14 +14,16 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cbc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
 // @API DLI POST /v3/{project_id}/elastic-resource-pools
+// @API DLI POST /v3/{project_id}/orders/elastic-resource-pools
+// @API BSS POST /v3/orders/customer-orders/pay
 // @API DLI GET /v3/{project_id}/elastic-resource-pools
 // @API DLI PUT /v3/{project_id}/elastic-resource-pools/{elastic_resource_pool_name}
 // @API DLI DELETE /v3/{project_id}/elastic-resource-pools/{elastic_resource_pool_name}
@@ -42,6 +45,8 @@ func ResourceElasticResourcePool() *schema.Resource {
 			StateContext: resourceAssociationImportState,
 		},
 
+		CustomizeDiff: config.MergeDefaultTags(),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:        schema.TypeString,
@@ -56,7 +61,7 @@ func ResourceElasticResourcePool() *schema.Resource {
 				ForceNew:    true,
 				Description: `The name of the elastic resource pool.`,
 				// The server will automatically convert uppercase letters to lowercase letters.
-				DiffSuppressFunc: utils.SuppressCaseDiffs,
+				DiffSuppressFunc: utils.SuppressCaseDiffs(),
 			},
 			"max_cu": {
 				Type:        schema.TypeInt,
@@ -83,9 +88,21 @@ func ResourceElasticResourcePool() *schema.Resource {
 			"enterprise_project_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Computed:    true,
 				Description: `The ID of the enterprise project to which the elastic resource pool belongs.`,
 			},
 			"tags": common.TagsForceNewSchema(),
+			"label": {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				ForceNew:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `The attribute fields of the elastic resource pool.`,
+			},
+			"charging_mode": common.SchemaChargingMode(nil),
+			"period_unit":   common.SchemaPeriodUnit(nil),
+			"period":        common.SchemaPeriod(nil),
+			"auto_renew":    common.SchemaAutoRenewUpdatable(nil),
 			"status": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -101,6 +118,11 @@ func ResourceElasticResourcePool() *schema.Resource {
 				Computed:    true,
 				Description: `The actual CU number of the elastic resource pool.`,
 			},
+			"prepay_cu": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The number of prepaid CUs of the elastic resource pool.`,
+			},
 			"created_at": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -112,9 +134,9 @@ func ResourceElasticResourcePool() *schema.Resource {
 
 func resourceElasticResourcePoolCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg     = meta.(*config.Config)
-		region  = cfg.GetRegion(d)
-		httpUrl = "v3/{project_id}/elastic-resource-pools"
+		cfg                     = meta.(*config.Config)
+		region                  = cfg.GetRegion(d)
+		elasticResourcePoolName = d.Get("name").(string)
 	)
 
 	client, err := cfg.NewServiceClient("dli", region)
@@ -122,32 +144,47 @@ func resourceElasticResourcePoolCreate(ctx context.Context, d *schema.ResourceDa
 		return diag.Errorf("error creating DLI client: %s", err)
 	}
 
-	createPath := client.Endpoint + httpUrl
-	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
-	createOpts := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		JSONBody:         utils.RemoveNil(buildCreateElasticResourcePoolBodyParams(cfg, d)),
+	if d.Get("charging_mode").(string) == "prePaid" {
+		bssClient, err := cfg.NewServiceClient("bssv2", cfg.GetRegion(d))
+		if err != nil {
+			return diag.Errorf("error creating BSS client: %s", err)
+		}
+
+		orderId, err := createPrePaidElasticResourcePool(client, d, cfg.GetEnterpriseProjectID(d))
+		if err != nil {
+			return diag.Errorf("error creating prepaid elastic resource pool (%s): %s", elasticResourcePoolName, err)
+		}
+
+		if orderId == "" {
+			return diag.Errorf("unable to find the order ID from the API response")
+		}
+
+		// The DLI create elastic resource pool interface does not support auto-payment,
+		// so the CBC side interface is called to pay for the order.
+		if err := cbc.PaySubscriptionOrder(bssClient, orderId); err != nil {
+			return diag.Errorf("error paying for the elastic resource pool (%s): %s", elasticResourcePoolName, err)
+		}
+
+		if err := common.WaitOrderComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutDefault)); err != nil {
+			return diag.FromErr(err)
+		}
+
+		resourceId, err := common.WaitOrderResourceComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutDefault))
+		if err != nil {
+			return diag.Errorf("error waiting for elastic resource pool (%s) order (%s) to complete: %s",
+				elasticResourcePoolName, orderId, err)
+		}
+
+		d.SetId(resourceId)
+
+		return resourceElasticResourcePoolRead(ctx, d, meta)
 	}
 
-	requestResp, err := client.Request("POST", createPath, &createOpts)
-	if err != nil {
-		return diag.Errorf("error creating DLI elastic resource pool: %s", err)
-	}
-	respBody, err := utils.FlattenResponse(requestResp)
+	resourceId, err := createPostPaidElasticResourcePool(cfg, client, d)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	if !utils.PathSearch("is_success", respBody, true).(bool) {
-		return diag.Errorf("unable to create the elastic resource pool: %s",
-			utils.PathSearch("message", respBody, "Message Not Found"))
-	}
 
-	resourceName := utils.PathSearch("elastic_resource_pool_name", respBody, "").(string)
-	respBody, err = GetElasticResourcePoolByName(client, resourceName)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	resourceId := utils.PathSearch("resource_id", respBody, "").(string)
 	d.SetId(resourceId)
 
 	err = waitForElasticResourcePoolStatusCompleted(ctx, client, d)
@@ -158,16 +195,92 @@ func resourceElasticResourcePoolCreate(ctx context.Context, d *schema.ResourceDa
 	return resourceElasticResourcePoolRead(ctx, d, meta)
 }
 
-func buildCreateElasticResourcePoolBodyParams(cfg *config.Config, d *schema.ResourceData) map[string]interface{} {
-	return map[string]interface{}{
+func createPrePaidElasticResourcePool(client *golangsdk.ServiceClient, d *schema.ResourceData, epsId string) (string, error) {
+	httpUrl := "v3/{project_id}/orders/elastic-resource-pools"
+	createPath := client.Endpoint + httpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+
+	createOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildCreateElasticResourcePoolBodyParams(d, epsId)),
+	}
+
+	requestResp, err := client.Request("POST", createPath, &createOpts)
+	if err != nil {
+		return "", err
+	}
+
+	respBody, err := utils.FlattenResponse(requestResp)
+	if err != nil {
+		return "", err
+	}
+
+	return utils.PathSearch("order_id", respBody, "").(string), nil
+}
+
+func createPostPaidElasticResourcePool(cfg *config.Config, client *golangsdk.ServiceClient, d *schema.ResourceData) (string, error) {
+	httpUrl := "v3/{project_id}/elastic-resource-pools"
+	createPath := client.Endpoint + httpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+	createOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildCreateElasticResourcePoolBodyParams(d, cfg.GetEnterpriseProjectID(d))),
+	}
+
+	requestResp, err := client.Request("POST", createPath, &createOpts)
+	if err != nil {
+		return "", fmt.Errorf("error creating DLI elastic resource pool: %s", err)
+	}
+
+	respBody, err := utils.FlattenResponse(requestResp)
+	if err != nil {
+		return "", err
+	}
+
+	if !utils.PathSearch("is_success", respBody, true).(bool) {
+		return "", fmt.Errorf("unable to create the elastic resource pool: %s",
+			utils.PathSearch("message", respBody, "Message Not Found"))
+	}
+
+	resourceName := utils.PathSearch("elastic_resource_pool_name", respBody, "").(string)
+	respBody, err = GetElasticResourcePoolByName(client, resourceName)
+	if err != nil {
+		return "", err
+	}
+
+	return utils.PathSearch("resource_id", respBody, "").(string), nil
+}
+
+func buildCreateElasticResourcePoolBodyParams(d *schema.ResourceData, epsId string) map[string]interface{} {
+	params := map[string]interface{}{
 		"elastic_resource_pool_name": d.Get("name"),
-		"description":                d.Get("description"),
+		"description":                utils.ValueIgnoreEmpty(d.Get("description")),
 		"max_cu":                     d.Get("max_cu"),
 		"min_cu":                     d.Get("min_cu"),
-		"cidr_in_vpc":                utils.StringIgnoreEmpty(d.Get("cidr").(string)),
-		"enterprise_project_id":      cfg.GetEnterpriseProjectID(d),
+		"cidr_in_vpc":                utils.ValueIgnoreEmpty(d.Get("cidr").(string)),
+		"enterprise_project_id":      utils.ValueIgnoreEmpty(epsId),
 		"tags":                       utils.ExpandResourceTagsMap(d.Get("tags").(map[string]interface{})),
+		"label":                      utils.ValueIgnoreEmpty(d.Get("label")),
 	}
+
+	if d.Get("charging_mode").(string) == "prePaid" {
+		params["charging_mode"] = 2
+		params["period_type"] = d.Get("period_unit")
+		params["period_num"] = d.Get("period")
+		params["auto_renew"] = parseElasticResourcePoolAutoRenew(d.Get("auto_renew").(string))
+	}
+
+	return params
+}
+
+func parseElasticResourcePoolAutoRenew(autoRenew string) bool {
+	result, err := strconv.ParseBool(autoRenew)
+	if err != nil {
+		log.Printf("[ERROR] unable to convert auto_renew to bool value")
+		return false
+	}
+
+	return result
 }
 
 func waitForElasticResourcePoolStatusCompleted(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
@@ -235,14 +348,32 @@ func resourceElasticResourcePoolRead(_ context.Context, d *schema.ResourceData, 
 		d.Set("description", utils.PathSearch("description", respBody, nil)),
 		d.Set("cidr", utils.PathSearch("cidr_in_vpc", respBody, nil)),
 		d.Set("enterprise_project_id", utils.PathSearch("enterprise_project_id", respBody, nil)),
+		// The `tags` is a Computed behavior, but the API doesn't return this field, using `ignore_changes` in a script won't work,
+		// so we need to set this value to ensure `ignore_changes` takes effect during import.
+		d.Set("tags", d.Get("tags")),
+		d.Set("label", utils.PathSearch("label", respBody, nil)),
+		d.Set("charging_mode", convertElasticResourcePoolChargingMode(int(utils.PathSearch("charging_mode", respBody, float64(0)).(float64)))),
 		d.Set("status", utils.PathSearch("status", respBody, nil)),
 		d.Set("current_cu", utils.PathSearch("current_cu", respBody, nil)),
 		d.Set("actual_cu", utils.PathSearch("actual_cu", respBody, nil)),
+		d.Set("prepay_cu", utils.PathSearch("prepay_cu", respBody, nil)),
 		d.Set("created_at", utils.FormatTimeStampRFC3339(
 			int64(utils.PathSearch("create_time", respBody, float64(0)).(float64))/1000, false)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func convertElasticResourcePoolChargingMode(chargingMode int) string {
+	switch chargingMode {
+	case 2:
+		return "prePaid"
+	case 1:
+		return "postPaid"
+	}
+
+	log.Printf("[WARN] error parsing charging_mode from API response")
+	return ""
 }
 
 // GetElasticResourcePools is a method used to query all elastic resource pools in a specified region.
@@ -358,14 +489,25 @@ func resourceElasticResourcePoolUpdate(ctx context.Context, d *schema.ResourceDa
 	}
 
 	if d.HasChange("enterprise_project_id") {
-		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+		migrateOpts := config.MigrateResourceOpts{
 			ResourceId:   resourceId,
 			ResourceType: "dli-elastic-resource-pool",
 			RegionId:     region,
 			ProjectId:    client.ProjectID,
 		}
-		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
+		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChange("auto_renew") {
+		bssClient, err := cfg.NewServiceClient("bssv2", region)
+		if err != nil {
+			return diag.Errorf("error creating BSS client: %s", err)
+		}
+
+		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), resourceId); err != nil {
+			return diag.Errorf("error updating the auto-renew of the elastic resource pool (%s): %s", resourceId, err)
 		}
 	}
 
@@ -384,7 +526,6 @@ func resourceElasticResourcePoolDelete(ctx context.Context, d *schema.ResourceDa
 	var (
 		cfg          = meta.(*config.Config)
 		region       = cfg.GetRegion(d)
-		httpUrl      = "v3/{project_id}/elastic-resource-pools/{elastic_resource_pool_name}"
 		resourceName = d.Get("name").(string)
 	)
 
@@ -393,34 +534,52 @@ func resourceElasticResourcePoolDelete(ctx context.Context, d *schema.ResourceDa
 		return diag.Errorf("error creating DLI client: %s", err)
 	}
 
-	deletePath := client.Endpoint + httpUrl
-	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
-	deletePath = strings.ReplaceAll(deletePath, "{elastic_resource_pool_name}", resourceName)
-	// Due to API restrictions, the request body must pass in an empty JSON.
-	deleteOpts := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
-	}
-
-	requestResp, err := client.Request("DELETE", deletePath, &deleteOpts)
-	if err != nil {
-		return diag.Errorf("error deleting DLI elastic resource pool (%s): %s", resourceName, err)
-	}
-	respBody, err := utils.FlattenResponse(requestResp)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	if !utils.PathSearch("is_success", respBody, true).(bool) {
-		return diag.Errorf("unable to delete the elastic resource pool: %s",
-			utils.PathSearch("message", respBody, "Message Not Found"))
+	if d.Get("charging_mode").(string) == "prePaid" {
+		if err := common.UnsubscribePrePaidResource(d, cfg, []string{d.Id()}); err != nil {
+			// CBC.30000067: The resource has been unsubscribed.
+			return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", "CBC.30000067"),
+				fmt.Sprintf("error unsubscribing elastic resource pool (%s)", resourceName))
+		}
+	} else {
+		err = deleteElasticResourcePool(client, resourceName)
+		if err != nil {
+			// DLI.0002: The resource pool has been deleted.
+			return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", "DLI.0002"),
+				fmt.Sprintf("error deleting elastic resource pool (%s)", resourceName))
+		}
 	}
 
 	err = waitForElasticResourcePoolDeleted(ctx, client, d)
 	if err != nil {
-		diag.Errorf("error waiting for the elastic resource pool (%s) status to become deleted: %s", d.Id(), err)
+		diag.Errorf("error waiting for the elastic resource pool (%s) status to become deleted: %s", resourceName, err)
 	}
+	return nil
+}
+
+func deleteElasticResourcePool(client *golangsdk.ServiceClient, resourceName string) error {
+	httpUrl := "v3/{project_id}/elastic-resource-pools/{elastic_resource_pool_name}"
+	deletePath := client.Endpoint + httpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = strings.ReplaceAll(deletePath, "{elastic_resource_pool_name}", resourceName)
+	deleteOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	requestResp, err := client.Request("DELETE", deletePath, &deleteOpts)
+	if err != nil {
+		return err
+	}
+
+	respBody, err := utils.FlattenResponse(requestResp)
+	if err != nil {
+		return err
+	}
+
+	if !utils.PathSearch("is_success", respBody, true).(bool) {
+		return fmt.Errorf("unable to delete the elastic resource pool: %s",
+			utils.PathSearch("message", respBody, "Message Not Found"))
+	}
+
 	return nil
 }
 

@@ -15,6 +15,14 @@
                 "description": "The address type.",
                 "required": true
               },
+              "applications": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "description": "The application list.",
+                "optional": true
+              },
               "description": {
                 "type": "string",
                 "description": "The rule description.",
@@ -154,8 +162,8 @@
                   "map",
                   "string"
                 ],
-                "description": "The key/value pairs to associate with the ACL rule.",
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "type": {
                 "type": "number",

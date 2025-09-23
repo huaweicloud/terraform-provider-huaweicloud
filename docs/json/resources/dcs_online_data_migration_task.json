@@ -1,0 +1,148 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dcs_online_data_migration_task": {
+          "block": {
+            "attributes": {
+              "bandwidth_limit_mb": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "ecs_tenant_private_ip": {
+                "type": "string",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "migration_method": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "network_type": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "released_at": {
+                "type": "string",
+                "computed": true
+              },
+              "resume_mode": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "security_group_id": {
+                "type": "string",
+                "required": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "required": true
+              },
+              "supported_features": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              },
+              "task_name": {
+                "type": "string",
+                "required": true
+              },
+              "updated_at": {
+                "type": "string",
+                "computed": true
+              },
+              "version": {
+                "type": "string",
+                "computed": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "required": true
+              }
+            },
+            "block_types": {
+              "source_instance": {
+                "block": {
+                  "attributes": {
+                    "addrs": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "password": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              },
+              "target_instance": {
+                "block": {
+                  "attributes": {
+                    "addrs": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "password": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "DCS",
+            "name": "Distributed Cache Service",
+            "catalog": "Middleware",
+            "name_cn": "分布式缓存服务",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

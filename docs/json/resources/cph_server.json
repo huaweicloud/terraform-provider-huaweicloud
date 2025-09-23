@@ -65,8 +65,7 @@
                 "type": "string",
                 "description": "The key pair name, which is used for logging in to the cloud phone through ADB.",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "name": {
                 "type": "string",
@@ -125,6 +124,14 @@
                 "required": true,
                 "forcenew": true
               },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
               "vpc_id": {
                 "type": "string",
                 "description": "The ID of VPC which the cloud server belongs to",
@@ -166,6 +173,47 @@
                 "forcenew": true,
                 "max_items": 1
               },
+              "phone_data_volume": {
+                "block": {
+                  "attributes": {
+                    "created_at": {
+                      "type": "string",
+                      "description": "The creation time.",
+                      "computed": true
+                    },
+                    "updated_at": {
+                      "type": "string",
+                      "description": "The update time.",
+                      "computed": true
+                    },
+                    "volume_id": {
+                      "type": "string",
+                      "description": "The volume ID.",
+                      "computed": true
+                    },
+                    "volume_name": {
+                      "type": "string",
+                      "description": "The volume name.",
+                      "computed": true
+                    },
+                    "volume_size": {
+                      "type": "number",
+                      "description": "Specifies the volume size, the unit is GB.",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "volume_type": {
+                      "type": "string",
+                      "description": "Specifies the volume type.",
+                      "optional": true,
+                      "forcenew": true
+                    }
+                  },
+                  "description": "The phone data volume."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
               "ports": {
                 "block": {
                   "attributes": {
@@ -189,6 +237,32 @@
                 },
                 "nesting_mode": "list",
                 "forcenew": true
+              },
+              "server_share_data_volume": {
+                "block": {
+                  "attributes": {
+                    "size": {
+                      "type": "number",
+                      "description": "Specifies the share volume size, the unit is GB.",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "version": {
+                      "type": "number",
+                      "description": "The share volume type.",
+                      "computed": true
+                    },
+                    "volume_type": {
+                      "type": "string",
+                      "description": "Specifies the share volume type.",
+                      "optional": true,
+                      "forcenew": true
+                    }
+                  },
+                  "description": "The server share data volume."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
               }
             }
           },

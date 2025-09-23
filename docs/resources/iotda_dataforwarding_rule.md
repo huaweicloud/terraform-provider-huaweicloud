@@ -69,7 +69,7 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the IoTDA data forwarding rule
   resource. If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `name` - (Required, String) Specifies the name of data forwarding rule. The name contains a maximum of 256 characters.
+* `name` - (Required, String) Specifies the name of data forwarding rule. The name contains a maximum of `256` characters.
   Only letters, Chinese characters, digits, hyphens (-), underscores (_) and the following special characters are
   allowed: `?'#().,&%@!`.
 
@@ -90,14 +90,14 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `description` - (Optional, String) Specifies the description of data forwarding rule. The description contains
-  a maximum of 256 characters.
+  a maximum of `256` characters.
 
 * `space_id` - (Optional, String, ForceNew) Specifies the resource space ID which uses the data forwarding rule.
   If omitted, all resource space will use the data forwarding rule. Changing this parameter will create a new resource.
 
-* `select` - (Optional, String) Specifies the SQL SELECT statement which contains a maximum of 500 characters.
+* `select` - (Optional, String) Specifies the SQL SELECT statement which contains a maximum of `500` characters.
 
-* `where` - (Optional, String) Specifies the SQL WHERE statement which contains a maximum of 500 characters.
+* `where` - (Optional, String) Specifies the SQL WHERE statement which contains a maximum of `500` characters.
 
 * `targets` - (Optional, List) Specifies the list of the targets (HUAWEI CLOUD services or private servers) to which you
   want to forward the data. The [targets](#IoTDA_targets) structure is documented below.
@@ -106,7 +106,7 @@ The following arguments are supported:
   DIS, OBS, Kafka, ROMA Connect service, and SMN for the first time, you need to create a agency which can access the
   target cloud services. The default agency is `iotda_admin_trust`.
 
-* `enabled` - (Optional, Bool) Specifies whether to enable the data forwarding rule. Defaults to `false`.
+* `enabled` - (Optional, Bool) Specifies whether to enable the data forwarding rule. Defaults to **false**.
   Can not enable without `targets`.
 
 <a name="IoTDA_targets"></a>
@@ -174,7 +174,7 @@ The `obs_forwarding` block supports:
   If omitted, the default project in the region will be used.
 
 * `custom_directory` - (Optional, String) Specifies the custom directory for storing channel files. The ID contains a
- maximum of 256 characters. Multi-level directories can be separated by (/), and cannot start or end with a slash (/),
+ maximum of `256` characters. Multi-level directories can be separated by (/), and cannot start or end with a slash (/),
  and cannot contain more than two adjacent slashes (/). Only letters, digits, hyphens (-), underscores (_), slash (/)
  and braces ({}) are allowed. Braces can be used only for the time template parameters. For example, if the custom
  directory is in the format of {YYYY}/{MM}/{DD}/{HH}, data is generated in the directory based on the current
@@ -232,7 +232,7 @@ In addition to all arguments above, the following attributes are exported:
 
 Data forwarding rules can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_iotda_dataforwarding_rule.test 10022532f4f94f26b01daa1e424853e1
 ```
 
@@ -242,7 +242,7 @@ generally recommended running `terraform plan` after importing the resource. You
 applied to the resource, or the resource definition should be updated to align with the group. Also you can ignore
 changes as below.
 
-```
+```hcl
 resource "huaweicloud_iotda_device_group" "test" {
     ...
 

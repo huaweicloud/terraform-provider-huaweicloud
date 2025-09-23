@@ -1,0 +1,109 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cae_timer_rule": {
+          "block": {
+            "attributes": {
+              "cron": {
+                "type": "string",
+                "description": "The cron expression of the timer rule.",
+                "required": true
+              },
+              "effective_policy": {
+                "type": "string",
+                "description": "The effective policy of the timer rule.",
+                "required": true
+              },
+              "effective_range": {
+                "type": "string",
+                "description": "The effective range of the timer rule.",
+                "required": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The ID of the enterprise project to which the timer rule belongs.",
+                "optional": true,
+                "forcenew": true
+              },
+              "environment_id": {
+                "type": "string",
+                "description": "The ID of the CAE environment.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the timer rule.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the timer rule.",
+                "required": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The type of the timer rule.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "applications": {
+                "block": {
+                  "attributes": {
+                    "id": {
+                      "type": "string",
+                      "description": "The ID of the application.",
+                      "required": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "The name of the application.",
+                      "optional": true
+                    }
+                  },
+                  "description": "The list of the applications in which the timer rule takes effect."
+                },
+                "nesting_mode": "set"
+              },
+              "components": {
+                "block": {
+                  "attributes": {
+                    "id": {
+                      "type": "string",
+                      "description": "The ID of the component.",
+                      "required": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "The name of the component.",
+                      "optional": true
+                    }
+                  },
+                  "description": "The list of the components in which the timer rule takes effect."
+                },
+                "nesting_mode": "set"
+              }
+            }
+          },
+          "product": {
+            "short": "CAE",
+            "name": "Cloud Application Engine",
+            "catalog": "CodeArts",
+            "name_cn": "云应用引擎",
+            "catalog_cn": "软件开发生产线"
+          }
+        }
+      }
+    }
+  }
+}

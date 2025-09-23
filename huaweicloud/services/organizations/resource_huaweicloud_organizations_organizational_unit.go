@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -38,6 +37,8 @@ func ResourceOrganizationalUnit() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+
+		CustomizeDiff: config.MergeDefaultTags(),
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -101,12 +102,12 @@ func resourceOrganizationalUnitCreate(ctx context.Context, d *schema.ResourceDat
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("organizational_unit.id", createOrganizationalUnitRespBody)
-	if err != nil {
-		return diag.Errorf("error creating Organizations organizational unit: ID is not found in API response")
+	unitId := utils.PathSearch("organizational_unit.id", createOrganizationalUnitRespBody, "").(string)
+	if unitId == "" {
+		return diag.Errorf("unable to find the organizational unit ID from the API response")
 	}
 
-	d.SetId(id.(string))
+	d.SetId(unitId)
 
 	return resourceOrganizationalUnitRead(ctx, d, meta)
 }

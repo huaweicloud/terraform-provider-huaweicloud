@@ -7,12 +7,12 @@
             "attributes": {
               "domain_name": {
                 "type": "string",
-                "description": "Specifies the domain name of the PTR record.",
+                "description": "The domain name of the PTR record.",
                 "optional": true
               },
               "enterprise_project_id": {
                 "type": "string",
-                "description": "Specifies the enterprise project ID corresponding to the PTR record.",
+                "description": "The enterprise project ID corresponding to the PTR record.",
                 "optional": true
               },
               "id": {
@@ -44,22 +44,22 @@
               },
               "public_ip": {
                 "type": "string",
-                "description": "Specifies the EIP address of the PTR record.",
+                "description": "The EIP address of the PTR record.",
                 "optional": true
               },
               "record_id": {
                 "type": "string",
-                "description": "Specifies the ID of the PTR record.",
+                "description": "The ID of the PTR record.",
                 "optional": true
               },
               "region": {
                 "type": "string",
-                "description": "Specifies the region in which to query the resource.",
+                "description": "The region in which to query the resource.",
                 "computed": true
               },
               "status": {
                 "type": "string",
-                "description": "Specifies the status of the PTR record.",
+                "description": "The status of the PTR record.",
                 "optional": true
               },
               "tags": {
@@ -67,7 +67,7 @@
                   "map",
                   "string"
                 ],
-                "description": "Specifies the key/value pairs to associate with the PTR record.",
+                "description": "The key/value pairs to associate with the PTR record.",
                 "optional": true
               }
             }
@@ -75,9 +75,9 @@
           "product": {
             "short": "DNS",
             "name": "Domain Name Service",
-            "catalog": "Business Applications",
+            "catalog": "Networking",
             "name_cn": "云解析服务",
-            "catalog_cn": "企业应用"
+            "catalog_cn": "网络"
           }
         }
       }

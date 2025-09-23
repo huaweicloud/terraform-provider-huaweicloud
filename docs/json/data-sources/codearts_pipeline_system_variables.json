@@ -1,0 +1,54 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_codearts_pipeline_system_variables": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "pipeline_id": {
+                "type": "string",
+                "description": "Specifies the pipeline ID.",
+                "required": true
+              },
+              "project_id": {
+                "type": "string",
+                "description": "Specifies the CodeArts project ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "variables": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "context_name": "string",
+                      "description": "string",
+                      "is_alias": "bool",
+                      "is_show": "bool",
+                      "kind": "string",
+                      "name": "string",
+                      "ordinal": "number",
+                      "source_identifier": "string",
+                      "type": "string",
+                      "value": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the pipeline variables list.",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

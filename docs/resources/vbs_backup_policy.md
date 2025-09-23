@@ -66,14 +66,14 @@ The following arguments are supported:
 * `retain_first_backup` - (Required, String) Specifies whether to retain the first backup in the current month. Possible
   values are Y or N.
 
-* `rentention_num` - (Optional, Int) Specifies number of retained backups. Minimum value is 2. Either this field
+* `rentention_num` - (Optional, Int) Specifies number of retained backups. Minimum value is `2`. Either this field
   or `rentention_day` must be specified.
 
-* `rentention_day` - (Optional, Int) Specifies days of retained backups. Minimum value is 2. Either this field
+* `rentention_day` - (Optional, Int) Specifies days of retained backups. Minimum value is `2`. Either this field
   or `rentention_num` must be specified.
 
-* `frequency` - (Optional, Int) Specifies the backup interval. The value is in the range of 1 to 14 days. Either this
-  field or `week_frequency` must be specified.
+* `frequency` - (Optional, Int) Specifies the backup interval. The value is in the range of `1` to `14` days.
+  Either this field or `week_frequency` must be specified.
 
 * `week_frequency` - (Optional, List) Specifies on which days of each week backup jobs are executed. The value can be
   one or more of the following: SUN, MON, TUE, WED, THU, FRI, SAT. Either this field or `frequency` must be specified.
@@ -108,6 +108,6 @@ This resource provides the following timeouts configuration options:
 
 Backup Policy can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_vbs_backup_policy.vbs 4779ab1c-7c1a-44b1-a02e-93dfc361b32d
 ```

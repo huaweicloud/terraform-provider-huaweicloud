@@ -95,9 +95,9 @@ resource "huaweicloud_swr_image_trigger" "test_reg" {
 
 data "huaweicloud_swr_image_triggers" "test" {
   depends_on = [
-	huaweicloud_swr_image_trigger.test_tag,
-	huaweicloud_swr_image_trigger.test_all,
-	huaweicloud_swr_image_trigger.test_reg,
+    huaweicloud_swr_image_trigger.test_tag,
+    huaweicloud_swr_image_trigger.test_all,
+    huaweicloud_swr_image_trigger.test_reg,
   ]
 
   organization = local.organization
@@ -105,67 +105,81 @@ data "huaweicloud_swr_image_triggers" "test" {
 }
 
 locals {
-  name = data.huaweicloud_swr_image_triggers.test.triggers[0].name
+  name           = data.huaweicloud_swr_image_triggers.test.triggers[0].name
+  enabled        = data.huaweicloud_swr_image_triggers.test.triggers[0].enabled
+  condition_type = data.huaweicloud_swr_image_triggers.test.triggers[0].condition_type
+  cluster_name   = data.huaweicloud_swr_image_triggers.test.triggers[0].cluster_name
 }
+
 data "huaweicloud_swr_image_triggers" "filter_by_name" {
   organization = local.organization
   repository   = local.repository
   name         = local.name
 }
-output "name_filter_is_useful" {
-  value = length(data.huaweicloud_swr_image_triggers.filter_by_name.triggers) > 0 && alltrue(
-	[for v in data.huaweicloud_swr_image_triggers.filter_by_name.triggers[*].name : v == local.name]
-  )
-}
 
 data "huaweicloud_swr_image_triggers" "filter_by_name_not_found" {
+  depends_on = [
+    huaweicloud_swr_image_trigger.test_tag,
+    huaweicloud_swr_image_trigger.test_all,
+    huaweicloud_swr_image_trigger.test_reg,
+  ]
+
   organization = local.organization
   repository   = local.repository
   name         = "%[5]s_not_found"
-  }
-output "name_filter_not_found_validation_pass" {
-  value = length(data.huaweicloud_swr_image_triggers.filter_by_name_not_found.triggers) == 0
 }
 
-locals {
-  enabled = data.huaweicloud_swr_image_triggers.test.triggers[0].enabled
-}
 data "huaweicloud_swr_image_triggers" "filter_by_enabled" {
   organization = local.organization
   repository   = local.repository
   enabled      = local.enabled
 }
-output "enabled_filter_is_useful" {
-  value = length(data.huaweicloud_swr_image_triggers.filter_by_enabled.triggers) > 0 && alltrue(
-	[for v in data.huaweicloud_swr_image_triggers.filter_by_enabled.triggers[*].enabled : v == local.enabled]
-  )
-}
 
-locals {
-  condition_type = data.huaweicloud_swr_image_triggers.test.triggers[0].condition_type
-}
 data "huaweicloud_swr_image_triggers" "filter_by_condition_type" {
   organization   = local.organization
   repository     = local.repository
   condition_type = local.condition_type
 }
-output "condition_type_filter_is_useful" {
-  value = length(data.huaweicloud_swr_image_triggers.filter_by_condition_type.triggers) > 0 && alltrue(
-	[for v in data.huaweicloud_swr_image_triggers.filter_by_condition_type.triggers[*].condition_type : v == local.condition_type]
-  )
-}
 
-locals {
-  cluster_name = data.huaweicloud_swr_image_triggers.test.triggers[0].cluster_name
-}
 data "huaweicloud_swr_image_triggers" "filter_by_cluster_name" {
   organization   = local.organization
   repository     = local.repository
   cluster_name   = local.cluster_name
-  }
+}
+
+locals {
+  list_by_name           = data.huaweicloud_swr_image_triggers.filter_by_name.triggers
+  list_by_name_not_found = data.huaweicloud_swr_image_triggers.filter_by_name_not_found.triggers
+  list_by_enabled        = data.huaweicloud_swr_image_triggers.filter_by_enabled.triggers
+  list_by_condition_type = data.huaweicloud_swr_image_triggers.filter_by_condition_type.triggers
+  list_by_cluster_name   = data.huaweicloud_swr_image_triggers.filter_by_cluster_name.triggers
+}
+
+output "name_filter_is_useful" {
+  value = length(local.list_by_name) > 0 && alltrue(
+    [for v in local.list_by_name[*].name : v == local.name]
+  )
+}
+
+output "name_filter_not_found_validation_pass" {
+  value = length(local.list_by_name_not_found) == 0
+}
+
+output "enabled_filter_is_useful" {
+  value = length(local.list_by_enabled) > 0 && alltrue(
+    [for v in local.list_by_enabled[*].enabled : v == local.enabled]
+  )
+}
+
+output "condition_type_filter_is_useful" {
+  value = length(local.list_by_condition_type) > 0 && alltrue(
+    [for v in local.list_by_condition_type[*].condition_type : v == local.condition_type]
+  )
+}
+
 output "cluster_name_filter_is_useful" {
-  value = length(data.huaweicloud_swr_image_triggers.filter_by_cluster_name.triggers) > 0 && alltrue(
-	[for v in data.huaweicloud_swr_image_triggers.filter_by_cluster_name.triggers[*].cluster_name : v == local.cluster_name]
+  value = length(local.list_by_cluster_name) > 0 && alltrue(
+    [for v in local.list_by_cluster_name[*].cluster_name : v == local.cluster_name]
   )
 }
 `, testAccSWRRepository_basic(rName), acceptance.HW_WORKLOAD_NAME,

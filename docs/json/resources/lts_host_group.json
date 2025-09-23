@@ -5,6 +5,12 @@
         "huaweicloud_lts_host_group": {
           "block": {
             "attributes": {
+              "agent_access_type": {
+                "type": "string",
+                "description": "Specifies the type of the host group.",
+                "optional": true,
+                "computed": true
+              },
               "created_at": {
                 "type": "string",
                 "description": "The creation time.",
@@ -22,6 +28,14 @@
                 "type": "string",
                 "computed": true
               },
+              "labels": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "description": "Specifies the custom label list of the host group.",
+                "optional": true
+              },
               "name": {
                 "type": "string",
                 "description": "Specifies the name of the host group.",
@@ -36,11 +50,12 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "type": {
                 "type": "string",
-                "description": "Specifies the type of the host group.",
+                "description": "Specifies the type of the host.",
                 "required": true,
                 "forcenew": true
               },

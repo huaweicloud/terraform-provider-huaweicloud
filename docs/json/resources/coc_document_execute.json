@@ -1,0 +1,145 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_coc_document_execute": {
+          "block": {
+            "attributes": {
+              "creator": {
+                "type": "string",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "document_id": {
+                "type": "string",
+                "required": true
+              },
+              "document_name": {
+                "type": "string",
+                "computed": true
+              },
+              "document_type": {
+                "type": "string",
+                "optional": true
+              },
+              "document_version_id": {
+                "type": "string",
+                "computed": true
+              },
+              "end_time": {
+                "type": "number",
+                "computed": true
+              },
+              "execution_parameters": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "key": "string",
+                      "value": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "start_time": {
+                "type": "number",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "computed": true
+              },
+              "target_parameter_name": {
+                "type": "string",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "computed": true
+              },
+              "update_time": {
+                "type": "number",
+                "computed": true
+              },
+              "version": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              }
+            },
+            "block_types": {
+              "parameters": {
+                "block": {
+                  "attributes": {
+                    "key": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              },
+              "sys_tags": {
+                "block": {
+                  "attributes": {
+                    "key": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "value": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              },
+              "targets": {
+                "block": {
+                  "attributes": {
+                    "key": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "values": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "COC",
+            "name": "Cloud Operations Center",
+            "catalog": "Management & Governance",
+            "name_cn": "云运维中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

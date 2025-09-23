@@ -2,12 +2,13 @@
 subcategory: "Log Tank Service (LTS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_lts_transfer"
-description: ""
+description: |-
+  Manages an LTS transfer task resource within HuaweiCloud.
 ---
 
 # huaweicloud_lts_transfer
 
-Manages an LTS transfer task resource within HuaweiCloud.  
+Manages an LTS transfer task resource within HuaweiCloud.
 
 ## Example Usage
 
@@ -146,6 +147,38 @@ resource "huaweicloud_lts_transfer" "obs_agency" {
 }
 ```
 
+### Create a DMS transfer in JSON format
+
+```hcl
+variable "lts_group_id" {}
+variable "lts_stream_id" {}
+variable "registered_kafka_instance_id" {}
+variable "kafka_topic" {}
+
+resource "huaweicloud_lts_transfer" "test" {
+  log_group_id = var.lts_group_id
+
+  log_streams {
+    log_stream_id = lts_stream_id
+  }
+
+  log_transfer_info {
+    log_transfer_type   = "DMS"
+    log_transfer_mode   = "realTime"
+    log_storage_format  = "JSON"
+    log_transfer_status = "ENABLE"
+
+    log_transfer_detail {
+      kafka_id      = var.registered_kafka_instance_id
+      kafka_topic   = var.kafka_topic
+      lts_tags      = ["hostName", "collectTime"]
+      stream_tags   = ["all"]
+      struct_fields = ["all"]
+    }
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -153,11 +186,11 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
   If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `log_group_id` - (Required, String, ForceNew) Log group ID.  
+* `log_group_id` - (Required, String, ForceNew) Log group ID.
 
   Changing this parameter will create a new resource.
 
-* `log_streams` - (Required, List, ForceNew) The list of log streams.  
+* `log_streams` - (Required, List, ForceNew) The list of log streams.
 
   Changing this parameter will create a new resource.
   The [log_streams](#LtsTransfer_LogStreams) structure is documented below.
@@ -257,18 +290,18 @@ The `log_transfer_detail` block supports:
 * `obs_bucket_name` - (Optional, String) OBS bucket name.  
   This parameter is mandatory when you create an OBS transfer task.
 
-* `obs_transfer_path` - (Optional, String) OBS bucket path, which is the log transfer destination.  
+* `obs_transfer_path` - (Optional, String) OBS bucket path, which is the log transfer destination.
 
-* `obs_dir_prefix_name` - (Optional, String) Custom transfer path of an OBS transfer task.  
+* `obs_dir_prefix_name` - (Optional, String) Custom transfer path of an OBS transfer task.
 
-* `obs_prefix_name` - (Optional, String) Transfer file prefix of an OBS transfer task.  
+* `obs_prefix_name` - (Optional, String) Transfer file prefix of an OBS transfer task.
 
-* `obs_eps_id` - (Optional, String) Enterprise project ID of an OBS transfer task.  
+* `obs_eps_id` - (Optional, String) Enterprise project ID of an OBS transfer task.
 
-* `obs_encrypted_enable` - (Optional, Bool) Whether OBS bucket encryption is enabled.  
+* `obs_encrypted_enable` - (Optional, Bool) Whether OBS bucket encryption is enabled.
 
 * `obs_encrypted_id` - (Optional, String) KMS key ID for an OBS transfer task.  
-  This parameter is mandatory if encryption is enabled for the target OBS bucket.  
+  This parameter is mandatory if encryption is enabled for the target OBS bucket.
 
 * `obs_time_zone` - (Optional, String) Time zone for an OBS transfer task.  
   For details, see [Time Zone List for OBS Transfer](https://support.huaweicloud.com/intl/en-us/api-lts/lts_api_0111.html).
@@ -292,10 +325,25 @@ The `log_transfer_detail` block supports:
 
   -> Before creating a DMS transfer task, register your Kafka instance with Kafka ID and Kafka topic first.
 
+* `lts_tags` - (Optional, List) Specifies the list of built-in fields and custom tags to be transferred.  
+  If you want to transfer all built-in and specified fields in the log, you need to set it to **all**.
+
+* `stream_tags` - (Optional, List) Specifies the list of stream tag fields to be transferred.  
+  If you want to transfer all stream tag fields in the log, you need to set it to **all**.
+
+* `struct_fields` - (Optional, List) Specifies the list of structured fields to be transferred.  
+  If you want to transfer all fields in a log in the log, you need to set it to **all**.
+
+-> 1. The `lts_tags`, `stream_tags` and `struct_fields` parameters are valid only for DMS transfer in JSON format.
+   At least one of them must be set.
+
+* `invalid_field_value` - (Optional, String) Specifies the value of the invalid field fill.  
+
 * `delivery_tags` - (Optional, List) The list of tag fields will be delivered when transferring.  
   This field must contain the following host information: **hostIP**, **hostId**, **hostName**, **pathFile**, and **collectTime**.
   The common fields include **logStreamName**, **regionName**, **logGroupName**, and **projectId**, which are optional.
-  The transfer tag: **streamTag**, which is optional.
+  The transfer tag: **streamTag**, which is optional.  
+  This parameter is valid only for OBS or DIS transfer in JSON format.
 
 ## Attribute Reference
 
@@ -303,12 +351,33 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID.
 
-* `log_group_name` - Log group name.  
+* `log_group_name` - Log group name.
+
+* `created_at` - The creation time of the log transfer, in RFC3339 format.
 
 ## Import
 
 The LTS transfer task can be imported using the `id`, e.g.
 
 ```bash
-$ terraform import huaweicloud_lts_transfer.test 0ce123456a00f2591fabc00385ff1234
+$ terraform import huaweicloud_lts_transfer.test <id>
+```
+
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
+API response.
+The missing attributes include: `log_transfer_info.0.log_transfer_detail.0.invalid_field_value`.
+It is generally recommended running `terraform plan` after importing the resource.
+You can then decide if changes should be applied to the resource, or the resource definition should be updated to
+align with the resource. Also you can ignore changes as below.
+
+```hcl
+resource "huaweicloud_lts_transfer" "test" {
+  ...
+
+  lifecycle {
+    ignore_changes = [
+      log_transfer_info.0.log_transfer_detail.0.invalid_field_value
+    ]
+  }
+}
 ```

@@ -1,14 +1,8 @@
-// ---------------------------------------------------------------
-// *** AUTO GENERATED CODE ***
-// @Product LB
-// ---------------------------------------------------------------
-
 package lb
 
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -34,45 +28,49 @@ func DataSourcePools() *schema.Resource {
 				Computed: true,
 			},
 			"pool_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: `Specifies the ID of the LB pool.`,
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"name": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: `Specifies the name of the LB pool.`,
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"description": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: `Specifies the description of the LB pool.`,
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"enterprise_project_id": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"loadbalancer_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: `Specifies the loadbalancer ID of the LB pool.`,
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"member_address": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"member_device_id": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"healthmonitor_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: `Specifies the health monitor ID of the LB pool.`,
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"protocol": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: `Specifies the protocol of the LB pool.`,
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"lb_method": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: `Specifies the method of the LB pool.`,
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"pools": {
-				Type:        schema.TypeList,
-				Elem:        poolsPoolsSchema(),
-				Computed:    true,
-				Description: `Pool list. For details, see Data structure of the Pool field.`,
+				Type:     schema.TypeList,
+				Elem:     poolsPoolsSchema(),
+				Computed: true,
 			},
 		},
 	}
@@ -82,52 +80,51 @@ func poolsPoolsSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"id": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The pool ID.`,
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"name": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The pool name.`,
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"description": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The description of pool.`,
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"protocol": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The protocol of pool.`,
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"lb_method": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The method of the LB pool.`,
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"healthmonitor_id": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `Specifies the health monitor ID of the LB pool.`,
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"protection_status": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"protection_reason": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"listeners": {
-				Type:        schema.TypeList,
-				Elem:        poolsPoolListenersSchema(),
-				Computed:    true,
-				Description: `Listener list. For details, see Data structure of the listener field.`,
+				Type:     schema.TypeList,
+				Elem:     poolsPoolListenersSchema(),
+				Computed: true,
 			},
 			"loadbalancers": {
-				Type:        schema.TypeList,
-				Elem:        poolsPoolLoadbalancersSchema(),
-				Computed:    true,
-				Description: `Loadbalancer list. For details, see Data structure of the loadbalancer field.`,
+				Type:     schema.TypeList,
+				Elem:     poolsPoolLoadbalancersSchema(),
+				Computed: true,
 			},
 			"members": {
-				Type:        schema.TypeList,
-				Elem:        poolsPoolMembersSchema(),
-				Computed:    true,
-				Description: `Loadbalancer list. For details, see Data structure of the members field.`,
+				Type:     schema.TypeList,
+				Elem:     poolsPoolMembersSchema(),
+				Computed: true,
 			},
 			"persistence": {
 				Type:     schema.TypeList,
@@ -143,9 +140,8 @@ func poolsPoolListenersSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"id": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The listener ID.`,
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	}
@@ -156,9 +152,8 @@ func poolsPoolLoadbalancersSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"id": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The loadbalancer ID.`,
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	}
@@ -169,9 +164,8 @@ func poolsPoolMembersSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"id": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The member ID.`,
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 		},
 	}
@@ -182,23 +176,25 @@ func poolsPoolPersistenceSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"type": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The type of persistence mode.`,
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 			"cookie_name": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The name of the cookie if persistence mode is set appropriately.`,
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"timeout": {
+				Type:     schema.TypeInt,
+				Computed: true,
 			},
 		},
 	}
 	return &sc
 }
 
-func resourcePoolsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*config.Config)
-	region := config.GetRegion(d)
+func resourcePoolsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
 
 	var mErr *multierror.Error
 
@@ -207,27 +203,23 @@ func resourcePoolsRead(ctx context.Context, d *schema.ResourceData, meta interfa
 		listPoolsHttpUrl = "v2/{project_id}/elb/pools"
 		listPoolsProduct = "elb"
 	)
-	listPoolsClient, err := config.NewServiceClient(listPoolsProduct, region)
+	listPoolsClient, err := cfg.NewServiceClient(listPoolsProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating Pools Client: %s", err)
 	}
 
 	listPoolsPath := listPoolsClient.Endpoint + listPoolsHttpUrl
-	listPoolsPath = strings.Replace(listPoolsPath, "{project_id}", listPoolsClient.ProjectID, -1)
+	listPoolsPath = strings.ReplaceAll(listPoolsPath, "{project_id}", listPoolsClient.ProjectID)
 
-	listPoolsqueryParams := buildListPoolsQueryParams(d)
-	listPoolsPath = listPoolsPath + listPoolsqueryParams
+	listPoolsPath += buildListPoolsQueryParams(d)
 
 	listPoolsOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
 	listPoolsResp, err := listPoolsClient.Request("GET", listPoolsPath, &listPoolsOpt)
 
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving Pools")
+		return common.CheckDeletedDiag(d, err, "error retrieving pools")
 	}
 
 	listPoolsRespBody, err := utils.FlattenResponse(listPoolsResp)
@@ -235,11 +227,11 @@ func resourcePoolsRead(ctx context.Context, d *schema.ResourceData, meta interfa
 		return diag.FromErr(err)
 	}
 
-	uuid, err := uuid.GenerateUUID()
+	dataSourceId, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuid)
+	d.SetId(dataSourceId)
 
 	mErr = multierror.Append(
 		mErr,
@@ -259,16 +251,18 @@ func flattenListPoolsBodyPools(resp interface{}) []interface{} {
 	rst := make([]interface{}, 0, len(curArray))
 	for _, v := range curArray {
 		rst = append(rst, map[string]interface{}{
-			"id":               utils.PathSearch("id", v, nil),
-			"name":             utils.PathSearch("name", v, nil),
-			"description":      utils.PathSearch("description", v, nil),
-			"protocol":         utils.PathSearch("protocol", v, nil),
-			"lb_method":        utils.PathSearch("lb_algorithm", v, nil),
-			"healthmonitor_id": utils.PathSearch("healthmonitor_id", v, nil),
-			"listeners":        flattenPoolListeners(v),
-			"loadbalancers":    flattenPoolLoadbalancers(v),
-			"members":          flattenPoolMembers(v),
-			"persistence":      flattenPoolPersistence(v),
+			"id":                utils.PathSearch("id", v, nil),
+			"name":              utils.PathSearch("name", v, nil),
+			"description":       utils.PathSearch("description", v, nil),
+			"protocol":          utils.PathSearch("protocol", v, nil),
+			"lb_method":         utils.PathSearch("lb_algorithm", v, nil),
+			"healthmonitor_id":  utils.PathSearch("healthmonitor_id", v, nil),
+			"protection_status": utils.PathSearch("protection_status", v, nil),
+			"protection_reason": utils.PathSearch("protection_reason", v, nil),
+			"listeners":         flattenPoolListeners(v),
+			"loadbalancers":     flattenPoolLoadbalancers(v),
+			"members":           flattenPoolMembers(v),
+			"persistence":       flattenPoolPersistence(v),
 		})
 	}
 	return rst
@@ -332,7 +326,6 @@ func flattenPoolPersistence(resp interface{}) []interface{} {
 	var rst []interface{}
 	curJson := utils.PathSearch("session_persistence", resp, nil)
 	if curJson == nil {
-		log.Printf("[ERROR] error parsing persistence from response= %#v", resp)
 		return rst
 	}
 	if curJson == nil {
@@ -343,6 +336,7 @@ func flattenPoolPersistence(resp interface{}) []interface{} {
 		map[string]interface{}{
 			"type":        utils.PathSearch("type", curJson, nil),
 			"cookie_name": utils.PathSearch("cookie_name", curJson, nil),
+			"timeout":     utils.PathSearch("persistence_timeout", curJson, nil),
 		},
 	}
 	return rst
@@ -359,8 +353,17 @@ func buildListPoolsQueryParams(d *schema.ResourceData) string {
 	if v, ok := d.GetOk("description"); ok {
 		res = fmt.Sprintf("%s&description=%v", res, v)
 	}
+	if v, ok := d.GetOk("enterprise_project_id"); ok {
+		res = fmt.Sprintf("%s&enterprise_project_id=%v", res, v)
+	}
 	if v, ok := d.GetOk("loadbalancer_id"); ok {
 		res = fmt.Sprintf("%s&loadbalancer_id=%v", res, v)
+	}
+	if v, ok := d.GetOk("member_address"); ok {
+		res = fmt.Sprintf("%s&member_address=%v", res, v)
+	}
+	if v, ok := d.GetOk("member_device_id"); ok {
+		res = fmt.Sprintf("%s&member_device_id=%v", res, v)
 	}
 	if v, ok := d.GetOk("healthmonitor_id"); ok {
 		res = fmt.Sprintf("%s&healthmonitor_id=%v", res, v)

@@ -1,0 +1,207 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_workspace_app_servers": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ip_addr": {
+                "type": "string",
+                "description": "The IP address of the server.",
+                "optional": true
+              },
+              "machine_name": {
+                "type": "string",
+                "description": "The machine name of the server.",
+                "optional": true
+              },
+              "maintain_status": {
+                "type": "bool",
+                "description": "Whether the server is in maintenance status.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region in which to query the resource.",
+                "computed": true
+              },
+              "scaling_auto_create": {
+                "type": "bool",
+                "description": "Whether the server is created by auto-scaling.",
+                "optional": true
+              },
+              "server_group_id": {
+                "type": "string",
+                "description": "The ID of the server group.",
+                "optional": true
+              },
+              "server_id": {
+                "type": "string",
+                "description": "The ID of the server.",
+                "optional": true,
+                "computed": true
+              },
+              "server_name": {
+                "type": "string",
+                "description": "The name of the server.",
+                "optional": true
+              },
+              "servers": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "availability_zone": "string",
+                      "create_time": "string",
+                      "description": "string",
+                      "domain": "string",
+                      "enterprise_project_id": "string",
+                      "flavor": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "links": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "href": "string",
+                                  "rel": "string"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "freeze": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "effect": "number",
+                            "scene": "string"
+                          }
+                        ]
+                      ],
+                      "host_address": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "addr": "string",
+                            "mac_addr": "string",
+                            "port_id": "string",
+                            "subnet_id": "string",
+                            "tenant_type": "string",
+                            "type": "string",
+                            "version": "number",
+                            "vpc_id": "string"
+                          }
+                        ]
+                      ],
+                      "host_id": "string",
+                      "id": "string",
+                      "image_id": "string",
+                      "instance_id": "string",
+                      "job_id": "string",
+                      "job_status": "string",
+                      "job_time": "string",
+                      "job_type": "string",
+                      "machine_name": "string",
+                      "maintain_status": "bool",
+                      "metadata": [
+                        "map",
+                        "string"
+                      ],
+                      "name": "string",
+                      "order_id": "string",
+                      "os_type": "string",
+                      "os_version": "string",
+                      "ou_name": "string",
+                      "product_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "architecture": "string",
+                            "charge_mode": "string",
+                            "cloud_service_type": "string",
+                            "cond_operation_az": "string",
+                            "contain_data_disk": "bool",
+                            "cpu": "string",
+                            "cpu_desc": "string",
+                            "descriptions": "string",
+                            "domain_ids": [
+                              "list",
+                              "string"
+                            ],
+                            "expire_time": "string",
+                            "flavor_id": "string",
+                            "gpu_desc": "string",
+                            "is_gpu": "bool",
+                            "memory": "string",
+                            "package_type": "string",
+                            "product_id": "string",
+                            "resource_type": "string",
+                            "sessions": "number",
+                            "status": "string",
+                            "sub_product_list": [
+                              "list",
+                              "string"
+                            ],
+                            "support_gpu_type": "string",
+                            "system_disk_size": "string",
+                            "system_disk_type": "string",
+                            "type": "string",
+                            "volume_product_type": "string"
+                          }
+                        ]
+                      ],
+                      "resource_pool_id": "string",
+                      "resource_pool_type": "string",
+                      "scaling_auto_create": "bool",
+                      "server_group_id": "string",
+                      "server_group_name": "string",
+                      "session_count": "number",
+                      "sid": "string",
+                      "status": "string",
+                      "tags": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "key": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ],
+                      "task_status": "string",
+                      "update_time": "string",
+                      "vm_status": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of servers.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

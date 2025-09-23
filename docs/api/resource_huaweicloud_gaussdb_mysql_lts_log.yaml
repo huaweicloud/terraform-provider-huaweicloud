@@ -1,0 +1,20 @@
+info:
+    version: ""
+    title: resource_huaweicloud_gaussdb_mysql_lts_log
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: GaussDBforMySQL
+paths:
+    /v3/{project_id}/instances/{instance_id}:
+        GET:
+            tag: GaussDBforMySQL
+    /v3/{project_id}/logs/lts-configs:
+        DELETE:
+            tag: GaussDBforMySQL
+        GET:
+            tag: GaussDBforMySQL
+        POST:
+            tag: GaussDBforMySQL

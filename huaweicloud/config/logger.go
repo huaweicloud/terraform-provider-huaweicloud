@@ -8,6 +8,7 @@ import (
 	"log"
 	"math"
 	"net/http"
+	"regexp"
 	"sort"
 	"strings"
 	"sync/atomic"
@@ -110,6 +111,23 @@ func (lrt *LogRoundTripper) RoundTrip(request *http.Request) (*http.Response, er
 		retry++
 	}
 
+	// retry connection reset by peer error
+	retry = 1
+	for err != nil && strings.Contains(err.Error(), "connection reset by peer") {
+		if retry > lrt.MaxRetries {
+			log.Printf("[DEBUG] [%s] connection error, retries exhausted. Aborting", logId)
+			err = fmt.Errorf("connection error, retries exhausted. Aborting. Last error was: %s", err)
+			return nil, err
+		}
+
+		log.Printf("[DEBUG] [%s] connection error, retry number %d: %s", logId, retry, err)
+
+		// lintignore:R018
+		time.Sleep(retryTimeout(retry))
+		response, err = lrt.Rt.RoundTrip(request)
+		retry++
+	}
+
 	return response, err
 }
 
@@ -128,7 +146,7 @@ func (*LogRoundTripper) dumpRequest(original io.ReadCloser, bs *bytes.Buffer) (i
 // logRequest will log the HTTP Request details.
 // If the body is JSON, it will attempt to be pretty-formatted.
 func (*LogRoundTripper) logRequest(bs *bytes.Buffer, contentType, logId string) error {
-	isJSONFormat := strings.HasPrefix(contentType, "application/json")
+	isJSONFormat := regexp.MustCompile(`^application/(merge-patch\+)?json`).Match([]byte(contentType))
 	isXMLFormat := strings.HasPrefix(bs.String(), "<") && !strings.HasPrefix(bs.String(), "<html>")
 	// Handle request contentType
 	switch {
@@ -266,14 +284,15 @@ func isSecurityFields(field string) bool {
 	// 'adminpass' is apply to the ecs/bms instance request JSON body
 	// 'encrypted_user_data' is apply to the function request JSON body of FunctionGraph
 	// 'nonce' is apply to the random string for authorization methods.
-	// 'email', 'phone' and 'sip_number' can uniquely identify a person.
+	// 'email', 'phone', 'phone_number', 'phone_num' and 'sip_number' can uniquely identify a person.
 	// 'signature' are used for encryption.
 	// 'user_passwd' is apply to the dms/kafka user request JSON body
 	// 'auth' is apply to kms keypairs associate or disassociate request JSON body
 	// 'cert_content', 'private_key' and 'trusted_root_ca' are both sensitive parameters of the SSL certificate for APIG
 	// 'sk', 'src_sk' and 'dst_sk' are used in oms_task and oms_task_group
 	// request JSON body
-	securityFields := []string{"adminpass", "encrypted_user_data", "nonce", "email", "phone", "sip_number",
-		"signature", "user_passwd", "auth", "cert_content", "private_key", "trusted_root_ca", "sk", "src_sk", "dst_sk"}
+	securityFields := []string{"adminpass", "encrypted_user_data", "nonce", "email", "phone", "phone_number", "phone_num",
+		"sip_number", "signature", "user_passwd", "auth", "cert_content", "private_key", "trusted_root_ca", "sk", "src_sk",
+		"dst_sk", "pwd", "plain_text", "plain_text_base64", "cipher_text"}
 	return utils.StrSliceContains(securityFields, checkField)
 }

@@ -8,7 +8,6 @@ package ges
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
 	"time"
 
@@ -16,7 +15,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -44,6 +42,8 @@ func ResourceGesGraph() *schema.Resource {
 			Update: schema.DefaultTimeout(60 * time.Minute),
 			Delete: schema.DefaultTimeout(60 * time.Minute),
 		},
+
+		CustomizeDiff: config.MergeDefaultTags(),
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -140,14 +140,7 @@ func ResourceGesGraph() *schema.Resource {
 				ForceNew:    true,
 				Description: `The enterprise project ID.`,
 			},
-			"tags": {
-				Type:        schema.TypeMap,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Optional:    true,
-				Computed:    true,
-				ForceNew:    true,
-				Description: `The key/value pairs to associate with the graph.`,
-			},
+			"tags": common.TagsForceNewSchema(),
 			"enable_rbac": {
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -338,15 +331,15 @@ func resourceGesGraphCreate(ctx context.Context, d *schema.ResourceData, meta in
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("id", createGraphRespBody)
-	if err != nil {
-		return diag.Errorf("error creating GesGraph: ID is not found in API response")
+	graphId := utils.PathSearch("graph_id", createGraphRespBody, "").(string)
+	if graphId == "" {
+		return diag.Errorf("unable to find the GES graph ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(graphId)
 
 	err = graphWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
-		return diag.Errorf("error waiting for the Create of GesGraph (%s) to complete: %s", d.Id(), err)
+		return diag.Errorf("error waiting for the Create of GesGraph (%s) to complete: %s", graphId, err)
 	}
 	return resourceGesGraphRead(ctx, d, meta)
 }
@@ -364,7 +357,7 @@ func buildCreateGraphBodyParams(d *schema.ResourceData, cfg *config.Config) map[
 			"enable_multi_az":        utils.ValueIgnoreEmpty(d.Get("enable_multi_az")),
 			"encryption":             buildCreateGraphReqBodyEncryption(d.Get("encryption")),
 			"lts_operation_trace":    buildCreateGraphReqBodyLtsOperationTrace(d.Get("lts_operation_trace")),
-			"sys_tags":               utils.BuildSysTags(common.GetEnterpriseProjectID(d, cfg)),
+			"sys_tags":               utils.BuildSysTags(cfg.GetEnterpriseProjectID(d)),
 			"tags":                   utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 			"enable_rbac":            utils.ValueIgnoreEmpty(d.Get("enable_rbac")),
 			"enable_full_text_index": utils.ValueIgnoreEmpty(d.Get("enable_full_text_index")),
@@ -477,10 +470,7 @@ func graphWaitingForStateCompleted(ctx context.Context, d *schema.ResourceData, 
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`graph.status`, createGraphWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `graph.status`)
-			}
+			statusRaw := utils.PathSearch(`graph.status`, createGraphWaitingRespBody, nil)
 
 			status := fmt.Sprintf("%v", statusRaw)
 
@@ -581,9 +571,8 @@ func resourceGesGraphRead(_ context.Context, d *schema.ResourceData, meta interf
 
 func flattenGetGraphRespBodyPublicIp(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("graph.public_ip", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing graph.public_ip from response= %#v", resp)
+	curJson := utils.PathSearch("graph.public_ip", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return rst
 	}
 
@@ -598,9 +587,8 @@ func flattenGetGraphRespBodyPublicIp(resp interface{}) []interface{} {
 
 func flattenGetGraphRespBodyvertexIdType(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("graph.vertex_id_type", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing graph.vertex_id_type from response= %#v", resp)
+	curJson := utils.PathSearch("graph.vertex_id_type", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return rst
 	}
 
@@ -805,10 +793,7 @@ func deleteGraphWaitingForStateCompleted(ctx context.Context, d *schema.Resource
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`graph.status`, deleteGraphWaitingRespBody)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `graph.status`)
-			}
+			statusRaw := utils.PathSearch(`graph.status`, deleteGraphWaitingRespBody, nil)
 
 			status := fmt.Sprintf("%v", statusRaw)
 

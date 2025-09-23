@@ -5,6 +5,18 @@
         "huaweicloud_elb_loadbalancers": {
           "block": {
             "attributes": {
+              "availability_zone": {
+                "type": "string",
+                "optional": true
+              },
+              "billing_info": {
+                "type": "string",
+                "optional": true
+              },
+              "deletion_protection_enable": {
+                "type": "string",
+                "optional": true
+              },
               "description": {
                 "type": "string",
                 "optional": true
@@ -13,15 +25,38 @@
                 "type": "string",
                 "optional": true
               },
+              "global_eips": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
               "id": {
                 "type": "string",
                 "computed": true
+              },
+              "ipv4_address": {
+                "type": "string",
+                "optional": true
+              },
+              "ipv4_port_id": {
+                "type": "string",
+                "optional": true
               },
               "ipv4_subnet_id": {
                 "type": "string",
                 "optional": true
               },
+              "ipv6_address": {
+                "type": "string",
+                "optional": true
+              },
               "ipv6_network_id": {
+                "type": "string",
+                "optional": true
+              },
+              "ipv6_vip_port_id": {
                 "type": "string",
                 "optional": true
               },
@@ -52,30 +87,120 @@
                         "list",
                         "string"
                       ],
+                      "billing_info": "string",
+                      "charge_mode": "string",
+                      "created_at": "string",
                       "cross_vpc_backend": "bool",
+                      "deletion_protection_enable": "bool",
                       "description": "string",
                       "enterprise_project_id": "string",
+                      "frozen_scene": "string",
+                      "global_eips": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "global_eip_address": "string",
+                            "global_eip_id": "string",
+                            "ip_version": "number"
+                          }
+                        ]
+                      ],
+                      "gw_flavor_id": "string",
                       "id": "string",
                       "ipv4_address": "string",
                       "ipv4_port_id": "string",
                       "ipv4_subnet_id": "string",
                       "ipv6_address": "string",
                       "ipv6_network_id": "string",
+                      "ipv6_vip_port_id": "string",
                       "l4_flavor_id": "string",
                       "l7_flavor_id": "string",
+                      "listeners": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string"
+                          }
+                        ]
+                      ],
+                      "loadbalancer_type": "string",
+                      "log_group_id": "string",
+                      "log_topic_id": "string",
                       "min_l7_flavor_id": "string",
                       "name": "string",
+                      "operating_status": "string",
+                      "pools": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string"
+                          }
+                        ]
+                      ],
                       "protection_reason": "string",
                       "protection_status": "string",
+                      "provisioning_status": "string",
+                      "public_border_group": "string",
+                      "publicips": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "ip_version": "number",
+                            "publicip_address": "string",
+                            "publicip_id": "string"
+                          }
+                        ]
+                      ],
                       "type": "string",
-                      "vpc_id": "string"
+                      "updated_at": "string",
+                      "vpc_id": "string",
+                      "waf_failure_action": "string"
                     }
                   ]
                 ],
                 "computed": true
               },
+              "log_group_id": {
+                "type": "string",
+                "optional": true
+              },
+              "log_topic_id": {
+                "type": "string",
+                "optional": true
+              },
+              "member_address": {
+                "type": "string",
+                "optional": true
+              },
+              "member_device_id": {
+                "type": "string",
+                "optional": true
+              },
               "name": {
                 "type": "string",
+                "optional": true
+              },
+              "operating_status": {
+                "type": "string",
+                "optional": true
+              },
+              "protection_status": {
+                "type": "string",
+                "optional": true
+              },
+              "provisioning_status": {
+                "type": "string",
+                "optional": true
+              },
+              "publicips": {
+                "type": [
+                  "list",
+                  "string"
+                ],
                 "optional": true
               },
               "region": {

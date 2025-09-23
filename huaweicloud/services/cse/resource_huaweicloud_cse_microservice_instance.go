@@ -2,7 +2,6 @@ package cse
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"reflect"
@@ -13,14 +12,18 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/cse/dedicated/v4/instances"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-var internalPropertyKeys = []string{"engineID", "engineName"}
+var (
+	internalPropertyKeys  = []string{"engineID", "engineName"}
+	instanceNotFoundCodes = []string{
+		"400017",
+	}
+)
 
 // @API CSE GET /v2/{project_id}/registry/microservices/{serviceId}/instances/{instanceId}
 // @API CSE DELETE /v2/{project_id}/registry/microservices/{serviceId}/instances/{instanceId}
@@ -36,11 +39,39 @@ func ResourceMicroserviceInstance() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"connect_address": {
+			// Authentication and request parameters.
+			"auth_address": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
+				Computed: true,
 				ForceNew: true,
+				Description: utils.SchemaDesc(
+					`The address that used to request the access token.`,
+					utils.SchemaDescInput{
+						Required: true,
+					}),
 			},
+			"connect_address": {
+				Type:        schema.TypeString,
+				Required:    true,
+				ForceNew:    true,
+				Description: `The address that used to send requests and manage configuration.`,
+			},
+			"admin_user": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "The user name that used to pass the RBAC control.",
+			},
+			"admin_pass": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Sensitive:    true,
+				ForceNew:     true,
+				RequiredWith: []string{"admin_user"},
+				Description:  "The user password that used to pass the RBAC control.",
+			},
+			// Resource parameters.
 			"microservice_id": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -128,18 +159,6 @@ func ResourceMicroserviceInstance() *schema.Resource {
 					},
 				},
 			},
-			"admin_user": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-			},
-			"admin_pass": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Sensitive:    true,
-				ForceNew:     true,
-				RequiredWith: []string{"admin_user"},
-			},
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -205,7 +224,7 @@ func buildInstanceCreateOpts(d *schema.ResourceData) instances.CreateOpts {
 }
 
 func resourceMicroserviceInstanceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	token, err := GetAuthorizationToken(d.Get("connect_address").(string), d.Get("admin_user").(string),
+	token, err := GetAuthorizationToken(getAuthAddress(d), d.Get("admin_user").(string),
 		d.Get("admin_pass").(string))
 	if err != nil {
 		return diag.FromErr(err)
@@ -255,7 +274,7 @@ func flattenDataCenter(dataCenter instances.DataCenter) (result []map[string]int
 }
 
 func resourceMicroserviceInstanceRead(_ context.Context, d *schema.ResourceData, _ interface{}) diag.Diagnostics {
-	token, err := GetAuthorizationToken(d.Get("connect_address").(string), d.Get("admin_user").(string),
+	token, err := GetAuthorizationToken(getAuthAddress(d), d.Get("admin_user").(string),
 		d.Get("admin_pass").(string))
 	if err != nil {
 		return diag.FromErr(err)
@@ -264,7 +283,9 @@ func resourceMicroserviceInstanceRead(_ context.Context, d *schema.ResourceData,
 	client := common.NewCustomClient(true, d.Get("connect_address").(string), "v4", "default")
 	resp, err := instances.Get(client, d.Get("microservice_id").(string), d.Id(), token)
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseMicroserviceInstanceError(err), "error retrieving Microservice instance")
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "errorCode", instanceNotFoundCodes...),
+			"error retrieving Microservice instance")
 	}
 
 	mErr := multierror.Append(nil,
@@ -281,7 +302,7 @@ func resourceMicroserviceInstanceRead(_ context.Context, d *schema.ResourceData,
 }
 
 func resourceMicroserviceInstanceDelete(_ context.Context, d *schema.ResourceData, _ interface{}) diag.Diagnostics {
-	token, err := GetAuthorizationToken(d.Get("connect_address").(string), d.Get("admin_user").(string),
+	token, err := GetAuthorizationToken(getAuthAddress(d), d.Get("admin_user").(string),
 		d.Get("admin_pass").(string))
 	if err != nil {
 		return diag.FromErr(err)
@@ -297,54 +318,63 @@ func resourceMicroserviceInstanceDelete(_ context.Context, d *schema.ResourceDat
 	return nil
 }
 
-func parseMicroserviceInstanceError(respErr error) error {
-	var apiErr instances.ErrorResponse
-	if errCode, ok := respErr.(golangsdk.ErrDefault400); ok {
-		pErr := json.Unmarshal(errCode.Body, &apiErr)
-		if pErr == nil && (apiErr.ErrCode == "400017") {
-			return golangsdk.ErrDefault404{
-				ErrUnexpectedResponseCode: golangsdk.ErrUnexpectedResponseCode{
-					Body: []byte("the microservice instance does not exist"),
-				},
-			}
-		}
-	}
-	return respErr
-}
-
 func resourceMicroserviceInstanceImportState(_ context.Context, d *schema.ResourceData,
 	_ interface{}) ([]*schema.ResourceData, error) {
-	re := regexp.MustCompile(`^(https://\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5})/(.*)$`)
-	if !re.MatchString(d.Id()) {
-		return nil, fmt.Errorf("The imported microservice ID specifies an invalid format, must start with the " +
-			"connection address of the service registry center for the dedicated CSE engine.")
+	var (
+		authAddr, connectAddr, importedIdWithoutAddrs, microserviceId, instanceId, adminUser, adminPwd string
+		mErr                                                                                           *multierror.Error
+
+		importedId   = d.Id()
+		addressRegex = `https://\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5}`
+		re           = regexp.MustCompile(fmt.Sprintf(`^(%[1]s)?/?(%[1]s)/(.*)$`, addressRegex))
+		formatErr    = fmt.Errorf("the imported microservice ID specifies an invalid format, want "+
+			"'<auth_address>/<connect_address>/<microservice_id>/<id>' or "+
+			"'<auth_address>/<connect_address>/<microservice_id>/<id>/<admin_user>/<admin_pass>', but got '%s'",
+			importedId)
+	)
+
+	if !re.MatchString(importedId) {
+		return nil, formatErr
 	}
-
-	var mErr *multierror.Error
-	formatErr := fmt.Errorf("The imported microservice ID specifies an invalid format, must be " +
-		"<cnnect_address>/<microservice_id>/<instance_id> or " +
-		"<cnnect_address>/<microservice_id>/<instance_id>/<admin_user>/<admin_pass>.")
-
-	resp := re.FindAllStringSubmatch(d.Id(), -1)
-	if len(resp) >= 1 && len(resp[0]) == 3 {
-		mErr = multierror.Append(mErr, d.Set("connect_address", resp[0][1]))
-		parts := strings.SplitN(resp[0][2], "/", 4)
-		switch len(parts) {
-		case 2:
-			d.SetId(parts[1])
-			mErr = multierror.Append(mErr, d.Set("microservice_id", parts[0]))
-		case 4:
-			d.SetId(parts[1])
-			mErr = multierror.Append(mErr,
-				d.Set("microservice_id", parts[0]),
-				d.Set("admin_user", parts[2]),
-				d.Set("admin_pass", parts[3]),
-			)
-		default:
-			return nil, formatErr
+	resp := re.FindAllStringSubmatch(importedId, -1)
+	// If the imported ID matches the address regular expression, the length of the response result must be greater than 1.
+	switch len(resp[0]) {
+	case 4:
+		authAddr = resp[0][1]
+		connectAddr = resp[0][2]
+		importedIdWithoutAddrs = resp[0][3]
+		if authAddr == "" {
+			authAddr = connectAddr // Using the connect address as the auth address if the auth address input is omitted.
 		}
-		return []*schema.ResourceData{d}, mErr.ErrorOrNil()
+	default:
+		return nil, formatErr
 	}
 
-	return nil, formatErr
+	mErr = multierror.Append(mErr,
+		d.Set("auth_address", authAddr),
+		d.Set("connect_address", connectAddr),
+	)
+
+	parts := strings.Split(importedIdWithoutAddrs, "/")
+	switch len(parts) {
+	case 2:
+		microserviceId = parts[0]
+		instanceId = parts[1]
+	case 4:
+		microserviceId = parts[0]
+		instanceId = parts[1]
+		adminUser = parts[2]
+		adminPwd = parts[3]
+
+		mErr = multierror.Append(mErr,
+			d.Set("admin_user", adminUser),
+			d.Set("admin_pass", adminPwd),
+		)
+	default:
+		return nil, formatErr
+	}
+
+	mErr = multierror.Append(mErr, d.Set("microservice_id", microserviceId))
+	d.SetId(instanceId)
+	return []*schema.ResourceData{d}, mErr.ErrorOrNil()
 }

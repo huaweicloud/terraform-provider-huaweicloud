@@ -28,6 +28,10 @@
                 "type": "string",
                 "computed": true
               },
+              "trans_type": {
+                "type": "string",
+                "optional": true
+              },
               "video_encoding": {
                 "type": "string",
                 "required": true
@@ -41,8 +45,18 @@
                       "type": "number",
                       "required": true
                     },
+                    "bitrate_adaptive": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
                     "frame_rate": {
                       "type": "number",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "gop": {
+                      "type": "string",
                       "optional": true,
                       "computed": true
                     },
@@ -50,9 +64,24 @@
                       "type": "number",
                       "required": true
                     },
+                    "i_frame_interval": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "i_frame_policy": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
                     "name": {
                       "type": "string",
                       "required": true
+                    },
+                    "protocol": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
                     },
                     "width": {
                       "type": "number",

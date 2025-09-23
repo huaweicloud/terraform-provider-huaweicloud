@@ -14,7 +14,7 @@ Use this data source to get the list of DDM instances.
 ```hcl
 variable "instance_name" {}
 
-data "huaweicloud_ddm_instances" test {
+data "huaweicloud_ddm_instances" "test" {
   name = var.instance_name
 }
 ```

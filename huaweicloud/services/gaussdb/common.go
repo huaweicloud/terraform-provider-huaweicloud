@@ -12,8 +12,12 @@ import (
 var (
 	// Some error codes that need to be retried coming from https://support.huaweicloud.com/api-gaussdbformysql/ErrorCode.html
 	retryErrCodes = map[string]struct{}{
-		"DBS.201015": {},
-		"DBS.200047": {},
+		"DBS.200019":   {},
+		"DBS.201014":   {},
+		"DBS.201015":   {},
+		"DBS.200047":   {},
+		"DBS.201202":   {},
+		"DBS.05000084": {},
 	}
 )
 
@@ -22,7 +26,7 @@ func handleMultiOperationsError(err error) (bool, error) {
 		// The operation was executed successfully and does not need to be executed again.
 		return false, nil
 	}
-	if errCode, ok := err.(golangsdk.ErrUnexpectedResponseCode); ok && errCode.Actual == 409 {
+	if errCode, ok := err.(golangsdk.ErrDefault409); ok {
 		var apiError interface{}
 		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
 			return false, fmt.Errorf("unmarshal the response body failed: %s", jsonErr)

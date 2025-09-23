@@ -1,0 +1,83 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_secmaster_configuration_dictionaries": {
+          "block": {
+            "attributes": {
+              "failed_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "create_time": "string",
+                      "description": "string",
+                      "dict_code": "string",
+                      "dict_id": "string",
+                      "dict_key": "string",
+                      "dict_pcode": "string",
+                      "dict_pkey": "string",
+                      "dict_val": "string",
+                      "extension_field": "string",
+                      "id": "string",
+                      "language": "string",
+                      "project_id": "string",
+                      "publish_time": "string",
+                      "scope": "string",
+                      "update_time": "string",
+                      "version": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "success_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "create_time": "string",
+                      "description": "string",
+                      "dict_code": "string",
+                      "dict_id": "string",
+                      "dict_key": "string",
+                      "dict_pcode": "string",
+                      "dict_pkey": "string",
+                      "dict_val": "string",
+                      "extension_field": "string",
+                      "id": "string",
+                      "language": "string",
+                      "project_id": "string",
+                      "publish_time": "string",
+                      "scope": "string",
+                      "update_time": "string",
+                      "version": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

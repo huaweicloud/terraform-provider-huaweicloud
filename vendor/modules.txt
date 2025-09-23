@@ -13,7 +13,7 @@ github.com/apparentlymart/go-cidr/cidr
 # github.com/apparentlymart/go-textseg/v13 v13.0.0
 ## explicit; go 1.16
 github.com/apparentlymart/go-textseg/v13/textseg
-# github.com/chnsz/golangsdk v0.0.0-20240702061604-791e00a19973
+# github.com/chnsz/golangsdk v0.0.0-20250922082604-a50d7989b4b1
 ## explicit; go 1.14
 github.com/chnsz/golangsdk
 github.com/chnsz/golangsdk/auth
@@ -27,7 +27,6 @@ github.com/chnsz/golangsdk/openstack/aom/v1/icagents
 github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/acls
 github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/apigroups
 github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/apis
-github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/appauths
 github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/applications
 github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/authorizers
 github.com/chnsz/golangsdk/openstack/apigw/dedicated/v2/certificates
@@ -49,7 +48,6 @@ github.com/chnsz/golangsdk/openstack/autoscaling/v1/groups
 github.com/chnsz/golangsdk/openstack/autoscaling/v1/instances
 github.com/chnsz/golangsdk/openstack/autoscaling/v1/lifecyclehooks
 github.com/chnsz/golangsdk/openstack/autoscaling/v1/policies
-github.com/chnsz/golangsdk/openstack/autoscaling/v1/policyexecutelogs
 github.com/chnsz/golangsdk/openstack/autoscaling/v1/scheduledtasks
 github.com/chnsz/golangsdk/openstack/autoscaling/v1/tags
 github.com/chnsz/golangsdk/openstack/bcs/v2/blockchains
@@ -63,7 +61,6 @@ github.com/chnsz/golangsdk/openstack/cbr/v3/backups
 github.com/chnsz/golangsdk/openstack/cbr/v3/checkpoints
 github.com/chnsz/golangsdk/openstack/cbr/v3/members
 github.com/chnsz/golangsdk/openstack/cbr/v3/policies
-github.com/chnsz/golangsdk/openstack/cbr/v3/vaults
 github.com/chnsz/golangsdk/openstack/cce/v1/namespaces
 github.com/chnsz/golangsdk/openstack/cce/v1/persistentvolumeclaims
 github.com/chnsz/golangsdk/openstack/cce/v3/addons
@@ -78,9 +75,7 @@ github.com/chnsz/golangsdk/openstack/cci/v1/persistentvolumeclaims
 github.com/chnsz/golangsdk/openstack/cdm/v1/clusters
 github.com/chnsz/golangsdk/openstack/cdm/v1/job
 github.com/chnsz/golangsdk/openstack/cdm/v1/link
-github.com/chnsz/golangsdk/openstack/cdn/v1/domains
 github.com/chnsz/golangsdk/openstack/cloudeyeservice/v1/alarmrule
-github.com/chnsz/golangsdk/openstack/cloudeyeservice/v2/alarmrule
 github.com/chnsz/golangsdk/openstack/cloudtable/v2/clusters
 github.com/chnsz/golangsdk/openstack/common/structs
 github.com/chnsz/golangsdk/openstack/common/tags
@@ -108,12 +103,6 @@ github.com/chnsz/golangsdk/openstack/dc/v3/gateways
 github.com/chnsz/golangsdk/openstack/dc/v3/interfaces
 github.com/chnsz/golangsdk/openstack/dcs/v1/availablezones
 github.com/chnsz/golangsdk/openstack/dcs/v1/products
-github.com/chnsz/golangsdk/openstack/dcs/v2/availablezones
-github.com/chnsz/golangsdk/openstack/dcs/v2/flavors
-github.com/chnsz/golangsdk/openstack/dcs/v2/instances
-github.com/chnsz/golangsdk/openstack/dcs/v2/maintainwindows
-github.com/chnsz/golangsdk/openstack/dcs/v2/tags
-github.com/chnsz/golangsdk/openstack/dcs/v2/whitelists
 github.com/chnsz/golangsdk/openstack/dds/v3/flavors
 github.com/chnsz/golangsdk/openstack/dds/v3/instances
 github.com/chnsz/golangsdk/openstack/dds/v3/jobs
@@ -169,8 +158,6 @@ github.com/chnsz/golangsdk/openstack/elb/v2/monitors
 github.com/chnsz/golangsdk/openstack/elb/v2/pools
 github.com/chnsz/golangsdk/openstack/elb/v2/whitelists
 github.com/chnsz/golangsdk/openstack/elb/v3/certificates
-github.com/chnsz/golangsdk/openstack/elb/v3/flavors
-github.com/chnsz/golangsdk/openstack/elb/v3/ipgroups
 github.com/chnsz/golangsdk/openstack/elb/v3/l7policies
 github.com/chnsz/golangsdk/openstack/elb/v3/listeners
 github.com/chnsz/golangsdk/openstack/elb/v3/loadbalancers
@@ -185,16 +172,11 @@ github.com/chnsz/golangsdk/openstack/er/v3/propagations
 github.com/chnsz/golangsdk/openstack/er/v3/routes
 github.com/chnsz/golangsdk/openstack/er/v3/routetables
 github.com/chnsz/golangsdk/openstack/er/v3/vpcattachments
-github.com/chnsz/golangsdk/openstack/evs/v1/jobs
 github.com/chnsz/golangsdk/openstack/evs/v2/cloudvolumes
 github.com/chnsz/golangsdk/openstack/evs/v2/snapshots
-github.com/chnsz/golangsdk/openstack/evs/v5/cloudvolumes
-github.com/chnsz/golangsdk/openstack/fgs/v2/aliases
-github.com/chnsz/golangsdk/openstack/fgs/v2/application
 github.com/chnsz/golangsdk/openstack/fgs/v2/dependencies
 github.com/chnsz/golangsdk/openstack/fgs/v2/function
 github.com/chnsz/golangsdk/openstack/fgs/v2/trigger
-github.com/chnsz/golangsdk/openstack/fgs/v2/versions
 github.com/chnsz/golangsdk/openstack/geminidb/v3/backups
 github.com/chnsz/golangsdk/openstack/geminidb/v3/configurations
 github.com/chnsz/golangsdk/openstack/geminidb/v3/flavors
@@ -237,7 +219,6 @@ github.com/chnsz/golangsdk/openstack/iec/v1/subnets
 github.com/chnsz/golangsdk/openstack/iec/v1/vpcs
 github.com/chnsz/golangsdk/openstack/imageservice/v2/imagedata
 github.com/chnsz/golangsdk/openstack/imageservice/v2/images
-github.com/chnsz/golangsdk/openstack/ims/v1/imagecopy
 github.com/chnsz/golangsdk/openstack/ims/v2/cloudimages
 github.com/chnsz/golangsdk/openstack/ims/v2/tags
 github.com/chnsz/golangsdk/openstack/kms/v1/keys
@@ -258,13 +239,7 @@ github.com/chnsz/golangsdk/openstack/mrs/v1/cluster
 github.com/chnsz/golangsdk/openstack/mrs/v1/job
 github.com/chnsz/golangsdk/openstack/mrs/v2/clusters
 github.com/chnsz/golangsdk/openstack/mrs/v2/jobs
-github.com/chnsz/golangsdk/openstack/nat/v2/dnats
 github.com/chnsz/golangsdk/openstack/nat/v2/gateways
-github.com/chnsz/golangsdk/openstack/nat/v2/snats
-github.com/chnsz/golangsdk/openstack/nat/v3/dnats
-github.com/chnsz/golangsdk/openstack/nat/v3/gateways
-github.com/chnsz/golangsdk/openstack/nat/v3/snats
-github.com/chnsz/golangsdk/openstack/nat/v3/transitips
 github.com/chnsz/golangsdk/openstack/networking/v1/bandwidths
 github.com/chnsz/golangsdk/openstack/networking/v1/eips
 github.com/chnsz/golangsdk/openstack/networking/v1/flowlogs
@@ -299,14 +274,8 @@ github.com/chnsz/golangsdk/openstack/networking/v3/eips
 github.com/chnsz/golangsdk/openstack/networking/v3/security/groups
 github.com/chnsz/golangsdk/openstack/networking/v3/security/rules
 github.com/chnsz/golangsdk/openstack/obs
-github.com/chnsz/golangsdk/openstack/opengauss/v3/backups
 github.com/chnsz/golangsdk/openstack/opengauss/v3/instances
-github.com/chnsz/golangsdk/openstack/rds/v3/backups
-github.com/chnsz/golangsdk/openstack/rds/v3/configurations
-github.com/chnsz/golangsdk/openstack/rds/v3/flavors
 github.com/chnsz/golangsdk/openstack/rds/v3/instances
-github.com/chnsz/golangsdk/openstack/rds/v3/securities
-github.com/chnsz/golangsdk/openstack/rf/v1/stacks
 github.com/chnsz/golangsdk/openstack/rms/v1/policyassignments
 github.com/chnsz/golangsdk/openstack/scm/v3/certificates
 github.com/chnsz/golangsdk/openstack/sdrs/v1/attachreplication
@@ -334,9 +303,11 @@ github.com/chnsz/golangsdk/openstack/swr/v2/domains
 github.com/chnsz/golangsdk/openstack/swr/v2/namespaces
 github.com/chnsz/golangsdk/openstack/swr/v2/repositories
 github.com/chnsz/golangsdk/openstack/taurusdb/v3/auditlog
+github.com/chnsz/golangsdk/openstack/taurusdb/v3/autoscaling
 github.com/chnsz/golangsdk/openstack/taurusdb/v3/backups
 github.com/chnsz/golangsdk/openstack/taurusdb/v3/configurations
 github.com/chnsz/golangsdk/openstack/taurusdb/v3/instances
+github.com/chnsz/golangsdk/openstack/taurusdb/v3/parameters
 github.com/chnsz/golangsdk/openstack/taurusdb/v3/sqlfilter
 github.com/chnsz/golangsdk/openstack/tms/v1/providers
 github.com/chnsz/golangsdk/openstack/tms/v1/resourcetags
@@ -363,7 +334,6 @@ github.com/chnsz/golangsdk/openstack/waf_hw/v1/whiteblackip_rules
 github.com/chnsz/golangsdk/openstack/workspace/v2/accesspolicies
 github.com/chnsz/golangsdk/openstack/workspace/v2/desktops
 github.com/chnsz/golangsdk/openstack/workspace/v2/groups
-github.com/chnsz/golangsdk/openstack/workspace/v2/jobs
 github.com/chnsz/golangsdk/openstack/workspace/v2/policygroups
 github.com/chnsz/golangsdk/openstack/workspace/v2/services
 github.com/chnsz/golangsdk/openstack/workspace/v2/terminals
@@ -385,7 +355,7 @@ github.com/golang/protobuf/ptypes/any
 github.com/golang/protobuf/ptypes/duration
 github.com/golang/protobuf/ptypes/empty
 github.com/golang/protobuf/ptypes/timestamp
-# github.com/google/go-cmp v0.5.9
+# github.com/google/go-cmp v0.6.0
 ## explicit; go 1.13
 github.com/google/go-cmp/cmp
 github.com/google/go-cmp/cmp/internal/diff
@@ -638,9 +608,10 @@ github.com/oklog/run
 # github.com/pmezard/go-difflib v1.0.0
 ## explicit
 github.com/pmezard/go-difflib/difflib
-# github.com/stretchr/testify v1.8.4
-## explicit; go 1.20
+# github.com/stretchr/testify v1.10.0
+## explicit; go 1.17
 github.com/stretchr/testify/assert
+github.com/stretchr/testify/assert/yaml
 # github.com/thedevsaddam/gojsonq v2.3.0+incompatible
 ## explicit
 github.com/thedevsaddam/gojsonq
@@ -679,8 +650,8 @@ github.com/zclconf/go-cty/cty/function/stdlib
 github.com/zclconf/go-cty/cty/gocty
 github.com/zclconf/go-cty/cty/json
 github.com/zclconf/go-cty/cty/set
-# go.mongodb.org/mongo-driver v1.12.0
-## explicit; go 1.13
+# go.mongodb.org/mongo-driver v1.17.4
+## explicit; go 1.18
 go.mongodb.org/mongo-driver/bson
 go.mongodb.org/mongo-driver/bson/bsoncodec
 go.mongodb.org/mongo-driver/bson/bsonoptions
@@ -688,7 +659,7 @@ go.mongodb.org/mongo-driver/bson/bsonrw
 go.mongodb.org/mongo-driver/bson/bsontype
 go.mongodb.org/mongo-driver/bson/primitive
 go.mongodb.org/mongo-driver/x/bsonx/bsoncore
-# golang.org/x/crypto v0.21.0
+# golang.org/x/crypto v0.41.0 => golang.org/x/crypto v0.21.0
 ## explicit; go 1.18
 golang.org/x/crypto/blowfish
 golang.org/x/crypto/cast5
@@ -706,7 +677,7 @@ golang.org/x/crypto/openpgp/packet
 golang.org/x/crypto/openpgp/s2k
 golang.org/x/crypto/ssh
 golang.org/x/crypto/ssh/internal/bcrypt_pbkdf
-# golang.org/x/net v0.23.0
+# golang.org/x/net v0.25.0
 ## explicit; go 1.18
 golang.org/x/net/context
 golang.org/x/net/http/httpguts
@@ -716,11 +687,11 @@ golang.org/x/net/http2/hpack
 golang.org/x/net/idna
 golang.org/x/net/internal/timeseries
 golang.org/x/net/trace
-# golang.org/x/sys v0.18.0
+# golang.org/x/sys v0.23.0
 ## explicit; go 1.18
 golang.org/x/sys/cpu
 golang.org/x/sys/unix
-# golang.org/x/text v0.14.0
+# golang.org/x/text v0.17.0
 ## explicit; go 1.18
 golang.org/x/text/secure/bidirule
 golang.org/x/text/transform
@@ -841,3 +812,4 @@ gopkg.in/ini.v1
 # gopkg.in/yaml.v3 v3.0.1
 ## explicit
 gopkg.in/yaml.v3
+# golang.org/x/crypto => golang.org/x/crypto v0.21.0

@@ -2,7 +2,8 @@
 subcategory: "Web Application Firewall (WAF)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_waf_rule_geolocation_access_control"
-description: ""
+description: |-
+  Manages a WAF rule geolocation access control resource within HuaweiCloud.
 ---
 
 # huaweicloud_waf_rule_geolocation_access_control
@@ -10,7 +11,7 @@ description: ""
 Manages a WAF rule geolocation access control resource within HuaweiCloud.
 
 -> **NOTE:** All WAF resources depend on WAF instances, and the WAF instances need to be purchased before they can be
-used. The geolocation access control rule resource can be used in Cloud Mode, Dedicated Mode.
+used. The geolocation access control rule resource can be used in Cloud Mode and Dedicated Mode.
 
 ## Example Usage
 
@@ -40,7 +41,7 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `name` - (Required, String) Specifies the name of WAF geolocation access control rule. This parameter can contain a
-  maximum of 128 characters. Only letters, digits, hyphens (-), underscores (_), colons (:) and periods (.) are allowed.
+  maximum of `128` characters. Only letters, digits, hyphens (-), underscores (_), colons (:) and periods (.) are allowed.
 
 * `geolocation` - (Required, String) Specifies the locations that can be configured in the geolocation access control
   rule. Separate multiple locations with vertical lines, such as **FJ|JL|LN|GZ**.
@@ -58,21 +59,21 @@ The following arguments are supported:
 
 * `action` - (Required, Int) Specifies the protective action of WAF geolocation access control rule.
   Valid values are as follows:
-  + 0: WAF blocks requests that hit the rule.
-  + 1: WAF allows requests that hit the rule.
-  + 2: WAF only record requests that hit the rule.
+  + `0`: WAF blocks requests that hit the rule.
+  + `1`: WAF allows requests that hit the rule.
+  + `2`: WAF only record requests that hit the rule.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID of WAF geolocation access
-  control rule.
+  control rule. For enterprise users, if omitted, default enterprise project will be used.
 
   Changing this parameter will create a new resource.
 
 * `status` - (Optional, Int) Specifies the status of WAF geolocation access control rule.
   Valid values are as follows:
-  + **0**: Disabled.
-  + **1**: Enabled.
+  + `0`: Disabled.
+  + `1`: Enabled.
 
-  The default value is **1**.
+  The default value is `1`.
 
 * `description` - (Optional, String) Specifies the description of WAF geolocation access control rule.
 

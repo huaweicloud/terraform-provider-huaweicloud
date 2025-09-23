@@ -1,0 +1,1842 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_secmaster_asset": {
+          "block": {
+            "attributes": {
+              "asset_id": {
+                "type": "string",
+                "description": "Specifies the ID of the asset.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "Specifies the ID of the workspace to which the asset belongs.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "data_object": {
+                "block": {
+                  "attributes": {
+                    "checksum": {
+                      "type": "string",
+                      "description": "Specifies the checksum of the asset.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "created": {
+                      "type": "string",
+                      "description": "Specifies the creation time of the asset.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "description": "Specifies the ID of the asset.",
+                      "required": true
+                    },
+                    "level": {
+                      "type": "number",
+                      "description": "Specifies the level of the asset.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Specifies the name of the asset.",
+                      "required": true
+                    },
+                    "provider": {
+                      "type": "string",
+                      "description": "Specifies the provider of the asset.",
+                      "required": true
+                    },
+                    "provisioning_state": {
+                      "type": "string",
+                      "description": "Specifies the provisioning state of the asset.",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Specifies the type of the asset.",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "department": {
+                      "block": {
+                        "attributes": {
+                          "id": {
+                            "type": "string",
+                            "description": "Specifies the department ID of the asset.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "Specifies the department name of the asset.",
+                            "optional": true,
+                            "computed": true
+                          }
+                        },
+                        "description": "Specifies the department of the asset."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "environment": {
+                      "block": {
+                        "attributes": {
+                          "domain_id": {
+                            "type": "string",
+                            "description": "Specifies the domain ID.",
+                            "required": true
+                          },
+                          "ep_id": {
+                            "type": "string",
+                            "description": "Specifies the enterprise project ID.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "ep_name": {
+                            "type": "string",
+                            "description": "Specifies the enterprise project name.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "idc_id": {
+                            "type": "string",
+                            "description": "Specifies the IDC ID.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "idc_name": {
+                            "type": "string",
+                            "description": "Specifies the IDC name.",
+                            "required": true
+                          },
+                          "project_id": {
+                            "type": "string",
+                            "description": "Specifies the project ID.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "region_id": {
+                            "type": "string",
+                            "description": "Specifies the region ID.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "vendor_name": {
+                            "type": "string",
+                            "description": "Specifies the vendor name.",
+                            "required": true
+                          },
+                          "vendor_type": {
+                            "type": "string",
+                            "description": "Specifies the environment vendor type.",
+                            "required": true
+                          }
+                        },
+                        "description": "schema:{\"Required\":true};Specifies the environment of the asset."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "governance_user": {
+                      "block": {
+                        "attributes": {
+                          "name": {
+                            "type": "string",
+                            "description": "Specifies the governance user name of the asset.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "type": {
+                            "type": "string",
+                            "description": "Specifies the governance user type of the asset.",
+                            "optional": true,
+                            "computed": true
+                          }
+                        },
+                        "description": "Specifies the governance user of the asset."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    },
+                    "properties": {
+                      "block": {
+                        "block_types": {
+                          "hwc_domain": {
+                            "block": {
+                              "attributes": {
+                                "audit_status": {
+                                  "type": "string",
+                                  "description": "Specifies the domain real-name authentication status.",
+                                  "required": true
+                                },
+                                "audit_unpass_reason": {
+                                  "type": "string",
+                                  "description": "Specifies the reason for domain real-name authentication failure.",
+                                  "required": true
+                                },
+                                "credential_id": {
+                                  "type": "string",
+                                  "description": "Specifies the credential ID.",
+                                  "required": true
+                                },
+                                "credential_type": {
+                                  "type": "string",
+                                  "description": "Specifies the type of credential.",
+                                  "required": true
+                                },
+                                "domain_name": {
+                                  "type": "string",
+                                  "description": "Specifies the domain name.",
+                                  "required": true
+                                },
+                                "expire_date": {
+                                  "type": "string",
+                                  "description": "Specifies the domain expiration date.",
+                                  "required": true
+                                },
+                                "name_server": {
+                                  "type": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "description": "Specifies the domain name server list.",
+                                  "required": true
+                                },
+                                "privacy_protection": {
+                                  "type": "string",
+                                  "description": "Specifies whether privacy protection is enabled.",
+                                  "required": true
+                                },
+                                "reg_type": {
+                                  "type": "string",
+                                  "description": "Specifies the registration type.",
+                                  "required": true
+                                },
+                                "registrar": {
+                                  "type": "string",
+                                  "description": "Specifies the registrar of the domain.",
+                                  "required": true
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "description": "Specifies the domain service status.",
+                                  "required": true
+                                },
+                                "transfer_status": {
+                                  "type": "string",
+                                  "description": "Specifies the domain transfer status.",
+                                  "optional": true,
+                                  "computed": true
+                                }
+                              },
+                              "block_types": {
+                                "contact": {
+                                  "block": {
+                                    "attributes": {
+                                      "address": {
+                                        "type": "string",
+                                        "description": "Specifies the contact address.",
+                                        "required": true
+                                      },
+                                      "city": {
+                                        "type": "string",
+                                        "description": "Specifies the city.",
+                                        "required": true
+                                      },
+                                      "contact_name": {
+                                        "type": "string",
+                                        "description": "Specifies the contact name.",
+                                        "required": true
+                                      },
+                                      "email": {
+                                        "type": "string",
+                                        "description": "Specifies the email address.",
+                                        "required": true
+                                      },
+                                      "phone_num": {
+                                        "type": "string",
+                                        "description": "Specifies the phone number.",
+                                        "required": true
+                                      },
+                                      "province": {
+                                        "type": "string",
+                                        "description": "Specifies the province.",
+                                        "required": true
+                                      },
+                                      "register": {
+                                        "type": "string",
+                                        "description": "Specifies the domain owner.",
+                                        "required": true
+                                      },
+                                      "zip_code": {
+                                        "type": "string",
+                                        "description": "Specifies the zip code.",
+                                        "required": true
+                                      }
+                                    },
+                                    "description": "schema:{\"Required\":true};Specifies the contact information."
+                                  },
+                                  "nesting_mode": "list"
+                                }
+                              },
+                              "description": "Specifies the details of the domain."
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          },
+                          "hwc_ecs": {
+                            "block": {
+                              "attributes": {
+                                "availability_zone": {
+                                  "type": "string",
+                                  "description": "Specifies the availability zone of the ECS.",
+                                  "required": true
+                                },
+                                "created": {
+                                  "type": "string",
+                                  "description": "Specifies the creation time of the ECS server.",
+                                  "required": true
+                                },
+                                "description": {
+                                  "type": "string",
+                                  "description": "Specifies the description of the ECS.",
+                                  "required": true
+                                },
+                                "enterprise_project_id": {
+                                  "type": "string",
+                                  "description": "Specifies the enterprise project ID of the ECS.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "host_id": {
+                                  "type": "string",
+                                  "description": "Specifies the host ID of the ECS.",
+                                  "required": true
+                                },
+                                "host_name": {
+                                  "type": "string",
+                                  "description": "Specifies the host name of the ECS.",
+                                  "required": true
+                                },
+                                "host_status": {
+                                  "type": "string",
+                                  "description": "Specifies the host status of the ECS.",
+                                  "required": true
+                                },
+                                "id": {
+                                  "type": "string",
+                                  "description": "Specifies the ID of the ECS.",
+                                  "required": true
+                                },
+                                "key_name": {
+                                  "type": "string",
+                                  "description": "Specifies the key name of the ECS server.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "locked": {
+                                  "type": "bool",
+                                  "description": "Specifies whether the ECS is locked.",
+                                  "required": true
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "Specifies the name of the ECS.",
+                                  "required": true
+                                },
+                                "project_id": {
+                                  "type": "string",
+                                  "description": "Specifies the project ID of the ECS.",
+                                  "required": true
+                                },
+                                "protected_status": {
+                                  "type": "string",
+                                  "description": "Specifies the protection status of the ECS.",
+                                  "required": true
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "description": "Specifies the status of the ECS.",
+                                  "required": true
+                                },
+                                "updated": {
+                                  "type": "string",
+                                  "description": "Specifies the last update time of the ECS.",
+                                  "required": true
+                                },
+                                "user_id": {
+                                  "type": "string",
+                                  "description": "Specifies the user ID of the ECS.",
+                                  "required": true
+                                }
+                              },
+                              "block_types": {
+                                "addresses": {
+                                  "block": {
+                                    "attributes": {
+                                      "addr": {
+                                        "type": "string",
+                                        "description": "Specifies the address.",
+                                        "required": true
+                                      },
+                                      "mac_addr": {
+                                        "type": "string",
+                                        "description": "Specifies the MAC address.",
+                                        "required": true
+                                      },
+                                      "port_id": {
+                                        "type": "string",
+                                        "description": "Specifies the ID of the port.",
+                                        "required": true
+                                      },
+                                      "type": {
+                                        "type": "string",
+                                        "description": "Specifies the type of the address.",
+                                        "required": true
+                                      },
+                                      "version": {
+                                        "type": "string",
+                                        "description": "Specifies the version of the address.",
+                                        "required": true
+                                      },
+                                      "vpc_id": {
+                                        "type": "string",
+                                        "description": "Specifies the ID of the VPC.",
+                                        "required": true
+                                      }
+                                    },
+                                    "description": "schema:{\"Required\":true};Specifies the addresses of the ECS."
+                                  },
+                                  "nesting_mode": "list"
+                                },
+                                "flavor": {
+                                  "block": {
+                                    "attributes": {
+                                      "disk": {
+                                        "type": "string",
+                                        "description": "Specifies the disk size of the flavor.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "id": {
+                                        "type": "string",
+                                        "description": "Specifies the ID of the flavor.",
+                                        "required": true
+                                      },
+                                      "name": {
+                                        "type": "string",
+                                        "description": "Specifies the name of the flavor.",
+                                        "required": true
+                                      },
+                                      "ram": {
+                                        "type": "string",
+                                        "description": "Specifies the ram of the flavor.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "vcpus": {
+                                        "type": "string",
+                                        "description": "Specifies the vcpus of the flavor.",
+                                        "optional": true,
+                                        "computed": true
+                                      }
+                                    },
+                                    "description": "Specifies the flavor of the ECS."
+                                  },
+                                  "nesting_mode": "list",
+                                  "max_items": 1
+                                },
+                                "hypervisor": {
+                                  "block": {
+                                    "attributes": {
+                                      "hypervisor_type": {
+                                        "type": "string",
+                                        "description": "Specifies the virtualization type.",
+                                        "optional": true,
+                                        "computed": true
+                                      }
+                                    },
+                                    "description": "Specifies the virtualization information of the ECS."
+                                  },
+                                  "nesting_mode": "list",
+                                  "max_items": 1
+                                },
+                                "metadata": {
+                                  "block": {
+                                    "attributes": {
+                                      "agency_name": {
+                                        "type": "string",
+                                        "description": "Specifies the agency name of the ECS.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "image_id": {
+                                        "type": "string",
+                                        "description": "Specifies the image ID of the ECS.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "image_name": {
+                                        "type": "string",
+                                        "description": "Specifies the image name of the ECS.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "image_type": {
+                                        "type": "string",
+                                        "description": "Specifies the image type of the ECS.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "os_bit": {
+                                        "type": "string",
+                                        "description": "Specifies the OS bit of the ECS.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "os_type": {
+                                        "type": "string",
+                                        "description": "Specifies the OS type of the ECS.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "resource_spec_code": {
+                                        "type": "string",
+                                        "description": "Specifies the resource spec code of the ECS.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "resource_type": {
+                                        "type": "string",
+                                        "description": "Specifies the resource type of the ECS.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "vpc_id": {
+                                        "type": "string",
+                                        "description": "Specifies the VPC ID of the ECS.",
+                                        "optional": true,
+                                        "computed": true
+                                      }
+                                    },
+                                    "description": "schema:{\"Required\":true};Specifies the metadata of the ECS."
+                                  },
+                                  "nesting_mode": "list",
+                                  "max_items": 1
+                                },
+                                "scheduler_hints": {
+                                  "block": {
+                                    "attributes": {
+                                      "dedicated_host_id": {
+                                        "type": [
+                                          "list",
+                                          "string"
+                                        ],
+                                        "description": "Specifies the dedicated host ID.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "group": {
+                                        "type": [
+                                          "list",
+                                          "string"
+                                        ],
+                                        "description": "Specifies the cloud server group ID.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "tenancy": {
+                                        "type": [
+                                          "list",
+                                          "string"
+                                        ],
+                                        "description": "Specifies the tenancy of the ECS.",
+                                        "optional": true,
+                                        "computed": true
+                                      }
+                                    },
+                                    "description": "Specifies the scheduler hints of the ECS."
+                                  },
+                                  "nesting_mode": "list",
+                                  "max_items": 1
+                                },
+                                "security_groups": {
+                                  "block": {
+                                    "attributes": {
+                                      "id": {
+                                        "type": "string",
+                                        "description": "Specifies the ID of the security group.",
+                                        "required": true
+                                      },
+                                      "name": {
+                                        "type": "string",
+                                        "description": "Specifies the name of the security group.",
+                                        "optional": true,
+                                        "computed": true
+                                      }
+                                    },
+                                    "description": "schema:{\"Required\":true};Specifies the security groups of the ECS."
+                                  },
+                                  "nesting_mode": "list"
+                                },
+                                "volumes_attached": {
+                                  "block": {
+                                    "attributes": {
+                                      "boot_index": {
+                                        "type": "string",
+                                        "description": "Specifies the boot order of the disk.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "delete_on_termination": {
+                                        "type": "string",
+                                        "description": "Specifies whether to delete the disk when deleting the ECS.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "device": {
+                                        "type": "string",
+                                        "description": "Specifies the mount point of the disk.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "id": {
+                                        "type": "string",
+                                        "description": "Specifies the ID of the disk.",
+                                        "required": true
+                                      }
+                                    },
+                                    "description": "schema:{\"Required\":true};Specifies the volumes attached to the ECS."
+                                  },
+                                  "nesting_mode": "list"
+                                }
+                              },
+                              "description": "Specifies the details of the ECS."
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          },
+                          "hwc_eip": {
+                            "block": {
+                              "attributes": {
+                                "alias": {
+                                  "type": "string",
+                                  "description": "Specifies the name of the EIP.",
+                                  "required": true
+                                },
+                                "allow_share_bandwidth_types": {
+                                  "type": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "description": "Specifies the list of shared bandwidth types that the public IP can join.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "associate_instance_id": {
+                                  "type": "string",
+                                  "description": "Specifies the instance ID of the public IP.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "associate_instance_type": {
+                                  "type": "string",
+                                  "description": "Specifies the instance type of the public IP.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "created_at": {
+                                  "type": "string",
+                                  "description": "Specifies the creation UTC time of the public IP.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "description": {
+                                  "type": "string",
+                                  "description": "Specifies the description of the EIP.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "enterprise_project_id": {
+                                  "type": "string",
+                                  "description": "Specifies the enterprise project ID of the EIP.",
+                                  "required": true
+                                },
+                                "id": {
+                                  "type": "string",
+                                  "description": "Specifies the ID of the EIP.",
+                                  "required": true
+                                },
+                                "ip_version": {
+                                  "type": "number",
+                                  "description": "Specifies the IP version information.",
+                                  "required": true
+                                },
+                                "lock_status": {
+                                  "type": "string",
+                                  "description": "Specifies the freeze status of the public IP.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "project_id": {
+                                  "type": "string",
+                                  "description": "Specifies the project ID of the EIP.",
+                                  "required": true
+                                },
+                                "protected_status": {
+                                  "type": "string",
+                                  "description": "Specifies the protection status of the EIP.",
+                                  "required": true
+                                },
+                                "public_border_group": {
+                                  "type": "string",
+                                  "description": "Specifies the center site asset or edge site asset. Value range: center, edge site name.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "public_ip_address": {
+                                  "type": "string",
+                                  "description": "Specifies the public IP address of the EIP.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "public_ipv6_address": {
+                                  "type": "string",
+                                  "description": "Specifies the public IPv6 address of the EIP.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "publicip_pool_id": {
+                                  "type": "string",
+                                  "description": "Specifies the public IP pool ID of the EIP.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "publicip_pool_name": {
+                                  "type": "string",
+                                  "description": "Specifies the public IP pool name of the EIP.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "description": "Specifies the status of the EIP.",
+                                  "required": true
+                                },
+                                "tags": {
+                                  "type": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "description": "Specifies the tags of the EIP.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "type": {
+                                  "type": "string",
+                                  "description": "Specifies the type of the EIP.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "updated_at": {
+                                  "type": "string",
+                                  "description": "Specifies the update UTC time of the public IP.",
+                                  "optional": true,
+                                  "computed": true
+                                }
+                              },
+                              "block_types": {
+                                "bandwidth": {
+                                  "block": {
+                                    "attributes": {
+                                      "id": {
+                                        "type": "string",
+                                        "description": "Specifies the bandwidth ID of the public IP.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "name": {
+                                        "type": "string",
+                                        "description": "Specifies the bandwidth name of the public IP.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "share_type": {
+                                        "type": "string",
+                                        "description": "Specifies the bandwidth type of the public IP.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "size": {
+                                        "type": "number",
+                                        "description": "Specifies the bandwidth size of the public IP.",
+                                        "optional": true,
+                                        "computed": true
+                                      }
+                                    },
+                                    "description": "Specifies the bandwidth information of the EIP."
+                                  },
+                                  "nesting_mode": "list",
+                                  "max_items": 1
+                                },
+                                "vnic": {
+                                  "block": {
+                                    "attributes": {
+                                      "device_id": {
+                                        "type": "string",
+                                        "description": "Specifies the device ID of the public IP.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "device_owner": {
+                                        "type": "string",
+                                        "description": "Specifies the device owner of the public IP.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "instance_id": {
+                                        "type": "string",
+                                        "description": "Specifies the instance ID of the public IP.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "instance_type": {
+                                        "type": "string",
+                                        "description": "Specifies the instance type of the public IP.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "mac": {
+                                        "type": "string",
+                                        "description": "Specifies the MAC address of the public IP.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "port_id": {
+                                        "type": "string",
+                                        "description": "Specifies the port ID of the public IP.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "port_profile": {
+                                        "type": "string",
+                                        "description": "Specifies the port profile information of the public IP.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "private_ip_address": {
+                                        "type": "string",
+                                        "description": "Specifies the private IP address of the public IP.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "vni": {
+                                        "type": "string",
+                                        "description": "Specifies the VXLAN ID of the public IP.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "vpc_id": {
+                                        "type": "string",
+                                        "description": "Specifies the virtual private cloud ID of the public IP.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "vtep": {
+                                        "type": "string",
+                                        "description": "Specifies the VTEP IP of the public IP.",
+                                        "optional": true,
+                                        "computed": true
+                                      }
+                                    },
+                                    "description": "Specifies the VNIC information of the EIP."
+                                  },
+                                  "nesting_mode": "list",
+                                  "max_items": 1
+                                }
+                              },
+                              "description": "Specifies the details of the EIP."
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          },
+                          "hwc_rds": {
+                            "block": {
+                              "attributes": {
+                                "alias": {
+                                  "type": "string",
+                                  "description": "Specifies the alias of the RDS.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "associated_with_ddm": {
+                                  "type": "bool",
+                                  "description": "Specifies whether the instance is associated with DDM.",
+                                  "required": true
+                                },
+                                "backup_used_space": {
+                                  "type": "number",
+                                  "description": "Specifies the backup space usage of the RDS. Only supports RDS for SQL Server engine.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "cpu": {
+                                  "type": "string",
+                                  "description": "Specifies the CPU size of the RDS.",
+                                  "required": true
+                                },
+                                "created": {
+                                  "type": "string",
+                                  "description": "Specifies the creation time.",
+                                  "required": true
+                                },
+                                "db_user_name": {
+                                  "type": "string",
+                                  "description": "Specifies the default username of the RDS.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "disk_encryption_id": {
+                                  "type": "string",
+                                  "description": "Specifies the disk encryption key ID of the RDS.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "enable_ssl": {
+                                  "type": "bool",
+                                  "description": "Specifies the SSL flag of the instance.",
+                                  "required": true
+                                },
+                                "enterprise_project_id": {
+                                  "type": "string",
+                                  "description": "Specifies the enterprise project ID of the RDS.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "expiration_time": {
+                                  "type": "string",
+                                  "description": "Specifies the expiration time of the RDS. Only supports RDS for MySQL engine.",
+                                  "required": true
+                                },
+                                "flavor_ref": {
+                                  "type": "string",
+                                  "description": "Specifies the flavor of the RDS.",
+                                  "required": true
+                                },
+                                "id": {
+                                  "type": "string",
+                                  "description": "Specifies the ID of the RDS.",
+                                  "required": true
+                                },
+                                "maintenance_window": {
+                                  "type": "string",
+                                  "description": "Specifies the maintenance window of the RDS.",
+                                  "required": true
+                                },
+                                "max_iops": {
+                                  "type": "number",
+                                  "description": "Specifies the maximum IOPS of the disk.",
+                                  "required": true
+                                },
+                                "mem": {
+                                  "type": "string",
+                                  "description": "Specifies the memory size of the RDS.",
+                                  "required": true
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "Specifies the name of the RDS.",
+                                  "required": true
+                                },
+                                "port": {
+                                  "type": "number",
+                                  "description": "Specifies the database port of the RDS.",
+                                  "required": true
+                                },
+                                "private_dns_names": {
+                                  "type": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "description": "Specifies the private DNS names of the RDS.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "private_ips": {
+                                  "type": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "description": "Specifies the private IP addresses of the RDS.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "project_id": {
+                                  "type": "string",
+                                  "description": "Specifies the project ID.",
+                                  "required": true
+                                },
+                                "protected_status": {
+                                  "type": "string",
+                                  "description": "Specifies the DBSS opening status of the RDS.",
+                                  "required": true
+                                },
+                                "public_ips": {
+                                  "type": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "description": "Specifies the list of public IP addresses of the instance.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "read_only_by_user": {
+                                  "type": "bool",
+                                  "description": "Specifies the user set read-only status of the RDS. Only supports RDS for MySQL engine.",
+                                  "required": true
+                                },
+                                "region": {
+                                  "type": "string",
+                                  "description": "Specifies the region where the RDS is located.",
+                                  "required": true
+                                },
+                                "security_group_id": {
+                                  "type": "string",
+                                  "description": "Specifies the security group ID.",
+                                  "required": true
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "description": "Specifies the status of the RDS.",
+                                  "required": true
+                                },
+                                "storage_used_space": {
+                                  "type": "number",
+                                  "description": "Specifies the disk space usage, unit is GB.",
+                                  "required": true
+                                },
+                                "subnet_id": {
+                                  "type": "string",
+                                  "description": "Specifies the subnet ID of the RDS.",
+                                  "required": true
+                                },
+                                "switch_strategy": {
+                                  "type": "string",
+                                  "description": "Specifies the database switch strategy.respectively.",
+                                  "required": true
+                                },
+                                "time_zone": {
+                                  "type": "string",
+                                  "description": "Specifies the time zone of the RDS.",
+                                  "required": true
+                                },
+                                "type": {
+                                  "type": "string",
+                                  "description": "Specifies the type of the RDS.",
+                                  "required": true
+                                },
+                                "updated": {
+                                  "type": "string",
+                                  "description": "Specifies the update time of the RDS.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "vpc_id": {
+                                  "type": "string",
+                                  "description": "Specifies the VPC ID.",
+                                  "required": true
+                                }
+                              },
+                              "block_types": {
+                                "backup_strategy": {
+                                  "block": {
+                                    "attributes": {
+                                      "keep_days": {
+                                        "type": "number",
+                                        "description": "Specifies the number of days that the generated backup files can be saved.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "start_time": {
+                                        "type": "string",
+                                        "description": "Specifies the backup time period. Automatic backup will be triggered in this period.",
+                                        "optional": true,
+                                        "computed": true
+                                      }
+                                    },
+                                    "description": "schema:{\"Required\":true};Specifies the backup policy."
+                                  },
+                                  "nesting_mode": "list",
+                                  "max_items": 1
+                                },
+                                "datastore": {
+                                  "block": {
+                                    "attributes": {
+                                      "complete_version": {
+                                        "type": "string",
+                                        "description": "Specifies the complete version of the database.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "type": {
+                                        "type": "string",
+                                        "description": "Specifies the database engine.",
+                                        "required": true
+                                      },
+                                      "version": {
+                                        "type": "string",
+                                        "description": "Specifies the database version.",
+                                        "required": true
+                                      }
+                                    },
+                                    "description": "schema:{\"Required\":true};Specifies the database information."
+                                  },
+                                  "nesting_mode": "list",
+                                  "max_items": 1
+                                },
+                                "ha": {
+                                  "block": {
+                                    "attributes": {
+                                      "replication_mode": {
+                                        "type": "string",
+                                        "description": "Specifies the replication mode of the RDS.",
+                                        "required": true
+                                      }
+                                    },
+                                    "description": "schema:{\"Required\":true};HA information, returned when the HA instance is obtained."
+                                  },
+                                  "nesting_mode": "list",
+                                  "max_items": 1
+                                },
+                                "nodes": {
+                                  "block": {
+                                    "attributes": {
+                                      "availability_zone": {
+                                        "type": "string",
+                                        "description": "Specifies the availability zone of the node.",
+                                        "required": true
+                                      },
+                                      "id": {
+                                        "type": "string",
+                                        "description": "Specifies the ID of the node.",
+                                        "required": true
+                                      },
+                                      "name": {
+                                        "type": "string",
+                                        "description": "Specifies the name of the node.",
+                                        "required": true
+                                      },
+                                      "role": {
+                                        "type": "string",
+                                        "description": "Specifies the role of the node.",
+                                        "required": true
+                                      },
+                                      "status": {
+                                        "type": "string",
+                                        "description": "Specifies the status of the node.",
+                                        "required": true
+                                      }
+                                    },
+                                    "description": "schema:{\"Required\":true};Main and standby instance information."
+                                  },
+                                  "nesting_mode": "list"
+                                },
+                                "related_instance": {
+                                  "block": {
+                                    "attributes": {
+                                      "id": {
+                                        "type": "string",
+                                        "description": "Specifies the ID of the associated instance.",
+                                        "required": true
+                                      },
+                                      "type": {
+                                        "type": "string",
+                                        "description": "Specifies the type of the associated instance.",
+                                        "required": true
+                                      }
+                                    },
+                                    "description": "schema:{\"Required\":true};Specifies the list of associated database instances."
+                                  },
+                                  "nesting_mode": "list"
+                                },
+                                "tags": {
+                                  "block": {
+                                    "attributes": {
+                                      "key": {
+                                        "type": "string",
+                                        "description": "Specifies the key.",
+                                        "required": true
+                                      },
+                                      "values": {
+                                        "type": [
+                                          "list",
+                                          "string"
+                                        ],
+                                        "description": "Specifies the value list.",
+                                        "required": true
+                                      }
+                                    },
+                                    "description": "Specifies the tag list."
+                                  },
+                                  "nesting_mode": "list"
+                                },
+                                "volume": {
+                                  "block": {
+                                    "attributes": {
+                                      "size": {
+                                        "type": "number",
+                                        "description": "Specifies the size of the volume.",
+                                        "required": true
+                                      },
+                                      "type": {
+                                        "type": "string",
+                                        "description": "Specifies the type of the volume.",
+                                        "required": true
+                                      }
+                                    },
+                                    "description": "schema:{\"Required\":true};Specifies the volume information."
+                                  },
+                                  "nesting_mode": "list",
+                                  "max_items": 1
+                                }
+                              },
+                              "description": "Specifies the details of the RDS."
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          },
+                          "hwc_subnet": {
+                            "block": {
+                              "attributes": {
+                                "created_at": {
+                                  "type": "string",
+                                  "description": "Specifies the security group creation time.",
+                                  "required": true
+                                },
+                                "description": {
+                                  "type": "string",
+                                  "description": "Specifies the security group description.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "enterprise_project_id": {
+                                  "type": "string",
+                                  "description": "Specifies the enterprise project ID to which the security group belongs.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "id": {
+                                  "type": "string",
+                                  "description": "Specifies the security group ID.",
+                                  "required": true
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "Specifies the security group name.",
+                                  "required": true
+                                },
+                                "project_id": {
+                                  "type": "string",
+                                  "description": "Specifies the project ID to which the security group belongs.",
+                                  "required": true
+                                },
+                                "updated_at": {
+                                  "type": "string",
+                                  "description": "Specifies the security group update time.",
+                                  "required": true
+                                }
+                              },
+                              "block_types": {
+                                "security_group_rules": {
+                                  "block": {
+                                    "attributes": {
+                                      "action": {
+                                        "type": "string",
+                                        "description": "Specifies the security group rule action.",
+                                        "required": true
+                                      },
+                                      "created_at": {
+                                        "type": "string",
+                                        "description": "Specifies the security group rule creation time.",
+                                        "required": true
+                                      },
+                                      "description": {
+                                        "type": "string",
+                                        "description": "Specifies the security group rule description.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "direction": {
+                                        "type": "string",
+                                        "description": "Specifies the direction of the security group rule.",
+                                        "required": true
+                                      },
+                                      "ethertype": {
+                                        "type": "string",
+                                        "description": "Specifies the IP address protocol type.",
+                                        "required": true
+                                      },
+                                      "id": {
+                                        "type": "string",
+                                        "description": "Specifies the unique identifier of the security group rule.",
+                                        "required": true
+                                      },
+                                      "multiport": {
+                                        "type": "string",
+                                        "description": "Specifies the port range.",
+                                        "required": true
+                                      },
+                                      "priority": {
+                                        "type": "number",
+                                        "description": "Specifies the priority of the security group rule.",
+                                        "required": true
+                                      },
+                                      "project_id": {
+                                        "type": "string",
+                                        "description": "Specifies the project ID to which the security group rule belongs.",
+                                        "required": true
+                                      },
+                                      "protocol": {
+                                        "type": "string",
+                                        "description": "Specifies the protocol type.",
+                                        "required": true
+                                      },
+                                      "remote_address_group_id": {
+                                        "type": "string",
+                                        "description": "Specifies the remote address group ID.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "remote_group_id": {
+                                        "type": "string",
+                                        "description": "Specifies the remote security group ID.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "remote_ip_prefix": {
+                                        "type": "string",
+                                        "description": "Specifies the remote IP address.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "security_group_id": {
+                                        "type": "string",
+                                        "description": "Specifies the security group ID to which the security group rule belongs.",
+                                        "required": true
+                                      },
+                                      "updated_at": {
+                                        "type": "string",
+                                        "description": "Specifies the security group rule update time.",
+                                        "required": true
+                                      }
+                                    },
+                                    "description": "Specifies the security group rules."
+                                  },
+                                  "nesting_mode": "list"
+                                }
+                              },
+                              "description": "Specifies the details of the subnet."
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          },
+                          "hwc_vpc": {
+                            "block": {
+                              "attributes": {
+                                "cidr": {
+                                  "type": "string",
+                                  "description": "Specifies the cidr of the VPC.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "created_at": {
+                                  "type": "string",
+                                  "description": "Specifies the created time of the VPC.",
+                                  "required": true
+                                },
+                                "description": {
+                                  "type": "string",
+                                  "description": "Specifies the description of the VPC.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "enterprise_project_id": {
+                                  "type": "string",
+                                  "description": "Specifies the enterprise project ID of the VPC.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "extend_cidrs": {
+                                  "type": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "description": "Specifies the extend cidrs of the VPC.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "id": {
+                                  "type": "string",
+                                  "description": "Specifies the ID of the VPC.",
+                                  "required": true
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "Specifies the name of the VPC.",
+                                  "required": true
+                                },
+                                "project_id": {
+                                  "type": "string",
+                                  "description": "Specifies the project ID of the VPC.",
+                                  "required": true
+                                },
+                                "protected_status": {
+                                  "type": "string",
+                                  "description": "Specifies the protected status of the VPC.",
+                                  "required": true
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "description": "Specifies the status of the VPC.",
+                                  "required": true
+                                },
+                                "updated_at": {
+                                  "type": "string",
+                                  "description": "Specifies the updated time of the VPC.",
+                                  "required": true
+                                }
+                              },
+                              "block_types": {
+                                "cloud_resources": {
+                                  "block": {
+                                    "attributes": {
+                                      "resource_count": {
+                                        "type": "number",
+                                        "description": "Specifies the asset count of the cloud resources.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "resource_type": {
+                                        "type": "string",
+                                        "description": "Specifies the type of the cloud resources.",
+                                        "optional": true,
+                                        "computed": true
+                                      }
+                                    },
+                                    "description": "Specifies the cloud resources of the VPC."
+                                  },
+                                  "nesting_mode": "list"
+                                },
+                                "tags": {
+                                  "block": {
+                                    "attributes": {
+                                      "key": {
+                                        "type": "string",
+                                        "description": "Specifies the key of the tag.",
+                                        "required": true
+                                      },
+                                      "values": {
+                                        "type": [
+                                          "list",
+                                          "string"
+                                        ],
+                                        "description": "Specifies the values of the tag.",
+                                        "required": true
+                                      }
+                                    },
+                                    "description": "Specifies the tags of the VPC."
+                                  },
+                                  "nesting_mode": "list"
+                                }
+                              },
+                              "description": "Specifies the details of the VPC."
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          },
+                          "oca_ip": {
+                            "block": {
+                              "attributes": {
+                                "important": {
+                                  "type": "number",
+                                  "description": "Specifies the importance level, 0: not important, 1: important",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "mac_addr": {
+                                  "type": "string",
+                                  "description": "Specifies the mac address.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "Specifies the asset name, default value is asset value.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "relative_value": {
+                                  "type": "string",
+                                  "description": "Specifies the relative value, such as ipv6 if the asset is ipv4.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "remark": {
+                                  "type": "string",
+                                  "description": "Specifies the asset remark.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "server_rack": {
+                                  "type": "string",
+                                  "description": "Specifies the server rack.",
+                                  "required": true
+                                },
+                                "server_room": {
+                                  "type": "string",
+                                  "description": "Specifies the server room.",
+                                  "required": true
+                                },
+                                "value": {
+                                  "type": "string",
+                                  "description": "Specifies the asset value.",
+                                  "required": true
+                                },
+                                "version": {
+                                  "type": "string",
+                                  "description": "Specifies the asset version.",
+                                  "required": true
+                                }
+                              },
+                              "block_types": {
+                                "data_center": {
+                                  "block": {
+                                    "attributes": {
+                                      "city_code": {
+                                        "type": "string",
+                                        "description": "Specifies the city code.",
+                                        "required": true
+                                      },
+                                      "country_code": {
+                                        "type": "string",
+                                        "description": "Specifies the country code.",
+                                        "required": true
+                                      },
+                                      "latitude": {
+                                        "type": "number",
+                                        "description": "Specifies the latitude.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "longitude": {
+                                        "type": "number",
+                                        "description": "Specifies the longitude.",
+                                        "optional": true,
+                                        "computed": true
+                                      }
+                                    },
+                                    "description": "schema:{\"Required\":true};Specifies the data center."
+                                  },
+                                  "nesting_mode": "list",
+                                  "max_items": 1
+                                },
+                                "extend_propertites": {
+                                  "block": {
+                                    "block_types": {
+                                      "device": {
+                                        "block": {
+                                          "attributes": {
+                                            "model": {
+                                              "type": "string",
+                                              "description": "Specifies the model of the device.",
+                                              "optional": true,
+                                              "computed": true
+                                            },
+                                            "type": {
+                                              "type": "string",
+                                              "description": "Specifies the type of the device.",
+                                              "optional": true,
+                                              "computed": true
+                                            }
+                                          },
+                                          "block_types": {
+                                            "vendor": {
+                                              "block": {
+                                                "attributes": {
+                                                  "is_xc": {
+                                                    "type": "bool",
+                                                    "description": "Specifies whether the supplier is domestic or not.",
+                                                    "optional": true,
+                                                    "computed": true
+                                                  },
+                                                  "name": {
+                                                    "type": "string",
+                                                    "description": "Specifies the name of the supplier.",
+                                                    "optional": true,
+                                                    "computed": true
+                                                  }
+                                                },
+                                                "description": "Specifies the device supplier."
+                                              },
+                                              "nesting_mode": "list",
+                                              "max_items": 1
+                                            }
+                                          },
+                                          "description": "Specifies the device information."
+                                        },
+                                        "nesting_mode": "list",
+                                        "max_items": 1
+                                      },
+                                      "services": {
+                                        "block": {
+                                          "attributes": {
+                                            "name": {
+                                              "type": "string",
+                                              "description": "Specifies the name of the application.",
+                                              "optional": true,
+                                              "computed": true
+                                            },
+                                            "port": {
+                                              "type": "number",
+                                              "description": "Specifies the port of the application.",
+                                              "optional": true,
+                                              "computed": true
+                                            },
+                                            "protocol": {
+                                              "type": "string",
+                                              "description": "Specifies the protocol of the application.",
+                                              "optional": true,
+                                              "computed": true
+                                            },
+                                            "version": {
+                                              "type": "string",
+                                              "description": "Specifies the version of the application.",
+                                              "optional": true,
+                                              "computed": true
+                                            }
+                                          },
+                                          "block_types": {
+                                            "vendor": {
+                                              "block": {
+                                                "attributes": {
+                                                  "is_xc": {
+                                                    "type": "bool",
+                                                    "description": "Specifies whether the supplier is domestic or not.",
+                                                    "optional": true,
+                                                    "computed": true
+                                                  },
+                                                  "name": {
+                                                    "type": "string",
+                                                    "description": "Specifies the name of the supplier.",
+                                                    "optional": true,
+                                                    "computed": true
+                                                  }
+                                                },
+                                                "description": "Specifies the application supplier."
+                                              },
+                                              "nesting_mode": "list",
+                                              "max_items": 1
+                                            }
+                                          },
+                                          "description": "Specifies the application information."
+                                        },
+                                        "nesting_mode": "list"
+                                      },
+                                      "system": {
+                                        "block": {
+                                          "attributes": {
+                                            "family": {
+                                              "type": "string",
+                                              "description": "Specifies the type of the system.",
+                                              "optional": true,
+                                              "computed": true
+                                            },
+                                            "name": {
+                                              "type": "string",
+                                              "description": "Specifies the name of the system.",
+                                              "optional": true,
+                                              "computed": true
+                                            },
+                                            "version": {
+                                              "type": "string",
+                                              "description": "Specifies the version of the system.",
+                                              "optional": true,
+                                              "computed": true
+                                            }
+                                          },
+                                          "block_types": {
+                                            "vendor": {
+                                              "block": {
+                                                "attributes": {
+                                                  "is_xc": {
+                                                    "type": "bool",
+                                                    "description": "Specifies whether the supplier is domestic or not.",
+                                                    "optional": true,
+                                                    "computed": true
+                                                  },
+                                                  "name": {
+                                                    "type": "string",
+                                                    "description": "Specifies the name of the supplier.",
+                                                    "optional": true,
+                                                    "computed": true
+                                                  }
+                                                },
+                                                "description": "Specifies the system supplier."
+                                              },
+                                              "nesting_mode": "list",
+                                              "max_items": 1
+                                            }
+                                          },
+                                          "description": "Specifies the system information."
+                                        },
+                                        "nesting_mode": "list",
+                                        "max_items": 1
+                                      }
+                                    },
+                                    "description": "Specifies the other third-party attributes."
+                                  },
+                                  "nesting_mode": "list",
+                                  "max_items": 1
+                                },
+                                "network": {
+                                  "block": {
+                                    "attributes": {
+                                      "is_public": {
+                                        "type": "bool",
+                                        "description": "Specifies whether the IP is public or private.",
+                                        "required": true
+                                      },
+                                      "partition": {
+                                        "type": "string",
+                                        "description": "Specifies the network partition.",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "plane": {
+                                        "type": "string",
+                                        "description": "Specifies the network plane (offline has its own code).",
+                                        "optional": true,
+                                        "computed": true
+                                      },
+                                      "vxlan_id": {
+                                        "type": "string",
+                                        "description": "Specifies the virtual network ID.",
+                                        "optional": true,
+                                        "computed": true
+                                      }
+                                    },
+                                    "description": "schema:{\"Required\":true};Specifies the network information."
+                                  },
+                                  "nesting_mode": "list",
+                                  "max_items": 1
+                                }
+                              },
+                              "description": "Specifies the details of the cloud asset IP."
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          },
+                          "website": {
+                            "block": {
+                              "attributes": {
+                                "is_public": {
+                                  "type": "bool",
+                                  "description": "Specifies whether the website is public or private.",
+                                  "required": true
+                                },
+                                "main_domain": {
+                                  "type": "string",
+                                  "description": "Specifies the main domain name.",
+                                  "required": true
+                                },
+                                "name_server": {
+                                  "type": [
+                                    "list",
+                                    "string"
+                                  ],
+                                  "description": "Specifies the website server list.",
+                                  "required": true
+                                },
+                                "protected_status": {
+                                  "type": "string",
+                                  "description": "Specifies the WAF status.",
+                                  "required": true
+                                },
+                                "remark": {
+                                  "type": "string",
+                                  "description": "Specifies the website remark.",
+                                  "optional": true,
+                                  "computed": true
+                                },
+                                "value": {
+                                  "type": "string",
+                                  "description": "Specifies the website URL.",
+                                  "required": true
+                                }
+                              },
+                              "block_types": {
+                                "extend_propertites": {
+                                  "block": {
+                                    "attributes": {
+                                      "mac_addr": {
+                                        "type": "string",
+                                        "description": "Specifies the MAC address.",
+                                        "optional": true,
+                                        "computed": true
+                                      }
+                                    },
+                                    "description": "Specifies the other properties."
+                                  },
+                                  "nesting_mode": "list",
+                                  "max_items": 1
+                                }
+                              },
+                              "description": "Specifies the details of the website."
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          }
+                        },
+                        "description": "schema:{\"Required\":true};Specifies the properties of the asset."
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    }
+                  },
+                  "description": "Specifies the details of the asset."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

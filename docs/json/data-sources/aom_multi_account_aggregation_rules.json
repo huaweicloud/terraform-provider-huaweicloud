@@ -1,0 +1,72 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_aom_multi_account_aggregation_rules": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "rules": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "accounts": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "join_method": "string",
+                            "joined_at": "string",
+                            "name": "string",
+                            "urn": "string"
+                          }
+                        ]
+                      ],
+                      "instance_id": "string",
+                      "send_to_source_account": "bool",
+                      "services": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "metrics": [
+                              "list",
+                              "string"
+                            ],
+                            "service": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "AOM",
+            "name": "Application Operations Management",
+            "catalog": "Management & Governance",
+            "name_cn": "应用运维管理",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

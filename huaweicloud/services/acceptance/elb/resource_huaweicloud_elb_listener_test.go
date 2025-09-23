@@ -11,6 +11,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func getELBListenerResourceFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -52,6 +53,9 @@ func TestAccElbV3Listener_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
 					resource.TestCheckResourceAttr(resourceName, "advanced_forwarding_enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "protection_status", "nonProtection"),
+					resource.TestCheckResourceAttr(resourceName, "max_connection", "1000"),
+					resource.TestCheckResourceAttr(resourceName, "cps", "100"),
+					resource.TestCheckResourceAttrSet(resourceName, "enterprise_project_id"),
 					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
 					resource.TestCheckResourceAttrSet(resourceName, "updated_at"),
 				),
@@ -70,6 +74,8 @@ func TestAccElbV3Listener_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "advanced_forwarding_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "protection_status", "consoleProtection"),
 					resource.TestCheckResourceAttr(resourceName, "protection_reason", "test protection reason"),
+					resource.TestCheckResourceAttr(resourceName, "max_connection", "2000"),
+					resource.TestCheckResourceAttr(resourceName, "cps", "200"),
 				),
 			},
 			{
@@ -207,7 +213,13 @@ func TestAccElbV3Listener_with_protocol_https(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "enable_member_retry", "false"),
 					resource.TestCheckResourceAttr(resourceName, "ssl_early_data_enable", "true"),
 					resource.TestCheckResourceAttr(resourceName, "sni_match_algo", "wildcard"),
-					resource.TestCheckResourceAttrPair(resourceName, "quic_listener_id", "huaweicloud_elb_listener.quic", "id"),
+					resource.TestCheckResourceAttr(resourceName, "access_policy", "white"),
+					resource.TestCheckResourceAttrPair(resourceName, "ip_group",
+						"huaweicloud_elb_ipgroup.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "ip_group_enable", "false"),
+					resource.TestCheckResourceAttrPair(resourceName, "quic_listener_id",
+						"huaweicloud_elb_listener.quic", "id"),
+					resource.TestCheckResourceAttr(resourceName, "enable_quic_upgrade", "true"),
 				),
 			},
 			{
@@ -224,7 +236,16 @@ func TestAccElbV3Listener_with_protocol_https(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "enable_member_retry", "true"),
 					resource.TestCheckResourceAttr(resourceName, "sni_match_algo", "longest_suffix"),
 					resource.TestCheckResourceAttr(resourceName, "ssl_early_data_enable", "false"),
-					resource.TestCheckResourceAttrPair(resourceName, "security_policy_id", "huaweicloud_elb_security_policy.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "enable_quic_upgrade", "false"),
+					resource.TestCheckResourceAttr(resourceName, "access_policy", "black"),
+					resource.TestCheckResourceAttrPair(resourceName, "ip_group",
+						"huaweicloud_elb_ipgroup.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "ip_group_enable", "true"),
+					resource.TestCheckResourceAttrPair(resourceName, "quic_listener_id",
+						"huaweicloud_elb_listener.quic", "id"),
+					resource.TestCheckResourceAttr(resourceName, "enable_quic_upgrade", "false"),
+					resource.TestCheckResourceAttrPair(resourceName, "security_policy_id",
+						"huaweicloud_elb_security_policy.test", "id"),
 				),
 			},
 			{
@@ -277,6 +298,58 @@ func TestAccElbV3Listener_with_protocol_tls(t *testing.T) {
 	})
 }
 
+func TestAccElbV3Listener_with_ip_protocol(t *testing.T) {
+	var listener listeners.Listener
+	rName := acceptance.RandomAccResourceNameWithDash()
+	rNameUpdate := acceptance.RandomAccResourceNameWithDash()
+	resourceName := "huaweicloud_elb_listener.test"
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&listener,
+		getELBListenerResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckElbGatewayType(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccElbV3ListenerConfig_with_ip_protocol(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "description", "test description"),
+					resource.TestCheckResourceAttr(resourceName, "protocol", "IP"),
+					resource.TestCheckResourceAttr(resourceName, "protocol_port", "0"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
+					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
+				),
+			},
+			{
+				Config: testAccElbV3ListenerConfig_with_ip_protocol_update(rName, rNameUpdate),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdate),
+					resource.TestCheckResourceAttr(resourceName, "description", "test description update"),
+					resource.TestCheckResourceAttr(resourceName, "protocol", "IP"),
+					resource.TestCheckResourceAttr(resourceName, "protocol_port", "0"),
+					resource.TestCheckResourceAttr(resourceName, "tags.key1", "value1"),
+					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform_update"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
 func testAccElbV3ListenerConfig_basic(rName string) string {
 	return fmt.Sprintf(`
 data "huaweicloud_vpc_subnet" "test" {
@@ -306,6 +379,8 @@ resource "huaweicloud_elb_listener" "test" {
   protocol_port               = 8080
   loadbalancer_id             = huaweicloud_elb_loadbalancer.test.id
   advanced_forwarding_enabled = false
+  max_connection              = 1000
+  cps                         = 100
 
   idle_timeout     = 62
   request_timeout  = 63
@@ -349,6 +424,8 @@ resource "huaweicloud_elb_listener" "test" {
   protocol_port               = 8080
   loadbalancer_id             = huaweicloud_elb_loadbalancer.test.id
   advanced_forwarding_enabled = true
+  max_connection              = 2000
+  cps                         = 200
 
   idle_timeout     = 63
   request_timeout  = 64
@@ -618,8 +695,10 @@ resource "huaweicloud_elb_listener" "test" {
   http2_enable            = true
   sni_match_algo          = "wildcard"
   quic_listener_id        = huaweicloud_elb_listener.quic.id
+  enable_quic_upgrade     = "true"
   access_policy           = "white"
   ip_group                = huaweicloud_elb_ipgroup.test.id
+  ip_group_enable         = "false"
   tls_ciphers_policy      = "tls-1-0-with-1-3"
 }
 `, testAccElbV3ListenerConfig_protocol_https_base(rName), rName)
@@ -652,8 +731,11 @@ resource "huaweicloud_elb_listener" "test" {
   enable_member_retry     = true
   http2_enable            = false
   sni_match_algo          = "longest_suffix"
+  quic_listener_id        = huaweicloud_elb_listener.quic.id
+  enable_quic_upgrade     = "false"
   access_policy           = "black"
   ip_group                = huaweicloud_elb_ipgroup.test.id
+  ip_group_enable         = "true"
   tls_ciphers_policy      = "tls-1-2-fs-with-1-3"
   ca_certificate          = huaweicloud_elb_certificate.client.id
   server_certificate      = huaweicloud_elb_certificate.server.id
@@ -695,4 +777,64 @@ resource "huaweicloud_elb_listener" "test" {
   server_certificate    = huaweicloud_elb_certificate.server.id
   proxy_protocol_enable = true
 }`, lb, certificate, rName)
+}
+
+func testAccElbV3ListenerConfig_with_ip_protocol_base(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_availability_zones" "test" {}
+
+resource "huaweicloud_elb_loadbalancer" "test" {
+  name              = "%[2]s"
+  vpc_id            = huaweicloud_vpc.test.id
+  ipv4_subnet_id    = huaweicloud_vpc_subnet.test.ipv4_subnet_id
+  loadbalancer_type = "gateway"
+  description       = "test gateway description"
+
+  availability_zone = [
+    data.huaweicloud_availability_zones.test.names[0]
+  ]
+}
+`, common.TestVpc(rName), rName)
+}
+
+func testAccElbV3ListenerConfig_with_ip_protocol(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_elb_listener" "test" {
+  name                        = "%[2]s"
+  description                 = "test description"
+  protocol                    = "IP"
+  protocol_port               = 0
+  loadbalancer_id             = huaweicloud_elb_loadbalancer.test.id
+  advanced_forwarding_enabled = true
+
+  tags = {
+    key   = "value"
+    owner = "terraform"
+  }
+}
+`, testAccElbV3ListenerConfig_with_ip_protocol_base(rName), rName)
+}
+
+func testAccElbV3ListenerConfig_with_ip_protocol_update(rName, rNameUpdate string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_elb_listener" "test" {
+  name                        = "%[2]s"
+  description                 = "test description update"
+  protocol                    = "IP"
+  protocol_port               = 0
+  loadbalancer_id             = huaweicloud_elb_loadbalancer.test.id
+  advanced_forwarding_enabled = true
+
+  tags = {
+    key1  = "value1"
+    owner = "terraform_update"
+  }
+}
+`, testAccElbV3ListenerConfig_with_ip_protocol_base(rName), rNameUpdate)
 }

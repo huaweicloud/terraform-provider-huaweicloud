@@ -1,0 +1,191 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_ces_alarm_histories": {
+          "block": {
+            "attributes": {
+              "alarm_histories": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "action_enabled": "bool",
+                      "additional_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "event_id": "string",
+                            "resource_id": "string",
+                            "resource_name": "string"
+                          }
+                        ]
+                      ],
+                      "alarm_actions": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "notification_list": [
+                              "list",
+                              "string"
+                            ],
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "alarm_id": "string",
+                      "alarm_recovery_time": "string",
+                      "begin_time": "string",
+                      "condition": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "comparison_operator": "string",
+                            "count": "number",
+                            "filter": "string",
+                            "period": "number",
+                            "suppress_duration": "number",
+                            "unit": "string",
+                            "value": "number"
+                          }
+                        ]
+                      ],
+                      "data_points": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "time": "string",
+                            "value": "number"
+                          }
+                        ]
+                      ],
+                      "end_time": "string",
+                      "first_alarm_time": "string",
+                      "last_alarm_time": "string",
+                      "level": "number",
+                      "metric": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "dimensions": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "name": "string",
+                                  "value": "string"
+                                }
+                              ]
+                            ],
+                            "metric_name": "string",
+                            "namespace": "string"
+                          }
+                        ]
+                      ],
+                      "name": "string",
+                      "ok_actions": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "notification_list": [
+                              "list",
+                              "string"
+                            ],
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "record_id": "string",
+                      "status": "string",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "The alarm records.",
+                "computed": true
+              },
+              "alarm_id": {
+                "type": "string",
+                "description": "Specifies an alarm ID.",
+                "optional": true
+              },
+              "alarm_type": {
+                "type": "string",
+                "description": "Specifies the alarm type.",
+                "optional": true
+              },
+              "from": {
+                "type": "string",
+                "description": "Specifies the start time for querying alarm records.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "level": {
+                "type": "number",
+                "description": "Specifies the alarm severity.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the alarm rule name.",
+                "optional": true
+              },
+              "namespace": {
+                "type": "string",
+                "description": "Specifies the namespace of a service.",
+                "optional": true
+              },
+              "order_by": {
+                "type": "string",
+                "description": "Specifies the keyword for sorting alarms.",
+                "optional": true
+              },
+              "record_id": {
+                "type": "string",
+                "description": "Specifies the alarm record ID.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "resource_id": {
+                "type": "string",
+                "description": "Specifies the ID of a resource in an alarm rule.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the alarm rule status.",
+                "optional": true
+              },
+              "to": {
+                "type": "string",
+                "description": "Specifies the end time for querying alarm records.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CES",
+            "name": "Cloud Eye",
+            "catalog": "Management & Governance",
+            "name_cn": "云监控服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

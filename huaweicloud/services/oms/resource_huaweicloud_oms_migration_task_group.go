@@ -2,8 +2,11 @@ package oms
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"log"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
@@ -12,9 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/sdkerr"
-	oms "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/oms/v2"
-	omsmodel "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/oms/v2/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -267,6 +268,16 @@ func ResourceMigrationTaskGroup() *schema.Resource {
 					},
 				},
 			},
+			"enable_metadata_migration": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+			},
+			"dst_storage_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 			"status": {
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -299,25 +310,25 @@ func ResourceMigrationTaskGroup() *schema.Resource {
 	}
 }
 
-func buildTaskGroupSrcNodeOpts(rawSrcNode []interface{}) *omsmodel.TaskGroupSrcNode {
+func buildTaskGroupSrcNodeOpts(rawSrcNode []interface{}) map[string]interface{} {
 	if len(rawSrcNode) != 1 {
 		return nil
 	}
 	srcNode := rawSrcNode[0].(map[string]interface{})
 
-	srcNodeOpts := omsmodel.TaskGroupSrcNode{
-		CloudType: utils.StringIgnoreEmpty(srcNode["data_source"].(string)),
-		Region:    utils.StringIgnoreEmpty(srcNode["region"].(string)),
-		Ak:        utils.StringIgnoreEmpty(srcNode["access_key"].(string)),
-		Sk:        utils.StringIgnoreEmpty(srcNode["secret_key"].(string)),
-		AppId:     utils.StringIgnoreEmpty(srcNode["app_id"].(string)),
-		Bucket:    utils.StringIgnoreEmpty(srcNode["bucket"].(string)),
+	srcNodeOpts := map[string]interface{}{
+		"cloud_type": utils.ValueIgnoreEmpty(srcNode["data_source"]),
+		"region":     utils.ValueIgnoreEmpty(srcNode["region"]),
+		"ak":         utils.ValueIgnoreEmpty(srcNode["access_key"]),
+		"sk":         utils.ValueIgnoreEmpty(srcNode["secret_key"]),
+		"app_id":     utils.ValueIgnoreEmpty(srcNode["app_id"]),
+		"bucket":     utils.ValueIgnoreEmpty(srcNode["bucket"]),
 	}
 
 	if srcNode["list_file_bucket"].(string) != "" {
-		srcNodeOpts.ListFile = &omsmodel.ListFile{
-			ObsBucket:   srcNode["list_file_bucket"].(string),
-			ListFileKey: srcNode["list_file_key"].(string),
+		srcNodeOpts["list_file"] = map[string]interface{}{
+			"obs_bucket":    srcNode["list_file_bucket"].(string),
+			"list_file_key": srcNode["list_file_key"].(string),
 		}
 	} else {
 		srcNodeObjects := srcNode["object"].([]interface{})
@@ -331,13 +342,13 @@ func buildTaskGroupSrcNodeOpts(rawSrcNode []interface{}) *omsmodel.TaskGroupSrcN
 		if len(s) == 0 {
 			s = append(s, "")
 		}
-		srcNodeOpts.ObjectKey = &s
+		srcNodeOpts["object_key"] = &s
 	}
 
-	return &srcNodeOpts
+	return srcNodeOpts
 }
 
-func buildTaskGroupDstNodeOpts(conf *config.Config, rawDstNode []interface{}) (*omsmodel.TaskGroupDstNode, error) {
+func buildTaskGroupDstNodeOpts(conf *config.Config, rawDstNode []interface{}) (map[string]interface{}, error) {
 	if len(rawDstNode) != 1 {
 		return nil, nil
 	}
@@ -351,16 +362,16 @@ func buildTaskGroupDstNodeOpts(conf *config.Config, rawDstNode []interface{}) (*
 		return nil, err
 	}
 
-	dstNodeOpts := omsmodel.TaskGroupDstNode{
-		Region:     dstNode["region"].(string),
-		Ak:         ak,
-		Sk:         sk,
-		CloudType:  utils.StringIgnoreEmpty(dstNode["data_source"].(string)),
-		Bucket:     dstNode["bucket"].(string),
-		SavePrefix: utils.StringIgnoreEmpty(dstNode["save_prefix"].(string)),
+	dstNodeOpts := map[string]interface{}{
+		"region":      dstNode["region"],
+		"ak":          ak,
+		"sk":          sk,
+		"cloud_type":  utils.ValueIgnoreEmpty(dstNode["data_source"]),
+		"bucket":      dstNode["bucket"],
+		"save_prefix": utils.ValueIgnoreEmpty(dstNode["save_prefix"]),
 	}
 
-	return &dstNodeOpts, nil
+	return dstNodeOpts, nil
 }
 
 func getTaskGroupDstAccessKey(conf *config.Config, dstNode map[string]interface{}) (string, error) {
@@ -383,18 +394,8 @@ func getTaskGroupDstSecretKey(conf *config.Config, dstNode map[string]interface{
 	return "", fmt.Errorf("unable to find secret_key")
 }
 
-func buildTaskGroupCreateOpts(conf *config.Config, d *schema.ResourceData) (*omsmodel.CreateTaskGroupReq, error) {
-	var taskType omsmodel.CreateTaskGroupReqTaskType
-	if err := taskType.UnmarshalJSON([]byte(d.Get("type").(string))); err != nil {
-		return nil, fmt.Errorf("error parsing the argument type: %s", err)
-	}
-
+func buildTaskGroupCreateOpts(conf *config.Config, d *schema.ResourceData) (map[string]interface{}, error) {
 	dstNodeOpts, err := buildTaskGroupDstNodeOpts(conf, d.Get("destination_object").([]interface{}))
-	if err != nil {
-		return nil, err
-	}
-
-	sourceCdn, err := buildSourceCdnOpts(d.Get("source_cdn").([]interface{}))
 	if err != nil {
 		return nil, err
 	}
@@ -408,33 +409,21 @@ func buildTaskGroupCreateOpts(conf *config.Config, d *schema.ResourceData) (*oms
 		migrateSinceOpt = &migrateSince
 	}
 
-	createOpts := &omsmodel.CreateTaskGroupReq{
-		SrcNode:                     buildTaskGroupSrcNodeOpts(d.Get("source_object").([]interface{})),
-		Description:                 utils.StringIgnoreEmpty(d.Get("description").(string)),
-		DstNode:                     dstNodeOpts,
-		EnableFailedObjectRecording: utils.Bool(d.Get("enable_failed_object_recording").(bool)),
-		EnableKms:                   d.Get("enable_kms").(bool),
-		TaskType:                    &taskType,
-		BandwidthPolicy:             buildBandwidthPolicyOpts(d.Get("bandwidth_policy").([]interface{})),
-		SourceCdn:                   sourceCdn,
-		MigrateSince:                migrateSinceOpt,
-		EnableRequesterPays:         utils.Bool(d.Get("enable_requester_pays").(bool)),
-	}
-
-	if v, ok := d.GetOk("object_overwrite_mode"); ok {
-		var objectOverwriteMode omsmodel.CreateTaskGroupReqObjectOverwriteMode
-		if err := objectOverwriteMode.UnmarshalJSON([]byte(v.(string))); err != nil {
-			return nil, fmt.Errorf("error parsing the argument object_overwrite_mode: %s", err)
-		}
-		createOpts.ObjectOverwriteMode = &objectOverwriteMode
-	}
-
-	if v, ok := d.GetOk("consistency_check"); ok {
-		var consistencyCheck omsmodel.CreateTaskGroupReqConsistencyCheck
-		if err := consistencyCheck.UnmarshalJSON([]byte(v.(string))); err != nil {
-			return nil, fmt.Errorf("error parsing the argument consistency_check: %s", err)
-		}
-		createOpts.ConsistencyCheck = &consistencyCheck
+	createOpts := map[string]interface{}{
+		"task_type":                      d.Get("type"),
+		"src_node":                       buildTaskGroupSrcNodeOpts(d.Get("source_object").([]interface{})),
+		"description":                    utils.ValueIgnoreEmpty(d.Get("description")),
+		"dst_node":                       dstNodeOpts,
+		"enable_failed_object_recording": d.Get("enable_failed_object_recording"),
+		"enable_kms":                     d.Get("enable_kms").(bool),
+		"bandwidth_policy":               buildBandwidthPolicyOpts(d.Get("bandwidth_policy").([]interface{})),
+		"source_cdn":                     buildSourceCdnOpts(d.Get("source_cdn").([]interface{})),
+		"migrate_since":                  migrateSinceOpt,
+		"enable_requester_pays":          utils.ValueIgnoreEmpty(d.Get("enable_requester_pays")),
+		"object_overwrite_mode":          utils.ValueIgnoreEmpty(d.Get("object_overwrite_mode")),
+		"consistency_check":              utils.ValueIgnoreEmpty(d.Get("consistency_check")),
+		"enable_metadata_migration":      d.Get("enable_metadata_migration").(bool),
+		"dst_storage_policy":             utils.ValueIgnoreEmpty(d.Get("dst_storage_policy").(string)),
 	}
 
 	return createOpts, nil
@@ -448,27 +437,52 @@ type TaskGroupActionConfig struct {
 }
 
 func resourceMigrationTaskGroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	client, err := conf.HcOmsV2Client(conf.GetRegion(d))
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	var (
+		createTaskGroupHttpUrl = "v2/{project_id}/taskgroups"
+		createTaskGroupProduct = "oms"
+	)
+	createTaskGroupClient, err := cfg.NewServiceClient(createTaskGroupProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating OMS client: %s", err)
 	}
-	createOpts, err := buildTaskGroupCreateOpts(conf, d)
+
+	createTaskGroupPath := createTaskGroupClient.Endpoint + createTaskGroupHttpUrl
+	createTaskGroupPath = strings.ReplaceAll(createTaskGroupPath, "{project_id}", createTaskGroupClient.ProjectID)
+
+	createTaskGroupOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	createOpts, err := buildTaskGroupCreateOpts(cfg, d)
+	if err != nil {
+		return nil
+	}
+
+	log.Printf("[DEBUG] Create Task Group options: %#v", createOpts)
+	createTaskGroupOpt.JSONBody = utils.RemoveNil(createOpts)
+	createTaskGroupResp, err := createTaskGroupClient.Request("POST", createTaskGroupPath, &createTaskGroupOpt)
+	if err != nil {
+		return diag.Errorf("error creating OMS migration task group: %s", err)
+	}
+
+	createTaskGroupRespBody, err := utils.FlattenResponse(createTaskGroupResp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	resp, err := client.CreateTaskGroup(&omsmodel.CreateTaskGroupRequest{Body: createOpts})
-	if err != nil {
-		return diag.Errorf("error creating OMS migration task group: %s", err)
+	id := utils.PathSearch("group_id", createTaskGroupRespBody, nil)
+	if id == nil {
+		return diag.Errorf("error creating OMS migration task group: ID is not found in API response")
 	}
-	if resp.GroupId == nil {
-		return diag.Errorf("unable to find the task group ID")
-	}
-	groupID := *resp.GroupId
+
+	groupID := id.(string)
+
 	d.SetId(groupID)
 
-	err = waitForTaskGroupStartedOrCompleted(ctx, client, groupID, d.Timeout(schema.TimeoutCreate))
+	err = waitForTaskGroupStartedOrCompleted(ctx, createTaskGroupClient, groupID, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
 		return diag.Errorf("error waiting for task group (%s) started or completed: %s", groupID, err)
 	}
@@ -477,17 +491,17 @@ func resourceMigrationTaskGroupCreate(ctx context.Context, d *schema.ResourceDat
 		actionConfig := &TaskGroupActionConfig{
 			Action:  action.(string),
 			Ctx:     ctx,
-			Conf:    conf,
+			Conf:    cfg,
 			GroupID: groupID,
 		}
-		if err := handleMigrationTaskGroupAction(actionConfig, client, d); err != nil {
+		if err := handleMigrationTaskGroupAction(actionConfig, createTaskGroupClient, d); err != nil {
 			return diag.FromErr(err)
 		}
 	}
 	return resourceMigrationTaskGroupRead(ctx, d, meta)
 }
 
-func handleMigrationTaskGroupAction(actionConfig *TaskGroupActionConfig, client *oms.OmsClient, d *schema.ResourceData) error {
+func handleMigrationTaskGroupAction(actionConfig *TaskGroupActionConfig, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
 	var err error
 	switch actionConfig.Action {
 	case "retry":
@@ -502,7 +516,7 @@ func handleMigrationTaskGroupAction(actionConfig *TaskGroupActionConfig, client 
 	return err
 }
 
-func retryMigrationTaskGroup(actionConfig *TaskGroupActionConfig, client *oms.OmsClient, d *schema.ResourceData) error {
+func retryMigrationTaskGroup(actionConfig *TaskGroupActionConfig, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
 	srcNode := make(map[string]interface{})
 	dstNode := make(map[string]interface{})
 	if sourceObjects := d.Get("source_object").([]interface{}); len(sourceObjects) > 0 {
@@ -528,21 +542,27 @@ func retryMigrationTaskGroup(actionConfig *TaskGroupActionConfig, client *oms.Om
 		sourceCdnAuthenticationKey = utils.String(sourceCdn["authentication_key"].(string))
 	}
 
-	retryTaskGroupReq := &omsmodel.RetryTaskGroupReq{
-		SrcAk:                      utils.StringIgnoreEmpty(srcNode["access_key"].(string)),
-		SrcSk:                      utils.StringIgnoreEmpty(srcNode["secret_key"].(string)),
-		DstAk:                      &dstAk,
-		DstSk:                      &dstSk,
-		SourceCdnAuthenticationKey: sourceCdnAuthenticationKey,
+	retryTaskOpts := map[string]interface{}{
+		"src_ak":                        utils.StringIgnoreEmpty(srcNode["access_key"].(string)),
+		"src_sk":                        utils.StringIgnoreEmpty(srcNode["secret_key"].(string)),
+		"dst_ak":                        &dstAk,
+		"dst_sk":                        &dstSk,
+		"source_cdn_authentication_key": sourceCdnAuthenticationKey,
 	}
 
-	retryTaskGroupRequest := &omsmodel.RetryTaskGroupRequest{
-		GroupId: actionConfig.GroupID,
-		Body:    retryTaskGroupReq,
+	retryTaskGroupHttpUrl := "v2/{project_id}/taskgroups/{group_id}/retry"
+	retryTaskGroupPath := client.Endpoint + retryTaskGroupHttpUrl
+	retryTaskGroupPath = strings.ReplaceAll(retryTaskGroupPath, "{project_id}", client.ProjectID)
+	retryTaskGroupPath = strings.ReplaceAll(retryTaskGroupPath, "{group_id}", actionConfig.GroupID)
+
+	retryTaskGroupOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
-	_, err = client.RetryTaskGroup(retryTaskGroupRequest)
+
+	retryTaskGroupOpt.JSONBody = utils.RemoveNil(retryTaskOpts)
+	_, err = client.Request("PUT", retryTaskGroupPath, &retryTaskGroupOpt)
 	if err != nil {
-		return fmt.Errorf("error retry OMS migration task group: %s", err)
+		return fmt.Errorf("error retrying OMS migration task group: %s", err)
 	}
 
 	err = waitForTaskGroupStartedOrCompleted(actionConfig.Ctx, client, actionConfig.GroupID, d.Timeout(schema.TimeoutUpdate))
@@ -552,7 +572,7 @@ func retryMigrationTaskGroup(actionConfig *TaskGroupActionConfig, client *oms.Om
 	return nil
 }
 
-func startMigrationTaskGroup(actionConfig *TaskGroupActionConfig, client *oms.OmsClient, d *schema.ResourceData) error {
+func startMigrationTaskGroup(actionConfig *TaskGroupActionConfig, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
 	srcNode := make(map[string]interface{})
 	dstNode := make(map[string]interface{})
 	if sourceObjects := d.Get("source_object").([]interface{}); len(sourceObjects) > 0 {
@@ -580,21 +600,27 @@ func startMigrationTaskGroup(actionConfig *TaskGroupActionConfig, client *oms.Om
 		}
 	}
 
-	startTaskGroupReq := &omsmodel.StartTaskGroupReq{
-		SrcAk:                      utils.StringIgnoreEmpty(srcNode["access_key"].(string)),
-		SrcSk:                      utils.StringIgnoreEmpty(srcNode["secret_key"].(string)),
-		DstAk:                      dstAk,
-		DstSk:                      dstSk,
-		SourceCdnAuthenticationKey: sourceCdnAuthenticationKey,
+	startTaskOpts := map[string]interface{}{
+		"src_ak":                        utils.StringIgnoreEmpty(srcNode["access_key"].(string)),
+		"src_sk":                        utils.StringIgnoreEmpty(srcNode["secret_key"].(string)),
+		"dst_ak":                        &dstAk,
+		"dst_sk":                        &dstSk,
+		"source_cdn_authentication_key": sourceCdnAuthenticationKey,
 	}
 
-	startTaskGroupRequest := &omsmodel.StartTaskGroupRequest{
-		GroupId: actionConfig.GroupID,
-		Body:    startTaskGroupReq,
+	startTaskGroupHttpUrl := "v2/{project_id}/taskgroups/{group_id}/start"
+	startTaskGroupPath := client.Endpoint + startTaskGroupHttpUrl
+	startTaskGroupPath = strings.ReplaceAll(startTaskGroupPath, "{project_id}", client.ProjectID)
+	startTaskGroupPath = strings.ReplaceAll(startTaskGroupPath, "{group_id}", actionConfig.GroupID)
+
+	startTaskGroupOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
-	_, err = client.StartTaskGroup(startTaskGroupRequest)
+
+	startTaskGroupOpt.JSONBody = utils.RemoveNil(startTaskOpts)
+	_, err = client.Request("PUT", startTaskGroupPath, &startTaskGroupOpt)
 	if err != nil {
-		return fmt.Errorf("error start OMS migration task group: %s", err)
+		return fmt.Errorf("error starting OMS migration task group: %s", err)
 	}
 
 	err = waitForTaskGroupStartedOrCompleted(actionConfig.Ctx, client, actionConfig.GroupID, d.Timeout(schema.TimeoutUpdate))
@@ -604,11 +630,19 @@ func startMigrationTaskGroup(actionConfig *TaskGroupActionConfig, client *oms.Om
 	return nil
 }
 
-func stopMigrationTaskGroup(actionConfig *TaskGroupActionConfig, client *oms.OmsClient, d *schema.ResourceData) error {
-	stopTaskGroupRequest := &omsmodel.StopTaskGroupRequest{GroupId: actionConfig.GroupID}
-	_, err := client.StopTaskGroup(stopTaskGroupRequest)
+func stopMigrationTaskGroup(actionConfig *TaskGroupActionConfig, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	stopTaskGroupHttpUrl := "v2/{project_id}/taskgroups/{group_id}/stop"
+	stopTaskGroupPath := client.Endpoint + stopTaskGroupHttpUrl
+	stopTaskGroupPath = strings.ReplaceAll(stopTaskGroupPath, "{project_id}", client.ProjectID)
+	stopTaskGroupPath = strings.ReplaceAll(stopTaskGroupPath, "{group_id}", actionConfig.GroupID)
+
+	stopTaskGroupOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	_, err := client.Request("PUT", stopTaskGroupPath, &stopTaskGroupOpt)
 	if err != nil {
-		return fmt.Errorf("error stop OMS migration task group: %s", err)
+		return fmt.Errorf("error stopping OMS migration task group: %s", err)
 	}
 
 	err = waitForTaskGroupStopped(actionConfig.Ctx, client, actionConfig.GroupID, d.Timeout(schema.TimeoutUpdate))
@@ -619,42 +653,59 @@ func stopMigrationTaskGroup(actionConfig *TaskGroupActionConfig, client *oms.Oms
 }
 
 func resourceMigrationTaskGroupRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	region := conf.GetRegion(d)
-	client, err := conf.HcOmsV2Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	var (
+		getTaskGroupHttpUrl = "v2/{project_id}/taskgroups/{group_id}"
+		getTaskGroupProduct = "oms"
+	)
+	getTaskGroupClient, err := cfg.NewServiceClient(getTaskGroupProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating OMS client: %s", err)
 	}
 
-	groupID := d.Id()
-	resp, err := client.ShowTaskGroup(&omsmodel.ShowTaskGroupRequest{GroupId: groupID})
+	getTaskGroupPath := getTaskGroupClient.Endpoint + getTaskGroupHttpUrl
+	getTaskGroupPath = strings.ReplaceAll(getTaskGroupPath, "{project_id}", getTaskGroupClient.ProjectID)
+	getTaskGroupPath = strings.ReplaceAll(getTaskGroupPath, "{group_id}", d.Id())
+
+	getTaskGroupOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getTaskGroupResp, err := getTaskGroupClient.Request("GET", getTaskGroupPath, &getTaskGroupOpt)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving OMS migration task group")
 	}
 
+	getTaskGroupRespBody, err := utils.FlattenResponse(getTaskGroupResp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("type", resp.TaskType.Value()),
-		d.Set("enable_kms", resp.EnableKms),
-		d.Set("description", resp.Description),
-		d.Set("object_overwrite_mode", resp.ObjectOverwriteMode.Value()),
-		d.Set("consistency_check", resp.ConsistencyCheck.Value()),
-		d.Set("enable_requester_pays", resp.EnableRequesterPays),
-		d.Set("enable_failed_object_recording", resp.EnableFailedObjectRecording),
-		d.Set("bandwidth_policy", flattenBandwidthPolicy(resp.BandwidthPolicy)),
-		d.Set("source_cdn", flattenSourceCdn(resp.SourceCdn)),
-		d.Set("status", resp.Status),
-		d.Set("total_time", resp.TotalTime),
-		d.Set("total_num", resp.TotalNum),
-		d.Set("success_num", resp.SuccessNum),
-		d.Set("fail_num", resp.FailNum),
-		d.Set("total_size", resp.TotalSize),
-		d.Set("complete_size", resp.CompleteSize),
+		d.Set("type", utils.PathSearch("task_type", getTaskGroupRespBody, nil)),
+		d.Set("enable_kms", utils.PathSearch("enable_kms", getTaskGroupRespBody, nil)),
+		d.Set("description", utils.PathSearch("description", getTaskGroupRespBody, nil)),
+		d.Set("object_overwrite_mode", utils.PathSearch("object_overwrite_mode", getTaskGroupRespBody, nil)),
+		d.Set("consistency_check", utils.PathSearch("consistency_check", getTaskGroupRespBody, nil)),
+		d.Set("enable_requester_pays", utils.PathSearch("enable_requester_pays", getTaskGroupRespBody, nil)),
+		d.Set("enable_failed_object_recording", utils.PathSearch("enable_failed_object_recording", getTaskGroupRespBody, nil)),
+		d.Set("bandwidth_policy", flattenBandwidthPolicy(getTaskGroupRespBody)),
+		d.Set("source_cdn", flattenSourceCdn(getTaskGroupRespBody)),
+		d.Set("status", utils.PathSearch("status", getTaskGroupRespBody, nil)),
+		d.Set("total_time", utils.PathSearch("total_time", getTaskGroupRespBody, nil)),
+		d.Set("total_num", utils.PathSearch("total_num", getTaskGroupRespBody, nil)),
+		d.Set("success_num", utils.PathSearch("success_num", getTaskGroupRespBody, nil)),
+		d.Set("fail_num", utils.PathSearch("fail_num", getTaskGroupRespBody, nil)),
+		d.Set("total_size", utils.PathSearch("total_size", getTaskGroupRespBody, nil)),
+		d.Set("complete_size", utils.PathSearch("complete_size", getTaskGroupRespBody, nil)),
 	)
 
-	if resp.MigrateSince != nil {
+	if migrateSince := utils.PathSearch("migrate_since", getTaskGroupRespBody, float64(0)).(float64); migrateSince != 0 {
 		mErr = multierror.Append(mErr,
-			d.Set("migrate_since", utils.FormatTimeStampUTC(*resp.MigrateSince)),
+			d.Set("migrate_since", utils.FormatTimeStampUTC(int64(migrateSince))),
 		)
 	}
 
@@ -666,24 +717,32 @@ func resourceMigrationTaskGroupRead(_ context.Context, d *schema.ResourceData, m
 }
 
 func resourceMigrationTaskGroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	client, err := conf.HcOmsV2Client(conf.GetRegion(d))
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+
+	var (
+		updateTaskGroupProduct = "oms"
+	)
+	updateTaskGroupClient, err := cfg.NewServiceClient(updateTaskGroupProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating OMS client: %s", err)
 	}
 
 	groupID := d.Id()
 	if d.HasChange("bandwidth_policy") {
-		updateBandwidthPolicyOpts := buildBandwidthPolicyOpts(d.Get("bandwidth_policy").([]interface{}))
-		updateTaskGroupRequest := &omsmodel.UpdateTaskGroupRequest{
-			GroupId: groupID,
-			Body: &omsmodel.UpdateBandwidthPolicyReq{
-				BandwidthPolicy: *updateBandwidthPolicyOpts,
-			},
+		updateBandwidthPolicyHttpUrl := "v2/{project_id}/taskgroups/{group_id}/update"
+		updateBandwidthPolicyPath := updateTaskGroupClient.Endpoint + updateBandwidthPolicyHttpUrl
+		updateBandwidthPolicyPath = strings.ReplaceAll(updateBandwidthPolicyPath, "{project_id}", updateTaskGroupClient.ProjectID)
+		updateBandwidthPolicyPath = strings.ReplaceAll(updateBandwidthPolicyPath, "{group_id}", groupID)
+
+		updateTaskGroupOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
 		}
-		_, err := client.UpdateTaskGroup(updateTaskGroupRequest)
+
+		updateTaskGroupOpt.JSONBody = utils.RemoveNil(buildUpdateBandwidthPolicyBodyParams(d))
+		_, err = updateTaskGroupClient.Request("PUT", updateBandwidthPolicyPath, &updateTaskGroupOpt)
 		if err != nil {
-			return diag.FromErr(err)
+			return diag.Errorf("error updating OMS migration task group: %s", err)
 		}
 	}
 
@@ -691,10 +750,10 @@ func resourceMigrationTaskGroupUpdate(ctx context.Context, d *schema.ResourceDat
 		actionConfig := &TaskGroupActionConfig{
 			Action:  d.Get("action").(string),
 			Ctx:     ctx,
-			Conf:    conf,
+			Conf:    cfg,
 			GroupID: groupID,
 		}
-		if err := handleMigrationTaskGroupAction(actionConfig, client, d); err != nil {
+		if err := handleMigrationTaskGroupAction(actionConfig, updateTaskGroupClient, d); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -702,26 +761,42 @@ func resourceMigrationTaskGroupUpdate(ctx context.Context, d *schema.ResourceDat
 }
 
 func resourceMigrationTaskGroupDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	client, err := conf.HcOmsV2Client(conf.GetRegion(d))
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	groupID := d.Id()
+
+	var (
+		deleteTaskGroupHttpUrl = "v2/{project_id}/taskgroups/{group_id}"
+		deleteTaskGroupProduct = "oms"
+	)
+	deleteTaskGroupClient, err := cfg.NewServiceClient(deleteTaskGroupProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating OMS client: %s", err)
 	}
 
-	groupID := d.Id()
-	resp, err := client.ShowTaskGroup(&omsmodel.ShowTaskGroupRequest{GroupId: groupID})
-	if err != nil {
-		return diag.Errorf("error retrieving OMS migration task group: %s", err)
+	deleteTaskGroupPath := deleteTaskGroupClient.Endpoint + deleteTaskGroupHttpUrl
+	deleteTaskGroupPath = strings.ReplaceAll(deleteTaskGroupPath, "{project_id}", deleteTaskGroupClient.ProjectID)
+	deleteTaskGroupPath = strings.ReplaceAll(deleteTaskGroupPath, "{group_id}", d.Id())
+
+	deleteTaskGroupOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
 
-	if resp.Status == nil {
-		return diag.Errorf("unable to find the status OMS migration task group: %s", groupID)
+	getTaskGroupResp, err := deleteTaskGroupClient.Request("GET", deleteTaskGroupPath, &deleteTaskGroupOpt)
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, "error retrieving OMS migration task group")
 	}
-	status := *resp.Status
+
+	getTaskGroupRespBody, err := utils.FlattenResponse(getTaskGroupResp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	status := utils.PathSearch("status", getTaskGroupRespBody, float64(0)).(float64)
 
 	// the status is creating, which cannot be stopped or deleted
 	if status == 1 {
-		err := waitForTaskGroupStartedOrCompleted(ctx, client, groupID, d.Timeout(schema.TimeoutCreate))
+		err := waitForTaskGroupStartedOrCompleted(ctx, deleteTaskGroupClient, groupID, d.Timeout(schema.TimeoutCreate))
 		if err != nil {
 			return diag.Errorf("error waiting for task group (%s) started or completed: %s", groupID, err)
 		}
@@ -730,13 +805,19 @@ func resourceMigrationTaskGroupDelete(ctx context.Context, d *schema.ResourceDat
 
 	// the status is monitoring, must stop the running task group before deleting it
 	if status == 2 {
-		_, err := client.StopTaskGroup(&omsmodel.StopTaskGroupRequest{GroupId: groupID})
+		actionConfig := &TaskGroupActionConfig{
+			Action:  "stop",
+			Ctx:     ctx,
+			Conf:    cfg,
+			GroupID: groupID,
+		}
+		err := stopMigrationTaskGroup(actionConfig, deleteTaskGroupClient, d)
 		if err != nil {
-			if responseErr, ok := err.(*sdkerr.ServiceResponseError); !ok || responseErr.ErrorCode != "OMS.0066" {
+			if !hasErrorCode(err, "OMS.0066") {
 				return diag.Errorf("error stopping OMS migration task group: %s", err)
 			}
 		} else {
-			err := waitForTaskGroupStopped(ctx, client, groupID, d.Timeout(schema.TimeoutUpdate))
+			err := waitForTaskGroupStopped(ctx, deleteTaskGroupClient, groupID, d.Timeout(schema.TimeoutDelete))
 			if err != nil {
 				return diag.Errorf("error waiting for task group (%s) stopped: %s", groupID, err)
 			}
@@ -744,24 +825,20 @@ func resourceMigrationTaskGroupDelete(ctx context.Context, d *schema.ResourceDat
 	}
 
 	if status == 7 {
-		err := waitForTaskGroupStopped(ctx, client, groupID, d.Timeout(schema.TimeoutUpdate))
+		err := waitForTaskGroupStopped(ctx, deleteTaskGroupClient, groupID, d.Timeout(schema.TimeoutDelete))
 		if err != nil {
 			return diag.Errorf("error waiting for task group (%s) stopped: %s", groupID, err)
 		}
 	}
 
 	err = resource.RetryContext(ctx, d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
-		_, err = client.DeleteTaskGroup(&omsmodel.DeleteTaskGroupRequest{GroupId: groupID})
+		_, err := deleteTaskGroupClient.Request("DELETE", deleteTaskGroupPath, &deleteTaskGroupOpt)
 		if err == nil {
 			return nil
 		}
-		responseErr, ok := err.(*sdkerr.ServiceResponseError)
-		if !ok {
-			return resource.NonRetryableError(err)
-		}
 
 		// ErrorCode "OMS.0063" means the task group is in progress. This ErrorCode is not accurate, we need retry it.
-		if responseErr.ErrorCode == "OMS.0063" {
+		if hasErrorCode(err, "OMS.0063") {
 			return resource.RetryableError(err)
 		}
 		return resource.NonRetryableError(err)
@@ -771,43 +848,65 @@ func resourceMigrationTaskGroupDelete(ctx context.Context, d *schema.ResourceDat
 	}
 
 	// wait for delete
-	err = waitForTaskGroupDeleted(ctx, client, groupID, d.Timeout(schema.TimeoutDelete))
+	err = waitForTaskGroupDeleted(ctx, deleteTaskGroupClient, groupID, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
 		return diag.FromErr(err)
 	}
 	return nil
 }
 
-func getTaskGroupStatus(client *oms.OmsClient, groupID string) resource.StateRefreshFunc {
+func getTaskGroupGroupStatus(client *golangsdk.ServiceClient, groupID string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		groupGet, err := client.ShowTaskGroup(&omsmodel.ShowTaskGroupRequest{GroupId: groupID})
+		var (
+			getTaskGroupHttpUrl = "v2/{project_id}/taskgroups/{group_id}"
+		)
+
+		getTaskGroupPath := client.Endpoint + getTaskGroupHttpUrl
+		getTaskGroupPath = strings.ReplaceAll(getTaskGroupPath, "{project_id}", client.ProjectID)
+		getTaskGroupPath = strings.ReplaceAll(getTaskGroupPath, "{group_id}", groupID)
+
+		getTaskGroupOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+		}
+
+		getTaskGroupResp, err := client.Request("GET", getTaskGroupPath, &getTaskGroupOpt)
 		if err != nil {
-			responseErr, ok := err.(*sdkerr.ServiceResponseError)
-			if ok && responseErr.StatusCode == 404 {
-				return groupGet, "DELETED", nil
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
+				return getTaskGroupResp, "DELETED", nil
 			}
 			return nil, "", err
 		}
 
-		if *groupGet.Status == 4 {
+		getTaskGroupRespBody, err := utils.FlattenResponse(getTaskGroupResp)
+		if err != nil {
+			return nil, "", err
+		}
+
+		statusRaw := utils.PathSearch("status", getTaskGroupRespBody, nil)
+		if statusRaw == nil {
+			return nil, "", errors.New("unable to find status in the API response")
+		}
+
+		if statusRaw.(float64) == 4 {
 			// the task group is failed, read the error reason field
-			if reason := groupGet.ErrorReason; reason != nil {
+			if reason := utils.PathSearch("error_reason", getTaskGroupRespBody, nil); reason != nil {
 				err = fmt.Errorf("migration task group is failed,"+
-					" error_code is: %s, error_msg is: %s", *reason.ErrorCode, *reason.ErrorMsg)
-				return groupGet, "4", err
+					" error_code is: %s, error_msg is: %s", utils.PathSearch("error_reason.error_code", getTaskGroupRespBody, nil),
+					utils.PathSearch("error_reason.error_msg", getTaskGroupRespBody, nil))
+				return getTaskGroupRespBody, "4", err
 			}
 		}
 
-		status := strconv.Itoa(int(*groupGet.Status))
-		return groupGet, status, nil
+		status := strconv.Itoa(int(statusRaw.(float64)))
+		return getTaskGroupRespBody, status, nil
 	}
 }
 
-func waitForTaskGroupStartedOrCompleted(ctx context.Context, client *oms.OmsClient, groupID string, timeout time.Duration) error {
+func waitForTaskGroupStartedOrCompleted(ctx context.Context, client *golangsdk.ServiceClient, groupID string, timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"0", "1"},
 		Target:       []string{"2", "6"},
-		Refresh:      getTaskGroupStatus(client, groupID),
+		Refresh:      getTaskGroupGroupStatus(client, groupID),
 		Timeout:      timeout,
 		Delay:        5 * time.Second,
 		PollInterval: 3 * time.Second,
@@ -817,11 +916,11 @@ func waitForTaskGroupStartedOrCompleted(ctx context.Context, client *oms.OmsClie
 	return err
 }
 
-func waitForTaskGroupStopped(ctx context.Context, client *oms.OmsClient, groupID string, timeout time.Duration) error {
+func waitForTaskGroupStopped(ctx context.Context, client *golangsdk.ServiceClient, groupID string, timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"7"},
 		Target:       []string{"3", "6"},
-		Refresh:      getTaskGroupStatus(client, groupID),
+		Refresh:      getTaskGroupGroupStatus(client, groupID),
 		Timeout:      timeout,
 		Delay:        5 * time.Second,
 		PollInterval: 3 * time.Second,
@@ -831,11 +930,11 @@ func waitForTaskGroupStopped(ctx context.Context, client *oms.OmsClient, groupID
 	return err
 }
 
-func waitForTaskGroupDeleted(ctx context.Context, client *oms.OmsClient, groupID string, timeout time.Duration) error {
+func waitForTaskGroupDeleted(ctx context.Context, client *golangsdk.ServiceClient, groupID string, timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"8", "9"},
 		Target:       []string{"DELETED"},
-		Refresh:      getTaskGroupStatus(client, groupID),
+		Refresh:      getTaskGroupGroupStatus(client, groupID),
 		Timeout:      timeout,
 		Delay:        5 * time.Second,
 		PollInterval: 3 * time.Second,

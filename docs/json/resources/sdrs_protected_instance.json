@@ -61,7 +61,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "target_server": {
                 "type": "string",

@@ -1,0 +1,128 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_ims_obs_iso_image": {
+          "block": {
+            "attributes": {
+              "active_at": {
+                "type": "string",
+                "computed": true
+              },
+              "architecture": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "cmk_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "data_origin": {
+                "type": "string",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "disk_format": {
+                "type": "string",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "image_size": {
+                "type": "string",
+                "computed": true
+              },
+              "image_url": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "is_config": {
+                "type": "bool",
+                "optional": true,
+                "forcenew": true
+              },
+              "max_ram": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "min_disk": {
+                "type": "number",
+                "required": true,
+                "forcenew": true
+              },
+              "min_ram": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "required": true
+              },
+              "os_type": {
+                "type": "string",
+                "computed": true
+              },
+              "os_version": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "computed": true
+              },
+              "visibility": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "IMS",
+            "name": "Image Management Service",
+            "catalog": "Compute",
+            "name_cn": "镜像服务",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

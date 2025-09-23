@@ -1,0 +1,17 @@
+info:
+    version: ""
+    title: resource_huaweicloud_live_https_certificate
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: LIVE
+paths:
+    /v1/{project_id}/guard/https-cert:
+        DELETE:
+            tag: LIVE
+        GET:
+            tag: LIVE
+        PUT:
+            tag: LIVE

@@ -81,7 +81,7 @@ func testAccNodeAttach_base(name string) string {
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_images_image" "test" {
-  name        = "EulerOS 2.5 64bit"
+  name        = "Ubuntu 24.04 server 64bit"
   most_recent = true
 }
 
@@ -270,7 +270,7 @@ func testAccNodeAttach_prePaidBase(name string) string {
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_images_image" "test" {
-  name        = "EulerOS 2.5 64bit"
+  name        = "Ubuntu 24.04 server 64bit"
   most_recent = true
 }
 

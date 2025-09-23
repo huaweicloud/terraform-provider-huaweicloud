@@ -1,0 +1,85 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_aad_attack_events": {
+          "block": {
+            "attributes": {
+              "domains": {
+                "type": "string",
+                "description": "Specifies the domain name. If not specified, all domains will be included.",
+                "optional": true
+              },
+              "end_time": {
+                "type": "string",
+                "description": "Specifies the end time.",
+                "optional": true
+              },
+              "events": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "action": "string",
+                      "backend": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "host": "string",
+                            "port": "number",
+                            "protocol": "string"
+                          }
+                        ]
+                      ],
+                      "domain": "string",
+                      "id": "string",
+                      "sip": "string",
+                      "time": "number",
+                      "type": "string",
+                      "url": "string"
+                    }
+                  ]
+                ],
+                "description": "The attack events list.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "overseas_type": {
+                "type": "string",
+                "description": "Specifies the instance type. `0` represents  mainland China, `1` represents overseas.",
+                "optional": true
+              },
+              "recent": {
+                "type": "string",
+                "description": "Specifies the recent time period.",
+                "optional": true
+              },
+              "sip": {
+                "type": "string",
+                "description": "Specifies the attack source IP.",
+                "optional": true
+              },
+              "start_time": {
+                "type": "string",
+                "description": "Specifies the start time.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "AAD",
+            "name": "Advanced Anti-DDoS",
+            "catalog": "Security & Compliance",
+            "name_cn": "DDoS高防",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

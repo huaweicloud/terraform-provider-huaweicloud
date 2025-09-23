@@ -1,0 +1,61 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_opengauss_storage_types": {
+          "block": {
+            "attributes": {
+              "ha_mode": {
+                "type": "string",
+                "description": "Specifies the instance type.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "storage_type": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "az_status": [
+                        "map",
+                        "string"
+                      ],
+                      "name": "string",
+                      "support_compute_group_type": [
+                        "list",
+                        "string"
+                      ]
+                    }
+                  ]
+                ],
+                "description": "Indicates the storage type information.",
+                "computed": true
+              },
+              "version": {
+                "type": "string",
+                "description": "Specifies the DB version number.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDB",
+            "name": "GaussDB",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

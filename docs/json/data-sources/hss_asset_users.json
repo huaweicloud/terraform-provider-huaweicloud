@@ -1,0 +1,105 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_asset_users": {
+          "block": {
+            "attributes": {
+              "category": {
+                "type": "string",
+                "description": "Specifies the type. The default value is host.",
+                "optional": true
+              },
+              "data_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "agent_id": "string",
+                      "container_id": "string",
+                      "container_name": "string",
+                      "host_id": "string",
+                      "host_ip": "string",
+                      "host_name": "string",
+                      "login_permission": "bool",
+                      "recent_scan_time": "number",
+                      "root_permission": "bool",
+                      "shell": "string",
+                      "user_group_name": "string",
+                      "user_home_dir": "string",
+                      "user_name": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of account information.",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID.",
+                "optional": true
+              },
+              "host_id": {
+                "type": "string",
+                "description": "Specifies the host ID.",
+                "optional": true
+              },
+              "host_name": {
+                "type": "string",
+                "description": "Specifies the host name.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "login_permission": {
+                "type": "bool",
+                "description": "Specifies whether the user has the login permission.",
+                "optional": true
+              },
+              "part_match": {
+                "type": "bool",
+                "description": "Specifies whether to use fuzzy matching.",
+                "optional": true
+              },
+              "private_ip": {
+                "type": "string",
+                "description": "Specifies the private IP of the server.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource.",
+                "computed": true
+              },
+              "root_permission": {
+                "type": "bool",
+                "description": "Specifies whether the user has root permissions.",
+                "optional": true
+              },
+              "user_group": {
+                "type": "string",
+                "description": "Specifies the server user group.",
+                "optional": true
+              },
+              "user_name": {
+                "type": "string",
+                "description": "Specifies the account name.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

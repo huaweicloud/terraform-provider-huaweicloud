@@ -3,13 +3,14 @@ package iotda
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
@@ -135,75 +136,100 @@ func DataSourceDevices() *schema.Resource {
 	}
 }
 
-func dataSourceDevicesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	var (
-		cfg    = meta.(*config.Config)
-		region = cfg.GetRegion(d)
-	)
-	isDerived := WithDerivedAuth(cfg, region)
-	client, err := cfg.HcIoTdaV5Client(region, isDerived)
-
-	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+func buildDevicesQueryParams(d *schema.ResourceData) string {
+	queryParams := "?limit=50"
+	if v, ok := d.GetOk("space_id"); ok {
+		queryParams = fmt.Sprintf("%s&app_id=%v", queryParams, v)
+	}
+	if v, ok := d.GetOk("product_id"); ok {
+		queryParams = fmt.Sprintf("%s&product_id=%v", queryParams, v)
+	}
+	if v, ok := d.GetOk("gateway_id"); ok {
+		queryParams = fmt.Sprintf("%s&gateway_id=%v", queryParams, v)
+	}
+	if v, ok := d.GetOk("is_cascade"); ok {
+		queryParams = fmt.Sprintf("%s&is_cascade_query=%v", queryParams, v)
+	}
+	if v, ok := d.GetOk("node_id"); ok {
+		queryParams = fmt.Sprintf("%s&node_id=%v", queryParams, v)
+	}
+	if v, ok := d.GetOk("name"); ok {
+		queryParams = fmt.Sprintf("%s&device_name=%v", queryParams, v)
+	}
+	if v, ok := d.GetOk("start_time"); ok {
+		queryParams = fmt.Sprintf("%s&start_time=%v", queryParams, v)
+	}
+	if v, ok := d.GetOk("end_time"); ok {
+		queryParams = fmt.Sprintf("%s&end_time=%v", queryParams, v)
 	}
 
+	return queryParams
+}
+
+func dataSourceDevicesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		allDevices []model.QueryDeviceSimplify
-		limit      = int32(50)
-		offset     int32
+		cfg       = meta.(*config.Config)
+		region    = cfg.GetRegion(d)
+		isDerived = WithDerivedAuth(cfg, region)
+		product   = "iotda"
+		httpUrl   = "v5/iot/{project_id}/devices"
+		offset    = 0
+		result    = make([]interface{}, 0)
 	)
 
+	client, err := cfg.NewServiceClientWithDerivedAuth(product, region, isDerived)
+	if err != nil {
+		return diag.Errorf("error creating IoTDA client: %s", err)
+	}
+
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath += buildDevicesQueryParams(d)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
 	for {
-		listOpts := model.ListDevicesRequest{
-			AppId:          utils.StringIgnoreEmpty(d.Get("space_id").(string)),
-			ProductId:      utils.StringIgnoreEmpty(d.Get("product_id").(string)),
-			GatewayId:      utils.StringIgnoreEmpty(d.Get("gateway_id").(string)),
-			IsCascadeQuery: utils.Bool(d.Get("is_cascade").(bool)),
-			NodeId:         utils.StringIgnoreEmpty(d.Get("node_id").(string)),
-			DeviceName:     utils.StringIgnoreEmpty(d.Get("name").(string)),
-			StartTime:      utils.StringIgnoreEmpty(d.Get("start_time").(string)),
-			EndTime:        utils.StringIgnoreEmpty(d.Get("end_time").(string)),
-			Limit:          utils.Int32(limit),
-			Offset:         &offset,
+		currentPath := fmt.Sprintf("%s&offset=%v", getPath, offset)
+		getResp, err := client.Request("GET", currentPath, &getOpt)
+		if err != nil {
+			return diag.Errorf("error retrieving IoTDA devices: %s", err)
 		}
 
-		listResp, listErr := client.ListDevices(&listOpts)
-		if listErr != nil {
-			return diag.Errorf("error querying IoTDA devices: %s", listErr)
+		getRespBody, err := utils.FlattenResponse(getResp)
+		if err != nil {
+			return diag.FromErr(err)
 		}
 
-		if len(*listResp.Devices) == 0 {
+		devicesResp := utils.PathSearch("devices", getRespBody, make([]interface{}, 0)).([]interface{})
+		if len(devicesResp) == 0 {
 			break
 		}
 
-		allDevices = append(allDevices, *listResp.Devices...)
-		offset += limit
+		result = append(result, devicesResp...)
+		offset += len(devicesResp)
 	}
 
-	uuId, err := uuid.GenerateUUID()
+	generateUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(uuId)
 
-	targetDevices := filterListDevices(allDevices, d)
+	d.SetId(generateUUID)
+
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("devices", flattenDevices(targetDevices)),
+		d.Set("devices", flattenDevices(filterListDevices(result, d))),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func filterListDevices(devices []model.QueryDeviceSimplify, d *schema.ResourceData) []model.QueryDeviceSimplify {
-	if len(devices) == 0 {
-		return nil
-	}
-
-	rst := make([]model.QueryDeviceSimplify, 0, len(devices))
-	for _, v := range devices {
+func filterListDevices(devicesResp []interface{}, d *schema.ResourceData) []interface{} {
+	rst := make([]interface{}, 0, len(devicesResp))
+	for _, v := range devicesResp {
 		if deviceID, ok := d.GetOk("device_id"); ok &&
-			fmt.Sprint(deviceID) != utils.StringValue(v.DeviceId) {
+			fmt.Sprint(deviceID) != utils.PathSearch("device_id", v, "").(string) {
 			continue
 		}
 
@@ -213,29 +239,25 @@ func filterListDevices(devices []model.QueryDeviceSimplify, d *schema.ResourceDa
 	return rst
 }
 
-func flattenDevices(devices []model.QueryDeviceSimplify) []interface{} {
-	if len(devices) == 0 {
-		return nil
-	}
-
-	rst := make([]interface{}, 0, len(devices))
-	for _, v := range devices {
+func flattenDevices(devicesResp []interface{}) []interface{} {
+	rst := make([]interface{}, 0, len(devicesResp))
+	for _, v := range devicesResp {
 		rst = append(rst, map[string]interface{}{
-			"space_id":     v.AppId,
-			"space_name":   v.AppName,
-			"product_id":   v.ProductId,
-			"product_name": v.ProductName,
-			"gateway_id":   v.GatewayId,
-			"id":           v.DeviceId,
-			"name":         v.DeviceName,
-			"node_id":      v.NodeId,
-			"node_type":    v.NodeType,
-			"description":  v.Description,
-			"status":       v.Status,
-			"fw_version":   v.FwVersion,
-			"sw_version":   v.SwVersion,
-			"sdk_version":  v.DeviceSdkVersion,
-			"tags":         flattenTags(v.Tags),
+			"space_id":     utils.PathSearch("app_id", v, nil),
+			"space_name":   utils.PathSearch("app_name", v, nil),
+			"product_id":   utils.PathSearch("product_id", v, nil),
+			"product_name": utils.PathSearch("product_name", v, nil),
+			"gateway_id":   utils.PathSearch("gateway_id", v, nil),
+			"id":           utils.PathSearch("device_id", v, nil),
+			"name":         utils.PathSearch("device_name", v, nil),
+			"node_id":      utils.PathSearch("node_id", v, nil),
+			"node_type":    utils.PathSearch("node_type", v, nil),
+			"description":  utils.PathSearch("description", v, nil),
+			"status":       utils.PathSearch("status", v, nil),
+			"fw_version":   utils.PathSearch("fw_version", v, nil),
+			"sw_version":   utils.PathSearch("sw_version", v, nil),
+			"sdk_version":  utils.PathSearch("device_sdk_version", v, nil),
+			"tags":         flattenDeviceTags(utils.PathSearch("tags", v, make([]interface{}, 0)).([]interface{})),
 		})
 	}
 

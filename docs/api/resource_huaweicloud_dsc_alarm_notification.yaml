@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dsc_alarm_notification
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DSC
+paths:
+    /v1/{project_id}/sdg/smn/topic:
+        PUT:
+            tag: DSC
+    /v1/{project_id}/sdg/smn/topics:
+        GET:
+            tag: DSC

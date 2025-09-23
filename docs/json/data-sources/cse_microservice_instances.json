@@ -1,0 +1,100 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cse_microservice_instances": {
+          "block": {
+            "attributes": {
+              "admin_pass": {
+                "type": "string",
+                "description": "The user password that used to pass the RBAC control.",
+                "optional": true,
+                "sensitive": true
+              },
+              "admin_user": {
+                "type": "string",
+                "description": "The user name that used to pass the RBAC control.",
+                "optional": true
+              },
+              "auth_address": {
+                "type": "string",
+                "description": "The address that used to request the access token.",
+                "required": true
+              },
+              "connect_address": {
+                "type": "string",
+                "description": "The address that used to send requests and manage configuration.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instances": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "data_center": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "availability_zone": "string",
+                            "name": "string",
+                            "region": "string"
+                          }
+                        ]
+                      ],
+                      "endpoints": [
+                        "list",
+                        "string"
+                      ],
+                      "health_check": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "interval": "number",
+                            "max_retries": "number",
+                            "mode": "string",
+                            "port": "number"
+                          }
+                        ]
+                      ],
+                      "host_name": "string",
+                      "id": "string",
+                      "properties": [
+                        "map",
+                        "string"
+                      ],
+                      "status": "string",
+                      "updated_at": "string",
+                      "version": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of the microservice instances.",
+                "computed": true
+              },
+              "microservice_id": {
+                "type": "string",
+                "description": "The ID of the dedicated microservice to which the instances belong.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "CSE",
+            "name": "Cloud Service Engine",
+            "catalog": "Middleware",
+            "name_cn": "微服务引擎",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

@@ -2,22 +2,27 @@
 subcategory: "FunctionGraph"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_fgs_dependencies"
-description: ""
+description: |-
+  Use this data source to query dependency packages within HuaweiCloud.
 ---
 
 # huaweicloud_fgs_dependencies
 
-Use this data source to filter dependent packages of FGS from HuaweiCloud.
+Use this data source to query dependency packages within HuaweiCloud.
+
+~> Between `1.64.2` and `1.72.1`, the version list of each dependency package is queried by default.
+   <br>This will cause the query to take up a lot of time and may trigger flow control.
+   <br>There are not recommended to use.
 
 ## Example Usage
 
-### Obtain all public dependent packages
+### Obtain all public dependency packages
 
 ```hcl
 data "huaweicloud_fgs_dependencies" "test" {}
 ```
 
-### Obtain specific public dependent package by name
+### Obtain specific public dependency package by name
 
 ```hcl
 data "huaweicloud_fgs_dependencies" "test" {
@@ -26,7 +31,7 @@ data "huaweicloud_fgs_dependencies" "test" {
 }
 ```
 
-### Obtain all public Python2.7 dependent packages
+### Obtain all public Python2.7 dependency packages
 
 ```hcl
 data "huaweicloud_fgs_dependencies" "test" {
@@ -37,46 +42,73 @@ data "huaweicloud_fgs_dependencies" "test" {
 
 ## Argument Reference
 
-* `region` - (Optional, String) Specifies the region in which to obtain the dependent packages. If omitted, the
-  provider-level region will be used.
+* `region` - (Optional, String) Specifies the region where the dependency packages are located.  
+  If omitted, the provider-level region will be used.
 
-* `type` - (Optional, String) Specifies the dependent package type to match. Valid values: **public** and **private**.
+* `type` - (Optional, String) Specifies the type of the dependency package.  
+  The valid values are as follows:
+  + **public**
+  + **private**
 
-* `runtime` - (Optional, String) Specifies the dependent package runtime to match. Valid values: **Java8**,
-  **Node.js6.10**, **Node.js8.10**, **Node.js10.16**, **Node.js12.13**, **Python2.7**, **Python3.6**, **Go1.8**,
-  **Go1.x**, **C#(.NET Core 2.0)**, **C#(.NET Core 2.1)**, **C#(.NET Core 3.1)** and **PHP7.3**.
+* `runtime` - (Optional, String) Specifies the runtime of the dependency package.  
+  The valid values are as follows:
+  + **Java8**
+  + **Java11**
+  + **Node.js6.10**
+  + **Node.js8.10**
+  + **Node.js10.16**
+  + **Node.js12.13**
+  + **Node.js14.18**
+  + **Node.js16.17**
+  + **Node.js18.15**
+  + **Python2.7**
+  + **Python3.6**
+  + **Python3.9**
+  + **Python3.10**
+  + **Go1.x**
+  + **C#(.NET Core 2.0)**
+  + **C#(.NET Core 2.1)**
+  + **C#(.NET Core 3.1)**
+  + **Custom**
+  + **PHP7.3**
+  + **Cangjie1.0**
+  + **http**
+  + **Custom Image**
 
-* `name` - (Optional, String) Specifies the dependent package runtime to match.
+* `name` - (Optional, String) Specifies the name of the dependency package.
+
+* `is_versions_query_allowed` - (Optional, Bool) Specifies whether to query the versions of each dependency package.
+  Defaults to **false**.
 
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
 
-* `id` - A data source ID.
+* `id` - The data source ID.
 
-* `packages` - All dependent packages that match.
+* `packages` - All dependency packages that match the filter parameters.
   The [packages](#dependency_packages) structure is documented below.
 
 <a name="dependency_packages"></a>
 The `packages` block supports:
 
-* `id` - Dependent package ID.
+* `id` - The ID of the dependency package.
 
-* `name` - Dependent package name.
+* `name` - The name of the dependency package.
 
-* `owner` - Dependent package owner.
+* `owner` - The owner of the dependency package.
 
-* `link` - URL of the dependent package in the OBS console.
+* `link` - The OBS bucket path where the dependency package is located (FunctionGraph serivce side).
 
-* `etag` - Unique ID of the dependent package.
+* `etag` - The unique ID of the dependency package.
 
-* `size` - Dependent package size.
+* `size` - The size of the dependency package.
 
-* `file_name` - File name of the Dependent package.
+* `file_name` - The file name of the stored dependency package.
 
-* `runtime` - Dependent package runtime.
+* `runtime` - The runtime of the dependency package.
 
-* `versions` - The list of the versions.
+* `versions` - The list of the versions for the dependency package.
   The [versions](#dependency_versions) structure is documented below.
 
 <a name="dependency_versions"></a>

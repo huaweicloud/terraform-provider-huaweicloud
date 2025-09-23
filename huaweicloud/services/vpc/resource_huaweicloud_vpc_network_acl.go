@@ -9,11 +9,9 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/common/tags"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -44,6 +42,8 @@ func ResourceNetworkAcl() *schema.Resource {
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 
+		CustomizeDiff: config.MergeDefaultTags(),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
@@ -57,7 +57,8 @@ func ResourceNetworkAcl() *schema.Resource {
 			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
+				Computed: true,
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -118,7 +119,6 @@ func networkAclRuleSchema() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -127,12 +127,10 @@ func networkAclRuleSchema() *schema.Resource {
 			"source_ip_address": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
 			},
 			"destination_ip_address": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
 			},
 			"source_port": {
 				Type:     schema.TypeString,
@@ -190,7 +188,7 @@ func resourceNetworkAclCreate(ctx context.Context, d *schema.ResourceData, meta 
 		},
 	}
 
-	createNetworkAclOpt.JSONBody = utils.RemoveNil(buildCreateNetworkAclBodyParams(d))
+	createNetworkAclOpt.JSONBody = utils.RemoveNil(buildCreateNetworkAclBodyParams(d, cfg))
 	createNetworkAclResp, err := client.Request("POST", createNetworkAclPath, &createNetworkAclOpt)
 	if err != nil {
 		return diag.Errorf("error creating network ACL: %s", err)
@@ -201,29 +199,29 @@ func resourceNetworkAclCreate(ctx context.Context, d *schema.ResourceData, meta 
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("firewall.id", createNetworkAclRespBody)
-	if err != nil || id == nil {
+	id := utils.PathSearch("firewall.id", createNetworkAclRespBody, "").(string)
+	if id == "" {
 		return diag.Errorf("unable to find ID in API response: %s", err)
 	}
 
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	if v, ok := d.GetOk("ingress_rules"); ok {
-		err = networkAclInsertRules(client, v.([]interface{}), "ingress_rules", id.(string))
+		err = networkAclInsertRules(client, v.([]interface{}), "ingress_rules", id)
 		if err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
 	if v, ok := d.GetOk("egress_rules"); ok {
-		err = networkAclInsertRules(client, v.([]interface{}), "egress_rules", id.(string))
+		err = networkAclInsertRules(client, v.([]interface{}), "egress_rules", id)
 		if err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
 	if v, ok := d.GetOk("associated_subnets"); ok {
-		err = networkAclAssociatSubnets(client, v.(*schema.Set).List(), id.(string))
+		err = networkAclAssociatSubnets(client, v.(*schema.Set).List(), id)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -232,7 +230,7 @@ func resourceNetworkAclCreate(ctx context.Context, d *schema.ResourceData, meta 
 	// set tags
 	tagRaw := d.Get("tags").(map[string]interface{})
 	if len(tagRaw) > 0 {
-		err := doTagsAction(client, tagRaw, id.(string), "create")
+		err := doTagsAction(client, tagRaw, id, "create")
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -329,11 +327,11 @@ func networkAclDisassociatSubnets(client *golangsdk.ServiceClient, subnets []int
 	return nil
 }
 
-func buildCreateNetworkAclBodyParams(d *schema.ResourceData) map[string]interface{} {
+func buildCreateNetworkAclBodyParams(d *schema.ResourceData, cfg *config.Config) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"firewall": map[string]interface{}{
 			"name":                  d.Get("name"),
-			"enterprise_project_id": d.Get("enterprise_project_id"),
+			"enterprise_project_id": utils.ValueIgnoreEmpty(cfg.GetEnterpriseProjectID(d)),
 			"description":           utils.ValueIgnoreEmpty(d.Get("description")),
 			"admin_state_up":        d.Get("enabled"),
 		},
@@ -570,13 +568,13 @@ func resourceNetworkAclUpdate(ctx context.Context, d *schema.ResourceData, meta 
 	}
 
 	if d.HasChange("enterprise_project_id") {
-		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+		migrateOpts := config.MigrateResourceOpts{
 			ResourceId:   id,
 			ResourceType: "firewalls",
 			RegionId:     region,
 			ProjectId:    client.ProjectID,
 		}
-		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
+		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -647,14 +645,22 @@ func updateRules(client *golangsdk.ServiceClient, d *schema.ResourceData, ruleTy
 	if len(oldRules.([]interface{})) > 0 {
 		err := networkAclRemoveRules(client, oldRules.([]interface{}), ruleType, id)
 		if err != nil {
-			return err
+			return fmt.Errorf("error updating rules: %s", err)
 		}
 	}
 
 	if len(newRules.([]interface{})) > 0 {
 		err := networkAclInsertRules(client, newRules.([]interface{}), ruleType, id)
 		if err != nil {
-			return err
+			// if failed to insert the new rules, insert the old rules back
+			if len(oldRules.([]interface{})) > 0 {
+				rollBackErr := networkAclInsertRules(client, oldRules.([]interface{}), ruleType, id)
+				if rollBackErr != nil {
+					return fmt.Errorf("error updating rules: %s, failed to roll back: %s", err, rollBackErr)
+				}
+				return fmt.Errorf("error updating rules: %s, it's rolled back", err)
+			}
+			return fmt.Errorf("error updating rules: %s", err)
 		}
 	}
 

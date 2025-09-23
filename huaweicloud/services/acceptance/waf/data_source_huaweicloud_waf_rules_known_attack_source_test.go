@@ -9,6 +9,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
+// Before running the test case, please ensure that there is at least one WAF instance in the current region.
 func TestAccDataSourceRulesKnownAttackSource_basic(t *testing.T) {
 	var (
 		dataSourceName = "data.huaweicloud_waf_rules_known_attack_source.test"
@@ -26,6 +27,7 @@ func TestAccDataSourceRulesKnownAttackSource_basic(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPrecheckWafInstance(t)
+			acceptance.TestAccPreCheckEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
@@ -53,14 +55,15 @@ func TestAccDataSourceRulesKnownAttackSource_basic(t *testing.T) {
 
 func testDataSourceRulesKnownAttackSource_basic(name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 data "huaweicloud_waf_rules_known_attack_source" "test" {
+  policy_id             = huaweicloud_waf_policy.test.id
+  enterprise_project_id = "%[2]s"
+
   depends_on = [
     huaweicloud_waf_rule_known_attack_source.test
   ]
-
-  policy_id = huaweicloud_waf_policy.policy_1.id
 }
 
 locals {
@@ -68,8 +71,9 @@ locals {
 }
 
 data "huaweicloud_waf_rules_known_attack_source" "filter_by_rule_id" {
-  policy_id = huaweicloud_waf_policy.policy_1.id
-  rule_id   = local.rule_id
+  policy_id             = huaweicloud_waf_policy.test.id
+  rule_id               = local.rule_id
+  enterprise_project_id = "%[2]s"
 }
 
 locals {
@@ -87,8 +91,9 @@ locals {
 }
 
 data "huaweicloud_waf_rules_known_attack_source" "filter_by_type" {
-  policy_id  = huaweicloud_waf_policy.policy_1.id
-  block_type = local.block_type
+  policy_id             = huaweicloud_waf_policy.test.id
+  block_type            = local.block_type
+  enterprise_project_id = "%[2]s"
 }
 
 locals {
@@ -100,5 +105,5 @@ locals {
 output "type_filter_is_useful" {
   value = alltrue(local.type_filter_result) && length(local.type_filter_result) > 0
 }
-`, testRuleKnownAttack_basic(name))
+`, testDataSourceRuleKnownAttack_basic(name), acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }

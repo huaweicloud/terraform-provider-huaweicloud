@@ -34,8 +34,7 @@
                 "type": "string",
                 "description": "The enterprise project ID to which the EIP belongs.",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "id": {
                 "type": "string",
@@ -88,7 +87,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "updated_at": {
                 "type": "string",

@@ -9,7 +9,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/networking/v1/security/securitygroups"
@@ -97,9 +96,8 @@ func ResourceServerTemplate() *schema.Resource {
 				Optional: true,
 			},
 			"bandwidth_size": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				ValidateFunc: validation.IntBetween(1, 2000),
+				Type:     schema.TypeInt,
+				Optional: true,
 			},
 			"target_server_name": {
 				Type:     schema.TypeString,

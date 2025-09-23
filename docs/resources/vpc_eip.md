@@ -66,10 +66,10 @@ The following arguments are supported:
   The [object](#vpc_eip_bandwidth) structure is documented below.
 
 * `name` - (Optional, String) Specifies the name of the EIP.  
-  The name can contain `1` to `64` characters, including letters, digits, underscores (_), hyphens (-), and periods (.).
+  The name can contain `1` to `64` characters, including English letters, Chinese characters, digits, underscores (_),
+  hyphens (-), and periods (.).
 
-* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID to which the EIP belongs.  
-  Changing this will create a new resource.
+* `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID to which the EIP belongs.
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the EIP.
 
@@ -154,6 +154,6 @@ This resource provides the following timeouts configuration options:
 
 EIPs can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_vpc_eip.test 2c7f39f3-702b-48d1-940c-b50384177ee1
 ```

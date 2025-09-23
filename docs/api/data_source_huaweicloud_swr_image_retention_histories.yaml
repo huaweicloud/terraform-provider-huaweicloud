@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_swr_image_retention_histories
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: SWR
+paths:
+    /v2/manage/namespaces/{namespace}/repos/{repository}/retentions/histories:
+        GET:
+            tag: SWR

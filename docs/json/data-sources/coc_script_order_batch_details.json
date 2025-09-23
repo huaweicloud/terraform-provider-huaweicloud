@@ -1,0 +1,94 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_coc_script_order_batch_details": {
+          "block": {
+            "attributes": {
+              "batch_index": {
+                "type": "number",
+                "required": true
+              },
+              "execute_instances": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "execute_costs": "number",
+                      "gmt_created": "number",
+                      "gmt_finished": "number",
+                      "id": "number",
+                      "message": "string",
+                      "status": "string",
+                      "target_instance": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "agent_sn": "string",
+                            "agent_status": "string",
+                            "custom_attributes": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "key": "string",
+                                  "value": "string"
+                                }
+                              ]
+                            ],
+                            "properties": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "application": "string",
+                                  "fixed_ip": "string",
+                                  "floating_ip": "string",
+                                  "group": "string",
+                                  "host_name": "string",
+                                  "project_id": "string",
+                                  "region_id": "string",
+                                  "zone_id": "string"
+                                }
+                              ]
+                            ],
+                            "provider": "string",
+                            "region_id": "string",
+                            "resource_id": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "execute_uuid": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "COC",
+            "name": "Cloud Operations Center",
+            "catalog": "Management & Governance",
+            "name_cn": "云运维中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

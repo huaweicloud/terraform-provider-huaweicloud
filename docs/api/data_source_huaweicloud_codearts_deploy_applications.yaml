@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_codearts_deploy_applications
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CodeArtsDeploy
+paths:
+    /v1/applications/list:
+        POST:
+            tag: CodeArtsDeploy

@@ -52,6 +52,6 @@ In addition to all arguments above, the following attributes are exported:
 
 The virtual MFA device can be imported using the `user_id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_identity_virtual_mfa_device.test <user_id>
 ```

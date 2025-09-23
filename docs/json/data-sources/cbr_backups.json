@@ -1,0 +1,224 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cbr_backups": {
+          "block": {
+            "attributes": {
+              "backups": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "checkpoint_id": "string",
+                      "children": "string",
+                      "created_at": "string",
+                      "description": "string",
+                      "enterprise_project_id": "string",
+                      "expired_at": "string",
+                      "extend_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "auto_trigger": "bool",
+                            "bootable": "bool",
+                            "contain_system_disk": "bool",
+                            "encrypted": "bool",
+                            "is_multi_az": "bool",
+                            "os_images_data": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "image_id": "string"
+                                }
+                              ]
+                            ],
+                            "snapshot_id": "string",
+                            "support_lld": "bool",
+                            "supported_restore_mode": "string",
+                            "system_disk": "bool"
+                          }
+                        ]
+                      ],
+                      "id": "string",
+                      "image_type": "string",
+                      "incremental": "bool",
+                      "name": "string",
+                      "parent_id": "string",
+                      "project_id": "string",
+                      "protected_at": "string",
+                      "provider_id": "string",
+                      "replication_records": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "created_at": "string",
+                            "destination_backup_id": "string",
+                            "destination_checkpoint_id": "string",
+                            "destination_project_id": "string",
+                            "destination_region": "string",
+                            "destination_vault_id": "string",
+                            "extra_info": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "auto_trigger": "bool",
+                                  "destinatio_vault_id": "string",
+                                  "fail_code": "string",
+                                  "fail_reason": "string",
+                                  "progress": "number"
+                                }
+                              ]
+                            ],
+                            "id": "string",
+                            "source_backup_id": "string",
+                            "source_checkpoint_id": "string",
+                            "source_project_id": "string",
+                            "source_region": "string",
+                            "status": "string",
+                            "vault_id": "string"
+                          }
+                        ]
+                      ],
+                      "resource_az": "string",
+                      "resource_id": "string",
+                      "resource_name": "string",
+                      "resource_size": "number",
+                      "resource_type": "string",
+                      "status": "string",
+                      "updated_at": "string",
+                      "vault_id": "string",
+                      "version": "number"
+                    }
+                  ]
+                ],
+                "description": "The backup list.",
+                "computed": true
+              },
+              "checkpoint_id": {
+                "type": "string",
+                "description": "Specifies the restore point ID.",
+                "optional": true
+              },
+              "dec": {
+                "type": "bool",
+                "description": "Specifies the dedicated cloud tag, which only takes effect in dedicated cloud scenarios.",
+                "optional": true
+              },
+              "end_time": {
+                "type": "string",
+                "description": "Specifies the time when the backup ends.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "image_type": {
+                "type": "string",
+                "description": "Specifies the backup type. The value can be backup or replication.",
+                "optional": true
+              },
+              "incremental": {
+                "type": "bool",
+                "description": "Specifies whether incremental backup is used.",
+                "optional": true
+              },
+              "member_status": {
+                "type": "string",
+                "description": "Specifies the backup sharing status.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the backup name.",
+                "optional": true
+              },
+              "own_type": {
+                "type": "string",
+                "description": "Specifies the owning type of backup. private backups are queried by default.",
+                "optional": true
+              },
+              "parent_id": {
+                "type": "string",
+                "description": "Specifies the parent backup ID.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region where the CBR backups are located."
+              },
+              "resource_az": {
+                "type": "string",
+                "description": "Specifies the resource availability zones.",
+                "optional": true
+              },
+              "resource_id": {
+                "type": "string",
+                "description": "Specifies the resource ID.",
+                "optional": true
+              },
+              "resource_name": {
+                "type": "string",
+                "description": "Specifies the resource name.",
+                "optional": true
+              },
+              "resource_type": {
+                "type": "string",
+                "description": "Specifies the resource type.",
+                "optional": true
+              },
+              "show_replication": {
+                "type": "bool",
+                "description": "Specifies whether to show replication records.",
+                "optional": true
+              },
+              "sort": {
+                "type": "string",
+                "description": "Specifies the sort key.",
+                "optional": true
+              },
+              "start_time": {
+                "type": "string",
+                "description": "Specifies the time when the backup starts.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the status.",
+                "optional": true
+              },
+              "used_percent": {
+                "type": "string",
+                "description": "Specifies the using percent of the occupied vault capacity.",
+                "optional": true
+              },
+              "vault_id": {
+                "type": "string",
+                "description": "Specifies the vault ID.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CBR",
+            "name": "Cloud Backup and Recovery",
+            "catalog": "Storage",
+            "name_cn": "云备份",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}

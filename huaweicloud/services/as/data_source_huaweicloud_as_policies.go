@@ -10,7 +10,6 @@ import (
 
 	"github.com/chnsz/golangsdk/openstack/autoscaling/v1/policies"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
@@ -176,7 +175,7 @@ func dataSourceASPoliciesRead(_ context.Context, d *schema.ResourceData, meta in
 
 	policyResp, err := policies.List(client, opts).Extract()
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "AS policies")
+		return diag.Errorf("error retrieving AS policies: %s", err)
 	}
 
 	randUUID, err := uuid.GenerateUUID()

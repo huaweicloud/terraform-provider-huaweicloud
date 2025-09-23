@@ -15,7 +15,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -156,11 +155,11 @@ func resourceCentralNetworkAttachmentCreate(ctx context.Context, d *schema.Resou
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("central_network_gdgw_attachment.id", createCentralNetworkAttachmentRespBody)
-	if err != nil {
+	id := utils.PathSearch("central_network_gdgw_attachment.id", createCentralNetworkAttachmentRespBody, "").(string)
+	if id == "" {
 		return diag.Errorf("error creating central network attachment: ID is not found in API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(id)
 
 	err = centralNetworkAttachmentWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
@@ -227,8 +226,8 @@ func centralNetworkAttachmentWaitingForStateCompleted(ctx context.Context, d *sc
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`central_network_gdgw_attachment.state`, centralNetworkAttachmentWaitingRespBody)
-			if err != nil {
+			statusRaw := utils.PathSearch(`central_network_gdgw_attachment.state`, centralNetworkAttachmentWaitingRespBody, nil)
+			if statusRaw == nil {
 				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `central_network_gdgw_attachment.state`)
 			}
 
@@ -409,7 +408,7 @@ func resourceCentralNetworkAttachmentDelete(ctx context.Context, d *schema.Resou
 	_, err = deleteCentralNetworkAttachmentClient.Request("DELETE", deleteCentralNetworkAttachmentPath,
 		&deleteCentralNetworkAttachmentOpt)
 	if err != nil {
-		return diag.Errorf("error deleting central network attachment: %s", err)
+		return common.CheckDeletedDiag(d, err, "error deleting central network attachment")
 	}
 
 	err = centralNetworkAttachmentDeleteWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutDelete))
@@ -464,8 +463,8 @@ func centralNetworkAttachmentDeleteWaitingForStateCompleted(ctx context.Context,
 			if err != nil {
 				return nil, "ERROR", err
 			}
-			statusRaw, err := jmespath.Search(`central_network_gdgw_attachment.state`, centralNetworkAttachmentDeleteWaitingRespBody)
-			if err != nil {
+			statusRaw := utils.PathSearch(`central_network_gdgw_attachment.state`, centralNetworkAttachmentDeleteWaitingRespBody, nil)
+			if statusRaw == nil {
 				return nil, "ERROR", fmt.Errorf("error parse %s from response body", `central_network_gdgw_attachment.state`)
 			}
 

@@ -16,6 +16,9 @@ type CreateOpts struct {
 	// Human-readable name for the Loadbalancer. Does not have to be unique.
 	Name string `json:"name,omitempty"`
 
+	// Human-readable type for the Loadbalancer.
+	LoadBalancerType string `json:"loadbalancer_type,omitempty"`
+
 	// Human-readable description for the Loadbalancer.
 	Description string `json:"description,omitempty"`
 
@@ -222,6 +225,9 @@ type UpdateOpts struct {
 	// The UUID of a l7 flavor.
 	L7Flavor string `json:"l7_flavor_id,omitempty"`
 
+	// Human-readable type for the Loadbalancer.
+	LoadBalancerType string `json:"loadbalancer_type,omitempty"`
+
 	// IPv6 Bandwidth.
 	IPV6Bandwidth *UBandwidthRef `json:"ipv6_bandwidth,omitempty"`
 
@@ -265,6 +271,12 @@ func Update(c *golangsdk.ServiceClient, id string, opts UpdateOpts) (r UpdateRes
 	if err != nil {
 		r.Err = err
 		return
+	}
+	// if loadbalancer_type is gateway, it indicates ipv4_subnet_id has not been changed, the value should be nil
+	// so remove loadbalancer_type and ipv4_subnet_id from the request body
+	if v, ok := b["loadbalancer"].(map[string]interface{})["loadbalancer_type"]; ok && v.(string) == "gateway" {
+		delete(b["loadbalancer"].(map[string]interface{}), "vip_subnet_cidr_id")
+		delete(b["loadbalancer"].(map[string]interface{}), "loadbalancer_type")
 	}
 	_, r.Err = c.Put(resourceURL(c, id), b, &r.Body, &golangsdk.RequestOpts{
 		OkCodes: []int{200, 202},

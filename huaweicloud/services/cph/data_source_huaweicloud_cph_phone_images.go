@@ -18,7 +18,6 @@ import (
 
 	"github.com/chnsz/golangsdk"
 
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -105,7 +104,7 @@ func resourcePhoneImagesRead(_ context.Context, d *schema.ResourceData, meta int
 	)
 	listImagesClient, err := cfg.NewServiceClient(listImagesProduct, region)
 	if err != nil {
-		return diag.Errorf("error creating CPH Client: %s", err)
+		return diag.Errorf("error creating CPH client: %s", err)
 	}
 
 	listImagesPath := listImagesClient.Endpoint + listImagesHttpUrl
@@ -113,14 +112,10 @@ func resourcePhoneImagesRead(_ context.Context, d *schema.ResourceData, meta int
 
 	listImagesOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
 	listImagesResp, err := listImagesClient.Request("GET", listImagesPath, &listImagesOpt)
-
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving PhoneImages")
+		return diag.Errorf("error retrieving CPH phone images: %s", err)
 	}
 
 	listImagesRespBody, err := utils.FlattenResponse(listImagesResp)

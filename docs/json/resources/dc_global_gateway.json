@@ -1,0 +1,127 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dc_global_gateway": {
+          "block": {
+            "attributes": {
+              "address_family": {
+                "type": "string",
+                "description": "Specifies the IP address family of the global DC gateway.",
+                "optional": true,
+                "computed": true
+              },
+              "all_tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "computed": true
+              },
+              "available_peer_link_count": {
+                "type": "number",
+                "description": "The number of peer links that can be created for a global DC gateway.",
+                "computed": true
+              },
+              "bgp_asn": {
+                "type": "number",
+                "description": "Specifies the BGP ASN of the global DC gateway.",
+                "optional": true,
+                "computed": true
+              },
+              "created_time": {
+                "type": "string",
+                "description": "The time when the global DC gateway was created.",
+                "computed": true
+              },
+              "current_peer_link_count": {
+                "type": "number",
+                "description": "The number of peer links allowed on a global DC gateway, indicating the number of enterprise\nrouters that the global DC gateway can be attached to.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description of the global DC gateway.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID that the global DC gateway belongs to.",
+                "optional": true,
+                "computed": true
+              },
+              "global_center_network_id": {
+                "type": "string",
+                "description": "The ID of the central network that the global DC gateway is added to.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "locales": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "en_us": "string",
+                      "zh_cn": "string"
+                    }
+                  ]
+                ],
+                "description": "The locale address description information.",
+                "computed": true
+              },
+              "location_name": {
+                "type": "string",
+                "description": "The location where the underlying device of the global DC gateway is deployed.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the global DC gateway.",
+                "required": true
+              },
+              "reason": {
+                "type": "string",
+                "description": "The cause of the failure to create the global DC gateway.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region in which to create the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the global DC gateway.",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
+              "updated_time": {
+                "type": "string",
+                "description": "The time when the global DC gateway was updated.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DC",
+            "name": "Direct Connect",
+            "catalog": "Networking",
+            "name_cn": "云专线",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

@@ -35,7 +35,7 @@
               },
               "operations": {
                 "type": [
-                  "list",
+                  "set",
                   "string"
                 ],
                 "description": "List of granted operations.\n",

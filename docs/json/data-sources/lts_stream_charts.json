@@ -1,0 +1,71 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_lts_stream_charts": {
+          "block": {
+            "attributes": {
+              "charts": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "config": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "can_search": "bool",
+                            "can_sort": "bool",
+                            "page_size": "number"
+                          }
+                        ]
+                      ],
+                      "id": "string",
+                      "log_group_id": "string",
+                      "log_group_name": "string",
+                      "log_stream_id": "string",
+                      "log_stream_name": "string",
+                      "name": "string",
+                      "sql": "string",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of charts.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "log_group_id": {
+                "type": "string",
+                "description": "The ID of the log group.",
+                "required": true
+              },
+              "log_stream_id": {
+                "type": "string",
+                "description": "The ID of the log stream.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region in which to query the chart list.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "LTS",
+            "name": "Log Tank Service",
+            "catalog": "Management & Governance",
+            "name_cn": "云日志服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

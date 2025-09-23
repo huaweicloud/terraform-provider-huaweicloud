@@ -1,0 +1,82 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_codearts_pipeline_publisher": {
+          "block": {
+            "attributes": {
+              "auth_status": {
+                "type": "string",
+                "description": "Indicates the authorization status.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description.",
+                "optional": true
+              },
+              "en_name": {
+                "type": "string",
+                "description": "Specifies the publisher English name.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "last_update_time": {
+                "type": "string",
+                "description": "Indicates the update time.",
+                "computed": true
+              },
+              "last_update_user_id": {
+                "type": "string",
+                "description": "Indicates the updater ID.",
+                "computed": true
+              },
+              "last_update_user_name": {
+                "type": "string",
+                "description": "Indicates the updater name.",
+                "computed": true
+              },
+              "logo_url": {
+                "type": "string",
+                "description": "Specifies the logo URL.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the publisher name.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "source_url": {
+                "type": "string",
+                "description": "Specifies the source URL.",
+                "optional": true
+              },
+              "support_url": {
+                "type": "string",
+                "description": "Specifies the support URL.",
+                "required": true
+              },
+              "user_id": {
+                "type": "string",
+                "description": "Indicates the user ID.",
+                "computed": true
+              },
+              "website": {
+                "type": "string",
+                "description": "Specifies the website URL.",
+                "optional": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

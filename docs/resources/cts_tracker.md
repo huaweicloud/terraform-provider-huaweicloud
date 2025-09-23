@@ -2,12 +2,13 @@
 subcategory: "Cloud Trace Service (CTS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_cts_tracker"
-description: ""
+description: |-
+  Manages CTS system tracker resource within HuaweiCloud.
 ---
 
 # huaweicloud_cts_tracker
 
-Manages CTS **system** tracker resource within HuaweiCloud.
+Manages CTS system tracker resource within HuaweiCloud.
 
 ## Example Usage
 
@@ -31,7 +32,7 @@ The following arguments are supported:
 * `bucket_name` - (Optional, String) Specifies the OBS bucket to which traces will be transferred.
 
 * `file_prefix` - (Optional, String) Specifies the file name prefix to mark trace files that need to be stored
-  in an OBS bucket. The value contains 0 to 64 characters. Only letters, numbers, hyphens (-), underscores (_),
+  in an OBS bucket. The value contains `0` to `64` characters. Only letters, numbers, hyphens (-), underscores (_),
   and periods (.) are allowed.
 
 * `lts_enabled` - (Optional, Bool) Specifies whether trace analysis is enabled.
@@ -72,6 +73,14 @@ In addition to all arguments above, the following attributes are exported:
 * `transfer_enabled` - Whether traces will be transferred.
 * `status` - The tracker status, the value can be **enabled**, **disabled** or **error**.
 * `agency_name` - The cloud service delegation name.
+* `create_time` - The creation time of the tracker.
+* `detail` - It indicates the cause of the abnormal status.
+* `domain_id` - The Account ID.
+* `group_id` - The LTS log group ID.
+* `stream_id` - The LTS log stream ID.
+* `log_group_name` - The name of the log group that CTS creates in LTS.
+* `log_topic_name` - The name of the log topic that CTS creates in LTS.
+* `is_authorized_bucket` - Whether CTS has been granted permissions to perform operations on the OBS bucket.
 
 ## Timeouts
 
@@ -84,7 +93,7 @@ This resource provides the following timeouts configuration options:
 
 CTS tracker can be imported using `name`, only **system** is available. e.g.
 
-```
+```bash
 $ terraform import huaweicloud_cts_tracker.tracker system
 ```
 

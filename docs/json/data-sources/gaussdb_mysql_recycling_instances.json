@@ -1,0 +1,59 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_gaussdb_mysql_recycling_instances": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instances": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "backup_level": "string",
+                      "create_at": "number",
+                      "data_vip": "string",
+                      "data_vip_ipv6": "string",
+                      "deleted_at": "number",
+                      "engine_name": "string",
+                      "engine_version": "string",
+                      "enterprise_project_id": "string",
+                      "enterprise_project_name": "string",
+                      "ha_mode": "string",
+                      "id": "string",
+                      "name": "string",
+                      "pay_model": "string",
+                      "recycle_backup_id": "string",
+                      "recycle_status": "string",
+                      "volume_size": "string",
+                      "volume_type": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the instances in the recycle bin.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "GaussDBforMySQL",
+            "name": "GaussDB(for MySQL)",
+            "catalog": "Databases",
+            "name_cn": "云数据库 GaussDB(for MySQL)",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

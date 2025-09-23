@@ -2,7 +2,8 @@
 subcategory: "Log Tank Service (LTS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_lts_cross_account_access"
-description: ""
+description: |-
+  Manages an LTS cross account access resource within HuaweiCloud.
 ---
 
 # huaweicloud_lts_cross_account_access

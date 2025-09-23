@@ -1,0 +1,97 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_apig_plugin_associable_apis": {
+          "block": {
+            "attributes": {
+              "api_id": {
+                "type": "string",
+                "description": "The ID of the specified associable API to be queried.",
+                "optional": true
+              },
+              "api_name": {
+                "type": "string",
+                "description": "The name of the associable APIs to be queried.",
+                "optional": true
+              },
+              "apis": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "auth_type": "string",
+                      "description": "string",
+                      "group_id": "string",
+                      "group_name": "string",
+                      "id": "string",
+                      "match_mode": "string",
+                      "name": "string",
+                      "req_method": "string",
+                      "req_protocol": "string",
+                      "req_uri": "string",
+                      "tags": [
+                        "list",
+                        "string"
+                      ],
+                      "type": "number"
+                    }
+                  ]
+                ],
+                "description": "The list of APIs that can be bound to the specified plugin.",
+                "computed": true
+              },
+              "env_id": {
+                "type": "string",
+                "description": "The ID of the environment where the associable APIs are published.",
+                "required": true
+              },
+              "group_id": {
+                "type": "string",
+                "description": "The ID of the API group to be queried to which the associable APIs belong.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the dedicated instance to which the plugin and the associable APIs belong.",
+                "required": true
+              },
+              "plugin_id": {
+                "type": "string",
+                "description": "The ID of the plugin to be queried.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the plugin and the associable APIs are located.",
+                "computed": true
+              },
+              "req_method": {
+                "type": "string",
+                "description": "The request method of the associable APIs to be queried.",
+                "optional": true
+              },
+              "tags": {
+                "type": "string",
+                "description": "The tags of the associable APIs to be queried.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

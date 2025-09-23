@@ -1,0 +1,187 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_coc_issue_tickets": {
+          "block": {
+            "attributes": {
+              "contain_sub_ticket": {
+                "type": "bool",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ticket_type": {
+                "type": "string",
+                "required": true
+              },
+              "ticket_types": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "tickets": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "assignee": "string",
+                      "baseline_status": "string",
+                      "commit_upload_attachment": "string",
+                      "create_time": "number",
+                      "creator": "string",
+                      "current_cloud_service_id": "string",
+                      "description": "string",
+                      "engine_error_msg": "string",
+                      "enterprise_project_id": "string",
+                      "enum_data_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "biz_id": "string",
+                            "is_deleted": "bool",
+                            "match_type": "string",
+                            "model_id": "string",
+                            "name_en": "string",
+                            "name_zh": "string",
+                            "prop_id": "string",
+                            "real_ticket_id": "string",
+                            "ticket_id": "string"
+                          }
+                        ]
+                      ],
+                      "form_info": "string",
+                      "found_time": "number",
+                      "handle_time": "number",
+                      "id": "string",
+                      "is_common_issue": "bool",
+                      "is_deleted": "bool",
+                      "is_enable_suspension": "bool",
+                      "is_need_change": "bool",
+                      "is_return_full_info": "bool",
+                      "is_start_process": "bool",
+                      "is_start_process_async": "bool",
+                      "is_update_null": "bool",
+                      "issue_contact_person": "string",
+                      "issue_correlation_sla": "string",
+                      "issue_version": "string",
+                      "level": "string",
+                      "level_approve_config": "string",
+                      "meta_data_version": "number",
+                      "operator": "string",
+                      "participator": "string",
+                      "phase": "string",
+                      "real_ticket_id": "string",
+                      "regions": "string",
+                      "regions_search": "string",
+                      "root_cause_cloud_service": "string",
+                      "root_cause_comment": "string",
+                      "root_cause_type": "string",
+                      "solution": "string",
+                      "source": "string",
+                      "source_id": "string",
+                      "sub_tickets": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "change_ticket_id": "string",
+                            "change_ticket_id_sub": "string",
+                            "create_time": "number",
+                            "creator": "string",
+                            "id": "string",
+                            "is_deleted": "bool",
+                            "main_ticket_id": "string",
+                            "operator": "string",
+                            "parent_ticket_id": "string",
+                            "real_ticket_id": "string",
+                            "target_type": "string",
+                            "target_value": "string",
+                            "ticket_id": "string",
+                            "ticket_path": "string",
+                            "update_time": "number",
+                            "whether_to_change": "bool"
+                          }
+                        ]
+                      ],
+                      "suspension_approve_config": "string",
+                      "ticket_id": "string",
+                      "ticket_type": "string",
+                      "ticket_type_id": "string",
+                      "title": "string",
+                      "update_time": "number",
+                      "virtual_schedule_type": "string",
+                      "work_flow_status": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            },
+            "block_types": {
+              "sort_filter": {
+                "block": {
+                  "attributes": {
+                    "field": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "operator": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "values": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "string_filters": {
+                "block": {
+                  "attributes": {
+                    "field": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "operator": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "values": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "COC",
+            "name": "Cloud Operations Center",
+            "catalog": "Management & Governance",
+            "name_cn": "云运维中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

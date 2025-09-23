@@ -14,7 +14,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/identity/v3/agency"
@@ -63,15 +62,11 @@ func ResourceIAMAgencyV3() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ExactlyOneOf: []string{"delegated_service_name"},
-				ValidateFunc: validation.StringDoesNotMatch(regexp.MustCompile("^op_svc_[A-Za-z]+"),
-					"the value can not start with op_svc_, use `delegated_service_name` instead"),
-				Description: "schema: Required",
+				Description:  "schema: Required",
 			},
 			"delegated_service_name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ValidateFunc: validation.StringMatch(regexp.MustCompile("^op_svc_[A-Za-z]+"),
-					"the value must start with op_svc_."),
+				Type:        schema.TypeString,
+				Optional:    true,
 				Description: "schema: Internal",
 			},
 			"description": {
@@ -98,7 +93,6 @@ func ResourceIAMAgencyV3() *schema.Resource {
 						"roles": {
 							Type:     schema.TypeSet,
 							Required: true,
-							MaxItems: 25,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 							Set:      schema.HashString,
 						},
@@ -109,14 +103,12 @@ func ResourceIAMAgencyV3() *schema.Resource {
 			"domain_roles": {
 				Type:     schema.TypeSet,
 				Optional: true,
-				MaxItems: 25,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
 			"all_resources_roles": {
 				Type:     schema.TypeSet,
 				Optional: true,
-				MaxItems: 25,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
@@ -378,9 +370,21 @@ func resourceIAMAgencyV3Read(_ context.Context, d *schema.ResourceData, meta int
 	}
 
 	agencyID := d.Id()
-	a, err := agency.Get(iamClient, agencyID).Extract()
+	var a *agency.Agency
+
+	a, err = agency.Get(iamClient, agencyID).Extract()
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "IAM agency")
+		if _, ok := err.(golangsdk.ErrDefault404); !ok || !d.IsNewResource() {
+			return common.CheckDeletedDiag(d, err, "error retrieving IAM agency")
+		}
+
+		// if got 404 error in new resource, wait 10 seconds and try again
+		// lintignore:R018
+		time.Sleep(10 * time.Second)
+		a, err = agency.Get(iamClient, agencyID).Extract()
+		if err != nil {
+			return common.CheckDeletedDiag(d, err, "error retrieving IAM agency")
+		}
 	}
 
 	log.Printf("[DEBUG] retrieved IAM agency %s: %#v", agencyID, a)

@@ -1,0 +1,78 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_ces_agent_statuses": {
+          "block": {
+            "attributes": {
+              "agent_status": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "extensions": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "name": "string",
+                            "status": "string",
+                            "version": "string"
+                          }
+                        ]
+                      ],
+                      "instance_id": "string",
+                      "uniagent_status": "string"
+                    }
+                  ]
+                ],
+                "description": "The agent statuses.",
+                "computed": true
+              },
+              "extension_name": {
+                "type": "string",
+                "description": "Specifies the agent name.",
+                "optional": true
+              },
+              "extension_status": {
+                "type": "string",
+                "description": "Specifies the agent status.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the cloud server ID list.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "uniagent_status": {
+                "type": "string",
+                "description": "Specifies the uniagent status.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "CES",
+            "name": "Cloud Eye",
+            "catalog": "Management & Governance",
+            "name_cn": "云监控服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

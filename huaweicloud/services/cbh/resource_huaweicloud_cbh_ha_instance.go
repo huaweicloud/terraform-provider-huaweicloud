@@ -13,10 +13,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -66,6 +64,7 @@ func ResourceCBHHAInstance() *schema.Resource {
 
 				return nil
 			},
+			config.MergeDefaultTags(),
 		),
 
 		Timeouts: &schema.ResourceTimeout{
@@ -274,22 +273,22 @@ func resourceHAInstanceCreate(ctx context.Context, d *schema.ResourceData, meta 
 	var slaveId string
 	for _, resourceId := range resourceIDs {
 		serverIDExpression := fmt.Sprintf("[?resource_info.resource_id == '%s']|[0].server_id", resourceId)
-		serverId, err := jmespath.Search(serverIDExpression, instances)
-		if err != nil || serverId == nil {
-			return diag.Errorf("error creating CBH HA instance: ID is not found in API response")
+		serverId := utils.PathSearch(serverIDExpression, instances, "").(string)
+		if serverId == "" {
+			return diag.Errorf("unable to find the CBH HA instance ID from the API response")
 		}
 
 		instanceTypeExpression := fmt.Sprintf("[?server_id == '%s']|[0].ha_info.instance_type", serverId)
-		instanceType, err := jmespath.Search(instanceTypeExpression, instances)
-		if err != nil || instanceType == nil {
-			return diag.Errorf("error creating CBH HA instance: instance type is not found in API response")
+		instanceType := utils.PathSearch(instanceTypeExpression, instances, "").(string)
+		if instanceType == "" {
+			return diag.Errorf("unable to find the CBH HA instance type from the API response")
 		}
 
 		switch instanceType {
 		case "master":
-			masterId = serverId.(string)
+			masterId = serverId
 		case "slave":
-			slaveId = serverId.(string)
+			slaveId = serverId
 		}
 	}
 
@@ -356,12 +355,12 @@ func createHAInstance(client *golangsdk.ServiceClient, d *schema.ResourceData, c
 		return "", err
 	}
 
-	orderId, err := jmespath.Search("order_id", createInstanceRespBody)
-	if err != nil || orderId == nil {
-		return "", fmt.Errorf("error creating CBH HA instance: order_id is not found in API response")
+	orderId := utils.PathSearch("order_id", createInstanceRespBody, "").(string)
+	if orderId == "" {
+		return "", fmt.Errorf("unable to find the order ID of the CBH HA instance from the API response")
 	}
 
-	return orderId.(string), nil
+	return orderId, nil
 }
 
 func buildCreateHAInstanceBodyParam(d *schema.ResourceData, region string, epsId string, publicIp interface{}) map[string]interface{} {
@@ -815,13 +814,13 @@ func resourceHAInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta 
 				"master instance resource ID is not found in list API response", id)
 		}
 
-		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+		migrateOpts := config.MigrateResourceOpts{
 			ResourceId:   masterResourceId,
 			ResourceType: "cbh",
 			RegionId:     region,
 			ProjectId:    client.ProjectID,
 		}
-		if err := common.MigrateEnterpriseProject(ctx, cfg, d, migrateOpts); err != nil {
+		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -1077,13 +1076,21 @@ func resourceHAInstanceDelete(ctx context.Context, d *schema.ResourceData, meta 
 	for _, serverId := range ids {
 		expression := fmt.Sprintf("[?server_id == '%s']|[0]", serverId)
 		instance := utils.PathSearch(expression, instances, nil)
+		if instance == nil {
+			continue
+		}
 		instanceList = append(instanceList, instance)
 		resourceId := utils.PathSearch("resource_info.resource_id", instance, "").(string)
+		if resourceId == "" {
+			continue
+		}
 		resourceIDs = append(resourceIDs, resourceId)
 	}
 
 	if len(instanceList) == 0 {
-		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
+		// Before deleting the CBH HA instance, it is necessary to first call the query API to obtain the resource_id of
+		// the instances. If the instances cannot be found, then execute the logic of checkDeleted.
+		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "error deleting the CBH HA instance")
 	}
 
 	if len(resourceIDs) == 0 {

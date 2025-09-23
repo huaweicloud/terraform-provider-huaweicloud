@@ -57,10 +57,33 @@
                     "object",
                     {
                       "can_add_host": "bool",
+                      "can_copy": "bool",
                       "can_delete": "bool",
                       "can_edit": "bool",
                       "can_manage": "bool",
                       "can_view": "bool"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "permission_matrix": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "can_add_host": "bool",
+                      "can_copy": "bool",
+                      "can_delete": "bool",
+                      "can_edit": "bool",
+                      "can_manage": "bool",
+                      "can_view": "bool",
+                      "created_at": "string",
+                      "role_id": "string",
+                      "role_name": "string",
+                      "role_type": "string",
+                      "updated_at": "string"
                     }
                   ]
                 ],

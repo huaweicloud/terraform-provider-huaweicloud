@@ -1,0 +1,66 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_aom_dashboard": {
+          "block": {
+            "attributes": {
+              "charts": {
+                "type": "string",
+                "optional": true
+              },
+              "dashboard_tags": {
+                "type": [
+                  "list",
+                  [
+                    "map",
+                    "string"
+                  ]
+                ],
+                "optional": true
+              },
+              "dashboard_title": {
+                "type": "string",
+                "required": true
+              },
+              "dashboard_type": {
+                "type": "string",
+                "required": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "folder_title": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_favorite": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "AOM",
+            "name": "Application Operations Management",
+            "catalog": "Management & Governance",
+            "name_cn": "应用运维管理",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

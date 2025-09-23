@@ -1,0 +1,75 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dds_scheduled_task_cancel": {
+          "block": {
+            "attributes": {
+              "create_time": {
+                "type": "string",
+                "description": "Indicates the create time.",
+                "computed": true
+              },
+              "end_time": {
+                "type": "string",
+                "description": "Indicates the end time.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Indicates the instance ID.",
+                "computed": true
+              },
+              "instance_name": {
+                "type": "string",
+                "description": "Indicates the instance name.",
+                "computed": true
+              },
+              "instance_status": {
+                "type": "string",
+                "description": "Indicates the instance status.",
+                "computed": true
+              },
+              "job_id": {
+                "type": "string",
+                "description": "Specifies the task ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "job_name": {
+                "type": "string",
+                "description": "Indicates the task name.",
+                "computed": true
+              },
+              "job_status": {
+                "type": "string",
+                "description": "Indicates the task execution status.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "start_time": {
+                "type": "string",
+                "description": "Indicates the start time.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DDS",
+            "name": "Document Database Service",
+            "catalog": "Databases",
+            "name_cn": "文档数据库服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

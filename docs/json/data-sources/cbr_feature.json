@@ -1,0 +1,39 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cbr_feature": {
+          "block": {
+            "attributes": {
+              "feature_key": {
+                "type": "string",
+                "description": "Specifies the key of the feature to query.",
+                "required": true
+              },
+              "feature_value": {
+                "type": "string",
+                "description": "The value of the specified feature in JSON format.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region where the CBR feature is located."
+              }
+            }
+          },
+          "product": {
+            "short": "CBR",
+            "name": "Cloud Backup and Recovery",
+            "catalog": "Storage",
+            "name_cn": "云备份",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}

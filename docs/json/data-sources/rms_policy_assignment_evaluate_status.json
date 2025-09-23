@@ -1,0 +1,50 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_rms_policy_assignment_evaluate_status": {
+          "block": {
+            "attributes": {
+              "end_time": {
+                "type": "string",
+                "description": "The end time of the evaluation task.",
+                "computed": true
+              },
+              "error_message": {
+                "type": "string",
+                "description": "The failure information of the evaluation task.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "policy_assignment_id": {
+                "type": "string",
+                "description": "The policy assignment ID.",
+                "required": true
+              },
+              "start_time": {
+                "type": "string",
+                "description": "The start time of the evaluation task.",
+                "computed": true
+              },
+              "state": {
+                "type": "string",
+                "description": "The execution status of the evaluation task.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Config",
+            "name": "Config",
+            "catalog": "Management & Governance",
+            "name_cn": "配置审计",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

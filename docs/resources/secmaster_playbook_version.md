@@ -2,16 +2,19 @@
 subcategory: "SecMaster"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_secmaster_playbook_version"
-description: ""
+description: |-
+  Manages a SecMaster playbook version resource within HuaweiCloud.
 ---
 
 # huaweicloud_secmaster_playbook_version
 
 Manages a SecMaster playbook version resource within HuaweiCloud.
 
-~> This resource can only be used in region **cn-east-3** for now.
+-> The playbook version can only be updated after matching a workflow (playbook action).
 
 ## Example Usage
+
+### Basic Example
 
 ```hcl
 variable "workspace_id" {}
@@ -25,6 +28,10 @@ resource "huaweicloud_secmaster_playbook_version" "test" {
   description  = "created by terraform"
 }
 ```
+
+### More Examples
+
+For more detailed associated usage see [playbook instructions](/examples/secmaster/playbook/README.md)
 
 ## Argument Reference
 
@@ -81,13 +88,13 @@ In addition to all arguments above, the following attributes are exported:
 
 * `modifier_id` - Indicates the modifier ID.
 
-* `status` - Indicates the status of the plaubook.
-  The value can be: **EDITING**, **APPROVING**, **UNPASSED** and **PUBLISHED**.
+* `status` - Indicates the status of the playbook version.
+  The value can be **EDITING**, **APPROVING**, **UNPASSED** or **PUBLISHED**.
 
 * `version` - Indicates the version number.
 
-* `version_type` - Indicates the version type.
-  The value can be: **0**(draft version) and **1**(official version).
+* `version_type` - Indicates the playbook version type.
+  The value can be **0**(draft version) or **1**(official version).
 
 ## Import
 

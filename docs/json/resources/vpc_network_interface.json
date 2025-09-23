@@ -91,6 +91,14 @@
                 "type": "string",
                 "required": true,
                 "forcenew": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
               }
             }
           },

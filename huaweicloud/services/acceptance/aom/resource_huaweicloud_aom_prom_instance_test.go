@@ -7,7 +7,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -29,7 +28,7 @@ func getPromInstanceResourceFunc(conf *config.Config, state *terraform.ResourceS
 
 	getPrometheusInstanceOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		MoreHeaders:      buildHeaders(state),
 	}
 	getPrometheusInstanceResp, err := client.Request("GET", getPrometheusInstancePath, &getPrometheusInstanceOpt)
 	if err != nil {
@@ -41,9 +40,9 @@ func getPromInstanceResourceFunc(conf *config.Config, state *terraform.ResourceS
 		return nil, fmt.Errorf("error retrieving AOM prometheus instance: %s", err)
 	}
 
-	curJson, err := jmespath.Search("prometheus[0]", getPrometheusInstanceRespBody)
-	if err != nil || curJson == nil {
-		return nil, fmt.Errorf("error retrieving AOM prometheus instance: %s", err)
+	curJson := utils.PathSearch("prometheus[0]", getPrometheusInstanceRespBody, nil)
+	if curJson == nil {
+		return nil, fmt.Errorf("unable to find the instance from the API response")
 	}
 
 	return curJson, nil
@@ -63,17 +62,18 @@ func TestAccPromInstance_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckEpsID(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: tesAOMPromInstance_basic(rName),
+				Config: testAOMPromInstance_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "prom_name", rName),
 					resource.TestCheckResourceAttr(resourceName, "prom_type", "VPC"),
-					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", "0"),
+					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttr(resourceName, "prom_version", "1.5"),
 					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
 					resource.TestCheckResourceAttrSet(resourceName, "remote_write_url"),
@@ -90,13 +90,13 @@ func TestAccPromInstance_basic(t *testing.T) {
 	})
 }
 
-func tesAOMPromInstance_basic(name string) string {
+func testAOMPromInstance_basic(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_aom_prom_instance" "test" {
   prom_name             = "%s"
   prom_type             = "VPC"
-  enterprise_project_id = "0"
+  enterprise_project_id = "%s"
   prom_version          = "1.5"
 }
-`, name)
+`, name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
 }

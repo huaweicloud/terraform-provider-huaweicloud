@@ -1,0 +1,45 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_workspace_application_catalogs": {
+          "block": {
+            "attributes": {
+              "catalogs": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "en": "string",
+                      "id": "string",
+                      "zh": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of application catalogs.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the application catalogs are located.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

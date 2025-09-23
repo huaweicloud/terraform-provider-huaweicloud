@@ -88,7 +88,7 @@
               },
               "version_id": {
                 "type": "string",
-                "description": "Specifies playbook version ID of the rule.",
+                "description": "Specifies the playbook version ID of the rule.",
                 "required": true,
                 "forcenew": true
               },

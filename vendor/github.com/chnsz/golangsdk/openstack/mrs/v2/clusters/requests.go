@@ -177,6 +177,8 @@ type ChargeInfo struct {
 	//   false: indicates not to pay immediately after an order is created.
 	//   true: indicates to pay immediately after an order is created. The system will automatically deduct fees from the account balance.
 	IsAutoPay *bool `json:"is_auto_pay,omitempty"`
+	// Whether auto renew is enabled, default to false.
+	IsAutoRenew *bool `json:"is_auto_renew,omitempty"`
 }
 
 // NodeGroupOpts is a structure representing node group.

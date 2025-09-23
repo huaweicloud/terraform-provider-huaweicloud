@@ -1,0 +1,20 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cciv2_pod
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CCI
+paths:
+    /apis/cci/v2/namespaces/{namespace}/pods:
+        POST:
+            tag: CCI
+    /apis/cci/v2/namespaces/{namespace}/pods/{name}:
+        DELETE:
+            tag: CCI
+        GET:
+            tag: CCI
+        PUT:
+            tag: CCI

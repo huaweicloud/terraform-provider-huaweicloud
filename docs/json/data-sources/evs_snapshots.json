@@ -48,9 +48,16 @@
                     "object",
                     {
                       "created_at": "string",
+                      "dedicated_storage_id": "string",
+                      "dedicated_storage_name": "string",
                       "description": "string",
                       "id": "string",
+                      "metadata": [
+                        "map",
+                        "string"
+                      ],
                       "name": "string",
+                      "progress": "string",
                       "service_type": "string",
                       "size": "number",
                       "status": "string",

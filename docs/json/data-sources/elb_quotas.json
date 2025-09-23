@@ -1,0 +1,125 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_elb_quotas": {
+          "block": {
+            "attributes": {
+              "certificate": {
+                "type": "number",
+                "description": "Indicates the certificate quota.",
+                "computed": true
+              },
+              "condition_per_policy": {
+                "type": "number",
+                "description": "Indicates the maximum number of forwarding rules per forwarding policy.",
+                "computed": true
+              },
+              "healthmonitor": {
+                "type": "number",
+                "description": "Indicates the health check quota.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ipgroup": {
+                "type": "number",
+                "description": "Indicates the IP address group quota.",
+                "computed": true
+              },
+              "ipgroup_bindings": {
+                "type": "number",
+                "description": "Indicates the maximum number of listeners that can be associated with an IP address group.",
+                "computed": true
+              },
+              "ipgroup_max_length": {
+                "type": "number",
+                "description": "Indicates the maximum number of IP addresses that can be added to an IP address group.",
+                "computed": true
+              },
+              "ipgroups_per_listener": {
+                "type": "number",
+                "description": "Indicates the maximum number of IP address groups that can be associated with a listener.",
+                "computed": true
+              },
+              "l7policies_per_listener": {
+                "type": "number",
+                "description": "Indicates the maximum number of forwarding policies that can be configured for a listener.",
+                "computed": true
+              },
+              "l7policy": {
+                "type": "number",
+                "description": "Indicates the forwarding policy quota.",
+                "computed": true
+              },
+              "listener": {
+                "type": "number",
+                "description": "Indicates the listener quota.",
+                "computed": true
+              },
+              "listeners_per_loadbalancer": {
+                "type": "number",
+                "description": "Indicates the maximum number of listeners that can be associated with a load balancer.",
+                "computed": true
+              },
+              "listeners_per_pool": {
+                "type": "number",
+                "description": "Indicates the maximum number of listeners that can be associated with a backend server group.",
+                "computed": true
+              },
+              "loadbalancer": {
+                "type": "number",
+                "description": "Indicates the load balancer quota.",
+                "computed": true
+              },
+              "member": {
+                "type": "number",
+                "description": "Indicates the backend server quota.",
+                "computed": true
+              },
+              "members_per_pool": {
+                "type": "number",
+                "description": "Indicates the maximum number of backend servers in a backend server group.",
+                "computed": true
+              },
+              "pool": {
+                "type": "number",
+                "description": "Indicates the backend server group quota.",
+                "computed": true
+              },
+              "pools_per_l7policy": {
+                "type": "number",
+                "description": "Indicates the maximum number of backend server groups that can be used by a forwarding policy.",
+                "computed": true
+              },
+              "project_id": {
+                "type": "string",
+                "description": "Indicates the project ID.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "security_policy": {
+                "type": "number",
+                "description": "Indicates the custom security policy quota.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "ELB",
+            "name": "Elastic Load Balance",
+            "catalog": "Networking",
+            "name_cn": "弹性负载均衡",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

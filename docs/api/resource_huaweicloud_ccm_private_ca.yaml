@@ -19,7 +19,16 @@ paths:
     /v1/private-certificate-authorities/{ca_id}/activate:
         POST:
             tag: CCM
+    /v1/private-certificate-authorities/{ca_id}/crl/disable:
+        POST:
+            tag: CCM
+    /v1/private-certificate-authorities/{ca_id}/crl/enable:
+        POST:
+            tag: CCM
     /v1/private-certificate-authorities/{ca_id}/disable:
+        POST:
+            tag: CCM
+    /v1/private-certificate-authorities/{ca_id}/enable:
         POST:
             tag: CCM
     /v1/private-certificate-authorities/{ca_id}/tags:

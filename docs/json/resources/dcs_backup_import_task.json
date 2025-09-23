@@ -1,0 +1,132 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dcs_backup_import_task": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "migration_method": {
+                "type": "string",
+                "required": true
+              },
+              "migration_type": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "released_at": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
+              "task_name": {
+                "type": "string",
+                "required": true
+              },
+              "updated_at": {
+                "type": "string",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "backup_files": {
+                "block": {
+                  "attributes": {
+                    "backup_id": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "bucket_name": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "file_source": {
+                      "type": "string",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "files": {
+                      "block": {
+                        "attributes": {
+                          "file_name": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "size": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "update_at": {
+                            "type": "string",
+                            "optional": true,
+                            "computed": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list"
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "target_instance": {
+                "block": {
+                  "attributes": {
+                    "id": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "computed": true
+                    },
+                    "password": {
+                      "type": "string",
+                      "optional": true,
+                      "sensitive": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "DCS",
+            "name": "Distributed Cache Service",
+            "catalog": "Middleware",
+            "name_cn": "分布式缓存服务",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

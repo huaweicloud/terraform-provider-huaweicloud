@@ -45,8 +45,10 @@
                         [
                           "object",
                           {
+                            "listener_id": "string",
                             "pool_id": "string",
                             "protocol_port": "number",
+                            "protocol_version": "string",
                             "weight": "number"
                           }
                         ]

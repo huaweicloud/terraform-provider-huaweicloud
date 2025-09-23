@@ -63,9 +63,9 @@ type Configs struct {
 }
 
 type Input struct {
-	Name  string `json:"name,omitempty"`
-	Value string `json:"value,omitempty"`
-	Type  string `json:"type,omitempty"`
+	Name  string      `json:"name,omitempty"`
+	Value interface{} `json:"value,omitempty"`
+	Type  string      `json:"type,omitempty"`
 }
 
 var RequestOpts = golangsdk.RequestOpts{

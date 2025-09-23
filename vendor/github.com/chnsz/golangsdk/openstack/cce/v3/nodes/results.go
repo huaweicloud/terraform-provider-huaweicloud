@@ -56,7 +56,7 @@ type Spec struct {
 	// System disk parameter of the node
 	RootVolume VolumeSpec `json:"rootVolume" required:"true"`
 	// The data disk parameter of the node must currently be a disk
-	DataVolumes []VolumeSpec `json:"dataVolumes" required:"true"`
+	DataVolumes []VolumeSpec `json:"dataVolumes,omitempty"`
 	// Disk initialization configuration management parameters
 	// If omit, disk management is performed according to the DockerLVMConfigOverride parameter in extendParam
 	Storage *StorageSpec `json:"storage,omitempty"`
@@ -84,6 +84,10 @@ type Spec struct {
 	Partition string `json:"partition,omitempty"`
 	// The initialized conditions
 	InitializedConditions []string `json:"initializedConditions,omitempty"`
+	// The hostname config of k8s node
+	HostnameConfig *HostnameConfig `json:"hostnameConfig,omitempty"`
+	// The enterprise project ID
+	ServerEnterpriseProjectID string `json:"serverEnterpriseProjectID,omitempty"`
 }
 
 // Gives the Nic spec of the node
@@ -100,6 +104,8 @@ type PrimaryNic struct {
 	SubnetId string `json:"subnetId,omitempty"`
 	// Fixed ips of the primary Nic
 	FixedIps []string `json:"fixedIps,omitempty"`
+	// Subnet list of the primary Nic
+	SubnetList []string `json:"subnetList,omitempty"`
 }
 
 type ExtNic struct {
@@ -131,12 +137,6 @@ type Status struct {
 	PrivateIP string `json:"privateIP"`
 	// The ID of the Job that is operating asynchronously in the Node
 	JobID string `json:"jobID"`
-	// Reasons for the Node to become current
-	Reason string `json:"reason"`
-	// Details of the node transitioning to the current state
-	Message string `json:"message"`
-	//The status of each component in the Node
-	Conditions Conditions `json:"conditions"`
 }
 
 type LoginSpec struct {
@@ -166,6 +166,10 @@ type VolumeSpec struct {
 	ClusterID string `json:"cluster_id,omitempty"`
 	// DSS pool type, fixed to dss
 	ClusterType string `json:"cluster_type,omitempty"`
+	// Disk ipos
+	Iops int `json:"iops,omitempty"`
+	// Disk throughput
+	Throughput int `json:"throughput,omitempty"`
 }
 
 type VolumeMetadata struct {
@@ -284,6 +288,10 @@ type LVMConfigSpec struct {
 type RuntimeConfigSpec struct {
 	// LVM write mode, values can be linear and striped
 	LvType string `json:"lvType" required:"true"`
+}
+
+type HostnameConfig struct {
+	Type string `json:"type" required:"true"`
 }
 
 // Describes the Job Structure

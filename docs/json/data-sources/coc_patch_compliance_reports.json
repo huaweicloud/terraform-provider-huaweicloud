@@ -1,0 +1,179 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_coc_patch_compliance_reports": {
+          "block": {
+            "attributes": {
+              "cce_info_id": {
+                "type": "string",
+                "description": "Specifies the CCE cluster information ID.",
+                "optional": true
+              },
+              "compliant_status": {
+                "type": "string",
+                "description": "Specifies the compliance status.",
+                "optional": true
+              },
+              "eip": {
+                "type": "string",
+                "description": "Specifies the elastic IP address.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID.",
+                "optional": true
+              },
+              "group": {
+                "type": "string",
+                "description": "Specifies the group.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_compliant": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "baseline_id": "string",
+                      "baseline_name": "string",
+                      "cce_info_id": "string",
+                      "compliant_summary": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "compliant_count": "number",
+                            "severity_summary": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "critical_count": "number",
+                                  "high_count": "number",
+                                  "informational_count": "number",
+                                  "low_count": "number",
+                                  "medium_count": "number",
+                                  "unspecified_count": "number"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "eip": "string",
+                      "enterprise_project_id": "string",
+                      "execution_summary": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "job_id": "string",
+                            "order_id": "string",
+                            "report_time": "number"
+                          }
+                        ]
+                      ],
+                      "group": "string",
+                      "id": "string",
+                      "instance_id": "string",
+                      "ip": "string",
+                      "name": "string",
+                      "node_id": "string",
+                      "non_compliant_summary": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "non_compliant_count": "number",
+                            "severity_summary": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "critical_count": "number",
+                                  "high_count": "number",
+                                  "informational_count": "number",
+                                  "low_count": "number",
+                                  "medium_count": "number",
+                                  "unspecified_count": "number"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "operating_system": "string",
+                      "region": "string",
+                      "report_scene": "string",
+                      "rule_type": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the node compliance report.",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ECS instance ID.",
+                "optional": true
+              },
+              "ip": {
+                "type": "string",
+                "description": "Specifies the internal network IP address.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name.",
+                "optional": true
+              },
+              "operating_system": {
+                "type": "string",
+                "description": "Specifies the OS.",
+                "optional": true
+              },
+              "order_id": {
+                "type": "string",
+                "description": "Specifies the service ticket ID.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region."
+              },
+              "report_scene": {
+                "type": "string",
+                "description": "Specifies the report scenario.",
+                "optional": true
+              },
+              "sort_dir": {
+                "type": "string",
+                "description": "Specifies the sorting order.",
+                "optional": true
+              },
+              "sort_key": {
+                "type": "string",
+                "description": "Specifies the sorting field.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "COC",
+            "name": "Cloud Operations Center",
+            "catalog": "Management & Governance",
+            "name_cn": "云运维中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

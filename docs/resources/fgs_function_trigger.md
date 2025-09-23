@@ -42,6 +42,38 @@ resource "huaweicloud_fgs_function_trigger" "timer_cron" {
 }
 ```
 
+### Create an OBS Event Trigger with EventGrid
+
+```hcl
+variable "function_urn" {}
+variable "trigger_name_suffix" {}
+variable "agency_name" {} # Allow FunctionGraph to access EG
+variable "bucket_name" {}
+
+resource "huaweicloud_fgs_function_trigger" "obs_trigger" {
+  function_urn                   = var.function_urn
+  type                           = "EVENTGRID"
+  cascade_delete_eg_subscription = true
+  status                         = "ACTIVE"
+  event_data                     = jsonencode({
+    "channel_id"   = "your_event_channel_id"
+    "channel_name" = "default"
+    "source_name"  = "HC.OBS.DWR"
+    "trigger_name" = var.trigger_name_suffix
+    "agency"       = var.agency_name
+    "bucket"       = var.bucket_name
+    "event_types"  = ["OBS:DWR:ObjectCreated:PUT", "OBS:DWR:ObjectCreated:POST"]
+    "Key_encode"   = true
+  })
+
+  lifecycle {
+    ignore_changes = [
+      event_data, # Parts of event_data content are not returned by FunctionGraph Service and will cause changes
+    ]
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -58,7 +90,8 @@ The following arguments are supported:
 
   -> For more available values, please refer to the [documentation table 3](https://support.huaweicloud.com/intl/en-us/api-functiongraph/functiongraph_06_0122.html#section2).
 
-* `event_data` - (Required, String) Specifies the detailed configuration of the function trigger event.  
+* `event_data` - (Required, String) Specifies the detailed configuration of the function trigger event, in JSON
+  format.  
   For various types of trigger parameter configurations, please refer to the
   [documentation](https://support.huaweicloud.com/intl/en-us/api-functiongraph/functiongraph_06_0122.html#functiongraph_06_0122__request_TriggerEventDataRequestBody).
 
@@ -72,6 +105,15 @@ The following arguments are supported:
 
   -> Currently, only some triggers support setting the **DISABLED** value, such as `TIMER`, `DDS`, `DMS`, `KAFKA` and
      `LTS`. For more details, please refer to the [documentation](https://support.huaweicloud.com/intl/en-us/api-functiongraph/functiongraph_06_0122.html).
+
+* `cascade_delete_eg_subscription` - (Optional, Bool) Specifies whether to cascade delete the related EG event
+  subscription of the function trigger.  
+  This parameter is mainly used for `EVENTGRID` type triggers to automatically clean up related EG event subscription
+  when the trigger is deleted.  
+  Defaults to **false**.
+
+  -> This parameter cannot be imported. The effective value when deleted is the value of the parameter after the last
+     change.
 
 ## Attribute Reference
 

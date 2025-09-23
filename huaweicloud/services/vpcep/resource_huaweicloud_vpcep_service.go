@@ -48,6 +48,8 @@ func ResourceVPCEndpointService() *schema.Resource {
 			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 
+		CustomizeDiff: config.MergeDefaultTags(),
+
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
@@ -92,7 +94,6 @@ func ResourceVPCEndpointService() *schema.Resource {
 					},
 				},
 			},
-
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -131,6 +132,46 @@ func ResourceVPCEndpointService() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
+			},
+			"tcp_proxy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"ip_version": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+			"snat_network_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+			// This field is not tested due to insufficient testing conditions.
+			"ip_address": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The IPv4 address or domain name of the server in the interface type VLAN scenario.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					}),
+			},
+			// This field is not tested due to insufficient testing conditions.
+			"pool_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+				Description: utils.SchemaDesc(
+					`The dedicated cluster ID associated with the VPC endpoint service.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					}),
 			},
 			"tags": common.TagsSchema(),
 			"service_name": {
@@ -260,15 +301,20 @@ func resourceVPCEndpointServiceCreate(ctx context.Context, d *schema.ResourceDat
 	}
 
 	createOpts := services.CreateOpts{
-		VpcID:       d.Get("vpc_id").(string),
-		PortID:      d.Get("port_id").(string),
-		ServerType:  d.Get("server_type").(string),
-		ServiceName: d.Get("name").(string),
-		ServiceType: d.Get("service_type").(string),
-		Description: d.Get("description").(string),
-		Approval:    utils.Bool(d.Get("approval").(bool)),
-		Ports:       buildPortMappingOpts(d),
-		Tags:        utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
+		VpcID:         d.Get("vpc_id").(string),
+		PortID:        d.Get("port_id").(string),
+		ServerType:    d.Get("server_type").(string),
+		ServiceName:   d.Get("name").(string),
+		ServiceType:   d.Get("service_type").(string),
+		Description:   d.Get("description").(string),
+		TCPProxy:      d.Get("tcp_proxy").(string),
+		IpVersion:     d.Get("ip_version").(string),
+		SnatNetworkId: d.Get("snat_network_id").(string),
+		IpAddress:     d.Get("ip_address").(string),
+		PoolId:        d.Get("pool_id").(string),
+		Approval:      utils.Bool(d.Get("approval").(bool)),
+		Ports:         buildPortMappingOpts(d),
+		Tags:          utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
 	}
 
 	// The European station does not support this parameter, so set it separately.
@@ -329,9 +375,14 @@ func resourceVPCEndpointServiceRead(_ context.Context, d *schema.ResourceData, m
 		d.Set("server_type", n.ServerType),
 		d.Set("service_type", n.ServiceType),
 		d.Set("description", n.Description),
+		d.Set("tcp_proxy", n.TCPProxy),
 		d.Set("port_mapping", flattenVPCEndpointServicePorts(n)),
 		d.Set("tags", utils.TagsToMap(n.Tags)),
 		d.Set("enable_policy", n.EnablePolicy),
+		d.Set("ip_version", n.IpVersion),
+		d.Set("snat_network_id", n.SnatNetworkId),
+		d.Set("ip_address", n.IpAddress),
+		d.Set("pool_id", n.PoolId),
 	)
 
 	nameList := strings.Split(n.ServiceName, ".")
@@ -361,7 +412,7 @@ func resourceVPCEndpointServiceUpdate(ctx context.Context, d *schema.ResourceDat
 		return diag.Errorf("error creating VPC endpoint client: %s", err)
 	}
 
-	if d.HasChanges("name", "approval", "port_id", "port_mapping", "description") {
+	if d.HasChanges("name", "approval", "port_id", "port_mapping", "description", "tcp_proxy", "ip_address") {
 		updateOpts := services.UpdateOpts{
 			ServiceName: d.Get("name").(string),
 			Description: utils.String(d.Get("description").(string)),
@@ -375,6 +426,12 @@ func resourceVPCEndpointServiceUpdate(ctx context.Context, d *schema.ResourceDat
 		}
 		if d.HasChange("port_mapping") {
 			updateOpts.Ports = buildPortMappingOpts(d)
+		}
+		if d.HasChange("tcp_proxy") {
+			updateOpts.TCPProxy = d.Get("tcp_proxy").(string)
+		}
+		if d.HasChange("ip_address") {
+			updateOpts.IpAddress = d.Get("ip_address").(string)
 		}
 
 		_, err = services.Update(vpcepClient, d.Id(), updateOpts).Extract()

@@ -39,18 +39,27 @@ func TestAccDliDatabase_basic(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckEpsID(t)
+			acceptance.TestAccPreCheckDliUpdatedOwner(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDliDatabase_basic(rName),
+				Config: testAccDliDatabase_basic_step1(rName),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "description", "For terraform acc test"),
 					resource.TestCheckResourceAttr(resourceName, "enterprise_project_id", acceptance.HW_ENTERPRISE_PROJECT_ID_TEST),
 					resource.TestCheckResourceAttrSet(resourceName, "owner"),
+				),
+			},
+			{
+				Config: testAccDliDatabase_basic_step2(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "owner", acceptance.HW_DLI_UPDATED_OWNER),
 				),
 			},
 			{
@@ -80,7 +89,7 @@ func testAccDatabaseImportStateFunc(rName string) resource.ImportStateIdFunc {
 	}
 }
 
-func testAccDliDatabase_basic(rName string) string {
+func testAccDliDatabase_basic_step1(rName string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_dli_database" "test" {
   name                  = "%s"
@@ -92,4 +101,19 @@ resource "huaweicloud_dli_database" "test" {
   }
 }
 `, rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+}
+
+func testAccDliDatabase_basic_step2(rName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_dli_database" "test" {
+  name                  = "%s"
+  description           = "For terraform acc test"
+  enterprise_project_id = "%s"
+  owner                 = "%s"
+
+  tags = {
+    foo = "bar"
+  }
+}
+`, rName, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST, acceptance.HW_DLI_UPDATED_OWNER)
 }

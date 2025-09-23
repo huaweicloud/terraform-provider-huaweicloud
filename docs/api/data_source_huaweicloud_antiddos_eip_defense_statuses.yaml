@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_antiddos_eip_defense_statuses
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: ANTI-DDOS
+paths:
+    /v1/{project_id}/antiddos:
+        GET:
+            tag: ANTI-DDOS

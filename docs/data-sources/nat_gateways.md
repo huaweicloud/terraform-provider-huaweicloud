@@ -2,7 +2,8 @@
 subcategory: "NAT Gateway (NAT)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_nat_gateways"
-description: ""
+description: |-
+  Use this data source to get the list of NAT gateways.
 ---
 
 # huaweicloud_nat_gateways
@@ -50,6 +51,11 @@ The following arguments are supported:
 * `enterprise_project_id` - (Optional, String) Specifies the ID of the enterprise project to which the NAT
   gateways belong.
 
+* `description` - (Optional, String) Specifies the description of the NAT gateway.
+
+* `created_at` - (Optional, String) Specifies the creation time of the NAT gateway.
+  The format is **yyyy-mm-ddThh:mm:ssZ**. e.g. **2024-06-20T15:03:04Z**.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -87,3 +93,29 @@ The `gateways` block supports:
 * `subnet_id` - The network ID of the downstream interface (the next hop of the DVR) of the NAT gateway.
 
 * `enterprise_project_id` - The ID of the enterprise project to which the NAT gateway belongs.
+
+* `session_conf` - The session configuration of the NAT gateway
+  The [session_conf](#rule_session_conf) structure is documented below.
+
+* `ngport_ip_address` - The private IP address of the NAT gateway.
+
+* `billing_info` - The order information of the NAT gateway.
+
+* `dnat_rules_limit` - The maximum number of DNAT rules on the NAT gateway.
+
+* `snat_rule_public_ip_limit` - The maximum number of SNAT rules on the NAT gateway.
+
+* `pps_max` - The number of packets that the NAT gateway can receive or send per second.
+
+* `bps_max` - The bandwidth that the NAT gateway can receive or send per second, unit is MB.
+
+<a name="rule_session_conf"></a>
+The `session_conf` block supports:
+
+* `tcp_session_expire_time` - The TCP session expiration time, in seconds.
+
+* `udp_session_expire_time` - The UDP session expiration time, in seconds.
+
+* `icmp_session_expire_time` - The ICMP session expiration time, in seconds.
+
+* `tcp_time_wait_time` - The duration of TIME_WAIT state when TCP connection is closed, in seconds.

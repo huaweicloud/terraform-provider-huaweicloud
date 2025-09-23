@@ -1,0 +1,21 @@
+info:
+    version: ""
+    title: resource_huaweicloud_gaussdb_opengauss_parameter_template
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: GaussDB
+paths:
+    /v3/{project_id}/configurations:
+        POST:
+            tag: GaussDB
+    /v3/{project_id}/configurations/{config_id}:
+        DELETE:
+            tag: GaussDB
+        GET:
+            tag: GaussDB
+    /v3/{project_id}/configurations/{config_id}/copy:
+        POST:
+            tag: GaussDB

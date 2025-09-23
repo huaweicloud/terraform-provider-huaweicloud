@@ -122,7 +122,7 @@ It is generally recommended running `terraform plan` after importing a cluster.
 You can then decide if changes should be applied to the cluster, or the resource definition
 should be updated to align with the cluster. Also you can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_ucs_cluster" "test" {
     ...
 

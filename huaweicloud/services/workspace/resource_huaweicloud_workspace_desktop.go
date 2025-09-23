@@ -15,10 +15,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/eps/v1/enterpriseprojects"
-	"github.com/chnsz/golangsdk/openstack/workspace/v2/desktops"
-	"github.com/chnsz/golangsdk/openstack/workspace/v2/jobs"
-	"github.com/chnsz/golangsdk/openstack/workspace/v2/users"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -83,6 +79,8 @@ func ResourceDesktop() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+
+		CustomizeDiff: config.MergeDefaultTags(),
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -168,10 +166,11 @@ func ResourceDesktop() *schema.Resource {
 				},
 			},
 			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: utils.SuppressCaseDiffs(),
 			},
 			"email_notification": {
 				Type:     schema.TypeBool,
@@ -205,89 +204,86 @@ func ResourceDesktop() *schema.Resource {
 	}
 }
 
-func buildDesktopRootVolume(volumes []interface{}) *desktops.Volume {
+func buildDesktopRootVolume(volumes []interface{}) map[string]interface{} {
 	if len(volumes) < 1 {
 		return nil
 	}
 
 	volume := volumes[0].(map[string]interface{})
-	result := desktops.Volume{
-		Type: volume["type"].(string),
-		Size: volume["size"].(int),
+	return map[string]interface{}{
+		"type": volume["type"].(string),
+		"size": volume["size"].(int),
 	}
-	return &result
 }
 
-func buildDesktopDataVolumes(volumes []interface{}) []desktops.Volume {
+func buildDesktopDataVolumes(volumes []interface{}) []map[string]interface{} {
 	if len(volumes) < 1 {
 		return nil
 	}
 
-	result := make([]desktops.Volume, len(volumes))
+	result := make([]map[string]interface{}, len(volumes))
 	for i, val := range volumes {
 		volume := val.(map[string]interface{})
-		result[i] = desktops.Volume{
-			Type: volume["type"].(string),
-			Size: volume["size"].(int),
+		result[i] = map[string]interface{}{
+			"type": volume["type"].(string),
+			"size": volume["size"].(int),
 		}
 	}
 	return result
 }
 
-func buildDesktopNics(nics []interface{}) []desktops.Nic {
+func buildDesktopNics(nics []interface{}) []map[string]interface{} {
 	if len(nics) < 1 {
 		return nil
 	}
 
-	result := make([]desktops.Nic, len(nics))
+	result := make([]map[string]interface{}, len(nics))
 	for i, val := range nics {
-		volume := val.(map[string]interface{})
-		result[i] = desktops.Nic{
-			NetworkId: volume["network_id"].(string),
+		result[i] = map[string]interface{}{
+			"subnet_id": utils.PathSearch("network_id", val, nil),
 		}
 	}
 	return result
 }
 
-func buildDesktopSecurityGroups(securityGroups *schema.Set) []desktops.SecurityGroup {
+func buildDesktopSecurityGroups(securityGroups *schema.Set) []map[string]interface{} {
 	if securityGroups.Len() < 1 {
 		return nil
 	}
 
-	result := make([]desktops.SecurityGroup, securityGroups.Len())
+	result := make([]map[string]interface{}, securityGroups.Len())
 	for i, val := range securityGroups.List() {
-		result[i] = desktops.SecurityGroup{
-			ID: val.(string),
+		result[i] = map[string]interface{}{
+			"id": val.(string),
 		}
 	}
 	return result
 }
 
-func buildDesktopCreateOpts(d *schema.ResourceData, conf *config.Config) desktops.CreateOpts {
-	result := desktops.CreateOpts{
-		Desktops: []desktops.DesktopConfig{
+func buildDesktopCreateOpts(d *schema.ResourceData, conf *config.Config) map[string]interface{} {
+	return map[string]interface{}{
+		"desktops": []map[string]interface{}{
 			{
-				UserName:    d.Get("user_name").(string),
-				UserEmail:   d.Get("user_email").(string),
-				UserGroup:   d.Get("user_group").(string),
-				DesktopName: d.Get("name").(string),
+				"user_name":     d.Get("user_name").(string),
+				"user_email":    d.Get("user_email").(string),
+				"user_group":    d.Get("user_group").(string),
+				"computer_name": utils.ValueIgnoreEmpty(d.Get("name").(string)),
 			},
 		},
-		DesktopType:         "DEDICATED",
-		ProductId:           d.Get("flavor_id").(string),
-		RootVolume:          buildDesktopRootVolume(d.Get("root_volume").([]interface{})),
-		AvailabilityZone:    d.Get("availability_zone").(string),
-		ImageType:           d.Get("image_type").(string),
-		ImageId:             d.Get("image_id").(string),
-		VpcId:               d.Get("vpc_id").(string),
-		EmailNotification:   utils.Bool(d.Get("email_notification").(bool)),
-		DataVolumes:         buildDesktopDataVolumes(d.Get("data_volume").([]interface{})),
-		Nics:                buildDesktopNics(d.Get("nic").([]interface{})),
-		SecurityGroups:      buildDesktopSecurityGroups(d.Get("security_groups").(*schema.Set)),
-		Tags:                utils.ExpandResourceTags(d.Get("tags").(map[string]interface{})),
-		EnterpriseProjectId: conf.GetEnterpriseProjectID(d),
+		"desktop_type":          "DEDICATED",
+		"product_id":            d.Get("flavor_id").(string),
+		"root_volume":           buildDesktopRootVolume(d.Get("root_volume").([]interface{})),
+		"availability_zone":     utils.ValueIgnoreEmpty(d.Get("availability_zone").(string)),
+		"image_type":            d.Get("image_type").(string),
+		"image_id":              d.Get("image_id").(string),
+		"vpc_id":                d.Get("vpc_id").(string),
+		"email_notification":    d.Get("email_notification"),
+		"data_volumes":          buildDesktopDataVolumes(d.Get("data_volume").([]interface{})),
+		"nics":                  buildDesktopNics(d.Get("nic").([]interface{})),
+		"security_groups":       buildDesktopSecurityGroups(d.Get("security_groups").(*schema.Set)),
+		"tags":                  utils.ValueIgnoreEmpty(utils.ExpandResourceTags(d.Get("tags").(map[string]interface{}))),
+		"enterprise_project_id": utils.ValueIgnoreEmpty(conf.GetEnterpriseProjectID(d)),
 	}
-	return result
 }
 
 func waitForWorkspaceJobCompleted(ctx context.Context, client *golangsdk.ServiceClient, jobId string, timeout time.Duration) (string, error) {
@@ -305,81 +301,122 @@ func waitForWorkspaceJobCompleted(ctx context.Context, client *golangsdk.Service
 		return "", err
 	}
 
-	return resp.(jobs.Job).Entities.DesktopId, nil
+	return utils.PathSearch("entities.desktop_id", resp, "").(string), nil
 }
 
 func refreshWorkspaceJobFunc(client *golangsdk.ServiceClient, jobId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		opts := jobs.ListOpts{
-			JobId: jobId,
-		}
-		resp, err := jobs.List(client, opts)
+		var (
+			httpUrl  = "v2/{project_id}/workspace-sub-jobs"
+			listOpts = golangsdk.RequestOpts{
+				KeepResponseBody: true,
+				MoreHeaders: map[string]string{
+					"Content-Type": "application/json",
+				},
+			}
+		)
+
+		listPath := client.Endpoint + httpUrl
+		listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
+		listPath = fmt.Sprintf("%s?job_id=%s", listPath, jobId)
+		resp, err := client.Request("GET", listPath, &listOpts)
 		if err != nil {
-			return resp, "", err
+			return resp, "ERROR", err
 		}
-		if resp.TotalCount < 1 {
+
+		respBody, err := utils.FlattenResponse(resp)
+		if err != nil {
+			return resp, "ERROR", err
+		}
+
+		jobs := utils.PathSearch("jobs", respBody, make([]interface{}, 0)).([]interface{})
+		if len(jobs) < 1 {
 			return resp, "", fmt.Errorf("unable to find any job details")
 		}
 
-		for _, job := range resp.Jobs {
-			if job.Status == "SUCCESS" {
+		for _, job := range jobs {
+			status := utils.PathSearch("status", job, "").(string)
+			if status == "SUCCESS" {
 				continue
 			}
-			return job, job.Status, nil
+			return job, status, nil
 		}
 
-		return resp.Jobs[0], "SUCCESS", nil
+		return jobs[0], "SUCCESS", nil
 	}
 }
 
 func resourceDesktopCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	client, err := conf.WorkspaceV2Client(conf.GetRegion(d))
+	var (
+		conf    = meta.(*config.Config)
+		httpUrl = "v2/{project_id}/desktops"
+	)
+
+	client, err := conf.NewServiceClient("workspace", conf.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating Workspace v2 client: %s", err)
+		return diag.Errorf("error creating Workspace client: %s", err)
 	}
 
-	createOpts := buildDesktopCreateOpts(d, conf)
-	resp, err := desktops.Create(client, createOpts)
+	createPath := client.Endpoint + httpUrl
+	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
+	createOpts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+		JSONBody: utils.RemoveNil(buildDesktopCreateOpts(d, conf)),
+	}
+	resp, err := client.Request("POST", createPath, &createOpts)
 	if err != nil {
 		return diag.Errorf("error creating Workspace desktop: %s", err)
 	}
-	desktopId, err := waitForWorkspaceJobCompleted(ctx, client, resp.JobId, d.Timeout(schema.TimeoutCreate))
+
+	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
-		return diag.Errorf("error waiting for the job (%s) completed: %s", resp.JobId, err)
+		return diag.FromErr(err)
 	}
-	log.Printf("[DEBUG] The job (%s) has been completed", resp.JobId)
+
+	jobId := utils.PathSearch("job_id", respBody, "").(string)
+	if jobId == "" {
+		return diag.Errorf("unable to find job ID from API response")
+	}
+
+	desktopId, err := waitForWorkspaceJobCompleted(ctx, client, jobId, d.Timeout(schema.TimeoutCreate))
+	if err != nil {
+		return diag.Errorf("error waiting for the job (%s) completed: %s", jobId, err)
+	}
+	log.Printf("[DEBUG] The job (%s) has been completed", jobId)
 
 	d.SetId(desktopId)
 
 	if action, ok := d.GetOk("power_action"); ok {
 		if action == "os-start" {
 			log.Printf("[WARN] the power action (os-start) is invalid after desktop created")
-		} else if err = updateDesktopPowerAction(ctx, client, d); err != nil {
+		} else if err = updateDesktopPowerAction(ctx, client, d, d.Timeout(schema.TimeoutCreate)); err != nil {
 			return diag.FromErr(err)
 		}
 	}
 	return resourceDesktopRead(ctx, d, meta)
 }
 
-func flattenDesktopRootVolume(volume desktops.VolumeResp) []map[string]interface{} {
-	if volume == (desktops.VolumeResp{}) {
+func flattenDesktopRootVolume(volume interface{}) []map[string]interface{} {
+	if volume == nil {
 		return nil
 	}
 
 	return []map[string]interface{}{
 		{
-			"type":       volume.Type,
-			"size":       volume.Size,
-			"id":         volume.VolumeId,
-			"name":       volume.Name,
-			"device":     volume.Device,
-			"created_at": volume.CreatedAt,
+			"type":       utils.PathSearch("type", volume, nil),
+			"size":       utils.PathSearch("size", volume, nil),
+			"id":         utils.PathSearch("volume_id", volume, nil),
+			"name":       utils.PathSearch("display_name", volume, nil),
+			"device":     utils.PathSearch("device", volume, nil),
+			"created_at": utils.PathSearch("create_time", volume, nil),
 		},
 	}
 }
 
-func flattenDesktopDataVolumes(volumes []desktops.VolumeResp) []map[string]interface{} {
+func flattenDesktopDataVolumes(volumes []interface{}) []map[string]interface{} {
 	if len(volumes) < 1 {
 		return nil
 	}
@@ -387,12 +424,12 @@ func flattenDesktopDataVolumes(volumes []desktops.VolumeResp) []map[string]inter
 	result := make([]map[string]interface{}, len(volumes))
 	for i, volume := range volumes {
 		result[i] = map[string]interface{}{
-			"type":       volume.Type,
-			"size":       volume.Size,
-			"id":         volume.VolumeId,
-			"name":       volume.Name,
-			"device":     volume.Device,
-			"created_at": volume.CreatedAt,
+			"type":       utils.PathSearch("type", volume, nil),
+			"size":       utils.PathSearch("size", volume, nil),
+			"id":         utils.PathSearch("volume_id", volume, nil),
+			"name":       utils.PathSearch("display_name", volume, nil),
+			"device":     utils.PathSearch("device", volume, nil),
+			"created_at": utils.PathSearch("create_time", volume, nil),
 		}
 	}
 
@@ -407,80 +444,111 @@ func flattenDesktopDataVolumes(volumes []desktops.VolumeResp) []map[string]inter
 	return result
 }
 
-func flattenDesktopSecurityGroups(securityGroups []desktops.SecurityGroup) []interface{} {
-	if len(securityGroups) < 1 {
-		return nil
-	}
-
-	result := make([]interface{}, len(securityGroups))
-	for i, securityGroup := range securityGroups {
-		result[i] = securityGroup.ID
-	}
-	return result
-}
-
 func getDesktopNetwork(client *golangsdk.ServiceClient, desktopId string) ([]map[string]interface{}, error) {
-	network, err := desktops.GetNetwork(client, desktopId)
+	httpUrl := "v2/{project_id}/desktops/{desktop_id}/networks"
+	getNetworkPath := client.Endpoint + httpUrl
+	getNetworkPath = strings.ReplaceAll(getNetworkPath, "{project_id}", client.ProjectID)
+	getNetworkPath = strings.ReplaceAll(getNetworkPath, "{desktop_id}", desktopId)
+	getNetworkOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+	}
+	resp, err := client.Request("GET", getNetworkPath, &getNetworkOpt)
 	if err != nil {
 		return nil, fmt.Errorf("error getting desktop network info: %s", err)
 	}
 
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return nil, err
+	}
+
+	network := utils.PathSearch("network_infos", respBody, make([]interface{}, 0)).([]interface{})
 	if len(network) < 1 {
 		return nil, fmt.Errorf("unable to find any network information under Workspace desktop (%s)", desktopId)
 	}
 
 	nic := []map[string]interface{}{
 		{
-			"network_id": network[0].Subnet.ID,
+			"network_id": utils.PathSearch("subnet_info.id", network[0], nil),
 		},
 	}
 
 	return nic, err
 }
 
+func GetDesktopById(client *golangsdk.ServiceClient, desktopId string) (interface{}, error) {
+	var (
+		httpUrl = "v2/{project_id}/desktops/{desktop_id}"
+		getOpts = golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			MoreHeaders: map[string]string{
+				"Content-Type": "application/json",
+			},
+		}
+	)
+
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{desktop_id}", desktopId)
+	resp, err := client.Request("GET", getPath, &getOpts)
+	if err != nil {
+		return nil, err
+	}
+
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return nil, err
+	}
+	return utils.PathSearch("desktop", respBody, nil), nil
+}
+
 func resourceDesktopRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
-	client, err := conf.WorkspaceV2Client(region)
+	client, err := conf.NewServiceClient("workspace", region)
 	if err != nil {
-		return diag.Errorf("error creating Workspace v2 client: %s", err)
+		return diag.Errorf("error creating Workspace client: %s", err)
 	}
 
 	desktopId := d.Id()
-	resp, err := desktops.Get(client, desktopId)
+	respBody, err := GetDesktopById(client, desktopId)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "Workspace desktop")
 	}
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
-		d.Set("flavor_id", resp.Product.ID),
-		d.Set("user_name", resp.UserName),
-		d.Set("root_volume", flattenDesktopRootVolume(resp.RootVolume)),
-		d.Set("data_volume", flattenDesktopDataVolumes(resp.DataVolumes)),
-		d.Set("availability_zone", resp.AvailabilityZone),
-		d.Set("user_group", resp.UserGroup),
-		d.Set("name", resp.Name),
-		d.Set("tags", utils.TagsToMap(resp.Tags)),
-		d.Set("enterprise_project_id", resp.EnterpriseProjectId),
-		d.Set("status", resp.Status),
+		d.Set("flavor_id", utils.PathSearch("product.product_id", respBody, nil)),
+		d.Set("user_name", utils.PathSearch("user_name", respBody, nil)),
+		d.Set("root_volume", flattenDesktopRootVolume(utils.PathSearch("root_volume", respBody, nil))),
+		d.Set("data_volume", flattenDesktopDataVolumes(utils.PathSearch("data_volumes", respBody, make([]interface{}, 0)).([]interface{}))),
+		d.Set("availability_zone", utils.PathSearch("availability_zone", respBody, nil)),
+		d.Set("user_group", utils.PathSearch("user_group", respBody, nil)),
+		d.Set("name", utils.PathSearch("computer_name", respBody, "").(string)),
+		d.Set("tags", utils.FlattenTagsToMap(utils.PathSearch("tags", respBody, nil))),
+		d.Set("enterprise_project_id", utils.PathSearch("enterprise_project_id", respBody, nil)),
+		d.Set("status", utils.PathSearch("status", respBody, nil)),
 	)
 
-	if imageId, ok := resp.Metadata["metering.image_id"]; ok {
+	imageId := utils.PathSearch("metadata.\"metering.image_id\"", respBody, "").(string)
+	if imageId != "" {
 		mErr = multierror.Append(mErr, d.Set("image_id", imageId))
 	} else {
 		mErr = multierror.Append(mErr, fmt.Errorf("the image_id field does not found in metadata structure"))
 	}
-
-	securityGroups := resp.SecurityGroups
+	securityGroups := utils.PathSearch("security_groups[*].id", respBody, make([]interface{}, 0)).([]interface{})
 	if len(securityGroups) < 1 {
 		mErr = multierror.Append(mErr, fmt.Errorf("the security_groups field does not found in API response"))
 	} else {
-		mErr = multierror.Append(mErr, d.Set("security_groups", flattenDesktopSecurityGroups(securityGroups)))
+		mErr = multierror.Append(mErr, d.Set("security_groups", securityGroups))
 	}
 
 	nicVal, err := getDesktopNetwork(client, desktopId)
 	if err != nil {
-		mErr = multierror.Append(mErr, err)
+		// This feature is not available in some region, so use log.Printf to record the error.
+		log.Printf("[ERROR] %s", err)
 	} else {
 		mErr = multierror.Append(mErr, d.Set("nic", nicVal))
 	}
@@ -492,50 +560,65 @@ func resourceDesktopRead(_ context.Context, d *schema.ResourceData, meta interfa
 }
 
 func updateDesktopFlavor(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
-	opts := desktops.ProductUpdateOpts{
-		Desktops: []desktops.DesktopUpdateConfig{
-			{
-				DesktopId: d.Id(),
-			},
+	httpUrl := "v2/{project_id}/desktops/resize"
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	opts := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
 		},
-		ProductId: d.Get("flavor_id").(string),
-		Mode:      "STOP_DESKTOP",
+		JSONBody: map[string]interface{}{
+			"desktops": []map[string]interface{}{
+				{
+					"desktop_id": d.Id(),
+				},
+			},
+			"product_id": d.Get("flavor_id"),
+			"mode":       "STOP_DESKTOP",
+		},
 	}
-	resp, err := desktops.UpdateProduct(client, opts)
+	resp, err := client.Request("POST", updatePath, &opts)
 	if err != nil {
 		return fmt.Errorf("error updating desktop product: %s", err)
 	}
 
-	for _, job := range resp {
-		_, err = waitForWorkspaceJobCompleted(ctx, client, job.ID, d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return fmt.Errorf("error waiting for the job (%s) completed: %s", job.ID, err)
-		}
-		log.Printf("[DEBUG] The job (%s) has been completed", job.ID)
+	respBody, err := utils.FlattenResponse(resp)
+	if err != nil {
+		return err
 	}
-	log.Printf("[DEBUG] All jobs has been completed")
+
+	jobId := utils.PathSearch("job_id", respBody, "").(string)
+	_, err = waitForWorkspaceJobCompleted(ctx, client, jobId, d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return fmt.Errorf("error waiting for the update product job (%s) completed: %s", jobId, err)
+	}
+	log.Printf("[DEBUG] The update product job (%s) has been completed", jobId)
 	return nil
 }
 
 func updateDesktopVolumes(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
 	desktopId := d.Id()
-	expandSlice := make([]desktops.ExpandVolumeConfig, 0)
+	expandSlice := make([]map[string]interface{}, 0)
 
 	if d.HasChange("root_volume") {
-		expandSlice = append(expandSlice, desktops.ExpandVolumeConfig{
-			DesktopId: desktopId,
-			VolumeId:  d.Get("root_volume.0.id").(string),
-			NewSize:   d.Get("root_volume.0.size").(int),
+		expandSlice = append(expandSlice, map[string]interface{}{
+			"desktop_id": desktopId,
+			"volume_id":  d.Get("root_volume.0.id").(string),
+			"new_size":   d.Get("root_volume.0.size").(int),
 		})
 	}
 
 	lengthDiff := 0
 	if d.HasChange("data_volume") {
-		oldVal, newVal := d.GetChange("data_volume")
-		oldRaw := oldVal.([]interface{})
-		newRaw := newVal.([]interface{})
-		newLen := len(newRaw)
-		oldLen := len(oldRaw)
+		var (
+			volumeHttpUrl  = "v2/{project_id}/volumes"
+			oldVal, newVal = d.GetChange("data_volume")
+			oldRaw         = oldVal.([]interface{})
+			newRaw         = newVal.([]interface{})
+			newLen         = len(newRaw)
+			oldLen         = len(oldRaw)
+		)
 		if newLen < oldLen {
 			return fmt.Errorf("the number of volumes cannot be reduced")
 		}
@@ -551,58 +634,89 @@ func updateDesktopVolumes(ctx context.Context, client *golangsdk.ServiceClient, 
 				return fmt.Errorf("volume (%v) size (old:%v, new:%v) cannot be smaller than the size before the change",
 					oldVolume["name"], oldVolume["size"], newVolume["size"])
 			} else if newVolume["size"].(int) > oldVolume["size"].(int) {
-				expandSlice = append(expandSlice, desktops.ExpandVolumeConfig{
-					DesktopId: desktopId,
-					VolumeId:  oldVolume["id"].(string),
-					NewSize:   newVolume["size"].(int),
+				expandSlice = append(expandSlice, map[string]interface{}{
+					"desktop_id": desktopId,
+					"volume_id":  oldVolume["id"].(string),
+					"new_size":   newVolume["size"].(int),
 				})
 			}
 		}
 
 		if lengthDiff > 0 {
-			newVolumeSlice := make([]desktops.Volume, 0, lengthDiff)
+			newVolumeSlice := make([]map[string]interface{}, 0, lengthDiff)
 			for i := newLen - lengthDiff; i < newLen; i++ {
 				newVolume := newRaw[i].(map[string]interface{})
-				newVolumeSlice = append(newVolumeSlice, desktops.Volume{
-					Type: newVolume["type"].(string),
-					Size: newVolume["size"].(int),
+				newVolumeSlice = append(newVolumeSlice, map[string]interface{}{
+					"type": newVolume["type"].(string),
+					"size": newVolume["size"].(int),
 				})
 			}
-			newVolumeOpts := desktops.NewVolumeOpts{
-				VolumeConfigs: []desktops.NewVolumeConfig{
-					{
-						DesktopId: desktopId,
-						Volumes:   newVolumeSlice,
+			newVolumeOpts := golangsdk.RequestOpts{
+				KeepResponseBody: true,
+				MoreHeaders: map[string]string{
+					"Content-Type": "application/json",
+				},
+				JSONBody: map[string]interface{}{
+					"addDesktopVolumesReq": []map[string]interface{}{
+						{
+							"desktop_id": desktopId,
+							"volumes":    newVolumeSlice,
+						},
 					},
 				},
 			}
 			log.Printf("[DEBUG] The new volumeOpts is: %#v", newVolumeOpts)
-			resp, err := desktops.NewVolumes(client, newVolumeOpts)
+			volumePath := client.Endpoint + volumeHttpUrl
+			volumePath = strings.ReplaceAll(volumePath, "{project_id}", client.ProjectID)
+			resp, err := client.Request("POST", volumePath, &newVolumeOpts)
 			if err != nil {
-				return fmt.Errorf("failed to add volume: %s", err)
+				return fmt.Errorf("unable to add volume for desktop: %s", err)
 			}
-			_, err = waitForWorkspaceJobCompleted(ctx, client, resp.JobId, d.Timeout(schema.TimeoutUpdate))
+
+			respBody, err := utils.FlattenResponse(resp)
 			if err != nil {
-				return fmt.Errorf("error waiting for the job (%s) completed: %s", resp.JobId, err)
+				return err
 			}
-			log.Printf("[DEBUG] The job (%s) has been completed", resp.JobId)
+			jobId := utils.PathSearch("job_id", respBody, "").(string)
+			_, err = waitForWorkspaceJobCompleted(ctx, client, jobId, d.Timeout(schema.TimeoutUpdate))
+			if err != nil {
+				return fmt.Errorf("error waiting for the add volume job (%s) completed: %s", jobId, err)
+			}
+			log.Printf("[DEBUG] The add volume job (%s) has been completed", jobId)
 		}
 	}
 
 	if len(expandSlice) > 0 {
-		expandOpts := desktops.VolumeExpandOpts{
-			VolumeConfigs: expandSlice,
-		}
+		var (
+			expandHttpUrl = "v2/{project_id}/volumes/expand"
+			expandOpts    = golangsdk.RequestOpts{
+				KeepResponseBody: true,
+				MoreHeaders: map[string]string{
+					"Content-Type": "application/json",
+				},
+				JSONBody: map[string]interface{}{
+					"expandVolumesReq": expandSlice,
+				},
+			}
+		)
 		log.Printf("[DEBUG] The new expandOpts is: %#v", expandOpts)
-		resp, err := desktops.ExpandVolumes(client, expandOpts)
+		expandPath := client.Endpoint + expandHttpUrl
+		expandPath = strings.ReplaceAll(expandPath, "{project_id}", client.ProjectID)
+		resp, err := client.Request("POST", expandPath, &expandOpts)
 		if err != nil {
-			return fmt.Errorf("failed to expand volume size: %s", err)
+			return fmt.Errorf("unable to expand volume size: %s", err)
 		}
-		_, err = waitForWorkspaceJobCompleted(ctx, client, resp.JobId, d.Timeout(schema.TimeoutUpdate))
+
+		respBody, err := utils.FlattenResponse(resp)
 		if err != nil {
-			return fmt.Errorf("error waiting for the job (%s) completed: %s", resp.JobId, err)
+			return err
 		}
-		log.Printf("[DEBUG] The job (%s) has been completed", resp.JobId)
+		jobId := utils.PathSearch("job_id", respBody, "").(string)
+		_, err = waitForWorkspaceJobCompleted(ctx, client, jobId, d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			return fmt.Errorf("error waiting for the job (%s) completed: %s", jobId, err)
+		}
+		log.Printf("[DEBUG] The expand volume job (%s) has been completed", jobId)
 	}
 	return nil
 }
@@ -613,39 +727,51 @@ func updateDesktopNetwork(ctx context.Context, client *golangsdk.ServiceClient, 
 		return nil
 	}
 
-	nicVal := nicRaw[0].(map[string]interface{})
-	securityGroups := d.Get("security_groups").(*schema.Set)
-	listId := make([]string, securityGroups.Len())
-	for i, id := range securityGroups.List() {
-		listId[i] = id.(string)
-	}
+	var (
+		httpUrl   = "v2/{project_id}/desktops/{desktop_id}/networks"
+		desktopId = d.Id()
+		opts      = golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			MoreHeaders: map[string]string{
+				"Content-Type": "application/json",
+			},
+			JSONBody: map[string]interface{}{
+				"vpc_id":             d.Get("vpc_id").(string),
+				"subnet_id":          utils.PathSearch("network_id", nicRaw[0], nil),
+				"security_group_ids": utils.ExpandToStringList(d.Get("security_groups").(*schema.Set).List()),
+			},
+		}
+	)
 
-	desktopId := d.Id()
-	opts := desktops.UpdateNetworkOpts{
-		DesktopId:        desktopId,
-		VpcId:            d.Get("vpc_id").(string),
-		SubnetId:         nicVal["network_id"].(string),
-		SecurityGroupIds: listId,
-	}
-
-	resp, err := desktops.UpdateNetwork(client, opts)
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{desktop_id}", desktopId)
+	resp, err := client.Request("PUT", updatePath, &opts)
 	if err != nil {
 		return fmt.Errorf("error updating the network of the Workspace desktop (%s): %s", desktopId, err)
 	}
-	_, err = waitForWorkspaceJobCompleted(ctx, client, resp.JobId, d.Timeout(schema.TimeoutUpdate))
+
+	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
-		return fmt.Errorf("error waiting for the job (%s) completed: %s", resp.JobId, err)
+		return err
 	}
-	log.Printf("[DEBUG] The job (%s) has been completed", resp.JobId)
+
+	jobId := utils.PathSearch("job_id", respBody, "").(string)
+	_, err = waitForWorkspaceJobCompleted(ctx, client, jobId, d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return fmt.Errorf("error waiting for the job (%s) completed: %s", jobId, err)
+	}
+	log.Printf("[DEBUG] The job (%s) has been completed", jobId)
 	return nil
 }
 
-func waitForWorkspaceStatusCompleted(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+func waitForWorkspaceStatusCompleted(ctx context.Context, client *golangsdk.ServiceClient, desktopId, powerAction string,
+	timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"PENDING"},
 		Target:       []string{"COMPLETED"},
-		Refresh:      desktopStatusRefreshFunc(client, d),
-		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		Refresh:      desktopStatusRefreshFunc(client, desktopId, powerAction),
+		Timeout:      timeout,
 		Delay:        10 * time.Second,
 		PollInterval: 10 * time.Second,
 		// The final status of both startup and restart is "ACTIVE". the parameter only applies to "REBOOT" action.
@@ -655,12 +781,11 @@ func waitForWorkspaceStatusCompleted(ctx context.Context, client *golangsdk.Serv
 	return err
 }
 
-func desktopStatusRefreshFunc(client *golangsdk.ServiceClient, d *schema.ResourceData) resource.StateRefreshFunc {
+func desktopStatusRefreshFunc(client *golangsdk.ServiceClient, desktopId, powerAction string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		desktopId := d.Id()
-		resp, err := desktops.Get(client, desktopId)
+		respBody, err := GetDesktopById(client, desktopId)
 		if err != nil {
-			return resp, "", err
+			return respBody, "", err
 		}
 
 		// In statusMap, key represents the power action of the desktop, and value represents the status after the desktop operation is completed.
@@ -669,57 +794,98 @@ func desktopStatusRefreshFunc(client *golangsdk.ServiceClient, d *schema.Resourc
 			"os-start":     "ACTIVE",
 			"os-stop":      "SHUTOFF",
 			"reboot":       "ACTIVE",
-			"os-hibernate": "SHUTOFF",
+			"os-hibernate": "HIBERNATED",
 		}
 
-		powerAction := d.Get("power_action").(string)
 		// TaskStatus variable is always an empty string when the desktop power action is completed.
 		// If the desktop power action changes from one state to another, taskStatus is an empty string for a long time,
 		// whether a desktop action is completed cannot be determined only by taskStatus.
-		if resp.TaskStatus == "" && resp.Status == statusMap[powerAction] {
-			return resp, "COMPLETED", nil
+		taskStatus := utils.PathSearch("task_status", respBody, "").(string)
+		status := utils.PathSearch("status", respBody, "").(string)
+		if taskStatus == "" && status == statusMap[powerAction] {
+			return respBody, "COMPLETED", nil
 		}
-		return resp, "PENDING", nil
+		return respBody, "PENDING", nil
 	}
 }
 
-func updateDesktopPowerAction(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
-	desktopId := d.Id()
-	action := d.Get("power_action").(string)
-	opts := desktops.ActionOpts{
-		DesktopIds: []string{desktopId},
-		OpType:     action,
-		Type:       d.Get("power_action_type").(string),
-	}
+func updateDesktopPowerAction(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData, timeout time.Duration) error {
+	var (
+		httpUrl   = "v2/{project_id}/desktops/action"
+		desktopId = d.Id()
+		action    = d.Get("power_action").(string)
+		params    = map[string]interface{}{
+			"desktop_ids": []string{desktopId},
+			"op_type":     action,
+			"type":        utils.ValueIgnoreEmpty(d.Get("power_action_type")),
+		}
+		opts = golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			MoreHeaders: map[string]string{
+				"Content-Type": "application/json",
+			},
+			JSONBody: utils.RemoveNil(params),
+		}
+	)
 
-	resp, err := desktops.DoAction(client, opts)
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	_, err := client.Request("POST", updatePath, &opts)
 	if err != nil {
 		return fmt.Errorf("error updating the power action of the Workspace desktop (%s): %s", desktopId, err)
 	}
 
-	if resp.JobId == "" {
-		err = waitForWorkspaceStatusCompleted(ctx, client, d)
-		if err != nil {
-			return fmt.Errorf("error waiting for power action (%s) for desktop (%s) failed: %s", action, desktopId, err)
+	err = waitForWorkspaceStatusCompleted(ctx, client, desktopId, action, timeout)
+	if err != nil {
+		return fmt.Errorf("error waiting for power action (%s) for desktop (%s) failed: %s", action, desktopId, err)
+	}
+	return nil
+}
+
+func updateDesktopImage(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	var (
+		httpUrl     = "v2/{project_id}/desktops/rebuild"
+		desktopId   = d.Id()
+		rebuildOpts = golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			MoreHeaders: map[string]string{
+				"Content-Type": "application/json",
+			},
+			JSONBody: map[string]interface{}{
+				"desktop_ids": []string{desktopId},
+				"image_type":  d.Get("image_type"),
+				"image_id":    d.Get("image_id"),
+			},
 		}
-		return nil
+	)
+
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	resp, err := client.Request("POST", updatePath, &rebuildOpts)
+	if err != nil {
+		return fmt.Errorf("error rebuild Workspace desktop: %s", err)
 	}
 
-	// Job ID is returned when cold migration is started.
-	_, err = waitForWorkspaceJobCompleted(ctx, client, resp.JobId, d.Timeout(schema.TimeoutUpdate))
+	respBody, err := utils.FlattenResponse(resp)
 	if err != nil {
-		return fmt.Errorf("error waiting for the job (%s) completed: %s", resp.JobId, err)
+		return err
 	}
-	log.Printf("[DEBUG] The job (%s) has been completed", resp.JobId)
+
+	jobId := utils.PathSearch("job_id", respBody, "").(string)
+	_, err = waitForWorkspaceJobCompleted(ctx, client, jobId, d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return fmt.Errorf("error waiting for the rebuild desktop job (%s) completed: %s", jobId, err)
+	}
+	log.Printf("[DEBUG] The rebuild desktop job (%s) has been completed", jobId)
 	return nil
 }
 
 func resourceDesktopUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	conf := meta.(*config.Config)
-	region := conf.GetRegion(d)
-	client, err := conf.WorkspaceV2Client(region)
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.NewServiceClient("workspace", region)
 	if err != nil {
-		return diag.Errorf("error creating Workspace v2 client: %s", err)
+		return diag.Errorf("error creating Workspace client: %s", err)
 	}
 
 	desktopId := d.Id()
@@ -730,20 +896,9 @@ func resourceDesktopUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	}
 
 	if d.HasChanges("image_type", "image_id") {
-		rebuildOpts := desktops.RebuildOpts{
-			DesktopIds: []string{desktopId},
-			ImageType:  d.Get("image_type").(string),
-			ImageId:    d.Get("image_id").(string),
+		if err = updateDesktopImage(ctx, client, d); err != nil {
+			return diag.FromErr(err)
 		}
-		resp, err := desktops.Rebuild(client, rebuildOpts)
-		if err != nil {
-			return diag.Errorf("error rebuild Workspace desktop: %s", err)
-		}
-		_, err = waitForWorkspaceJobCompleted(ctx, client, resp.JobId, d.Timeout(schema.TimeoutUpdate))
-		if err != nil {
-			return diag.Errorf("error waiting for the job (%s) completed: %s", resp.JobId, err)
-		}
-		log.Printf("[DEBUG] The job (%s) has been completed", resp.JobId)
 	}
 
 	if d.HasChanges("root_volume", "data_volume") {
@@ -767,19 +922,19 @@ func resourceDesktopUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	}
 
 	if d.HasChange("enterprise_project_id") {
-		migrateOpts := enterpriseprojects.MigrateResourceOpts{
+		migrateOpts := config.MigrateResourceOpts{
 			ResourceId:   desktopId,
 			ResourceType: "workspace-desktop",
 			RegionId:     region,
 			ProjectId:    client.ProjectID,
 		}
-		if err := common.MigrateEnterpriseProject(ctx, conf, d, migrateOpts); err != nil {
+		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
 	if d.HasChanges("power_action") {
-		err = updateDesktopPowerAction(ctx, client, d)
+		err = updateDesktopPowerAction(ctx, client, d, d.Timeout(schema.TimeoutUpdate))
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -790,7 +945,7 @@ func resourceDesktopUpdate(ctx context.Context, d *schema.ResourceData, meta int
 
 func waitForDesktopDeleted(ctx context.Context, client *golangsdk.ServiceClient, desktopId string, timeout time.Duration) error {
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"ACTIVE", "DELETING", "SHUTOFF"},
+		Pending:      []string{"ACTIVE", "DELETING", "SHUTOFF", "HIBERNATED"},
 		Target:       []string{"DELETED"},
 		Refresh:      refreshDesktopStatusFunc(client, desktopId),
 		Timeout:      timeout,
@@ -804,40 +959,29 @@ func waitForDesktopDeleted(ctx context.Context, client *golangsdk.ServiceClient,
 
 func refreshDesktopStatusFunc(client *golangsdk.ServiceClient, desktopId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		resp, err := desktops.Get(client, desktopId)
+		resp, err := GetDesktopById(client, desktopId)
 		if err != nil {
 			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				return resp, "DELETED", nil
+				return "deleted", "DELETED", nil
 			}
 			return resp, "ERROR", err
 		}
 		// During the removal process of desktop, the workspace service cannot perceive the ECS mechine and the API will
 		// return an empty status.
-		if resp.Status == "" {
+		status := utils.PathSearch("status", resp, "").(string)
+		if status == "" {
 			return resp, "DELETING", nil
 		}
 		// The uppercase characters is the default format for attribute 'status' in the API response.
-		return resp, strings.ToUpper(resp.Status), nil
+		return resp, strings.ToUpper(status), nil
 	}
 }
 
 func waitForDesktopUserDeleted(ctx context.Context, client *golangsdk.ServiceClient, userName string, timeout time.Duration) error {
-	listOpts := users.ListOpts{
-		Name: userName,
-	}
 	stateConf := &resource.StateChangeConf{
-		Pending: []string{"ACTIVE"},
-		Target:  []string{"DELETED"},
-		Refresh: func() (interface{}, string, error) {
-			resp, err := users.List(client, listOpts)
-			if err != nil {
-				return resp, "ERROR", err
-			}
-			if len(resp.Users) < 1 {
-				return resp, "DELETED", nil
-			}
-			return resp, "ACTIVE", nil
-		},
+		Pending:      []string{"ACTIVE"},
+		Target:       []string{"DELETED"},
+		Refresh:      refreshDesktopUserStatusFunc(client, userName),
 		Timeout:      timeout,
 		Delay:        10 * time.Second,
 		PollInterval: 10 * time.Second,
@@ -847,33 +991,75 @@ func waitForDesktopUserDeleted(ctx context.Context, client *golangsdk.ServiceCli
 	return err
 }
 
+func refreshDesktopUserStatusFunc(client *golangsdk.ServiceClient, userName string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		var (
+			httpUrl  = "v2/{project_id}/users"
+			listOpts = golangsdk.RequestOpts{
+				KeepResponseBody: true,
+				MoreHeaders: map[string]string{
+					"Content-Type": "application/json",
+				},
+			}
+		)
+		listPath := client.Endpoint + httpUrl
+		listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
+		listPath = fmt.Sprintf("%s?user_name=%s", listPath, userName)
+		resp, err := client.Request("GET", listPath, &listOpts)
+		if err != nil {
+			return resp, "ERROR", err
+		}
+		respBody, err := utils.FlattenResponse(resp)
+		if err != nil {
+			return resp, "ERROR", err
+		}
+
+		if len(utils.PathSearch("users", respBody, make([]interface{}, 0)).([]interface{})) < 1 {
+			return resp, "DELETED", nil
+		}
+		return resp, "ACTIVE", nil
+	}
+}
+
 func resourceDesktopDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
-	client, err := conf.WorkspaceV2Client(conf.GetRegion(d))
+	client, err := conf.NewServiceClient("workspace", conf.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating Workspace v2 client: %s", err)
+		return diag.Errorf("error creating Workspace client: %s", err)
 	}
 
-	isDeleteUser := d.Get("delete_user").(bool)
-	opts := desktops.DeleteOpts{
-		DeleteUser:        isDeleteUser,
-		EmailNotification: d.Get("email_notification").(bool),
-	}
-	err = desktops.Delete(client, d.Id(), opts)
+	var (
+		httpUrl      = "v2/{project_id}/desktops/{desktop_id}"
+		desktopId    = d.Id()
+		isDeleteUser = d.Get("delete_user").(bool)
+		opts         = golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			MoreHeaders: map[string]string{
+				"Content-Type": "application/json",
+			},
+		}
+	)
+
+	deletePath := client.Endpoint + httpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = strings.ReplaceAll(deletePath, "{desktop_id}", desktopId)
+	deletePath = fmt.Sprintf("%s?delete_users=%v&email_notification=%v", deletePath, isDeleteUser, d.Get("email_notification").(bool))
+	_, err = client.Request("DELETE", deletePath, &opts)
 	if err != nil {
-		return diag.Errorf("error deleting desktop (%s): %s", d.Id(), err)
+		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error deleting desktop (%s)", desktopId))
 	}
 	// Make sure the desktop has been deleted.
-	err = waitForDesktopDeleted(ctx, client, d.Id(), d.Timeout(schema.TimeoutDelete))
+	err = waitForDesktopDeleted(ctx, client, desktopId, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return diag.Errorf("an error occur when delete desktop: %s", err)
+		return diag.Errorf("unable to delete desktop (%s): %s", desktopId, err)
 	}
+
 	if isDeleteUser {
 		// Make sure the related user has been deleted.
 		userName := d.Get("user_name").(string)
 		err = waitForDesktopUserDeleted(ctx, client, userName, d.Timeout(schema.TimeoutDelete))
 		if err != nil {
-			return diag.Errorf("an error occur when delete user: %s", err)
+			return diag.Errorf("unable to delete user under desktop (%s): %s", desktopId, err)
 		}
 	}
 	return nil

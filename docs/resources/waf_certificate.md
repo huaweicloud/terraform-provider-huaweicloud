@@ -2,7 +2,8 @@
 subcategory: "Web Application Firewall (WAF)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_waf_certificate"
-description: ""
+description: |-
+  Manages a WAF certificate resource within HuaweiCloud.
 ---
 
 # huaweicloud_waf_certificate
@@ -10,15 +11,15 @@ description: ""
 Manages a WAF certificate resource within HuaweiCloud.
 
 -> **NOTE:** All WAF resources depend on WAF instances, and the WAF instances need to be purchased before they can be
-used. The certificate resource can be used in Cloud Mode, Dedicated Mode and ELB Mode.
+used. The certificate resource can be used in Cloud Mode and Dedicated Mode.
 
 ## Example Usage
 
 ```hcl
 variable enterprise_project_id {}
 
-resource "huaweicloud_waf_certificate" "certificate_1" {
-  name                  = "cert_1"
+resource "huaweicloud_waf_certificate" "test" {
+  name                  = "test-name"
   enterprise_project_id = var.enterprise_project_id
   certificate = <<EOT
 -----BEGIN CERTIFICATE-----
@@ -44,11 +45,11 @@ EOT
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) The region in which to create the WAF certificate resource. If omitted, the
-  provider-level region will be used. Changing this setting will push a new certificate.
+* `region` - (Optional, String, ForceNew) Specifies the region in which to create the WAF certificate. If omitted, the
+  provider-level region will be used. Changing this parameter will create a new resource.
 
-* `name` - (Required, String) Specifies the certificate name. The maximum length is 256 characters. Only digits,
-  letters, underscores(`_`), and hyphens(`-`) are allowed.
+* `name` - (Required, String) Specifies the certificate name. The maximum length is `256` characters. Only digits,
+  letters, underscores(_), and hyphens(-) are allowed.
 
 * `certificate` - (Required, String) Specifies the certificate content.
 
@@ -59,6 +60,7 @@ The following arguments are supported:
 replaced with `\n`.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID of WAF certificate.
+  For enterprise users, if omitted, default enterprise project will be used.
   Changing this parameter will create a new resource.
 
 ## Attribute Reference
@@ -67,7 +69,9 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The certificate ID in UUID format.
 
-* `expiration` - Indicates the time when the certificate expires.
+* `created_at` - Indicates the time when the certificate uploaded, in RFC3339 format.
+
+* `expired_at` - Indicates the time when the certificate expires, in RFC3339 format.
 
 ## Import
 
@@ -88,8 +92,8 @@ $ terraform import huaweicloud_waf_certificate.test <id>/<enterprise_project_id>
 Note that the imported state is not identical to your resource definition, due to security reason. The missing
 attributes include `certificate`, and `private_key`. You can ignore changes as below.
 
-```
-resource "huaweicloud_waf_certificate" "certificate_2" {
+```hcl
+resource "huaweicloud_waf_certificate" "test" {
     ...
   lifecycle {
     ignore_changes = [

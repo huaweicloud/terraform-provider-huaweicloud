@@ -165,22 +165,22 @@ The `nodes` block supports:
   The [properties](#job_NodeProperty) structure is documented below.
 
 * `polling_interval` - (Optional, Int) Interval at which node running results are checked.  
-  Unit: second; value range: **1** to **60**.
-  Default value: **10**.
+  Unit: second; value range: `1` to `60`.
+  Default value: `10`.
 
 * `max_execution_time` - (Optional, Int) Maximum execution time of a node.  
   If a node is not executed within the maximum execution time, the node is set to the failed state.  
-  Unit: minute; value range: **5** to **1440**.
-  Default value: **60**.
+  Unit: minute; value range: `5` to `1,440`.
+  Default value: `60`.
 
 * `retry_times` - (Optional, Int) Number of the node retries.  
-  The value ranges from **0** to **5**. **0** indicates no retry.  
-  Default value: **0**.
+  The value ranges from `0` to `5`. `0` indicates no retry.  
+  Default value: `0`.
 
 * `retry_interval` - (Optional, Int) Interval at which a retry is performed upon a failure.  
-  The value ranges from **5** to **120**.  
+  The value ranges from `5` to `120`.  
   Unit: second.  
-  Default value: **120**.
+  Default value: `120`.
 
 * `fail_policy` - (Optional, String) Node failure policy.  
   - **FAIL**: Terminate the execution of the current job.
@@ -245,8 +245,8 @@ The `event_trigger` block supports:
     The default value is **SUSPEND**.
 
 * `concurrent` - (Optional, Int) Number of the concurrently scheduled jobs.  
-  Value range: **1** to **128**.  
-  Default value: **1**.
+  Value range: `1` to `128`.  
+  Default value: `1`.
 
 * `read_policy` - (Optional, String) Access policy.  
   The valid values are as follows:
@@ -398,8 +398,8 @@ The `event` block supports:
     The default value is **SUSPEND**.
 
 * `concurrent` - (Optional, Int) Number of the concurrently scheduled jobs.  
-  Value range: **1** to **128**.  
-  Default value: **1**.
+  Value range: `1` to `128`.  
+  Default value: `1`.
 
 * `read_policy` - (Optional, String) Access policy.  
   The valid values are as follows:
@@ -431,15 +431,15 @@ The `basic_config` block supports:
 * `owner` - (Optional, String) Job owner.
 
 * `priority` - (Optional, Int) Job priority.  
-  The value ranges from **0** to **2**.  
-  **0** indicates a top priority, **1** indicates a medium priority, and **2** indicates a low priority.
-  Default value: **0**.
+  The value ranges from `0` to `2`.  
+  `0` indicates a top priority, `1` indicates a medium priority, and `2` indicates a low priority.
+  Default value: `0`.
 
 * `execute_user` - (Optional, String) Job execution user. The value must be an existing user.
 
 * `instance_timeout` - (Optional, Int) Maximum execution time of a job instance.  
-  Unit: minute; value range: **5** to **1440**.  
-  Default value: **60**.
+  Unit: minute; value range: `5` to `1440`.  
+  Default value: `60`.
 
 * `custom_fields` - (Optional, Map) Custom fields.
 

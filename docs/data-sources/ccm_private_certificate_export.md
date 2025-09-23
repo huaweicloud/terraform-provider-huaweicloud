@@ -2,7 +2,8 @@
 subcategory: "Cloud Certificate Manager (CCM)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_ccm_private_certificate_export"
-description: ""
+description: |
+  Use this data source export a private Certificate within HuaweiCloud.
 ---
 
 # huaweicloud_ccm_private_certificate_export
@@ -14,7 +15,7 @@ Use this data source export a private Certificate within HuaweiCloud.
 ```hcl
 variable "certificate_id" {}
 
-data "huaweicloud_ccm_private_certificate_export" "test3" {
+data "huaweicloud_ccm_private_certificate_export" "test" {
   region         = "cn-north-4"
   type           = "OTHER"
   certificate_id = var.certificate_id
@@ -25,29 +26,29 @@ data "huaweicloud_ccm_private_certificate_export" "test3" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) Specifies the certificate region. Changing this creates a new
-  private certificate resource. Now only support cn-north-4 (china) and ap-southeast-3 (international).
+* `region` - (Optional, String) Specifies the certificate region in which to query the resource.
+  If omitted, the provider-level region will be used.
 
-* `certificate_id` - (Required, String, ForceNew) Specifies the certificate ID of the private certificate
+* `certificate_id` - (Required, String) Specifies the certificate ID of the private certificate
   you want to export.
 
-* `type` - (Required, String, ForceNew) Specifies the Type of the server on which the certificate is installed.
+* `type` - (Required, String) Specifies the type of the server on which the certificate is installed.
   The options are as follows:
-  + **APACHE**: This parameter is recommended if you want to use the certificate for an Apache server.
-  + **NGINX**: This parameter is recommended if you want to use the certificate for an Nginx server.
-  + **OTHER**: This parameter is recommended if you want to download a certificate in PEM format.
-  + **IIS**: This parameter is recommended if you want to use the certificate for an IIS server.
-  + **TOMCAT**: This parameter is recommended if you want to use the certificate for a TOMCAT server.
+  + **APACHE**: Using for apache server.
+  + **NGINX**: Using for nginx server.
+  + **OTHER**: Using for download certificates in PEM format.
+  + **IIS**: Using for Windows server.
+  + **TOMCAT**: Using for tomcat server.
 
-  -> **NOTE:** When the **type** is "IIS" or "TOMCAT" the export certificate file is different everytime.
+  -> The certificate file exported is different each time when `type` is set to **IIS** or **TOMCAT**.
 
-* `sm_standard` - (Optional, String) Specifies the GB/T GMT0009 standard specifications and
-  GB/T GMT0010 standard. When the certificate algorithm is SM2,
-  it is only valid when it is passed in. If it is not passed in, it defaults to false.
+* `sm_standard` - (Optional, String) Specifies whether to use the national secret **GMT0009** and **GMT0010** standard
+  specification. This field is valid only when the certificate algorithm is **SM2**.
+  The sm2 cert only support **OTHER** type. Valid values are **true** and **false**. Defaults to **false**.
 
-* `password` - (Optional, String) Specifies the password used to encrypt the private key. Support the use of uppercase
-  and lowercase English letters, numbers, special characters (such as.+- _ #), etc. The maximum length is 32 bytes.
-  If not passed in, encryption will not be used for export by default.
+* `password` - (Optional, String) Specifies the password used to encrypt the private key. Only uppercase letters,
+  lowercase letters, digits, and special characters (`,.+-_#`) are allowed. The maximum length is 32 bytes.
+  By default, encryption is not used when exporting.
 
 ## Attribute Reference
 
@@ -63,14 +64,14 @@ In addition to all arguments above, the following attributes are exported:
 
 * `enc_private_key` - Indicates the encryption certificate private key in PEM format.
 
-* `enc_sm2_enveloped_key` - Indicates the National Security GMT0009 Standard Specification for Encrypting Private
-  Keys SM2 Digital Envelope.
-  
-* `signed_and_enveloped_data` - Indicates the National Security GMT0010 Standard Specification for
-  Encrypting Private Keys - Signature Digital Envelope.
+* `enc_sm2_enveloped_key` - Indicates the national secret **GMT0009** standard specification SM2 digital envelope for
+  encrypting private key.
 
-* `keystore_pass` - Indicates the keystore password. If argument "password" passed in, it will be empty.
+* `signed_and_enveloped_data` - Indicates the national secret **GMT0010** standard specification signed digital envelope
+  with encrypted private key.
 
-* `server_pfx` - Indicates the certificate file for IIS server. Encoding by base64.
+* `keystore_pass` - Indicates the keystore password. This field is empty when argument `password` is specified.
 
-* `server_jks` - Indicates the certificate file for TOMCAT server. Encoding by base64.
+* `server_pfx` - Indicates the certificate file for **IIS** server. Encoding by base64.
+
+* `server_jks` - Indicates the certificate file for **TOMCAT** server. Encoding by base64.

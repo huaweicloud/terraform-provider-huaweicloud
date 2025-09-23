@@ -31,6 +31,18 @@
                 "computed": true,
                 "forcenew": true
               },
+              "ip_version": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
+              "ipv6_address": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "network_id": {
                 "type": "string",
                 "optional": true,
@@ -39,6 +51,16 @@
               },
               "packet_id": {
                 "type": "number",
+                "computed": true
+              },
+              "policy_document": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "policy_statement": {
+                "type": "string",
+                "optional": true,
                 "computed": true
               },
               "private_domain_name": {
@@ -55,8 +77,7 @@
                   "string"
                 ],
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "service_id": {
                 "type": "string",
@@ -80,7 +101,8 @@
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "vpc_id": {
                 "type": "string",

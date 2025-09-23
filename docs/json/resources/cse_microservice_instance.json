@@ -7,17 +7,26 @@
             "attributes": {
               "admin_pass": {
                 "type": "string",
+                "description": "The user password that used to pass the RBAC control.",
                 "optional": true,
                 "forcenew": true,
                 "sensitive": true
               },
               "admin_user": {
                 "type": "string",
+                "description": "The user name that used to pass the RBAC control.",
                 "optional": true,
+                "forcenew": true
+              },
+              "auth_address": {
+                "type": "string",
+                "description": "The address that used to request the access token.",
+                "required": true,
                 "forcenew": true
               },
               "connect_address": {
                 "type": "string",
+                "description": "The address that used to send requests and manage configuration.",
                 "required": true,
                 "forcenew": true
               },

@@ -34,22 +34,23 @@ resource "huaweicloud_identity_login_policy" "test" {
 The following arguments are supported:
 
 * `account_validity_period` - (Optional, Int) Specifies the validity period (days) to disable users
-  if they have not logged in within the period. Value range: **0–240**.
+  if they have not logged in within the period. The valid value is range from `0` to `240`.
 
 * `custom_info_for_login` - (Optional, String) Specifies the custom information that will be displayed
   upon successful login.
 
 * `lockout_duration` - (Optional, Int) Specifies the duration (minutes) to lock users out.
-  Value range: **15–1440**, defaults to **15**.
+  The valid value is range from `15` to `1440`, defaults to `15`.
 
 * `login_failed_times` - (Optional, Int) Specifies the number of unsuccessful login attempts to lock users out.
-  Value range: **3–10**, defaults to **5**.
+  The valid value is range from `3` to `10`, defaults to `5`.
 
 * `period_with_login_failures` - (Optional, Int) Specifies the period (minutes) to count the number of unsuccessful
-  login attempts. Value range: **15–60**, defaults to **15**.
+  login attempts. The valid value is range from `15` to `60`, defaults to `15`.
   
 * `session_timeout` - (Optional, Int) Specifies the session timeout (minutes) that will apply if you or users created
-  using your account do not perform any operations within a specific period. Value range: **15–1440**, defaults to **60**.
+  using your account do not perform any operations within a specific period.  
+  The valid value is range from `15` to `1,440`, defaults to `60`.
 
 * `show_recent_login_info` - (Optional, Bool) Specifies whether to display last login information upon successful login.
   The value can be **true** or **false**.

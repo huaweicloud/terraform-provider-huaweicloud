@@ -1,0 +1,144 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_ccm_certificate_apply": {
+          "block": {
+            "attributes": {
+              "applicant_email": {
+                "type": "string",
+                "description": "Specifies the email of the applicant.",
+                "required": true,
+                "forcenew": true
+              },
+              "applicant_name": {
+                "type": "string",
+                "description": "Specifies the name of the applicant.",
+                "required": true,
+                "forcenew": true
+              },
+              "applicant_phone": {
+                "type": "string",
+                "description": "Specifies the phone number of the applicant.",
+                "required": true,
+                "forcenew": true
+              },
+              "auto_dns_auth": {
+                "type": "bool",
+                "description": "Specifies whether to push DNS verification information to HuaweiCloud resolution service.",
+                "optional": true,
+                "forcenew": true
+              },
+              "ca_hash_algorithm": {
+                "type": "string",
+                "description": "Specifies the signature algorithm.",
+                "optional": true,
+                "forcenew": true
+              },
+              "certificate_id": {
+                "type": "string",
+                "description": "Specifies the CCM SSL certificate ID.",
+                "required": true,
+                "forcenew": true
+              },
+              "company_city": {
+                "type": "string",
+                "description": "Specifies the city where the company is located.",
+                "optional": true,
+                "forcenew": true
+              },
+              "company_name": {
+                "type": "string",
+                "description": "Specifies the company name.",
+                "optional": true,
+                "forcenew": true
+              },
+              "company_province": {
+                "type": "string",
+                "description": "Specifies the province where the company is located.",
+                "optional": true,
+                "forcenew": true
+              },
+              "company_unit": {
+                "type": "string",
+                "description": "Specifies the department name.",
+                "optional": true,
+                "forcenew": true
+              },
+              "contact_email": {
+                "type": "string",
+                "description": "Specifies the technical contact email.",
+                "optional": true,
+                "forcenew": true
+              },
+              "contact_name": {
+                "type": "string",
+                "description": "Specifies the technical contact name.",
+                "optional": true,
+                "forcenew": true
+              },
+              "contact_phone": {
+                "type": "string",
+                "description": "Specifies the technical contact phone number.",
+                "optional": true,
+                "forcenew": true
+              },
+              "country": {
+                "type": "string",
+                "description": "Specifies the country code.",
+                "optional": true,
+                "forcenew": true
+              },
+              "csr": {
+                "type": "string",
+                "description": "Specifies the certificate CSR string, which must match the domain name.",
+                "optional": true,
+                "forcenew": true
+              },
+              "domain": {
+                "type": "string",
+                "description": "Specifies the domain name bound to the certificate.",
+                "required": true,
+                "forcenew": true
+              },
+              "domain_method": {
+                "type": "string",
+                "description": "Specifies the domain name verification method.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "key_algorithm": {
+                "type": "string",
+                "description": "Specifies the key algorithm.",
+                "optional": true,
+                "forcenew": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region in which to create the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "sans": {
+                "type": "string",
+                "description": "Specifies additional domain names bound to multi-domain type certificates.",
+                "optional": true,
+                "forcenew": true
+              }
+            }
+          },
+          "product": {
+            "short": "CCM",
+            "name": "Cloud Certificate & Manager",
+            "catalog": "Security & Compliance",
+            "name_cn": "云证书与管理服务",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_aom_access_codes": {
+          "block": {
+            "attributes": {
+              "access_codes": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "access_code": "string",
+                      "access_code_id": "string",
+                      "create_at": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the access codes.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "AOM",
+            "name": "Application Operations Management",
+            "catalog": "Management & Governance",
+            "name_cn": "应用运维管理",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

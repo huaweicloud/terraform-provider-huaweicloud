@@ -1,0 +1,87 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_event_system_user_white_lists": {
+          "block": {
+            "attributes": {
+              "data_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "enterprise_project_name": "string",
+                      "host_id": "string",
+                      "host_name": "string",
+                      "private_ip": "string",
+                      "public_ip": "string",
+                      "remarks": "string",
+                      "system_user_name_list": [
+                        "list",
+                        "string"
+                      ],
+                      "update_time": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "host_id": {
+                "type": "string",
+                "optional": true
+              },
+              "host_name": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "limit_num": {
+                "type": "number",
+                "computed": true
+              },
+              "private_ip": {
+                "type": "string",
+                "optional": true
+              },
+              "public_ip": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "remain_num": {
+                "type": "number",
+                "computed": true
+              },
+              "system_user_name": {
+                "type": "string",
+                "optional": true
+              },
+              "total_num": {
+                "type": "number",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

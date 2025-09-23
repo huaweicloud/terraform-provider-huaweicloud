@@ -5,7 +5,17 @@
         "huaweicloud_oms_migration_task": {
           "block": {
             "attributes": {
+              "consistency_check": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
               "description": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
+              "dst_storage_policy": {
                 "type": "string",
                 "optional": true,
                 "forcenew": true
@@ -17,6 +27,16 @@
                 "default": true
               },
               "enable_kms": {
+                "type": "bool",
+                "optional": true,
+                "forcenew": true
+              },
+              "enable_metadata_migration": {
+                "type": "bool",
+                "optional": true,
+                "forcenew": true
+              },
+              "enable_requester_pays": {
                 "type": "bool",
                 "optional": true,
                 "forcenew": true
@@ -40,6 +60,11 @@
                 "type": "string",
                 "computed": true
               },
+              "object_overwrite_mode": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
+              },
               "region": {
                 "type": "string",
                 "computed": true
@@ -52,6 +77,11 @@
               "status": {
                 "type": "number",
                 "computed": true
+              },
+              "task_priority": {
+                "type": "string",
+                "optional": true,
+                "forcenew": true
               },
               "type": {
                 "type": "string",
@@ -130,6 +160,11 @@
                       "optional": true,
                       "forcenew": true
                     },
+                    "message_template_name": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
                     "topic_urn": {
                       "type": "string",
                       "required": true,
@@ -203,12 +238,22 @@
                       "forcenew": true,
                       "default": "Aliyun"
                     },
+                    "json_auth_file": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
                     "list_file_bucket": {
                       "type": "string",
                       "optional": true,
                       "forcenew": true
                     },
                     "list_file_key": {
+                      "type": "string",
+                      "optional": true,
+                      "forcenew": true
+                    },
+                    "list_file_num": {
                       "type": "string",
                       "optional": true,
                       "forcenew": true

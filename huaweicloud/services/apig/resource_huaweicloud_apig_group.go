@@ -29,6 +29,8 @@ import (
 // @API APIG POST /v2/{project_id}/apigw/instances/{instance_id}/api-groups/{group_id}/domains
 // @API APIG DELETE /v2/{project_id}/apigw/instances/{instance_id}/api-groups/{group_id}/domains/{domain_id}
 // @API APIG PUT /v2/{project_id}/apigw/instances/{instance_id}/api-groups/{group_id}/sl-domain-access-settings
+// @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/apis
+// @API APIG POST /v2/{project_id}/apigw/instances/{instance_id}/apis/publish
 func ResourceApigGroupV2() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceGroupCreate,
@@ -112,31 +114,62 @@ func ResourceApigGroupV2() *schema.Resource {
 			"url_domains": {
 				Type:     schema.TypeSet,
 				Optional: true,
+				Computed: true,
 				MaxItems: 5,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
 							Type:     schema.TypeString,
 							Required: true,
+							Description: utils.SchemaDesc(
+								`The associated domain name.`,
+								utils.SchemaDescInput{
+									Computed: true,
+								},
+							),
 						},
 						"min_ssl_version": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
+							Description: utils.SchemaDesc(
+								`The minimum SSL protocol version.`,
+								utils.SchemaDescInput{
+									Computed: true,
+								},
+							),
 						},
 						"is_http_redirect_to_https": {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Computed: true,
+							Description: utils.SchemaDesc(
+								`Whether to enable redirection from HTTP to HTTPS.`,
+								utils.SchemaDescInput{
+									Computed: true,
+								},
+							),
 						},
 					},
 				},
+				Description: utils.SchemaDesc(
+					`The associated domain information of the group.`,
+					utils.SchemaDescInput{
+						Computed: true,
+					},
+				),
 			},
 			"domain_access_enabled": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Default:     true,
+				Computed:    true,
 				Description: "Specifies whether to use the debugging domain name to access the APIs within the group.",
+			},
+			"force_destroy": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Computed:    true,
+				Description: "Whether to delete all sub-resources (for API) from this group.",
 			},
 			"created_at": {
 				Type:        schema.TypeString,
@@ -345,6 +378,7 @@ func resourceGroupRead(_ context.Context, d *schema.ResourceData, meta interface
 		d.Set("description", resp.Description),
 		d.Set("url_domains", flattenUrlDomain(resp.UrlDomians)),
 		d.Set("domain_access_enabled", resp.SlDomainAccessEnabled),
+		d.Set("force_destroy", d.Get("force_destroy")),
 		d.Set("created_at", resp.RegistraionTime),
 		d.Set("updated_at", resp.UpdateTime),
 		// Deprecated attributes
@@ -512,13 +546,123 @@ func resourceGroupUpdate(ctx context.Context, d *schema.ResourceData, meta inter
 	return resourceGroupRead(ctx, d, meta)
 }
 
+func queryApisInGroup(client *golangsdk.ServiceClient, instanceId, groupId string) ([]interface{}, error) {
+	var (
+		httpUrl = "v2/{project_id}/apigw/instances/{instance_id}/apis?group_id={group_id}&limit=500"
+		offset  = 0
+		result  = make([]interface{}, 0)
+	)
+	listPath := client.Endpoint + httpUrl
+	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
+	listPath = strings.ReplaceAll(listPath, "{instance_id}", instanceId)
+	listPath = strings.ReplaceAll(listPath, "{group_id}", groupId)
+
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+	}
+
+	for {
+		listPathWithOffsset := fmt.Sprintf("%s&offset=%d", listPath, offset)
+		requestResp, err := client.Request("GET", listPathWithOffsset, &opt)
+		if err != nil {
+			return nil, fmt.Errorf("error querying API list: %s", err)
+		}
+		respBody, err := utils.FlattenResponse(requestResp)
+		if err != nil {
+			return nil, err
+		}
+		apiRecords := utils.PathSearch("apis", respBody, make([]interface{}, 0)).([]interface{})
+		if len(apiRecords) < 1 {
+			break
+		}
+		result = append(result, apiRecords...)
+		offset += len(apiRecords)
+	}
+	return result, nil
+}
+
+func parsePublishInfo(apiRecords []interface{}) map[string][]interface{} {
+	result := make(map[string][]interface{})
+	for _, apiRecord := range apiRecords {
+		apiId := utils.PathSearch("id", apiRecord, "").(string)
+		if apiId == "" {
+			log.Printf("[ERROR] The API ID field is missing.")
+			continue
+		}
+		publishedEnvs := utils.PathSearch("run_env_id", apiRecord, "").(string)
+		for _, env := range strings.Split(strings.TrimSpace(publishedEnvs), "|") {
+			if _, ok := result[env]; ok {
+				result[env] = append(result[env], apiId)
+				continue
+			}
+			result[env] = []interface{}{apiId}
+		}
+	}
+	return result
+}
+
+func batchUnpublishApis(client *golangsdk.ServiceClient, instanceId, envId string, apiIds []interface{}) error {
+	httpUrl := "v2/{project_id}/apigw/instances/{instance_id}/apis/publish?action=offline"
+	unpublishPath := client.Endpoint + httpUrl
+	unpublishPath = strings.ReplaceAll(unpublishPath, "{project_id}", client.ProjectID)
+	unpublishPath = strings.ReplaceAll(unpublishPath, "{instance_id}", instanceId)
+
+	opt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+		JSONBody: map[string]interface{}{
+			"apis":   apiIds,
+			"env_id": envId,
+		},
+	}
+
+	_, err := client.Request("POST", unpublishPath, &opt)
+	return err
+}
+
+func forceUnpublishApis(client *golangsdk.ServiceClient, instanceId, groupId string) error {
+	apiRecords, err := queryApisInGroup(client, instanceId, groupId)
+	if err != nil {
+		return err
+	}
+	// Unpublish first if they have published APIs.
+	for envId, unpublishApiIds := range parsePublishInfo(apiRecords) {
+		if err = batchUnpublishApis(client, instanceId, envId, unpublishApiIds); err != nil {
+			log.Printf("[ERROR] Error unpublishing API from environment (%s): %s", envId, err)
+		}
+	}
+	// Remove all APIs.
+	for _, apiId := range utils.PathSearch("[*].id", apiRecords, make([]interface{}, 0)).([]interface{}) {
+		if err = deleteApi(client, instanceId, apiId.(string)); err != nil {
+			log.Printf("[ERROR] Error deleting API (%s): %s", apiId, err)
+		}
+	}
+	return nil
+}
+
 func resourceGroupDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	client, err := cfg.ApigV2Client(cfg.GetRegion(d))
+	var (
+		cfg        = meta.(*config.Config)
+		region     = cfg.GetRegion(d)
+		groupId    = d.Id()
+		instanceId = d.Get("instance_id").(string)
+	)
+	client, err := cfg.ApigV2Client(region)
 	if err != nil {
 		return diag.Errorf("error creating APIG v2 client: %s", err)
 	}
-	instanceId := d.Get("instance_id").(string)
+
+	if d.Get("force_destroy").(bool) {
+		if err = forceUnpublishApis(client, instanceId, groupId); err != nil {
+			log.Printf("[ERROR] Unable to clean the sub-resources (for API) under group (%s): %s", groupId, err)
+		}
+	}
+
 	err = apigroups.Delete(client, instanceId, d.Id()).ExtractErr()
 	if err != nil {
 		return diag.Errorf("error deleting group from the instance (%s): %s", instanceId, err)

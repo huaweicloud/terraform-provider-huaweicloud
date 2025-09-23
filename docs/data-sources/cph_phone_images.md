@@ -2,7 +2,8 @@
 subcategory: "Cloud Phone (CPH)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_cph_phone_images"
-description: ""
+description: |-
+  Use this data source to get available images of CPH phone.
 ---
 
 # huaweicloud_cph_phone_images
@@ -11,7 +12,7 @@ Use this data source to get available images of CPH phone.
 
 ## Example Usage
 
-```
+```hcl
 data "huaweicloud_cph_phone_images" "images" {
   is_public = 1
 }
@@ -26,8 +27,8 @@ The following arguments are supported:
 
 * `is_public` - (Optional, Int) The image type.  
   The options are as follows:
-    - **1**: Public image.
-    - **2**: Private image.
+  + **1**: Public image.
+  + **2**: Private image.
 
 * `image_label` - (Optional, String) The label of image.  
   The valid values are **cloud_phone**, **cloud_game**, **qemu_phone**, **cloud_phone_1620**, and **cloud_game_1620**.
@@ -54,8 +55,8 @@ The `Images` block supports:
 
 * `is_public` - The image type.  
   The options are as follows:
-    - **1**: Public image.
-    - **2**: Private image.
+  + **1**: Public image.
+  + **2**: Private image.
 
 * `image_label` - The label of the image.  
   The valid values are **cloud_phone**, **cloud_game**, **qemu_phone**, **cloud_phone_1620**, and **cloud_game_1620**.

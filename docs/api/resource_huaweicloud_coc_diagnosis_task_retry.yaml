@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_coc_diagnosis_task_retry
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: COC
+paths:
+    /v1/diagnosis/tasks/{task_id}/retry:
+        POST:
+            tag: COC

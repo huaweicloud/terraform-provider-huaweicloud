@@ -62,6 +62,6 @@ In addition to all arguments above, the following attributes are exported:
 
 Keypairs can be imported using the `name`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_compute_keypair.my-keypair test-keypair
 ```

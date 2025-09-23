@@ -1,0 +1,45 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dws_public_domain_associate": {
+          "block": {
+            "attributes": {
+              "cluster_id": {
+                "type": "string",
+                "description": "Specifies the DWS cluster ID to which the public domain name to be associated belongs.",
+                "required": true,
+                "forcenew": true
+              },
+              "domain_name": {
+                "type": "string",
+                "description": "Specifies the public domain name.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "ttl": {
+                "type": "number",
+                "description": "Specifies cache period of the SOA record set, in seconds.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "DWS",
+            "name": "Data Warehouse Service",
+            "catalog": "Analytics",
+            "name_cn": "数据仓库服务",
+            "catalog_cn": "大数据"
+          }
+        }
+      }
+    }
+  }
+}

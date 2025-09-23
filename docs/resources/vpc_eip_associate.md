@@ -90,6 +90,6 @@ This resource provides the following timeouts configuration options:
 
 EIP associations can be imported using the `id` of the EIP, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_vpc_eip_associate.eip 2c7f39f3-702b-48d1-940c-b50384177ee1
 ```

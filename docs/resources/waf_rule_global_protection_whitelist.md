@@ -2,7 +2,8 @@
 subcategory: "Web Application Firewall (WAF)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_waf_rule_global_protection_whitelist"
-description: ""
+description: |-
+  Manages a WAF global protection whitelist rule resource within HuaweiCloud.
 ---
 
 # huaweicloud_waf_rule_global_protection_whitelist
@@ -10,7 +11,7 @@ description: ""
 Manages a WAF global protection whitelist rule resource within HuaweiCloud.
 
 -> **NOTE:** All WAF resources depend on WAF instances, and the WAF instances need to be purchased before they can be
-used. The global protection whitelist rule resource can be used in Cloud Mode, Dedicated Mode.
+used. The global protection whitelist rule resource can be used in Cloud Mode and Dedicated Mode.
 
 ## Example Usage
 
@@ -78,7 +79,7 @@ The following arguments are supported:
 
 * `domains` - (Required, List) Specifies the protected domain name bound with the policy or manually enter a single
   domain name corresponding to the wildcard domain name.
-  If the array length is 0, the rule takes effect for all domain names or websites.
+  If the array length is `0`, the rule takes effect for all domain names or websites.
 
 * `ignore_waf_protection` - (Required, String) Specifies the rules that need to be ignored. You can provide multiple
   items and separate them with semicolons (;).
@@ -117,10 +118,10 @@ The following arguments are supported:
 
 * `status` - (Optional, Int) Specifies the status of WAF global protection whitelist rule.
   Valid values are as follows:
-  + **0**: Disabled.
-  + **1**: Enabled.
+  + `0`: Disabled.
+  + `1`: Enabled.
 
-  The default value is **1**.
+  The default value is `1`.
 
 <a name="RuleGlobalProtectionWhitelist_conditions"></a>
 The `conditions` block supports:

@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -16,6 +15,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
+
+var workspaceIdNotFound = "DLG.0818"
 
 // @API DataArtsStudio POST /v2/{project_id}/design/approvals/users
 // @API DataArtsStudio GET /v2/{project_id}/design/approvals/users
@@ -97,11 +98,11 @@ func resourceArchitectureReviewerCreate(ctx context.Context, d *schema.ResourceD
 		return diag.FromErr(err)
 	}
 
-	userName, err := jmespath.Search("data.value.user_name", createReviewerBody)
-	if err != nil {
-		return diag.Errorf("error creating DataArts Studio architecture Reviewer: user_name is not found in API response")
+	userName := utils.PathSearch("data.value.user_name", createReviewerBody, "").(string)
+	if userName == "" {
+		return diag.Errorf("unable to find the user name of the DataArts Studio architecture reviewer from the API response")
 	}
-	d.SetId(userName.(string))
+	d.SetId(userName)
 
 	return resourceArchitectureReviewerRead(ctx, d, meta)
 }
@@ -146,7 +147,8 @@ func resourceArchitectureReviewerRead(_ context.Context, d *schema.ResourceData,
 	}
 	getArchitectureReviewerResp, err := getArchitectureReviewerClient.Request("GET", getArchitectureReviewerPath, &getArchitectureReviewerOpt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "DataArts Studio architecture reviewer")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "errors|[0].error_code", workspaceIdNotFound),
+			"DataArts Studio architecture reviewer")
 	}
 
 	getArchitectureReviewerRespBody, err := utils.FlattenResponse(getArchitectureReviewerResp)

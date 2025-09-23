@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_fgs_vpc_endpoint
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: FunctionGraph
+paths:
+    /v2/{project_id}/fgs/vpc-endpoint:
+        POST:
+            tag: FunctionGraph
+    /v2/{project_id}/fgs/vpc-endpoint/{vpc_id}/{subnet_id}:
+        DELETE:
+            tag: FunctionGraph

@@ -49,7 +49,7 @@ The following arguments are supported:
   provider-level region will be used. Changing this creates a new DIS Stream resource.
 
 * `retention_period` - (Optional, Int, ForceNew) The number of hours for which data from the stream will be retained in DIS.
-  Value range: **24** to **72**. Unit: **hour**. Default:**24**. Changing this parameter will create a new resource.
+  Value range: `24` to `72`. Unit: **hour**. Default:`24`. Changing this parameter will create a new resource.
 
 * `data_type` - (Optional, String, ForceNew) Data type of the data putting into the stream. The value is one of **BLOB**,
   **JSON** and **CSV**. Changing this parameter will create a new resource.
@@ -106,6 +106,6 @@ The `partitions` block contains:
 
 Dis stream can be imported by `stream_name`. For example,
 
-```
+```bash
 terraform import huaweicloud_dis_stream.example _abc123
 ```

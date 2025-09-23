@@ -2,7 +2,8 @@
 subcategory: "GaussDB(DWS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_dws_event_subscription"
-description: ""
+description: |-
+  Manages a GaussDB(DWS) event subscription resource within HuaweiCloud.  
 ---
 
 # huaweicloud_dws_event_subscription
@@ -74,5 +75,5 @@ In addition to all arguments above, the following attributes are exported:
 The DWS event subscription can be imported using the `id`, e.g.
 
 ```bash
-$ terraform import huaweicloud_dws_event_subscription.test 535d9c3c-e135-4a6f-bcbf-4db51446f471
+$ terraform import huaweicloud_dws_event_subscription.test <id>
 ```

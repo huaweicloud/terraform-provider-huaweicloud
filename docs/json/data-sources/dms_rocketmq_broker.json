@@ -19,10 +19,12 @@
               },
               "instance_id": {
                 "type": "string",
+                "description": "The ID of the rocketMQ instance.",
                 "required": true
               },
               "region": {
                 "type": "string",
+                "description": "The region where the RocketMQ brokers are located.",
                 "computed": true
               }
             }

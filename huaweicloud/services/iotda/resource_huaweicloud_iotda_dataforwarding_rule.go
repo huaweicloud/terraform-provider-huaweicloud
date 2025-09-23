@@ -3,9 +3,8 @@ package iotda
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
-	"log"
-	"regexp"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -13,8 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	iotdav5 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5"
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iotda/v5/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -51,10 +49,6 @@ func ResourceDataForwardingRule() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(1, 256),
-					validation.StringMatch(regexp.MustCompile(stringRegxp), stringFormatMsg),
-				),
 			},
 
 			"trigger": {
@@ -86,21 +80,16 @@ func ResourceDataForwardingRule() *schema.Resource {
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ValidateFunc: validation.All(
-					validation.StringLenBetween(0, 256),
-				),
 			},
 
 			"select": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringLenBetween(0, 500),
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 
 			"where": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringLenBetween(0, 500),
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 
 			"space_id": {
@@ -199,15 +188,6 @@ func ResourceDataForwardingRule() *schema.Resource {
 										Type:     schema.TypeString,
 										Optional: true,
 										Computed: true,
-										ValidateFunc: validation.All(
-											validation.StringLenBetween(0, 256),
-											validation.StringMatch(regexp.MustCompile(`^[A-Za-z-_0-9/{}]*$`),
-												"Only letters, digits, hyphens (-), underscores (_), slash (/)"+
-													" and braces ({}) are allowed"),
-											validation.StringDoesNotMatch(regexp.MustCompile(`^/|/$|//`),
-												"Can not start or end with slashes (/), and cannot contain more than"+
-													" two adjacent slashes (/)"),
-										),
 									},
 								},
 							},
@@ -317,161 +297,662 @@ func ResourceDataForwardingRule() *schema.Resource {
 	}
 }
 
-func ResourceDataForwardingRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	region := c.GetRegion(d)
-	isDerived := WithDerivedAuth(c, region)
-	client, err := c.HcIoTdaV5Client(region, isDerived)
-	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+func buildCreateDataForwardingRuleBodyParams(d *schema.ResourceData) map[string]interface{} {
+	rst := map[string]interface{}{
+		"rule_name":   d.Get("name"),
+		"description": utils.ValueIgnoreEmpty(d.Get("description")),
+		"select":      utils.ValueIgnoreEmpty(d.Get("select")),
+		"where":       utils.ValueIgnoreEmpty(d.Get("where")),
+		"app_id":      utils.ValueIgnoreEmpty(d.Get("space_id")),
 	}
 
-	projectId := c.RegionProjectIDMap[region]
-	createOpts := buildDataForwardingRuleCreateParams(d)
-	log.Printf("[DEBUG] Create IoTDA data forwarding rule params: %#v", createOpts)
+	triggers := strings.SplitN(d.Get("trigger").(string), ":", 2)
+	if len(triggers) == 2 {
+		rst["subject"] = map[string]interface{}{
+			"resource": triggers[0],
+			"event":    triggers[1],
+		}
+	}
 
-	resp, err := client.CreateRoutingRule(createOpts)
+	return rst
+}
+
+func createRoutingRule(client *golangsdk.ServiceClient, d *schema.ResourceData) (interface{}, error) {
+	requestPath := client.Endpoint + "v5/iot/{project_id}/routing-rule/rules"
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildCreateDataForwardingRuleBodyParams(d)),
+	}
+
+	resp, err := client.Request("POST", requestPath, &requestOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(resp)
+}
+
+func buildChannelDetailHttpForwardingBodyParams(rawMap map[string]interface{}) (map[string]interface{}, error) {
+	forward := rawMap["http_forwarding"].([]interface{})
+	if len(forward) == 0 {
+		return nil, errors.New("http_forwarding is Required when the target type is HTTP_FORWARDING")
+	}
+
+	fMap := forward[0].(map[string]interface{})
+	return map[string]interface{}{
+		"http_forwarding": map[string]interface{}{
+			"url": fMap["url"],
+		},
+	}, nil
+}
+
+func buildChannelDetailProjectId(fMap map[string]interface{}, projectId string) string {
+	if rawValue := fMap["project_id"].(string); rawValue != "" {
+		return rawValue
+	}
+
+	return projectId
+}
+
+func buildChannelDetailDisForwardingBodyParams(rawMap map[string]interface{}, projectId string) (map[string]interface{}, error) {
+	forward := rawMap["dis_forwarding"].([]interface{})
+	if len(forward) == 0 {
+		return nil, errors.New("dis_forwarding is Required when the target type is DIS_FORWARDING")
+	}
+
+	fMap := forward[0].(map[string]interface{})
+	return map[string]interface{}{
+		"dis_forwarding": map[string]interface{}{
+			"region_name": fMap["region"],
+			"project_id":  buildChannelDetailProjectId(fMap, projectId),
+			"stream_id":   fMap["stream_id"],
+		},
+	}, nil
+}
+
+func buildChannelDetailObsForwardingBodyParams(rawMap map[string]interface{}, projectId string) (map[string]interface{}, error) {
+	forward := rawMap["obs_forwarding"].([]interface{})
+	if len(forward) == 0 {
+		return nil, errors.New("obs_forwarding is Required when the target type is OBS_FORWARDING")
+	}
+
+	fMap := forward[0].(map[string]interface{})
+	return map[string]interface{}{
+		"obs_forwarding": map[string]interface{}{
+			"region_name": fMap["region"],
+			"project_id":  buildChannelDetailProjectId(fMap, projectId),
+			"bucket_name": fMap["bucket"],
+			"file_path":   utils.ValueIgnoreEmpty(fMap["custom_directory"]),
+		},
+	}, nil
+}
+
+func buildChannelDetailAmqpForwardingBodyParams(rawMap map[string]interface{}) (map[string]interface{}, error) {
+	forward := rawMap["amqp_forwarding"].([]interface{})
+	if len(forward) == 0 {
+		return nil, errors.New("amqp_forwarding is Required when the target type is AMQP_FORWARDING")
+	}
+
+	fMap := forward[0].(map[string]interface{})
+	return map[string]interface{}{
+		"amqp_forwarding": map[string]interface{}{
+			"queue_name": fMap["queue_name"],
+		},
+	}, nil
+}
+
+func buildChannelDetailKafkaForwardingBodyParams(rawMap map[string]interface{}, projectId string) (map[string]interface{}, error) {
+	forward := rawMap["kafka_forwarding"].([]interface{})
+	if len(forward) == 0 {
+		return nil, errors.New("kafka_forwarding is Required when the target type is DMS_KAFKA_FORWARDING")
+	}
+
+	fMap := forward[0].(map[string]interface{})
+	addressesRaw := fMap["addresses"].([]interface{})
+	addresses := make([]interface{}, len(addressesRaw))
+	for i, item := range addressesRaw {
+		itemMap := item.(map[string]interface{})
+		addresses[i] = map[string]interface{}{
+			"ip":     itemMap["ip"],
+			"port":   itemMap["port"],
+			"domain": itemMap["domain"],
+		}
+	}
+
+	return map[string]interface{}{
+		"dms_kafka_forwarding": map[string]interface{}{
+			"region_name": fMap["region"],
+			"project_id":  buildChannelDetailProjectId(fMap, projectId),
+			"topic":       fMap["topic"],
+			"username":    fMap["user_name"],
+			"password":    fMap["password"],
+			"addresses":   addresses,
+		},
+	}, nil
+}
+
+func buildChannelDetailFgsForwardingBodyParams(rawMap map[string]interface{}) (map[string]interface{}, error) {
+	forward := rawMap["fgs_forwarding"].([]interface{})
+	if len(forward) == 0 {
+		return nil, errors.New("fgs_forwarding is Required when the target type is FUNCTIONGRAPH_FORWARDING")
+	}
+
+	fMap := forward[0].(map[string]interface{})
+	return map[string]interface{}{
+		"functiongraph_forwarding": map[string]interface{}{
+			"func_urn":  fMap["func_urn"],
+			"func_name": fMap["func_name"],
+		},
+	}, nil
+}
+
+func buildActionChannelDetailBodyParams(rawMap map[string]interface{}, projectId string) (map[string]interface{}, error) {
+	switch rawMap["type"].(string) {
+	case "HTTP_FORWARDING":
+		return buildChannelDetailHttpForwardingBodyParams(rawMap)
+	case "DIS_FORWARDING":
+		return buildChannelDetailDisForwardingBodyParams(rawMap, projectId)
+	case "OBS_FORWARDING":
+		return buildChannelDetailObsForwardingBodyParams(rawMap, projectId)
+	case "AMQP_FORWARDING":
+		return buildChannelDetailAmqpForwardingBodyParams(rawMap)
+	case "DMS_KAFKA_FORWARDING":
+		return buildChannelDetailKafkaForwardingBodyParams(rawMap, projectId)
+	case "FUNCTIONGRAPH_FORWARDING":
+		return buildChannelDetailFgsForwardingBodyParams(rawMap)
+	}
+
+	return nil, fmt.Errorf("the target type %s is not support", rawMap["type"].(string))
+}
+
+func buildCreateRuleActionBodyParams(rawMap map[string]interface{}, ruleId, projectId string) (map[string]interface{}, error) {
+	channelDetailBodyParam, err := buildActionChannelDetailBodyParams(rawMap, projectId)
+	if err != nil {
+		return nil, err
+	}
+
+	rst := map[string]interface{}{
+		"rule_id":        ruleId,
+		"channel":        rawMap["type"],
+		"channel_detail": channelDetailBodyParam,
+	}
+
+	return rst, nil
+}
+
+func createRuleAction(client *golangsdk.ServiceClient, targetMap map[string]interface{}, ruleId string) error {
+	bodyParams, err := buildCreateRuleActionBodyParams(targetMap, ruleId, client.ProjectID)
+	if err != nil {
+		return err
+	}
+
+	requestPath := client.Endpoint + "v5/iot/{project_id}/routing-rule/actions"
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(bodyParams),
+	}
+
+	_, err = client.Request("POST", requestPath, &requestOpt)
+	return err
+}
+
+func createRuleActions(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	targets := d.Get("targets").(*schema.Set).List()
+	for _, v := range targets {
+		rawMap := v.(map[string]interface{})
+		if err := createRuleAction(client, rawMap, d.Id()); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func enableRoutingRule(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	requestPath := client.Endpoint + "v5/iot/{project_id}/routing-rule/rules/{rule_id}"
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{rule_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"active": true,
+		},
+	}
+
+	_, err := client.Request("PUT", requestPath, &requestOpt)
+	return err
+}
+
+func ResourceDataForwardingRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		product = "iotda"
+	)
+
+	isDerived := WithDerivedAuth(cfg, region)
+	client, err := cfg.NewServiceClientWithDerivedAuth(product, region, isDerived)
+	if err != nil {
+		return diag.Errorf("error creating IoTDA client: %s", err)
+	}
+
+	respBody, err := createRoutingRule(client, d)
 	if err != nil {
 		return diag.Errorf("error creating IoTDA data forwarding rule: %s", err)
 	}
 
-	if resp.RuleId == nil {
-		return diag.Errorf("error creating IoTDA data forwarding rule: id is not found in API response")
+	ruleId := utils.PathSearch("rule_id", respBody, "").(string)
+	if ruleId == "" {
+		return diag.Errorf("error creating IoTDA data forwarding rule: ID is not found in API response")
 	}
 
-	d.SetId(*resp.RuleId)
-	m := d.Get("targets").(*schema.Set)
-	// create action rule
-	targets, err := buildActionTargets(m.List(), d.Id(), projectId)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	for i := range targets {
-		_, err := client.CreateRuleAction(&targets[i])
-		if err != nil {
-			return diag.Errorf("error add targets to IoTDA data forwarding rule: %s", err)
+	d.SetId(ruleId)
+
+	if _, ok := d.GetOk("targets"); ok {
+		if err := createRuleActions(client, d); err != nil {
+			return diag.Errorf("error creating IoTDA data forwarding rule actions in creation operation: %s", err)
 		}
 	}
 
-	// enable forwarding
 	if d.Get("enabled").(bool) {
-		_, err = client.UpdateRoutingRule(&model.UpdateRoutingRuleRequest{
-			RuleId: d.Id(),
-			Body: &model.UpdateRuleReq{
-				Active: utils.Bool(true),
-			},
-		})
-		if err != nil {
-			return diag.Errorf("error activing the IoTDA data forwarding rule: %s", err)
+		if err := enableRoutingRule(client, d); err != nil {
+			return diag.Errorf("error activating the IoTDA data forwarding rule: %s", err)
 		}
 	}
 
 	return ResourceDataForwardingRuleRead(ctx, d, meta)
 }
 
-func ResourceDataForwardingRuleRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	region := c.GetRegion(d)
-	isDerived := WithDerivedAuth(c, region)
-	client, err := c.HcIoTdaV5Client(region, isDerived)
-	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+func flattenTriggerAttribute(respBody interface{}) string {
+	subject := utils.PathSearch("subject", respBody, nil)
+	if subject == nil {
+		return ""
 	}
 
-	response, err := client.ShowRoutingRule(&model.ShowRoutingRuleRequest{RuleId: d.Id()})
+	resource := utils.PathSearch("resource", subject, "").(string)
+	event := utils.PathSearch("event", subject, "").(string)
+	return fmt.Sprintf("%s:%s", resource, event)
+}
+
+func buildRuleActionsQueryParams(ruleID, marker string) string {
+	rst := fmt.Sprintf("?rule_id=%s", ruleID)
+	if marker != "" {
+		rst += fmt.Sprintf("&marker=%s", marker)
+	}
+
+	return rst
+}
+
+func queryRuleActions(client *golangsdk.ServiceClient, d *schema.ResourceData) ([]interface{}, error) {
+	var (
+		httpUrl    = "v5/iot/{project_id}/routing-rule/actions"
+		allActions []interface{}
+		marker     string
+	)
+
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	for {
+		requestPathWithMarker := requestPath + buildRuleActionsQueryParams(d.Id(), marker)
+		resp, err := client.Request("GET", requestPathWithMarker, &requestOpt)
+		if err != nil {
+			return nil, err
+		}
+
+		respBody, err := utils.FlattenResponse(resp)
+		if err != nil {
+			return nil, err
+		}
+
+		actions := utils.PathSearch("actions", respBody, make([]interface{}, 0)).([]interface{})
+		if len(actions) == 0 {
+			break
+		}
+
+		allActions = append(allActions, actions...)
+		marker = utils.PathSearch("marker", respBody, "").(string)
+		if marker == "" {
+			break
+		}
+	}
+
+	return allActions, nil
+}
+
+func queryDataForwardingRules(client *golangsdk.ServiceClient, d *schema.ResourceData) (interface{}, error) {
+	requestPath := client.Endpoint + "v5/iot/{project_id}/routing-rule/rules/{rule_id}"
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{rule_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	resp, err := client.Request("GET", requestPath, &requestOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(resp)
+}
+
+func flattenTargetsHttpForwarding(actionId, channel string, httpForwarding interface{}) map[string]interface{} {
+	return map[string]interface{}{
+		"id":   actionId,
+		"type": channel,
+		"http_forwarding": []interface{}{
+			map[string]interface{}{
+				"url": utils.PathSearch("url", httpForwarding, nil),
+			},
+		},
+	}
+}
+
+func flattenTargetsDisForwarding(actionId, channel string, disForwarding interface{}) map[string]interface{} {
+	return map[string]interface{}{
+		"id":   actionId,
+		"type": channel,
+		"dis_forwarding": []interface{}{
+			map[string]interface{}{
+				"region":     utils.PathSearch("region_name", disForwarding, nil),
+				"project_id": utils.PathSearch("project_id", disForwarding, nil),
+				"stream_id":  utils.PathSearch("stream_id", disForwarding, nil),
+			},
+		},
+	}
+}
+
+func flattenTargetsObsForwarding(actionId, channel string, obsForwarding interface{}) map[string]interface{} {
+	return map[string]interface{}{
+		"id":   actionId,
+		"type": channel,
+		"obs_forwarding": []interface{}{
+			map[string]interface{}{
+				"region":           utils.PathSearch("region_name", obsForwarding, nil),
+				"project_id":       utils.PathSearch("project_id", obsForwarding, nil),
+				"bucket":           utils.PathSearch("bucket_name", obsForwarding, nil),
+				"custom_directory": utils.PathSearch("file_path", obsForwarding, nil),
+			},
+		},
+	}
+}
+
+func flattenTargetsAmqpForwarding(actionId, channel string, amqpForwarding interface{}) map[string]interface{} {
+	return map[string]interface{}{
+		"id":   actionId,
+		"type": channel,
+		"amqp_forwarding": []interface{}{
+			map[string]interface{}{
+				"queue_name": utils.PathSearch("queue_name", amqpForwarding, nil),
+			},
+		},
+	}
+}
+
+func flattenDmsKafkaForwardingAddresses(addresses []interface{}) []interface{} {
+	rst := make([]interface{}, len(addresses))
+	for i, v := range addresses {
+		rst[i] = map[string]interface{}{
+			"ip":     utils.PathSearch("ip", v, nil),
+			"port":   utils.PathSearch("port", v, nil),
+			"domain": utils.PathSearch("domain", v, nil),
+		}
+	}
+
+	return rst
+}
+
+func flattenTargetsDmsKafkaForwarding(actionId, channel string, dmsKafkaForwarding interface{}) map[string]interface{} {
+	addresses := utils.PathSearch("addresses", dmsKafkaForwarding, make([]interface{}, 0)).([]interface{})
+	return map[string]interface{}{
+		"id":   actionId,
+		"type": channel,
+		"kafka_forwarding": []interface{}{
+			map[string]interface{}{
+				"region":     utils.PathSearch("region_name", dmsKafkaForwarding, nil),
+				"project_id": utils.PathSearch("project_id", dmsKafkaForwarding, nil),
+				"topic":      utils.PathSearch("topic", dmsKafkaForwarding, nil),
+				"user_name":  utils.PathSearch("username", dmsKafkaForwarding, nil),
+				"addresses":  flattenDmsKafkaForwardingAddresses(addresses),
+			},
+		},
+	}
+}
+
+func flattenTargetsFunctionGraphForwarding(actionId, channel string, functionGraphForwarding interface{}) map[string]interface{} {
+	return map[string]interface{}{
+		"id":   actionId,
+		"type": channel,
+		"fgs_forwarding": []interface{}{
+			map[string]interface{}{
+				"func_urn":  utils.PathSearch("func_urn", functionGraphForwarding, nil),
+				"func_name": utils.PathSearch("func_name", functionGraphForwarding, nil),
+			},
+		},
+	}
+}
+
+func flattenTargetsAttribute(allActions []interface{}) []interface{} {
+	rst := make([]interface{}, 0, len(allActions))
+	for _, v := range allActions {
+		channel := utils.PathSearch("channel", v, "").(string)
+		channelDetail := utils.PathSearch("channel_detail", v, nil)
+		if channel == "" || channelDetail == nil {
+			continue
+		}
+
+		actionId := utils.PathSearch("action_id", v, "").(string)
+		switch channel {
+		case "HTTP_FORWARDING":
+			httpForwarding := utils.PathSearch("http_forwarding", channelDetail, nil)
+			if httpForwarding != nil {
+				rst = append(rst, flattenTargetsHttpForwarding(actionId, channel, httpForwarding))
+			}
+		case "DIS_FORWARDING":
+			disForwarding := utils.PathSearch("dis_forwarding", channelDetail, nil)
+			if disForwarding != nil {
+				rst = append(rst, flattenTargetsDisForwarding(actionId, channel, disForwarding))
+			}
+		case "OBS_FORWARDING":
+			obsForwarding := utils.PathSearch("obs_forwarding", channelDetail, nil)
+			if obsForwarding != nil {
+				rst = append(rst, flattenTargetsObsForwarding(actionId, channel, obsForwarding))
+			}
+		case "AMQP_FORWARDING":
+			amqpForwarding := utils.PathSearch("amqp_forwarding", channelDetail, nil)
+			if amqpForwarding != nil {
+				rst = append(rst, flattenTargetsAmqpForwarding(actionId, channel, amqpForwarding))
+			}
+		case "DMS_KAFKA_FORWARDING":
+			dmsKafkaForwarding := utils.PathSearch("dms_kafka_forwarding", channelDetail, nil)
+			if dmsKafkaForwarding != nil {
+				rst = append(rst, flattenTargetsDmsKafkaForwarding(actionId, channel, dmsKafkaForwarding))
+			}
+		case "FUNCTIONGRAPH_FORWARDING":
+			functionGraphForwarding := utils.PathSearch("functiongraph_forwarding", channelDetail, nil)
+			if functionGraphForwarding != nil {
+				rst = append(rst, flattenTargetsFunctionGraphForwarding(actionId, channel, functionGraphForwarding))
+			}
+		}
+	}
+
+	return rst
+}
+
+func ResourceDataForwardingRuleRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		product = "iotda"
+	)
+
+	isDerived := WithDerivedAuth(cfg, region)
+	client, err := cfg.NewServiceClientWithDerivedAuth(product, region, isDerived)
+	if err != nil {
+		return diag.Errorf("error creating IoTDA client: %s", err)
+	}
+
+	respBody, err := queryDataForwardingRules(client, d)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving IoTDA data forwarding rule")
 	}
 
+	allActions, err := queryRuleActions(client, d)
+	if err != nil {
+		return diag.Errorf("error retrieving IoTDA rule actions: %s", err)
+	}
+
 	mErr := multierror.Append(
 		d.Set("region", region),
-		d.Set("name", response.RuleName),
-		d.Set("trigger", flattenTrigger(response.Subject)),
-		d.Set("description", response.Description),
-		d.Set("select", response.Select),
-		d.Set("where", response.Where),
-		d.Set("enabled", response.Active),
-		d.Set("space_id", response.AppId),
-		setTargetsToState(d, client, d.Id()),
+		d.Set("name", utils.PathSearch("rule_name", respBody, nil)),
+		d.Set("trigger", flattenTriggerAttribute(respBody)),
+		d.Set("description", utils.PathSearch("description", respBody, nil)),
+		d.Set("select", utils.PathSearch("select", respBody, nil)),
+		d.Set("where", utils.PathSearch("where", respBody, nil)),
+		d.Set("enabled", utils.PathSearch("active", respBody, nil)),
+		d.Set("space_id", utils.PathSearch("app_id", respBody, nil)),
+		d.Set("targets", flattenTargetsAttribute(allActions)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func ResourceDataForwardingRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	region := c.GetRegion(d)
-	isDerived := WithDerivedAuth(c, region)
-	client, err := c.HcIoTdaV5Client(region, isDerived)
-	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+func deleteRuleAction(client *golangsdk.ServiceClient, actionId string) error {
+	requestPath := client.Endpoint + "v5/iot/{project_id}/routing-rule/actions/{action_id}"
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{action_id}", actionId)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
 	}
 
-	projectId := c.RegionProjectIDMap[region]
+	_, err := client.Request("DELETE", requestPath, &requestOpt)
+	return err
+}
+
+func deleteRuleActions(client *golangsdk.ServiceClient, delRaws []interface{}) error {
+	for _, v := range delRaws {
+		ruleAction := v.(map[string]interface{})
+		err := deleteRuleAction(client, ruleAction["id"].(string))
+		if err != nil {
+			// When the action ID does not exist, the API response status code is `404`.
+			var errDefault404 golangsdk.ErrDefault404
+			if errors.As(err, &errDefault404) {
+				continue
+			}
+
+			return fmt.Errorf("error deleting IoTDA data forwarding rule action: %s", err)
+		}
+	}
+
+	return nil
+}
+
+func buildUpdateRuleActionBodyParams(rawMap map[string]interface{}, projectId string) (map[string]interface{}, error) {
+	channelDetailBodyParam, err := buildActionChannelDetailBodyParams(rawMap, projectId)
+	if err != nil {
+		return nil, err
+	}
+
+	rst := map[string]interface{}{
+		"channel":        rawMap["type"],
+		"channel_detail": channelDetailBodyParam,
+	}
+
+	return rst, nil
+}
+
+func updateRuleAction(client *golangsdk.ServiceClient, targetMap map[string]interface{}, actionId string) error {
+	bodyParams, err := buildUpdateRuleActionBodyParams(targetMap, client.ProjectID)
+	if err != nil {
+		return err
+	}
+
+	requestPath := client.Endpoint + "v5/iot/{project_id}/routing-rule/actions/{action_id}"
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{action_id}", actionId)
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(bodyParams),
+	}
+
+	_, err = client.Request("PUT", requestPath, &requestOpt)
+	return err
+}
+
+func createOrUpdateRuleActions(client *golangsdk.ServiceClient, raws []interface{}, ruleId string) error {
+	for _, v := range raws {
+		rawMap := v.(map[string]interface{})
+		if id, ok := rawMap["id"]; ok && len(id.(string)) > 0 {
+			if err := updateRuleAction(client, rawMap, id.(string)); err != nil {
+				return fmt.Errorf("error updating IoTDA data forwarding rule action: %s", err)
+			}
+		} else {
+			if err := createRuleAction(client, rawMap, ruleId); err != nil {
+				return fmt.Errorf("error creating IoTDA data forwarding rule action in update operation: %s", err)
+			}
+		}
+	}
+
+	return nil
+}
+
+func buildUpdateRoutingRuleBodyParams(d *schema.ResourceData) map[string]interface{} {
+	return map[string]interface{}{
+		"rule_name":   d.Get("name"),
+		"description": utils.ValueIgnoreEmpty(d.Get("description")),
+		"select":      utils.ValueIgnoreEmpty(d.Get("select")),
+		"where":       utils.ValueIgnoreEmpty(d.Get("where")),
+		"active":      d.Get("enabled"),
+	}
+}
+
+func updateRoutingRule(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	requestPath := client.Endpoint + "v5/iot/{project_id}/routing-rule/rules/{rule_id}"
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{rule_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         utils.RemoveNil(buildUpdateRoutingRuleBodyParams(d)),
+	}
+
+	_, err := client.Request("PUT", requestPath, &requestOpt)
+	return err
+}
+
+func ResourceDataForwardingRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		product = "iotda"
+	)
+
+	isDerived := WithDerivedAuth(cfg, region)
+	client, err := cfg.NewServiceClientWithDerivedAuth(product, region, isDerived)
+	if err != nil {
+		return diag.Errorf("error creating IoTDA client: %s", err)
+	}
 
 	if d.HasChange("targets") {
 		o, n := d.GetChange("targets")
-		oldTargetSet := o.(*schema.Set)
-		newTargetSet := n.(*schema.Set)
+		oSet := o.(*schema.Set)
+		nSet := n.(*schema.Set)
 
-		// delete
-		for _, v := range oldTargetSet.Difference(newTargetSet).List() {
-			ruleAction := v.(map[string]interface{})
-			_, err = client.DeleteRuleAction(&model.DeleteRuleActionRequest{ActionId: ruleAction["id"].(string)})
-			if err != nil {
-				return diag.Errorf("error updating targets of IoTDA data forwarding rule: %s", err)
-			}
+		if err := deleteRuleActions(client, oSet.Difference(nSet).List()); err != nil {
+			return diag.FromErr(err)
 		}
 
-		// add and update
-		for _, v := range newTargetSet.List() {
-			target := v.(map[string]interface{})
-			channel := target["type"].(string)
-			channelDetail, err := buildChannelDetail(target, channel, projectId)
-			if err != nil {
-				return diag.FromErr(err)
-			}
-
-			if id, ok := target["id"]; ok && len(id.(string)) > 0 {
-				_, err = client.UpdateRuleAction(&model.UpdateRuleActionRequest{
-					ActionId: id.(string),
-					Body: &model.UpdateActionReq{
-						Channel:       &channel,
-						ChannelDetail: channelDetail,
-					},
-				})
-				if err != nil {
-					return diag.Errorf("error updating targets of IoTDA data forwarding rule: %s", err)
-				}
-			} else {
-				_, err = client.CreateRuleAction(&model.CreateRuleActionRequest{
-					Body: &model.AddActionReq{
-						RuleId:        d.Id(),
-						Channel:       channel,
-						ChannelDetail: channelDetail,
-					},
-				})
-				if err != nil {
-					return diag.Errorf("error updating targets of IoTDA data forwarding rule: %s", err)
-				}
-			}
+		if err := createOrUpdateRuleActions(client, nSet.List(), d.Id()); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
-	// This update must be the last
 	if d.HasChanges("name", "description", "select", "where", "enabled") {
-		_, err = client.UpdateRoutingRule(&model.UpdateRoutingRuleRequest{
-			RuleId: d.Id(),
-			Body: &model.UpdateRuleReq{
-				RuleName:    utils.String(d.Get("name").(string)),
-				Description: utils.StringIgnoreEmpty(d.Get("description").(string)),
-				Select:      utils.StringIgnoreEmpty(d.Get("select").(string)),
-				Where:       utils.StringIgnoreEmpty(d.Get("where").(string)),
-				Active:      utils.Bool(d.Get("enabled").(bool)),
-			},
-		})
-
-		if err != nil {
+		if err := updateRoutingRule(client, d); err != nil {
 			return diag.Errorf("error updating IoTDA data forwarding rule: %s", err)
 		}
 	}
@@ -479,323 +960,39 @@ func ResourceDataForwardingRuleUpdate(ctx context.Context, d *schema.ResourceDat
 	return ResourceDataForwardingRuleRead(ctx, d, meta)
 }
 
+func deleteRoutingRule(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	requestPath := client.Endpoint + "v5/iot/{project_id}/routing-rule/rules/{rule_id}"
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{rule_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	_, err := client.Request("DELETE", requestPath, &requestOpt)
+	return err
+}
+
 func ResourceDataForwardingRuleDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*config.Config)
-	region := c.GetRegion(d)
-	isDerived := WithDerivedAuth(c, region)
-	client, err := c.HcIoTdaV5Client(region, isDerived)
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		product = "iotda"
+	)
+
+	isDerived := WithDerivedAuth(cfg, region)
+	client, err := cfg.NewServiceClientWithDerivedAuth(product, region, isDerived)
 	if err != nil {
-		return diag.Errorf("error creating IoTDA v5 client: %s", err)
+		return diag.Errorf("error creating IoTDA client: %s", err)
 	}
 
-	// delete targets
 	targets := d.Get("targets").(*schema.Set)
-	for _, v := range targets.List() {
-		ruleAction := v.(map[string]interface{})
-		_, err = client.DeleteRuleAction(&model.DeleteRuleActionRequest{ActionId: ruleAction["id"].(string)})
-		if err != nil {
-			return diag.Errorf("error deleting targets of IoTDA data forwarding rule: %s", err)
-		}
+	if err := deleteRuleActions(client, targets.List()); err != nil {
+		return diag.FromErr(err)
 	}
 
-	// delete data forwarding
-	deleteOpts := &model.DeleteRoutingRuleRequest{RuleId: d.Id()}
-	_, err = client.DeleteRoutingRule(deleteOpts)
-	if err != nil {
-		return diag.Errorf("error deleting IoTDA data forwarding rule: %s", err)
+	if err := deleteRoutingRule(client, d); err != nil {
+		return common.CheckDeletedDiag(d, err, "error deleting IoTDA data forwarding rule")
 	}
 
 	return nil
-}
-
-func buildDataForwardingRuleCreateParams(d *schema.ResourceData) *model.CreateRoutingRuleRequest {
-	triggers := strings.SplitN(d.Get("trigger").(string), ":", 2)
-	req := model.CreateRoutingRuleRequest{
-		Body: &model.AddRuleReq{
-			RuleName:    utils.String(d.Get("name").(string)),
-			Description: utils.StringIgnoreEmpty(d.Get("description").(string)),
-			Select:      utils.StringIgnoreEmpty(d.Get("select").(string)),
-			Where:       utils.StringIgnoreEmpty(d.Get("where").(string)),
-			AppId:       utils.StringIgnoreEmpty(d.Get("space_id").(string)),
-			Subject: &model.RoutingRuleSubject{
-				Resource: triggers[0],
-				Event:    triggers[1],
-			},
-		},
-	}
-	return &req
-}
-
-func buildActionTargets(raw []interface{}, ruleId, projectId string) ([]model.CreateRuleActionRequest, error) {
-	rst := make([]model.CreateRuleActionRequest, len(raw))
-	for i, v := range raw {
-		target := v.(map[string]interface{})
-		channel := target["type"].(string)
-		channelDetail, err := buildChannelDetail(target, channel, projectId)
-		if err != nil {
-			return nil, err
-		}
-		rst[i] = model.CreateRuleActionRequest{
-			Body: &model.AddActionReq{
-				RuleId:        ruleId,
-				Channel:       channel,
-				ChannelDetail: channelDetail,
-			},
-		}
-	}
-
-	return rst, nil
-}
-
-func buildChannelDetail(target map[string]interface{}, channel, projectId string) (*model.ChannelDetail, error) {
-	switch channel {
-	case "HTTP_FORWARDING":
-		forward := target["http_forwarding"].([]interface{})
-		if len(forward) == 0 {
-			return nil, fmt.Errorf("http_forwarding is Required when the target type is HTTP_FORWARDING")
-		}
-		f := forward[0].(map[string]interface{})
-		d := model.ChannelDetail{
-			HttpForwarding: &model.HttpForwarding{
-				Url: f["url"].(string),
-			},
-		}
-		return &d, nil
-
-	case "DIS_FORWARDING":
-		forward := target["dis_forwarding"].([]interface{})
-		if len(forward) == 0 {
-			return nil, fmt.Errorf("dis_forwarding is Required when the target type is DIS_FORWARDING")
-		}
-		f := forward[0].(map[string]interface{})
-		projectIdStr := f["project_id"].(string)
-		if projectIdStr == "" {
-			projectIdStr = projectId
-		}
-		d := model.ChannelDetail{
-			DisForwarding: &model.DisForwarding{
-				RegionName: f["region"].(string),
-				ProjectId:  projectIdStr,
-				StreamId:   utils.String(f["stream_id"].(string)),
-			},
-		}
-		return &d, nil
-
-	case "OBS_FORWARDING":
-		forward := target["obs_forwarding"].([]interface{})
-		if len(forward) == 0 {
-			return nil, fmt.Errorf("obs_forwarding is Required when the target type is OBS_FORWARDING")
-		}
-		f := forward[0].(map[string]interface{})
-		projectIdStr := f["project_id"].(string)
-		if projectIdStr == "" {
-			projectIdStr = projectId
-		}
-		d := model.ChannelDetail{
-			ObsForwarding: &model.ObsForwarding{
-				RegionName: f["region"].(string),
-				ProjectId:  projectIdStr,
-				BucketName: f["bucket"].(string),
-				FilePath:   utils.StringIgnoreEmpty(f["custom_directory"].(string)),
-			},
-		}
-		return &d, nil
-
-	case "AMQP_FORWARDING":
-		forward := target["amqp_forwarding"].([]interface{})
-		if len(forward) == 0 {
-			return nil, fmt.Errorf("amqp_forwarding is Required when the target type is AMQP_FORWARDING")
-		}
-		f := forward[0].(map[string]interface{})
-		d := model.ChannelDetail{
-			AmqpForwarding: &model.AmqpForwarding{
-				QueueName: f["queue_name"].(string),
-			},
-		}
-		return &d, nil
-
-	case "DMS_KAFKA_FORWARDING":
-		forward := target["kafka_forwarding"].([]interface{})
-		if len(forward) == 0 {
-			return nil, fmt.Errorf("kafka_forwarding is Required when the target type is DMS_KAFKA_FORWARDING")
-		}
-		f := forward[0].(map[string]interface{})
-		addressesRaw := f["addresses"].([]interface{})
-		addresses := make([]model.NetAddress, len(addressesRaw))
-		for i, item := range addressesRaw {
-			item := item.(map[string]interface{})
-			addresses[i] = model.NetAddress{
-				Ip:     utils.String(item["ip"].(string)),
-				Port:   utils.Int32(int32(item["port"].(int))),
-				Domain: utils.String(item["domain"].(string)),
-			}
-		}
-
-		projectIdStr := f["project_id"].(string)
-		if projectIdStr == "" {
-			projectIdStr = projectId
-		}
-		d := model.ChannelDetail{
-			DmsKafkaForwarding: &model.DmsKafkaForwarding{
-				RegionName: f["region"].(string),
-				ProjectId:  projectIdStr,
-				Topic:      f["topic"].(string),
-				Username:   utils.String(f["user_name"].(string)),
-				Password:   utils.String(f["password"].(string)),
-				Addresses:  addresses,
-			},
-		}
-		return &d, nil
-
-	case "FUNCTIONGRAPH_FORWARDING":
-		forward := target["fgs_forwarding"].([]interface{})
-		if len(forward) == 0 {
-			return nil, fmt.Errorf("fgs_forwarding is Required when the target type is FUNCTIONGRAPH_FORWARDING")
-		}
-		f := forward[0].(map[string]interface{})
-		d := model.ChannelDetail{
-			FunctiongraphForwarding: &model.FunctionGraphForwarding{
-				FuncUrn:  f["func_urn"].(string),
-				FuncName: f["func_name"].(string),
-			},
-		}
-		return &d, nil
-
-	default:
-		return nil, fmt.Errorf("the target type is %q is not support", channel)
-	}
-}
-
-func setTargetsToState(d *schema.ResourceData, client *iotdav5.IoTDAClient, id string) error {
-	var rst []model.RoutingRuleAction
-	var marker *string
-	for {
-		resp, err := client.ListRuleActions(&model.ListRuleActionsRequest{RuleId: utils.String(id), Marker: marker})
-		if err != nil {
-			return fmt.Errorf("error setting the targets: %s", err)
-		}
-		if resp.Actions == nil || len(*resp.Actions) == 0 {
-			break
-		}
-		rst = append(rst, *resp.Actions...)
-		marker = resp.Marker
-	}
-
-	return d.Set("targets", flattenTargets(rst))
-}
-
-func flattenTargets(s []model.RoutingRuleAction) []interface{} {
-	rst := make([]interface{}, len(s))
-	for i, v := range s {
-		switch *v.Channel {
-		case "HTTP_FORWARDING":
-			if v.ChannelDetail != nil && v.ChannelDetail.HttpForwarding != nil {
-				rst[i] = map[string]interface{}{
-					"id":   v.ActionId,
-					"type": v.Channel,
-					"http_forwarding": []interface{}{
-						map[string]interface{}{
-							"url": v.ChannelDetail.HttpForwarding.Url,
-						},
-					},
-				}
-			}
-		case "DIS_FORWARDING":
-			if v.ChannelDetail != nil && v.ChannelDetail.DisForwarding != nil {
-				rst[i] = map[string]interface{}{
-					"id":   v.ActionId,
-					"type": v.Channel,
-					"dis_forwarding": []interface{}{
-						map[string]interface{}{
-							"region":     v.ChannelDetail.DisForwarding.RegionName,
-							"project_id": v.ChannelDetail.DisForwarding.ProjectId,
-							"stream_id":  v.ChannelDetail.DisForwarding.StreamId,
-						},
-					},
-				}
-			}
-		case "OBS_FORWARDING":
-			if v.ChannelDetail != nil && v.ChannelDetail.ObsForwarding != nil {
-				rst[i] = map[string]interface{}{
-					"id":   v.ActionId,
-					"type": v.Channel,
-					"obs_forwarding": []interface{}{
-						map[string]interface{}{
-							"region":           v.ChannelDetail.ObsForwarding.RegionName,
-							"project_id":       v.ChannelDetail.ObsForwarding.ProjectId,
-							"bucket":           v.ChannelDetail.ObsForwarding.BucketName,
-							"custom_directory": v.ChannelDetail.ObsForwarding.FilePath,
-						},
-					},
-				}
-			}
-		case "AMQP_FORWARDING":
-			if v.ChannelDetail != nil && v.ChannelDetail.AmqpForwarding != nil {
-				rst[i] = map[string]interface{}{
-					"id":   v.ActionId,
-					"type": v.Channel,
-					"amqp_forwarding": []interface{}{
-						map[string]interface{}{
-							"queue_name": v.ChannelDetail.AmqpForwarding.QueueName,
-						},
-					},
-				}
-			}
-		case "DMS_KAFKA_FORWARDING":
-			if v.ChannelDetail != nil && v.ChannelDetail.DmsKafkaForwarding != nil {
-				rst[i] = map[string]interface{}{
-					"id":   v.ActionId,
-					"type": v.Channel,
-					"kafka_forwarding": []interface{}{
-						map[string]interface{}{
-							"region":     v.ChannelDetail.DmsKafkaForwarding.RegionName,
-							"project_id": v.ChannelDetail.DmsKafkaForwarding.ProjectId,
-							"topic":      v.ChannelDetail.DmsKafkaForwarding.Topic,
-							"user_name":  v.ChannelDetail.DmsKafkaForwarding.Username,
-							"addresses":  flattenAddress(v.ChannelDetail.DmsKafkaForwarding.Addresses),
-						},
-					},
-				}
-			}
-		case "FUNCTIONGRAPH_FORWARDING":
-			if v.ChannelDetail != nil && v.ChannelDetail.FunctiongraphForwarding != nil {
-				rst[i] = map[string]interface{}{
-					"id":   v.ActionId,
-					"type": v.Channel,
-					"fgs_forwarding": []interface{}{
-						map[string]interface{}{
-							"func_urn":  v.ChannelDetail.FunctiongraphForwarding.FuncUrn,
-							"func_name": v.ChannelDetail.FunctiongraphForwarding.FuncName,
-						},
-					},
-				}
-			}
-		}
-	}
-
-	return rst
-}
-
-func flattenAddress(s []model.NetAddress) []interface{} {
-	rst := make([]interface{}, len(s))
-	for i, v := range s {
-		var port *int
-		if v.Port != nil {
-			p := int(*v.Port)
-			port = &p
-		}
-		rst[i] = map[string]interface{}{
-			"ip":     v.Ip,
-			"port":   port,
-			"domain": v.Domain,
-		}
-	}
-	return rst
-}
-
-func flattenTrigger(routingRuleSubject *model.RoutingRuleSubject) string {
-	if routingRuleSubject != nil {
-		return fmt.Sprintf("%s:%s", routingRuleSubject.Resource, routingRuleSubject.Event)
-	}
-	return ""
 }

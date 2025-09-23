@@ -21,6 +21,9 @@ paths:
             tag: CES
         POST:
             tag: CES
+    /v2/{project_id}/alarms/{alarm_id}/notifications:
+        PUT:
+            tag: CES
     /v2/{project_id}/alarms/{id}/policies:
         PUT:
             tag: CES

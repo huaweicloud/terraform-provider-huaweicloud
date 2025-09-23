@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -155,12 +154,12 @@ func resourceSecurityPermissionSetPrivilegeCreate(ctx context.Context, d *schema
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("id", respBody)
-	if err != nil {
-		return diag.Errorf("error creating DataArts Security permission set privilege: ID is not found in API response")
+	privilegeId := utils.PathSearch("id", respBody, "").(string)
+	if privilegeId == "" {
+		return diag.Errorf("unable to find the privilege ID of the DataArts Security permission set from the API response")
 	}
 
-	d.SetId(id.(string))
+	d.SetId(privilegeId)
 	return resourceSecurityPermissionSetPrivilegeRead(ctx, d, meta)
 }
 
@@ -197,7 +196,7 @@ func GetPrivilegeById(client *golangsdk.ServiceClient, workspaceId, permissionSe
 		path := fmt.Sprintf("%s&offset=%v", getPath, currentTotal)
 		resp, err := client.Request("GET", path, &opts)
 		if err != nil {
-			return nil, ParseQueryError400(err, PermissionSetPrivilegeResourceNotFoundCodes)
+			return nil, common.ConvertExpected400ErrInto404Err(err, "error_code", PermissionSetPrivilegeResourceNotFoundCodes...)
 		}
 
 		respBody, err := utils.FlattenResponse(resp)
@@ -231,7 +230,7 @@ func resourceSecurityPermissionSetPrivilegeRead(_ context.Context, d *schema.Res
 
 	respBody, err := GetPrivilegeById(client, d.Get("workspace_id").(string), d.Get("permission_set_id").(string), d.Id())
 	if err != nil {
-		return common.CheckDeletedDiag(d, ParseQueryError400(err, PermissionSetPrivilegeResourceNotFoundCodes),
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", PermissionSetPrivilegeResourceNotFoundCodes...),
 			"DataArts Security permission set privilege")
 	}
 

@@ -1,0 +1,21 @@
+info:
+    version: ""
+    title: resource_huaweicloud_gaussdb_opengauss_schema
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: GaussDB
+paths:
+    /v3/{project_id}/instances:
+        GET:
+            tag: GaussDB
+    /v3/{project_id}/instances/{instance_id}/schema:
+        DELETE:
+            tag: GaussDB
+        POST:
+            tag: GaussDB
+    /v3/{project_id}/instances/{instance_id}/schemas:
+        GET:
+            tag: GaussDB

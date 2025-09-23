@@ -12,7 +12,7 @@ Use this data source to get the list of DBSS flavors.
 ## Example Usage
 
 ```hcl
-data "huaweicloud_dbss_flavors" test {
+data "huaweicloud_dbss_flavors" "test" {
   level = "high"
 }
 ```

@@ -33,9 +33,6 @@ func getConnectionHealthCheckResourceFunc(cfg *config.Config, state *terraform.R
 
 	getConnectionHealthCheckOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
 	getConnectionHealthCheckResp, err := getConnectionHealthCheckClient.Request("GET", getConnectionHealthCheckPath, &getConnectionHealthCheckOpt)
 	if err != nil {

@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dms_rabbitmq_queue_message_clear
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: RabbitMQ
+paths:
+    /v2/rabbitmq/{project_id}/instances/{instance_id}/vhosts/{vhost}/queues/{queue}/contents:
+        DELETE:
+            tag: RabbitMQ

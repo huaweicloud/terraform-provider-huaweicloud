@@ -45,7 +45,7 @@
                 "optional": true
               },
               "protect_status": {
-                "type": "number",
+                "type": "string",
                 "optional": true
               },
               "region": {

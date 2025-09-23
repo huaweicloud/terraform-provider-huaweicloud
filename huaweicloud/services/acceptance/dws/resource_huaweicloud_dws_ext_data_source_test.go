@@ -9,7 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/dws/v1/cluster"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
@@ -76,7 +75,10 @@ func TestAccDwsExtDataSource_basic(t *testing.T) {
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckDwsClusterId(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
@@ -84,8 +86,8 @@ func TestAccDwsExtDataSource_basic(t *testing.T) {
 				Config: testDwsExtDataSource_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
-					resource.TestCheckResourceAttrPair(rName, "cluster_id", "huaweicloud_dws_cluster.test", "id"),
-					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "cluster_id", acceptance.HW_DWS_CLUSTER_ID),
+					resource.TestCheckResourceAttrPair(rName, "name", "huaweicloud_mapreduce_cluster.test", "name"),
 					resource.TestCheckResourceAttr(rName, "type", "MRS"),
 					resource.TestCheckResourceAttr(rName, "user_name", "admin"),
 					resource.TestCheckResourceAttrPair(rName, "data_source_id", "huaweicloud_mapreduce_cluster.test", "id"),
@@ -110,35 +112,40 @@ func TestAccDwsExtDataSource_basic(t *testing.T) {
 func testDwsExtDataSource_basic(name string) string {
 	pwd := acceptance.RandomPassword()
 	return fmt.Sprintf(`
-%s
-
-%s
+%[1]s
 
 resource "huaweicloud_dws_ext_data_source" "test" {
-  cluster_id     = huaweicloud_dws_cluster.test.id
-  name           = "%s"
+  cluster_id     = "%[2]s"
+  name           = huaweicloud_mapreduce_cluster.test.name
   type           = "MRS"
   data_source_id = huaweicloud_mapreduce_cluster.test.id
   user_name      = "admin"
-  user_pwd       = "%s"
+  user_pwd       = "%[3]s"
   description    = "This is a demo"
 }
-`, testAccDwsCluster_basic(name, 3, cluster.PublicBindTypeNotUse, pwd, "bar"),
-		testDwsExtDataSourceMrs(name, pwd), name, pwd)
+`, testDwsExtDataSourceMrs(name, pwd), acceptance.HW_DWS_CLUSTER_ID, pwd)
 }
 
 func testDwsExtDataSourceMrs(rName, pwd string) string {
 	return fmt.Sprintf(`
+data "huaweicloud_availability_zones" "test" {}
+
+# For MRS data source, the DWS cluster and MRS cluster must be in the same VPC.
+data "huaweicloud_dws_clusters" "test" {}
+
+locals {
+  dws_cluster_info = [for v in data.huaweicloud_dws_clusters.test.clusters : v if v.id == "%[1]s"]
+}
 
 resource "huaweicloud_mapreduce_cluster" "test" {
   availability_zone  = data.huaweicloud_availability_zones.test.names[0]
-  name               = "%s"
+  name               = "%[2]s"
   type               = "ANALYSIS"
   version            = "MRS 1.9.2"
-  manager_admin_pass = "%s"
-  node_admin_pass    = "%s"
-  subnet_id          = huaweicloud_vpc_subnet.test.id
-  vpc_id             = huaweicloud_vpc.test.id
+  manager_admin_pass = "%[3]s"
+  node_admin_pass    = "%[3]s"
+  subnet_id          = try(local.dws_cluster_info[0].subnet_id, "")
+  vpc_id             = try(local.dws_cluster_info[0].vpc_id, "")
   component_list     = ["Hadoop", "Hive", "Tez"]
 
   master_nodes {
@@ -168,7 +175,80 @@ resource "huaweicloud_mapreduce_cluster" "test" {
     data_volume_size  = 600
     data_volume_count = 1
   }
-}`, rName, pwd, pwd)
+}`, acceptance.HW_DWS_CLUSTER_ID, rName, pwd)
+}
+
+func getAgencyNames() (agencyName, updateAgencyName string) {
+	agencyNames := strings.Split(acceptance.HW_DWS_OBS_AGENCY_NAMES, ",")
+	if len(agencyNames) < 2 {
+		return "", ""
+	}
+	return agencyNames[0], agencyNames[1]
+}
+
+func TestAccDwsExtDataSource_obs(t *testing.T) {
+	var (
+		obj                          interface{}
+		name                         = acceptance.RandomAccResourceName()
+		rName                        = "huaweicloud_dws_ext_data_source.test"
+		agencyName, updateAgencyName = getAgencyNames()
+	)
+
+	rc := acceptance.InitResourceCheck(
+		rName,
+		&obj,
+		getDwsExtDataSourceResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckDwsClusterId(t)
+			acceptance.TestAccPreCheckDwsExtDataSourceAgencyNames(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testDwsExtDataSource_obs(name, agencyName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "cluster_id", acceptance.HW_DWS_CLUSTER_ID),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "type", "OBS"),
+					resource.TestCheckResourceAttr(rName, "user_name", agencyName),
+					resource.TestCheckResourceAttr(rName, "connect_info", "gaussdb"),
+					resource.TestCheckResourceAttr(rName, "description", "Created by terraform script"),
+				),
+			},
+			{
+				Config: testDwsExtDataSource_obs(name, updateAgencyName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "user_name", updateAgencyName),
+				),
+			},
+			{
+				ResourceName:      rName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testDwsExtDataSourceImportState(rName),
+			},
+		},
+	})
+}
+
+func testDwsExtDataSource_obs(name, agencyName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_dws_ext_data_source" "test" {
+  cluster_id   = "%[1]s"
+  name         = "%[2]s"
+  type         = "OBS"
+  user_name    = "%[3]s"
+  connect_info = "gaussdb"
+  description  = "Created by terraform script"
+}
+`, acceptance.HW_DWS_CLUSTER_ID, name, agencyName)
 }
 
 func testDwsExtDataSourceImportState(name string) resource.ImportStateIdFunc {

@@ -8,31 +8,45 @@ import (
 )
 
 // TagsSchema returns the schema to use for tags.
-func TagsSchema() *schema.Schema {
-	return &schema.Schema{
+func TagsSchema(description ...string) *schema.Schema {
+	schemaObj := schema.Schema{
 		Type:     schema.TypeMap,
 		Optional: true,
+		Computed: true,
 		Elem:     &schema.Schema{Type: schema.TypeString},
 	}
+	if len(description) > 0 {
+		schemaObj.Description = description[0]
+	}
+	return &schemaObj
 }
 
-// TagsForceNewSchema returns the schema to use for tags with ForceNew
-func TagsForceNewSchema() *schema.Schema {
-	return &schema.Schema{
+// TagsForceNewSchema returns the schema to use for tags with ForceNew behavior.
+func TagsForceNewSchema(description ...string) *schema.Schema {
+	schemaObj := schema.Schema{
 		Type:     schema.TypeMap,
 		Optional: true,
 		ForceNew: true,
+		Computed: true,
 		Elem:     &schema.Schema{Type: schema.TypeString},
 	}
+	if len(description) > 0 {
+		schemaObj.Description = description[0]
+	}
+	return &schemaObj
 }
 
-// TagsComputedSchema returns the schema to use for tags as an attribute
-func TagsComputedSchema() *schema.Schema {
-	return &schema.Schema{
+// TagsComputedSchema returns the schema to use for tags as an attribute.
+func TagsComputedSchema(description ...string) *schema.Schema {
+	schemaObj := schema.Schema{
 		Type:     schema.TypeMap,
 		Computed: true,
 		Elem:     &schema.Schema{Type: schema.TypeString},
 	}
+	if len(description) > 0 {
+		schemaObj.Description = description[0]
+	}
+	return &schemaObj
 }
 
 func SchemaChargingMode(conflicts []string) *schema.Schema {

@@ -49,7 +49,19 @@
               "hosts": {
                 "type": [
                   "list",
-                  "string"
+                  [
+                    "object",
+                    {
+                      "domains": [
+                        "list",
+                        "string"
+                      ],
+                      "external_host": "string",
+                      "instance_id": "string",
+                      "instance_name": "string",
+                      "intranet_host": "string"
+                    }
+                  ]
                 ],
                 "description": "The API host configuration, for exclusive type.",
                 "computed": true
@@ -321,8 +333,7 @@
                           "example_value": {
                             "type": "string",
                             "description": "The example value of the response parameter.",
-                            "optional": true,
-                            "computed": true
+                            "optional": true
                           },
                           "field": {
                             "type": "string",

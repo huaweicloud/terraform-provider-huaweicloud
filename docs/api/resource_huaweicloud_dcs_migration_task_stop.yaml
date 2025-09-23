@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dcs_migration_task_stop
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DCS
+paths:
+    /v2/{project_id}/migration-task/{task_id}:
+        GET:
+            tag: DCS
+    /v2/{project_id}/migration-task/{task_id}/stop:
+        POST:
+            tag: DCS

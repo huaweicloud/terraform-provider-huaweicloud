@@ -66,7 +66,7 @@ The following arguments are supported:
   + If the route type is **ecs**, the value is an ECS instance ID in the VPC.
   + If the route type is **eni**, the value is the extension NIC of an ECS in the VPC.
   + If the route type is **vip**, the value is a virtual IP address.
-  + If the route type is **nat**, the value is a VPN gateway ID.
+  + If the route type is **nat**, the value is a NAT gateway ID.
   + If the route type is **peering**, the value is a VPC peering connection ID.
   + If the route type is **vpn**, the value is a VPN gateway ID.
   + If the route type is **dc**, the value is a Direct Connect gateway ID.
@@ -75,7 +75,7 @@ The following arguments are supported:
   + If the route type is **er**, the value is a ER instance ID.
 
 * `description` - (Optional, String) Specifies the supplementary information about the route.
-  The value is a string of no more than 255 characters and cannot contain angle brackets (< or >).
+  The value is a string of no more than `255` characters and cannot contain angle brackets (< or >).
 
 * `route_table_id` - (Optional, String, ForceNew) Specifies the route table ID for which a route is to be added.
   If the value is not set, the route will be added to the *default* route table.
@@ -99,6 +99,6 @@ This resource provides the following timeouts configuration options:
 
 VPC routes can be imported using the route table ID and their `destination` separated by a slash, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_vpc_route.test <route_table_id>/<destination>
 ```

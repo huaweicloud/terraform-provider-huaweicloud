@@ -2,12 +2,13 @@
 subcategory: "GaussDB(DWS)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_dws_ext_data_source"
-description: ""
+description: |-
+  Manages a GaussDB(DWS) external data source resource within HuaweiCloud.
 ---
 
 # huaweicloud_dws_ext_data_source
 
-Manages a GaussDB(DWS) external data source resource within HuaweiCloud.  
+Manages a GaussDB(DWS) external data source resource within HuaweiCloud.
 
 ## Example Usage
 
@@ -60,18 +61,20 @@ The following arguments are supported:
   Changing this parameter will create a new resource.
 
 * `name` - (Required, String, ForceNew) The name of the external data source.  
-  The name can contain 1 to 64 characters. Only letters, digits, and underscores (_) are allowed.
+  The name can contain `3` to `64` characters. Only letters, digits, and underscores (_) are allowed, and must start with
+  a lowercase letter.
 
   Changing this parameter will create a new resource.
 
 * `type` - (Required, String, ForceNew) The type of the external data source.  
   The valid values are **OBS**, and **MRS**.
   Changing this parameter will create a new resource.
+  + If `type` is set to **MRS**, the `type` parameter of the `huaweicloud_mapreduce_cluster` resource must be **ANALYSIS**.
+  + If `type` is set to **OBS**, the DWS cluster version must be `8.2.0` or later.
 
-  -> The OBS data source is supported only in version 8.2.0 or later of cluster.
-
-* `user_name` - (Required, String) The user name of the external data source.  
-  It is OBS agency-name when **type** is **MRS**.
+* `user_name` - (Required, String) Specifies the user name of the external data source.  
+  It is OBS agency name when `type` is **OBS**.
+  This parameter can be modified only when `type` is **OBS**.
 
   Changing this parameter will create a new resource.
 
@@ -119,7 +122,7 @@ This resource provides the following timeouts configuration options:
 
 ## Import
 
-The dws external data source can be imported using `cluster_id`, `id`, separated by slashes, e.g.
+The dws external data source can be imported using `cluster_id` and `id`, separated by a slash, e.g.
 
 ```bash
 $ terraform import huaweicloud_dws_ext_data_source.test <cluster_id>/<id>
@@ -133,7 +136,7 @@ with the resource. Also you can ignore changes as below.
 
 ```hcl
 resource "huaweicloud_dws_ext_data_source" "test" {
-    ...
+  ...
 
   lifecycle {
     ignore_changes = [

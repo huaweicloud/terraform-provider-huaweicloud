@@ -1,0 +1,182 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_codearts_build_template": {
+          "block": {
+            "attributes": {
+              "create_time": {
+                "type": "string",
+                "description": "Indicates the template creation time.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the template description.",
+                "optional": true
+              },
+              "favorite": {
+                "type": "bool",
+                "description": "Indicates whether the template is favorite.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the build template.",
+                "required": true
+              },
+              "nick_name": {
+                "type": "string",
+                "description": "Indicates the nick name.",
+                "computed": true
+              },
+              "public": {
+                "type": "bool",
+                "description": "Indicates whether the template is public.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "scope": {
+                "type": "string",
+                "description": "Indicates the scope.",
+                "computed": true
+              },
+              "template_id": {
+                "type": "string",
+                "description": "Indicates ID in database.",
+                "computed": true
+              },
+              "tool_type": {
+                "type": "string",
+                "description": "Specifies the tool type.",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Indicates the template type.",
+                "computed": true
+              },
+              "weight": {
+                "type": "number",
+                "description": "Indicates the weight of the template.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "parameters": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "description": "Specifies the parameter definition name.",
+                      "optional": true
+                    }
+                  },
+                  "block_types": {
+                    "params": {
+                      "block": {
+                        "attributes": {
+                          "name": {
+                            "type": "string",
+                            "description": "Specifies the parameter field name.",
+                            "optional": true
+                          },
+                          "value": {
+                            "type": "string",
+                            "description": "Specifies the parameter field value.",
+                            "optional": true
+                          }
+                        },
+                        "block_types": {
+                          "limits": {
+                            "block": {
+                              "attributes": {
+                                "disable": {
+                                  "type": "string",
+                                  "description": "Specifies whether it is effective.",
+                                  "optional": true
+                                },
+                                "display_name": {
+                                  "type": "string",
+                                  "description": "Specifies the displayed name of the parameter.",
+                                  "optional": true
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "Specifies the parameter name.",
+                                  "optional": true
+                                }
+                              },
+                              "description": "Specifies the enumeration parameter restrictions."
+                            },
+                            "nesting_mode": "set"
+                          }
+                        },
+                        "description": "Specifies the build execution sub-parameters."
+                      },
+                      "nesting_mode": "set"
+                    }
+                  },
+                  "description": "Specifies the build execution parameter list."
+                },
+                "nesting_mode": "set"
+              },
+              "steps": {
+                "block": {
+                  "attributes": {
+                    "enable": {
+                      "type": "bool",
+                      "description": "Specifies whether to enable the step.",
+                      "optional": true
+                    },
+                    "module_id": {
+                      "type": "string",
+                      "description": "Specifies the build step module ID.",
+                      "required": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Specifies the build step name.",
+                      "required": true
+                    },
+                    "properties": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "description": "Specifies the build step properties.",
+                      "optional": true
+                    },
+                    "properties_all": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "description": "Indicates the build step properties.",
+                      "computed": true
+                    },
+                    "version": {
+                      "type": "string",
+                      "description": "Specifies the build step version.",
+                      "optional": true
+                    }
+                  },
+                  "description": "Specifies the build execution steps."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -5,15 +5,33 @@
         "huaweicloud_evs_volume": {
           "block": {
             "attributes": {
+              "all_metadata": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "computed": true
+              },
+              "all_volume_image_metadata": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "computed": true
+              },
               "attachment": {
                 "type": [
                   "set",
                   [
                     "object",
                     {
+                      "attached_at": "string",
+                      "attached_volume_id": "string",
                       "device": "string",
+                      "host_name": "string",
                       "id": "string",
-                      "instance_id": "string"
+                      "instance_id": "string",
+                      "volume_id": "string"
                     }
                   ]
                 ],
@@ -33,6 +51,10 @@
                 "optional": true,
                 "forcenew": true
               },
+              "bootable": {
+                "type": "string",
+                "computed": true
+              },
               "cascade": {
                 "type": "bool",
                 "optional": true,
@@ -43,6 +65,10 @@
                 "optional": true,
                 "computed": true,
                 "forcenew": true
+              },
+              "created_at": {
+                "type": "string",
+                "computed": true
               },
               "dedicated_storage_id": {
                 "type": "string",
@@ -83,10 +109,37 @@
                 "optional": true,
                 "computed": true
               },
+              "iops_attribute": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "frozened": "bool",
+                      "id": "string",
+                      "total_val": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
               "kms_id": {
                 "type": "string",
                 "optional": true,
                 "forcenew": true
+              },
+              "links": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "href": "string",
+                      "rel": "string"
+                    }
+                  ]
+                ],
+                "computed": true
               },
               "multiattach": {
                 "type": "bool",
@@ -112,10 +165,18 @@
                 "type": "string",
                 "computed": true
               },
+              "serial_number": {
+                "type": "string",
+                "computed": true
+              },
               "server_id": {
                 "type": "string",
                 "optional": true,
                 "forcenew": true
+              },
+              "service_type": {
+                "type": "string",
+                "computed": true
               },
               "size": {
                 "type": "number",
@@ -127,22 +188,44 @@
                 "optional": true,
                 "forcenew": true
               },
+              "status": {
+                "type": "string",
+                "computed": true
+              },
               "tags": {
                 "type": [
                   "map",
                   "string"
                 ],
-                "optional": true
+                "optional": true,
+                "computed": true
               },
               "throughput": {
                 "type": "number",
                 "optional": true,
                 "computed": true
               },
+              "throughput_attribute": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "frozened": "bool",
+                      "id": "string",
+                      "total_val": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "computed": true
+              },
               "volume_type": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "wwn": {
                 "type": "string",

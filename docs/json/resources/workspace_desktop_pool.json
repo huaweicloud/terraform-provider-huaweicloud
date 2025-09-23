@@ -1,0 +1,295 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_workspace_desktop_pool": {
+          "block": {
+            "attributes": {
+              "availability_zone": {
+                "type": "string",
+                "description": "The availability zone to which the desktop pool belongs.",
+                "optional": true
+              },
+              "created_time": {
+                "type": "string",
+                "description": "The creation time of the desktop pool, in UTC format.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "The description of the desktop pool.",
+                "optional": true
+              },
+              "desktop_name_policy_id": {
+                "type": "string",
+                "description": "The ID of the policy to generate the desktop name.",
+                "optional": true
+              },
+              "desktop_used": {
+                "type": "number",
+                "description": "The number of desktops associated with the users under the desktop pool.",
+                "computed": true
+              },
+              "disconnected_retention_period": {
+                "type": "number",
+                "description": "The desktops and users disconnection retention period under desktop pool, in minutes.",
+                "optional": true
+              },
+              "enable_autoscale": {
+                "type": "bool",
+                "description": "Whether to enable elastic scaling of the desktop pool.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The ID of the enterprise project to which the desktop pool belongs.",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "image_id": {
+                "type": "string",
+                "description": "The image ID of the desktop pool.",
+                "required": true
+              },
+              "image_name": {
+                "type": "string",
+                "description": "The image name of the desktop pool.",
+                "computed": true
+              },
+              "image_os_platform": {
+                "type": "string",
+                "description": "The image OS platform of the desktop pool.",
+                "computed": true
+              },
+              "image_os_type": {
+                "type": "string",
+                "description": "The image OS type of the desktop pool.",
+                "computed": true
+              },
+              "image_os_version": {
+                "type": "string",
+                "description": "The image OS version of the desktop pool.",
+                "computed": true
+              },
+              "image_type": {
+                "type": "string",
+                "description": "The image type of the desktop pool.",
+                "required": true
+              },
+              "in_maintenance_mode": {
+                "type": "bool",
+                "description": "Whether to enable maintenance mode of the desktop pool.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the desktop pool.",
+                "required": true
+              },
+              "ou_name": {
+                "type": "string",
+                "description": "The OU name corresponding to the AD server.",
+                "optional": true
+              },
+              "product": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "charging_mode": "string",
+                      "cpu": "string",
+                      "descriptions": "string",
+                      "flavor_id": "string",
+                      "memory": "string",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "The product information of the desktop pool.",
+                "computed": true
+              },
+              "product_id": {
+                "type": "string",
+                "description": "The specification ID of the desktop pool.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "size": {
+                "type": "number",
+                "description": "The number of the desktops under the desktop pool.",
+                "required": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the desktop pool.",
+                "computed": true
+              },
+              "subnet_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The list of the subnet IDs to which the desktop pool belongs.",
+                "required": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "description": "The key/value pairs to associate with the desktop pool.",
+                "optional": true,
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The type of the desktop pool.",
+                "required": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "description": "The ID of the VPC to which the desktop pool belongs.",
+                "optional": true
+              }
+            },
+            "block_types": {
+              "authorized_objects": {
+                "block": {
+                  "attributes": {
+                    "object_id": {
+                      "type": "string",
+                      "description": "The ID of the object.",
+                      "required": true
+                    },
+                    "object_name": {
+                      "type": "string",
+                      "description": "The name of the object.",
+                      "required": true
+                    },
+                    "object_type": {
+                      "type": "string",
+                      "description": "The type of the object.",
+                      "required": true
+                    },
+                    "user_group": {
+                      "type": "string",
+                      "description": "The permission group to which the user belongs.",
+                      "required": true
+                    }
+                  },
+                  "description": "The list of the users or user groups to be authorized."
+                },
+                "nesting_mode": "set"
+              },
+              "autoscale_policy": {
+                "block": {
+                  "attributes": {
+                    "autoscale_type": {
+                      "type": "string",
+                      "description": "The type of automatic scaling policy.",
+                      "optional": true
+                    },
+                    "max_auto_created": {
+                      "type": "number",
+                      "description": "The maximum number of automatically created desktops.",
+                      "optional": true
+                    },
+                    "min_idle": {
+                      "type": "number",
+                      "description": "The desktops will be automatically created when the number of idle desktops is less than\n\t\t\t\t\t\t\tthe specified value.",
+                      "optional": true
+                    },
+                    "once_auto_created": {
+                      "type": "number",
+                      "description": "The number of desktops automatically created at one time.",
+                      "optional": true
+                    }
+                  },
+                  "description": "The automatic scaling policy of the desktop pool."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "data_volumes": {
+                "block": {
+                  "attributes": {
+                    "id": {
+                      "type": "string",
+                      "description": "The ID of the volume.",
+                      "computed": true
+                    },
+                    "size": {
+                      "type": "number",
+                      "description": "The size of the volume, in GB.",
+                      "required": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The type of the volume.",
+                      "required": true
+                    }
+                  },
+                  "description": "The list of the data volume configurations of the desktop pool."
+                },
+                "nesting_mode": "set"
+              },
+              "root_volume": {
+                "block": {
+                  "attributes": {
+                    "id": {
+                      "type": "string",
+                      "description": "The ID of the volume.",
+                      "computed": true
+                    },
+                    "size": {
+                      "type": "number",
+                      "description": "The size of the volume, in GB.",
+                      "required": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "The type of the volume.",
+                      "required": true
+                    }
+                  },
+                  "description": "The system volume configuration of the desktop pool."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "security_groups": {
+                "block": {
+                  "attributes": {
+                    "id": {
+                      "type": "string",
+                      "description": "The ID of the security group.",
+                      "required": true
+                    }
+                  },
+                  "description": "The list of the security groups to which the desktop pool belongs."
+                },
+                "nesting_mode": "set"
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

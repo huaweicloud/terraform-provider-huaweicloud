@@ -41,7 +41,9 @@ func TestAccDataServiceApi_basic(t *testing.T) {
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckDataArtsWorkSpaceID(t)
-			acceptance.TestAccPreCheckDataArtsManagerName(t)
+			acceptance.TestAccPreCheckDataArtsReviewerName(t)
+			acceptance.TestAccPreCheckDataArtsConnectionID(t)
+			acceptance.TestAccPreCheckDataArtsRelatedDliQueueName(t)
 		},
 
 		ProviderFactories: acceptance.TestAccProviderFactories,
@@ -56,20 +58,18 @@ func TestAccDataServiceApi_basic(t *testing.T) {
 						"huaweicloud_dataarts_dataservice_catalog.test.0", "id"),
 					resource.TestCheckResourceAttr(rName, "name", name),
 					resource.TestCheckResourceAttr(rName, "description", "Created by terraform script"),
-					resource.TestCheckResourceAttr(rName, "manager", acceptance.HW_DATAARTS_MANAGER_NAME),
+					resource.TestCheckResourceAttr(rName, "manager", acceptance.HW_DATAARTS_REVIEWER_NAME),
 					resource.TestCheckResourceAttr(rName, "path", "/terraform/auto/resource_create/{resource_type}/{resource_name}"),
 					resource.TestCheckResourceAttr(rName, "protocol", "PROTOCOL_TYPE_HTTPS"),
 					resource.TestCheckResourceAttr(rName, "request_type", "REQUEST_TYPE_POST"),
 					resource.TestCheckResourceAttr(rName, "request_params.#", "6"),
 					resource.TestCheckResourceAttr(rName, "datasource_config.0.type", "DLI"),
-					resource.TestCheckResourceAttrPair(rName, "datasource_config.0.connection_id",
-						"huaweicloud_dataarts_studio_data_connection.test", "id"),
+					resource.TestCheckResourceAttr(rName, "datasource_config.0.connection_id", acceptance.HW_DATAARTS_CONNECTION_ID),
 					resource.TestCheckResourceAttrPair(rName, "datasource_config.0.database",
 						"huaweicloud_dli_database.test", "name"),
 					resource.TestCheckResourceAttrPair(rName, "datasource_config.0.datatable",
 						"huaweicloud_dli_table.test", "name"),
-					resource.TestCheckResourceAttrPair(rName, "datasource_config.0.queue",
-						"huaweicloud_dli_queue.test", "name"),
+					resource.TestCheckResourceAttr(rName, "datasource_config.0.queue", acceptance.HW_DATAARTS_DLI_QUEUE_NAME),
 					resource.TestCheckResourceAttr(rName, "datasource_config.0.backend_params.#", "1"),
 					resource.TestCheckResourceAttr(rName, "datasource_config.0.backend_params.0.name", "configuration"),
 					resource.TestCheckResourceAttr(rName, "datasource_config.0.backend_params.0.mapping", "configuration"),
@@ -97,26 +97,23 @@ func TestAccDataServiceApi_basic(t *testing.T) {
 						"huaweicloud_dataarts_dataservice_catalog.test.1", "id"),
 					resource.TestCheckResourceAttr(rName, "name", updateName),
 					resource.TestCheckResourceAttr(rName, "description", "Updated by terraform script"),
-					resource.TestCheckResourceAttr(rName, "manager", acceptance.HW_DATAARTS_MANAGER_NAME),
+					resource.TestCheckResourceAttr(rName, "manager", acceptance.HW_DATAARTS_REVIEWER_NAME),
 					resource.TestCheckResourceAttr(rName, "path", "/terraform/auto/resource_query/{resource_type}/{resource_name}"),
-					resource.TestCheckResourceAttr(rName, "protocol", "PROTOCOL_TYPE_HTTP"),
+					resource.TestCheckResourceAttr(rName, "protocol", "PROTOCOL_TYPE_HTTPS"),
 					resource.TestCheckResourceAttr(rName, "request_type", "REQUEST_TYPE_GET"),
 					resource.TestCheckResourceAttr(rName, "request_params.#", "2"),
 					resource.TestCheckResourceAttr(rName, "datasource_config.0.type", "DLI"),
-					resource.TestCheckResourceAttrPair(rName, "datasource_config.0.connection_id",
-						"huaweicloud_dataarts_studio_data_connection.test", "id"),
+					resource.TestCheckResourceAttr(rName, "datasource_config.0.connection_id", acceptance.HW_DATAARTS_CONNECTION_ID),
 					resource.TestCheckResourceAttrPair(rName, "datasource_config.0.database",
 						"huaweicloud_dli_database.test", "name"),
 					resource.TestCheckResourceAttrPair(rName, "datasource_config.0.datatable",
 						"huaweicloud_dli_table.test", "name"),
-					resource.TestCheckResourceAttrPair(rName, "datasource_config.0.queue",
-						"huaweicloud_dli_queue.test", "name"),
+					resource.TestCheckResourceAttr(rName, "datasource_config.0.queue", acceptance.HW_DATAARTS_DLI_QUEUE_NAME),
 					resource.TestCheckResourceAttr(rName, "datasource_config.0.backend_params.#", "0"),
 					resource.TestCheckResourceAttr(rName, "datasource_config.0.response_params.#", "3"),
 					resource.TestCheckResourceAttr(rName, "datasource_config.0.order_params.#", "0"),
 					resource.TestCheckResourceAttrSet(rName, "create_user"),
 					resource.TestCheckResourceAttrSet(rName, "updated_at"),
-					waitForDeletionCooldownComplete(),
 				),
 			},
 			{
@@ -168,43 +165,12 @@ func testAccDataServiceApi_base() string {
 	name := acceptance.RandomAccResourceName()
 
 	return fmt.Sprintf(`
-resource "huaweicloud_dataarts_studio_data_connection" "test" {
-  workspace_id = "%[1]s"
-  type         = "DLI"
-  env_type     = "0"
-  name         = "%[2]s"
-  config       = jsonencode({
-    "cdm_property_enable": "false"
-  })
-}
-
-resource "huaweicloud_vpc" "test" {
-  name = "%[2]s"
-  cidr = "192.168.0.0/16"
-}
-
-resource "huaweicloud_dli_elastic_resource_pool" "test" {
-  name                  = "%[2]s"
-  min_cu                = 64
-  max_cu                = 64
-  cidr                  = cidrsubnet(huaweicloud_vpc.test.cidr, 3, 1)
-  enterprise_project_id = "0"
-}
-
-resource "huaweicloud_dli_queue" "test" {
-  elastic_resource_pool_name = huaweicloud_dli_elastic_resource_pool.test.name
-  resource_mode              = 1
-
-  # basic configuration
-  name     = "%[2]s"
-  cu_count = 16
-}
-
 // Under root path.
 resource "huaweicloud_dataarts_dataservice_catalog" "test" {
   count = 2
 
   workspace_id = "%[1]s"
+  dlm_type     = "EXCLUSIVE"
   name         = format("%[2]s_%%d", count.index)
 }
 
@@ -242,6 +208,8 @@ func testAccDataServiceApi_basic_step1(basicConfig, name string) string {
 
 resource "huaweicloud_dataarts_dataservice_api" "test" {
   workspace_id = "%[2]s"
+  dlm_type     = "EXCLUSIVE"
+
   type         = "API_SPECIFIC_TYPE_CONFIGURATION"
   catalog_id   = huaweicloud_dataarts_dataservice_catalog.test[0].id
   name         = "%[3]s"
@@ -304,10 +272,10 @@ resource "huaweicloud_dataarts_dataservice_api" "test" {
 
   datasource_config {
     type          = "DLI"
-    connection_id = huaweicloud_dataarts_studio_data_connection.test.id
+    connection_id = "%[5]s"
     database      = huaweicloud_dli_database.test.name
     datatable     = huaweicloud_dli_table.test.name
-    queue         = huaweicloud_dli_queue.test.name
+    queue         = "%[6]s"
     access_mode   = "SQL"
 
     backend_params {
@@ -332,7 +300,12 @@ resource "huaweicloud_dataarts_dataservice_api" "test" {
     }
   }
 }
-`, basicConfig, acceptance.HW_DATAARTS_WORKSPACE_ID, name, acceptance.HW_DATAARTS_MANAGER_NAME)
+`, basicConfig,
+		acceptance.HW_DATAARTS_WORKSPACE_ID,
+		name,
+		acceptance.HW_DATAARTS_REVIEWER_NAME,
+		acceptance.HW_DATAARTS_CONNECTION_ID,
+		acceptance.HW_DATAARTS_DLI_QUEUE_NAME)
 }
 
 func testAccDataServiceApi_basic_step2(basicConfig, name string) string {
@@ -341,6 +314,8 @@ func testAccDataServiceApi_basic_step2(basicConfig, name string) string {
 
 resource "huaweicloud_dataarts_dataservice_api" "test" {
   workspace_id = "%[2]s"
+  dlm_type     = "EXCLUSIVE"
+
   type         = "API_SPECIFIC_TYPE_CONFIGURATION"
   catalog_id   = huaweicloud_dataarts_dataservice_catalog.test[1].id
   name         = "%[3]s"
@@ -348,7 +323,7 @@ resource "huaweicloud_dataarts_dataservice_api" "test" {
   auth_type    = "IAM"
   manager      = "%[4]s"
   path         = "/terraform/auto/resource_query/{resource_type}/{resource_name}"
-  protocol     = "PROTOCOL_TYPE_HTTP"
+  protocol     = "PROTOCOL_TYPE_HTTPS"
   request_type = "REQUEST_TYPE_GET"
   visibility   = "PROJECT"
 
@@ -369,10 +344,10 @@ resource "huaweicloud_dataarts_dataservice_api" "test" {
 
   datasource_config {
     type          = "DLI"
-    connection_id = huaweicloud_dataarts_studio_data_connection.test.id
+    connection_id = "%[5]s"
     database      = huaweicloud_dli_database.test.name
     datatable     = huaweicloud_dli_table.test.name
-    queue         = huaweicloud_dli_queue.test.name
+    queue         = "%[6]s"
 
     response_params {
       name        = "configuration"
@@ -396,5 +371,271 @@ resource "huaweicloud_dataarts_dataservice_api" "test" {
     }
   }
 }
-`, basicConfig, acceptance.HW_DATAARTS_WORKSPACE_ID, name, acceptance.HW_DATAARTS_MANAGER_NAME)
+`, basicConfig,
+		acceptance.HW_DATAARTS_WORKSPACE_ID,
+		name,
+		acceptance.HW_DATAARTS_REVIEWER_NAME,
+		acceptance.HW_DATAARTS_CONNECTION_ID,
+		acceptance.HW_DATAARTS_DLI_QUEUE_NAME)
+}
+
+func TestAccDataServiceApi_simple(t *testing.T) {
+	var (
+		obj interface{}
+
+		rName = "huaweicloud_dataarts_dataservice_api.test"
+		name  = acceptance.RandomAccResourceName()
+		rc    = acceptance.InitResourceCheck(rName, &obj, getDataServiceApiStreamFunc)
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckDataArtsWorkSpaceID(t)
+			acceptance.TestAccPreCheckDataArtsReviewerName(t)
+			acceptance.TestAccPreCheckDataArtsConnectionID(t)
+			acceptance.TestAccPreCheckDataArtsRelatedDliQueueName(t)
+		},
+
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				// Create an API without request parameters.
+				Config: testAccDataServiceApi_simple_step1(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "type", "API_SPECIFIC_TYPE_CONFIGURATION"),
+					resource.TestCheckResourceAttrPair(rName, "catalog_id",
+						"huaweicloud_dataarts_dataservice_catalog.test", "id"),
+					resource.TestCheckResourceAttr(rName, "name", name),
+					resource.TestCheckResourceAttr(rName, "description", ""),
+					resource.TestCheckResourceAttr(rName, "manager", acceptance.HW_DATAARTS_REVIEWER_NAME),
+					resource.TestCheckResourceAttr(rName, "path", fmt.Sprintf("/simple/%s", name)),
+					resource.TestCheckResourceAttr(rName, "protocol", "PROTOCOL_TYPE_HTTPS"),
+					resource.TestCheckResourceAttr(rName, "request_type", "REQUEST_TYPE_POST"),
+					resource.TestCheckResourceAttr(rName, "request_params.#", "0"),
+					resource.TestCheckResourceAttr(rName, "datasource_config.0.backend_params.#", "0"),
+					resource.TestCheckResourceAttr(rName, "datasource_config.0.response_params.#", "1"),
+					resource.TestCheckResourceAttr(rName, "datasource_config.0.response_params.0.name", "configuration"),
+					resource.TestCheckResourceAttr(rName, "datasource_config.0.response_params.0.type", "REQUEST_PARAMETER_TYPE_STRING"),
+					resource.TestCheckResourceAttr(rName, "datasource_config.0.response_params.0.field", "configuration"),
+					resource.TestCheckResourceAttr(rName, "datasource_config.0.response_params.0.description", ""),
+					resource.TestCheckResourceAttr(rName, "datasource_config.0.order_params.#", "0"),
+					resource.TestCheckResourceAttrSet(rName, "create_user"),
+					resource.TestCheckResourceAttrSet(rName, "created_at"),
+				),
+			},
+			{
+				// Supports an request parameter and setting the corresponding backend parameter.
+				Config: testAccDataServiceApi_simple_step2(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "request_params.#", "1"),
+					resource.TestCheckResourceAttr(rName, "request_params.0.name", "configuration"),
+					resource.TestCheckResourceAttr(rName, "request_params.0.position", "REQUEST_PARAMETER_POSITION_BODY"),
+					resource.TestCheckResourceAttr(rName, "request_params.0.type", "REQUEST_PARAMETER_TYPE_STRING"),
+					resource.TestCheckResourceAttr(rName, "datasource_config.0.backend_params.#", "1"),
+					resource.TestCheckResourceAttr(rName, "datasource_config.0.backend_params.0.name", "configuration"),
+					resource.TestCheckResourceAttr(rName, "datasource_config.0.backend_params.0.mapping", "configuration"),
+					resource.TestCheckResourceAttr(rName, "datasource_config.0.backend_params.0.condition", "CONDITION_TYPE_EQ"),
+					resource.TestCheckResourceAttr(rName, "datasource_config.0.response_params.#", "1"),
+					resource.TestCheckResourceAttr(rName, "datasource_config.0.order_params.#", "0"),
+					resource.TestCheckResourceAttrSet(rName, "updated_at"),
+				),
+			},
+			{
+				// Remove the request parameter and update the field mapping to the order parameter.
+				Config: testAccDataServiceApi_simple_step3(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(rName, "request_params.#", "0"),
+					resource.TestCheckResourceAttr(rName, "datasource_config.0.backend_params.#", "0"),
+					resource.TestCheckResourceAttr(rName, "datasource_config.0.response_params.#", "1"),
+					resource.TestCheckResourceAttr(rName, "datasource_config.0.order_params.#", "1"),
+					resource.TestCheckResourceAttr(rName, "datasource_config.0.order_params.0.name", "order_configuration"),
+					resource.TestCheckResourceAttr(rName, "datasource_config.0.order_params.0.field", "configuration"),
+					resource.TestCheckResourceAttr(rName, "datasource_config.0.order_params.0.optional", "true"),
+					resource.TestCheckResourceAttr(rName, "datasource_config.0.order_params.0.sort", "ASC"),
+					resource.TestCheckResourceAttr(rName, "datasource_config.0.order_params.0.order", "1"),
+				),
+			},
+			{
+				ResourceName:      rName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testDataServiceApiImportState(rName),
+				ImportStateVerifyIgnore: []string{
+					"auth_type",
+					"catalog_id",
+					"visibility",
+				},
+			},
+		},
+	})
+}
+
+func testAccDataServiceApi_simple_base(name string) string {
+	return fmt.Sprintf(`
+// Under root path.
+resource "huaweicloud_dataarts_dataservice_catalog" "test" {
+  workspace_id = "%[1]s"
+  dlm_type     = "EXCLUSIVE"
+  name         = "%[2]s"
+}
+
+resource "huaweicloud_dli_database" "test" {
+  name = "%[2]s"
+}
+
+resource "huaweicloud_dli_table" "test" {
+  database_name = huaweicloud_dli_database.test.name
+  name          = "%[2]s"
+  data_location = "DLI"
+
+  columns {
+    name        = "configuration"
+    type        = "string"
+    description = "The configuration for automatic creation, in JSON format"
+  }
+}
+`, acceptance.HW_DATAARTS_WORKSPACE_ID, name)
+}
+
+func testAccDataServiceApi_simple_step1(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_dataarts_dataservice_api" "test" {
+  workspace_id = "%[2]s"
+  dlm_type     = "EXCLUSIVE"
+
+  type         = "API_SPECIFIC_TYPE_CONFIGURATION"
+  catalog_id   = huaweicloud_dataarts_dataservice_catalog.test.id
+  name         = "%[3]s"
+  auth_type    = "APP"
+  manager      = "%[4]s"
+  path         = "/simple/%[3]s"
+  protocol     = "PROTOCOL_TYPE_HTTPS"
+  request_type = "REQUEST_TYPE_POST"
+  visibility   = "PROJECT"
+
+  datasource_config {
+    type          = "DLI"
+    connection_id = "%[5]s"
+    database      = huaweicloud_dli_database.test.name
+    datatable     = huaweicloud_dli_table.test.name
+    queue         = "%[6]s"
+
+    response_params {
+      name  = "configuration"
+      type  = "REQUEST_PARAMETER_TYPE_STRING"
+      field = "configuration"
+    }
+  }
+}
+`, testAccDataServiceApi_simple_base(name),
+		acceptance.HW_DATAARTS_WORKSPACE_ID,
+		name,
+		acceptance.HW_DATAARTS_REVIEWER_NAME,
+		acceptance.HW_DATAARTS_CONNECTION_ID,
+		acceptance.HW_DATAARTS_DLI_QUEUE_NAME)
+}
+
+func testAccDataServiceApi_simple_step2(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_dataarts_dataservice_api" "test" {
+  workspace_id = "%[2]s"
+  dlm_type     = "EXCLUSIVE"
+
+  type         = "API_SPECIFIC_TYPE_CONFIGURATION"
+  catalog_id   = huaweicloud_dataarts_dataservice_catalog.test.id
+  name         = "%[3]s"
+  auth_type    = "APP"
+  manager      = "%[4]s"
+  path         = "/simple/%[3]s"
+  protocol     = "PROTOCOL_TYPE_HTTPS"
+  request_type = "REQUEST_TYPE_POST"
+  visibility   = "PROJECT"
+
+  request_params {
+    name     = "configuration"
+    position = "REQUEST_PARAMETER_POSITION_BODY"
+    type     = "REQUEST_PARAMETER_TYPE_STRING"
+  }
+
+  datasource_config {
+    type          = "DLI"
+    connection_id = "%[5]s"
+    database      = huaweicloud_dli_database.test.name
+    datatable     = huaweicloud_dli_table.test.name
+    queue         = "%[6]s"
+
+    backend_params {
+      name      = "configuration"
+      mapping   = "configuration"
+      condition = "CONDITION_TYPE_EQ"
+    }
+    response_params {
+      name  = "configuration"
+      type  = "REQUEST_PARAMETER_TYPE_STRING"
+      field = "configuration"
+    }
+  }
+}
+`, testAccDataServiceApi_simple_base(name),
+		acceptance.HW_DATAARTS_WORKSPACE_ID,
+		name,
+		acceptance.HW_DATAARTS_REVIEWER_NAME,
+		acceptance.HW_DATAARTS_CONNECTION_ID,
+		acceptance.HW_DATAARTS_DLI_QUEUE_NAME)
+}
+
+func testAccDataServiceApi_simple_step3(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_dataarts_dataservice_api" "test" {
+  workspace_id = "%[2]s"
+  dlm_type     = "EXCLUSIVE"
+
+  type         = "API_SPECIFIC_TYPE_CONFIGURATION"
+  catalog_id   = huaweicloud_dataarts_dataservice_catalog.test.id
+  name         = "%[3]s"
+  auth_type    = "APP"
+  manager      = "%[4]s"
+  path         = "/simple/%[3]s"
+  protocol     = "PROTOCOL_TYPE_HTTPS"
+  request_type = "REQUEST_TYPE_GET"
+  visibility   = "PROJECT"
+
+  datasource_config {
+    type          = "DLI"
+    connection_id = "%[5]s"
+    database      = huaweicloud_dli_database.test.name
+    datatable     = huaweicloud_dli_table.test.name
+    queue         = "%[6]s"
+
+    response_params {
+      name  = "configuration"
+      type  = "REQUEST_PARAMETER_TYPE_STRING"
+      field = "configuration"
+    }
+    order_params {
+      name     = "order_configuration"
+      field    = "configuration"
+      optional = true
+      sort     = "ASC"
+      order    = 1
+    }
+  }
+}
+`, testAccDataServiceApi_simple_base(name),
+		acceptance.HW_DATAARTS_WORKSPACE_ID,
+		name,
+		acceptance.HW_DATAARTS_REVIEWER_NAME,
+		acceptance.HW_DATAARTS_CONNECTION_ID,
+		acceptance.HW_DATAARTS_DLI_QUEUE_NAME)
 }

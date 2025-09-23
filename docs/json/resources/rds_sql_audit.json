@@ -21,8 +21,7 @@
               "instance_id": {
                 "type": "string",
                 "description": "Specifies the ID of the RDS instance.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "keep_days": {
                 "type": "number",

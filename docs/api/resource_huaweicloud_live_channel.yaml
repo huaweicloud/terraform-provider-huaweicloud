@@ -1,0 +1,35 @@
+info:
+    version: ""
+    title: resource_huaweicloud_live_channel
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: Live
+paths:
+    /v1/{project_id}/ott/channels:
+        DELETE:
+            tag: Live
+        GET:
+            tag: Live
+        POST:
+            tag: Live
+    /v1/{project_id}/ott/channels/encorder-settings:
+        PUT:
+            tag: Live
+    /v1/{project_id}/ott/channels/endpoints:
+        PUT:
+            tag: Live
+    /v1/{project_id}/ott/channels/general:
+        PUT:
+            tag: Live
+    /v1/{project_id}/ott/channels/input:
+        PUT:
+            tag: Live
+    /v1/{project_id}/ott/channels/record-settings:
+        PUT:
+            tag: Live
+    /v1/{project_id}/ott/channels/state:
+        PUT:
+            tag: Live

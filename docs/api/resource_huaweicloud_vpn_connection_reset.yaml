@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_vpn_connection_reset
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: VPN
+paths:
+    /v5/{project_id}/vpn-connection/{vpn_connection_id}:
+        GET:
+            tag: VPN
+    /v5/{project_id}/vpn-connection/{vpn_connection_id}/reset:
+        POST:
+            tag: VPN

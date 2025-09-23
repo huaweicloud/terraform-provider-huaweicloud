@@ -112,7 +112,7 @@ data "huaweicloud_apig_signatures" "test" {
 
 # Filter by ID
 locals {
-  signature_id = data.huaweicloud_apig_signatures.test.signatures[0].id
+  signature_id = huaweicloud_apig_signature.with_key.id
 }
 
 data "huaweicloud_apig_signatures" "filter_by_id" {
@@ -132,10 +132,14 @@ output "signature_id_filter_is_useful" {
 
 # Filter by name
 locals {
-  name = data.huaweicloud_apig_signatures.test.signatures[0].name
+  name = huaweicloud_apig_signature.with_key.name
 }
 
 data "huaweicloud_apig_signatures" "filter_by_name" {
+  depends_on = [
+    huaweicloud_apig_signature.with_key
+  ]
+
   instance_id = local.instance_id
   name        = local.name
 }
@@ -152,10 +156,14 @@ output "name_filter_is_useful" {
 
 # Filter by type
 locals {
-  type = data.huaweicloud_apig_signatures.test.signatures[0].type
+  type = huaweicloud_apig_signature.with_key.type
 }
 
 data "huaweicloud_apig_signatures" "filter_by_type" {
+  depends_on = [
+    huaweicloud_apig_signature.with_key
+  ]
+
   instance_id = local.instance_id
   type        = local.type
 }
@@ -172,10 +180,14 @@ output "type_filter_is_useful" {
 
 # Filter by algorithm
 locals {
-  algorithm = data.huaweicloud_apig_signatures.test.signatures[0].algorithm
+  algorithm = huaweicloud_apig_signature.with_key.algorithm
 }
 
 data "huaweicloud_apig_signatures" "filter_by_algorithm" {
+  depends_on = [
+    huaweicloud_apig_signature.with_key
+  ]
+
   instance_id = local.instance_id
   algorithm   = local.algorithm
 }

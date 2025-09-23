@@ -18,47 +18,47 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-func DataSourceFloatingPtrrecords() *schema.Resource {
+func DataSourceFloatingPtrRecords() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceFloatingPtrrecordsRead,
+		ReadContext: dataSourceFloatingPtrRecordsRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				Description: `Specifies the region in which to query the resource.`,
+				Description: `The region in which to query the resource.`,
 			},
 			"record_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specifies the ID of the PTR record.`,
+				Description: `The ID of the PTR record.`,
 			},
 			"public_ip": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specifies the EIP address of the PTR record.`,
+				Description: `The EIP address of the PTR record.`,
 			},
 			"domain_name": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specifies the domain name of the PTR record.`,
+				Description: `The domain name of the PTR record.`,
 			},
 			"enterprise_project_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specifies the enterprise project ID corresponding to the PTR record.`,
+				Description: `The enterprise project ID corresponding to the PTR record.`,
 			},
 			"tags": {
 				Type:        schema.TypeMap,
 				Optional:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: `Specifies the key/value pairs to associate with the PTR record.`,
+				Description: `The key/value pairs to associate with the PTR record.`,
 			},
 			"status": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specifies the status of the PTR record.`,
+				Description: `The status of the PTR record.`,
 			},
 			"ptrrecords": {
 				Type:        schema.TypeList,
@@ -126,7 +126,7 @@ func newFloatingPtrrecordsDSWrapper(d *schema.ResourceData, meta interface{}) *F
 	}
 }
 
-func dataSourceFloatingPtrrecordsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceFloatingPtrRecordsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	wrapper := newFloatingPtrrecordsDSWrapper(d, meta)
 	lisPtrRecRst, err := wrapper.ListPtrRecords()
 	if err != nil {
@@ -149,7 +149,7 @@ func dataSourceFloatingPtrrecordsRead(_ context.Context, d *schema.ResourceData,
 
 // @API DNS GET /v2/reverse/floatingips
 func (w *FloatingPtrrecordsDSWrapper) ListPtrRecords() (*gjson.Result, error) {
-	client, err := w.NewClient(w.Config, "dns")
+	client, err := w.NewClient(w.Config, "dns_region")
 	if err != nil {
 		return nil, err
 	}

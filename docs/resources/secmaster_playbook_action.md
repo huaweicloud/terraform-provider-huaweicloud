@@ -2,16 +2,17 @@
 subcategory: "SecMaster"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_secmaster_playbook_action"
-description: ""
+description: |-
+  Manages a SecMaster playbook action resource within HuaweiCloud.
 ---
 
 # huaweicloud_secmaster_playbook_action
 
 Manages a SecMaster playbook action resource within HuaweiCloud.
 
-~> This resource can only be used in region **cn-east-3** for now.
-
 ## Example Usage
+
+### Basic Example
 
 ```hcl
 variable "workspace_id" {}
@@ -26,6 +27,10 @@ resource "huaweicloud_secmaster_playbook_action" "name" {
   description  = "created by terraform"
 }
 ```
+
+### More Examples
+
+For more detailed associated usage see [playbook instructions](/examples/secmaster/playbook/README.md)
 
 ## Argument Reference
 

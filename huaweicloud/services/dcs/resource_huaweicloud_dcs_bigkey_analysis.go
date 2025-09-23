@@ -2,7 +2,6 @@ package dcs
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -12,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -170,16 +168,16 @@ func resourceBigKeyAnalysisCreate(ctx context.Context, d *schema.ResourceData, m
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("id", bigKeyAnalysisRespBody)
-	if err != nil {
-		return diag.Errorf("error creating DCS big key analysis: ID is not found in API response")
+	analysisId := utils.PathSearch("id", bigKeyAnalysisRespBody, "").(string)
+	if analysisId == "" {
+		return diag.Errorf("unable to find the analysis ID of the DCS big key from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(analysisId)
 
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{"waiting", "running"},
 		Target:       []string{"success"},
-		Refresh:      bigKeyAnalysisStatusRefreshFunc(instanceId, id.(string), createBigKeyAnalysisClient),
+		Refresh:      bigKeyAnalysisStatusRefreshFunc(instanceId, analysisId, createBigKeyAnalysisClient),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        10 * time.Second,
 		PollInterval: 10 * time.Second,
@@ -187,7 +185,7 @@ func resourceBigKeyAnalysisCreate(ctx context.Context, d *schema.ResourceData, m
 
 	_, err = stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return diag.Errorf("error waiting for the big key analysis(%s) to complete: %s", id.(string), err)
+		return diag.Errorf("error waiting for the big key analysis(%s) to complete: %s", analysisId, err)
 	}
 
 	return resourceBigKeyAnalysisRead(ctx, d, meta)
@@ -211,7 +209,8 @@ func resourceBigKeyAnalysisRead(_ context.Context, d *schema.ResourceData, meta 
 	instanceId := d.Get("instance_id").(string)
 	getBigKeyAnalysisResp, err := getBigKeyAnalysis(getBigKeyAnalysisClient, instanceId, d.Id())
 	if err != nil {
-		return common.CheckDeletedDiag(d, parseBigKeyAnalysisError(err), "error retrieving DCS big key analysis")
+		return common.CheckDeletedDiag(d, common.ConvertExpected400ErrInto404Err(err, "error_code", "DCS.4942"),
+			"error retrieving DCS big key analysis")
 	}
 
 	getBigKeyAnalysisRespBody, err := utils.FlattenResponse(getBigKeyAnalysisResp)
@@ -295,26 +294,6 @@ func bigKeyAnalysisStatusRefreshFunc(instanceId, bigKeyId string, client *golang
 		status := utils.PathSearch("status", task, "")
 		return task, status.(string), nil
 	}
-}
-
-// The example of error message is: {"error_code": "DCS.4942","error_msg": "The bigkey id does not exist."}
-func parseBigKeyAnalysisError(err error) error {
-	if errCode, ok := err.(golangsdk.ErrDefault400); ok {
-		var apiError interface{}
-		if jsonErr := json.Unmarshal(errCode.Body, &apiError); jsonErr != nil {
-			return err
-		}
-
-		errorCode, errorCodeErr := jmespath.Search("error_code", apiError)
-		if errorCodeErr != nil {
-			return err
-		}
-
-		if errorCode == "DCS.4942" {
-			return golangsdk.ErrDefault404(errCode)
-		}
-	}
-	return err
 }
 
 func getBigKeyAnalysis(client *golangsdk.ServiceClient, instanceId string, bigKeyId string) (*http.Response, error) {

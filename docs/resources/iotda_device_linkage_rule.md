@@ -104,7 +104,7 @@ The following arguments are supported:
 * `region` - (Optional, String, ForceNew) Specifies the region in which to create the IoTDA device linkage rule
 resource. If omitted, the provider-level region will be used. Changing this parameter will create a new resource.
 
-* `name` - (Required, String) Specifies the name of the device linkage rule. The name contains a maximum of 128
+* `name` - (Required, String) Specifies the name of the device linkage rule. The name contains a maximum of `128`
 characters.
 
 * `space_id` - (Required, String, ForceNew) Specifies the resource space ID to which the device linkage rule belongs.
@@ -124,9 +124,9 @@ The options are as follows:
   Defaults to `and`.
 
 * `description` - (Optional, String) Specifies the description of device linkage rule. The description contains
-a maximum of 256 characters.
+a maximum of `256` characters.
 
-* `enabled` - (Optional, Bool) Specifies whether to enable the device linkage rule. Defaults to `true`.
+* `enabled` - (Optional, Bool) Specifies whether to enable the device linkage rule. Defaults to **true**.
 
 * `effective_period` - (Optional, List) Specifies the effective period of the device linkage rule. Always effectives
 by default. The [effective_period](#IoTDA_effective_period) structure is documented below.
@@ -138,17 +138,23 @@ The `triggers` block supports:
   + **DEVICE_DATA**: Triggered upon the property of device.
   + **SIMPLE_TIMER**: Triggered by policy.
   + **DAILY_TIMER**: Triggered at specified time every day.
+  + **DEVICE_LINKAGE_STATUS**: Triggered by device status.
 
 * `device_data_condition` - (Optional, List) Specifies the condition triggered upon the property of device. It is
-required when type is `DEVICE_DATA`. The [device_data_condition](#IoTDA_device_data_condition) structure is
-documented below.
+  required when `type` is **DEVICE_DATA**.
+  The [device_data_condition](#IoTDA_device_data_condition) structure is documented below.
 
-* `simple_timer_condition` - (Optional, List) Specifies the condition triggered by policy. It is required when type
-is `SIMPLE_TIMER`. The [simple_timer_condition](#IoTDA_simple_timer_condition) structure is documented below.
+* `simple_timer_condition` - (Optional, List) Specifies the condition triggered by policy. It is required when `type`
+  is **SIMPLE_TIMER**.
+  The [simple_timer_condition](#IoTDA_simple_timer_condition) structure is documented below.
 
 * `daily_timer_condition` - (Optional, List) Specifies the condition triggered at specified time every day. It is
-required when type is `DAILY_TIMER`. The [daily_timer_condition](#IoTDA_daily_timer_condition) structure is
-documented below.
+  required when `type` is **DAILY_TIMER**.
+  The [daily_timer_condition](#IoTDA_daily_timer_condition) structure is documented below.
+
+* `device_linkage_status_condition` - (Optional, List) Specifies the condition triggered by device status. It is
+  required when `type` is **DEVICE_LINKAGE_STATUS**.
+  The [device_linkage_status_condition](#IoTDA_device_status_condition) structure is documented below.
 
 <a name="IoTDA_device_data_condition"></a>
 The `device_data_condition` block supports:
@@ -162,11 +168,15 @@ the rule. Exactly one of `device_id` or `product_id` must be provided.
 * `path` - (Required, String) Specifies the path of the device property, in the format: **service_id/DataProperty**.
 
 * `operator` - (Required, String) Specifies the data comparison operator. The valid values are: **>**, **<**,
-**>=**, **<=**, **=** and **between**.
+  **>=**, **<=**, **=**, **in** and **between**.
 
-* `value` - (Required, String) Specifies the Rvalue of a data comparison expression. When the `operator` is `between`,
-the Rvalue represents the minimum and maximum values, separated by commas, such as "20,30",
-which means greater than or equal to 20 and less than 30.
+* `value` - (Optional, String) Specifies the Rvalue of a data comparison expression. When the `operator` is **between**,
+  the Rvalue represents the minimum and maximum values, separated by commas, such as **20,30**,
+  which means greater than or equal to `20` and less than `30`.
+
+* `in_values` - (Optional, List) Specifies the Rvalue of a data comparison expression. Only when the `operator` is
+  **in**, this field is valid and required, with a maximum of `20` characters, represents matching within the specified
+  values, e.g. **20,30,40**,
 
 * `trigger_strategy` - (Optional, String) Specifies the trigger strategy. The options are as follows:
   + **pulse**: When the data reported by the device meets the conditions, the rule can be triggered.
@@ -198,6 +208,26 @@ For example: `03:00`.
 
 * `days_of_week` - (Optional, String) Specifies a list of days of week, separated by commas. 1 represents Sunday,
 2 represents Monday, and so on. Defaults to `1,2,3,4,5,6,7` (every day).
+
+<a name="IoTDA_device_status_condition"></a>
+The `device_linkage_status_condition` block supports:
+
+* `device_id` - (Optional, String) Specifies the device ID. If this field is set, the device attribute trigger will be
+  triggered based on the specified device.
+
+* `product_id` - (Optional, String) Specifies the product ID. If this field is set and the `device_id` is empty, the
+  device attribute will trigger the matching of all devices under this product.
+
+-> 1. `device_id` and `product_id` cannot be empty at the same time.<br/>2. If both the `device_id` and `product_id` are
+  set, the `device_id` field will prevail, and `product_id` will not take effect at this time.
+
+* `status_list` - (Optional, List) Specifies device status list, separate multiple status with commas.
+  e.g. **ONLINE**, **OFFLINE**.  
+  The valid device status values are as follows:
+  + **ONLINE**: Device online.
+  + **OFFLINE**: Device offline.
+
+* `duration` - (Optional, Int) Specifies the duration of device status. The valid value ranges from `0` to `60` minutes.
 
 <a name="IoTDA_actions"></a>
 The `actions` block supports:
@@ -242,6 +272,23 @@ The `device_command` block supports:
       - **body**: optional, the message body of the command, which contains key-value pairs, each key is the parameter
         name of the command in the product model. The specific format requires application and device conventions.
 
+* `buffer_timeout` - (Optional, Int) Specifies the cache time of device commands, in seconds. Representing the effective
+  time for the IoT platform to cache commands before issuing them to the device. After this time, the commands will no
+  longer be issued. The default value is `172,800` seconds (`48` hours). If set to `0`, the command will be immediately
+  issued to the device regardless of the command issuance mode set on the IoT platform.
+
+* `response_timeout` - (Optional, Int) Specifies the effective time of the command response, in seconds. Indicating that
+  the device responds effectively within the `response_timeout` time after receiving the command. If no response is
+  received after this time, the command response is considered to have timed out. The default value is `1,800` seconds.
+
+* `mode` - (Optional, String) Specifies the issuance mode of device commands, which is only valid when the value of
+  `buffer_timeout` is greater than `0`.  
+  The valid values are as follows:
+  + **ACTIVE**: Active mode, the IoT platform actively issues commands to devices.
+  + **PASSIVE**: Passive mode, after the IoT platform creates device commands, it will directly cache the commands.
+    Wait until the device goes online again or reports the execution result of the previous command before issuing the
+    command.
+
 <a name="IoTDA_smn_forwarding"></a>
 The `smn_forwarding` block supports:
 
@@ -253,7 +300,9 @@ The `smn_forwarding` block supports:
 
 * `message_title` - (Required, String) Specifies the message title.
 
-* `message_content` - (Required, String) Specifies the message content.
+* `message_content` - (Optional, String) Specifies the message content.  
+
+* `message_template_name` - (Optional, String) Specifies the template name corresponding to the SMN service.
 
 * `project_id` - (Optional, String) Specifies the project ID to which the SMN belongs.
 If omitted, the default project in the region will be used.
@@ -270,7 +319,16 @@ The `device_alarm` block supports:
 * `severity` - (Required, String) Specifies the severity level of the alarm.
 The valid values are **warning**, **minor**, **major** and **critical**.
 
-* `description` - (Optional, String) Specifies the description of the alarm.
+* `dimension` - (Optional, String) Specifies the dimension of the alarm. Combine the alarm name and alarm level to
+  jointly identify an alarm.
+  The valid values are as follows:
+  + **device**: Device dimension
+  + **app**: Resource space dimension.
+
+  If not specified, default to user dimension.
+
+* `description` - (Optional, String) Specifies the description of the alarm.  
+  The value can contain a maximum of `256` characters.
 
 <a name="IoTDA_effective_period"></a>
 The `effective_period` block supports:
@@ -294,6 +352,6 @@ In addition to all arguments above, the following attributes are exported:
 
 Device linkage rules can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_iotda_device_linkage_rule.test 62b6cc5aa367f403fea86127
 ```

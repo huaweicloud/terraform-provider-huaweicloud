@@ -340,6 +340,12 @@ type ListOpts struct {
 	// These IP addresses are private IP addresses of the ECS.
 	IPEqual string `q:"ip_eq"`
 
+	// Indicates the tags. The format is key=value, for example:
+	// GET /v1/{project_id}/cloudservers/detail?tags=foo%3Dbar
+	// In the preceding information, = needs to be escaped to %3D, foo indicates the tag key, and bar indicates the tag
+	// value.
+	Tags []string `q:"tags"`
+
 	// Specifies the maximum number of ECSs on one page.
 	// Each page contains 25 ECSs by default, and a maximum of 1000 ECSs are returned.
 	Limit int `q:"limit"`

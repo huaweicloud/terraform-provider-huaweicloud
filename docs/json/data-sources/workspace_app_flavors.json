@@ -1,0 +1,97 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_workspace_app_flavors": {
+          "block": {
+            "attributes": {
+              "architecture": {
+                "type": "string",
+                "description": "The architecture type used to filter the app flavor list.",
+                "optional": true
+              },
+              "availability_zone": {
+                "type": "string",
+                "description": "The availability zone used to filter the app flavor list.",
+                "optional": true,
+                "computed": true
+              },
+              "charge_mode": {
+                "type": "string",
+                "description": "The charge mode used to filter the app flavor list.",
+                "optional": true
+              },
+              "flavor_id": {
+                "type": "string",
+                "description": "The flavor ID used to filter the app flavor list.",
+                "optional": true
+              },
+              "flavors": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "architecture": "string",
+                      "charge_mode": "string",
+                      "cloud_service_type": "string",
+                      "cond_operation_az": "string",
+                      "contain_data_disk": "bool",
+                      "cpu": "string",
+                      "descriptions": "string",
+                      "domain_ids": [
+                        "list",
+                        "string"
+                      ],
+                      "id": "string",
+                      "is_gpu": "bool",
+                      "memory": "string",
+                      "package_type": "string",
+                      "product_id": "string",
+                      "resource_type": "string",
+                      "sessions": "number",
+                      "status": "string",
+                      "system_disk_size": "string",
+                      "system_disk_type": "string",
+                      "type": "string",
+                      "volume_product_type": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of app flavors that matched filter parameters.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "os_type": {
+                "type": "string",
+                "description": "The operating system type used to filter the app flavor list.",
+                "optional": true,
+                "computed": true
+              },
+              "product_id": {
+                "type": "string",
+                "description": "The product ID used to filter the app flavor list.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region in which to query the resource.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

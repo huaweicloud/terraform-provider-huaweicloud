@@ -11,7 +11,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 )
 
 func getDatabaseRoleFunc(c *config.Config, state *terraform.ResourceState) (interface{}, error) {
@@ -91,64 +90,19 @@ func testAccDatabaseRoleImportStateIdFunc() resource.ImportStateIdFunc {
 	}
 }
 
-func testAccDatabaseRole_base(rName string) string {
-	return fmt.Sprintf(`
-%s
-
-data "huaweicloud_availability_zones" "test" {}
-
-resource "huaweicloud_dds_instance" "test" {
-  availability_zone = data.huaweicloud_availability_zones.test.names[0]
-  vpc_id            = huaweicloud_vpc.test.id
-  subnet_id         = huaweicloud_vpc_subnet.test.id
-  security_group_id = huaweicloud_networking_secgroup.test.id
-
-  name     = "%s"
-  mode     = "Sharding"
-  password = "Test@12345678"
-
-  datastore {
-    type           = "DDS-Community"
-    version        = "3.4"
-    storage_engine = "wiredTiger"
-  }
-
-  flavor {
-    type      = "mongos"
-    num       = 2
-    spec_code = "dds.mongodb.s6.xlarge.2.mongos"
-  }
-  flavor {
-    type      = "shard"
-    num       = 2
-    storage   = "ULTRAHIGH"
-    size      = 20
-    spec_code = "dds.mongodb.s6.xlarge.2.shard"
-  }
-  flavor {
-    type      = "config"
-    num       = 1
-    storage   = "ULTRAHIGH"
-    size      = 20
-    spec_code = "dds.mongodb.s6.xlarge.2.config"
-  }
-}
-`, common.TestBaseNetwork(rName), rName)
-}
-
 func testAccDatabaseRole_basic(rName string) string {
 	return fmt.Sprintf(`
 %[1]s
 
 resource "huaweicloud_dds_database_role" "base" {
-  instance_id = huaweicloud_dds_instance.test.id
+  instance_id = huaweicloud_dds_instance.instance.id
 
   name    = "%[2]s-base"
   db_name = "admin"
 }
 
 resource "huaweicloud_dds_database_role" "test" {
-  instance_id = huaweicloud_dds_instance.test.id
+  instance_id = huaweicloud_dds_instance.instance.id
 
   name    = "%[2]s"
   db_name = "admin"
@@ -158,5 +112,5 @@ resource "huaweicloud_dds_database_role" "test" {
     db_name = "admin"
   }
 }
-`, testAccDatabaseRole_base(rName), rName)
+`, testAccDDSInstanceV3Config_basic(rName, 8800), rName)
 }

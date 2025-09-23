@@ -11,8 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	cssv1 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/css/v1"
-	"github.com/huaweicloud/huaweicloud-sdk-go-v3/services/css/v1/model"
+	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
@@ -114,25 +113,31 @@ func ResourceLogstashConfiguration() *schema.Resource {
 func resourceLogstashConfigurationCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
-	cssV1Client, err := conf.HcCssV1Client(region)
+	client, err := conf.CssV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CSS V1 client: %s", err)
 	}
 
-	createCnfOpts := buildCreateLogstashCnfParameters(d)
 	clusterId := d.Get("cluster_id").(string)
+	createLogstashConfigHttpUrl := "v1.0/{project_id}/clusters/{cluster_id}/lgsconf/submit"
+	createLogstashConfigPath := client.Endpoint + createLogstashConfigHttpUrl
+	createLogstashConfigPath = strings.ReplaceAll(createLogstashConfigPath, "{project_id}", client.ProjectID)
+	createLogstashConfigPath = strings.ReplaceAll(createLogstashConfigPath, "{cluster_id}", clusterId)
 
-	_, err = cssV1Client.CreateCnf(&model.CreateCnfRequest{
-		ClusterId: clusterId,
-		Body:      createCnfOpts,
-	})
+	createLogstashConfigOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+	createLogstashConfigOpt.JSONBody = utils.RemoveNil(buildCreateLogstashCnfParameters(d))
+
+	_, err = client.Request("POST", createLogstashConfigPath, &createLogstashConfigOpt)
 	if err != nil {
 		return diag.Errorf("error creating CSS logstash cluster configuration: %s", err)
 	}
 
 	d.SetId(fmt.Sprintf("%s/%s", clusterId, d.Get("name").(string)))
 
-	checkErr := configFileStatusCheck(ctx, d, cssV1Client)
+	checkErr := configFileStatusCheck(ctx, d, client)
 	if checkErr != nil {
 		return diag.FromErr(checkErr)
 	}
@@ -140,91 +145,106 @@ func resourceLogstashConfigurationCreate(ctx context.Context, d *schema.Resource
 	return resourceLogstashConfigurationRead(ctx, d, meta)
 }
 
-func buildCreateLogstashCnfParameters(d *schema.ResourceData) *model.CreateCnfReq {
-	createOpts := &model.CreateCnfReq{
-		Name:        d.Get("name").(string),
-		ConfContent: d.Get("conf_content").(string),
-		Setting: &model.Setting{
-			QueueType:             d.Get("setting.0.queue_type").(string),
-			Workers:               utils.Int32IgnoreEmpty(int32(d.Get("setting.0.workers").(int))),
-			BatchSize:             utils.Int32IgnoreEmpty(int32(d.Get("setting.0.batch_size").(int))),
-			BatchDelayMs:          utils.Int32IgnoreEmpty(int32(d.Get("setting.0.batch_delay_ms").(int))),
-			QueueCheckPointWrites: utils.Int32IgnoreEmpty(int32(d.Get("setting.0.queue_check_point_writes").(int))),
-			QueueMaxBytesMb:       utils.Int32IgnoreEmpty(int32(d.Get("setting.0.queue_max_bytes_mb").(int))),
+func buildCreateLogstashCnfParameters(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"name":        d.Get("name").(string),
+		"confContent": d.Get("conf_content").(string),
+		"setting": map[string]interface{}{
+			"queueType":             d.Get("setting.0.queue_type").(string),
+			"workers":               utils.IntIgnoreEmpty(d.Get("setting.0.workers").(int)),
+			"batchSize":             utils.IntIgnoreEmpty(d.Get("setting.0.batch_size").(int)),
+			"batchDelayMs":          utils.IntIgnoreEmpty(d.Get("setting.0.batch_delay_ms").(int)),
+			"queueCheckPointWrites": utils.IntIgnoreEmpty(d.Get("setting.0.queue_check_point_writes").(int)),
+			"queueMaxBytesMb":       utils.IntIgnoreEmpty(d.Get("setting.0.queue_max_bytes_mb").(int)),
 		},
 	}
 
 	sensitiveWordsRaw := d.Get("sensitive_words").([]interface{})
 	if len(sensitiveWordsRaw) > 0 {
-		createOpts.SensitiveWords = utils.ExpandToStringListPointer(sensitiveWordsRaw)
+		bodyParams["sensitiveWords"] = sensitiveWordsRaw
 	}
 
-	return createOpts
+	return bodyParams
 }
 
 func resourceLogstashConfigurationRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
-	cssV1Client, err := conf.HcCssV1Client(region)
+	client, err := conf.CssV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CSS V1 client: %s", err)
 	}
 
 	var mErr *multierror.Error
 
-	logstashConfDetail, err := cssV1Client.ShowGetConfDetail(&model.ShowGetConfDetailRequest{
-		ClusterId: d.Get("cluster_id").(string),
-		Name:      d.Get("name").(string),
-	})
+	resp, err := GetLogstashConfigDetails(client, d.Get("cluster_id").(string), d.Get("name").(string))
 	if err != nil {
-		common.CheckDeletedDiag(d, err, "CSS logstash cluster configuration")
+		// "CSS.0001": Incorrect parameters. Status code is 400.
+		// This error code is a general parameter error identification code.
+		// It needs to match the corresponding error message to determine whether to convert it from 400 error to 404 error. e.g.
+		// {"errCode": "CSS.0001","externalMessage": "CSS.0001 : Incorrect parameters. (conf not exist)"}
+		// Use the string (conf not exist) to confirm that it needs to be converted to a 404 error
+		err = common.ConvertExpected400ErrInto404Err(err, "errCode", "CSS.0001")
+		// "CSS.0015": The cluster does not exist. Status code is 403.
+		// {"errCode": "CSS.0015","externalMessage": "No resources are found or the access is denied."}
+		err = common.ConvertExpected403ErrInto404Err(err, "errCode", "CSS.0015")
+		return common.CheckDeletedDiag(d, err, "error querying CSS logstash cluster configuration")
 	}
 
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),
-		d.Set("name", logstashConfDetail.Name),
-		d.Set("conf_content", logstashConfDetail.ConfContent),
-		d.Set("setting", flattenLogstashConfSetting(logstashConfDetail)),
-		d.Set("status", logstashConfDetail.Status),
-		d.Set("updated_at", logstashConfDetail.UpdateAt),
+		d.Set("name", utils.PathSearch("name", resp, nil)),
+		d.Set("conf_content", utils.PathSearch("confContent", resp, nil)),
+		d.Set("status", utils.PathSearch("status", resp, nil)),
+		d.Set("updated_at", utils.PathSearch("updateAt", resp, nil)),
+		d.Set("setting", flattenLogstashConfSetting(utils.PathSearch("setting", resp, nil))),
 	)
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func flattenLogstashConfSetting(logstashConfDetail *model.ShowGetConfDetailResponse) []map[string]interface{} {
-	result := make([]map[string]interface{}, 0)
-	result = append(result, map[string]interface{}{
-		"workers":                  logstashConfDetail.Setting.Workers,
-		"batch_size":               logstashConfDetail.Setting.BatchSize,
-		"batch_delay_ms":           logstashConfDetail.Setting.BatchDelayMs,
-		"queue_type":               logstashConfDetail.Setting.QueueType,
-		"queue_check_point_writes": logstashConfDetail.Setting.QueueCheckPointWrites,
-		"queue_max_bytes_mb":       logstashConfDetail.Setting.QueueMaxBytesMb,
-	})
+func flattenLogstashConfSetting(setting interface{}) []map[string]interface{} {
+	if setting == nil {
+		return nil
+	}
 
-	return result
+	return []map[string]interface{}{
+		{
+			"workers":                  int(utils.PathSearch("workers", setting, float64(0)).(float64)),
+			"batch_size":               int(utils.PathSearch("batchSize", setting, float64(0)).(float64)),
+			"batch_delay_ms":           int(utils.PathSearch("batchDelayMs", setting, float64(0)).(float64)),
+			"queue_type":               utils.PathSearch("queueType", setting, nil),
+			"queue_check_point_writes": int(utils.PathSearch("queueCheckPointWrites", setting, float64(0)).(float64)),
+			"queue_max_bytes_mb":       int(utils.PathSearch("queueMaxBytesMb", setting, float64(0)).(float64)),
+		},
+	}
 }
 
 func resourceLogstashConfigurationUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
-	cssV1Client, err := conf.HcCssV1Client(region)
+	client, err := conf.CssV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CSS V1 client: %s", err)
 	}
 
-	updateCnfOpts := buildCreateLogstashCnfParameters(d)
+	clusterId := d.Get("cluster_id").(string)
+	updateLogstashConfigHttpUrl := "v1.0/{project_id}/clusters/{cluster_id}/lgsconf/update"
+	updateLogstashConfigPath := client.Endpoint + updateLogstashConfigHttpUrl
+	updateLogstashConfigPath = strings.ReplaceAll(updateLogstashConfigPath, "{project_id}", client.ProjectID)
+	updateLogstashConfigPath = strings.ReplaceAll(updateLogstashConfigPath, "{cluster_id}", clusterId)
 
-	_, err = cssV1Client.UpdateCnf(&model.UpdateCnfRequest{
-		ClusterId: d.Get("cluster_id").(string),
-		Body:      updateCnfOpts,
-	})
+	updateLogstashConfigOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+	updateLogstashConfigOpt.JSONBody = utils.RemoveNil(buildCreateLogstashCnfParameters(d))
+	_, err = client.Request("POST", updateLogstashConfigPath, &updateLogstashConfigOpt)
 	if err != nil {
 		diag.Errorf("error updating CSS logstash cluster configuration: %s", err)
 	}
 
-	checkErr := configFileStatusCheck(ctx, d, cssV1Client)
+	checkErr := configFileStatusCheck(ctx, d, client)
 	if checkErr != nil {
 		return diag.FromErr(checkErr)
 	}
@@ -235,37 +255,53 @@ func resourceLogstashConfigurationUpdate(ctx context.Context, d *schema.Resource
 func resourceLogstashConfigurationDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	conf := meta.(*config.Config)
 	region := conf.GetRegion(d)
-	cssV1Client, err := conf.HcCssV1Client(region)
+	client, err := conf.CssV1Client(region)
 	if err != nil {
 		return diag.Errorf("error creating CSS V1 client: %s", err)
 	}
 
-	_, err = cssV1Client.DeleteConf(&model.DeleteConfRequest{
-		ClusterId: d.Get("cluster_id").(string),
-		Body: &model.DeleteConfReq{
-			Name: d.Get("name").(string),
+	deleteLogstashConfigHttpUrl := "v1.0/{project_id}/clusters/{cluster_id}/lgsconf/delete"
+	deleteLogstashConfigPath := client.Endpoint + deleteLogstashConfigHttpUrl
+	deleteLogstashConfigPath = strings.ReplaceAll(deleteLogstashConfigPath, "{project_id}", client.ProjectID)
+	deleteLogstashConfigPath = strings.ReplaceAll(deleteLogstashConfigPath, "{cluster_id}", d.Get("cluster_id").(string))
+
+	deleteLogstashConfigOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		JSONBody: map[string]interface{}{
+			"name": d.Get("name").(string),
 		},
-	})
+	}
+	_, err = client.Request("DELETE", deleteLogstashConfigPath, &deleteLogstashConfigOpt)
 	if err != nil {
-		return diag.Errorf("error deleting CSS logstash cluster configuration: %s", err)
+		diag.Errorf("error updating CSS logstash cluster configuration: %s", err)
+	}
+	if err != nil {
+		// 1. "CSS.0001" : Incorrect parameters. Status code is 400.
+		// This error code is a general parameter error identification code.
+		// It needs to match the corresponding error message to determine whether to convert it from 400 error to 404 error. e.g.
+		// {"errCode": "CSS.0001","externalMessage": "CSS.0001 : Incorrect parameters. (conf not exist)"}
+		// Use the string (conf not exist) to confirm that it needs to be converted to a 404 error
+		err = common.ConvertExpected400ErrInto404Err(err, "errCode", "CSS.0001")
+		// "CSS.0015": The cluster does not exist. Status code is 403.
+		// {"errCode": "CSS.0015","externalMessage": "No resources are found or the access is denied."}
+		err = common.ConvertExpected403ErrInto404Err(err, "errCode", "CSS.0015")
+		return common.CheckDeletedDiag(d, err, "error deleting CSS logstash cluster configuration")
 	}
 
 	return nil
 }
 
-func configFileStatusCheck(ctx context.Context, d *schema.ResourceData, cssV1Client *cssv1.CssClient) error {
+func configFileStatusCheck(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{"checking"},
 		Target:  []string{"available", "unavailable"},
 		Refresh: func() (interface{}, string, error) {
-			resp, err := cssV1Client.ShowGetConfDetail(&model.ShowGetConfDetailRequest{
-				ClusterId: d.Get("cluster_id").(string),
-				Name:      d.Get("name").(string),
-			})
+			resp, err := GetLogstashConfigDetails(client, d.Get("cluster_id").(string), d.Get("name").(string))
 			if err != nil {
 				return nil, "failed", err
 			}
-			return resp, *resp.Status, err
+			return resp, utils.PathSearch("status", resp, "").(string), err
 		},
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        10 * time.Second,
@@ -276,6 +312,26 @@ func configFileStatusCheck(ctx context.Context, d *schema.ResourceData, cssV1Cli
 		return fmt.Errorf("error waiting for the CSS logstash cluster config to check completed: %s", err)
 	}
 	return nil
+}
+
+func GetLogstashConfigDetails(client *golangsdk.ServiceClient, clusterId, confName string) (interface{}, error) {
+	getLogstashConfigDetailsHttpUrl := "v1.0/{project_id}/clusters/{cluster_id}/lgsconf/confdetail?name={confName}"
+	getLogstashConfigDetailsPath := client.Endpoint + getLogstashConfigDetailsHttpUrl
+	getLogstashConfigDetailsPath = strings.ReplaceAll(getLogstashConfigDetailsPath, "{project_id}", client.ProjectID)
+	getLogstashConfigDetailsPath = strings.ReplaceAll(getLogstashConfigDetailsPath, "{cluster_id}", clusterId)
+	getLogstashConfigDetailsPath = strings.ReplaceAll(getLogstashConfigDetailsPath, "{confName}", confName)
+
+	getLogstashConfigDetailsOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+	}
+
+	getLogstashConfigDetailsResp, err := client.Request("GET", getLogstashConfigDetailsPath, &getLogstashConfigDetailsOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(getLogstashConfigDetailsResp)
 }
 
 func resourceLogstashConfigurationImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {

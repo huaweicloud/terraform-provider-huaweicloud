@@ -23,6 +23,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+var backupStrategyNonUpdatableParams = []string{"instance_id", "destination_region", "destination_project_id"}
+
 // @API RDS GET /v3/{project_id}/instances/{instance_id}/backups/offsite-policy
 // @API RDS PUT /v3/{project_id}/instances/{instance_id}/backups/offsite-policy
 // @API RDS GET /v3/{project_id}/instances
@@ -32,9 +34,12 @@ func ResourceBackupStrategy() *schema.Resource {
 		UpdateContext: resourceBackupStrategyUpdate,
 		ReadContext:   resourceBackupStrategyRead,
 		DeleteContext: resourceBackupStrategyDelete,
+
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+
+		CustomizeDiff: config.FlexibleForceNew(backupStrategyNonUpdatableParams),
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
@@ -52,7 +57,6 @@ func ResourceBackupStrategy() *schema.Resource {
 			"instance_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the ID of the RDS instance.`,
 			},
 			"backup_type": {
@@ -70,14 +74,18 @@ func ResourceBackupStrategy() *schema.Resource {
 			"destination_region": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the target region ID for the cross-region backup policy.`,
 			},
 			"destination_project_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: `Specifies the target project ID for the cross-region backup policy.`,
+			},
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
 			},
 		},
 	}
@@ -141,7 +149,8 @@ func resourceBackupStrategyRead(_ context.Context, d *schema.ResourceData, meta 
 	if err != nil {
 		return diag.Errorf("error getting RDS instance: %s", err)
 	}
-	if instance.Id == "" {
+	instanceId := utils.PathSearch("id", instance, "").(string)
+	if instanceId == "" {
 		return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "")
 	}
 

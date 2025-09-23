@@ -1,0 +1,55 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_workspace_app_service": {
+          "block": {
+            "attributes": {
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the Workspace service, in RFC3339 format.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "open_with_ad": {
+                "type": "bool",
+                "description": "Whether the APP service is connected to AD.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the APP service is located.",
+                "computed": true
+              },
+              "service_status": {
+                "type": "string",
+                "description": "The status of the APP service.",
+                "computed": true
+              },
+              "tenant_domain_id": {
+                "type": "string",
+                "description": "The domain ID to which the APP service belongs.",
+                "computed": true
+              },
+              "tenant_domain_name": {
+                "type": "string",
+                "description": "The domain name to which the APP service belongs.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "Workspace",
+            "name": "Workspace",
+            "catalog": "Business Applications",
+            "name_cn": "云桌面",
+            "catalog_cn": "企业应用"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,123 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cciv2_services": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "namespace": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "services": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "annotations": [
+                        "map",
+                        "string"
+                      ],
+                      "creation_timestamp": "string",
+                      "finalizers": [
+                        "list",
+                        "string"
+                      ],
+                      "labels": [
+                        "map",
+                        "string"
+                      ],
+                      "name": "string",
+                      "namespace": "string",
+                      "ports": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "app_protocol": "string",
+                            "name": "string",
+                            "port": "number",
+                            "protocol": "string",
+                            "target_port": "number"
+                          }
+                        ]
+                      ],
+                      "resource_version": "string",
+                      "selector": [
+                        "map",
+                        "string"
+                      ],
+                      "session_affinity": "string",
+                      "status": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "conditions": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "last_transition_time": "string",
+                                  "message": "string",
+                                  "observe_generation": "string",
+                                  "reason": "string",
+                                  "status": "string",
+                                  "type": "string"
+                                }
+                              ]
+                            ],
+                            "loadbalancer": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "ingress": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "ip": "string",
+                                        "ports": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "error": "string",
+                                              "port": "number",
+                                              "protocol": "string"
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "type": "string",
+                      "uid": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

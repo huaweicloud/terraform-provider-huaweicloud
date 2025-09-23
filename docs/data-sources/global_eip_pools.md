@@ -31,7 +31,7 @@ The following arguments are supported:
 
 * `access_site` - (Optional, String) Specifies the access site to which the global EIP pool belongs.
 
-* `ip_version` - (Optional, Int) Specifies the ip version. Valid values are **4** and **6**.
+* `ip_version` - (Optional, Int) Specifies the ip version. Valid values are `4` and `6`.
 
 * `isp` - (Optional, String) Specifies the internet service provider of the global EIP pool.
 

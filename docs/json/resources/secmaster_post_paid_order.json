@@ -1,0 +1,90 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_secmaster_post_paid_order": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "operate_type": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              }
+            },
+            "block_types": {
+              "product_list": {
+                "block": {
+                  "attributes": {
+                    "cloud_service_type": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "product_id": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "resource_id": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "resource_size": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "resource_spec_code": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "resource_type": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "usage_factor": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "usage_measure_id": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "usage_value": {
+                      "type": "number",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "SecMaster",
+            "name": "SecMaster",
+            "catalog": "Security & Compliance",
+            "name_cn": "安全云脑",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

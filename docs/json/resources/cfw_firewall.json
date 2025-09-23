@@ -136,8 +136,8 @@
                   "map",
                   "string"
                 ],
-                "description": "Specifies the key/value pairs to associate with the firewall.",
-                "optional": true
+                "optional": true,
+                "computed": true
               }
             },
             "block_types": {

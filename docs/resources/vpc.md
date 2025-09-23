@@ -52,6 +52,9 @@ The following arguments are supported:
 * `description` - (Optional, String) Specifies supplementary information about the VPC. The value is a string of
   no more than 255 characters and cannot contain angle brackets (< or >).
 
+* `enhanced_local_route` - (Optional, String) Specifies whether to enable local route enhancement function. It can not be
+  closed if it has been open. Value options: **true** or **false**. Defaults to **true**.
+
 * `secondary_cidrs` - (Optional, List) Specifies the secondary CIDR blocks of the VPC.
   Each VPC can have 5 secondary CIDR blocks.
 
@@ -81,14 +84,14 @@ This resource provides the following timeouts configuration options:
 
 VPCs can be imported using the `id`, e.g.
 
-```
+```bash
 $ terraform import huaweicloud_vpc.vpc_v1 7117d38e-4c8f-4624-a505-bd96b97d024c
 ```
 
 Note that the imported state may not be identical to your resource definition when `secondary_cidr` was set.
-You you can ignore changes as below.
+You can ignore changes as below.
 
-```
+```hcl
 resource "huaweicloud_vpc" "vpc_v1" {
     ...
 

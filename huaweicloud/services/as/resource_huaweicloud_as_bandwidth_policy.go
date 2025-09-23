@@ -1,19 +1,16 @@
-// ---------------------------------------------------------------
-// *** AUTO GENERATED CODE ***
-// @Product AS
-// ---------------------------------------------------------------
-
 package as
 
 import (
 	"context"
-	"log"
+	"fmt"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/jmespath/go-jmespath"
 
 	"github.com/chnsz/golangsdk"
 
@@ -26,6 +23,7 @@ import (
 // @API AS POST /autoscaling-api/v2/{project_id}/scaling_policy
 // @API AS GET /autoscaling-api/v2/{project_id}/scaling_policy/{id}
 // @API AS PUT /autoscaling-api/v2/{project_id}/scaling_policy/{id}
+// @API AS POST /autoscaling-api/v1/{project_id}/scaling_policy/{scaling_policy_id}/action
 func ResourceASBandWidthPolicy() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceASBandWidthPolicyCreate,
@@ -34,6 +32,11 @@ func ResourceASBandWidthPolicy() *schema.Resource {
 		DeleteContext: resourceASPolicyDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
+		},
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(2 * time.Minute),
+			Update: schema.DefaultTimeout(2 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -79,6 +82,11 @@ func ResourceASBandWidthPolicy() *schema.Resource {
 				Computed:    true,
 				Description: `Specifies the description of the AS policy.`,
 			},
+			"action": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies identification of operation the AS bandwidth policy.`,
+			},
 			"scaling_policy_action": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
@@ -96,6 +104,13 @@ func ResourceASBandWidthPolicy() *schema.Resource {
 					"alarm_id",
 				},
 			},
+			"interval_alarm_actions": {
+				Type:        schema.TypeSet,
+				Elem:        bandWidthIntervalAlarmActions(),
+				Optional:    true,
+				Computed:    true,
+				Description: `Specifies the alarm interval of the bandwidth policy.`,
+			},
 			"scaling_resource_type": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -106,8 +121,75 @@ func ResourceASBandWidthPolicy() *schema.Resource {
 				Computed:    true,
 				Description: `the AS policy status.`,
 			},
+			"create_time": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The creation time of the bandwidth policy.`,
+			},
+			"meta_data": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `The bandwidth policy additional information.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"metadata_bandwidth_share_type": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The bandwidth sharing type in the bandwidth policy.`,
+						},
+						"metadata_eip_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The EIP ID for the bandwidth in the bandwidth policy.`,
+						},
+						"metadata_eip_address": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The EIP IP address for the bandwidth in the bandwidth policy.`,
+						},
+					},
+				},
+			},
 		},
 	}
+}
+
+func bandWidthIntervalAlarmActions() *schema.Resource {
+	sc := schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"lower_bound": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `Specifies the lower limit of the value range.`,
+			},
+			"upper_bound": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `Specifies the upper limit of the value range.`,
+			},
+			"operation": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `Specifies the operation to be performed.`,
+			},
+			"size": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Computed:    true,
+				Description: `Specifies the operation size.`,
+			},
+			"limits": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Computed:    true,
+				Description: `Specifies the operation restrictions.`,
+			},
+		},
+	}
+	return &sc
 }
 
 func bandWidthPolicyActionSchema() *schema.Resource {
@@ -173,6 +255,38 @@ func bandWidthScheduledPolicySchema() *schema.Resource {
 	return &sc
 }
 
+func buildIntervalAlarmActionsBodyParams(d *schema.ResourceData) []map[string]interface{} {
+	intervalActions := d.Get("interval_alarm_actions").(*schema.Set).List()
+	if len(intervalActions) == 0 {
+		return nil
+	}
+
+	rst := make([]map[string]interface{}, 0, len(intervalActions))
+	for _, v := range intervalActions {
+		raw := v.(map[string]interface{})
+		params := map[string]interface{}{
+			"operation":   utils.ValueIgnoreEmpty(raw["operation"]),
+			"size":        utils.ValueIgnoreEmpty(raw["size"]),
+			"limits":      utils.ValueIgnoreEmpty(raw["limits"]),
+			"lower_bound": bulidIntervalThreshold(raw["lower_bound"].(string)),
+			"upper_bound": bulidIntervalThreshold(raw["upper_bound"].(string)),
+		}
+
+		rst = append(rst, params)
+	}
+
+	return rst
+}
+
+func bulidIntervalThreshold(str string) interface{} {
+	resp, err := strconv.Atoi(str)
+	if err != nil {
+		return nil
+	}
+
+	return resp
+}
+
 func resourceASBandWidthPolicyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		conf                         = meta.(*config.Config)
@@ -203,26 +317,35 @@ func resourceASBandWidthPolicyCreate(ctx context.Context, d *schema.ResourceData
 		return diag.FromErr(err)
 	}
 
-	id, err := jmespath.Search("scaling_policy_id", createBandwidthPolicyRespBody)
-	if err != nil || id == nil {
-		return diag.Errorf("error creating AS bandwidth policy: ID is not found in API response")
+	policyId := utils.PathSearch("scaling_policy_id", createBandwidthPolicyRespBody, "").(string)
+	if policyId == "" {
+		return diag.Errorf("unable to find the AS bandwidth policy ID from the API response")
 	}
-	d.SetId(id.(string))
+	d.SetId(policyId)
+
+	action := d.Get("action").(string)
+	if action == "pause" {
+		err := updateBandwidthPolicyStatus(ctx, client, d.Timeout(schema.TimeoutCreate), d.Id(), action)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
 
 	return resourceASBandWidthPolicyRead(ctx, d, meta)
 }
 
 func buildCreateBandwidthPolicyBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"scaling_policy_name":   utils.ValueIgnoreEmpty(d.Get("scaling_policy_name")),
-		"scaling_policy_type":   utils.ValueIgnoreEmpty(d.Get("scaling_policy_type")),
-		"scaling_resource_id":   utils.ValueIgnoreEmpty(d.Get("bandwidth_id")),
-		"scaling_resource_type": "BANDWIDTH",
-		"alarm_id":              utils.ValueIgnoreEmpty(d.Get("alarm_id")),
-		"cool_down_time":        utils.ValueIgnoreEmpty(d.Get("cool_down_time")),
-		"description":           utils.ValueIgnoreEmpty(d.Get("description")),
-		"scaling_policy_action": buildCreateBandwidthPolicyScalingPolicyActionChildBody(d),
-		"scheduled_policy":      buildCreateBandwidthPolicyScheduledPolicyChildBody(d),
+		"scaling_policy_name":    utils.ValueIgnoreEmpty(d.Get("scaling_policy_name")),
+		"scaling_policy_type":    utils.ValueIgnoreEmpty(d.Get("scaling_policy_type")),
+		"scaling_resource_id":    utils.ValueIgnoreEmpty(d.Get("bandwidth_id")),
+		"scaling_resource_type":  "BANDWIDTH",
+		"alarm_id":               utils.ValueIgnoreEmpty(d.Get("alarm_id")),
+		"cool_down_time":         utils.ValueIgnoreEmpty(d.Get("cool_down_time")),
+		"description":            utils.ValueIgnoreEmpty(d.Get("description")),
+		"scaling_policy_action":  buildCreateBandwidthPolicyScalingPolicyActionChildBody(d),
+		"scheduled_policy":       buildCreateBandwidthPolicyScheduledPolicyChildBody(d),
+		"interval_alarm_actions": buildIntervalAlarmActionsBodyParams(d),
 	}
 	return bodyParams
 }
@@ -266,7 +389,6 @@ func resourceASBandWidthPolicyRead(_ context.Context, d *schema.ResourceData, me
 		conf                      = meta.(*config.Config)
 		region                    = conf.GetRegion(d)
 		mErr                      *multierror.Error
-		getBandwidthPolicyHttpUrl = "autoscaling-api/v2/{project_id}/scaling_policy/{id}"
 		getBandwidthPolicyProduct = "autoscaling"
 	)
 
@@ -275,21 +397,10 @@ func resourceASBandWidthPolicyRead(_ context.Context, d *schema.ResourceData, me
 		return diag.Errorf("error creating AS bandwidth policy client: %s", err)
 	}
 
-	getBandwidthPolicyPath := client.Endpoint + getBandwidthPolicyHttpUrl
-	getBandwidthPolicyPath = strings.ReplaceAll(getBandwidthPolicyPath, "{project_id}", client.ProjectID)
-	getBandwidthPolicyPath = strings.ReplaceAll(getBandwidthPolicyPath, "{id}", d.Id())
-	getBandwidthPolicyOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-
-	getBandwidthPolicyResp, err := client.Request("GET", getBandwidthPolicyPath, &getBandwidthPolicyOpt)
+	respBody, err := GetBandwidthPolicy(client, d.Id())
 	if err != nil {
+		// When the resource does not exist, the response HTTP status code of the details API is 404.
 		return common.CheckDeletedDiag(d, err, "error retrieving AS bandwidth policy")
-	}
-
-	respBody, err := utils.FlattenResponse(getBandwidthPolicyResp)
-	if err != nil {
-		return diag.FromErr(err)
 	}
 
 	mErr = multierror.Append(
@@ -305,16 +416,61 @@ func resourceASBandWidthPolicyRead(_ context.Context, d *schema.ResourceData, me
 		d.Set("status", utils.PathSearch("scaling_policy.policy_status", respBody, nil)),
 		d.Set("scaling_policy_action", flattenGetBandwidthPolicyResponseBodyScalingPolicyAction(respBody)),
 		d.Set("scheduled_policy", flattenGetBandwidthPolicyResponseBodyScheduledPolicy(respBody)),
+		d.Set("interval_alarm_actions", flattenIntervalActions(utils.PathSearch("scaling_policy.interval_alarm_actions", respBody, nil))),
+		d.Set("create_time", utils.PathSearch("scaling_policy.create_time", respBody, nil)),
+		d.Set("meta_data", flattenBandwidthMetaData(utils.PathSearch("scaling_policy.meta_data", respBody, nil))),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
+func flattenIntervalActions(resp interface{}) []map[string]interface{} {
+	if resp == nil {
+		return nil
+	}
+
+	rawArray := resp.([]interface{})
+	rst := make([]map[string]interface{}, len(rawArray))
+	for i, v := range rawArray {
+		params := map[string]interface{}{
+			"lower_bound": flattenIntervalThreshold(utils.PathSearch("lower_bound", v, nil)),
+			"upper_bound": flattenIntervalThreshold(utils.PathSearch("upper_bound", v, nil)),
+			"operation":   utils.PathSearch("operation", v, nil),
+			"size":        utils.PathSearch("size", v, nil),
+			"limits":      utils.PathSearch("limits", v, nil),
+		}
+		rst[i] = params
+	}
+
+	return rst
+}
+
+func flattenIntervalThreshold(param interface{}) string {
+	if param == nil {
+		return ""
+	}
+
+	return fmt.Sprintf("%v", param)
+}
+
+func flattenBandwidthMetaData(metaData interface{}) []map[string]interface{} {
+	if metaData == nil {
+		return nil
+	}
+
+	bandwidthMetaData := map[string]interface{}{
+		"metadata_bandwidth_share_type": utils.PathSearch("metadata_bandwidth_share_type", metaData, nil),
+		"metadata_eip_id":               utils.PathSearch("metadata_eip_id", metaData, nil),
+		"metadata_eip_address":          utils.PathSearch("metadata_eip_address", metaData, nil),
+	}
+
+	return []map[string]interface{}{bandwidthMetaData}
+}
+
 func flattenGetBandwidthPolicyResponseBodyScalingPolicyAction(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("scaling_policy.scaling_policy_action", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing scaling_policy_action from response= %#v", resp)
+	curJson := utils.PathSearch("scaling_policy.scaling_policy_action", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return rst
 	}
 
@@ -330,9 +486,8 @@ func flattenGetBandwidthPolicyResponseBodyScalingPolicyAction(resp interface{}) 
 
 func flattenGetBandwidthPolicyResponseBodyScheduledPolicy(resp interface{}) []interface{} {
 	var rst []interface{}
-	curJson, err := jmespath.Search("scaling_policy.scheduled_policy", resp)
-	if err != nil {
-		log.Printf("[ERROR] error parsing scheduled_policy from response= %#v", resp)
+	curJson := utils.PathSearch("scaling_policy.scheduled_policy", resp, make(map[string]interface{})).(map[string]interface{})
+	if len(curJson) < 1 {
 		return rst
 	}
 
@@ -349,6 +504,17 @@ func flattenGetBandwidthPolicyResponseBodyScheduledPolicy(resp interface{}) []in
 }
 
 func resourceASBandWidthPolicyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg                          = meta.(*config.Config)
+		region                       = cfg.GetRegion(d)
+		updateBandwidthPolicyProduct = "autoscaling"
+	)
+
+	client, err := cfg.NewServiceClient(updateBandwidthPolicyProduct, region)
+	if err != nil {
+		return diag.Errorf("error creating AS bandwidth policy client: %s", err)
+	}
+
 	updateBandwidthPolicyChanges := []string{
 		"scaling_policy_name",
 		"scaling_policy_type",
@@ -359,21 +525,12 @@ func resourceASBandWidthPolicyUpdate(ctx context.Context, d *schema.ResourceData
 		"description",
 		"scaling_policy_action",
 		"scheduled_policy",
+		"interval_alarm_actions",
 	}
 
 	if d.HasChanges(updateBandwidthPolicyChanges...) {
 		// updateBandwidthPolicy: update the AS bandwidth scaling policy
-		var (
-			conf                         = meta.(*config.Config)
-			region                       = conf.GetRegion(d)
-			updateBandwidthPolicyHttpUrl = "autoscaling-api/v2/{project_id}/scaling_policy/{id}"
-			updateBandwidthPolicyProduct = "autoscaling"
-		)
-		client, err := conf.NewServiceClient(updateBandwidthPolicyProduct, region)
-		if err != nil {
-			return diag.Errorf("error creating AS bandwidth policy client: %s", err)
-		}
-
+		updateBandwidthPolicyHttpUrl := "autoscaling-api/v2/{project_id}/scaling_policy/{id}"
 		updateBandwidthPolicyPath := client.Endpoint + updateBandwidthPolicyHttpUrl
 		updateBandwidthPolicyPath = strings.ReplaceAll(updateBandwidthPolicyPath, "{project_id}", client.ProjectID)
 		updateBandwidthPolicyPath = strings.ReplaceAll(updateBandwidthPolicyPath, "{id}", d.Id())
@@ -387,20 +544,30 @@ func resourceASBandWidthPolicyUpdate(ctx context.Context, d *schema.ResourceData
 			return diag.Errorf("error updating AS bandwidth policy: %s", err)
 		}
 	}
+
+	if d.HasChange("action") {
+		action := d.Get("action").(string)
+		err := updateBandwidthPolicyStatus(ctx, client, d.Timeout(schema.TimeoutUpdate), d.Id(), action)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceASBandWidthPolicyRead(ctx, d, meta)
 }
 
 func buildUpdateBandwidthPolicyBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"scaling_policy_name":   utils.ValueIgnoreEmpty(d.Get("scaling_policy_name")),
-		"scaling_policy_type":   utils.ValueIgnoreEmpty(d.Get("scaling_policy_type")),
-		"scaling_resource_id":   utils.ValueIgnoreEmpty(d.Get("bandwidth_id")),
-		"scaling_resource_type": utils.ValueIgnoreEmpty(d.Get("scaling_resource_type")),
-		"alarm_id":              utils.ValueIgnoreEmpty(d.Get("alarm_id")),
-		"cool_down_time":        utils.ValueIgnoreEmpty(d.Get("cool_down_time")),
-		"description":           utils.ValueIgnoreEmpty(d.Get("description")),
-		"scaling_policy_action": buildUpdateBandwidthPolicyScalingPolicyActionChildBody(d),
-		"scheduled_policy":      buildUpdateBandwidthPolicyScheduledPolicyChildBody(d),
+		"scaling_policy_name":    utils.ValueIgnoreEmpty(d.Get("scaling_policy_name")),
+		"scaling_policy_type":    utils.ValueIgnoreEmpty(d.Get("scaling_policy_type")),
+		"scaling_resource_id":    utils.ValueIgnoreEmpty(d.Get("bandwidth_id")),
+		"scaling_resource_type":  utils.ValueIgnoreEmpty(d.Get("scaling_resource_type")),
+		"alarm_id":               utils.ValueIgnoreEmpty(d.Get("alarm_id")),
+		"cool_down_time":         utils.ValueIgnoreEmpty(d.Get("cool_down_time")),
+		"description":            utils.ValueIgnoreEmpty(d.Get("description")),
+		"scaling_policy_action":  buildUpdateBandwidthPolicyScalingPolicyActionChildBody(d),
+		"scheduled_policy":       buildUpdateBandwidthPolicyScheduledPolicyChildBody(d),
+		"interval_alarm_actions": buildIntervalAlarmActionsBodyParams(d),
 	}
 	return bodyParams
 }
@@ -437,4 +604,91 @@ func buildUpdateBandwidthPolicyScheduledPolicyChildBody(d *schema.ResourceData) 
 	}
 
 	return params
+}
+
+func GetBandwidthPolicy(client *golangsdk.ServiceClient, policyId string) (interface{}, error) {
+	httpUrl := "autoscaling-api/v2/{project_id}/scaling_policy/{scaling_policy_id}"
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{scaling_policy_id}", policyId)
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	resp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(resp)
+}
+
+func updateBandwidthPolicyStatus(ctx context.Context, client *golangsdk.ServiceClient, t time.Duration,
+	policyId, action string) error {
+	updateStatusHttpUrl := "autoscaling-api/v1/{project_id}/scaling_policy/{scaling_policy_id}/action"
+	updateStatusPath := client.Endpoint + updateStatusHttpUrl
+	updateStatusPath = strings.ReplaceAll(updateStatusPath, "{project_id}", client.ProjectID)
+	updateStatusPath = strings.ReplaceAll(updateStatusPath, "{scaling_policy_id}", policyId)
+
+	updatePolicyStatusOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"action": action,
+		},
+		OkCodes: []int{
+			200, 201, 204,
+		},
+	}
+
+	_, err := client.Request("POST", updateStatusPath, &updatePolicyStatusOpt)
+	if err != nil {
+		return fmt.Errorf("error updating AS bandwidth policy status: %s", err)
+	}
+
+	err = waitingForBandWidthPolicyStatusCompleted(ctx, client, t, policyId, action)
+	if err != nil {
+		return fmt.Errorf("error waiting for the AS bandwidth policy status update to complete: %s", err)
+	}
+
+	return nil
+}
+
+func waitingForBandWidthPolicyStatusCompleted(ctx context.Context, client *golangsdk.ServiceClient, t time.Duration,
+	policyId, action string) error {
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      waitBandwidthPolicyStatusRefreshFunc(client, policyId, action),
+		Timeout:      t,
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+
+	_, err := stateConf.WaitForStateContext(ctx)
+	return err
+}
+
+func waitBandwidthPolicyStatusRefreshFunc(client *golangsdk.ServiceClient, policyId, action string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		respBody, err := GetBandwidthPolicy(client, policyId)
+		if err != nil {
+			return nil, "ERROR", err
+		}
+
+		policyStatus := utils.PathSearch("scaling_policy.policy_status", respBody, "").(string)
+
+		if action == "resume" {
+			if policyStatus == "INSERVICE" {
+				return respBody, "COMPLETED", nil
+			}
+		}
+
+		if action == "pause" {
+			if policyStatus == "PAUSED" {
+				return respBody, "COMPLETED", nil
+			}
+		}
+
+		return respBody, "PENDING", nil
+	}
 }

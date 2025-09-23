@@ -8,6 +8,9 @@ host: huaweicloud.com
 tags:
     - name: ELB
 paths:
+    /v1.0/enterprise-projects/{enterprise_project_id}/resources-migrat:
+        POST:
+            tag: EPS
     /v2.0/{project_id}/loadbalancers/{loadbalancer_id}/tags:
         GET:
             tag: ELB

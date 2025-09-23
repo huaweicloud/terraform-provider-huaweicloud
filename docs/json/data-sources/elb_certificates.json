@@ -1,0 +1,125 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_elb_certificates": {
+          "block": {
+            "attributes": {
+              "certificate_id": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies a certificate ID.",
+                "optional": true
+              },
+              "certificates": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "certificate": "string",
+                      "common_name": "string",
+                      "created_at": "string",
+                      "description": "string",
+                      "domain": "string",
+                      "enc_certificate": "string",
+                      "enc_private_key": "string",
+                      "expire_time": "string",
+                      "fingerprint": "string",
+                      "id": "string",
+                      "name": "string",
+                      "private_key": "string",
+                      "scm_certificate_id": "string",
+                      "subject_alternative_names": [
+                        "list",
+                        "string"
+                      ],
+                      "type": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of certificates.",
+                "computed": true
+              },
+              "common_name": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the primary domain name of the certificate.",
+                "optional": true
+              },
+              "description": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the certificate description.",
+                "optional": true
+              },
+              "domain": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the domain names used by the server certificate.",
+                "optional": true
+              },
+              "fingerprint": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the fingerprint of the certificate.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the certificate name.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "scm_certificate_id": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the SSL certificate ID.",
+                "optional": true
+              },
+              "type": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the certificate type.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "ELB",
+            "name": "Elastic Load Balance",
+            "catalog": "Networking",
+            "name_cn": "弹性负载均衡",
+            "catalog_cn": "网络"
+          }
+        }
+      }
+    }
+  }
+}

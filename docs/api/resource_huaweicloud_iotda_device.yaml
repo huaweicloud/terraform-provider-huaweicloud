@@ -27,6 +27,9 @@ paths:
     /v5/iot/{project_id}/devices/{device_id}/reset-fingerprint:
         POST:
             tag: IoTDA
+    /v5/iot/{project_id}/devices/{device_id}/shadow:
+        PUT:
+            tag: IoTDA
     /v5/iot/{project_id}/devices/{device_id}/unfreeze:
         POST:
             tag: IoTDA

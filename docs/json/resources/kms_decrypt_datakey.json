@@ -1,0 +1,65 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_kms_decrypt_datakey": {
+          "block": {
+            "attributes": {
+              "cipher_text": {
+                "type": "string",
+                "description": "Specifies the DEK ciphertext and metadata in hexadecimal string.",
+                "required": true
+              },
+              "data_key": {
+                "type": "string",
+                "description": "The DEK plaintext in hexadecimal string.",
+                "computed": true
+              },
+              "datakey_cipher_length": {
+                "type": "string",
+                "description": "Specifies the byte length of the DEK ciphertext.",
+                "required": true
+              },
+              "datakey_dgst": {
+                "type": "string",
+                "description": "The SHA256 value of the DEK plaintext in hexadecimal string.",
+                "computed": true
+              },
+              "datakey_length": {
+                "type": "string",
+                "description": "The byte length of DEK plaintext.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "key_id": {
+                "type": "string",
+                "description": "Specifies the key ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to create the resource.",
+                "computed": true
+              },
+              "sequence": {
+                "type": "string",
+                "description": "Specifies the sequence number of the request message.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "KMS",
+            "name": "Data Encryption Workshop KMS",
+            "catalog": "Security & Compliance",
+            "name_cn": "数据加密服务-密钥管理",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

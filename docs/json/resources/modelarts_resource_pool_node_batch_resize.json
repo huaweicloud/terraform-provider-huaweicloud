@@ -1,0 +1,156 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_modelarts_resource_pool_node_batch_resize": {
+          "block": {
+            "attributes": {
+              "billing": {
+                "type": "string",
+                "description": "Whether to automatically pay, in JSON format.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the resource pool is located.",
+                "computed": true
+              },
+              "resource_pool_name": {
+                "type": "string",
+                "description": "The resource pool name to which the resource nodes belong.",
+                "required": true
+              },
+              "server_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The list of service IDs corresponding to the currently upgraded specification nodes.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "nodes": {
+                "block": {
+                  "attributes": {
+                    "batch_uid": {
+                      "type": "string",
+                      "description": "The batch UID of the node.",
+                      "required": true
+                    },
+                    "delete_node_names": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "The list of nodes to be deleted.",
+                      "optional": true
+                    }
+                  },
+                  "description": "The list of nodes to be scaled."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              },
+              "source": {
+                "block": {
+                  "attributes": {
+                    "flavor": {
+                      "type": "string",
+                      "description": "The flavor of the node pool.",
+                      "required": true
+                    },
+                    "node_pool": {
+                      "type": "string",
+                      "description": "The name of the node pool.",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "creating_step": {
+                      "block": {
+                        "attributes": {
+                          "step": {
+                            "type": "number",
+                            "description": "The step number of the nodes.",
+                            "required": true
+                          },
+                          "type": {
+                            "type": "string",
+                            "description": "The type of the nodes.",
+                            "required": true
+                          }
+                        },
+                        "description": "The creating step of the node pool."
+                      },
+                      "nesting_mode": "list",
+                      "min_items": 1,
+                      "max_items": 1
+                    }
+                  },
+                  "description": "The configuration of the source node pool to which the node to be scaled belongs."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              },
+              "target": {
+                "block": {
+                  "attributes": {
+                    "flavor": {
+                      "type": "string",
+                      "description": "The flavor of the node pool.",
+                      "required": true
+                    },
+                    "node_pool": {
+                      "type": "string",
+                      "description": "The name of the node pool.",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "creating_step": {
+                      "block": {
+                        "attributes": {
+                          "step": {
+                            "type": "number",
+                            "description": "The step number of the nodes.",
+                            "required": true
+                          },
+                          "type": {
+                            "type": "string",
+                            "description": "The type of the nodes.",
+                            "required": true
+                          }
+                        },
+                        "description": "The creating step of the node pool."
+                      },
+                      "nesting_mode": "list",
+                      "min_items": 1,
+                      "max_items": 1
+                    }
+                  },
+                  "description": "The configuration of the target node pool to which the node to be scaled belongs."
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "ModelArts",
+            "name": "ModelArts",
+            "catalog": "AI",
+            "name_cn": "AI开发平台",
+            "catalog_cn": "人工智能"
+          }
+        }
+      }
+    }
+  }
+}

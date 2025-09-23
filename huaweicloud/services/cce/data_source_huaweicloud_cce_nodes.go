@@ -165,6 +165,22 @@ func DataSourceNodes() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"hostname_config": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"type": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+								},
+							},
+						},
+						"enterprise_project_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 					},
 				},
 			},
@@ -198,19 +214,21 @@ func dataSourceNodesRead(_ context.Context, d *schema.ResourceData, meta interfa
 		log.Printf("[DEBUG] Retrieved Nodes using given filter %s: %+v", v.Metadata.Id, v)
 		ids = append(ids, v.Metadata.Id)
 		node := map[string]interface{}{
-			"id":                v.Metadata.Id,
-			"name":              v.Metadata.Name,
-			"flavor_id":         v.Spec.Flavor,
-			"availability_zone": v.Spec.Az,
-			"os":                v.Spec.Os,
-			"billing_mode":      v.Spec.BillingMode,
-			"key_pair":          v.Spec.Login.SshKey,
-			"subnet_id":         v.Spec.NodeNicSpec.PrimaryNic.SubnetId,
-			"ecs_group_id":      v.Spec.EcsGroupID,
-			"server_id":         v.Status.ServerID,
-			"public_ip":         v.Status.PublicIP,
-			"private_ip":        v.Status.PrivateIP,
-			"status":            v.Status.Phase,
+			"id":                    v.Metadata.Id,
+			"name":                  v.Metadata.Name,
+			"flavor_id":             v.Spec.Flavor,
+			"availability_zone":     v.Spec.Az,
+			"os":                    v.Spec.Os,
+			"billing_mode":          v.Spec.BillingMode,
+			"key_pair":              v.Spec.Login.SshKey,
+			"subnet_id":             v.Spec.NodeNicSpec.PrimaryNic.SubnetId,
+			"ecs_group_id":          v.Spec.EcsGroupID,
+			"server_id":             v.Status.ServerID,
+			"public_ip":             v.Status.PublicIP,
+			"private_ip":            v.Status.PrivateIP,
+			"status":                v.Status.Phase,
+			"hostname_config":       flattenResourceNodeHostnameConfig(v.Spec.HostnameConfig),
+			"enterprise_project_id": v.Spec.ServerEnterpriseProjectID,
 		}
 
 		var volumes []map[string]interface{}

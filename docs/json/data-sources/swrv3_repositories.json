@@ -1,0 +1,67 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_swrv3_repositories": {
+          "block": {
+            "attributes": {
+              "category": {
+                "type": "string",
+                "description": "Specifies the repository type.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_public": {
+                "type": "string",
+                "description": "Specifies whether a repository is public.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the image repository name. Enter 1 to 128 characters.",
+                "optional": true
+              },
+              "organization": {
+                "type": "string",
+                "description": "Specifies the organization name.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "repos": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "category": "string",
+                      "created_at": "string",
+                      "description": "string",
+                      "id": "number",
+                      "is_public": "bool",
+                      "name": "string",
+                      "num_download": "number",
+                      "num_images": "number",
+                      "organization": "string",
+                      "size": "number",
+                      "status": "bool",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the repositories.",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_codearts_pipeline_service_endpoints": {
+          "block": {
+            "attributes": {
+              "endpoints": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_by": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "user_id": "string",
+                            "user_name": "string"
+                          }
+                        ]
+                      ],
+                      "id": "string",
+                      "module_id": "string",
+                      "name": "string",
+                      "url": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the endpoint list.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "module_id": {
+                "type": "string",
+                "description": "Specifies the module ID.",
+                "optional": true
+              },
+              "project_id": {
+                "type": "string",
+                "description": "Specifies the CodeArts project ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

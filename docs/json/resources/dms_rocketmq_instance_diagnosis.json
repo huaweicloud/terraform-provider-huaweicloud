@@ -1,0 +1,112 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dms_rocketmq_instance_diagnosis": {
+          "block": {
+            "attributes": {
+              "abnormal_item_sum": {
+                "type": "number",
+                "description": "The number of abnormal items.",
+                "computed": true
+              },
+              "consumer_nums": {
+                "type": "number",
+                "description": "The number of consumers.",
+                "computed": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the diagnosis report.",
+                "computed": true
+              },
+              "diagnosis_node_reports": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The list of diagnosis node report.",
+                "computed": true
+              },
+              "faulted_node_sum": {
+                "type": "number",
+                "description": "The number of abnormal nodes.",
+                "computed": true
+              },
+              "group_name": {
+                "type": "string",
+                "description": "The name of the consumer group to be diagnosed.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the RocketMQ instance to be diagnosed.",
+                "required": true,
+                "forcenew": true
+              },
+              "message_accumulation": {
+                "type": "number",
+                "description": "The number of accumulated messages.",
+                "computed": true
+              },
+              "node_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The list of node IDs to be diagnosed.",
+                "optional": true,
+                "forcenew": true
+              },
+              "online": {
+                "type": "bool",
+                "description": "Whether the consumer group is online.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region in which to create the resource.",
+                "computed": true
+              },
+              "report_id": {
+                "type": "string",
+                "description": "The ID of the diagnosis report.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the diagnosis task.",
+                "computed": true
+              },
+              "subscription_consistency": {
+                "type": "bool",
+                "description": "Whether the subscription is consistent.",
+                "computed": true
+              },
+              "subscriptions": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The list of subscribers.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "RocketMQ",
+            "name": "Distributed Message Service for RocketMQ",
+            "catalog": "Middleware",
+            "name_cn": "分布式消息服务 RocketMQ",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

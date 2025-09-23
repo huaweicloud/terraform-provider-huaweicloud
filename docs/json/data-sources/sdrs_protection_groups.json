@@ -1,0 +1,85 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_sdrs_protection_groups": {
+          "block": {
+            "attributes": {
+              "availability_zone": {
+                "type": "string",
+                "description": "Specifies the current production site AZ of a protection group.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of a protection group.",
+                "optional": true
+              },
+              "query_type": {
+                "type": "string",
+                "description": "Specifies the query type.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "server_groups": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "description": "string",
+                      "disaster_recovery_drill_num": "number",
+                      "domain_id": "string",
+                      "domain_name": "string",
+                      "dr_type": "string",
+                      "health_status": "string",
+                      "id": "string",
+                      "name": "string",
+                      "priority_station": "string",
+                      "progress": "number",
+                      "protected_instance_num": "number",
+                      "protected_status": "string",
+                      "protection_type": "string",
+                      "replication_num": "number",
+                      "replication_status": "string",
+                      "server_type": "string",
+                      "source_availability_zone": "string",
+                      "source_vpc_id": "string",
+                      "status": "string",
+                      "target_availability_zone": "string",
+                      "target_vpc_id": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "The information about protection groups.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the protection group status.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "SDRS",
+            "name": "Storage Disaster Recovery Service",
+            "catalog": "Storage",
+            "name_cn": "存储容灾服务",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_ccm_certificate_export": {
+          "block": {
+            "attributes": {
+              "certificate": {
+                "type": "string",
+                "description": "The certificate content.",
+                "computed": true
+              },
+              "certificate_chain": {
+                "type": "string",
+                "description": "The certificate chain.",
+                "computed": true
+              },
+              "certificate_id": {
+                "type": "string",
+                "description": "Specifies the certificate ID.",
+                "required": true
+              },
+              "enc_certificate": {
+                "type": "string",
+                "description": "The encryption certificate content. This attribute is only meaningful in the state secret certificate.",
+                "computed": true
+              },
+              "enc_private_key": {
+                "type": "string",
+                "description": "The encryption certificate private key. This attribute is only meaningful in the state secret certificate.",
+                "computed": true
+              },
+              "entire_certificate": {
+                "type": "string",
+                "description": "The certificate content and certificate chain.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "private_key": {
+                "type": "string",
+                "description": "The private key of the certificate.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CCM",
+            "name": "Cloud Certificate & Manager",
+            "catalog": "Security & Compliance",
+            "name_cn": "云证书与管理服务",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

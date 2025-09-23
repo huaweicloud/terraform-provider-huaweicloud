@@ -1,0 +1,84 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_coc_document_atomic_detail": {
+          "block": {
+            "attributes": {
+              "atomic_name_en": {
+                "type": "string",
+                "description": "Indicates the English name.",
+                "computed": true
+              },
+              "atomic_name_zh": {
+                "type": "string",
+                "description": "Indicates the Chinese name.",
+                "computed": true
+              },
+              "atomic_unique_key": {
+                "type": "string",
+                "description": "Specifies the unique identifier of an atomic capability.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "inputs": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "max": "number",
+                      "max_len": "number",
+                      "min": "number",
+                      "min_len": "number",
+                      "param_key": "string",
+                      "param_name_en": "string",
+                      "param_name_zh": "string",
+                      "param_type": "string",
+                      "pattern": "string",
+                      "required": "bool"
+                    }
+                  ]
+                ],
+                "description": "Indicates the atomic capability input.",
+                "computed": true
+              },
+              "outputs": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "supported": "bool",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the atomic capability output.",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Indicates the tag information.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "COC",
+            "name": "Cloud Operations Center",
+            "catalog": "Management & Governance",
+            "name_cn": "云运维中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

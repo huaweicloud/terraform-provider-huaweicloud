@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"regexp"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -60,8 +59,6 @@ func ResourceIdentityUser() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				RequiredWith: []string{"country_code"},
-				ValidateFunc: validation.StringMatch(regexp.MustCompile("^[0-9]{0,32}$"),
-					"the phone number must have a maximum of 32 digits"),
 			},
 			"country_code": {
 				Type:         schema.TypeString,

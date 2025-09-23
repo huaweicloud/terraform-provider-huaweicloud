@@ -13,9 +13,9 @@ var (
 	// Some error codes that need to be retried coming from https://console-intl.huaweicloud.com/apiexplorer/#/errorcenter/DDS.
 	retryErrCodes = map[string]struct{}{
 		"DBS.200019":   {}, // An operation that conflicts with the current operation is in progress.
+		"DBS.200076":   {},
 		"DBS.201014":   {},
 		"DBS.201015":   {},
-		"DBS.239037":   {},
 		"DBS.201000":   {}, // ssl
 		"DBS.00010009": {}, // Instance's status is not available for this operation.
 	}

@@ -43,7 +43,19 @@ The following arguments are supported:
 
   Changing this will create a new resource.
 
-* `email` - (Required, String) Specifies the email address of user. The value can contain `1` to `64` characters.
+* `active_type` - (Optional, String) Specifies the activation mode of the user. Defaults to **USER_ACTIVATE**.  
+  The valid values are as follows:
+  + **USER_ACTIVATE**: Activated by the user.
+  + **ADMIN_ACTIVATE**: Activated by the administator.
+
+* `email` - (Optional, String) Specifies the email address of user. The value can contain `1` to `64` characters.
+
+* `phone` - (Optional, String) Specifies the phone number of user.
+
+-> At least one of `email` and `phone` parameters must be provided.
+
+* `password` - (Optional, String) Specifies the initial passowrd of user.  
+  This parameter is available and required when `active_type` is set to **ADMIN_ACTIVATE**.
 
 * `description` - (Optional, String) Specifies the description of user. The maximum length is `255` characters.
 
@@ -82,6 +94,25 @@ In addition to all arguments above, the following attributes are exported:
 
 Users can be imported using the `id`, e.g.
 
+```bash
+$ terraform import huaweicloud_workspace_user.test <id>
 ```
-$ terraform import huaweicloud_workspace_user.test a96e632a399d452eb29e5091e0af806a
+
+Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
+API response, security or some other reason.
+The missing attributes include: `password`.
+It is generally recommended running `terraform plan` after importing the resource.
+You can then decide if changes should be applied to the user, or the resource definition should be updated to
+align with the user. Also you can ignore changes as below.
+
+```hcl
+resource "huaweicloud_workspace_user" "test" {
+  ...
+
+  lifecycle {
+    ignore_changes = [
+      password,
+    ]
+  }
+}
 ```

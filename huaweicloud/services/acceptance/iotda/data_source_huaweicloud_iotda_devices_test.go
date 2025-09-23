@@ -18,44 +18,6 @@ func TestAccDataSourceDevices_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-		},
-		ProviderFactories: acceptance.TestAccProviderFactories,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccDataSourceDevices_basic(),
-				Check: resource.ComposeTestCheckFunc(
-					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttrSet(dataSourceName, "devices.#"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "devices.0.space_id"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "devices.0.space_name"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "devices.0.product_id"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "devices.0.product_name"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "devices.0.id"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "devices.0.name"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "devices.0.node_id"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "devices.0.node_type"),
-					resource.TestCheckResourceAttrSet(dataSourceName, "devices.0.status"),
-
-					resource.TestCheckOutput("is_product_id_filter_useful", "true"),
-					resource.TestCheckOutput("is_node_id_filter_useful", "true"),
-					resource.TestCheckOutput("is_device_id_filter_useful", "true"),
-					resource.TestCheckOutput("is_name_filter_useful", "true"),
-					resource.TestCheckOutput("not_found_validation_pass", "true"),
-				),
-			},
-		},
-	})
-}
-
-func TestAccDataSourceDevices_derived(t *testing.T) {
-	var (
-		dataSourceName = "data.huaweicloud_iotda_devices.test"
-		dc             = acceptance.InitDataSourceCheck(dataSourceName)
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck: func() {
-			acceptance.TestAccPreCheck(t)
 			acceptance.TestAccPreCheckHWIOTDAAccessAddress(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
@@ -88,23 +50,37 @@ func TestAccDataSourceDevices_derived(t *testing.T) {
 
 func testDataSourceDevices_base() string {
 	name := acceptance.RandomAccResourceName()
-	productBasic := testProduct_basic(name)
 
 	return fmt.Sprintf(`
 %[1]s
 
+data "huaweicloud_iotda_spaces" "test" {
+  is_default = true
+}
+
+resource "huaweicloud_iotda_product" "test" {
+  name        = "%[2]s"
+  device_type = "test"
+  protocol    = "MQTT"
+  space_id    = data.huaweicloud_iotda_spaces.test.spaces[0].id
+  data_type   = "json"
+
+  services {
+    id   = "service_1"
+    type = "serv_type"
+  }
+}
+
 resource "huaweicloud_iotda_device" "test" {
   node_id    = "%[2]s"
   name       = "%[2]s"
-  space_id   = huaweicloud_iotda_space.test.id
+  space_id   = data.huaweicloud_iotda_spaces.test.spaces[0].id
   product_id = huaweicloud_iotda_product.test.id
 }
-`, productBasic, name)
+`, buildIoTDAEndpoint(), name)
 }
 
 func testAccDataSourceDevices_basic() string {
-	deviceBasic := testDataSourceDevices_base()
-
 	return fmt.Sprintf(`
 %s
 
@@ -180,5 +156,5 @@ data "huaweicloud_iotda_devices" "not_found" {
 output "not_found_validation_pass" {
   value = length(data.huaweicloud_iotda_devices.not_found.devices) == 0
 }
-`, deviceBasic)
+`, testDataSourceDevices_base())
 }

@@ -1,0 +1,117 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_sdrs_protected_instances": {
+          "block": {
+            "attributes": {
+              "availability_zone": {
+                "type": "string",
+                "description": "Specifies the current production site AZ of the protection group containing the protected instance.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of a protected instance. Fuzzy search is supported.",
+                "optional": true
+              },
+              "protected_instance_ids": {
+                "type": "string",
+                "description": "Specifies the protected instance ID list.",
+                "optional": true
+              },
+              "protected_instances": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "attachment": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "device": "string",
+                            "replication": "string"
+                          }
+                        ]
+                      ],
+                      "created_at": "string",
+                      "description": "string",
+                      "id": "string",
+                      "metadata": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "_system_frozen": "string"
+                          }
+                        ]
+                      ],
+                      "name": "string",
+                      "priority_station": "string",
+                      "progress": "number",
+                      "server_group_id": "string",
+                      "source_server": "string",
+                      "status": "string",
+                      "tags": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "key": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ],
+                      "target_server": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "The information about protected instances.",
+                "computed": true
+              },
+              "query_type": {
+                "type": "string",
+                "description": "Specifies the query type.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "server_group_id": {
+                "type": "string",
+                "description": "Specifies the ID of the protection group, in which all protected instances are queried.",
+                "optional": true
+              },
+              "server_group_ids": {
+                "type": "string",
+                "description": "Specifies the protection group ID list.",
+                "optional": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the status.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "SDRS",
+            "name": "Storage Disaster Recovery Service",
+            "catalog": "Storage",
+            "name_cn": "存储容灾服务",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}
