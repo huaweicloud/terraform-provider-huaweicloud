@@ -1808,6 +1808,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_waf_alarm_notifications":                  waf.DataSourceWafAlarmNotifications(),
 			"huaweicloud_waf_alarm_optional_event_types":           waf.DataSourceAlarmOptionalEventTypes(),
 			"huaweicloud_waf_all_domains":                          waf.DataSourceWafAllDomains(),
+			"huaweicloud_waf_all_whiteblackip_rules":               waf.DataSourceAllWhiteblackipRules(),
 			"huaweicloud_waf_bundle":                               waf.DataSourceUserBundle(),
 			"huaweicloud_waf_certificate":                          waf.DataSourceWafCertificate(),
 			"huaweicloud_waf_certificates":                         waf.DataSourceWafCertificates(),
