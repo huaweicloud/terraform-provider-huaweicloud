@@ -1701,6 +1701,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_sfs_turbo_perm_rules":  sfsturbo.DataSourceSfsTurboPermRules(),
 			"huaweicloud_sfs_turbo_tags":        sfsturbo.DataSourceSfsTurboTags(),
 			"huaweicloud_sfs_turbo_share_types": sfsturbo.DataSourceSfsTurboShareTypes(),
+			"huaweicloud_sfs_turbo_quotas":      sfsturbo.DataSourceSfsTurboQuotas(),
 			"huaweicloud_sfs_turbo_mounted_ips": sfsturbo.DataSourceSfsTurboMountedIps(),
 
 			"huaweicloud_swr_organizations":             swr.DataSourceOrganizations(),
