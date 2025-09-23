@@ -56,4 +56,3 @@ variable "script_parameters" {
 
   nullable = false
 }
-
