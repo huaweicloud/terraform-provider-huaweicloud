@@ -483,7 +483,6 @@ var (
 	HW_COC_DIAGNOSIS_TASK_ID     = os.Getenv("HW_COC_DIAGNOSIS_TASK_ID")
 	HW_COC_SCHEDULED_TASK_ID     = os.Getenv("HW_COC_SCHEDULED_TASK_ID")
 	HW_COC_TICKET_ID             = os.Getenv("HW_COC_TICKET_ID")
-	HW_COC_SUB_TICKET_ID         = os.Getenv("HW_COC_SUB_TICKET_ID")
 	HW_COC_ALARM_ID              = os.Getenv("HW_COC_ALARM_ID")
 	HW_COC_AGENT_SN              = os.Getenv("HW_COC_AGENT_SN")
 
@@ -2920,13 +2919,6 @@ func TestAccPreCheckCocScheduledTaskID(t *testing.T) {
 func TestAccPreCheckCocTicketID(t *testing.T) {
 	if HW_COC_TICKET_ID == "" {
 		t.Skip("HW_COC_TICKET_ID must be set for the acceptance test")
-	}
-}
-
-// lintignore:AT003
-func TestAccPreCheckCocSubTicketID(t *testing.T) {
-	if HW_COC_SUB_TICKET_ID == "" {
-		t.Skip("HW_COC_SUB_TICKET_ID must be set for the acceptance test")
 	}
 }
 
