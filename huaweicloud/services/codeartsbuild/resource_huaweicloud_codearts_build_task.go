@@ -237,16 +237,6 @@ func resourceSchemeTaskScm() *schema.Resource {
 				Required:    true,
 				Description: `Specifies the repository URL.`,
 			},
-			"repo_id": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: `Specifies the repository ID.`,
-			},
-			"web_url": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: `Specifies the web URL of the repository.`,
-			},
 			"scm_type": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -288,6 +278,18 @@ func resourceSchemeTaskScm() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `Specifies the source type.`,
+			},
+			"repo_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `Specifies the repository ID.`,
+			},
+			"web_url": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `Specifies the web URL of the repository.`,
 			},
 			"group_name": {
 				Type:        schema.TypeString,
@@ -469,15 +471,15 @@ func buildBuildTaskScms(d *schema.ResourceData) interface{} {
 		if scm, ok := s.(map[string]interface{}); ok {
 			scmMap := map[string]interface{}{
 				"url":            scm["url"],
-				"repo_id":        scm["repo_id"],
-				"web_url":        scm["web_url"],
+				"repo_id":        utils.ValueIgnoreEmpty(scm["repo_id"]),
+				"web_url":        utils.ValueIgnoreEmpty(scm["web_url"]),
 				"scm_type":       scm["scm_type"],
 				"branch":         utils.ValueIgnoreEmpty(scm["branch"]),
 				"is_auto_build":  utils.ValueIgnoreEmpty(scm["is_auto_build"]),
 				"enable_git_lfs": utils.ValueIgnoreEmpty(scm["enable_git_lfs"]),
 				"build_type":     utils.ValueIgnoreEmpty(scm["build_type"]),
 				"depth":          utils.ValueIgnoreEmpty(scm["depth"]),
-				"endpoint_id":    utils.ValueIgnoreEmpty(scm["end_point_id"]),
+				"endpoint_id":    utils.ValueIgnoreEmpty(scm["endpoint_id"]),
 				"source":         utils.ValueIgnoreEmpty(scm["source"]),
 				"group_name":     utils.ValueIgnoreEmpty(scm["group_name"]),
 				"repo_name":      utils.ValueIgnoreEmpty(scm["repo_name"]),
@@ -697,7 +699,7 @@ func flattenBuildTaskScms(resp interface{}) []interface{} {
 			"build_type":     utils.PathSearch("build_type", scm, nil),
 			"depth":          utils.PathSearch("depth", scm, nil),
 			"enable_git_lfs": utils.PathSearch("enable_git_lfs", scm, nil),
-			"endpoint_id":    utils.PathSearch("end_point_id", scm, nil),
+			"endpoint_id":    utils.PathSearch("endpoint_id", scm, nil),
 			"source":         utils.PathSearch("source", scm, nil),
 			"group_name":     utils.PathSearch("group_name", scm, nil),
 			"repo_name":      utils.PathSearch("repo_name", scm, nil),

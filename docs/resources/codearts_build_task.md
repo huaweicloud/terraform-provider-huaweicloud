@@ -106,13 +106,13 @@ The `limits` block supports:
 <a name="block--scms"></a>
 The `scms` block supports:
 
-* `repo_id` - (Required, String) Specifies the repository ID.
-
 * `scm_type` - (Required, String) Specifies the source code management type.
 
 * `url` - (Required, String) Specifies the repository URL.
 
-* `web_url` - (Required, String) Specifies the web URL of the repository.
+* `repo_id` - (Optional, String) Specifies the repository ID.
+
+* `web_url` - (Optional, String) Specifies the web URL of the repository.
 
 * `branch` - (Optional, String) Specifies the branch name.
 
