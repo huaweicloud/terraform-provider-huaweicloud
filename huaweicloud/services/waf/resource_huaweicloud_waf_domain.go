@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -32,6 +33,7 @@ const (
 // @API WAF DELETE /v1/{project_id}/waf/instance/{instance_id}
 // @API WAF POST /v1/{project_id}/waf/instance
 // @API WAF PUT /v1/{project_id}/waf/instance/{instance_id}/protect-status
+// @API WAF PUT /v1/{project_id}/waf/instance/{instance_id}/access-status
 // @API WAF DELETE /v1/{project_id}/waf/policy/{policy_id}
 // @API WAF PATCH /v1/{project_id}/waf/policy/{policy_id}
 func ResourceWafDomain() *schema.Resource {
@@ -183,8 +185,11 @@ func ResourceWafDomain() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			// Due to environmental and permission restrictions, the API test for the `access_status` parameter has not
+			// been effective, and there is currently no testing in the test cases.
 			"access_status": {
 				Type:     schema.TypeInt,
+				Optional: true,
 				Computed: true,
 			},
 			"access_code": {
@@ -588,6 +593,12 @@ func resourceWafDomainCreate(ctx context.Context, d *schema.ResourceData, meta i
 		}
 	}
 
+	if _, ok := d.GetOk("access_status"); ok {
+		if err := updateWafDomainAccessStatus(wafClient, d); err != nil {
+			return diag.Errorf("error update WAF domain `access_status` in creation operation: %s", err)
+		}
+	}
+
 	return resourceWafDomainRead(ctx, d, meta)
 }
 
@@ -599,6 +610,44 @@ func updateWafDomainProtectStatus(wafClient *golangsdk.ServiceClient, d *schema.
 	if err != nil {
 		return fmt.Errorf("error updating WAF domain protect status: %s", err)
 	}
+	return nil
+}
+
+func updateWafDomainAccessStatus(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	var (
+		httpUrl           = "v1/{project_id}/waf/instance/{instance_id}/access-status"
+		inputAccessStatus = d.Get("access_status").(int)
+	)
+
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{instance_id}", d.Id())
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json;charset=utf8",
+		},
+		JSONBody: map[string]interface{}{
+			"access_status": inputAccessStatus,
+		},
+	}
+
+	requestResp, err := client.Request("PUT", requestPath, &requestOpt)
+	if err != nil {
+		return fmt.Errorf("error update WAF domain access status: %s", err)
+	}
+
+	respBody, err := utils.FlattenResponse(requestResp)
+	if err != nil {
+		return err
+	}
+
+	respAccessStatus := utils.PathSearch("access_status", respBody, float64(0)).(float64)
+	if int(respAccessStatus) != inputAccessStatus {
+		return fmt.Errorf("failed to update WAF domain access status: expected value: %v,"+
+			" actual value: %v", inputAccessStatus, respAccessStatus)
+	}
+
 	return nil
 }
 
@@ -676,6 +725,12 @@ func resourceWafDomainUpdate(ctx context.Context, d *schema.ResourceData, meta i
 	if d.HasChanges("protect_status") {
 		if err := updateWafDomainProtectStatus(wafClient, d, cfg); err != nil {
 			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChanges("access_status") {
+		if err := updateWafDomainAccessStatus(wafClient, d); err != nil {
+			return diag.Errorf("error update WAF domain `access_status` in update operation: %s", err)
 		}
 	}
 
