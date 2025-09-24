@@ -3203,6 +3203,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_vpn_p2c_gateway_job_delete":            vpn.ResourceP2CGatewayJobDelete(),
 
 			"huaweicloud_waf_address_group":                       waf.ResourceWafAddressGroup(),
+			"huaweicloud_waf_cc_protection_rule_batch_delete":     waf.ResourceCcRuleBatchDelete(),
 			"huaweicloud_waf_certificate":                         waf.ResourceWafCertificate(),
 			"huaweicloud_waf_cloud_instance":                      waf.ResourceCloudInstance(),
 			"huaweicloud_waf_dedicated_domain":                    waf.ResourceWafDedicatedDomain(),
