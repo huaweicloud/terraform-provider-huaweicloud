@@ -2471,6 +2471,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_kafka_smart_connect_task":        kafka.ResourceDmsKafkaSmartConnectTask(),
 			"huaweicloud_dms_kafkav2_smart_connect_task":      kafka.ResourceDmsKafkav2SmartConnectTask(),
 			"huaweicloud_dms_kafka_smart_connect_task_action": kafka.ResourceDmsKafkaSmartConnectTaskAction(),
+			"huaweicloud_dms_kafka_smart_connector_validate":  kafka.ResourceSmartConnectorValidate(),
 			"huaweicloud_dms_kafka_user_client_quota":         kafka.ResourceDmsKafkaUserClientQuota(),
 			"huaweicloud_dms_kafka_message_diagnosis_task":    kafka.ResourceDmsKafkaMessageDiagnosisTask(),
 
