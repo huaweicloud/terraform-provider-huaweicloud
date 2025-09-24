@@ -2336,6 +2336,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_coc_change_update":                 coc.ResourceChangeUpdate(),
 			"huaweicloud_coc_change_delete":                 coc.ResourceChangeDelete(),
 			"huaweicloud_coc_alarm_action":                  coc.ResourceAlarmAction(),
+			"huaweicloud_coc_alarm_clear":                   coc.ResourceAlarmClear(),
 
 			"huaweicloud_cph_server":         cph.ResourceCphServer(),
 			"huaweicloud_cph_adb_command":    cph.ResourceAdbCommand(),
