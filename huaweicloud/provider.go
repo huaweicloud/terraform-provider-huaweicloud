@@ -820,6 +820,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_coc_ticket_operation_histories":        coc.DataSourceCocTicketOperationHistories(),
 			"huaweicloud_coc_change_sub_tickets":                coc.DataSourceCocChangeSubTickets(),
 			"huaweicloud_coc_issue_tickets":                     coc.DataSourceCocIssueTickets(),
+			"huaweicloud_coc_alarm_action_histories":            coc.DataSourceCocAlarmActionHistories(),
 
 			"huaweicloud_compute_flavors":                 ecs.DataSourceEcsFlavors(),
 			"huaweicloud_compute_instance":                ecs.DataSourceComputeInstance(),
