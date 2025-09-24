@@ -17,15 +17,16 @@ Use this resource to manage a channel member within HuaweiCloud.
 ```hcl
 variable "instance_id" {}
 variable "vpc_channel_id" {}
+variable "member_group_name" {}
 variable "member_ip_address" {}
 variable "port" {}
 
 resource "huaweicloud_apig_channel_member" "test" {
   instance_id       = var.instance_id
   vpc_channel_id    = var.vpc_channel_id
+  member_group_name = var.member_group_name
   member_ip_address = var.member_ip_address
   port              = var.port
-  weight            = 10
 }
 ```
 
@@ -34,19 +35,20 @@ resource "huaweicloud_apig_channel_member" "test" {
 ```hcl
 variable "instance_id" {}
 variable "vpc_channel_id" {}
+variable "member_group_name" {}
 variable "ecs_id" {}
 variable "ecs_name" {}
 variable "port" {}
 
 resource "huaweicloud_apig_channel_member" "test" {
-  instance_id    = var.instance_id
-  vpc_channel_id = var.vpc_channel_id
-  ecs_id         = var.ecs_id
-  ecs_name       = var.ecs_name
-  port           = var.port
-  weight         = 10
-  is_backup      = false
-  status         = 1
+  instance_id       = var.instance_id
+  vpc_channel_id    = var.vpc_channel_id
+  member_group_name = var.member_group_name
+  ecs_id            = var.ecs_id
+  ecs_name          = var.ecs_name
+  port              = var.port
+  is_backup         = false
+  status            = 1
 }
 ```
 
@@ -63,25 +65,12 @@ The following arguments are supported:
 
 * `vpc_channel_id` - (Required, String, NonUpdatable) Specifies the ID of the VPC channel.
 
-* `weight` - (Optional, Int) Specifies the weight value of the channel member.  
-  This weight value is automatically used for weight allocation, and the valid value is range from `0` to `10,000`.
-  The greater the weight of a channel member, the more requests will be dispatched to it.
-
-* `port` - (Optional, Int) Specifies the port number of the channel member.  
-  The valid value is range from `0` to `65,535`.
-
-* `is_backup` - (Optional, Bool) Specifies whether this member is the backup member.  
-  When enabled, the corresponding backend service is a backup node and only works when all non-backup nodes fail.  
-  The default value is `false`.
-
-* `member_group_name` - (Optional, String) Specifies the name of the channel member group.  
+* `member_group_name` - (Required, String, NonUpdatable) Specifies the name of the channel member group.  
   This is used to select a channel member group for easy unified modification of the corresponding server group backend
   attributes.
 
-* `status` - (Optional, Int) Specifies the status of the channel member.  
-  The valid values are as follow:
-  + **1**: Available
-  + **2**: Unavailable
+* `port` - (Required, Int, NonUpdatable) Specifies the port number of the channel member.  
+  The valid value is range from `0` to `65,535`.
 
 * `member_ip_address` - (Optional, String) Specifies the IP address of the channel member.  
   The member_ip_address contain a maximum of `255` characters.
@@ -98,11 +87,22 @@ The following arguments are supported:
 
 -> Parameter `ecs_id` and `ecs_name` are required if the type of vpc channel is **ecs**.
 
+* `status` - (Optional, Int) Specifies the status of the channel member.  
+  The valid values are as follow:
+  + **1**: Available
+  + **2**: Unavailable
+
+* `is_backup` - (Optional, Bool) Specifies whether this member is the backup member.  
+  When enabled, the corresponding backend service is a backup node and only works when all non-backup nodes fail.  
+  The default value is `false`.
+
 ## Attributes Reference
 
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID.
+
+* `weight` - The weight value of the channel member.
 
 * `create_time` - The creation time of the channel member, in RFC3339 format.
 
@@ -112,9 +112,9 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Import
 
-Channel members can be imported using their `id`, the ID of the related dedicated instance and the ID of the related VPC
-channel, separated by slashes, e.g.
+Channel members can be imported using their `id`, the ID of the related dedicated instance, the ID of the related VPC
+channel and the name of the related member group, separated by slashes, e.g.
 
 ```bash
-$ terraform import huaweicloud_apig_channel_member.test <instance_id>/<vpc_channel_id>/<id>
+$ terraform import huaweicloud_apig_channel_member.test <instance_id>/<vpc_channel_id>/<member_group_name>/<id>
 ```
