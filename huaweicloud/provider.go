@@ -822,6 +822,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_coc_issue_tickets":                     coc.DataSourceCocIssueTickets(),
 
 			"huaweicloud_compute_flavors":                 ecs.DataSourceEcsFlavors(),
+			"huaweicloud_compute_flavor_sales_policies":   ecs.DataSourceEcsComputeFlavorSalesPolicies(),
 			"huaweicloud_compute_instance":                ecs.DataSourceComputeInstance(),
 			"huaweicloud_compute_templates":               ecs.DataSourceEcsComputeTemplates(),
 			"huaweicloud_compute_template_versions":       ecs.DataSourceEcsComputeTemplateVersions(),
