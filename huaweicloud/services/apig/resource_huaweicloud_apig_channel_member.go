@@ -18,11 +18,11 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-var channelMemberNonUpdatableParams = []string{"instance_id", "vpc_channel_id"}
+var channelMemberNonUpdatableParams = []string{"instance_id", "vpc_channel_id", "member_group_name",
+	"member_ip_address", "port", "ecs_id", "ecs_name"}
 
 // @API APIG POST /v2/{project_id}/apigw/instances/{instance_id}/vpc-channels/{vpc_channel_id}/members
 // @API APIG GET /v2/{project_id}/apigw/instances/{instance_id}/vpc-channels/{vpc_channel_id}/members
-// @API APIG PUT /v2/{project_id}/apigw/instances/{instance_id}/vpc-channels/{vpc_channel_id}/members
 // @API APIG DELETE /v2/{project_id}/apigw/instances/{instance_id}/vpc-channels/{vpc_channel_id}/members/{member_id}
 func ResourceChannelMember() *schema.Resource {
 	return &schema.Resource{
@@ -57,33 +57,44 @@ func ResourceChannelMember() *schema.Resource {
 				Required:    true,
 				Description: `The ID of the VPC channel.`,
 			},
-
-			// Optional parameters.
-			"weight": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Computed:     true,
-				ValidateFunc: validation.IntBetween(0, 10_000),
-				Description:  `The weight value of the channel member.`,
+			"member_group_name": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The name of the channel member group.`,
 			},
 			"port": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				Computed:     true,
-				ValidateFunc: validation.IntBetween(0, 65_535),
-				Description:  `The port number of the channel member.`,
+				Type:        schema.TypeInt,
+				Required:    true,
+				Description: `The port number of the channel member.`,
 			},
-			"is_backup": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Computed:    true,
-				Description: `Whether this member is the backup member.`,
-			},
-			"member_group_name": {
+
+			// Optional parameters.
+			"member_ip_address": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				Description: `The name of the channel member group.`,
+				Description: `The IP address of channel member.`,
+				ExactlyOneOf: []string{
+					"ecs_id",
+				},
+			},
+			"ecs_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `The ID of the ECS channel member.`,
+				RequiredWith: []string{
+					"ecs_name",
+				},
+			},
+			"ecs_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `The name of the ECS channel member.`,
+				RequiredWith: []string{
+					"ecs_id",
+				},
 			},
 			"status": {
 				Type:        schema.TypeInt,
@@ -91,26 +102,19 @@ func ResourceChannelMember() *schema.Resource {
 				Computed:    true,
 				Description: `The status of the channel member.`,
 			},
-			"member_ip_address": {
-				Type:        schema.TypeString,
+			"is_backup": {
+				Type:        schema.TypeBool,
 				Optional:    true,
 				Computed:    true,
-				Description: `The IP address of channel member.`,
-			},
-			"ecs_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: `The ID of the ECS channel member.`,
-			},
-			"ecs_name": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: `The name of the ECS channel member.`,
+				Description: `Whether this member is the backup member.`,
 			},
 
 			// Attributes.
+			"weight": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The weight value of the channel member.`,
+			},
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -142,14 +146,13 @@ func buildChannelMemberBodyParams(d *schema.ResourceData) map[string]interface{}
 	return map[string]interface{}{
 		"members": []map[string]interface{}{
 			{
-				"weight":            utils.ValueIgnoreEmpty(d.Get("weight")),
-				"port":              utils.ValueIgnoreEmpty(d.Get("port")),
-				"is_backup":         utils.GetNestedObjectFromRawConfig(d.GetRawConfig(), "is_backup"),
-				"member_group_name": utils.ValueIgnoreEmpty(d.Get("member_group_name")),
-				"status":            utils.ValueIgnoreEmpty(d.Get("status")),
+				"member_group_name": d.Get("member_group_name"),
+				"port":              d.Get("port"),
 				"host":              utils.ValueIgnoreEmpty(d.Get("member_ip_address")),
 				"ecs_id":            utils.ValueIgnoreEmpty(d.Get("ecs_id")),
 				"ecs_name":          utils.ValueIgnoreEmpty(d.Get("ecs_name")),
+				"status":            utils.ValueIgnoreEmpty(d.Get("status")),
+				"is_backup":         utils.GetNestedObjectFromRawConfig(d.GetRawConfig(), "is_backup"),
 			},
 		},
 	}
@@ -163,7 +166,7 @@ func createChannelMember(client *golangsdk.ServiceClient, instanceId, vpcChannel
 	createPath = strings.ReplaceAll(createPath, "{vpc_channel_id}", vpcChannelId)
 	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		JSONBody:         utils.RemoveNil(utils.RemoveNil(buildChannelMemberBodyParams(d))),
+		JSONBody:         utils.RemoveNil(buildChannelMemberBodyParams(d)),
 	}
 
 	requestResp, err := client.Request("POST", createPath, &createOpt)
@@ -175,10 +178,13 @@ func createChannelMember(client *golangsdk.ServiceClient, instanceId, vpcChannel
 
 func resourceChannelMemberCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg          = meta.(*config.Config)
-		region       = cfg.GetRegion(d)
-		instanceId   = d.Get("instance_id").(string)
-		vpcChannelId = d.Get("vpc_channel_id").(string)
+		cfg             = meta.(*config.Config)
+		region          = cfg.GetRegion(d)
+		instanceId      = d.Get("instance_id").(string)
+		vpcChannelId    = d.Get("vpc_channel_id").(string)
+		memberIpAddress = d.Get("member_ip_address").(string)
+		ecsId           = d.Get("ecs_id").(string)
+		lockInfo        = fmt.Sprintf("%s/%s", instanceId, vpcChannelId)
 	)
 
 	client, err := cfg.NewServiceClient("apig", region)
@@ -186,12 +192,24 @@ func resourceChannelMemberCreate(ctx context.Context, d *schema.ResourceData, me
 		return diag.Errorf("error creating APIG client: %s", err)
 	}
 
+	// Lock the resource to prevent concurrent updates (error APIG.9999 will be returned if the database data synchronize
+	// failed)
+	config.MutexKV.Lock(lockInfo)
+	defer config.MutexKV.Unlock(lockInfo)
+
 	respBody, err := createChannelMember(client, instanceId, vpcChannelId, d)
 	if err != nil {
 		return diag.Errorf("error creating channel member: %s", err)
 	}
 
-	memberId := utils.PathSearch("members[0].id", respBody, "").(string)
+	members := utils.PathSearch(fmt.Sprintf("members[?member_group_name=='%s']", d.Get("member_group_name")), respBody, nil)
+
+	memberId := ""
+	if memberIpAddress != "" {
+		memberId = utils.PathSearch(fmt.Sprintf("[?host=='%s']|[0].id", memberIpAddress), members, "").(string)
+	} else {
+		memberId = utils.PathSearch(fmt.Sprintf("[?ecs_id=='%s']|[0].id", ecsId), members, "").(string)
+	}
 	if memberId == "" {
 		return diag.Errorf("unable to find the member ID from the API response")
 	}
@@ -200,7 +218,7 @@ func resourceChannelMemberCreate(ctx context.Context, d *schema.ResourceData, me
 	return resourceChannelMemberRead(ctx, d, meta)
 }
 
-func listChannelMembers(client *golangsdk.ServiceClient, instanceId, vpcChannelId string) ([]interface{}, error) {
+func listChannelMembers(client *golangsdk.ServiceClient, instanceId, vpcChannelId, memberGroupName string) ([]interface{}, error) {
 	var (
 		result  = make([]interface{}, 0)
 		httpUrl = "v2/{project_id}/apigw/instances/{instance_id}/vpc-channels/{vpc_channel_id}/members?limit={limit}"
@@ -213,6 +231,7 @@ func listChannelMembers(client *golangsdk.ServiceClient, instanceId, vpcChannelI
 	listPathWithLimit = strings.ReplaceAll(listPathWithLimit, "{instance_id}", instanceId)
 	listPathWithLimit = strings.ReplaceAll(listPathWithLimit, "{vpc_channel_id}", vpcChannelId)
 	listPathWithLimit = strings.ReplaceAll(listPathWithLimit, "{limit}", strconv.Itoa(limit))
+	listPathWithLimit = fmt.Sprintf(`%s&member_group_name=%s&precise_search=member_group_name`, listPathWithLimit, memberGroupName)
 
 	listOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -244,8 +263,8 @@ func listChannelMembers(client *golangsdk.ServiceClient, instanceId, vpcChannelI
 	return result, nil
 }
 
-func GetChannelMemberById(client *golangsdk.ServiceClient, instanceId, vpcChannelId, memberId string) (interface{}, error) {
-	members, err := listChannelMembers(client, instanceId, vpcChannelId)
+func GetChannelMemberById(client *golangsdk.ServiceClient, instanceId, vpcChannelId, memberGroupName, memberId string) (interface{}, error) {
+	members, err := listChannelMembers(client, instanceId, vpcChannelId, memberGroupName)
 	if err != nil {
 		return nil, err
 	}
@@ -259,11 +278,12 @@ func GetChannelMemberById(client *golangsdk.ServiceClient, instanceId, vpcChanne
 
 func resourceChannelMemberRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg          = meta.(*config.Config)
-		region       = cfg.GetRegion(d)
-		instanceId   = d.Get("instance_id").(string)
-		vpcChannelId = d.Get("vpc_channel_id").(string)
-		memberId     = d.Id()
+		cfg             = meta.(*config.Config)
+		region          = cfg.GetRegion(d)
+		instanceId      = d.Get("instance_id").(string)
+		vpcChannelId    = d.Get("vpc_channel_id").(string)
+		memberGroupName = d.Get("member_group_name").(string)
+		memberId        = d.Id()
 	)
 
 	client, err := cfg.NewServiceClient("apig", region)
@@ -271,44 +291,25 @@ func resourceChannelMemberRead(_ context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error creating APIG client: %s", err)
 	}
 
-	member, err := GetChannelMemberById(client, instanceId, vpcChannelId, memberId)
+	member, err := GetChannelMemberById(client, instanceId, vpcChannelId, memberGroupName, memberId)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error querying channel member detail")
 	}
 
 	mErr := multierror.Append(
-		d.Set("weight", utils.PathSearch("weight", member, nil)),
 		d.Set("port", utils.PathSearch("port", member, nil)),
-		d.Set("is_backup", utils.PathSearch("is_backup", member, nil)),
-		d.Set("member_group_name", utils.PathSearch("member_group_name", member, nil)),
-		d.Set("status", utils.PathSearch("status", member, nil)),
 		d.Set("member_ip_address", utils.PathSearch("host", member, nil)),
 		d.Set("ecs_id", utils.PathSearch("ecs_id", member, nil)),
 		d.Set("ecs_name", utils.PathSearch("ecs_name", member, nil)),
+		d.Set("is_backup", utils.PathSearch("is_backup", member, nil)),
+		d.Set("status", utils.PathSearch("status", member, nil)),
+		d.Set("weight", utils.PathSearch("weight", member, nil)),
 		d.Set("create_time", utils.PathSearch("create_time", member, nil)),
 		d.Set("member_group_id", utils.PathSearch("member_group_id", member, nil)),
 		d.Set("health_status", utils.PathSearch("health_status", member, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
-}
-
-func buildUpdateChannelMemberBodyParams(d *schema.ResourceData) map[string]interface{} {
-	return map[string]interface{}{
-		"member_group_name": utils.ValueIgnoreEmpty(d.Get("member_group_name")),
-		"members": []map[string]interface{}{
-			{
-				"port":              utils.ValueIgnoreEmpty(d.Get("port")),
-				"weight":            utils.ValueIgnoreEmpty(d.Get("weight")),
-				"is_backup":         utils.GetNestedObjectFromRawConfig(d.GetRawConfig(), "is_backup"),
-				"member_group_name": utils.ValueIgnoreEmpty(d.Get("member_group_name")),
-				"status":            utils.ValueIgnoreEmpty(d.Get("status")),
-				"host":              utils.ValueIgnoreEmpty(d.Get("member_ip_address")),
-				"ecs_id":            utils.ValueIgnoreEmpty(d.Get("ecs_id")),
-				"ecs_name":          utils.ValueIgnoreEmpty(d.Get("ecs_name")),
-			},
-		},
-	}
 }
 
 func updateChannelMember(client *golangsdk.ServiceClient, instanceId, vpcChannelId string, d *schema.ResourceData) error {
@@ -319,10 +320,10 @@ func updateChannelMember(client *golangsdk.ServiceClient, instanceId, vpcChannel
 	updatePath = strings.ReplaceAll(updatePath, "{vpc_channel_id}", vpcChannelId)
 	updateOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		JSONBody:         utils.RemoveNil(buildUpdateChannelMemberBodyParams(d)),
+		JSONBody:         utils.RemoveNil(buildChannelMemberBodyParams(d)),
 	}
 
-	_, err := client.Request("PUT", updatePath, &updateOpt)
+	_, err := client.Request("POST", updatePath, &updateOpt)
 	return err
 }
 
@@ -332,6 +333,7 @@ func resourceChannelMemberUpdate(ctx context.Context, d *schema.ResourceData, me
 		region       = cfg.GetRegion(d)
 		instanceId   = d.Get("instance_id").(string)
 		vpcChannelId = d.Get("vpc_channel_id").(string)
+		lockInfo     = fmt.Sprintf("%s/%s", instanceId, vpcChannelId)
 	)
 
 	client, err := cfg.NewServiceClient("apig", region)
@@ -339,6 +341,16 @@ func resourceChannelMemberUpdate(ctx context.Context, d *schema.ResourceData, me
 		return diag.Errorf("error creating APIG client: %s", err)
 	}
 
+	// Lock the resource to prevent concurrent updates (error APIG.9999 will be returned if the database data synchronize
+	// failed)
+	config.MutexKV.Lock(lockInfo)
+	defer config.MutexKV.Unlock(lockInfo)
+
+	// The old update API: PUT /v2/{project_id}/apigw/instances/{instance_id}/vpc-channels/{vpc_channel_id}/members
+	// The legacy update API cannot update a single entity within the group; it can only perform a full replacement of the
+	// entire instance group.
+	// The new update API: POST /v2/{project_id}/apigw/instances/{instance_id}/vpc-channels/{vpc_channel_id}/members
+	// The new API can modify one item by unique index (instance_id, vpc_channel_id, member_group_name, host, port)
 	err = updateChannelMember(client, instanceId, vpcChannelId, d)
 	if err != nil {
 		return diag.Errorf("error updating channel member (%s): %s", d.Id(), err)
@@ -372,12 +384,18 @@ func resourceChannelMemberDelete(_ context.Context, d *schema.ResourceData, meta
 		instanceId   = d.Get("instance_id").(string)
 		vpcChannelId = d.Get("vpc_channel_id").(string)
 		memberId     = d.Id()
+		lockInfo     = fmt.Sprintf("%s/%s", instanceId, vpcChannelId)
 	)
 
 	client, err := cfg.NewServiceClient("apig", region)
 	if err != nil {
 		return diag.Errorf("error creating APIG client: %s", err)
 	}
+
+	// Lock the resource to prevent concurrent updates (error APIG.9999 will be returned if the database data synchronize
+	// failed)
+	config.MutexKV.Lock(lockInfo)
+	defer config.MutexKV.Unlock(lockInfo)
 
 	err = deleteChannelMember(client, instanceId, vpcChannelId, memberId)
 	if err != nil {
@@ -390,16 +408,17 @@ func resourceChannelMemberDelete(_ context.Context, d *schema.ResourceData, meta
 
 func resourceChannelMemberImportState(_ context.Context, d *schema.ResourceData, _ interface{}) ([]*schema.ResourceData, error) {
 	importedId := d.Id()
-	parts := strings.SplitN(importedId, "/", 3)
-	if len(parts) != 3 {
-		return nil, fmt.Errorf(`invalid format specified for import ID, want '<instance_id>/<vpc_channel_id>/<id>',
-		 but got '%s'`, importedId)
+	parts := strings.SplitN(importedId, "/", 4)
+	if len(parts) != 4 {
+		return nil, fmt.Errorf(`invalid format specified for import ID, want
+		 '<instance_id>/<vpc_channel_id>/<member_group_name>/<id>', but got '%s'`, importedId)
 	}
 
-	d.SetId(parts[2])
+	d.SetId(parts[3])
 	mErr := multierror.Append(
 		d.Set("instance_id", parts[0]),
 		d.Set("vpc_channel_id", parts[1]),
+		d.Set("member_group_name", parts[2]),
 	)
 
 	return []*schema.ResourceData{d}, mErr.ErrorOrNil()

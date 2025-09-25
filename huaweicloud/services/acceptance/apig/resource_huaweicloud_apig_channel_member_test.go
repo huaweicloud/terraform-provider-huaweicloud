@@ -15,9 +15,10 @@ import (
 
 func getChannelMemberFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	var (
-		instanceId   = state.Primary.Attributes["instance_id"]
-		vpcChannelId = state.Primary.Attributes["vpc_channel_id"]
-		memberId     = state.Primary.ID
+		instanceId      = state.Primary.Attributes["instance_id"]
+		vpcChannelId    = state.Primary.Attributes["vpc_channel_id"]
+		memberGroupName = state.Primary.Attributes["member_group_name"]
+		memberId        = state.Primary.ID
 	)
 
 	client, err := cfg.NewServiceClient("apig", acceptance.HW_REGION_NAME)
@@ -25,7 +26,7 @@ func getChannelMemberFunc(cfg *config.Config, state *terraform.ResourceState) (i
 		return nil, fmt.Errorf("error creating APIG client: %s", err)
 	}
 
-	return apig.GetChannelMemberById(client, instanceId, vpcChannelId, memberId)
+	return apig.GetChannelMemberById(client, instanceId, vpcChannelId, memberGroupName, memberId)
 }
 
 func TestAccChannelMember_basic(t *testing.T) {
@@ -33,12 +34,20 @@ func TestAccChannelMember_basic(t *testing.T) {
 		name = acceptance.RandomAccResourceName()
 
 		ipMember     interface{}
-		ipMemberName = "huaweicloud_apig_channel_member.ip_member"
+		ipMemberName = "huaweicloud_apig_channel_member.ip_member.0"
 		rcIpMember   = acceptance.InitResourceCheck(ipMemberName, &ipMember, getChannelMemberFunc)
 
+		ipMemberOther     interface{}
+		ipMemberOtherName = "huaweicloud_apig_channel_member.ip_member.1"
+		rcIpMemberOther   = acceptance.InitResourceCheck(ipMemberOtherName, &ipMemberOther, getChannelMemberFunc)
+
 		ecsMember     interface{}
-		ecsMemberName = "huaweicloud_apig_channel_member.ecs_member"
+		ecsMemberName = "huaweicloud_apig_channel_member.ecs_member.0"
 		rcEcsMember   = acceptance.InitResourceCheck(ecsMemberName, &ecsMember, getChannelMemberFunc)
+
+		ecsMemberOther     interface{}
+		ecsMemberOtherName = "huaweicloud_apig_channel_member.ecs_member.1"
+		rcEcsMemberOther   = acceptance.InitResourceCheck(ecsMemberOtherName, &ecsMemberOther, getChannelMemberFunc)
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -50,46 +59,60 @@ func TestAccChannelMember_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy: resource.ComposeTestCheckFunc(
 			rcIpMember.CheckResourceDestroy(),
+			rcIpMemberOther.CheckResourceDestroy(),
 			rcEcsMember.CheckResourceDestroy(),
+			rcEcsMemberOther.CheckResourceDestroy(),
 		),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccChannelMember_basic(name),
+				Config: testAccChannelMember_basic_step1(name),
 				Check: resource.ComposeTestCheckFunc(
 					rcIpMember.CheckResourceExists(),
 					resource.TestCheckResourceAttr(ipMemberName, "instance_id", acceptance.HW_APIG_DEDICATED_INSTANCE_ID),
 					resource.TestCheckResourceAttrSet(ipMemberName, "vpc_channel_id"),
-					resource.TestCheckResourceAttr(ipMemberName, "weight", "20"),
+
 					resource.TestCheckResourceAttr(ipMemberName, "port", "80"),
 					resource.TestCheckResourceAttr(ipMemberName, "is_backup", "false"),
 					resource.TestCheckResourceAttr(ipMemberName, "status", "1"),
+					resource.TestCheckResourceAttrSet(ipMemberName, "member_ip_address"),
 					resource.TestCheckResourceAttrSet(ipMemberName, "ecs_id"),
 					resource.TestCheckResourceAttrSet(ipMemberName, "ecs_name"),
 					resource.TestMatchResourceAttr(ipMemberName, "create_time",
 						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
+					resource.TestCheckResourceAttrSet(ipMemberName, "weight"),
 					resource.TestCheckResourceAttrSet(ipMemberName, "member_group_id"),
 					rcEcsMember.CheckResourceExists(),
 					resource.TestCheckResourceAttr(ecsMemberName, "instance_id", acceptance.HW_APIG_DEDICATED_INSTANCE_ID),
 					resource.TestCheckResourceAttrSet(ecsMemberName, "vpc_channel_id"),
-					resource.TestCheckResourceAttr(ecsMemberName, "weight", "20"),
 					resource.TestCheckResourceAttr(ecsMemberName, "port", "80"),
 					resource.TestCheckResourceAttr(ecsMemberName, "is_backup", "false"),
 					resource.TestCheckResourceAttr(ecsMemberName, "status", "1"),
+					resource.TestCheckResourceAttrSet(ecsMemberName, "member_ip_address"),
 					resource.TestCheckResourceAttrSet(ecsMemberName, "ecs_id"),
 					resource.TestCheckResourceAttrSet(ecsMemberName, "ecs_name"),
 					resource.TestMatchResourceAttr(ecsMemberName, "create_time",
 						regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}?(Z|([+-]\d{2}:\d{2}))$`)),
+					resource.TestCheckResourceAttrSet(ecsMemberName, "weight"),
 					resource.TestCheckResourceAttrSet(ecsMemberName, "member_group_id"),
 				),
 			},
 			{
-				ResourceName:      ipMemberName,
+				Config: testAccChannelMember_basic_step2(name),
+				Check: resource.ComposeTestCheckFunc(
+					rcIpMember.CheckResourceExists(),
+					resource.TestCheckResourceAttr(ipMemberName, "is_backup", "true"),
+					resource.TestCheckResourceAttr(ipMemberName, "status", "2"),
+					rcEcsMember.CheckResourceExists(),
+				),
+			},
+			{
+				ResourceName:      "huaweicloud_apig_channel_member.ip_member[0]",
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateIdFunc: testAccChannelMemberImportStateFunc(ipMemberName),
 			},
 			{
-				ResourceName:      ecsMemberName,
+				ResourceName:      "huaweicloud_apig_channel_member.ecs_member[0]",
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateIdFunc: testAccChannelMemberImportStateFunc(ecsMemberName),
@@ -104,54 +127,18 @@ func testAccChannelMemberImportStateFunc(rsName string) resource.ImportStateIdFu
 		if !ok {
 			return "", fmt.Errorf("Resource (%s) not found: %s", rsName, rs)
 		}
-		if rs.Primary.Attributes["instance_id"] == "" || rs.Primary.Attributes["vpc_channel_id"] == "" || rs.Primary.ID == "" {
-			return "", fmt.Errorf("resource not found: %s/%s/%s", rs.Primary.Attributes["instance_id"],
-				rs.Primary.Attributes["vpc_channel_id"], rs.Primary.ID)
+		if rs.Primary.Attributes["instance_id"] == "" || rs.Primary.Attributes["vpc_channel_id"] == "" ||
+			rs.Primary.Attributes["member_group_name"] == "" || rs.Primary.ID == "" {
+			return "", fmt.Errorf("resource not found: %s/%s/%s/%s", rs.Primary.Attributes["instance_id"],
+				rs.Primary.Attributes["vpc_channel_id"], rs.Primary.Attributes["member_group_name"], rs.Primary.ID)
 		}
-		return fmt.Sprintf("%s/%s/%s", rs.Primary.Attributes["instance_id"], rs.Primary.Attributes["vpc_channel_id"], rs.Primary.ID), nil
+		return fmt.Sprintf("%s/%s/%s/%s", rs.Primary.Attributes["instance_id"], rs.Primary.Attributes["vpc_channel_id"],
+			rs.Primary.Attributes["member_group_name"], rs.Primary.ID), nil
 	}
 }
 
-func testAccChannelMember_base(name string) string {
+func testAccChannelMember_compute_base(name string) string {
 	return fmt.Sprintf(`
-data "huaweicloud_apig_instances" "test" {
-  instance_id = "%[2]s"
-}
-
-resource "huaweicloud_apig_channel" "ip_channel" {
-  instance_id      = try(data.huaweicloud_apig_instances.test.instances[0].id, "NOT_FOUND")
-  name             = format("%[1]s_%%s", "ip")
-  port             = 80
-  balance_strategy = 1
-  member_type      = "ip"
-  type             = "builtin"
-}
-
-resource "huaweicloud_apig_channel" "ecs_channel" {
-  instance_id      = try(data.huaweicloud_apig_instances.test.instances[0].id, "NOT_FOUND")
-  name             = format("%[1]s_%%s", "ecs")
-  port             = 80
-  balance_strategy = 1
-  member_type      = "ecs"
-  type             = "builtin"
-}
-
-resource "huaweicloud_apig_channel_member_group" "ip_channel_member_group" {
-  instance_id    = try(data.huaweicloud_apig_instances.test.instances[0].id, "NOT_FOUND")
-  vpc_channel_id = huaweicloud_apig_channel.ip_channel.id
-  name           = format("%[1]s_%%s", "ip")
-  weight         = 20
-  description    = "ip channel member group."
-}
-
-resource "huaweicloud_apig_channel_member_group" "ecs_channel_member_group" {
-  instance_id    = try(data.huaweicloud_apig_instances.test.instances[0].id, "NOT_FOUND")
-  vpc_channel_id = huaweicloud_apig_channel.ecs_channel.id
-  name           = format("%[1]s_%%s", "ecs")
-  weight         = 20
-  description    = "ecs channel member group."
-}
-
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_compute_flavors" "test" {
@@ -162,7 +149,7 @@ data "huaweicloud_compute_flavors" "test" {
 }
 
 data "huaweicloud_vpc_subnet" "test" {
-  id = "%[3]s"
+  id = "%[2]s"
 }
 
 data "huaweicloud_images_image" "test" {
@@ -175,7 +162,9 @@ data "huaweicloud_networking_secgroup" "test" {
 }
 
 resource "huaweicloud_compute_instance" "test" {
-  name                = "%[1]s"
+  count = 2
+
+  name                = format("%[1]s_%%s", count.index)
   description         = "terraform test"
   image_id            = data.huaweicloud_images_image.test.id
   flavor_id           = data.huaweicloud_compute_flavors.test.ids[0]
@@ -201,31 +190,105 @@ EOF
     type = "SAS"
     size = "10"
   }
-}
-`, name, acceptance.HW_APIG_DEDICATED_INSTANCE_ID, acceptance.HW_SUBNET_ID)
+}`, name, acceptance.HW_SUBNET_ID)
 }
 
-func testAccChannelMember_basic(name string) string {
+func testAccChannelMember_base(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+data "huaweicloud_apig_instances" "test" {
+  instance_id = "%[2]s"
+}
+
+resource "huaweicloud_apig_channel" "ip_channel" {
+  instance_id      = try(data.huaweicloud_apig_instances.test.instances[0].id, "NOT_FOUND")
+  name             = format("%[3]s_%%s", "ip")
+  port             = 80
+  balance_strategy = 1
+  member_type      = "ip"
+  type             = "builtin"
+}
+
+resource "huaweicloud_apig_channel" "ecs_channel" {
+  instance_id      = try(data.huaweicloud_apig_instances.test.instances[0].id, "NOT_FOUND")
+  name             = format("%[3]s_%%s", "ecs")
+  port             = 80
+  balance_strategy = 1
+  member_type      = "ecs"
+  type             = "builtin"
+}
+
+resource "huaweicloud_apig_channel_member_group" "ip_channel_member_group" {
+  instance_id    = try(data.huaweicloud_apig_instances.test.instances[0].id, "NOT_FOUND")
+  vpc_channel_id = huaweicloud_apig_channel.ip_channel.id
+  name           = format("%[3]s_%%s", "ip")
+  weight         = 20
+  description    = "ip channel member group."
+}
+
+resource "huaweicloud_apig_channel_member_group" "ecs_channel_member_group" {
+  instance_id    = try(data.huaweicloud_apig_instances.test.instances[0].id, "NOT_FOUND")
+  vpc_channel_id = huaweicloud_apig_channel.ecs_channel.id
+  name           = format("%[3]s_%%s", "ecs")
+  weight         = 20
+  description    = "ecs channel member group."
+}
+`, testAccChannelMember_compute_base(name), acceptance.HW_APIG_DEDICATED_INSTANCE_ID, name)
+}
+
+func testAccChannelMember_basic_step1(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
 resource "huaweicloud_apig_channel_member" "ip_member" {
+  count = 2
+
   instance_id       = try(data.huaweicloud_apig_instances.test.instances[0].id, "NOT_FOUND")
   vpc_channel_id    = huaweicloud_apig_channel.ip_channel.id
-  weight            = 20
-  port              = 80
   member_group_name = huaweicloud_apig_channel_member_group.ip_channel_member_group.name
-  member_ip_address = huaweicloud_compute_instance.test.access_ip_v4
+  member_ip_address = huaweicloud_compute_instance.test[count.index].access_ip_v4
+  port              = 80
 }
 
 resource "huaweicloud_apig_channel_member" "ecs_member" {
+  count = 2
+
   instance_id       = try(data.huaweicloud_apig_instances.test.instances[0].id, "NOT_FOUND")
   vpc_channel_id    = huaweicloud_apig_channel.ecs_channel.id
-  weight            = 20
-  port              = 80
   member_group_name = huaweicloud_apig_channel_member_group.ecs_channel_member_group.name
-  ecs_id            = huaweicloud_compute_instance.test.id
-  ecs_name          = huaweicloud_compute_instance.test.name
+  ecs_id            = huaweicloud_compute_instance.test[count.index].id
+  ecs_name          = huaweicloud_compute_instance.test[count.index].name
+  port              = 80
+}
+`, testAccChannelMember_base(name))
+}
+
+func testAccChannelMember_basic_step2(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_apig_channel_member" "ip_member" {
+  count = 2
+
+  instance_id       = try(data.huaweicloud_apig_instances.test.instances[0].id, "NOT_FOUND")
+  vpc_channel_id    = huaweicloud_apig_channel.ip_channel.id
+  member_group_name = huaweicloud_apig_channel_member_group.ip_channel_member_group.name
+  member_ip_address = huaweicloud_compute_instance.test[count.index].access_ip_v4
+  port              = 80
+  status            = 2
+  is_backup         = true
+}
+
+resource "huaweicloud_apig_channel_member" "ecs_member" {
+  count = 2
+
+  instance_id       = try(data.huaweicloud_apig_instances.test.instances[0].id, "NOT_FOUND")
+  vpc_channel_id    = huaweicloud_apig_channel.ecs_channel.id
+  member_group_name = huaweicloud_apig_channel_member_group.ecs_channel_member_group.name
+  ecs_id            = huaweicloud_compute_instance.test[count.index].id
+  ecs_name          = huaweicloud_compute_instance.test[count.index].name
+  port              = 80
 }
 `, testAccChannelMember_base(name))
 }
