@@ -26,6 +26,7 @@ func TestAccDataSourceCloudServiceAuthorizations_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(dataSource, "authorizations.0.service"),
 					resource.TestCheckResourceAttrSet(dataSource, "authorizations.0.role_name.#"),
 					resource.TestCheckResourceAttrSet(dataSource, "authorizations.0.status"),
+					resource.TestCheckResourceAttrSet(dataSource, "authorizations.0.need_optimized"),
 				),
 			},
 		},

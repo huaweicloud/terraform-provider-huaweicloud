@@ -25,29 +25,34 @@ func DataSourceCloudServiceAuthorizations() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				Description: `Specifies the region in which to query the resource. If omitted, the provider-level region will be used.`,
+				Description: `The region where the cloud service authorizations are located.`,
 			},
 			"authorizations": {
 				Type:        schema.TypeList,
 				Computed:    true,
-				Description: `Indicates the authorizations list.`,
+				Description: `The list of cloud service authorizations.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"service": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: `Indicates the authorization service.`,
+							Description: `The authorization service name.`,
 						},
 						"role_name": {
 							Type:        schema.TypeList,
 							Elem:        &schema.Schema{Type: schema.TypeString},
 							Computed:    true,
-							Description: `Indicates the role names list.`,
+							Description: `The role names list.`,
 						},
 						"status": {
 							Type:        schema.TypeBool,
 							Computed:    true,
-							Description: `Indicates the authorization status.`,
+							Description: `Whether the authorization is enabled.`,
+						},
+						"need_optimized": {
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: `Whether the authorization needs optimization.`,
 						},
 					},
 				},
@@ -102,9 +107,10 @@ func flattenCloudServiceAuthorizations(resp interface{}) interface{} {
 		rst := make([]map[string]interface{}, 0, len(m))
 		for k, v := range m {
 			rst = append(rst, map[string]interface{}{
-				"service":   k,
-				"role_name": utils.PathSearch("role_name", v, nil),
-				"status":    utils.PathSearch("status", v, nil),
+				"service":        k,
+				"role_name":      utils.PathSearch("role_name", v, nil),
+				"status":         utils.PathSearch("status", v, nil),
+				"need_optimized": utils.PathSearch("needOptimized", v, nil),
 			})
 		}
 		return rst
