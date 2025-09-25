@@ -114,6 +114,7 @@ var (
 	HW_INTERNAL_USED          = os.Getenv("HW_INTERNAL_USED")
 
 	HW_WAF_ENABLE_FLAG                          = os.Getenv("HW_WAF_ENABLE_FLAG")
+	HW_WAF_PRECHECK_GEO_IP_POLICY_RULES         = os.Getenv("HW_WAF_PRECHECK_GEO_IP_POLICY_RULES")
 	HW_WAF_CERTIFICATE_ID                       = os.Getenv("HW_WAF_CERTIFICATE_ID")
 	HW_WAF_DOMAIN_ID                            = os.Getenv("HW_WAF_DOMAIN_ID")
 	HW_WAF_TYPE                                 = os.Getenv("HW_WAF_TYPE")
@@ -1137,6 +1138,13 @@ func RandomPassword(customChars ...string) string {
 func TestAccPrecheckWafInstance(t *testing.T) {
 	if HW_WAF_ENABLE_FLAG == "" {
 		t.Skip("Skip the WAF acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPrecheckWafGeoIpPolicyRules(t *testing.T) {
+	if HW_WAF_PRECHECK_GEO_IP_POLICY_RULES == "" {
+		t.Skip("Skip the WAF geo IP policy rules acceptance tests.")
 	}
 }
 
