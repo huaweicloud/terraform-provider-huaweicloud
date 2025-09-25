@@ -549,6 +549,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_aom_cloud_service_authorizations":    aom.DataSourceCloudServiceAuthorizations(),
 			"huaweicloud_aom_dashboards":                      aom.DataSourceDashboards(),
 			"huaweicloud_aom_dashboards_folders":              aom.DataSourceDashboardsFolders(),
+			"huaweicloud_aom_events":                          aom.DataSourceEvents(),
 			"huaweicloud_aom_message_templates":               aom.DataSourceMessageTemplates(),
 			"huaweicloud_aom_multi_account_aggregation_rules": aom.DataSourceMultiAccountAggregationRules(),
 			"huaweicloud_aom_organization_accounts":           aom.DataSourceOrganizationAccounts(),
