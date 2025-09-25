@@ -2307,6 +2307,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_compute_auto_launch_group":   ecs.ResourceComputeAutoLaunchGroup(),
 			"huaweicloud_compute_recycle_policy":      ecs.ResourceComputeRecyclePolicy(),
 			"huaweicloud_compute_kernel_dump_trigger": ecs.ResourceComputeKernelDumpTrigger(),
+			"huaweicloud_compute_os_reinstall":        ecs.ResourceComputeOsReinstall(),
 
 			"huaweicloud_coc_script":                        coc.ResourceScript(),
 			"huaweicloud_coc_script_execute":                coc.ResourceScriptExecute(),
