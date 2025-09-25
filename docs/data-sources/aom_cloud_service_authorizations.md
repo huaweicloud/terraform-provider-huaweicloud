@@ -20,7 +20,7 @@ data "huaweicloud_aom_cloud_service_authorizations" "test" {}
 
 The following arguments are supported:
 
-* `region` - (Optional, String) Specifies the region in which to query the data source.
+* `region` - (Optional, String)  Specifies the region where the cloud service authorizations are located.  
   If omitted, the provider-level region will be used.
 
 ## Attribute Reference
@@ -29,14 +29,16 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The data source ID.
 
-* `authorizations` - Indicates the authorizations list.
-  The [authorizations](#attrblock--authorizations) structure is documented below.
+* `authorizations` - The list of cloud service authorizations.
+  The [authorizations](#aom_cloud_service_authorizations) structure is documented below.
 
-<a name="attrblock--authorizations"></a>
+<a name="aom_cloud_service_authorizations"></a>
 The `authorizations` block supports:
 
-* `service` - Indicates the authorization service.
+* `service` - The authorization service name.
 
-* `role_name` - Indicates the role names list.
+* `role_name` - The role names list.
 
-* `status` - Indicates the authorization status.
+* `status` - Whether the authorization is enabled.
+
+* `need_optimized` - Whether the authorization needs optimization.
