@@ -1728,6 +1728,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_swr_enterprise_long_term_credentials":           swrenterprise.DataSourceSwrEnterpriseLongTermCredentials(),
 			"huaweicloud_swr_enterprise_private_network_access_controls": swrenterprise.DataSourceSwrEnterprisePrivateNetworkAccessControls(),
 			"huaweicloud_swr_enterprise_jobs":                            swrenterprise.DataSourceSwrEnterpriseJobs(),
+			"huaweicloud_swr_enterprise_image_signature_policies":        swrenterprise.DataSourceSwrEnterpriseImageSignaturePolicies(),
 
 			"huaweicloud_tms_resource_types":      tms.DataSourceResourceTypes(),
 			"huaweicloud_tms_resource_instances":  tms.DataSourceResourceInstances(),
