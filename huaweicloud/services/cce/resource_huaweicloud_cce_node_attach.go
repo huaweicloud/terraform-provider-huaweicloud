@@ -33,6 +33,299 @@ import (
 // @API KMS POST /v3/{project_id}/keypairs/disassociate
 // @API CCE PUT /api/v3/projects/{project_id}/clusters/{cluster_id}/nodes/operation/remove
 
+var nodeAttachSchema = map[string]*schema.Schema{
+	"region": {
+		Type:     schema.TypeString,
+		Optional: true,
+		Computed: true,
+		ForceNew: true,
+	},
+	"cluster_id": {
+		Type:     schema.TypeString,
+		Required: true,
+		ForceNew: true,
+	},
+	"server_id": {
+		Type:     schema.TypeString,
+		Required: true,
+		ForceNew: true,
+	},
+	"name": {
+		Type:     schema.TypeString,
+		Optional: true,
+		Computed: true,
+	},
+	"os": {
+		Type:     schema.TypeString,
+		Required: true,
+	},
+	"key_pair": {
+		Type:         schema.TypeString,
+		Optional:     true,
+		ExactlyOneOf: []string{"password", "key_pair"},
+	},
+	"password": {
+		Type:      schema.TypeString,
+		Optional:  true,
+		Sensitive: true,
+	},
+	"private_key": {
+		Type:      schema.TypeString,
+		Optional:  true,
+		Sensitive: true,
+	},
+	"max_pods": {
+		Type:     schema.TypeInt,
+		Optional: true,
+	},
+	"lvm_config": {
+		Type:     schema.TypeString,
+		Optional: true,
+		ConflictsWith: []string{
+			"storage",
+		},
+	},
+	"docker_base_size": {
+		Type:     schema.TypeInt,
+		Optional: true,
+	},
+	"runtime": {
+		Type:     schema.TypeString,
+		Optional: true,
+		Computed: true,
+	},
+	"nic_multi_queue": {
+		Type:        schema.TypeString,
+		Optional:    true,
+		Description: "schema: Internal",
+	},
+	"nic_threshold": {
+		Type:        schema.TypeString,
+		Optional:    true,
+		Description: "schema: Internal",
+	},
+	"image_id": {
+		Type:        schema.TypeString,
+		Optional:    true,
+		Description: "schema: Internal",
+	},
+	"system_disk_kms_key_id": {
+		Type:     schema.TypeString,
+		Optional: true,
+	},
+	"preinstall": {
+		Type:      schema.TypeString,
+		Optional:  true,
+		StateFunc: utils.DecodeHashAndHexEncode,
+	},
+	"postinstall": {
+		Type:      schema.TypeString,
+		Optional:  true,
+		StateFunc: utils.DecodeHashAndHexEncode,
+	},
+	"initialized_conditions": {
+		Type:     schema.TypeList,
+		Optional: true,
+		Computed: true,
+		Elem:     &schema.Schema{Type: schema.TypeString},
+	},
+	"storage": resourceNodeStorageSchema(),
+	"taints": {
+		Type:     schema.TypeList,
+		Optional: true,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"key": {
+					Type:     schema.TypeString,
+					Required: true,
+				},
+				"value": {
+					Type:     schema.TypeString,
+					Required: true,
+				},
+				"effect": {
+					Type:     schema.TypeString,
+					Required: true,
+				},
+			}},
+	},
+	// (k8s_tags)
+	"labels": {
+		Type:     schema.TypeMap,
+		Optional: true,
+		Elem:     &schema.Schema{Type: schema.TypeString},
+	},
+	// (node/ecs_tags)
+	"tags": common.TagsSchema(),
+	"hostname_config": {
+		Type:     schema.TypeList,
+		Optional: true,
+		Computed: true,
+		ForceNew: true,
+		MaxItems: 1,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"type": {
+					Type:     schema.TypeString,
+					Required: true,
+					ForceNew: true,
+				},
+			},
+		},
+	},
+
+	"flavor_id": {
+		Type:     schema.TypeString,
+		Computed: true,
+	},
+	"availability_zone": {
+		Type:     schema.TypeString,
+		Computed: true,
+	},
+	"root_volume": {
+		Type:     schema.TypeList,
+		Computed: true,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"size": {
+					Type:     schema.TypeInt,
+					Computed: true,
+				},
+				"volumetype": {
+					Type:     schema.TypeString,
+					Computed: true,
+				},
+				"extend_params": {
+					Type:     schema.TypeMap,
+					Computed: true,
+					Elem:     &schema.Schema{Type: schema.TypeString},
+				},
+				"kms_key_id": {
+					Type:     schema.TypeString,
+					Computed: true,
+				},
+				"dss_pool_id": {
+					Type:     schema.TypeString,
+					Computed: true,
+				},
+				"iops": {
+					Type:     schema.TypeInt,
+					Computed: true,
+				},
+				"throughput": {
+					Type:     schema.TypeInt,
+					Computed: true,
+				},
+
+				// Internal parameters
+				"hw_passthrough": {
+					Type:        schema.TypeBool,
+					Computed:    true,
+					Description: "schema: Internal",
+				},
+
+				// Deprecated parameters
+				"extend_param": {
+					Type:       schema.TypeString,
+					Computed:   true,
+					Deprecated: "use extend_params instead",
+				},
+			},
+		},
+	},
+	"data_volumes": {
+		Type:     schema.TypeList,
+		Computed: true,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"size": {
+					Type:     schema.TypeInt,
+					Computed: true,
+				},
+				"volumetype": {
+					Type:     schema.TypeString,
+					Computed: true,
+				},
+				"extend_params": {
+					Type:     schema.TypeMap,
+					Computed: true,
+					Elem:     &schema.Schema{Type: schema.TypeString},
+				},
+				"kms_key_id": {
+					Type:     schema.TypeString,
+					Computed: true,
+				},
+				"dss_pool_id": {
+					Type:     schema.TypeString,
+					Computed: true,
+				},
+				"iops": {
+					Type:     schema.TypeInt,
+					Computed: true,
+				},
+				"throughput": {
+					Type:     schema.TypeInt,
+					Computed: true,
+				},
+
+				// Internal parameters
+				"hw_passthrough": {
+					Type:        schema.TypeBool,
+					Computed:    true,
+					Description: "schema: Internal",
+				},
+
+				// Deprecated parameters
+				"extend_param": {
+					Type:       schema.TypeString,
+					Computed:   true,
+					Deprecated: "use extend_params instead",
+				},
+			},
+		},
+	},
+	"ecs_group_id": {
+		Type:     schema.TypeString,
+		Computed: true,
+	},
+	"subnet_id": {
+		Type:     schema.TypeString,
+		Computed: true,
+	},
+	"extension_nics": {
+		Type:     schema.TypeList,
+		Computed: true,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"subnet_id": {
+					Type:     schema.TypeString,
+					Computed: true,
+				},
+			},
+		},
+	},
+	"private_ip": {
+		Type:     schema.TypeString,
+		Computed: true,
+	},
+	"public_ip": {
+		Type:     schema.TypeString,
+		Computed: true,
+	},
+	"status": {
+		Type:     schema.TypeString,
+		Computed: true,
+	},
+	"charging_mode": {
+		Type:     schema.TypeString,
+		Computed: true,
+	},
+	"enterprise_project_id": {
+		Type:     schema.TypeString,
+		Computed: true,
+	},
+}
+
 func ResourceNodeAttach() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceNodeAttachCreate,
@@ -48,298 +341,7 @@ func ResourceNodeAttach() *schema.Resource {
 
 		CustomizeDiff: config.MergeDefaultTags(),
 
-		Schema: map[string]*schema.Schema{
-			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-			},
-			"cluster_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-			},
-			"server_id": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-			},
-			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
-			"os": {
-				Type:     schema.TypeString,
-				Required: true,
-			},
-			"key_pair": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ExactlyOneOf: []string{"password", "key_pair"},
-			},
-			"password": {
-				Type:      schema.TypeString,
-				Optional:  true,
-				Sensitive: true,
-			},
-			"private_key": {
-				Type:      schema.TypeString,
-				Optional:  true,
-				Sensitive: true,
-			},
-			"max_pods": {
-				Type:     schema.TypeInt,
-				Optional: true,
-			},
-			"lvm_config": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ConflictsWith: []string{
-					"storage",
-				},
-			},
-			"docker_base_size": {
-				Type:     schema.TypeInt,
-				Optional: true,
-			},
-			"runtime": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
-			"nic_multi_queue": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "schema: Internal",
-			},
-			"nic_threshold": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "schema: Internal",
-			},
-			"image_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "schema: Internal",
-			},
-			"system_disk_kms_key_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"preinstall": {
-				Type:      schema.TypeString,
-				Optional:  true,
-				StateFunc: utils.DecodeHashAndHexEncode,
-			},
-			"postinstall": {
-				Type:      schema.TypeString,
-				Optional:  true,
-				StateFunc: utils.DecodeHashAndHexEncode,
-			},
-			"initialized_conditions": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
-			"storage": resourceNodeStorageSchema(),
-			"taints": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"key": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"value": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"effect": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-					}},
-			},
-			//(k8s_tags)
-			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
-			//(node/ecs_tags)
-			"tags": common.TagsSchema(),
-			"hostname_config": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"type": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
-						},
-					},
-				},
-			},
-
-			"flavor_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"availability_zone": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"root_volume": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"size": {
-							Type:     schema.TypeInt,
-							Computed: true,
-						},
-						"volumetype": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"extend_params": {
-							Type:     schema.TypeMap,
-							Computed: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-						},
-						"kms_key_id": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"dss_pool_id": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"iops": {
-							Type:     schema.TypeInt,
-							Computed: true,
-						},
-						"throughput": {
-							Type:     schema.TypeInt,
-							Computed: true,
-						},
-
-						// Internal parameters
-						"hw_passthrough": {
-							Type:        schema.TypeBool,
-							Computed:    true,
-							Description: "schema: Internal",
-						},
-
-						// Deprecated parameters
-						"extend_param": {
-							Type:       schema.TypeString,
-							Computed:   true,
-							Deprecated: "use extend_params instead",
-						},
-					},
-				},
-			},
-			"data_volumes": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"size": {
-							Type:     schema.TypeInt,
-							Computed: true,
-						},
-						"volumetype": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"extend_params": {
-							Type:     schema.TypeMap,
-							Computed: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-						},
-						"kms_key_id": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"dss_pool_id": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"iops": {
-							Type:     schema.TypeInt,
-							Computed: true,
-						},
-						"throughput": {
-							Type:     schema.TypeInt,
-							Computed: true,
-						},
-
-						// Internal parameters
-						"hw_passthrough": {
-							Type:        schema.TypeBool,
-							Computed:    true,
-							Description: "schema: Internal",
-						},
-
-						// Deprecated parameters
-						"extend_param": {
-							Type:       schema.TypeString,
-							Computed:   true,
-							Deprecated: "use extend_params instead",
-						},
-					},
-				},
-			},
-			"ecs_group_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"subnet_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"extension_nics": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"subnet_id": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-					},
-				},
-			},
-			"private_ip": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"public_ip": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"charging_mode": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"enterprise_project_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-		},
+		Schema: nodeAttachSchema,
 	}
 }
 
