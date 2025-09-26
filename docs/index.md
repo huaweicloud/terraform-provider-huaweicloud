@@ -8,6 +8,11 @@ Use the navigation to the left to read about the available resources.
 -> **NOTE:** You can also use this provider to interact with resources supported by HCSO if the API is compatible
 with HuaweiCloud.
 
+For the best practices, please refer to the following GitBook documentations:
+
+* [en-us](https://hcbp.gitbook.io/huaweicloud-provider/best-practices)
+* [zh-cn](https://hcbp.gitbook.io/hua-wei-yun-provider/zui-jia-shi-jian)
+
 ## Example Usage
 
 Terraform 0.13 and later:
