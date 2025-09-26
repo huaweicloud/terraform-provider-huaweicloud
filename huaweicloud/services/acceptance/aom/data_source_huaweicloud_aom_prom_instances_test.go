@@ -47,9 +47,20 @@ func TestAccDataSourceAomPromInstances_basic(t *testing.T) {
 	})
 }
 
+func testDataSourceDataSourceAomPromInstances_base(name string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_aom_prom_instance" "test" {
+  prom_name             = "%[1]s"
+  prom_type             = "VPC"
+  enterprise_project_id = "%[2]s"
+  prom_version          = "1.5"
+}
+`, name, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST)
+}
+
 func testDataSourceDataSourceAomPromInstances_basic(name string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 data "huaweicloud_aom_prom_instances" "test" {
   enterprise_project_id = "all_granted_eps"
@@ -74,6 +85,5 @@ output "prom_type_validation" {
 output "prom_id_validation" {
   value = alltrue([for v in local.test_id_filter_results.instances[*].id : v == huaweicloud_aom_prom_instance.test.id])
 }
-
-`, testAOMPromInstance_basic(name))
+`, testDataSourceDataSourceAomPromInstances_base(name))
 }
