@@ -3,7 +3,6 @@ package apig
 import (
 	"context"
 	"fmt"
-	"strconv"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -216,51 +215,6 @@ func resourceChannelMemberCreate(ctx context.Context, d *schema.ResourceData, me
 	d.SetId(memberId)
 
 	return resourceChannelMemberRead(ctx, d, meta)
-}
-
-func listChannelMembers(client *golangsdk.ServiceClient, instanceId, vpcChannelId, memberGroupName string) ([]interface{}, error) {
-	var (
-		result  = make([]interface{}, 0)
-		httpUrl = "v2/{project_id}/apigw/instances/{instance_id}/vpc-channels/{vpc_channel_id}/members?limit={limit}"
-		limit   = 100
-		offset  = 0
-	)
-
-	listPathWithLimit := client.Endpoint + httpUrl
-	listPathWithLimit = strings.ReplaceAll(listPathWithLimit, "{project_id}", client.ProjectID)
-	listPathWithLimit = strings.ReplaceAll(listPathWithLimit, "{instance_id}", instanceId)
-	listPathWithLimit = strings.ReplaceAll(listPathWithLimit, "{vpc_channel_id}", vpcChannelId)
-	listPathWithLimit = strings.ReplaceAll(listPathWithLimit, "{limit}", strconv.Itoa(limit))
-	listPathWithLimit = fmt.Sprintf(`%s&member_group_name=%s&precise_search=member_group_name`, listPathWithLimit, memberGroupName)
-
-	listOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		MoreHeaders: map[string]string{
-			"Content-Type": "application/json",
-		},
-	}
-
-	for {
-		listPathWithOffset := listPathWithLimit + fmt.Sprintf("&offset=%d", offset)
-		requestResp, err := client.Request("GET", listPathWithOffset, &listOpt)
-		if err != nil {
-			return nil, err
-		}
-
-		respBody, err := utils.FlattenResponse(requestResp)
-		if err != nil {
-			return nil, err
-		}
-
-		members := utils.PathSearch("members", respBody, make([]interface{}, 0)).([]interface{})
-		result = append(result, members...)
-		if len(members) < limit {
-			break
-		}
-		offset += len(members)
-	}
-
-	return result, nil
 }
 
 func GetChannelMemberById(client *golangsdk.ServiceClient, instanceId, vpcChannelId, memberGroupName, memberId string) (interface{}, error) {
