@@ -17,9 +17,9 @@ import (
 )
 
 // @API APIG GET /v2/{project_id}/apigw/certificates
-func DataSourceInstanceAssociatedSSLCertificates() *schema.Resource {
+func DataSourceInstanceAssociatedCertificates() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceInstanceAssociatedSSLCertificatesRead,
+		ReadContext: dataSourceInstanceAssociatedCertificatesRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -196,7 +196,7 @@ func listInstanceAssociatedSSLCertificates(client *golangsdk.ServiceClient, d *s
 	return result, nil
 }
 
-func dataSourceInstanceAssociatedSSLCertificatesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceInstanceAssociatedCertificatesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg    = meta.(*config.Config)
 		region = cfg.GetRegion(d)
