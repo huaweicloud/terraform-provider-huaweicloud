@@ -2,6 +2,7 @@ package kafka
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -16,9 +17,9 @@ import (
 )
 
 // @API Kafka POST /v2/{project_id}/kafka/instances/{instance_id}/group
-// @API Kafka PUT /v2/{engine}/{project_id}/instances/{instance_id}/groups/{group}
 // @API Kafka GET /v2/{project_id}/instances/{instance_id}/groups/{group}
-// @API Kafka POST /v2/{project_id}/instances/{instance_id}/groups/batch-delete
+// @API Kafka PUT /v2/{engine}/{project_id}/instances/{instance_id}/groups/{group}
+// @API Kafka DELETE /v2/{engine}/{project_id}/instances/{instance_id}/groups/{group}
 func ResourceDmsKafkaConsumerGroup() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceDmsKafkaConsumerGroupCreate,
@@ -248,47 +249,35 @@ func resourceDmsKafkaConsumerGroupRead(_ context.Context, d *schema.ResourceData
 }
 
 func resourceDmsKafkaConsumerGroupDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-
-	// deleteKafkaConsumerGroup: delete DMS Kafka consumer group
 	var (
-		deleteKafkaConsumerGroupHttpUrl = "v2/{project_id}/instances/{instance_id}/groups/batch-delete"
-		deleteKafkaConsumerGroupProduct = "dms"
+		cfg               = meta.(*config.Config)
+		httpUrl           = "v2/kafka/{project_id}/instances/{instance_id}/groups/{group}"
+		instanceId        = d.Get("instance_id").(string)
+		consumerGroupName = d.Get("name").(string)
 	)
-	deleteKafkaConsumerGroupClient, err := cfg.NewServiceClient(deleteKafkaConsumerGroupProduct, region)
+	client, err := cfg.NewServiceClient("dmsv2", cfg.GetRegion(d))
 	if err != nil {
-		return diag.Errorf("error creating DMS Client: %s", err)
+		return diag.Errorf("error creating DMS client: %s", err)
 	}
 
-	parts := strings.Split(d.Id(), "/")
-	if len(parts) != 2 {
-		return diag.Errorf("invalid id format, must be <instance_id>/<consumerGroup>")
-	}
-	instanceID := parts[0]
-	deleteKafkaConsumerGroupPath := deleteKafkaConsumerGroupClient.Endpoint + deleteKafkaConsumerGroupHttpUrl
-	deleteKafkaConsumerGroupPath = strings.ReplaceAll(deleteKafkaConsumerGroupPath, "{project_id}",
-		deleteKafkaConsumerGroupClient.ProjectID)
-	deleteKafkaConsumerGroupPath = strings.ReplaceAll(deleteKafkaConsumerGroupPath, "{instance_id}", instanceID)
+	deletePath := client.Endpoint + httpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = strings.ReplaceAll(deletePath, "{instance_id}", instanceId)
+	deletePath = strings.ReplaceAll(deletePath, "{group}", consumerGroupName)
 
-	deleteKafkaConsumerGroupOpt := golangsdk.RequestOpts{
+	deleteOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		OkCodes: []int{
-			200,
-		},
 	}
 
-	deleteKafkaConsumerGroupOpt.JSONBody = utils.RemoveNil(buildBatchDeleteKafkaConsumerGroupBodyParams(d))
-	_, err = deleteKafkaConsumerGroupClient.Request("POST", deleteKafkaConsumerGroupPath, &deleteKafkaConsumerGroupOpt)
+	_, err = client.Request("DELETE", deletePath, &deleteOpt)
+	// When the instance does not exist, the status code is 404.
+	// DMS.111400864: The consumer group does not exist.
 	if err != nil {
-		return diag.Errorf("error deleting DMS Kafka consumer group: %s", err)
+		return common.CheckDeletedDiag(d,
+			common.ConvertExpected400ErrInto404Err(err, "error_code", "DMS.111400864"),
+			fmt.Sprintf("error deleting consumer group (%s) under Kafka instance (%s)", consumerGroupName, instanceId),
+		)
 	}
-	return resourceDmsKafkaConsumerGroupRead(ctx, d, meta)
-}
 
-func buildBatchDeleteKafkaConsumerGroupBodyParams(d *schema.ResourceData) map[string]interface{} {
-	bodyParams := map[string]interface{}{
-		"group_ids": []string{d.Get("name").(string)},
-	}
-	return bodyParams
+	return nil
 }
