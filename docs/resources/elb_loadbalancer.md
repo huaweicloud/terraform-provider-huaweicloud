@@ -22,9 +22,8 @@ variable "l7_flavor_id" {}
 variable "eps_id" {}
 
 resource "huaweicloud_elb_loadbalancer" "basic" {
-  name              = "basic"
-  description       = "basic example"
-  cross_vpc_backend = true
+  name        = "basic"
+  description = "basic example"
 
   vpc_id         = var.vpc_id
   ipv4_subnet_id = var.ipv4_subnet_id
@@ -54,9 +53,8 @@ variable "eps_id" {}
 variable "eip_id" {}
 
 resource "huaweicloud_elb_loadbalancer" "basic" {
-  name              = "basic"
-  description       = "basic example"
-  cross_vpc_backend = true
+  name        = "basic"
+  description = "basic example"
 
   vpc_id            = var.vpc_id
   ipv6_network_id   = var.ipv6_network_id
@@ -88,9 +86,8 @@ variable "l4_flavor_id" {}
 variable "l7_flavor_id" {}
 
 resource "huaweicloud_elb_loadbalancer" "basic" {
-  name              = "basic"
-  description       = "basic example"
-  cross_vpc_backend = true
+  name        = "basic"
+  description = "basic example"
 
   vpc_id            = var.vpc_id
   ipv6_network_id   = var.ipv6_network_id
@@ -119,9 +116,9 @@ resource "huaweicloud_elb_loadbalancer" "basic" {
   description       = "basic example"
   loadbalancer_type = "gateway"
 
-  vpc_id            = var.vpc_id
-  ipv4_subnet_id    = var.ipv4_subnet_id
-  ipv6_network_id   = var.ipv6_network_id
+  vpc_id          = var.vpc_id
+  ipv4_subnet_id  = var.ipv4_subnet_id
+  ipv6_network_id = var.ipv6_network_id
 
   availability_zone = ["cn-north-4a"]
 }
@@ -152,7 +149,7 @@ The following arguments are supported:
 * `description` - (Optional, String) Human-readable description for the load balancer.
 
 * `cross_vpc_backend` - (Optional, Bool) Enable this if you want to associate the IP addresses of backend servers with
-  your load balancer. Can only be true when updating.
+  your load balancer. Can only be true when updating. Defaults to **false**.
 
 * `vpc_id` - (Optional, String, ForceNew) The vpc on which to create the load balancer. Changing this creates a new
   load balancer.
