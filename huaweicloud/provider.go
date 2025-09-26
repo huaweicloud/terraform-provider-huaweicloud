@@ -582,7 +582,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_apig_environments":                       apig.DataSourceEnvironments(),
 			"huaweicloud_apig_groups":                             apig.DataSourceGroups(),
 			"huaweicloud_apig_instance_api_tags":                  apig.DataSourceInstanceApiTags(),
-			"huaweicloud_apig_instance_ssl_certificates":          apig.DataSourceInstanceAssociatedSSLCertificates(),
+			"huaweicloud_apig_instance_associated_certificates":   apig.DataSourceInstanceAssociatedCertificates(),
 			"huaweicloud_apig_instance_features":                  apig.DataSourceInstanceFeatures(),
 			"huaweicloud_apig_instance_quotas":                    apig.DataSourceInstanceQuotas(),
 			"huaweicloud_apig_instance_supported_features":        apig.DataSourceInstanceSupportedFeatures(),
@@ -1946,7 +1946,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_cpts_projects": cpts.DataSourceCptsProjects(),
 
 			// Legacy
-			"huaweicloud_apig_apis_tags": apig.DataSourceInstanceApiTags(),
+			"huaweicloud_apig_apis_tags":                 apig.DataSourceInstanceApiTags(),
+			"huaweicloud_apig_instance_ssl_certificates": apig.DataSourceInstanceAssociatedCertificates(),
 
 			"huaweicloud_cdm_flavors_v1": cdm.DataSourceCdmFlavors(),
 
