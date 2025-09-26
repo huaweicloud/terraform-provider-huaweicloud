@@ -1733,6 +1733,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_swr_enterprise_private_network_access_controls": swrenterprise.DataSourceSwrEnterprisePrivateNetworkAccessControls(),
 			"huaweicloud_swr_enterprise_jobs":                            swrenterprise.DataSourceSwrEnterpriseJobs(),
 			"huaweicloud_swr_enterprise_image_signature_policies":        swrenterprise.DataSourceSwrEnterpriseImageSignaturePolicies(),
+			"huaweicloud_swr_enterprise_instance_tags":                   swrenterprise.DataSourceSwrEnterpriseInstanceTags(),
 
 			"huaweicloud_tms_resource_types":      tms.DataSourceResourceTypes(),
 			"huaweicloud_tms_resource_instances":  tms.DataSourceResourceInstances(),
