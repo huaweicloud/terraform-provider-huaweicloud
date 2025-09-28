@@ -589,6 +589,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_apig_instance_tags":                      apig.DataSourceInstanceTags(),
 			"huaweicloud_apig_instances_filter":                   apig.DataSourceInstancesFilter(),
 			"huaweicloud_apig_instances":                          apig.DataSourceInstances(),
+			"huaweicloud_apig_instance_restriction":               apig.DataSourceInstanceRestriction(),
 			"huaweicloud_apig_orchestration_rules":                apig.DataSourceOrchestrationRules(),
 			"huaweicloud_apig_orchestration_rule_associated_apis": apig.DataSourceOrchestrationRuleAssociatedApis(),
 			"huaweicloud_apig_plugins":                            apig.DataSourcePlugins(),
