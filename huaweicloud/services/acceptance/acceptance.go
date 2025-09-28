@@ -128,6 +128,7 @@ var (
 	HW_WAF_DEDICATED_INSTANCE_ID                = os.Getenv("HW_WAF_DEDICATED_INSTANCE_ID")
 	HW_WAF_DEDICATED_INSTANCE_SECURITY_GROUP_ID = os.Getenv("HW_WAF_DEDICATED_INSTANCE_SECURITY_GROUP_ID")
 	HW_WAF_RULE_ID                              = os.Getenv("HW_WAF_RULE_ID")
+	HW_WAF_GEO_RULE_ID                          = os.Getenv("HW_WAF_GEO_RULE_ID")
 
 	HW_ELB_CERT_ID         = os.Getenv("HW_ELB_CERT_ID")
 	HW_ELB_LOADBALANCER_ID = os.Getenv("HW_ELB_LOADBALANCER_ID")
@@ -1234,6 +1235,13 @@ func TestAccPreCheckWafDedicatedInstanceAction(t *testing.T) {
 func TestAccPreCheckWafRuleId(t *testing.T) {
 	if HW_WAF_RULE_ID == "" {
 		t.Skip("HW_WAF_RULE_ID must be set for this acceptance test.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckWafGeoRuleId(t *testing.T) {
+	if HW_WAF_GEO_RULE_ID == "" {
+		t.Skip("HW_WAF_GEO_RULE_ID must be set for this acceptance test.")
 	}
 }
 
