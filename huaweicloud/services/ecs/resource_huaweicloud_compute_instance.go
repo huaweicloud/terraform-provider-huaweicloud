@@ -479,6 +479,22 @@ func ResourceComputeInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"enclave_options": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enabled": {
+							Type:     schema.TypeBool,
+							Required: true,
+							ForceNew: true,
+						},
+					},
+				},
+			},
 			// computed attributes
 			"volume_attached": {
 				Type:     schema.TypeList,
@@ -627,6 +643,7 @@ func resourceComputeInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 		PublicIp:          buildInstancePublicIPRequest(d),
 		UserData:          []byte(d.Get("user_data").(string)),
 		AutoTerminateTime: d.Get("auto_terminate_time").(string),
+		EnclaveOptions:    buildInstanceEnclaveOptionsPRequest(d),
 	}
 
 	if tags, ok := d.GetOk("tags"); ok {
@@ -836,6 +853,7 @@ func resourceComputeInstanceRead(_ context.Context, d *schema.ResourceData, meta
 	d.Set("updated_at", server.Updated.Format(time.RFC3339))
 	d.Set("auto_terminate_time", server.AutoTerminateTime)
 	d.Set("public_ip", computePublicIP(server))
+	d.Set("enclave_options", flattenEnclaveOptions(server.EnclaveOptions))
 
 	flavorInfo := server.Flavor
 	d.Set("flavor_id", flavorInfo.ID)
@@ -1009,6 +1027,20 @@ func normalizeChargingMode(mode string) string {
 	}
 
 	return ret
+}
+
+func flattenEnclaveOptions(enclaveOptions *cloudservers.EnclaveOptions) []map[string]interface{} {
+	if enclaveOptions == nil {
+		return nil
+	}
+
+	res := []map[string]interface{}{
+		{
+			"enabled": enclaveOptions.Enabled,
+		},
+	}
+
+	return res
 }
 
 func resourceComputeInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -1653,6 +1685,21 @@ func buildInstanceSchedulerHints(schedulerHintsRaw map[string]interface{}) cloud
 	}
 
 	return schedulerHints
+}
+
+func buildInstanceEnclaveOptionsPRequest(d *schema.ResourceData) *cloudservers.EnclaveOptions {
+	v, ok := d.GetOk("enclave_options")
+	if !ok {
+		return nil
+	}
+
+	enclaveOptionsRaw := v.([]interface{})[0]
+
+	res := cloudservers.EnclaveOptions{
+		Enabled: utils.PathSearch("enabled", enclaveOptionsRaw, false).(bool),
+	}
+
+	return &res
 }
 
 func getImage(client *golangsdk.ServiceClient, id, name string) (*cloudimages.Image, error) {

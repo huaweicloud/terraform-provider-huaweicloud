@@ -134,6 +134,7 @@ type CloudServer struct {
 	OsSchedulerHints    OsSchedulerHints     `json:"os:scheduler_hints"`
 	Fault               Fault                `json:"fault"`
 	AutoTerminateTime   string               `json:"auto_terminate_time"`
+	EnclaveOptions      *EnclaveOptions      `json:"enclave_options"`
 }
 
 // ECS fault causes
