@@ -54,6 +54,8 @@ type CreateOpts struct {
 	Description string `json:"description,omitempty"`
 
 	AutoTerminateTime string `json:"auto_terminate_time,omitempty"`
+
+	EnclaveOptions *EnclaveOptions `json:"enclave_options,omitempty"`
 }
 
 // CreateOptsBuilder allows extensions to add additional parameters to the
@@ -222,6 +224,10 @@ type SchedulerHints struct {
 
 	// DedicatedHostID specifies a DeH ID.
 	DedicatedHostID string `json:"dedicated_host_id,omitempty"`
+}
+
+type EnclaveOptions struct {
+	Enabled bool `json:"enabled" required:"true"`
 }
 
 // Create requests a server to be provisioned to the user in the current tenant.

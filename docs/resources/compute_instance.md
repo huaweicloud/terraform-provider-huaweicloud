@@ -380,6 +380,9 @@ The following arguments are supported:
 
   -> **NOTE:** The `auto_terminate_time` is only support in **postpaid** charging mode.
 
+* `enclave_options` - (Optional, List, ForceNew) Specifies the custom enclave options.
+  The [object](#enclave_options) structure is documented below. Changing this creates a new instance.
+
 The `network` block supports:
 
 * `uuid` - (Required, String) Specifies the network UUID to attach to the instance.
@@ -503,6 +506,12 @@ The `scheduler_hints` block supports:
 
 * `deh_id` - (Optional, String, ForceNew) Specifies the ID of DeH.
   This parameter takes effect only when the value of tenancy is dedicated. Changing this creates a new instance.
+
+<a name="enclave_options"></a>
+The `enclave_options` block supports:
+
+* `enabled` - (Required, Bool, ForceNew) Specifies whether to enable Enclave.
+  Changing this creates a new instance.
 
 ## Attribute Reference
 
