@@ -1825,6 +1825,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_waf_all_policy_cc_rules":                  waf.DataSourceAllPolicyCcRules(),
 			"huaweicloud_waf_all_domains":                          waf.DataSourceWafAllDomains(),
 			"huaweicloud_waf_all_precise_protection_rules":         waf.DataSourceAllPreciseProtectionRules(),
+			"huaweicloud_waf_all_web_antitamper_rules":             waf.DataSourceAllWebAntitamperRules(),
 			"huaweicloud_waf_all_whiteblackip_rules":               waf.DataSourceAllWhiteblackipRules(),
 			"huaweicloud_waf_bundle":                               waf.DataSourceUserBundle(),
 			"huaweicloud_waf_certificate":                          waf.DataSourceWafCertificate(),
