@@ -56,6 +56,245 @@ var nodePoolNonUpdatableParams = []string{
 	"max_pods", "preinstall", "postinstall", "extend_param", "partition",
 }
 
+var nodePoolSchema = map[string]*schema.Schema{
+	"region": {
+		Type:     schema.TypeString,
+		Optional: true,
+		Computed: true,
+		ForceNew: true,
+	},
+	"name": {
+		Type:     schema.TypeString,
+		Required: true,
+	},
+	"initial_node_count": {
+		Type:     schema.TypeInt,
+		Required: true,
+		DiffSuppressFunc: func(_, oldVal, _ string, d *schema.ResourceData) bool {
+			return oldVal != "" && d.Get("ignore_initial_node_count").(bool)
+		},
+	},
+	"cluster_id": {
+		Type:     schema.TypeString,
+		Required: true,
+	},
+	"flavor_id": {
+		Type:     schema.TypeString,
+		Required: true,
+	},
+	"ignore_initial_node_count": {
+		Type:     schema.TypeBool,
+		Optional: true,
+		Default:  true,
+	},
+	"type": {
+		Type:     schema.TypeString,
+		Optional: true,
+		Computed: true,
+	},
+	"labels": { // (k8s_tags)
+		Type:     schema.TypeMap,
+		Optional: true,
+		Elem:     &schema.Schema{Type: schema.TypeString},
+	},
+	"root_volume":  resourceNodeRootVolume(),
+	"data_volumes": resourceNodeDataVolume(),
+	"availability_zone": {
+		Type:     schema.TypeString,
+		Optional: true,
+		Default:  "random",
+	},
+	"os": {
+		Type:     schema.TypeString,
+		Optional: true,
+		Computed: true,
+	},
+	"key_pair": {
+		Type:         schema.TypeString,
+		Optional:     true,
+		ExactlyOneOf: []string{"password", "key_pair"},
+	},
+	"password": {
+		Type:      schema.TypeString,
+		Optional:  true,
+		Sensitive: true,
+	},
+	"storage": resourceNodeStorageSchema(),
+	"taints": {
+		Type:     schema.TypeList,
+		Optional: true,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"key": {
+					Type:     schema.TypeString,
+					Required: true,
+				},
+				"value": {
+					Type:     schema.TypeString,
+					Required: true,
+				},
+				"effect": {
+					Type:     schema.TypeString,
+					Required: true,
+				},
+			}},
+	},
+	"tags": common.TagsSchema(),
+	// charge info: charging_mode, period_unit, period, auto_renew
+	"charging_mode": schemaChargingMode(nil),
+	"period_unit":   schemaPeriodUnit(nil),
+	"period":        schemaPeriod(nil),
+	"auto_renew":    schemaAutoRenewComputed(nil),
+
+	"runtime": {
+		Type:     schema.TypeString,
+		Optional: true,
+		Computed: true,
+		ValidateFunc: validation.StringInSlice([]string{
+			"docker", "containerd",
+		}, false),
+	},
+	"extend_params": resourceNodePoolExtendParamsSchema([]string{
+		"max_pods", "preinstall", "postinstall", "extend_param",
+	}),
+	"subnet_id": {
+		Type:     schema.TypeString,
+		Optional: true,
+		Computed: true,
+	},
+	"subnet_list": {
+		Type:     schema.TypeList,
+		Optional: true,
+		Elem:     &schema.Schema{Type: schema.TypeString},
+	},
+	"scall_enable": {
+		Type:     schema.TypeBool,
+		Optional: true,
+	},
+	"min_node_count": {
+		Type:     schema.TypeInt,
+		Optional: true,
+	},
+	"max_node_count": {
+		Type:     schema.TypeInt,
+		Optional: true,
+	},
+	"scale_down_cooldown_time": {
+		Type:     schema.TypeInt,
+		Optional: true,
+	},
+	"priority": {
+		Type:     schema.TypeInt,
+		Optional: true,
+	},
+	"security_groups": {
+		Type:     schema.TypeList,
+		Optional: true,
+		Computed: true,
+		Elem:     &schema.Schema{Type: schema.TypeString},
+	},
+	"pod_security_groups": {
+		Type:     schema.TypeList,
+		Optional: true,
+		Elem: &schema.Schema{
+			Type: schema.TypeString,
+		},
+	},
+	"ecs_group_id": {
+		Type:     schema.TypeString,
+		Optional: true,
+	},
+	"initialized_conditions": {
+		Type:     schema.TypeList,
+		Optional: true,
+		Computed: true,
+		Elem:     &schema.Schema{Type: schema.TypeString},
+	},
+	"label_policy_on_existing_nodes": {
+		Type:     schema.TypeString,
+		Optional: true,
+		Computed: true,
+	},
+	"tag_policy_on_existing_nodes": {
+		Type:     schema.TypeString,
+		Optional: true,
+		Computed: true,
+	},
+	"taint_policy_on_existing_nodes": {
+		Type:     schema.TypeString,
+		Optional: true,
+		Computed: true,
+	},
+	"hostname_config": {
+		Type:     schema.TypeList,
+		Optional: true,
+		Computed: true,
+		MaxItems: 1,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"type": {
+					Type:     schema.TypeString,
+					Required: true,
+				},
+			},
+		},
+	},
+	"partition": {
+		Type:     schema.TypeString,
+		Optional: true,
+	},
+	"enterprise_project_id": {
+		Type:     schema.TypeString,
+		Optional: true,
+		Computed: true,
+	},
+	"extension_scale_groups": resourceExtensionScaleGroupsSchema(),
+	"enable_force_new": {
+		Type:         schema.TypeString,
+		Optional:     true,
+		ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+		Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
+	},
+	"current_node_count": {
+		Type:     schema.TypeInt,
+		Computed: true,
+	},
+	"billing_mode": {
+		Type:     schema.TypeInt,
+		Computed: true,
+	},
+	"status": {
+		Type:     schema.TypeString,
+		Computed: true,
+	},
+
+	// Deprecated parameters
+	"max_pods": {
+		Type:        schema.TypeInt,
+		Optional:    true,
+		Computed:    true,
+		Description: "schema: Deprecated; This parameter can be configured in the 'extend_params' parameter.",
+	},
+	"preinstall": {
+		Type:        schema.TypeString,
+		Optional:    true,
+		StateFunc:   utils.DecodeHashAndHexEncode,
+		Description: "schema: Deprecated; This parameter can be configured in the 'extend_params' parameter.",
+	},
+	"postinstall": {
+		Type:        schema.TypeString,
+		Optional:    true,
+		StateFunc:   utils.DecodeHashAndHexEncode,
+		Description: "schema: Deprecated; This parameter can be configured in the 'extend_params' parameter.",
+	},
+	"extend_param": {
+		Type:        schema.TypeMap,
+		Optional:    true,
+		Elem:        &schema.Schema{Type: schema.TypeString},
+		Description: "schema: Deprecated; This parameter has been replaced by the 'extend_params' parameter.",
+	},
+}
+
 func ResourceNodePool() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceNodePoolCreate,
@@ -64,7 +303,7 @@ func ResourceNodePool() *schema.Resource {
 		DeleteContext: resourceNodePoolDelete,
 
 		CustomizeDiff: customdiff.All(
-			config.FlexibleForceNew(nodePoolNonUpdatableParams),
+			config.FlexibleForceNew(nodePoolNonUpdatableParams, nodePoolSchema),
 			ignoreDiffIfScaleGroupsEqual(),
 			config.MergeDefaultTags(),
 		),
@@ -78,244 +317,7 @@ func ResourceNodePool() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
-		Schema: map[string]*schema.Schema{
-			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-			},
-			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-			},
-			"initial_node_count": {
-				Type:     schema.TypeInt,
-				Required: true,
-				DiffSuppressFunc: func(_, oldVal, _ string, d *schema.ResourceData) bool {
-					return oldVal != "" && d.Get("ignore_initial_node_count").(bool)
-				},
-			},
-			"cluster_id": {
-				Type:     schema.TypeString,
-				Required: true,
-			},
-			"flavor_id": {
-				Type:     schema.TypeString,
-				Required: true,
-			},
-			"ignore_initial_node_count": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  true,
-			},
-			"type": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
-			"labels": { // (k8s_tags)
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
-			"root_volume":  resourceNodeRootVolume(),
-			"data_volumes": resourceNodeDataVolume(),
-			"availability_zone": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "random",
-			},
-			"os": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
-			"key_pair": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ExactlyOneOf: []string{"password", "key_pair"},
-			},
-			"password": {
-				Type:      schema.TypeString,
-				Optional:  true,
-				Sensitive: true,
-			},
-			"storage": resourceNodeStorageSchema(),
-			"taints": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"key": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"value": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"effect": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-					}},
-			},
-			"tags": common.TagsSchema(),
-			// charge info: charging_mode, period_unit, period, auto_renew
-			"charging_mode": schemaChargingMode(nil),
-			"period_unit":   schemaPeriodUnit(nil),
-			"period":        schemaPeriod(nil),
-			"auto_renew":    schemaAutoRenewComputed(nil),
-
-			"runtime": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"docker", "containerd",
-				}, false),
-			},
-			"extend_params": resourceNodePoolExtendParamsSchema([]string{
-				"max_pods", "preinstall", "postinstall", "extend_param",
-			}),
-			"subnet_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
-			"subnet_list": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
-			"scall_enable": {
-				Type:     schema.TypeBool,
-				Optional: true,
-			},
-			"min_node_count": {
-				Type:     schema.TypeInt,
-				Optional: true,
-			},
-			"max_node_count": {
-				Type:     schema.TypeInt,
-				Optional: true,
-			},
-			"scale_down_cooldown_time": {
-				Type:     schema.TypeInt,
-				Optional: true,
-			},
-			"priority": {
-				Type:     schema.TypeInt,
-				Optional: true,
-			},
-			"security_groups": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
-			"pod_security_groups": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-			},
-			"ecs_group_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"initialized_conditions": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
-			"label_policy_on_existing_nodes": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
-			"tag_policy_on_existing_nodes": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
-			"taint_policy_on_existing_nodes": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
-			"hostname_config": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Computed: true,
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"type": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-					},
-				},
-			},
-			"partition": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"enterprise_project_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
-			"extension_scale_groups": resourceExtensionScaleGroupsSchema(),
-			"enable_force_new": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
-				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
-			},
-			"current_node_count": {
-				Type:     schema.TypeInt,
-				Computed: true,
-			},
-			"billing_mode": {
-				Type:     schema.TypeInt,
-				Computed: true,
-			},
-			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-
-			// Deprecated parameters
-			"max_pods": {
-				Type:        schema.TypeInt,
-				Optional:    true,
-				Computed:    true,
-				Description: "schema: Deprecated; This parameter can be configured in the 'extend_params' parameter.",
-			},
-			"preinstall": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				StateFunc:   utils.DecodeHashAndHexEncode,
-				Description: "schema: Deprecated; This parameter can be configured in the 'extend_params' parameter.",
-			},
-			"postinstall": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				StateFunc:   utils.DecodeHashAndHexEncode,
-				Description: "schema: Deprecated; This parameter can be configured in the 'extend_params' parameter.",
-			},
-			"extend_param": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: "schema: Deprecated; This parameter has been replaced by the 'extend_params' parameter.",
-			},
-		},
+		Schema: nodePoolSchema,
 	}
 }
 

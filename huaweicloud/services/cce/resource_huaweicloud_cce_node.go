@@ -70,6 +70,275 @@ var nodeNonUpdatableParams = []string{
 	"extend_param_charging_mode", "order_id", "partition",
 }
 
+var nodeSchema = map[string]*schema.Schema{
+	"region": {
+		Type:     schema.TypeString,
+		Optional: true,
+		Computed: true,
+		ForceNew: true,
+	},
+	"cluster_id": {
+		Type:     schema.TypeString,
+		Required: true,
+	},
+	"flavor_id": {
+		Type:     schema.TypeString,
+		Required: true,
+	},
+	"availability_zone": {
+		Type:     schema.TypeString,
+		Required: true,
+	},
+	"name": {
+		Type:     schema.TypeString,
+		Optional: true,
+		Computed: true,
+	},
+	"os": {
+		Type:     schema.TypeString,
+		Optional: true,
+		Computed: true,
+	},
+	"key_pair": {
+		Type:         schema.TypeString,
+		Optional:     true,
+		ExactlyOneOf: []string{"password", "key_pair"},
+	},
+	"password": {
+		Type:         schema.TypeString,
+		Optional:     true,
+		Sensitive:    true,
+		ExactlyOneOf: []string{"password", "key_pair"},
+	},
+	"private_key": {
+		Type:      schema.TypeString,
+		Optional:  true,
+		Sensitive: true,
+	},
+	"root_volume":  resourceNodeRootVolume(),
+	"data_volumes": resourceNodeDataVolume(),
+	"storage":      resourceNodeStorageSchema(),
+	"taints": {
+		Type:     schema.TypeList,
+		Optional: true,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"key": {
+					Type:     schema.TypeString,
+					Required: true,
+				},
+				"value": {
+					Type:     schema.TypeString,
+					Optional: true,
+				},
+				"effect": {
+					Type:     schema.TypeString,
+					Required: true,
+				},
+			},
+		},
+	},
+	"eip_id": {
+		Type:     schema.TypeString,
+		Optional: true,
+	},
+	"iptype": {
+		Type:     schema.TypeString,
+		Optional: true,
+	},
+	"bandwidth_charge_mode": {
+		Type:     schema.TypeString,
+		Optional: true,
+	},
+	"sharetype": {
+		Type:     schema.TypeString,
+		Optional: true,
+	},
+	"bandwidth_size": {
+		Type:     schema.TypeInt,
+		Optional: true,
+	},
+	"runtime": {
+		Type:     schema.TypeString,
+		Optional: true,
+		Computed: true,
+	},
+	"ecs_group_id": {
+		Type:     schema.TypeString,
+		Optional: true,
+	},
+	"ecs_performance_type": {
+		Type:        schema.TypeString,
+		Optional:    true,
+		Description: "schema: Deprecated",
+	},
+	"product_id": {
+		Type:        schema.TypeString,
+		Optional:    true,
+		Description: "schema: Deprecated",
+	},
+	"max_pods": {
+		Type:        schema.TypeInt,
+		Optional:    true,
+		Description: "schema: Deprecated",
+	},
+	"public_key": {
+		Type:        schema.TypeString,
+		Optional:    true,
+		Description: "schema: Deprecated",
+	},
+	"preinstall": {
+		Type:        schema.TypeString,
+		Optional:    true,
+		Description: "schema: Deprecated",
+		StateFunc:   utils.DecodeHashAndHexEncode,
+	},
+	"postinstall": {
+		Type:        schema.TypeString,
+		Optional:    true,
+		Description: "schema: Deprecated",
+		StateFunc:   utils.DecodeHashAndHexEncode,
+	},
+	// (k8s_tags)
+	"labels": {
+		Type:     schema.TypeMap,
+		Optional: true,
+		Elem:     &schema.Schema{Type: schema.TypeString},
+	},
+	// (node/ecs_tags)
+	"tags": common.TagsSchema(),
+	"annotations": {
+		Type:        schema.TypeMap,
+		Optional:    true,
+		Elem:        &schema.Schema{Type: schema.TypeString},
+		Description: "schema: Internal",
+	},
+
+	// charge info: charging_mode, period_unit, period, auto_renew, auto_pay
+	"charging_mode": schemaChargingMode(nil),
+	"period_unit":   schemaPeriodUnit(nil),
+	"period":        schemaPeriod(nil),
+	"auto_renew":    schemaAutoRenew(nil),
+	"auto_pay":      schemaAutoPay(nil),
+
+	"extend_param": {
+		Type:        schema.TypeMap,
+		Optional:    true,
+		Elem:        &schema.Schema{Type: schema.TypeString},
+		Description: "schema: Deprecated",
+	},
+	"extend_params": resourceNodeExtendParamsSchema([]string{
+		"max_pods", "public_key", "preinstall", "postinstall", "extend_param",
+		"billing_mode", "order_id", "product_id", "ecs_performance_type",
+	}),
+	"subnet_id": {
+		Type:     schema.TypeString,
+		Optional: true,
+		Computed: true,
+	},
+	"fixed_ip": {
+		Type:     schema.TypeString,
+		Optional: true,
+	},
+	"extension_nics": {
+		Type:     schema.TypeList,
+		Optional: true,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"subnet_id": {
+					Type:     schema.TypeString,
+					Required: true,
+				},
+			},
+		},
+	},
+	"dedicated_host_id": {
+		Type:     schema.TypeString,
+		Optional: true,
+	},
+	"initialized_conditions": {
+		Type:     schema.TypeList,
+		Optional: true,
+		Computed: true,
+		Elem:     &schema.Schema{Type: schema.TypeString},
+	},
+	"keep_ecs": {
+		Type:        schema.TypeBool,
+		Optional:    true,
+		Description: "schema: Internal",
+	},
+	"hostname_config": {
+		Type:     schema.TypeList,
+		Optional: true,
+		Computed: true,
+		MaxItems: 1,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"type": {
+					Type:     schema.TypeString,
+					Required: true,
+				},
+			},
+		},
+	},
+	"partition": {
+		Type:     schema.TypeString,
+		Optional: true,
+	},
+	"enterprise_project_id": {
+		Type:     schema.TypeString,
+		Optional: true,
+		Computed: true,
+	},
+	"enable_force_new": {
+		Type:         schema.TypeString,
+		Optional:     true,
+		ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+		Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
+	},
+	"private_ip": {
+		Type:     schema.TypeString,
+		Computed: true,
+	},
+	"public_ip": {
+		Type:     schema.TypeString,
+		Computed: true,
+	},
+	"server_id": {
+		Type:     schema.TypeString,
+		Computed: true,
+	},
+	"status": {
+		Type:     schema.TypeString,
+		Computed: true,
+	},
+
+	// Deprecated
+	"eip_ids": {
+		Type:       schema.TypeSet,
+		Optional:   true,
+		Elem:       &schema.Schema{Type: schema.TypeString},
+		Set:        schema.HashString,
+		Deprecated: "use eip_id instead",
+	},
+	"billing_mode": {
+		Type:       schema.TypeInt,
+		Optional:   true,
+		Computed:   true,
+		Deprecated: "use charging_mode instead",
+	},
+	"extend_param_charging_mode": {
+		Type:       schema.TypeInt,
+		Optional:   true,
+		Deprecated: "use charging_mode instead",
+	},
+	"order_id": {
+		Type:       schema.TypeString,
+		Optional:   true,
+		Deprecated: "will be removed after v1.26.0",
+	},
+}
+
 func ResourceNode() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceNodeCreate,
@@ -81,7 +350,7 @@ func ResourceNode() *schema.Resource {
 		},
 
 		CustomizeDiff: customdiff.All(
-			config.FlexibleForceNew(nodeNonUpdatableParams),
+			config.FlexibleForceNew(nodeNonUpdatableParams, nodeSchema),
 			config.MergeDefaultTags(),
 		),
 
@@ -91,274 +360,7 @@ func ResourceNode() *schema.Resource {
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
-		Schema: map[string]*schema.Schema{
-			"region": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
-			},
-			"cluster_id": {
-				Type:     schema.TypeString,
-				Required: true,
-			},
-			"flavor_id": {
-				Type:     schema.TypeString,
-				Required: true,
-			},
-			"availability_zone": {
-				Type:     schema.TypeString,
-				Required: true,
-			},
-			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
-			"os": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
-			"key_pair": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ExactlyOneOf: []string{"password", "key_pair"},
-			},
-			"password": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Sensitive:    true,
-				ExactlyOneOf: []string{"password", "key_pair"},
-			},
-			"private_key": {
-				Type:      schema.TypeString,
-				Optional:  true,
-				Sensitive: true,
-			},
-			"root_volume":  resourceNodeRootVolume(),
-			"data_volumes": resourceNodeDataVolume(),
-			"storage":      resourceNodeStorageSchema(),
-			"taints": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"key": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"value": {
-							Type:     schema.TypeString,
-							Optional: true,
-						},
-						"effect": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-					},
-				},
-			},
-			"eip_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"iptype": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"bandwidth_charge_mode": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"sharetype": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"bandwidth_size": {
-				Type:     schema.TypeInt,
-				Optional: true,
-			},
-			"runtime": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
-			"ecs_group_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"ecs_performance_type": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "schema: Deprecated",
-			},
-			"product_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "schema: Deprecated",
-			},
-			"max_pods": {
-				Type:        schema.TypeInt,
-				Optional:    true,
-				Description: "schema: Deprecated",
-			},
-			"public_key": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "schema: Deprecated",
-			},
-			"preinstall": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "schema: Deprecated",
-				StateFunc:   utils.DecodeHashAndHexEncode,
-			},
-			"postinstall": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "schema: Deprecated",
-				StateFunc:   utils.DecodeHashAndHexEncode,
-			},
-			// (k8s_tags)
-			"labels": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
-			// (node/ecs_tags)
-			"tags": common.TagsSchema(),
-			"annotations": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: "schema: Internal",
-			},
-
-			// charge info: charging_mode, period_unit, period, auto_renew, auto_pay
-			"charging_mode": schemaChargingMode(nil),
-			"period_unit":   schemaPeriodUnit(nil),
-			"period":        schemaPeriod(nil),
-			"auto_renew":    schemaAutoRenew(nil),
-			"auto_pay":      schemaAutoPay(nil),
-
-			"extend_param": {
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: "schema: Deprecated",
-			},
-			"extend_params": resourceNodeExtendParamsSchema([]string{
-				"max_pods", "public_key", "preinstall", "postinstall", "extend_param",
-				"billing_mode", "order_id", "product_id", "ecs_performance_type",
-			}),
-			"subnet_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
-			"fixed_ip": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"extension_nics": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"subnet_id": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-					},
-				},
-			},
-			"dedicated_host_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"initialized_conditions": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
-			"keep_ecs": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Description: "schema: Internal",
-			},
-			"hostname_config": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Computed: true,
-				MaxItems: 1,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"type": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-					},
-				},
-			},
-			"partition": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"enterprise_project_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
-			"enable_force_new": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
-				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
-			},
-			"private_ip": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"public_ip": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"server_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-
-			// Deprecated
-			"eip_ids": {
-				Type:       schema.TypeSet,
-				Optional:   true,
-				Elem:       &schema.Schema{Type: schema.TypeString},
-				Set:        schema.HashString,
-				Deprecated: "use eip_id instead",
-			},
-			"billing_mode": {
-				Type:       schema.TypeInt,
-				Optional:   true,
-				Computed:   true,
-				Deprecated: "use charging_mode instead",
-			},
-			"extend_param_charging_mode": {
-				Type:       schema.TypeInt,
-				Optional:   true,
-				Deprecated: "use charging_mode instead",
-			},
-			"order_id": {
-				Type:       schema.TypeString,
-				Optional:   true,
-				Deprecated: "will be removed after v1.26.0",
-			},
-		},
+		Schema: nodeSchema,
 	}
 }
 
