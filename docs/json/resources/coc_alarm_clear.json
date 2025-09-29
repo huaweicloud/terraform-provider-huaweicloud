@@ -1,0 +1,45 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_coc_alarm_clear": {
+          "block": {
+            "attributes": {
+              "alarm_ids": {
+                "type": "string",
+                "required": true
+              },
+              "fault_recovery_time": {
+                "type": "number",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_service_interrupt": {
+                "type": "bool",
+                "optional": true
+              },
+              "remarks": {
+                "type": "string",
+                "optional": true
+              },
+              "start_time": {
+                "type": "number",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "COC",
+            "name": "Cloud Operations Center",
+            "catalog": "Management & Governance",
+            "name_cn": "云运维中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

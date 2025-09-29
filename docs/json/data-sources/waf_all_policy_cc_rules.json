@@ -1,0 +1,121 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_waf_all_policy_cc_rules": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "items": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "action": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "category": "string",
+                            "detail": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "response": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "content": "string",
+                                        "content_type": "string"
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "conditions": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "category": "string",
+                            "contents": [
+                              "list",
+                              "string"
+                            ],
+                            "index": "string",
+                            "logic_operation": "string",
+                            "value_list_id": "string"
+                          }
+                        ]
+                      ],
+                      "description": "string",
+                      "domain_aggregation": "bool",
+                      "id": "string",
+                      "limit_num": "number",
+                      "limit_period": "number",
+                      "lock_time": "number",
+                      "mode": "number",
+                      "name": "string",
+                      "policyid": "string",
+                      "prefix": "bool",
+                      "region_aggregation": "bool",
+                      "status": "number",
+                      "tag_condition": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "category": "string",
+                            "contents": [
+                              "list",
+                              "string"
+                            ]
+                          }
+                        ]
+                      ],
+                      "tag_index": "string",
+                      "tag_type": "string",
+                      "timestamp": "number",
+                      "unlock_num": "number",
+                      "url": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "policyids": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "WAF",
+            "name": "Web Application Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "Web应用防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

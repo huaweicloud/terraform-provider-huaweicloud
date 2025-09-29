@@ -5,6 +5,12 @@
         "huaweicloud_servicestage_environment": {
           "block": {
             "attributes": {
+              "deploy_mode": {
+                "type": "string",
+                "optional": true,
+                "computed": true,
+                "forcenew": true
+              },
               "description": {
                 "type": "string",
                 "optional": true

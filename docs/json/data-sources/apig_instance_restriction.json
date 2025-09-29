@@ -1,0 +1,48 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_apig_instance_restriction": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the dedicated instance to be queried.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the dedicated instance is located.",
+                "computed": true
+              },
+              "resource_subnet_cidr": {
+                "type": "string",
+                "description": "The CIDR block of the resource subnet.",
+                "computed": true
+              },
+              "restrict_cidrs": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The list of restricted IP CIDR blocks.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

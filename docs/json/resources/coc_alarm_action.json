@@ -1,0 +1,114 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_coc_alarm_action": {
+          "block": {
+            "attributes": {
+              "alarm_id": {
+                "type": "string",
+                "required": true
+              },
+              "associated_task_enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "associated_task_id": {
+                "type": "string",
+                "required": true
+              },
+              "associated_task_name": {
+                "type": "string",
+                "required": true
+              },
+              "associated_task_type": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "input_param": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true
+              },
+              "region_id": {
+                "type": "string",
+                "optional": true
+              },
+              "runbook_instance_mode": {
+                "type": "string",
+                "optional": true
+              },
+              "task_type": {
+                "type": "string",
+                "required": true
+              }
+            },
+            "block_types": {
+              "target_instances": {
+                "block": {
+                  "attributes": {
+                    "batch_strategy": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "order_no": {
+                      "type": "number",
+                      "required": true
+                    },
+                    "target_instances": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "target_selection": {
+                      "type": "string",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "sub_target_instances": {
+                      "block": {
+                        "attributes": {
+                          "batch_strategy": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "order_no": {
+                            "type": "number",
+                            "required": true
+                          },
+                          "target_instances": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "target_selection": {
+                            "type": "string",
+                            "required": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list"
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "COC",
+            "name": "Cloud Operations Center",
+            "catalog": "Management & Governance",
+            "name_cn": "云运维中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

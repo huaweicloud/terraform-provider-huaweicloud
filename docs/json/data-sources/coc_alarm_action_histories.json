@@ -1,0 +1,50 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_coc_alarm_action_histories": {
+          "block": {
+            "attributes": {
+              "alarm_handle_histories": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "create_alias": "string",
+                      "create_name": "string",
+                      "duration": "number",
+                      "end_time": "number",
+                      "start_time": "number",
+                      "status": "string",
+                      "task_type": "string",
+                      "work_order_id": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the execution details of the alarm history work order.",
+                "computed": true
+              },
+              "alarm_id": {
+                "type": "string",
+                "description": "Specifies the alarm ID.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "COC",
+            "name": "Cloud Operations Center",
+            "catalog": "Management & Governance",
+            "name_cn": "云运维中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

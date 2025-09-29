@@ -1,0 +1,88 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_apig_instance_associated_certificates": {
+          "block": {
+            "attributes": {
+              "algorithm_type": {
+                "type": "string",
+                "description": "The algorithm type of the SSL certificate(RSA, ECC, SM2).",
+                "optional": true
+              },
+              "certificates": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "algorithm_type": "string",
+                      "common_name": "string",
+                      "create_time": "string",
+                      "id": "string",
+                      "instance_id": "string",
+                      "is_has_trusted_root_ca": "bool",
+                      "name": "string",
+                      "not_after": "string",
+                      "project_id": "string",
+                      "san": [
+                        "list",
+                        "string"
+                      ],
+                      "signature_algorithm": "string",
+                      "type": "string",
+                      "update_time": "string"
+                    }
+                  ]
+                ],
+                "description": "All SSL certificates that match the filter parameters.",
+                "computed": true
+              },
+              "common_name": {
+                "type": "string",
+                "description": "The domain name of the SSL certificate.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the dedicated instance to which the SSL certificates belong.",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the SSL certificate.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the dedicated instance is located that the SSL certificates are associated with.",
+                "computed": true
+              },
+              "signature_algorithm": {
+                "type": "string",
+                "description": "The signature algorithm of the SSL certificate.",
+                "optional": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The visibility range of the SSL certificate.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

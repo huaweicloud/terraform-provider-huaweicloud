@@ -11,6 +11,7 @@
                   [
                     "object",
                     {
+                      "need_optimized": "bool",
                       "role_name": [
                         "list",
                         "string"
@@ -20,7 +21,7 @@
                     }
                   ]
                 ],
-                "description": "Indicates the authorizations list.",
+                "description": "The list of cloud service authorizations.",
                 "computed": true
               },
               "id": {
@@ -29,7 +30,7 @@
               },
               "region": {
                 "type": "string",
-                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "description": "The region where the cloud service authorizations are located.",
                 "computed": true
               }
             }

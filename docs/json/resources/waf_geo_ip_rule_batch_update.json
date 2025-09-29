@@ -1,0 +1,72 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_waf_geo_ip_rule_batch_update": {
+          "block": {
+            "attributes": {
+              "geoip": {
+                "type": "string",
+                "description": "Specifies the geo location codes blocked by the rule, separated by '|'.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the geo IP rule.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to create the resource. If omitted, the provider-level\n\t\t\t\tregion will be used."
+              },
+              "status": {
+                "type": "number",
+                "description": "Specifies the status of the geo IP rule (0: disabled, 1: enabled).",
+                "optional": true
+              },
+              "white": {
+                "type": "number",
+                "description": "Specifies the protection action (1: allow, 2: block).",
+                "optional": true
+              }
+            },
+            "block_types": {
+              "policy_rule_ids": {
+                "block": {
+                  "attributes": {
+                    "policy_id": {
+                      "type": "string",
+                      "description": "Specifies the ID of the protection policy.",
+                      "optional": true
+                    },
+                    "rule_ids": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "Specifies an array of rule IDs associated with the protection policy.",
+                      "optional": true
+                    }
+                  },
+                  "description": "Specifies an array of policy and rule IDs, using to associate protection policies with\n\t\t\t\tcorresponding rule sets"
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "WAF",
+            "name": "Web Application Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "Web应用防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

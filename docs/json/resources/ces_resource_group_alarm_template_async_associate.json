@@ -1,0 +1,109 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_ces_resource_group_alarm_template_async_associate": {
+          "block": {
+            "attributes": {
+              "effective_timezone": {
+                "type": "string",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "group_id": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "notification_begin_time": {
+                "type": "string",
+                "optional": true
+              },
+              "notification_enabled": {
+                "type": "bool",
+                "required": true
+              },
+              "notification_end_time": {
+                "type": "string",
+                "optional": true
+              },
+              "notification_manner": {
+                "type": "string",
+                "optional": true
+              },
+              "notification_policy_ids": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "template_ids": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "required": true
+              }
+            },
+            "block_types": {
+              "alarm_notifications": {
+                "block": {
+                  "attributes": {
+                    "notification_list": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "required": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              },
+              "ok_notifications": {
+                "block": {
+                  "attributes": {
+                    "notification_list": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "required": true
+                    },
+                    "type": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "CES",
+            "name": "Cloud Eye",
+            "catalog": "Management & Governance",
+            "name_cn": "云监控服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

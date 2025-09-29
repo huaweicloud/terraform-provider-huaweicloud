@@ -1,0 +1,137 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_dms_kafka_smart_connector_validate": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the Kafka instance to which the Smart Connect belongs.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the Smart Connect is located.",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The type of the Smart Connect task.",
+                "optional": true
+              }
+            },
+            "block_types": {
+              "task": {
+                "block": {
+                  "attributes": {
+                    "bootstrap_servers": {
+                      "type": "string",
+                      "description": "The address of the peer instance.",
+                      "optional": true
+                    },
+                    "cluster_name": {
+                      "type": "string",
+                      "description": "The alias of the peer instance.",
+                      "optional": true
+                    },
+                    "compression_type": {
+                      "type": "string",
+                      "description": "The compression algorithm of the smart connect task.",
+                      "optional": true
+                    },
+                    "consumer_strategy": {
+                      "type": "string",
+                      "description": "The startup offset of the smart connect task.",
+                      "optional": true
+                    },
+                    "current_cluster_name": {
+                      "type": "string",
+                      "description": "The alias of the current instance.",
+                      "optional": true
+                    },
+                    "direction": {
+                      "type": "string",
+                      "description": "The synchronization direction of the Smart Connect task.",
+                      "optional": true
+                    },
+                    "instance_id": {
+                      "type": "string",
+                      "description": "The ID of the peer instance.",
+                      "optional": true
+                    },
+                    "password": {
+                      "type": "string",
+                      "description": "The password of the peer instance.",
+                      "optional": true,
+                      "sensitive": true
+                    },
+                    "provenance_header_enabled": {
+                      "type": "bool",
+                      "description": "Whether to add source header.",
+                      "optional": true
+                    },
+                    "rename_topic_enabled": {
+                      "type": "bool",
+                      "description": "Whether to rename topic.",
+                      "optional": true
+                    },
+                    "replication_factor": {
+                      "type": "number",
+                      "description": "The number of replicas of the Smart Connect task.",
+                      "optional": true
+                    },
+                    "sasl_mechanism": {
+                      "type": "string",
+                      "description": "The authentication mechanism of the peer instance.",
+                      "optional": true
+                    },
+                    "security_protocol": {
+                      "type": "string",
+                      "description": "The authentication method of the peer instance.",
+                      "optional": true
+                    },
+                    "sync_consumer_offsets_enabled": {
+                      "type": "bool",
+                      "description": "Whether to synchronize consumption progress.",
+                      "optional": true
+                    },
+                    "task_num": {
+                      "type": "number",
+                      "description": "The number of tasks of the data replication.",
+                      "optional": true
+                    },
+                    "topics_mapping": {
+                      "type": "string",
+                      "description": "The topics mapping of the smart connect task.",
+                      "optional": true
+                    },
+                    "user_name": {
+                      "type": "string",
+                      "description": "The username of the peer instance.",
+                      "optional": true
+                    }
+                  },
+                  "description": "The configuration of the Smart Connect task."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "Kafka",
+            "name": "Distributed Message Service for Kafka",
+            "catalog": "Middleware",
+            "name_cn": "分布式消息服务 Kafka",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_compute_flavor_sales_policies": {
+          "block": {
+            "attributes": {
+              "availability_zone_id": {
+                "type": "string",
+                "optional": true
+              },
+              "flavor_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "interruption_policy": {
+                "type": "string",
+                "optional": true
+              },
+              "largest_spot_duration_count": {
+                "type": "string",
+                "optional": true
+              },
+              "largest_spot_duration_count_gt": {
+                "type": "string",
+                "optional": true
+              },
+              "longest_spot_duration_hours": {
+                "type": "string",
+                "optional": true
+              },
+              "longest_spot_duration_hours_gt": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "sell_mode": {
+                "type": "string",
+                "optional": true
+              },
+              "sell_policies": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "availability_zone_id": "string",
+                      "flavor_id": "string",
+                      "id": "number",
+                      "sell_mode": "string",
+                      "sell_status": "string",
+                      "spot_options": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "interruption_policy": "string",
+                            "largest_spot_duration_count": "number",
+                            "longest_spot_duration_hours": "number"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "sell_status": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "ECS",
+            "name": "Elastic Cloud Server",
+            "catalog": "Compute",
+            "name_cn": "弹性云服务器",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

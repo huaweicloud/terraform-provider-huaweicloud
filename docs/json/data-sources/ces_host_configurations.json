@@ -1,0 +1,85 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_ces_host_configurations": {
+          "block": {
+            "attributes": {
+              "datapoints": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "timestamp": "number",
+                      "type": "string",
+                      "value": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of configuration information.",
+                "computed": true
+              },
+              "dim_0": {
+                "type": "string",
+                "description": "Specifies the first monitoring dimension.",
+                "required": true
+              },
+              "dim_1": {
+                "type": "string",
+                "description": "Specifies the second monitoring dimension.",
+                "optional": true
+              },
+              "dim_2": {
+                "type": "string",
+                "description": "Specifies the third monitoring dimension.",
+                "optional": true
+              },
+              "dim_3": {
+                "type": "string",
+                "description": "Specifies the fourth monitoring dimension.",
+                "optional": true
+              },
+              "from": {
+                "type": "number",
+                "description": "Specifies the start time of the query. UTC timestamp in milliseconds.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "namespace": {
+                "type": "string",
+                "description": "Specifies the namespace of the queried service.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "to": {
+                "type": "number",
+                "description": "Specifies the end time of the query. UTC timestamp in milliseconds.",
+                "required": true
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the event type. It can contain only letters, underscores (_), and hyphens (-).",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "CES",
+            "name": "Cloud Eye",
+            "catalog": "Management & Governance",
+            "name_cn": "云监控服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

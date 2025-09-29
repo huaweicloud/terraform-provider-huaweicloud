@@ -1,0 +1,51 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_compute_volume_attachments": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "server_id": {
+                "type": "string",
+                "description": "Specifies the ECS ID in UUID format.",
+                "required": true
+              },
+              "volume_attachments": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "device": "string",
+                      "id": "string",
+                      "server_id": "string",
+                      "volume_id": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the disks attached to an ECS.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "ECS",
+            "name": "Elastic Cloud Server",
+            "catalog": "Compute",
+            "name_cn": "弹性云服务器",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

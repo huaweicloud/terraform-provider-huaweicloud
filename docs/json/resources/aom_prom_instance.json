@@ -7,10 +7,12 @@
             "attributes": {
               "created_at": {
                 "type": "string",
+                "description": "The creation time of the prometheus instance, in RFC3339 format.",
                 "computed": true
               },
               "enterprise_project_id": {
                 "type": "string",
+                "description": "The enterprise project ID to which the prometheus instance belongs.",
                 "optional": true,
                 "computed": true,
                 "forcenew": true
@@ -21,34 +23,56 @@
               },
               "prom_http_api_endpoint": {
                 "type": "string",
+                "description": "The HTTP URL for calling the prometheus instance.",
                 "computed": true
               },
               "prom_name": {
                 "type": "string",
-                "required": true,
-                "forcenew": true
+                "description": "The name of the prometheus instance.",
+                "required": true
               },
               "prom_type": {
                 "type": "string",
+                "description": "The type of the prometheus instance.",
                 "required": true,
                 "forcenew": true
               },
               "prom_version": {
                 "type": "string",
+                "description": "The version of the prometheus instance.",
                 "optional": true,
                 "forcenew": true
               },
               "region": {
                 "type": "string",
+                "description": "The region where the prometheus instance is located.",
                 "computed": true
               },
               "remote_read_url": {
                 "type": "string",
+                "description": "The remote read address of the prometheus instance.",
                 "computed": true
               },
               "remote_write_url": {
                 "type": "string",
+                "description": "The remote write address of the prometheus instance.",
                 "computed": true
+              }
+            },
+            "block_types": {
+              "prom_limits": {
+                "block": {
+                  "attributes": {
+                    "compactor_blocks_retention_period": {
+                      "type": "string",
+                      "description": "The retention period for the compactor blocks.",
+                      "required": true
+                    }
+                  },
+                  "description": "The limit configurations of the prometheus instance."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
               }
             }
           },

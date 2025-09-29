@@ -1,0 +1,85 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_apig_channel_members": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the dedicated instance to which the channel members belong.",
+                "required": true
+              },
+              "member_group_id": {
+                "type": "string",
+                "description": "The ID of the channel member group to be queried.",
+                "optional": true
+              },
+              "member_group_name": {
+                "type": "string",
+                "description": "The name of the channel member group to be queried for fuzzy matching.",
+                "optional": true
+              },
+              "members": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "create_time": "string",
+                      "ecs_id": "string",
+                      "ecs_name": "string",
+                      "health_status": "string",
+                      "id": "string",
+                      "is_backup": "bool",
+                      "member_group_id": "string",
+                      "member_group_name": "string",
+                      "member_ip_address": "string",
+                      "port": "number",
+                      "status": "number",
+                      "vpc_channel_id": "string",
+                      "weight": "number"
+                    }
+                  ]
+                ],
+                "description": "The list of the channel members that matched filter parameters.",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the channel member to be queried for fuzzy matching.",
+                "optional": true
+              },
+              "precise_search": {
+                "type": "string",
+                "description": "The parameter name for exact matching to be queried.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the channel members are located.",
+                "computed": true
+              },
+              "vpc_channel_id": {
+                "type": "string",
+                "description": "The ID of the VPC channel to which the members belong.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

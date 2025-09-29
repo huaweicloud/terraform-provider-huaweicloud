@@ -163,7 +163,8 @@
                     "repo_id": {
                       "type": "string",
                       "description": "Specifies the repository ID.",
-                      "required": true
+                      "optional": true,
+                      "computed": true
                     },
                     "repo_name": {
                       "type": "string",
@@ -189,7 +190,8 @@
                     "web_url": {
                       "type": "string",
                       "description": "Specifies the web URL of the repository.",
-                      "required": true
+                      "optional": true,
+                      "computed": true
                     }
                   },
                   "description": "Specifies the build execution SCM."

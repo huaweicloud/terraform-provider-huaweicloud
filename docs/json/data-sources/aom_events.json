@@ -1,0 +1,65 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_aom_events": {
+          "block": {
+            "attributes": {
+              "events": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "annotations": "string",
+                      "arrives_at": "number",
+                      "ends_at": "number",
+                      "enterprise_project_id": "string",
+                      "event_sn": "string",
+                      "id": "string",
+                      "metadata": [
+                        "map",
+                        "string"
+                      ],
+                      "policy": "string",
+                      "starts_at": "number",
+                      "timeout": "number"
+                    }
+                  ]
+                ],
+                "description": "The list of events and alarms that matched the filter parameters.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the events are located.",
+                "computed": true
+              },
+              "step": {
+                "type": "number",
+                "description": "The statistical step size in milliseconds.",
+                "optional": true
+              },
+              "time_range": {
+                "type": "string",
+                "description": "The time range for querying events and alarms.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "AOM",
+            "name": "Application Operations Management",
+            "catalog": "Management & Governance",
+            "name_cn": "应用运维管理",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

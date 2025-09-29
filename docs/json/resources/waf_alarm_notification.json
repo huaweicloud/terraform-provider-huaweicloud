@@ -1,0 +1,95 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_waf_alarm_notification": {
+          "block": {
+            "attributes": {
+              "description": {
+                "type": "string",
+                "optional": true
+              },
+              "enabled": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_all_enterprise_project": {
+                "type": "bool",
+                "optional": true,
+                "computed": true
+              },
+              "locale": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the alarm notification.",
+                "required": true
+              },
+              "nearly_expired_time": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
+              "notice_class": {
+                "type": "string",
+                "description": "Specifies the type of the alarm notification.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to create the resource.",
+                "computed": true
+              },
+              "sendfreq": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "threat": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
+              "times": {
+                "type": "number",
+                "optional": true,
+                "computed": true
+              },
+              "topic_urn": {
+                "type": "string",
+                "description": "Specifies the topic URN of the SMN.",
+                "required": true
+              },
+              "update_time": {
+                "type": "number",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "WAF",
+            "name": "Web Application Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "Web应用防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

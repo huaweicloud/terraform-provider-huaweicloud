@@ -7,6 +7,7 @@
             "attributes": {
               "access_status": {
                 "type": "number",
+                "optional": true,
                 "computed": true
               },
               "alarm_page": {

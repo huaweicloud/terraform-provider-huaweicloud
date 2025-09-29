@@ -1,0 +1,90 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_compute_os_change": {
+          "block": {
+            "attributes": {
+              "cloud_init_installed": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "server_id": {
+                "type": "string",
+                "required": true
+              }
+            },
+            "block_types": {
+              "os_change": {
+                "block": {
+                  "attributes": {
+                    "adminpass": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "imageid": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "keyname": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "mode": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "userid": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  },
+                  "block_types": {
+                    "metadata": {
+                      "block": {
+                        "attributes": {
+                          "__system__cmkid": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "__system__encrypted": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "user_data": {
+                            "type": "string",
+                            "optional": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1,
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "ECS",
+            "name": "Elastic Cloud Server",
+            "catalog": "Compute",
+            "name_cn": "弹性云服务器",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

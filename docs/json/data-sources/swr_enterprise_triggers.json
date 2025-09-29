@@ -1,0 +1,132 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_swr_enterprise_triggers": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the enterprise instance ID.",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the trigger name.",
+                "optional": true
+              },
+              "namespace_id": {
+                "type": "string",
+                "description": "Specifies the namespace ID.",
+                "optional": true
+              },
+              "order_column": {
+                "type": "string",
+                "description": "Specifies the order column.",
+                "optional": true
+              },
+              "order_type": {
+                "type": "string",
+                "description": "Specifies the order type.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "triggers": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created_at": "string",
+                      "creator": "string",
+                      "description": "string",
+                      "enabled": "bool",
+                      "event_types": [
+                        "list",
+                        "string"
+                      ],
+                      "id": "number",
+                      "name": "string",
+                      "namespace_id": "number",
+                      "namespace_name": "string",
+                      "scope_rules": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "repo_scope_mode": "string",
+                            "scope_selectors": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "key": "string",
+                                  "value": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "decoration": "string",
+                                        "kind": "string",
+                                        "pattern": "string"
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ],
+                            "tag_selectors": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "decoration": "string",
+                                  "kind": "string",
+                                  "pattern": "string"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "targets": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "address": "string",
+                            "address_type": "string",
+                            "auth_header": "string",
+                            "skip_cert_verify": "bool",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the triggers.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "SWR",
+            "name": "Software Repository for Container",
+            "catalog": "Containers",
+            "name_cn": "容器镜像服务",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

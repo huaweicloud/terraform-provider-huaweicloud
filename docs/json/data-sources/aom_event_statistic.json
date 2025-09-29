@@ -1,0 +1,78 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_aom_event_statistic": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the event statistics are located.",
+                "computed": true
+              },
+              "series": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "event_severity": "string",
+                      "values": [
+                        "list",
+                        "number"
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The statistical results for different severity levels at the same time series.",
+                "computed": true
+              },
+              "step": {
+                "type": "number",
+                "description": "The statistical step size in milliseconds.",
+                "optional": true
+              },
+              "step_result": {
+                "type": "number",
+                "description": "The statistical step size in milliseconds.",
+                "computed": true
+              },
+              "summary": {
+                "type": [
+                  "map",
+                  "number"
+                ],
+                "description": "The summary of various alarm information quantities.",
+                "computed": true
+              },
+              "time_range": {
+                "type": "string",
+                "description": "The time range for querying event and alarm statistics.",
+                "required": true
+              },
+              "timestamps": {
+                "type": [
+                  "list",
+                  "number"
+                ],
+                "description": "The time series corresponding to the statistical results.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "AOM",
+            "name": "Application Operations Management",
+            "catalog": "Management & Governance",
+            "name_cn": "应用运维管理",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

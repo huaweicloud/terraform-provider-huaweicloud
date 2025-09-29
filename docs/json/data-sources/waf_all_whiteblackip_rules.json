@@ -1,0 +1,70 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_waf_all_whiteblackip_rules": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "items": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "addr": "string",
+                      "description": "string",
+                      "id": "string",
+                      "ip_group": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "name": "string",
+                            "size": "number"
+                          }
+                        ]
+                      ],
+                      "name": "string",
+                      "policyid": "string",
+                      "start": "number",
+                      "status": "number",
+                      "terminal": "number",
+                      "time_mode": "string",
+                      "timestamp": "number",
+                      "white": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "policyids": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "WAF",
+            "name": "Web Application Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "Web应用防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

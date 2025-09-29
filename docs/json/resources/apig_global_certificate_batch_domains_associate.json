@@ -1,0 +1,62 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_apig_global_certificate_batch_domains_associate": {
+          "block": {
+            "attributes": {
+              "certificate_id": {
+                "type": "string",
+                "description": "The ID of the global SSL certificate.",
+                "required": true
+              },
+              "domains": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "api_group_id": "string",
+                      "api_group_name": "string",
+                      "id": "string",
+                      "instance_id": "string",
+                      "min_ssl_version": "string",
+                      "status": "number",
+                      "url_domain": "string"
+                    }
+                  ]
+                ],
+                "description": "The domain list associated with the global SSL certificate.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the global SSL certificate and domains are located.",
+                "computed": true
+              },
+              "verify_disabled_domain_names": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "description": "The domain list to be disabled client certificate verification.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "APIG",
+            "name": "API Gateway",
+            "catalog": "Middleware",
+            "name_cn": "API网关",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

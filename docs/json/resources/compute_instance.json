@@ -355,6 +355,20 @@
                 "forcenew": true,
                 "max_items": 23
               },
+              "enclave_options": {
+                "block": {
+                  "attributes": {
+                    "enabled": {
+                      "type": "bool",
+                      "required": true,
+                      "forcenew": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "forcenew": true,
+                "max_items": 1
+              },
               "network": {
                 "block": {
                   "attributes": {

@@ -1,0 +1,89 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_waf_all_global_whitelist_rules": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "items": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "advanced": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "contents": [
+                              "list",
+                              "string"
+                            ],
+                            "index": "string"
+                          }
+                        ]
+                      ],
+                      "conditions": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "category": "string",
+                            "contents": [
+                              "list",
+                              "string"
+                            ],
+                            "index": "string",
+                            "logic_operation": "string"
+                          }
+                        ]
+                      ],
+                      "description": "string",
+                      "domain": [
+                        "list",
+                        "string"
+                      ],
+                      "id": "string",
+                      "mode": "number",
+                      "policyid": "string",
+                      "rule": "string",
+                      "status": "number",
+                      "timestamp": "number",
+                      "url": "string",
+                      "url_logic": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "policyids": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "WAF",
+            "name": "Web Application Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "Web应用防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

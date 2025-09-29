@@ -1,0 +1,74 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_sfs_turbo_ldap_config": {
+          "block": {
+            "attributes": {
+              "backup_url": {
+                "type": "string",
+                "description": "Specifies the URL of the standby LDAP server.",
+                "optional": true,
+                "computed": true
+              },
+              "base_dn": {
+                "type": "string",
+                "description": "Specifies the base DN.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "password": {
+                "type": "string",
+                "description": "Specifies the LDAP authentication password.",
+                "optional": true,
+                "sensitive": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to create the resource. If omitted, the provider-level\n\t\t\t\tregion will be used.",
+                "computed": true
+              },
+              "schema": {
+                "type": "string",
+                "description": "Specifies the LDAP schema.",
+                "optional": true,
+                "computed": true
+              },
+              "search_timeout": {
+                "type": "number",
+                "description": "Specifies the LDAP search timeout interval, in seconds. ",
+                "optional": true,
+                "computed": true
+              },
+              "share_id": {
+                "type": "string",
+                "description": "Specifies the file system ID.",
+                "required": true
+              },
+              "url": {
+                "type": "string",
+                "description": "Specifies the URL of the LDAP server.",
+                "required": true
+              },
+              "user_dn": {
+                "type": "string",
+                "description": "Specifies the bind DN.",
+                "optional": true,
+                "computed": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "description": "Specifies the ID of the VPC that the specified LDAP server can connect to.",
+                "optional": true,
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
