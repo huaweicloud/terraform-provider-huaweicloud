@@ -1,0 +1,19 @@
+info:
+    version: ""
+    title: resource_huaweicloud_compute_os_reinstall
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: ECS
+paths:
+    /v1/{project_id}/cloudservers/{server_id}/reinstallos:
+        POST:
+            tag: ECS
+    /v1/{project_id}/jobs/{job_id}:
+        GET:
+            tag: ECS
+    /v2/{project_id}/cloudservers/{server_id}/reinstallos:
+        POST:
+            tag: ECS

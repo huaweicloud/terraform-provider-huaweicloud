@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_apig_channel_member_batch_action
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: APIG
+paths:
+    /v2/{project_id}/apigw/instances/{instance_id}/vpc-channels/{vpc_channel_id}/members/batch-disable:
+        POST:
+            tag: APIG
+    /v2/{project_id}/apigw/instances/{instance_id}/vpc-channels/{vpc_channel_id}/members/batch-enable:
+        POST:
+            tag: APIG

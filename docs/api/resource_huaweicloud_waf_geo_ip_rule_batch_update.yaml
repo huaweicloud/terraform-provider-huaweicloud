@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_waf_geo_ip_rule_batch_update
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: WAF
+paths:
+    /v1/{project_id}/waf/rule/geoip/batch-update:
+        POST:
+            tag: WAF

@@ -1,0 +1,20 @@
+info:
+    version: ""
+    title: resource_huaweicloud_waf_ip_intelligence_rule
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: WAF
+paths:
+    /v1/{project_id}/waf/policy/{policy_id}/ip-reputation:
+        POST:
+            tag: WAF
+    /v1/{project_id}/waf/policy/{policy_id}/ip-reputation/{rule_id}:
+        DELETE:
+            tag: WAF
+        GET:
+            tag: WAF
+        PUT:
+            tag: WAF

@@ -1,0 +1,20 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dms_kafka_instance_rebalance_log
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: Kafka
+paths:
+    /v2/{project_id}/instances/{instance_id}/tasks/{task_id}:
+        GET:
+            tag: Kafka
+    /v2/kafka/{project_id}/instances/{instance_id}/log/rebalance-log:
+        DELETE:
+            tag: Kafka
+        GET:
+            tag: Kafka
+        POST:
+            tag: Kafka

@@ -1,6 +1,6 @@
 info:
     version: ""
-    title: resource_huaweicloud_apig_channel_member
+    title: data_source_huaweicloud_apig_channel_members
     description: ""
 schemes:
     - https
@@ -10,9 +10,4 @@ tags:
 paths:
     /v2/{project_id}/apigw/instances/{instance_id}/vpc-channels/{vpc_channel_id}/members:
         GET:
-            tag: APIG
-        POST:
-            tag: APIG
-    /v2/{project_id}/apigw/instances/{instance_id}/vpc-channels/{vpc_channel_id}/members/{member_id}:
-        DELETE:
             tag: APIG

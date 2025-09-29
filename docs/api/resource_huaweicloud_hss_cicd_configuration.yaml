@@ -1,0 +1,23 @@
+info:
+    version: ""
+    title: resource_huaweicloud_hss_cicd_configuration
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: HSS
+paths:
+    /v5/{project_id}/image/cicd/configurations:
+        GET:
+            tag: HSS
+        POST:
+            tag: HSS
+    /v5/{project_id}/image/cicd/configurations/{cicd_id}:
+        GET:
+            tag: HSS
+        PUT:
+            tag: HSS
+    /v5/{project_id}/image/cicd/configurations/batch-delete:
+        POST:
+            tag: HSS

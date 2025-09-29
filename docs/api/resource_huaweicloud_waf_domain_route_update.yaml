@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_waf_domain_route_update
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: WAF
+paths:
+    /v1/{project_id}/waf/instance/{instance_id}/route:
+        PUT:
+            tag: WAF

@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_waf_all_data_masking_rules
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: WAF
+paths:
+    /v1/{projectid}/waf/rule/privacy:
+        GET:
+            tag: WAF

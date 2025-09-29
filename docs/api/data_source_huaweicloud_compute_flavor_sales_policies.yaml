@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_compute_flavor_sales_policies
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: ECS
+paths:
+    /v1/{project_id}/cloudservers/flavor-sell-policies:
+        GET:
+            tag: ECS

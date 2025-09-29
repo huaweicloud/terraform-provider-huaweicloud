@@ -18,6 +18,9 @@ paths:
             tag: WAF
         PUT:
             tag: WAF
+    /v1/{project_id}/premium-waf/host/{host_id}/access-status:
+        PUT:
+            tag: WAF
     /v1/{project_id}/premium-waf/host/{host_id}/protect-status:
         PUT:
             tag: WAF

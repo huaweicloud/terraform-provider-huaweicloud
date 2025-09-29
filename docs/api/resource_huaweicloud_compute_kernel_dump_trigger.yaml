@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_compute_kernel_dump_trigger
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: ECS
+paths:
+    /v1/{project_id}/cloudservers/{server_id}/actions/trigger-crash-dump:
+        POST:
+            tag: ECS

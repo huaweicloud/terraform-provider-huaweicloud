@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_ces_resource_group_alarm_template_async_associate
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CES
+paths:
+    /v2/{project_id}/resource-groups/{group_id}/alarm-templates/async-association:
+        PUT:
+            tag: CES

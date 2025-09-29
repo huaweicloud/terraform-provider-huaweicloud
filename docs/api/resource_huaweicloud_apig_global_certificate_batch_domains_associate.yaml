@@ -1,0 +1,19 @@
+info:
+    version: ""
+    title: resource_huaweicloud_apig_global_certificate_batch_domains_associate
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: APIG
+paths:
+    /v2/{project_id}/apigw/certificates/{certificate_id}/attached-domains:
+        GET:
+            tag: APIG
+    /v2/{project_id}/apigw/certificates/{certificate_id}/domains/attach:
+        POST:
+            tag: APIG
+    /v2/{project_id}/apigw/certificates/{certificate_id}/domains/detach:
+        POST:
+            tag: APIG

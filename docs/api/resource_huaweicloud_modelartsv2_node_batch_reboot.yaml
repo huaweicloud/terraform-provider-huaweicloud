@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_modelartsv2_node_batch_reboot
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: ModelArts
+paths:
+    /v2/{project_id}/jobs/{job_id}:
+        GET:
+            tag: ModelArts
+    /v2/{project_id}/pools/{pool_name}/nodes/batch-reboot:
+        POST:
+            tag: ModelArts

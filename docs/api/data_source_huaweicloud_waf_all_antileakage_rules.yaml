@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_waf_all_antileakage_rules
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: WAF
+paths:
+    /v1/{projectid}/waf/rule/antileakage:
+        GET:
+            tag: WAF

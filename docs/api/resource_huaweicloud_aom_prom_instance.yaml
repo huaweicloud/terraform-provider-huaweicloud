@@ -15,3 +15,5 @@ paths:
             tag: AOM
         POST:
             tag: AOM
+        PUT:
+            tag: AOM
