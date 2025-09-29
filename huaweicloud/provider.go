@@ -1739,6 +1739,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_swr_enterprise_image_signature_policies":        swrenterprise.DataSourceSwrEnterpriseImageSignaturePolicies(),
 			"huaweicloud_swr_enterprise_instance_tags":                   swrenterprise.DataSourceSwrEnterpriseInstanceTags(),
 			"huaweicloud_swr_enterprise_namespace_tags":                  swrenterprise.DataSourceSwrEnterpriseNamespaceTags(),
+			"huaweicloud_swr_enterprise_resources_filter":                swrenterprise.DataSourceSwrEnterpriseResourcesFilter(),
 			//nolint:revive
 			"huaweicloud_swr_enterprise_image_signature_policy_execution_records": swrenterprise.DataSourceSwrEnterpriseImageSignaturePolicyExecutionRecords(),
 
