@@ -10,6 +10,8 @@ type Environment struct {
 	Name string `json:"name"`
 	// The environment alias
 	Alias string `json:"alias"`
+	// The environment type.
+	DeployMode string `json:"deploy_mode"`
 	// The environment description.
 	Description string `json:"description"`
 	// The project ID.
