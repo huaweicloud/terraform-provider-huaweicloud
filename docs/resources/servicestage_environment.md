@@ -48,6 +48,13 @@ The following arguments are supported:
 * `vpc_id` - (Required, String, ForceNew) Specifies the VPC ID to which the environment belongs.
   Changing this will create a new resource.
 
+* `deploy_mode` - (Optional, String, ForceNew) Specifies the environment type. The valid values ars as follows:
+  + **virtualmachine**: Virtual machine type
+  + **container**: Kubernetes type
+  + **mixed**: Virtual machine and kubernetes type
+
+  Changing this will create a new resource.
+
 * `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID to which the application
   belongs. Changing this will create a new resource.
 

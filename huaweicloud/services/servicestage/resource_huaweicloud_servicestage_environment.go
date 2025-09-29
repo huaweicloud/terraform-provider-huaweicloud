@@ -51,6 +51,12 @@ func ResourceEnvironment() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			"deploy_mode": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
 			"enterprise_project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -122,6 +128,7 @@ func buildEnvironmentCreateOpts(d *schema.ResourceData, cfg *config.Config) envi
 		Name:                d.Get("name").(string),
 		Description:         &desc,
 		VpcId:               d.Get("vpc_id").(string),
+		DeployMode:          d.Get("deploy_mode").(string),
 		BaseResources:       buildResourcesList(d.Get("basic_resources").(*schema.Set)),
 		OptionalResources:   buildResourcesList(d.Get("optional_resources").(*schema.Set)),
 		EnterpriseProjectId: cfg.GetEnterpriseProjectID(d),
@@ -181,6 +188,7 @@ func resourceEnvironmentRead(_ context.Context, d *schema.ResourceData, meta int
 		d.Set("name", resp.Name),
 		d.Set("description", resp.Description),
 		d.Set("vpc_id", resp.VpcId),
+		d.Set("deploy_mode", resp.DeployMode),
 		d.Set("enterprise_project_id", resp.EnterpriseProjectId),
 		d.Set("basic_resources", flattenEnvironmentResources(resp.BaseResources)),
 		d.Set("optional_resources", flattenEnvironmentResources(resp.OptionalResources)),

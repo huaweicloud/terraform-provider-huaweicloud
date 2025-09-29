@@ -48,6 +48,7 @@ func TestAccEnvironment_basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(resourceName, "vpc_id", "huaweicloud_vpc.test", "id"),
 					resource.TestCheckResourceAttr(resourceName, "basic_resources.#", "4"),
 					resource.TestCheckResourceAttr(resourceName, "optional_resources.#", "4"),
+					resource.TestCheckResourceAttrSet(resourceName, "deploy_mode"),
 				),
 			},
 			{
@@ -58,6 +59,7 @@ func TestAccEnvironment_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "description", "Updated by terraform test"),
 					resource.TestCheckResourceAttr(resourceName, "basic_resources.#", "8"),
 					resource.TestCheckResourceAttr(resourceName, "optional_resources.#", "8"),
+					resource.TestCheckResourceAttrSet(resourceName, "deploy_mode"),
 				),
 			},
 			{
@@ -66,6 +68,7 @@ func TestAccEnvironment_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "basic_resources.#", "4"),
 					resource.TestCheckResourceAttr(resourceName, "optional_resources.#", "4"),
+					resource.TestCheckResourceAttrSet(resourceName, "deploy_mode"),
 				),
 			},
 			{
