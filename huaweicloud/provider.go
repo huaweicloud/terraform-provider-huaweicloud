@@ -837,6 +837,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_compute_instances":               ecs.DataSourceComputeInstances(),
 			"huaweicloud_compute_servergroups":            ecs.DataSourceComputeServerGroups(),
 			"huaweicloud_compute_instance_remote_console": ecs.DataSourceComputeInstanceRemoteConsole(),
+			"huaweicloud_compute_volume_attachments":      ecs.DataSourceEcsComputeVolumeAttachments(),
 
 			// CodeArts
 			"huaweicloud_codearts_deploy_groups":                         codeartsdeploy.DataSourceCodeartsDeployGroups(),
@@ -2037,7 +2038,6 @@ func Provider() *schema.Provider {
 			"huaweicloud_antiddos":                      deprecated.DataSourceAntiDdosV1(),
 			"huaweicloud_antiddos_v1":                   deprecated.DataSourceAntiDdosV1(),
 			"huaweicloud_compute_availability_zones_v2": deprecated.DataSourceComputeAvailabilityZonesV2(),
-			"huaweicloud_csbs_backup":                   deprecated.DataSourceCSBSBackupV1(),
 			"huaweicloud_csbs_backup_policy":            deprecated.DataSourceCSBSBackupPolicyV1(),
 			"huaweicloud_csbs_backup_policy_v1":         deprecated.DataSourceCSBSBackupPolicyV1(),
 			"huaweicloud_csbs_backup_v1":                deprecated.DataSourceCSBSBackupV1(),
