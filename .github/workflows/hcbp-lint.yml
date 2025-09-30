@@ -47,6 +47,8 @@ jobs:
           base-ref: ${{ github.event.pull_request.base.sha }}
           performance-monitoring: 'true'
           report-format: 'both'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Show Results Summary
         if: always()
