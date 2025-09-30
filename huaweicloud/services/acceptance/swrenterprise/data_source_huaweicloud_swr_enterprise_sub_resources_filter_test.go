@@ -9,8 +9,8 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceSwrEnterpriseResourcesFilter_basic(t *testing.T) {
-	dataSource := "data.huaweicloud_swr_enterprise_resources_filter.test"
+func TestAccDataSourceSwrEnterpriseSubResourcesFilter_basic(t *testing.T) {
+	dataSource := "data.huaweicloud_swr_enterprise_sub_resources_filter.test"
 	rName := acceptance.RandomAccResourceName()
 	dc := acceptance.InitDataSourceCheck(dataSource)
 
@@ -21,7 +21,7 @@ func TestAccDataSourceSwrEnterpriseResourcesFilter_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceSwrEnterpriseResourcesFilter_basic(rName),
+				Config: testDataSourceSwrEnterpriseSubResourcesFilter_basic(rName),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(dataSource, "resources.#"),
@@ -37,20 +37,24 @@ func TestAccDataSourceSwrEnterpriseResourcesFilter_basic(t *testing.T) {
 	})
 }
 
-func testDataSourceSwrEnterpriseResourcesFilter_basic(name string) string {
+func testDataSourceSwrEnterpriseSubResourcesFilter_basic(name string) string {
 	return fmt.Sprintf(`
 %[1]s
 
-data "huaweicloud_swr_enterprise_resources_filter" "test" {
-  depends_on = [huaweicloud_swr_enterprise_instance.test]
+data "huaweicloud_swr_enterprise_sub_resources_filter" "test" {
+  depends_on = [huaweicloud_swr_enterprise_namespace.test]
 
-  resource_type = "instances"
+  resource_type     = "instances"
+  resource_id       = huaweicloud_swr_enterprise_instance.test.id
+  sub_resource_type = "namespaces"
 }
 
-data "huaweicloud_swr_enterprise_resources_filter" "filter_by_tags" {
-  depends_on = [huaweicloud_swr_enterprise_instance.test]
+data "huaweicloud_swr_enterprise_sub_resources_filter" "filter_by_tags" {
+  depends_on = [huaweicloud_swr_enterprise_namespace.test]
 
-  resource_type = "instances"
+  resource_type     = "instances"
+  resource_id       = huaweicloud_swr_enterprise_instance.test.id
+  sub_resource_type = "namespaces"
 
   tags {
     key    = "value1"
@@ -59,7 +63,7 @@ data "huaweicloud_swr_enterprise_resources_filter" "filter_by_tags" {
 }
 
 output "tags_filter_is_useful" {
-  value = length(data.huaweicloud_swr_enterprise_resources_filter.filter_by_tags.resources) > 0
+  value = length(data.huaweicloud_swr_enterprise_sub_resources_filter.filter_by_tags.resources) > 0
 }
-`, testAccSwrEnterpriseInstance_update(name))
+`, testAccSwrEnterpriseNamespace_update(name))
 }
