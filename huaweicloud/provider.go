@@ -1051,6 +1051,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_kafka_topic_partitions":        kafka.DataSourceDmsKafkaTopicPartitions(),
 			"huaweicloud_dms_kafka_topic_producers":         kafka.DataSourceDmsKafkaTopicProducers(),
 			"huaweicloud_dms_kafka_topics":                  kafka.DataSourceDmsKafkaTopics(),
+			"huaweicloud_dms_kafka_topic_quotas":            kafka.DataSourceTopicQuotas(),
 			"huaweicloud_dms_kafka_tags":                    kafka.DataSourceTags(),
 			"huaweicloud_dms_kafka_user_client_quotas":      kafka.DataSourceDmsKafkaUserClientQuotas(),
 			"huaweicloud_dms_kafka_users":                   kafka.DataSourceDmsKafkaUsers(),
