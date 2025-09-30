@@ -2748,6 +2748,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_event_alarm_white_list_delete":                  hss.ResourceEventAlarmWhiteListDelete(),
 			"huaweicloud_hss_event_login_white_list":                         hss.ResourceEventLoginWhiteList(),
 			"huaweicloud_hss_image_batch_scan":                               hss.ResourceImageBatchScan(),
+			"huaweicloud_hss_setting_two_factor_login_config":                hss.ResourceSettingTwoFactorLoginConfig(),
 			"huaweicloud_hss_switch_honeypot_port_policy":                    hss.ResourceSwitchHoneypotPortPolicy(),
 			"huaweicloud_hss_vulnerability_information_export":               hss.ResourceVulnerabilityInformationExport(),
 			"huaweicloud_hss_file_download":                                  hss.ResourceFileDownload(),
