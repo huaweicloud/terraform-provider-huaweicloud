@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
@@ -54,6 +55,14 @@ func ResourceInstanceRebalanceLog() *schema.Resource {
 				Required:    true,
 				Description: `The ID of the Kafka instance to which the rebalance log belongs.`,
 			},
+			// Internal parameter(s).
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
+			},
+			// Attributes.
 			"log_group_id": {
 				Type:        schema.TypeString,
 				Computed:    true,
