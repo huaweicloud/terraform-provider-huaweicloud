@@ -17,10 +17,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API SWR POST /v2/{project_id}/{resource_type}/resource-instances/filter
-func DataSourceSwrEnterpriseResourcesFilter() *schema.Resource {
+// @API SWR POST /v2/{project_id}/{resource_type}/{resource_id}/{sub_resource_type}/resource-instances/filter
+func DataSourceSwrEnterpriseSubResourcesFilter() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceSwrEnterpriseResourcesFilterRead,
+		ReadContext: dataSourceSwrEnterpriseSubResourcesFilterRead,
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -32,7 +32,17 @@ func DataSourceSwrEnterpriseResourcesFilter() *schema.Resource {
 			"resource_type": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: `The type of the resource used to filter the target resources.`,
+				Description: `The type of the resource`,
+			},
+			"resource_id": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The ID of the resource`,
+			},
+			"sub_resource_type": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `The type of the sub resource`,
 			},
 			"tags": {
 				Type:        schema.TypeList,
@@ -89,7 +99,7 @@ func DataSourceSwrEnterpriseResourcesFilter() *schema.Resource {
 	}
 }
 
-func dataSourceSwrEnterpriseResourcesFilterRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceSwrEnterpriseSubResourcesFilterRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	client, err := cfg.NewServiceClient("swr", region)
@@ -97,13 +107,15 @@ func dataSourceSwrEnterpriseResourcesFilterRead(_ context.Context, d *schema.Res
 		return diag.Errorf("error creating SWR client: %s", err)
 	}
 
-	httpUrl := "v2/{project_id}/{resource_type}/resource-instances/filter?limit=200"
+	httpUrl := "v2/{project_id}/{resource_type}/{resource_id}/{sub_resource_type}/resource-instances/filter?limit=200"
 	listPath := client.Endpoint + httpUrl
 	listPath = strings.ReplaceAll(listPath, "{project_id}", client.ProjectID)
 	listPath = strings.ReplaceAll(listPath, "{resource_type}", d.Get("resource_type").(string))
+	listPath = strings.ReplaceAll(listPath, "{resource_id}", d.Get("resource_id").(string))
+	listPath = strings.ReplaceAll(listPath, "{sub_resource_type}", d.Get("sub_resource_type").(string))
 	listOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		JSONBody:         utils.RemoveNil(buildSwrEnterpriseResourcesFilterQueryParams(d)),
+		JSONBody:         utils.RemoveNil(buildSwrEnterpriseSubResourcesFilterQueryParams(d)),
 	}
 
 	rst := make([]interface{}, 0)
@@ -141,21 +153,21 @@ func dataSourceSwrEnterpriseResourcesFilterRead(_ context.Context, d *schema.Res
 	mErr := multierror.Append(
 		d.Set("region", region),
 		d.Set("total_count", totalCount),
-		d.Set("resources", flattenSwrEnterpriseResourcesFilterResponseBody(rst)),
+		d.Set("resources", flattenSwrEnterpriseSubResourcesFilterResponseBody(rst)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func buildSwrEnterpriseResourcesFilterQueryParams(d *schema.ResourceData) map[string]interface{} {
+func buildSwrEnterpriseSubResourcesFilterQueryParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"tags": buildSwrEnterpriseResourcesFilterQueryParamsTags(d.Get("tags")),
+		"tags": buildSwrEnterpriseSubResourcesFilterQueryParamsTags(d.Get("tags")),
 	}
 
 	return bodyParams
 }
 
-func buildSwrEnterpriseResourcesFilterQueryParamsTags(tagsRaw interface{}) []map[string]interface{} {
+func buildSwrEnterpriseSubResourcesFilterQueryParamsTags(tagsRaw interface{}) []map[string]interface{} {
 	tags := tagsRaw.([]interface{})
 	if len(tags) == 0 {
 		return nil
@@ -172,7 +184,7 @@ func buildSwrEnterpriseResourcesFilterQueryParamsTags(tagsRaw interface{}) []map
 	return bodyParams
 }
 
-func flattenSwrEnterpriseResourcesFilterResponseBody(resp []interface{}) []interface{} {
+func flattenSwrEnterpriseSubResourcesFilterResponseBody(resp []interface{}) []interface{} {
 	if len(resp) == 0 {
 		return nil
 	}
