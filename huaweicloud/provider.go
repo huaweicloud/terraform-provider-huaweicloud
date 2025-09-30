@@ -2747,6 +2747,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_image_batch_scan":                               hss.ResourceImageBatchScan(),
 			"huaweicloud_hss_switch_honeypot_port_policy":                    hss.ResourceSwitchHoneypotPortPolicy(),
 			"huaweicloud_hss_vulnerability_information_export":               hss.ResourceVulnerabilityInformationExport(),
+			"huaweicloud_hss_vulnerability_task_user_trace":                  hss.ResourceVulnerabilityTaskUserTrace(),
 			"huaweicloud_hss_file_download":                                  hss.ResourceFileDownload(),
 			"huaweicloud_hss_ignore_failed_pcc":                              hss.ResourceIgnoreFailedPCC(),
 			"huaweicloud_hss_antivirus_create_virus_scan_task":               hss.ResourceCreateVirusScanTask(),
