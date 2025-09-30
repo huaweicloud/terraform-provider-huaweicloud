@@ -7,11 +7,13 @@ variable "region_name" {
 variable "access_key" {
   description = "The access key of the IAM user"
   type        = string
+  sensitive   = true
 }
 
 variable "secret_key" {
   description = "The secret key of the IAM user"
   type        = string
+  sensitive   = true
 }
 
 # Variable definitions for resources/data sources
@@ -258,4 +260,3 @@ variable "api_func_graph_request_protocol" {
   type        = string
   default     = "HTTPS"
 }
-

@@ -7,11 +7,13 @@ variable "region_name" {
 variable "access_key" {
   description = "The access key of the IAM user"
   type        = string
+  sensitive   = true
 }
 
 variable "secret_key" {
   description = "The secret key of the IAM user"
   type        = string
+  sensitive   = true
 }
 
 # Variable definitions for resources/data sources
@@ -97,4 +99,5 @@ variable "instance_name" {
 variable "administrator_password" {
   description = "The password of the administrator"
   type        = string
+  sensitive   = true
 }

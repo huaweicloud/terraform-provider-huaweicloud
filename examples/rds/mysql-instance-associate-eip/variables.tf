@@ -7,11 +7,13 @@ variable "region_name" {
 variable "access_key" {
   description = "The access key of the IAM user"
   type        = string
+  sensitive   = true
 }
 
 variable "secret_key" {
   description = "The secret key of the IAM user"
   type        = string
+  sensitive   = true
 }
 
 # Variable definitions for resources/data sources
@@ -100,6 +102,7 @@ variable "instance_password" {
   description = "The password for the RDS instance"
   type        = string
   default     = ""
+  sensitive   = true
 }
 
 variable "instance_name" {
