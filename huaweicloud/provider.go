@@ -838,6 +838,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_compute_servergroups":            ecs.DataSourceComputeServerGroups(),
 			"huaweicloud_compute_instance_remote_console": ecs.DataSourceComputeInstanceRemoteConsole(),
 			"huaweicloud_compute_volume_attachments":      ecs.DataSourceEcsComputeVolumeAttachments(),
+			"huaweicloud_compute_password":                ecs.DataSourceEcsComputePassword(),
 
 			// CodeArts
 			"huaweicloud_codearts_deploy_groups":                         codeartsdeploy.DataSourceCodeartsDeployGroups(),
