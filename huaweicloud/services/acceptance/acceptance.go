@@ -182,6 +182,7 @@ var (
 	HW_CDN_START_TIME       = os.Getenv("HW_CDN_START_TIME")
 	HW_CDN_END_TIME         = os.Getenv("HW_CDN_END_TIME")
 	HW_CDN_STAT_TYPE        = os.Getenv("HW_CDN_STAT_TYPE")
+	HW_CDN_IP_ADDRESSES     = os.Getenv("HW_CDN_IP_ADDRESSES")
 
 	// CCM environment
 	HW_CCM_CERTIFICATE_CONTENT_PATH    = os.Getenv("HW_CCM_CERTIFICATE_CONTENT_PATH")
@@ -3030,6 +3031,13 @@ func TestAccPreCheckCERT(t *testing.T) {
 func TestAccPreCheckCDNDomainCertificates(t *testing.T) {
 	if HW_CDN_ENABLE_FLAG == "" {
 		t.Skip("Skip the CDN acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCDNIPAddresses(t *testing.T, n int) {
+	if len(strings.Split(HW_CDN_IP_ADDRESSES, ",")) < n {
+		t.Skipf("at lease %d IP address(es) for HW_CDN_IP_ADDRESSES must be set, separated by a comma (,)", n)
 	}
 }
 
