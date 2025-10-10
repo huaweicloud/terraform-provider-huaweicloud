@@ -816,6 +816,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_coc_group_resource_relations":          coc.DataSourceCocGroupResourceRelations(),
 			"huaweicloud_coc_enterprise_project_collections":    coc.DataSourceCocEnterpriseProjectCollections(),
 			"huaweicloud_coc_script_tags":                       coc.DataSourceCocScriptTags(),
+			"huaweicloud_coc_incidents":                         coc.DataSourceCocIncidents(),
 			"huaweicloud_coc_incident_tasks":                    coc.DataSourceCocIncidentTasks(),
 			"huaweicloud_coc_incident_action_histories":         coc.DataSourceCocIncidentActionHistories(),
 			"huaweicloud_coc_diagnosis_tasks":                   coc.DataSourceCocDiagnosisTasks(),
