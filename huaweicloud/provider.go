@@ -1316,6 +1316,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_antivirus_virus_scan_tasks":            hss.DataSourceAntivirusVirusScanTasks(),
 			"huaweicloud_hss_backup_policy":                         hss.DataSourceBackupPolicy(),
 			"huaweicloud_hss_cicd_configurations":                   hss.DataSourceCiCdConfigurations(),
+			"huaweicloud_hss_page_notices":                          hss.DataSourcePageNotices(),
 
 			"huaweicloud_identity_permissions": iam.DataSourceIdentityPermissions(),
 			"huaweicloud_identity_role":        iam.DataSourceIdentityRole(),
