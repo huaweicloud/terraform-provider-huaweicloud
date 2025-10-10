@@ -674,6 +674,7 @@ var (
 	HW_HSS_EVENT_ALARM_WHITE_LIST_HASH        = os.Getenv("HW_HSS_EVENT_ALARM_WHITE_LIST_HASH")
 	HW_HSS_EVENT_ALARM_WHITE_LIST_DESCRIPTION = os.Getenv("HW_HSS_EVENT_ALARM_WHITE_LIST_DESCRIPTION")
 	HW_HSS_ANTIVIRUS_ENABLED                  = os.Getenv("HW_HSS_ANTIVIRUS_ENABLED")
+	HW_HSS_CLUSTER_RISK_ID                    = os.Getenv("HW_HSS_CLUSTER_RISK_ID")
 	// The vulnerability ID
 	HW_HSS_VUL_ID    = os.Getenv("HW_HSS_VUL_ID")
 	HW_HSS_POLICY_ID = os.Getenv("HW_HSS_POLICY_ID")
@@ -3453,6 +3454,13 @@ func TestAccPreCheckHSSEventAlarmWhiteListDeleteEnabled(t *testing.T) {
 func TestAccPreCheckHSSAntivirusEnabled(t *testing.T) {
 	if HW_HSS_ANTIVIRUS_ENABLED == "" {
 		t.Skip("HW_HSS_ANTIVIRUS_ENABLED must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckHSSClusterRiskId(t *testing.T) {
+	if HW_HSS_CLUSTER_RISK_ID == "" {
+		t.Skip("HW_HSS_CLUSTER_RISK_ID must be set for the acceptance test")
 	}
 }
 
