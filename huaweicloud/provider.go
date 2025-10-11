@@ -738,6 +738,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cdn_billing_option":      cdn.DataSourceBillingOption(),
 			"huaweicloud_cdn_logs":                cdn.DataSourceCdnLogs(),
 			"huaweicloud_cdn_analytics":           cdn.DataSourceCdnAnalytics(),
+			"huaweicloud_cdn_rules_engine":        cdn.DataSourceRulesEngine(),
 
 			"huaweicloud_ces_agent_dimensions":                  ces.DataSourceCesAgentDimensions(),
 			"huaweicloud_ces_agent_maintenance_tasks":           ces.DataSourceCesAgentMaintenanceTasks(),
@@ -2296,6 +2297,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_cdn_domain":         cdn.ResourceCdnDomain(),
 			"huaweicloud_cdn_domain_rule":    cdn.ResourceCdnDomainRule(),
+			"huaweicloud_cdn_rules_engine":   cdn.ResourceRulesEngine(),
 			"huaweicloud_cdn_billing_option": cdn.ResourceBillingOption(),
 			"huaweicloud_cdn_cache_preheat":  cdn.ResourceCachePreheat(),
 			"huaweicloud_cdn_cache_refresh":  cdn.ResourceCacheRefresh(),

@@ -127,6 +127,11 @@ var allServiceCatalog = map[string]ServiceCatalog{
 		WithOutProjectID: true,
 		Product:          "CDN",
 	},
+	"cdnv1": {
+		Name:    "cdn",
+		Version: "v1.0",
+		Product: "CDN",
+	},
 	"eps": {
 		Name:             "eps",
 		Version:          "v1.0",
