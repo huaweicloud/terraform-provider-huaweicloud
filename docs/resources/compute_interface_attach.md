@@ -84,14 +84,15 @@ The following arguments are supported:
 * `port_id` - (Optional, String, ForceNew) The ID of the Port to attach to an Instance.
   This option and `network_id` are mutually exclusive.
 
-* `network_id` - (Optional, String, ForceNew) The ID of the Network to attach to an Instance. A port will be created
-  automatically.
+* `network_id` - (Optional, String) The ID of the Network to attach to an Instance. A port will be created automatically.
   This option and `port_id` are mutually exclusive.
 
-* `fixed_ip` - (Optional, String, ForceNew) An IP address to associate with the port.
+* `fixed_ip` - (Optional, String) An IP address to associate with the port.
 
-  ->This option cannot be used with port_id. You must specify a network_id. The IP address must lie in a range on
+  ->This option cannot be used with `port_id`. You must specify a `network_id`. The IP address must lie in a range on
   the supplied network.
+
+* `fixed_ipv6` - (Optional, String) The IPv6 address.
 
 * `source_dest_check` - (Optional, Bool) Specifies whether the ECS processes only traffic that is destined specifically
   for it. This function is enabled by default but should be disabled if the ECS functions as a SNAT server or has a
@@ -99,6 +100,10 @@ The following arguments are supported:
 
 * `security_group_ids` - (Optional, List) Specifies the list of security group IDs bound to the specified port.  
   Defaults to the default security group.
+
+* `delete_on_termination` - (Optional, String) Whether to delete a NIC when detaching it. Value options:
+  + **true**: Delete the NIC.
+  + **false**: Do not delete the NIC.
 
 * `ipv6_enable` - (Optional, Bool, ForceNew) Specifies if the NIC supporting IPv6 or not.
 
@@ -111,8 +116,6 @@ In addition to all arguments above, the following attributes are exported:
 * `id` - The resource ID in format of ECS instance ID and port ID separated by a slash.
 
 * `mac` - The MAC address of the NIC.
-
-* `fixed_ipv6` - The IPv6 address.
 
 ## Timeouts
 
