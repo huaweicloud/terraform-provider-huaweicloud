@@ -1326,6 +1326,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_backup_policy":                             hss.DataSourceBackupPolicy(),
 			"huaweicloud_hss_cicd_configurations":                       hss.DataSourceCiCdConfigurations(),
 			"huaweicloud_hss_page_notices":                              hss.DataSourcePageNotices(),
+			"huaweicloud_hss_change_files":                              hss.DataSourceChangeFiles(),
 
 			"huaweicloud_identity_permissions": iam.DataSourceIdentityPermissions(),
 			"huaweicloud_identity_role":        iam.DataSourceIdentityRole(),
