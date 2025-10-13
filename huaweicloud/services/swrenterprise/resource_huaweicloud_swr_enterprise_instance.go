@@ -221,6 +221,105 @@ func ResourceSwrEnterpriseInstance() *schema.Resource {
 				Computed:    true,
 				Description: `Indicates the range of available subnets for the subnet.`,
 			},
+			"statistics": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `Indicates the statistic infos.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"storage_used": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `Indicates the storage used.`,
+						},
+						"total_namespace_count": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `Indicates the total namespace count.`,
+						},
+						"total_image_count": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `Indicates the total image count.`,
+						},
+						"namespace_quota": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `Indicates the namespace quota.`,
+						},
+						"image_repo_quota": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `Indicates the image repo quota.`,
+						},
+						"replica_policy_quota": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `Indicates the replica policy quota.`,
+						},
+						"retention_policy_quota": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `Indicates the retention policy quota.`,
+						},
+						"notify_policy_quota": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `Indicates the notify policy quota.`,
+						},
+						"replica_registry_quota": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `Indicates the replica registry quota.`,
+						},
+						"sign_policy_quota": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `Indicates the sign policy quota.`,
+						},
+						"replica_policy_count": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `Indicates the replica policy count.`,
+						},
+						"retention_policy_count": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `Indicates the retention policy count.`,
+						},
+						"notify_policy_count": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `Indicates the notify policy count.`,
+						},
+						"replica_registry_count": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `Indicates the replica registry count.`,
+						},
+						"intranet_endpoint_quota": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `Indicates the intranet endpoint quota.`,
+						},
+						"intranet_endpoint_count": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `Indicates the intranet endpoint count.`,
+						},
+						"long_term_quota": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `Indicates the long term quota.`,
+						},
+						"sign_policy_count": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `Indicates the sign policy count.`,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -422,13 +521,22 @@ func resourceSwrEnterpriseInstanceRead(_ context.Context, d *schema.ResourceData
 		)
 	}
 
-	publicAccessControl, err := getSwrEnterpriseInstancepPublicAccessControl(client, d)
+	publicAccessControl, err := getSwrEnterpriseInstancePublicAccessControl(client, d)
 	if err != nil {
 		log.Printf("error retrieving SWR instance public access control infos: %s", err)
 	} else {
 		mErr = multierror.Append(mErr,
 			d.Set("public_network_access_control_status", utils.PathSearch("status", publicAccessControl, nil)),
-			d.Set("public_network_access_white_ip_list", flattenSwrEnterpriseInstancepPublicAccessControlIpList(publicAccessControl)),
+			d.Set("public_network_access_white_ip_list", flattenSwrEnterpriseInstancePublicAccessControlIpList(publicAccessControl)),
+		)
+	}
+
+	statistics, err := getSwrEnterpriseInstanceStatistics(client, d)
+	if err != nil {
+		log.Printf("error retrieving SWR instance statistic infos: %s", err)
+	} else {
+		mErr = multierror.Append(mErr,
+			d.Set("statistics", flattenSwrEnterpriseInstanceStatistics(statistics)),
 		)
 	}
 
@@ -460,7 +568,7 @@ func getSwrEnterpriseInstanceConfiguration(client *golangsdk.ServiceClient, d *s
 	return getRespBody, nil
 }
 
-func flattenSwrEnterpriseInstancepPublicAccessControlIpList(resp interface{}) []interface{} {
+func flattenSwrEnterpriseInstancePublicAccessControlIpList(resp interface{}) []interface{} {
 	if rawParams, ok := utils.PathSearch("ip_list", resp, make([]interface{}, 0)).([]interface{}); ok && len(rawParams) > 0 {
 		result := make([]interface{}, 0, len(rawParams))
 		for _, params := range rawParams {
@@ -475,6 +583,31 @@ func flattenSwrEnterpriseInstancepPublicAccessControlIpList(resp interface{}) []
 	}
 
 	return nil
+}
+
+func flattenSwrEnterpriseInstanceStatistics(resp interface{}) []map[string]interface{} {
+	return []map[string]interface{}{
+		{
+			"storage_used":            utils.PathSearch("storage_used", resp, nil),
+			"total_namespace_count":   utils.PathSearch("total_namespace_count", resp, nil),
+			"total_image_count":       utils.PathSearch("total_image_count", resp, nil),
+			"namespace_quota":         utils.PathSearch("namespace_quota", resp, nil),
+			"image_repo_quota":        utils.PathSearch("image_repo_quota", resp, nil),
+			"replica_policy_quota":    utils.PathSearch("replica_policy_quota", resp, nil),
+			"retention_policy_quota":  utils.PathSearch("retention_policy_quot", resp, nil),
+			"notify_policy_quota":     utils.PathSearch("notify_policy_quota", resp, nil),
+			"replica_registry_quota":  utils.PathSearch("replica_registry_quota", resp, nil),
+			"sign_policy_quota":       utils.PathSearch("sign_policy_quota", resp, nil),
+			"replica_policy_count":    utils.PathSearch("replica_policy_count", resp, nil),
+			"retention_policy_count":  utils.PathSearch("retention_policy_count", resp, nil),
+			"notify_policy_count":     utils.PathSearch("notify_policy_count", resp, nil),
+			"replica_registry_count":  utils.PathSearch("replica_registry_count", resp, nil),
+			"intranet_endpoint_quota": utils.PathSearch("intranet_endpoint_quota", resp, nil),
+			"intranet_endpoint_count": utils.PathSearch("intranet_endpoint_count", resp, nil),
+			"long_term_quota":         utils.PathSearch("long_term_quota", resp, nil),
+			"sign_policy_count":       utils.PathSearch("sign_policy_count", resp, nil),
+		},
+	}
 }
 
 func resourceSwrEnterpriseInstanceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -635,7 +768,7 @@ func updateSwrEnterpriseInstancePublicNetworkAccessControl(ctx context.Context, 
 		Pending: []string{"PENDING"},
 		Target:  []string{"SUCCESS"},
 		Refresh: func() (interface{}, string, error) {
-			publicAccessControl, err := getSwrEnterpriseInstancepPublicAccessControl(client, d)
+			publicAccessControl, err := getSwrEnterpriseInstancePublicAccessControl(client, d)
 			if err != nil {
 				return nil, "ERROR", err
 			}
@@ -663,8 +796,29 @@ func updateSwrEnterpriseInstancePublicNetworkAccessControl(ctx context.Context, 
 	return nil
 }
 
-func getSwrEnterpriseInstancepPublicAccessControl(client *golangsdk.ServiceClient, d *schema.ResourceData) (interface{}, error) {
+func getSwrEnterpriseInstancePublicAccessControl(client *golangsdk.ServiceClient, d *schema.ResourceData) (interface{}, error) {
 	httpUrl := "v2/{project_id}/instances/{instance_id}/endpoint-policy"
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{instance_id}", d.Id())
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return nil, err
+	}
+
+	return getRespBody, nil
+}
+
+func getSwrEnterpriseInstanceStatistics(client *golangsdk.ServiceClient, d *schema.ResourceData) (interface{}, error) {
+	httpUrl := "v2/{project_id}/instances/{instance_id}/statistics"
 	getPath := client.Endpoint + httpUrl
 	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
 	getPath = strings.ReplaceAll(getPath, "{instance_id}", d.Id())
