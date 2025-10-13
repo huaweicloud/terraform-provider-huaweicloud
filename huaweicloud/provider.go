@@ -2287,6 +2287,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cdn_billing_option": cdn.ResourceBillingOption(),
 			"huaweicloud_cdn_cache_preheat":  cdn.ResourceCachePreheat(),
 			"huaweicloud_cdn_cache_refresh":  cdn.ResourceCacheRefresh(),
+			"huaweicloud_cdn_certificate_associate_domains": cdn.ResourceCdnCertificateAssociateDomains(),
 
 			"huaweicloud_ces_alarmrule":                                     ces.ResourceAlarmRule(),
 			"huaweicloud_ces_alarm_template":                                ces.ResourceCesAlarmTemplate(),
