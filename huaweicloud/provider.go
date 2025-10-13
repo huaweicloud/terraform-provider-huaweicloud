@@ -739,6 +739,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cdn_logs":                cdn.DataSourceCdnLogs(),
 			"huaweicloud_cdn_analytics":           cdn.DataSourceCdnAnalytics(),
 			"huaweicloud_cdn_domain_tags":         cdn.DataSourceDomainTags(),
+			"huaweicloud_cdn_ip_information":      cdn.DataSourceIpInformation(),
 
 			"huaweicloud_ces_agent_dimensions":                  ces.DataSourceCesAgentDimensions(),
 			"huaweicloud_ces_agent_maintenance_tasks":           ces.DataSourceCesAgentMaintenanceTasks(),
