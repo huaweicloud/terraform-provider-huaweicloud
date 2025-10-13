@@ -1332,6 +1332,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_page_notices":                              hss.DataSourcePageNotices(),
 			"huaweicloud_hss_change_files":                              hss.DataSourceChangeFiles(),
 			"huaweicloud_hss_baseline_security_checks_directories":      hss.DataSourceBaselineSecurityChecksDirectories(),
+			"huaweicloud_hss_configs":                                   hss.DataSourceConfigs(),
 
 			"huaweicloud_identity_permissions": iam.DataSourceIdentityPermissions(),
 			"huaweicloud_identity_role":        iam.DataSourceIdentityRole(),
