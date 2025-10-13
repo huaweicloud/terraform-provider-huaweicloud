@@ -52,15 +52,16 @@ resource "huaweicloud_as_configuration" "test" {
     }
 
     dynamic "public_ip" {
-      for_each = var.configuration_public_ip
+      for_each = var.configuration_public_eip_settings
 
       content {
         eip {
-          ip_type = public_ip.value.eip.ip_type
+          ip_type = public_ip.value.ip_type
+
           bandwidth {
-            size          = public_ip.value.eip.bandwidth.size
-            share_type    = public_ip.value.eip.bandwidth.share_type
-            charging_mode = public_ip.value.eip.bandwidth.charging_mode
+            size          = public_ip.value.bandwidth.size
+            share_type    = public_ip.value.bandwidth.share_type
+            charging_mode = public_ip.value.bandwidth.charging_mode
           }
         }
       }

@@ -68,6 +68,7 @@ func TestAccComputeInterfaceAttach_Basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "source_dest_check", "false"),
+					resource.TestCheckResourceAttr(resourceName, "delete_on_termination", "false"),
 					resource.TestCheckResourceAttrPair(resourceName, "security_group_ids.0",
 						"huaweicloud_networking_secgroup.test", "id"),
 				),
@@ -77,6 +78,7 @@ func TestAccComputeInterfaceAttach_Basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "source_dest_check", "true"),
+					resource.TestCheckResourceAttr(resourceName, "delete_on_termination", "true"),
 					resource.TestCheckResourceAttrPair(resourceName, "security_group_ids.0",
 						"huaweicloud_networking_secgroup.test", "id"),
 				),
@@ -145,10 +147,11 @@ func testAccComputeInterfaceAttach_basic(rName string) string {
 %s
 
 resource "huaweicloud_compute_interface_attach" "test" {
-  instance_id        = huaweicloud_compute_instance.test.id
-  network_id         = huaweicloud_vpc_subnet.test.id
-  security_group_ids = [huaweicloud_networking_secgroup.test.id]
-  source_dest_check  = false
+  instance_id           = huaweicloud_compute_instance.test.id
+  network_id            = huaweicloud_vpc_subnet.test.id
+  security_group_ids    = [huaweicloud_networking_secgroup.test.id]
+  source_dest_check     = false
+  delete_on_termination = false
 }
 `, testAccComputeInterfaceAttachBase(rName))
 }
@@ -158,9 +161,10 @@ func testAccComputeInterfaceAttach_update(rName string) string {
 %s
 
 resource "huaweicloud_compute_interface_attach" "test" {
-  instance_id        = huaweicloud_compute_instance.test.id
-  network_id         = huaweicloud_vpc_subnet.test.id
-  security_group_ids = [huaweicloud_networking_secgroup.test.id]
+  instance_id           = huaweicloud_compute_instance.test.id
+  network_id            = huaweicloud_vpc_subnet.test.id
+  security_group_ids    = [huaweicloud_networking_secgroup.test.id]
+  delete_on_termination = true
 }
 `, testAccComputeInterfaceAttachBase(rName))
 }

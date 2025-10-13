@@ -3,6 +3,7 @@ package ecs
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -10,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
@@ -55,7 +57,6 @@ func ResourceComputeInterfaceAttach() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
-				ForceNew:     true,
 				ExactlyOneOf: []string{"port_id", "network_id"},
 			},
 			"port_id": {
@@ -68,13 +69,25 @@ func ResourceComputeInterfaceAttach() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
+			},
+			"fixed_ipv6": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 			"security_group_ids": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			"delete_on_termination": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"true", "false",
+				}, false),
 			},
 			"source_dest_check": {
 				Type:     schema.TypeBool,
@@ -91,10 +104,6 @@ func ResourceComputeInterfaceAttach() *schema.Resource {
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
-			},
-			"fixed_ipv6": {
-				Type:     schema.TypeString,
-				Computed: true,
 			},
 			"mac": {
 				Type:     schema.TypeString,
@@ -158,6 +167,21 @@ func resourceComputeInterfaceAttachCreate(ctx context.Context, d *schema.Resourc
 		return diag.Errorf("unable to find the ECS NIC ID from the API response")
 	}
 	d.SetId(nicId)
+
+	if v, ok := d.GetOk("delete_on_termination"); ok && v == "false" {
+		err = updateAttachInfo(computeClient, d)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if _, ok := d.GetOk("fixed_ipv6"); ok {
+		bodyParam := buildUpdateAttachAttributesIpv6BodyParams(d)
+		err = updateAttachAttributes(computeClient, d, bodyParam)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
 
 	// Update port if `source_dest_check` is false, else skip update,
 	// because `security_group_ids` is set when NIC is created.
@@ -320,6 +344,7 @@ func resourceComputeInterfaceAttachRead(_ context.Context, d *schema.ResourceDat
 		return common.CheckDeletedDiag(d, err, "error retrieving VPC port")
 	}
 
+	deleteOnTermination := utils.PathSearch("delete_on_termination", nic, false).(bool)
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
 		d.Set("port_id", id),
@@ -327,6 +352,7 @@ func resourceComputeInterfaceAttachRead(_ context.Context, d *schema.ResourceDat
 		d.Set("fixed_ip", utils.PathSearch("fixed_ips|[0].ip_address", nic, nil)),
 		d.Set("fixed_ipv6", utils.PathSearch("fixed_ips|[1].ip_address", nic, nil)),
 		d.Set("ipv6_enable", len(utils.PathSearch("fixed_ips", nic, make([]interface{}, 0)).([]interface{})) == 2),
+		d.Set("delete_on_termination", strconv.FormatBool(deleteOnTermination)),
 		d.Set("mac", utils.PathSearch("mac_addr", nic, nil)),
 		d.Set("security_group_ids", utils.PathSearch("port.security_groups", port, make([]interface{}, 0))),
 		d.Set("source_dest_check", flattenSourceDestCheck(utils.PathSearch("port.allowed_address_pairs", port, make([]interface{}, 0)))),
@@ -364,13 +390,107 @@ func resourceComputeInterfaceAttachUpdate(ctx context.Context, d *schema.Resourc
 	if err != nil {
 		return diag.Errorf("error creating VPC client: %s", err)
 	}
-
-	err = updatePort(vpcClient, d.Id(), d.Get("security_group_ids"), d.Get("source_dest_check").(bool))
+	computeClient, err := cfg.NewServiceClient("ecs", region)
 	if err != nil {
-		return diag.Errorf("error updating ECS NIC port (%s): %s", d.Id(), err)
+		return diag.Errorf("error creating ECS client: %s", err)
+	}
+
+	if d.HasChange("delete_on_termination") {
+		err = updateAttachInfo(computeClient, d)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChanges("network_id", "fixed_ip", "fixed_ipv6") {
+		bodyParam := buildUpdateAttachAttributesBodyParams(d)
+		err = updateAttachAttributes(computeClient, d, bodyParam)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if d.HasChanges("security_group_ids", "source_dest_check") {
+		err = updatePort(vpcClient, d.Id(), d.Get("security_group_ids"), d.Get("source_dest_check").(bool))
+		if err != nil {
+			return diag.Errorf("error updating ECS NIC port (%s): %s", d.Id(), err)
+		}
 	}
 
 	return resourceComputeInterfaceAttachRead(ctx, d, meta)
+}
+
+func updateAttachInfo(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
+	httpUrl := "v1/{project_id}/cloudservers/{server_id}/os-interface/{port_id}"
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{server_id}", d.Get("instance_id").(string))
+	updatePath = strings.ReplaceAll(updatePath, "{port_id}", d.Id())
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes:          []int{204},
+	}
+	updateOpt.JSONBody = buildUpdateAttachInfoBodyParams(d)
+
+	_, err := client.Request("PUT", updatePath, &updateOpt)
+	if err != nil {
+		return fmt.Errorf("error updating ECS interface attach: %s", err)
+	}
+
+	return nil
+}
+
+func buildUpdateAttachInfoBodyParams(d *schema.ResourceData) map[string]interface{} {
+	deleteOnTermination, _ := strconv.ParseBool(d.Get("delete_on_termination").(string))
+	bodyParams := map[string]interface{}{
+		"interface_attachment": map[string]interface{}{
+			"delete_on_termination": deleteOnTermination,
+		},
+	}
+	return bodyParams
+}
+
+func updateAttachAttributes(client *golangsdk.ServiceClient, d *schema.ResourceData, bodyParam interface{}) error {
+	httpUrl := "v1/{project_id}/cloudservers/{server_id}/os-interface/{port_id}/change-network-interface"
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{server_id}", d.Get("instance_id").(string))
+	updatePath = strings.ReplaceAll(updatePath, "{port_id}", d.Id())
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         bodyParam,
+	}
+
+	_, err := client.Request("POST", updatePath, &updateOpt)
+	if err != nil {
+		return fmt.Errorf("error updating ECS interface attach attributes: %s", err)
+	}
+
+	return nil
+}
+
+func buildUpdateAttachAttributesIpv6BodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := map[string]interface{}{
+		"ipv6_address": d.Get("fixed_ipv6"),
+	}
+	return bodyParams
+}
+
+func buildUpdateAttachAttributesBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := make(map[string]interface{})
+	if d.HasChange("network_id") {
+		bodyParams["subnet_id"] = d.Get("network_id")
+	}
+	if d.HasChange("fixed_ip") {
+		bodyParams["subnet_id"] = d.Get("network_id")
+		bodyParams["ip_address"] = d.Get("fixed_ip")
+	}
+	if d.HasChange("fixed_ipv6") {
+		bodyParams["ipv6_address"] = d.Get("fixed_ipv6")
+	}
+	return bodyParams
 }
 
 func resourceComputeInterfaceAttachDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
