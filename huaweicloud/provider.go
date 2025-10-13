@@ -1041,6 +1041,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_dms_maintainwindow": dms.DataSourceDmsMaintainWindow(),
 
 			"huaweicloud_dms_kafka_background_tasks":         kafka.DataSourceDmsKafkaBackgroundTasks(),
+			"huaweicloud_dms_kafka_consumer_group_topics":    kafka.DataSourceConsumerGroupTopics(),
 			"huaweicloud_dms_kafka_consumer_groups":          kafka.DataSourceDmsKafkaConsumerGroups(),
 			"huaweicloud_dms_kafka_extend_flavors":           kafka.DataSourceDmsKafkaExtendFlavors(),
 			"huaweicloud_dms_kafka_flavors":                  kafka.DataSourceKafkaFlavors(),
