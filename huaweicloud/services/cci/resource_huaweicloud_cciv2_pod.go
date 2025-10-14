@@ -2365,8 +2365,8 @@ func flattenPodContainerProbe(probe interface{}) []map[string]interface{} {
 			"success_threshold":                utils.PathSearch("successThreshold", probe, nil),
 			"termination_grace_period_seconds": utils.PathSearch("terminationGracePeriodSeconds", probe, nil),
 			"exec":                             flattenPodContainersLifecycleHandlerExec(utils.PathSearch("exec", probe, nil)),
-			"httpGet": flattenPodContainersLifecycleHandlerHttpGet(
-				utils.PathSearch("httpGet", probe, make([]interface{}, 0)).([]interface{})),
+			"http_get": flattenPodContainersLifecycleHandlerHttpGet(
+				utils.PathSearch("httpGet", probe, nil)),
 		},
 	}
 }
@@ -2404,7 +2404,24 @@ func flattenPodContainersLifecycleHandlerExec(exec interface{}) []map[string]int
 	}
 }
 
-func flattenPodContainersLifecycleHandlerHttpGet(httpHeaders []interface{}) []interface{} {
+func flattenPodContainersLifecycleHandlerHttpGet(httpGet interface{}) []map[string]interface{} {
+	if httpGet == nil {
+		return nil
+	}
+
+	return []map[string]interface{}{
+		{
+			"host": utils.PathSearch("host", httpGet, nil),
+			"http_headers": flattenPodContainersLifecycleHandlerHttpHeaders(
+				utils.PathSearch("httpHeaders", httpGet, make([]interface{}, 0)).([]interface{})),
+			"path":   utils.PathSearch("path", httpGet, nil),
+			"port":   utils.PathSearch("port", httpGet, nil),
+			"scheme": utils.PathSearch("scheme", httpGet, nil),
+		},
+	}
+}
+
+func flattenPodContainersLifecycleHandlerHttpHeaders(httpHeaders []interface{}) []interface{} {
 	if len(httpHeaders) == 0 {
 		return nil
 	}
