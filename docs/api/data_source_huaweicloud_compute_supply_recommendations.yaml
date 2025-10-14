@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_compute_supply_recommendations
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: ECS
+paths:
+    /v1/{domain_id}/recommendations/ecs-supply:
+        POST:
+            tag: ECS

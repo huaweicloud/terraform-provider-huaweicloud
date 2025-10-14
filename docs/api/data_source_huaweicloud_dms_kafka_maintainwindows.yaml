@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_dms_kafka_maintainwindows
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: Kafka
+paths:
+    /v2/instances/maintain-windows:
+        GET:
+            tag: Kafka
