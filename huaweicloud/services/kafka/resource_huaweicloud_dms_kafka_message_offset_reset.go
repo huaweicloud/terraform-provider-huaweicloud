@@ -2,6 +2,8 @@ package kafka
 
 import (
 	"context"
+	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -16,14 +18,13 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API Kafka POST /v2/kafka/{project_id}/instances/{instance_id}/groups/{group}/reset-message-offset
+// @API Kafka PUT /v2/kafka/{project_id}/instances/{instance_id}/groups/{group}/reset-message-offset
 // @API Kafka GET /v2/{project_id}/instances/{instance_id}/tasks
-func ResourceDmsKafkaMessageOffsetReset() *schema.Resource {
+func ResourceMessageOffsetReset() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceDmsKafkaMessageOffsetResetCreate,
-		ReadContext:   resourceDmsKafkaMessageOffsetResetRead,
-		DeleteContext: resourceDmsKafkaMessageOffsetResetDelete,
-
+		CreateContext: resourceMessageOffsetResetCreate,
+		ReadContext:   resourceMessageOffsetResetRead,
+		DeleteContext: resourceMessageOffsetResetDelete,
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
 		},
@@ -34,74 +35,82 @@ func ResourceDmsKafkaMessageOffsetReset() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				ForceNew:    true,
-				Description: `Specifies the region in which to query the resource. If omitted, the provider-level region will be used.`,
+				Description: `The region where the consumption progress is to be reset is located.`,
 			},
 			"instance_id": {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `Specifies the instance ID.`,
+				Description: `The ID of the Kafka instance.`,
 			},
 			"group": {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
-				Description: `Specifies the consumer group.`,
+				Description: `The name of the consumer group.`,
 			},
 			"partition": {
 				Type:        schema.TypeInt,
 				Required:    true,
 				ForceNew:    true,
-				Description: `Specifies the partition number.`,
+				Description: `The partition number.`,
 			},
 			"topic": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
-				Description: `Specifies the topic name.`,
+				Description: `The name of the topic.`,
 			},
 			"message_offset": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
 				ExactlyOneOf: []string{"timestamp"},
-				Description:  `Specifies the message offset.`,
+				Description:  `The offset to reset the consumption progress.`,
 			},
 			"timestamp": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
-				Description: `Specifies the message offset. The value is a Unix timestamp, in millisecond`,
+				Description: `The time to reset the consumption progress. The value is a Unix timestamp, in millisecond`,
 			},
 		},
 	}
 }
 
-func resourceDmsKafkaMessageOffsetResetCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
-	client, err := cfg.NewServiceClient("dmsv2", region)
+func resourceMessageOffsetResetCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg           = meta.(*config.Config)
+		createHttpUrl = "v2/kafka/{project_id}/instances/{instance_id}/groups/{group}/reset-message-offset"
+		consumerGroup = d.Get("group").(string)
+	)
+
+	client, err := cfg.NewServiceClient("dmsv2", cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating DMS client: %s", err)
 	}
 
-	createHttpUrl := "v2/kafka/{project_id}/instances/{instance_id}/groups/{group}/reset-message-offset"
+	params, err := buildCreateTMessageOffsetResetBodyParams(d)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	createPath := client.Endpoint + createHttpUrl
 	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
 	createPath = strings.ReplaceAll(createPath, "{instance_id}", d.Get("instance_id").(string))
-	createPath = strings.ReplaceAll(createPath, "{group}", d.Get("group").(string))
+	createPath = strings.ReplaceAll(createPath, "{group}", consumerGroup)
 
 	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		JSONBody:         utils.RemoveNil(buildCreateKafkaMessageOffsetResetBodyParams(d)),
+		JSONBody:         utils.RemoveNil(params),
 		OkCodes: []int{
 			204,
 		},
 	}
 
-	_, err = client.Request("POST", createPath, &createOpt)
+	_, err = client.Request("PUT", createPath, &createOpt)
 	if err != nil {
-		return diag.Errorf("error resetting Kafka message offset: %s", err)
+		return diag.Errorf("error resetting message offset of the consumer group (%s): %s", consumerGroup, err)
 	}
 
 	id, err := uuid.GenerateUUID()
@@ -133,23 +142,44 @@ func resourceDmsKafkaMessageOffsetResetCreate(ctx context.Context, d *schema.Res
 	return nil
 }
 
-func buildCreateKafkaMessageOffsetResetBodyParams(d *schema.ResourceData) map[string]interface{} {
+func buildCreateTMessageOffsetResetBodyParams(d *schema.ResourceData) (map[string]interface{}, error) {
 	bodyParams := map[string]interface{}{
 		// when topic is empty string, reset all topic
-		"topic":          d.Get("topic"),
-		"partition":      d.Get("partition"),
-		"message_offset": utils.ValueIgnoreEmpty(d.Get("message_offset")),
-		"timestamp":      utils.ValueIgnoreEmpty(d.Get("timestamp")),
+		"topic":     d.Get("topic"),
+		"partition": d.Get("partition"),
 	}
-	return bodyParams
+
+	rawConfig := d.GetRawConfig()
+	messageOffsetRaw := utils.GetNestedObjectFromRawConfig(rawConfig, "message_offset")
+	if messageOffsetRaw != nil {
+		messageOffset, err := strconv.Atoi(messageOffsetRaw.(string))
+		if err != nil {
+			return nil, fmt.Errorf("error converting message offset to int: %s", err)
+		}
+
+		bodyParams["message_offset"] = messageOffset
+	}
+
+	timestampRaw := utils.GetNestedObjectFromRawConfig(rawConfig, "timestamp")
+	if timestampRaw != nil {
+		timestamp, err := strconv.Atoi(timestampRaw.(string))
+		if err != nil {
+			return nil, fmt.Errorf("error converting timestamp to int: %s", err)
+		}
+
+		bodyParams["timestamp"] = timestamp
+	}
+	return bodyParams, nil
 }
 
-func resourceDmsKafkaMessageOffsetResetRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceMessageOffsetResetRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	return nil
 }
 
-func resourceDmsKafkaMessageOffsetResetDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
-	errorMsg := "Deleting resource is not supported. The resource is only removed from the state."
+func resourceMessageOffsetResetDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+	errorMsg := `This resource is only a one-time action resource for resetting the consumption progress of the consumer group.
+Deleting this resource will not clear the corresponding request record, but will only remove the resource information from the
+tfstate file.`
 	return diag.Diagnostics{
 		diag.Diagnostic{
 			Severity: diag.Warning,
