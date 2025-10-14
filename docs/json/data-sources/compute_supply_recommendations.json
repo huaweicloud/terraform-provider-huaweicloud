@@ -1,0 +1,176 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_compute_supply_recommendations": {
+          "block": {
+            "attributes": {
+              "flavor_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "strategy": {
+                "type": "string",
+                "optional": true
+              },
+              "supply_recommendations": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "availability_zone_id": "string",
+                      "flavor_id": "string",
+                      "region_id": "string",
+                      "score": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            },
+            "block_types": {
+              "flavor_constraint": {
+                "block": {
+                  "attributes": {
+                    "architecture_type": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "optional": true
+                    }
+                  },
+                  "block_types": {
+                    "flavor_requirements": {
+                      "block": {
+                        "attributes": {
+                          "cpu_manufacturers": {
+                            "type": [
+                              "list",
+                              "string"
+                            ],
+                            "optional": true
+                          },
+                          "instance_generations": {
+                            "type": [
+                              "list",
+                              "string"
+                            ],
+                            "optional": true
+                          }
+                        },
+                        "block_types": {
+                          "memory_gb_per_vcpu": {
+                            "block": {
+                              "attributes": {
+                                "max": {
+                                  "type": "number",
+                                  "optional": true
+                                },
+                                "min": {
+                                  "type": "number",
+                                  "optional": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          },
+                          "memory_mb": {
+                            "block": {
+                              "attributes": {
+                                "max": {
+                                  "type": "number",
+                                  "optional": true
+                                },
+                                "min": {
+                                  "type": "number",
+                                  "optional": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          },
+                          "vcpu_count": {
+                            "block": {
+                              "attributes": {
+                                "max": {
+                                  "type": "number",
+                                  "optional": true
+                                },
+                                "min": {
+                                  "type": "number",
+                                  "optional": true
+                                }
+                              }
+                            },
+                            "nesting_mode": "list",
+                            "max_items": 1
+                          }
+                        }
+                      },
+                      "nesting_mode": "list"
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "locations": {
+                "block": {
+                  "attributes": {
+                    "availability_zone_id": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "region_id": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              },
+              "option": {
+                "block": {
+                  "attributes": {
+                    "enable_spot": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "result_granularity": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "ECS",
+            "name": "Elastic Cloud Server",
+            "catalog": "Compute",
+            "name_cn": "弹性云服务器",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,120 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_webtamper_policy": {
+          "block": {
+            "attributes": {
+              "enable_privileged_process": {
+                "type": "bool",
+                "computed": true
+              },
+              "enable_rasp_protect": {
+                "type": "bool",
+                "computed": true
+              },
+              "enable_timing_off": {
+                "type": "bool",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "host_id": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "privileged_child_status": {
+                "type": "bool",
+                "computed": true
+              },
+              "privileged_process_path_list": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "computed": true
+              },
+              "protect_dir_info": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "exclude_file_type": "string",
+                      "protect_dir_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "error": "string",
+                            "exclude_child_dir": "string",
+                            "exclue_file_path": "string",
+                            "local_backup_dir": "string",
+                            "protect_dir": "string",
+                            "protect_status": "string"
+                          }
+                        ]
+                      ],
+                      "protect_mode": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "protect_dir_num": {
+                "type": "number",
+                "computed": true
+              },
+              "rasp_path": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "timing_off_config_info": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "timing_range_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "description": "string",
+                            "time_range": "string"
+                          }
+                        ]
+                      ],
+                      "week_off_list": [
+                        "list",
+                        "number"
+                      ]
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

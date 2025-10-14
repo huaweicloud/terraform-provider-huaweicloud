@@ -5,14 +5,19 @@
         "huaweicloud_compute_interface_attach": {
           "block": {
             "attributes": {
+              "delete_on_termination": {
+                "type": "string",
+                "optional": true,
+                "computed": true
+              },
               "fixed_ip": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "fixed_ipv6": {
                 "type": "string",
+                "optional": true,
                 "computed": true
               },
               "id": {
@@ -42,8 +47,7 @@
               "network_id": {
                 "type": "string",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "port_id": {
                 "type": "string",

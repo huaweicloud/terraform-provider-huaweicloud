@@ -1,0 +1,159 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_common_tasks": {
+          "block": {
+            "attributes": {
+              "data_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cluster_scan_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "failed_cluster_num": "number",
+                            "scan_type_list": [
+                              "list",
+                              "string"
+                            ],
+                            "scanning_cluster_num": "number",
+                            "success_cluster_num": "number"
+                          }
+                        ]
+                      ],
+                      "end_time": "number",
+                      "estimated_time": "number",
+                      "iac_scan_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "failed_file_num": "number",
+                            "file_type": "string",
+                            "scan_file_num": "number",
+                            "success_file_num": "number"
+                          }
+                        ]
+                      ],
+                      "start_time": "number",
+                      "task_id": "string",
+                      "task_name": "string",
+                      "task_status": "string",
+                      "task_type": "string",
+                      "trigger_type": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of tasks.",
+                "computed": true
+              },
+              "end_create_time": {
+                "type": "number",
+                "description": "Specifies the end time of task creation time range query.",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "sort_dir": {
+                "type": "string",
+                "description": "Specifies the sort direction.",
+                "optional": true
+              },
+              "sort_key": {
+                "type": "string",
+                "description": "Specifies the sort key.",
+                "optional": true
+              },
+              "start_create_time": {
+                "type": "number",
+                "description": "Specifies the start time of task creation time range query.",
+                "optional": true
+              },
+              "task_id": {
+                "type": "string",
+                "description": "Specifies the task ID to query.",
+                "optional": true
+              },
+              "task_name": {
+                "type": "string",
+                "description": "Specifies the task name to fuzzy match.",
+                "optional": true
+              },
+              "task_status": {
+                "type": "string",
+                "description": "Specifies the task status.",
+                "optional": true
+              },
+              "task_type": {
+                "type": "string",
+                "description": "Specifies the task type.",
+                "required": true
+              },
+              "trigger_type": {
+                "type": "string",
+                "description": "Specifies the task trigger type.",
+                "optional": true
+              }
+            },
+            "block_types": {
+              "cluster_scan_info": {
+                "block": {
+                  "attributes": {
+                    "scan_type_list": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "description": "Specifies the scan type list.",
+                      "optional": true
+                    }
+                  },
+                  "description": "Specifies the cluster scan information."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "iac_scan_info": {
+                "block": {
+                  "attributes": {
+                    "file_type": {
+                      "type": "string",
+                      "description": "Specifies the file type.",
+                      "optional": true
+                    }
+                  },
+                  "description": "Specifies the IAC scan information."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

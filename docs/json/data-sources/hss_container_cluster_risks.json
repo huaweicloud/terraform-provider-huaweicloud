@@ -1,0 +1,82 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_container_cluster_risks": {
+          "block": {
+            "attributes": {
+              "cluster_id": {
+                "type": "string",
+                "optional": true
+              },
+              "cluster_name": {
+                "type": "string",
+                "optional": true
+              },
+              "data_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cluster_id": "string",
+                      "cluster_name": "string",
+                      "description": "string",
+                      "last_scan_time": "number",
+                      "remediation": "string",
+                      "risk_category": "string",
+                      "risk_id": "string",
+                      "risk_level": "string",
+                      "risk_name": "string",
+                      "risk_num": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "risk_category": {
+                "type": "string",
+                "optional": true
+              },
+              "risk_level": {
+                "type": "string",
+                "optional": true
+              },
+              "risk_name": {
+                "type": "string",
+                "optional": true
+              },
+              "risk_status": {
+                "type": "string",
+                "optional": true
+              },
+              "risk_type": {
+                "type": "string",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

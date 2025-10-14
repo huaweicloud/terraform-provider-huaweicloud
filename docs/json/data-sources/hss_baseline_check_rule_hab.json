@@ -1,0 +1,112 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_baseline_check_rule_hab": {
+          "block": {
+            "attributes": {
+              "action": {
+                "type": "string",
+                "description": "Specifies the operation performed during the baseline check.",
+                "required": true
+              },
+              "data_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "asset_value": "string",
+                      "check_rule_name": "string",
+                      "check_type": "string",
+                      "host_id": "string",
+                      "host_name": "string",
+                      "private_ip": "string",
+                      "public_ip": "string",
+                      "standard": "string",
+                      "tag": "string"
+                    }
+                  ]
+                ],
+                "description": "The detailed information about the operation impact scope.",
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID.",
+                "optional": true
+              },
+              "handle_status": {
+                "type": "string",
+                "description": "Specifies the handle status of the baseline check rule.",
+                "required": true
+              },
+              "host_id": {
+                "type": "string",
+                "description": "Specifies the host ID.",
+                "optional": true
+              },
+              "host_num": {
+                "type": "number",
+                "description": "The number of hosts affected by the operation.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "rule_num": {
+                "type": "number",
+                "description": "The number of check items affected by the operation.",
+                "computed": true
+              },
+              "total_rule_num": {
+                "type": "number",
+                "description": "The total number of affected items.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "check_rule_list": {
+                "block": {
+                  "attributes": {
+                    "check_name": {
+                      "type": "string",
+                      "description": "The name of the baseline check.",
+                      "optional": true
+                    },
+                    "check_rule_id": {
+                      "type": "string",
+                      "description": "The ID of the baseline check rule.",
+                      "optional": true
+                    },
+                    "standard": {
+                      "type": "string",
+                      "description": "The standard type of the host.",
+                      "optional": true
+                    }
+                  },
+                  "description": "Specifies the list of baseline check rules to be handled."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

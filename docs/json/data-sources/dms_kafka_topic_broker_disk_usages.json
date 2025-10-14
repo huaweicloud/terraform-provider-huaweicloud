@@ -1,0 +1,80 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dms_kafka_topic_broker_disk_usages": {
+          "block": {
+            "attributes": {
+              "disk_usages": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "broker_name": "string",
+                      "data_disk_free": "string",
+                      "data_disk_size": "string",
+                      "data_disk_use": "string",
+                      "data_disk_use_percentage": "string",
+                      "status": "string",
+                      "topics": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "percentage": "number",
+                            "size": "string",
+                            "topic_name": "string",
+                            "topic_partition": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The disk usage of topics on brokers that match the filter parameters.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "The ID of the kafka instance.",
+                "required": true
+              },
+              "min_size": {
+                "type": "string",
+                "description": "The minimum disk size threshold to be queried.",
+                "optional": true
+              },
+              "percentage": {
+                "type": "string",
+                "description": "The percentage threshold to be queried.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the topic broker disk usages are located.",
+                "computed": true
+              },
+              "top": {
+                "type": "number",
+                "description": "The number of top topics to be queried.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "Kafka",
+            "name": "Distributed Message Service for Kafka",
+            "catalog": "Middleware",
+            "name_cn": "分布式消息服务 Kafka",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

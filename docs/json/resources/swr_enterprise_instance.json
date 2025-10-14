@@ -90,6 +90,36 @@
                 "description": "Specifies the specification of the instance.",
                 "required": true
               },
+              "statistics": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "image_repo_quota": "number",
+                      "intranet_endpoint_count": "number",
+                      "intranet_endpoint_quota": "number",
+                      "long_term_quota": "number",
+                      "namespace_quota": "number",
+                      "notify_policy_count": "number",
+                      "notify_policy_quota": "number",
+                      "replica_policy_count": "number",
+                      "replica_policy_quota": "number",
+                      "replica_registry_count": "number",
+                      "replica_registry_quota": "number",
+                      "retention_policy_count": "number",
+                      "retention_policy_quota": "number",
+                      "sign_policy_count": "number",
+                      "sign_policy_quota": "number",
+                      "storage_used": "number",
+                      "total_image_count": "number",
+                      "total_namespace_count": "number"
+                    }
+                  ]
+                ],
+                "description": "Indicates the statistic infos.",
+                "computed": true
+              },
               "status": {
                 "type": "string",
                 "description": "Indicates the instance status.",

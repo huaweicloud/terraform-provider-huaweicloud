@@ -1,0 +1,299 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_coc_incidents": {
+          "block": {
+            "attributes": {
+              "condition": {
+                "type": "string",
+                "optional": true
+              },
+              "contain_sub_ticket": {
+                "type": "bool",
+                "optional": true,
+                "default": true
+              },
+              "fields": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ticket_types": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "optional": true
+              },
+              "tickets": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "assignee": "string",
+                      "create_time": "string",
+                      "creator": "string",
+                      "current_cloud_service_id": "string",
+                      "description": "string",
+                      "enterprise_project_id": "string",
+                      "enum_data_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "biz_id": "string",
+                            "name_en": "string",
+                            "name_zh": "string",
+                            "prop_id": "string"
+                          }
+                        ]
+                      ],
+                      "forward_rule_id": "string",
+                      "handle_time": "string",
+                      "incident_ownership": "string",
+                      "is_service_interrupt": "string",
+                      "level_id": "string",
+                      "mtm_region": "string",
+                      "mtm_type": "string",
+                      "operator": "string",
+                      "phase": "string",
+                      "source_id": "string",
+                      "start_time": "string",
+                      "ticket_id": "string",
+                      "title": "string",
+                      "update_time": "string",
+                      "work_flow_status": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            },
+            "block_types": {
+              "count_filters": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  },
+                  "block_types": {
+                    "filters": {
+                      "block": {
+                        "attributes": {
+                          "field": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "group": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "match_type": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "operator": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "priority_type": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "values": {
+                            "type": [
+                              "list",
+                              "string"
+                            ],
+                            "required": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list"
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              },
+              "group_by_filter": {
+                "block": {
+                  "attributes": {
+                    "field": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "group": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "match_type": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "operator": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "priority_type": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "values": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "int_filters": {
+                "block": {
+                  "attributes": {
+                    "field": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "group": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "match_type": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "operator": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "priority_type": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "values": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              },
+              "sort_filter": {
+                "block": {
+                  "attributes": {
+                    "field": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "group": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "match_type": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "operator": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "priority_type": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "values": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "string_filters": {
+                "block": {
+                  "attributes": {
+                    "field": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "group": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "match_type": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "operator": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "priority_type": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "values": {
+                      "type": [
+                        "list",
+                        "string"
+                      ],
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "COC",
+            "name": "Cloud Operations Center",
+            "catalog": "Management & Governance",
+            "name_cn": "云运维中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

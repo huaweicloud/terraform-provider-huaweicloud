@@ -1,0 +1,57 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cdn_ip_information": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The ID of the enterprise project to which the IP attribution information belongs.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "information": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "belongs": "bool",
+                      "ip": "string",
+                      "isp": "string",
+                      "platform": "string",
+                      "region": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of IP attribution information that matched filter parameters.",
+                "computed": true
+              },
+              "ips": {
+                "type": "string",
+                "description": "The list of IP addresses to be queried.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the queried IP attribution information are located.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CDN",
+            "name": "Content Delivery Network",
+            "catalog": "Content Delivery & Edge Computing",
+            "name_cn": "内容分发网络",
+            "catalog_cn": "CDN与智能边缘"
+          }
+        }
+      }
+    }
+  }
+}

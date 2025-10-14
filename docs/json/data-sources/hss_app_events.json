@@ -1,0 +1,204 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_app_events": {
+          "block": {
+            "attributes": {
+              "begin_time": {
+                "type": "number",
+                "required": true
+              },
+              "data_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "agent_status": "string",
+                      "asset_value": "string",
+                      "attack_phase": "string",
+                      "attack_tag": "string",
+                      "event_class_id": "string",
+                      "event_id": "string",
+                      "event_name": "string",
+                      "event_type": "number",
+                      "handle_method": "string",
+                      "handle_status": "string",
+                      "handle_time": "number",
+                      "host_id": "string",
+                      "host_name": "string",
+                      "host_status": "string",
+                      "occur_time": "number",
+                      "operate_accept_list": [
+                        "list",
+                        "string"
+                      ],
+                      "operate_detail_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "agent_id": "string",
+                            "file_attr": "string",
+                            "file_hash": "string",
+                            "file_path": "string",
+                            "login_ip": "string",
+                            "login_user_name": "string",
+                            "private_ip": "string",
+                            "process_pid": "number"
+                          }
+                        ]
+                      ],
+                      "os_type": "string",
+                      "policy_id": "string",
+                      "policy_name": "string",
+                      "private_ip": "string",
+                      "process_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "ancestor_process_cmdline": "string",
+                            "ancestor_process_path": "string",
+                            "ancestor_process_pid": "number",
+                            "child_process_cmdline": "string",
+                            "child_process_egid": "number",
+                            "child_process_euid": "number",
+                            "child_process_filename": "string",
+                            "child_process_gid": "number",
+                            "child_process_name": "string",
+                            "child_process_path": "string",
+                            "child_process_pid": "number",
+                            "child_process_start_time": "number",
+                            "child_process_uid": "number",
+                            "escape_cmd": "string",
+                            "escape_mode": "string",
+                            "mode": "string",
+                            "operate_type": "number",
+                            "parent_process_cmdline": "string",
+                            "parent_process_egid": "number",
+                            "parent_process_euid": "number",
+                            "parent_process_file_hash": "string",
+                            "parent_process_filename": "string",
+                            "parent_process_gid": "number",
+                            "parent_process_name": "string",
+                            "parent_process_path": "string",
+                            "parent_process_pid": "number",
+                            "parent_process_start_time": "number",
+                            "parent_process_uid": "number",
+                            "process_cmdline": "string",
+                            "process_egid": "number",
+                            "process_euid": "number",
+                            "process_file_hash": "string",
+                            "process_filename": "string",
+                            "process_gid": "number",
+                            "process_hash": "string",
+                            "process_name": "string",
+                            "process_path": "string",
+                            "process_pid": "number",
+                            "process_start_time": "number",
+                            "process_uid": "number",
+                            "process_username": "string",
+                            "rule": "number",
+                            "score": "number",
+                            "session_id": "number",
+                            "virt_cmd": "string",
+                            "virt_process_name": "string"
+                          }
+                        ]
+                      ],
+                      "protect_status": "string",
+                      "public_ip": "string",
+                      "recommendation": "string",
+                      "resource_info": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "agent_version": "string",
+                            "asset_value": "string",
+                            "cloud_id": "string",
+                            "cluster_id": "string",
+                            "cluster_name": "string",
+                            "container_id": "string",
+                            "container_status": "string",
+                            "domain_id": "string",
+                            "enterprise_project_id": "string",
+                            "host_attr": "string",
+                            "host_id": "string",
+                            "host_ip": "string",
+                            "host_name": "string",
+                            "image_id": "string",
+                            "image_name": "string",
+                            "micro_service": "string",
+                            "namespace": "string",
+                            "os_bit": "string",
+                            "os_name": "string",
+                            "os_type": "string",
+                            "os_version": "string",
+                            "pod_name": "string",
+                            "pod_uid": "string",
+                            "project_id": "string",
+                            "public_ip": "string",
+                            "region_name": "string",
+                            "service": "string",
+                            "sys_arch": "string",
+                            "vm_name": "string",
+                            "vm_uuid": "string",
+                            "vpc_id": "string"
+                          }
+                        ]
+                      ],
+                      "severity": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "end_time": {
+                "type": "number",
+                "required": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "handle_status": {
+                "type": "string",
+                "optional": true
+              },
+              "host_ip": {
+                "type": "string",
+                "optional": true
+              },
+              "host_name": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "last_days": {
+                "type": "number",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

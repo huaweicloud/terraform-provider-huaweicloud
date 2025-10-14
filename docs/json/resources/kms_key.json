@@ -114,7 +114,7 @@
             "short": "KMS",
             "name": "Data Encryption Workshop KMS",
             "catalog": "Security & Compliance",
-            "name_cn": "数据加密服务-密钥管理",
+            "name_cn": "密码安全中心-密钥管理",
             "catalog_cn": "安全与合规"
           }
         }
