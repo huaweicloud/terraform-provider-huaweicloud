@@ -173,16 +173,17 @@ var (
 
 	HW_CDN_DOMAIN_NAME = os.Getenv("HW_CDN_DOMAIN_NAME")
 	// `HW_CDN_CERT_DOMAIN_NAME` Configure the domain name environment variable of the certificate type.
-	HW_CDN_CERT_DOMAIN_NAME = os.Getenv("HW_CDN_CERT_DOMAIN_NAME")
-	HW_CDN_DOMAIN_URL       = os.Getenv("HW_CDN_DOMAIN_URL")
-	HW_CDN_CERT_PATH        = os.Getenv("HW_CDN_CERT_PATH")
-	HW_CDN_PRIVATE_KEY_PATH = os.Getenv("HW_CDN_PRIVATE_KEY_PATH")
-	HW_CDN_ENABLE_FLAG      = os.Getenv("HW_CDN_ENABLE_FLAG")
-	HW_CDN_TIMESTAMP        = os.Getenv("HW_CDN_TIMESTAMP")
-	HW_CDN_START_TIME       = os.Getenv("HW_CDN_START_TIME")
-	HW_CDN_END_TIME         = os.Getenv("HW_CDN_END_TIME")
-	HW_CDN_STAT_TYPE        = os.Getenv("HW_CDN_STAT_TYPE")
-	HW_CDN_IP_ADDRESSES     = os.Getenv("HW_CDN_IP_ADDRESSES")
+	HW_CDN_CERT_DOMAIN_NAME   = os.Getenv("HW_CDN_CERT_DOMAIN_NAME")
+	HW_CDN_DOMAIN_URL         = os.Getenv("HW_CDN_DOMAIN_URL")
+	HW_CDN_TARGET_DOMAIN_URLS = os.Getenv("HW_CDN_TARGET_DOMAIN_URLS")
+	HW_CDN_CERT_PATH          = os.Getenv("HW_CDN_CERT_PATH")
+	HW_CDN_PRIVATE_KEY_PATH   = os.Getenv("HW_CDN_PRIVATE_KEY_PATH")
+	HW_CDN_ENABLE_FLAG        = os.Getenv("HW_CDN_ENABLE_FLAG")
+	HW_CDN_TIMESTAMP          = os.Getenv("HW_CDN_TIMESTAMP")
+	HW_CDN_START_TIME         = os.Getenv("HW_CDN_START_TIME")
+	HW_CDN_END_TIME           = os.Getenv("HW_CDN_END_TIME")
+	HW_CDN_STAT_TYPE          = os.Getenv("HW_CDN_STAT_TYPE")
+	HW_CDN_IP_ADDRESSES       = os.Getenv("HW_CDN_IP_ADDRESSES")
 
 	// CCM environment
 	HW_CCM_CERTIFICATE_CONTENT_PATH    = os.Getenv("HW_CCM_CERTIFICATE_CONTENT_PATH")
@@ -3017,6 +3018,13 @@ func TestAccPreCheckCertCDN(t *testing.T) {
 func TestAccPreCheckCDNURL(t *testing.T) {
 	if HW_CDN_DOMAIN_URL == "" {
 		t.Skip("HW_CDN_DOMAIN_URL must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckCDNTargetDomainUrls(t *testing.T, n int) {
+	if len(strings.Split(HW_CDN_TARGET_DOMAIN_URLS, ",")) < n {
+		t.Skipf("at lease %d domain URL(s) for HW_CDN_TARGET_DOMAIN_URLS must be set, separated by the comma (,) character", n)
 	}
 }
 
