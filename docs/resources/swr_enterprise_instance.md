@@ -87,6 +87,9 @@ In addition to all arguments above, the following attributes are exported:
 
 * `status` - Indicates the instance status.
 
+* `statistics` - Indicates the statistic infos.
+  The [statistics](#attrblock--statistics) structure is documented below.
+
 * `access_address` - Indicates the access address of instance.
 
 * `user_def_obs` - Indicates whether the user specifies the OBS bucket.
@@ -106,6 +109,45 @@ In addition to all arguments above, the following attributes are exported:
 * `expires_at` - Indicates the expired time.
 
 * `updated_at` - Indicates the last update time.
+
+<a name="attrblock--statistics"></a>
+The `statistics` block supports:
+
+* `image_repo_quota` - Indicates the image repo quota.
+
+* `intranet_endpoint_count` - Indicates the intranet endpoint count.
+
+* `intranet_endpoint_quota` - Indicates the intranet endpoint quota.
+
+* `long_term_quota` - Indicates the long term quota.
+
+* `namespace_quota` - Indicates the namespace quota.
+
+* `notify_policy_count` - Indicates the notify policy count.
+
+* `notify_policy_quota` - Indicates the notify policy quota.
+
+* `replica_policy_count` - Indicates the replica policy count.
+
+* `replica_policy_quota` - Indicates the replica policy quota.
+
+* `replica_registry_count` - Indicates the replica registry count.
+
+* `replica_registry_quota` - Indicates the replica registry quota.
+
+* `retention_policy_count` - Indicates the retention policy count.
+
+* `retention_policy_quota` - Indicates the retention policy quota.
+
+* `sign_policy_count` - Indicates the sign policy count.
+
+* `sign_policy_quota` - Indicates the sign policy quota.
+
+* `storage_used` - Indicates the storage used.
+
+* `total_image_count` - Indicates the total image count.
+
+* `total_namespace_count` - Indicates the total namespace count.
 
 ## Timeouts
 
