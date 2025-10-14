@@ -1,5 +1,51 @@
 # CHANGELOG
 
+## 1.79.1 (October 14, 2025)
+
+* **New Resource Source:**
+  + `huaweicloud_compute_password_delete` [GH-8011]
+  + `huaweicloud_dms_kafka_topic_quota` [GH-8021]
+  + `huaweicloud_hss_modify_webtamper_rasp_path` [GH-8049]
+  + `huaweicloud_hss_setting_two_factor_login_config` [GH-8014]
+  + `huaweicloud_hss_vulnerability_history_export_task` [GH-8063]
+  + `huaweicloud_hss_vulnerability_task_user_trace` [GH-8010]
+
+* **New Data Source:**
+  + `huaweicloud_cdn_domain_tags` [GH-8027]
+  + `huaweicloud_cdn_ip_information` [GH-8020]
+  + `huaweicloud_cdn_quotas` [GH-8036]
+  + `huaweicloud_coc_incidents` [GH-8026]
+  + `huaweicloud_compute_password` [GH-8009]
+  + `huaweicloud_compute_supply_recommendations` [GH-8058]
+  + `huaweicloud_dms_kafka_consumer_group_topics` [GH-8030]
+  + `huaweicloud_dms_kafka_instance_coordinators` [GH-8024]
+  + `huaweicloud_dms_kafka_maintainwindows` [GH-8021]
+  + `huaweicloud_dms_kafka_topic_broker_disk_usages` [GH-8021]
+  + `huaweicloud_dms_kafka_topic_quotas` [GH-8021]
+  + `huaweicloud_hss_app_events` [GH-8046]
+  + `huaweicloud_hss_asset_assign_task` [GH-8052]
+  + `huaweicloud_hss_asset_overview_status_agent` [GH-8050]
+  + `huaweicloud_hss_asset_overview_status_host_protection` [GH-8019]
+  + `huaweicloud_hss_asset_overview_status_os` [GH-8048]
+  + `huaweicloud_hss_baseline_check_rule_hab` [GH-8022]
+  + `huaweicloud_hss_baseline_security_checks_directories` [GH-8034]
+  + `huaweicloud_hss_change_files` [GH-8039]
+  + `huaweicloud_hss_cicd_configurations` [GH-8019]
+  + `huaweicloud_hss_common_task_statistics` [GH-8035]
+  + `huaweicloud_hss_common_tasks` [GH-8019]
+  + `huaweicloud_hss_configs` [GH-8045]
+  + `huaweicloud_hss_container_cluster_risk_affected_resources` [GH-8019]
+  + `huaweicloud_hss_container_cluster_risks` [GH-8019]
+  + `huaweicloud_hss_container_network_policies` [GH-8038]
+  + `huaweicloud_hss_files_statistic` [GH-8028]
+  + `huaweicloud_hss_page_notices` [GH-8019]
+  + `huaweicloud_hss_setting_login_white_ips` [GH-8019]
+  + `huaweicloud_hss_setting_two_factor_login_hosts` [GH-8019]
+  + `huaweicloud_hss_webtamper_policy` [GH-8059]
+  + `huaweicloud_hss_webtamper_rasp_path` [GH-8042]
+  + `huaweicloud_swr_enterprise_sub_resources_filter` [GH-8013]
+  + `huaweicloud_waf_all_web_antitamper_rules` [GH-7989]
+
 ## 1.79.0 (September 29, 2025)
 
 * **New Resource Source:**
