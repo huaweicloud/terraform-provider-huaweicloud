@@ -152,6 +152,12 @@ func ResourceListener() *schema.Resource {
 				Computed:   true,
 				Deprecated: "connection_limit is deprecated",
 			},
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
+			},
 		},
 	}
 }
