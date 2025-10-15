@@ -23,8 +23,8 @@ resource "huaweicloud_compute_recycle_policy" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) Specifies the region in which to create the volume resource. If omitted, the
-  provider-level region will be used. Changing this creates a new resource.
+* `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
+  If omitted, the provider-level region will be used. Changing this creates a new resource.
 
 * `retention_hour` - (Required, Int) Specifies how long an instance can be retained in the recycle bin before being
   permanently deleted.
