@@ -31,6 +31,10 @@ func ResourceComputeOsChange() *schema.Resource {
 		UpdateContext: resourceComputeOsChangeUpdate,
 		DeleteContext: resourceComputeOsChangeDelete,
 
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(10 * time.Minute),
+		},
+
 		CustomizeDiff: config.FlexibleForceNew(osChangeNonUpdatableParams),
 
 		Schema: map[string]*schema.Schema{

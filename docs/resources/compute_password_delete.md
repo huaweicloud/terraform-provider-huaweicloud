@@ -24,7 +24,7 @@ resource "huaweicloud_compute_password_delete" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) Specifies the region in which to create the auto launch group.
+* `region` - (Optional, String, ForceNew) Specifies the region in which to create the resource.
   If omitted, the provider-level region will be used. Changing this creates a new resource.
 
 * `server_id` - (Required, String, NonUpdatable) Specifies the ECS ID.

@@ -76,8 +76,8 @@ resource "huaweicloud_compute_interface_attach" "attached" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String, ForceNew) The region in which to create the network interface attache resource. If
-  omitted, the provider-level region will be used. Changing this creates a new network interface attache resource.
+* `region` - (Optional, String, ForceNew) The region in which to create the network interface attach resource. If
+  omitted, the provider-level region will be used. Changing this creates a new network interface attach resource.
 
 * `instance_id` - (Required, String, ForceNew) The ID of the Instance to attach the Port or Network to.
 
