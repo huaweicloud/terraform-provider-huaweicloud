@@ -1776,6 +1776,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_swr_enterprise_namespace_tags":                  swrenterprise.DataSourceSwrEnterpriseNamespaceTags(),
 			"huaweicloud_swr_enterprise_resources_filter":                swrenterprise.DataSourceSwrEnterpriseResourcesFilter(),
 			"huaweicloud_swr_enterprise_sub_resources_filter":            swrenterprise.DataSourceSwrEnterpriseSubResourcesFilter(),
+			"huaweicloud_swr_enterprise_retention_policies":              swrenterprise.DataSourceSwrEnterpriseRetentionPolicies(),
 			//nolint:revive
 			"huaweicloud_swr_enterprise_image_signature_policy_execution_records": swrenterprise.DataSourceSwrEnterpriseImageSignaturePolicyExecutionRecords(),
 
