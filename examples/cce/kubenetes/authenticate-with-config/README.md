@@ -1,18 +1,9 @@
-# Create a Kubernetes namespace under the CCE environment
+# Generate Kubernetes Config File using CCE Cluster Configuration
 
-This example provides best practice code for using Terraform to create a namespace (via Kubernetes provider) under the
-CCE (Cloud Container Engine) environment (The cluster with a node, and enable the public EIP access) in HuaweiCloud.
-
-For the Kubernetes provider authentication, this example demonstrates how to configure the Kubernetes provider to
-authenticate with the CCE cluster using cluster certificates.
-The authentication is automatically configured using the following CCE cluster certificate information:
-
-* **Cluster CA Certificate**: Used for verifying the cluster's identity
-* **Client Certificate**: Used for authenticating the Terraform client
-* **Client Key**: Private key for client certificate authentication
-
-The Kubernetes provider configuration automatically extracts and decodes these certificates from the CCE cluster
-resource, ensuring secure and seamless authentication without manual certificate management.
+This example provides best practice code for using Terraform to create a complete CCE (Cloud Container Engine)
+environment (The cluster with a node, and enable the public EIP access), and automatically generate a Kubernetes
+configuration file (`.kube/config`) for external access and management. The generated configuration file enables
+seamless integration with kubectl and other Kubernetes tools.
 
 ## Prerequisites
 
@@ -37,7 +28,6 @@ The following variables need to be configured:
 * `cluster_name` - The name of the CCE cluster
 * `keypair_name` - The name of the keypair for node access
 * `node_name` - The name of the CCE node
-* `namespace_name` - The name of the Kubernetes namespace
 
 #### Optional Variables
 
@@ -98,7 +88,6 @@ The following variables need to be configured:
        size       = 100
      }
    ]
-   namespace_name             = "tf-test-namespace"
    ```
 
 3. Initialize Terraform:
@@ -125,38 +114,42 @@ The following variables need to be configured:
    $ terraform destroy
    ```
 
-## Features
-
-This example demonstrates the following features:
-
-1. **Complete Infrastructure Setup**: Creates a complete CCE cluster with all necessary components
-2. **Network Configuration**: Automatic VPC and subnet creation with flexible configuration
-3. **EIP Management**: Automatic EIP creation and configuration for cluster access
-4. **Node Management**: Flexible node configuration with automatic flavor selection
-5. **Storage Configuration**: Support for root and data volumes with different types
-6. **Kubernetes Integration**: Automatic Kubernetes namespace creation
-7. **Security Configuration**: RBAC authentication and keypair-based access
-8. **Resource Management**: Configurable resource cleanup on termination
-
 ## Configuration Details
 
-### Kubernetes Namespace
+### Kubernetes Configuration File Generation
 
-The example creates a Kubernetes namespace with the following features:
+This example automatically generates a Kubernetes configuration file (`.kube/config`) that contains:
 
-* **Namespace Management**: Creates a dedicated namespace for application deployment
-* **Dependency Management**: Ensures the namespace is created after the node is ready
-* **Integration**: Seamless integration with the CCE cluster
+* **Cluster Information**: Complete cluster connection details
+* **Authentication Data**: All necessary certificates and keys for secure access
+* **Context Configuration**: Pre-configured context for easy kubectl usage
+* **Server Information**: External endpoint for cluster access
+
+The generated configuration file enables you to:
+
+* Use `kubectl` commands directly from your local machine
+* Access the cluster using standard Kubernetes tools
+* Manage resources without additional authentication setup
+* Integrate with CI/CD pipelines and automation tools
+
+### Kubernetes Provider Configuration
+
+The example configures the Kubernetes provider to use the generated configuration file:
+
+* **Config Path**: Points to the generated `.kube/config` file
+* **Config Context**: Uses the "external" context for external access
+* **Automatic Authentication**: No manual certificate management required
 
 ## Note
 
 * Make sure to keep your credentials secure and never commit them to version control
 * The cluster creation process may take several minutes to complete
-* The namespace will be created automatically after the node is ready
+* The Kubernetes config file will be generated automatically after cluster creation
 * All resources will be created in the specified region
 * Cluster names must be unique within the region
 * When `delete_all_resources_on_terminal` is set to true, all resources will be deleted when the cluster is terminated
-* The Kubernetes provider will automatically configure authentication using cluster certificates
+* The generated config file is stored at `.kube/config` and can be used immediately with kubectl
+* The config file contains sensitive information and should be protected accordingly
 
 ## Requirements
 
