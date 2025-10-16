@@ -1300,6 +1300,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_container_cluster_risks":                   hss.DataSourceContainerClusterRisks(),
 			"huaweicloud_hss_container_cluster_risk_affected_resources": hss.DataSourceContainerClusterRiskAffectedResources(),
 			"huaweicloud_hss_container_network_policies":                hss.DataSourceContainerNetworkPolicies(),
+			"huaweicloud_hss_container_iac_files":                       hss.DataSourceContainerIacFiles(),
 			"huaweicloud_hss_event_handle_history":                      hss.DataSourceEventHandleHistory(),
 			"huaweicloud_hss_event_system_user_white_lists":             hss.DataSourceEventSystemUserWhiteLists(),
 			"huaweicloud_hss_event_login_white_lists":                   hss.DataSourceEventLoginWhiteLists(),
