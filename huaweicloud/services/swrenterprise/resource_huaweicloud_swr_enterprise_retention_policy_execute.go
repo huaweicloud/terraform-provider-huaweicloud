@@ -16,19 +16,19 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-var enterpriseImageSignaturePolicyExecuteNonUpdatableParams = []string{
-	"instance_id", "namespace_name", "policy_id",
+var enterpriseRetentionPolicyExecuteNonUpdatableParams = []string{
+	"instance_id", "namespace_name", "policy_id", "dry_run",
 }
 
-// @API SWR POST /v2/{project_id}/instances/{instance_id}/namespaces/{namespace_name}/signature/policies/{policy_id}/executions
-func ResourceSwrEnterpriseImageSignaturePolicyExecute() *schema.Resource {
+// @API SWR POST /v2/{project_id}/instances/{instance_id}/namespaces/{namespace_name}/retention/policies/{policy_id}/executions
+func ResourceSwrEnterpriseRetentionPolicyExecute() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceSwrEnterpriseImageSignaturePolicyExecuteCreate,
-		UpdateContext: resourceSwrEnterpriseImageSignaturePolicyExecuteUpdate,
-		ReadContext:   resourceSwrEnterpriseImageSignaturePolicyExecuteRead,
-		DeleteContext: resourceSwrEnterpriseImageSignaturePolicyExecuteDelete,
+		CreateContext: resourceSwrEnterpriseRetentionPolicyExecuteCreate,
+		UpdateContext: resourceSwrEnterpriseRetentionPolicyExecuteUpdate,
+		ReadContext:   resourceSwrEnterpriseRetentionPolicyExecuteRead,
+		DeleteContext: resourceSwrEnterpriseRetentionPolicyExecuteDelete,
 
-		CustomizeDiff: config.FlexibleForceNew(enterpriseImageSignaturePolicyExecuteNonUpdatableParams),
+		CustomizeDiff: config.FlexibleForceNew(enterpriseRetentionPolicyExecuteNonUpdatableParams),
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -53,6 +53,11 @@ func ResourceSwrEnterpriseImageSignaturePolicyExecute() *schema.Resource {
 				Required:    true,
 				Description: `Specifies the policy ID.`,
 			},
+			"dry_run": {
+				Type:        schema.TypeBool,
+				Required:    true,
+				Description: `Specifies whether to dry run.`,
+			},
 			"enable_force_new": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -68,7 +73,7 @@ func ResourceSwrEnterpriseImageSignaturePolicyExecute() *schema.Resource {
 	}
 }
 
-func resourceSwrEnterpriseImageSignaturePolicyExecuteCreate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceSwrEnterpriseRetentionPolicyExecuteCreate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	client, err := cfg.NewServiceClient("swr", region)
@@ -80,7 +85,7 @@ func resourceSwrEnterpriseImageSignaturePolicyExecuteCreate(_ context.Context, d
 	namespaceName := d.Get("namespace_name").(string)
 	policyId := d.Get("policy_id").(string)
 
-	createHttpUrl := "v2/{project_id}/instances/{instance_id}/namespaces/{namespace_name}/signature/policies/{policy_id}/executions"
+	createHttpUrl := "v2/{project_id}/instances/{instance_id}/namespaces/{namespace_name}/retention/policies/{policy_id}/executions"
 	createPath := client.Endpoint + createHttpUrl
 	createPath = strings.ReplaceAll(createPath, "{project_id}", client.ProjectID)
 	createPath = strings.ReplaceAll(createPath, "{instance_id}", instanceId)
@@ -88,6 +93,9 @@ func resourceSwrEnterpriseImageSignaturePolicyExecuteCreate(_ context.Context, d
 	createPath = strings.ReplaceAll(createPath, "{policy_id}", policyId)
 	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		JSONBody: map[string]interface{}{
+			"dry_run": d.Get("dry_run"),
+		},
 	}
 
 	createResp, err := client.Request("POST", createPath, &createOpt)
@@ -114,16 +122,16 @@ func resourceSwrEnterpriseImageSignaturePolicyExecuteCreate(_ context.Context, d
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func resourceSwrEnterpriseImageSignaturePolicyExecuteRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceSwrEnterpriseRetentionPolicyExecuteRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	return nil
 }
 
-func resourceSwrEnterpriseImageSignaturePolicyExecuteUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+func resourceSwrEnterpriseRetentionPolicyExecuteUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	return nil
 }
 
-func resourceSwrEnterpriseImageSignaturePolicyExecuteDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
-	errorMsg := "Deleting SWR enterprise image signature policy execute resource is not supported. The resource is only removed from the state."
+func resourceSwrEnterpriseRetentionPolicyExecuteDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+	errorMsg := "Deleting SWR enterprise retention policy execute resource is not supported. The resource is only removed from the state."
 	return diag.Diagnostics{
 		diag.Diagnostic{
 			Severity: diag.Warning,
