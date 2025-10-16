@@ -52,7 +52,7 @@ data "huaweicloud_swr_enterprise_image_signature_policy_execution_records" "test
 
   instance_id    = huaweicloud_swr_enterprise_instance.test.id
   namespace_name = "library"
-  policy_id      = huaweicloud_swr_enterprise_image_signature_policy.test.id
+  policy_id      = huaweicloud_swr_enterprise_image_signature_policy.test.policy_id
 }
 `, testAccSwrEnterpriseImageSignaturePolicyExecute_basic(name))
 }

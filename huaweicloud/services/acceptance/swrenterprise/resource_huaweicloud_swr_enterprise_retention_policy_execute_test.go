@@ -9,7 +9,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccSwrEnterpriseImageSignaturePolicyExecute_basic(t *testing.T) {
+func TestAccSwrEnterpriseRetentionPolicyExecute_basic(t *testing.T) {
 	rName := acceptance.RandomAccResourceNameWithDash()
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -18,21 +18,22 @@ func TestAccSwrEnterpriseImageSignaturePolicyExecute_basic(t *testing.T) {
 		CheckDestroy:      nil,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSwrEnterpriseImageSignaturePolicyExecute_basic(rName),
+				Config: testAccSwrEnterpriseRetentionPolicyExecute_basic(rName),
 				Check:  resource.ComposeTestCheckFunc(),
 			},
 		},
 	})
 }
 
-func testAccSwrEnterpriseImageSignaturePolicyExecute_basic(rName string) string {
+func testAccSwrEnterpriseRetentionPolicyExecute_basic(rName string) string {
 	return fmt.Sprintf(`
 %s
 
-resource "huaweicloud_swr_enterprise_image_signature_policy_execute" "test" {
+resource "huaweicloud_swr_enterprise_retention_policy_execute" "test" {
   instance_id    = huaweicloud_swr_enterprise_instance.test.id
   namespace_name = "library"
-  policy_id      = huaweicloud_swr_enterprise_image_signature_policy.test.policy_id
+  policy_id      = huaweicloud_swr_enterprise_retention_policy.test.policy_id
+  dry_run        = true
 }
-`, testAccSwrEnterpriseImageSignaturePolicy_basic(rName))
+`, testAccSwrEnterpriseRetentionPolicy_basic(rName))
 }
