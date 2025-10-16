@@ -32,7 +32,7 @@ resource "huaweicloud_fgs_function" "test" {
   name        = var.function_name
   app         = "default"
   agency      = var.agency_name
-  description = "fuction test"
+  description = "function test"
   handler     = "test.handler"
   memory_size = 128
   timeout     = 3
@@ -228,7 +228,7 @@ resource "huaweicloud_fgs_function" "test" {
   name        = var.function_name
   app         = "default"
   agency      = "test"
-  description = "fuction test"
+  description = "function test"
   handler     = "test.handler"
   memory_size = 128
   timeout     = 3
@@ -258,7 +258,7 @@ resource "huaweicloud_fgs_function" "test" {
   name                  = var.function_name
   app                   = "default"
   agency                = var.agency_name
-  description           = "fuction test"
+  description           = "function test"
   handler               = "test.handler"
   memory_size           = 128
   timeout               = 3
@@ -359,6 +359,8 @@ The following arguments are supported:
   + **jar**: JAR file or java functions.
   + **obs**: function code stored in an OBS bucket.
   + **Custom-Image-Swr**: function code comes from the SWR custom image.
+
+  -> The parameter `custom_image` is **Required** if `code_type` is **Custom-Image-Swr**.
 
 * `handler` - (Required, String) Specifies the entry point of the function.
 

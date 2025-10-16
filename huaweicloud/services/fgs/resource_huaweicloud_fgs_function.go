@@ -320,9 +320,6 @@ func ResourceFgsFunction() *schema.Resource {
 						},
 					},
 				},
-				ConflictsWith: []string{
-					"code_type",
-				},
 				Description: `The custom image configuration of the function.`,
 			},
 			"max_instance_num": {
