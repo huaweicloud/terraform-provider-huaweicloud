@@ -308,9 +308,9 @@ func flattenExtendParams(extendParams map[string]interface{}) []map[string]inter
 		{
 			"max_pods":                    utils.PathSearch("maxPods", extendParams, nil),
 			"docker_base_size":            utils.PathSearch("dockerBaseSize", extendParams, nil),
-			"preinstall":                  utils.PathSearch("alpha.cce/preInstall", extendParams, nil),
-			"postinstall":                 utils.PathSearch("alpha.cce/postInstall", extendParams, nil),
-			"node_image_id":               utils.PathSearch("alpha.cce/NodeImageID", extendParams, nil),
+			"preinstall":                  utils.PathSearch(`"alpha.cce/preInstall"`, extendParams, nil),
+			"postinstall":                 utils.PathSearch(`"alpha.cce/postInstall"`, extendParams, nil),
+			"node_image_id":               utils.PathSearch(`"alpha.cce/NodeImageID"`, extendParams, nil),
 			"node_multi_queue":            utils.PathSearch("nicMultiqueue", extendParams, nil),
 			"nic_threshold":               utils.PathSearch("nicThreshold", extendParams, nil),
 			"agency_name":                 utils.PathSearch("agency_name", extendParams, nil),
