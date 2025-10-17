@@ -21,13 +21,6 @@ func DataSourceDomainTags() *schema.Resource {
 		ReadContext: dataSourceDomainTagsRead,
 
 		Schema: map[string]*schema.Schema{
-			"region": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: `The region where the domain tags are located.`,
-			},
-
 			// Required parameters.
 			"resource_id": {
 				Type:        schema.TypeString,
@@ -103,11 +96,10 @@ func flattenTags(tags []interface{}) []map[string]interface{} {
 func dataSourceDomainTagsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg        = meta.(*config.Config)
-		region     = cfg.GetRegion(d)
 		resourceId = d.Get("resource_id").(string)
 	)
 
-	client, err := cfg.NewServiceClient("cdn", region)
+	client, err := cfg.NewServiceClient("cdn", "")
 	if err != nil {
 		return diag.Errorf("error creating CDN client: %s", err)
 	}
@@ -124,7 +116,6 @@ func dataSourceDomainTagsRead(_ context.Context, d *schema.ResourceData, meta in
 	d.SetId(randomUUID)
 
 	mErr := multierror.Append(
-		d.Set("region", region),
 		d.Set("tags", flattenTags(tags)),
 	)
 	return diag.FromErr(mErr.ErrorOrNil())

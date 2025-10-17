@@ -595,12 +595,10 @@ func updateCdnDomainRule(client *golangsdk.ServiceClient, d *schema.ResourceData
 func resourceCdnDomainRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg        = meta.(*config.Config)
-		region     = cfg.GetRegion(d)
-		product    = "cdn"
 		domainName = d.Get("name").(string)
 	)
 
-	client, err := cfg.NewServiceClient(product, region)
+	client, err := cfg.NewServiceClient("cdn", "")
 	if err != nil {
 		return diag.Errorf("error creating CDN client: %s", err)
 	}
@@ -860,11 +858,9 @@ func flattenDomainRuleAttribute(respBody interface{}) []interface{} {
 func resourceCdnDomainRuleRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg        = meta.(*config.Config)
-		region     = cfg.GetRegion(d)
-		product    = "cdn"
 		domainName = d.Get("name").(string)
 	)
-	client, err := cfg.NewServiceClient(product, region)
+	client, err := cfg.NewServiceClient("cdn", "")
 	if err != nil {
 		return diag.Errorf("error creating CDN client: %s", err)
 	}
@@ -882,13 +878,8 @@ func resourceCdnDomainRuleRead(_ context.Context, d *schema.ResourceData, meta i
 }
 
 func resourceCdnDomainRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	var (
-		cfg     = meta.(*config.Config)
-		region  = cfg.GetRegion(d)
-		product = "cdn"
-	)
-
-	client, err := cfg.NewServiceClient(product, region)
+	cfg := meta.(*config.Config)
+	client, err := cfg.NewServiceClient("cdn", "")
 	if err != nil {
 		return diag.Errorf("error creating CDN client: %s", err)
 	}
@@ -914,13 +905,8 @@ func resourceCdnDomainRuleUpdate(ctx context.Context, d *schema.ResourceData, me
 }
 
 func resourceCdnDomainRuleDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	var (
-		cfg     = meta.(*config.Config)
-		region  = cfg.GetRegion(d)
-		product = "cdn"
-	)
-
-	client, err := cfg.NewServiceClient(product, region)
+	cfg := meta.(*config.Config)
+	client, err := cfg.NewServiceClient("cdn", "")
 	if err != nil {
 		return diag.Errorf("error creating CDN client: %s", err)
 	}

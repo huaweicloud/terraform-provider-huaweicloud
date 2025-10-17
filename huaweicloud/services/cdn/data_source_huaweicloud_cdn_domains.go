@@ -194,14 +194,12 @@ func buildDomainsQueryParams(cfg *config.Config, d *schema.ResourceData) string 
 func datasourceDomainsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg          = meta.(*config.Config)
-		region       = cfg.GetRegion(d)
 		mErr         *multierror.Error
 		httpUrl      = "v1.0/cdn/domains"
-		product      = "cdn"
 		currentTotal = 1
 		rst          = make([]interface{}, 0)
 	)
-	client, err := cfg.NewServiceClient(product, region)
+	client, err := cfg.NewServiceClient("cdn", "")
 	if err != nil {
 		return diag.Errorf("error creating CDN client: %s", err)
 	}

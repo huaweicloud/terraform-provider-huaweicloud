@@ -13,11 +13,7 @@ import (
 )
 
 func getCachePreheatResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	var (
-		region  = acceptance.HW_REGION_NAME
-		product = "cdn"
-	)
-	client, err := cfg.NewServiceClient(product, region)
+	client, err := cfg.NewServiceClient("cdn", "")
 	if err != nil {
 		return nil, fmt.Errorf("error creating CDN client: %s", err)
 	}

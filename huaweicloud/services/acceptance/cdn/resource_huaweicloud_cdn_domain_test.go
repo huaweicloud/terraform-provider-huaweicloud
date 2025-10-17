@@ -21,9 +21,9 @@ func getCdnDomainFunc(cfg *config.Config, state *terraform.ResourceState) (inter
 		epsID      = state.Primary.Attributes["enterprise_project_id"]
 	)
 
-	client, err := cfg.CdnV1Client(acceptance.HW_REGION_NAME)
+	client, err := cfg.NewServiceClient("cdn", "")
 	if err != nil {
-		return nil, fmt.Errorf("error creating CDN v1 client: %s", err)
+		return nil, fmt.Errorf("error creating CDN client: %s", err)
 	}
 	return cdn.ReadCdnDomainDetail(client, domainName, epsID)
 }

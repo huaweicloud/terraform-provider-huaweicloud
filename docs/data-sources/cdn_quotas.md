@@ -16,12 +16,6 @@ Use this data source to get the CDN resource quotas within HuaweiCloud.
 data "huaweicloud_cdn_quotas" "test" {}
 ```
 
-## Argument Reference
-
-The following arguments are supported:
-
-* `region` - (Optional, String) Specifies the region where the resource quotas are located.
-
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:

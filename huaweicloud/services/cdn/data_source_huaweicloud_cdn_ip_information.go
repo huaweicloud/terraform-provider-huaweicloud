@@ -21,13 +21,6 @@ func DataSourceIpInformation() *schema.Resource {
 		ReadContext: dataSourceIpInformationRead,
 
 		Schema: map[string]*schema.Schema{
-			"region": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: `The region where the queried IP attribution information are located.`,
-			},
-
 			// Required parameters.
 			"ips": {
 				Type:        schema.TypeString,
@@ -124,11 +117,10 @@ func flattenIpsInformation(items []interface{}) []map[string]interface{} {
 func dataSourceIpInformationRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg     = meta.(*config.Config)
-		region  = cfg.GetRegion(d)
 		httpUrl = "v1.0/cdn/ip-info"
 	)
 
-	client, err := cfg.NewServiceClient("cdn", region)
+	client, err := cfg.NewServiceClient("cdn", "")
 	if err != nil {
 		return diag.Errorf("error creating CDN client: %s", err)
 	}
@@ -160,7 +152,6 @@ func dataSourceIpInformationRead(_ context.Context, d *schema.ResourceData, meta
 	d.SetId(randomUUID)
 
 	mErr := multierror.Append(
-		d.Set("region", region),
 		d.Set("information", flattenIpsInformation(utils.PathSearch("cdn_ips", respBody,
 			make([]interface{}, 0)).([]interface{}))))
 	return diag.FromErr(mErr.ErrorOrNil())

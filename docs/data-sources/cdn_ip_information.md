@@ -24,8 +24,6 @@ data "huaweicloud_cdn_ip_information" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String) Specifies the region where the queried IP attribution information are located.
-
 * `ips` - (Required, String) Specifies the list of IP addresses to be queried.  
   The maximum number of IPs that can be queried is 20, and multiple IPs are separated by commas (,).
 

@@ -1359,12 +1359,10 @@ func waitingForCdnDomainStatusOnline(ctx context.Context, client *golangsdk.Serv
 func resourceCdnDomainCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg     = meta.(*config.Config)
-		region  = cfg.GetRegion(d)
 		httpUrl = "v1.0/cdn/domains"
-		product = "cdn"
 	)
 
-	client, err := cfg.NewServiceClient(product, region)
+	client, err := cfg.NewServiceClient("cdn", "")
 	if err != nil {
 		return diag.Errorf("error creating CDN client: %s", err)
 	}
@@ -2199,12 +2197,10 @@ func flattenConfigAttributes(configResp interface{}, d *schema.ResourceData) []m
 func resourceCdnDomainRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg        = meta.(*config.Config)
-		region     = cfg.GetRegion(d)
-		product    = "cdn"
 		domainName = getDomainName(d)
 		epsID      = cfg.GetEnterpriseProjectID(d)
 	)
-	client, err := cfg.NewServiceClient(product, region)
+	client, err := cfg.NewServiceClient("cdn", "")
 	if err != nil {
 		return diag.Errorf("error creating CDN client: %s", err)
 	}
@@ -3040,12 +3036,8 @@ func updateCdnDomainTags(client *golangsdk.ServiceClient, d *schema.ResourceData
 }
 
 func resourceCdnDomainUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	var (
-		cfg     = meta.(*config.Config)
-		region  = cfg.GetRegion(d)
-		product = "cdn"
-	)
-	client, err := cfg.NewServiceClient(product, region)
+	cfg := meta.(*config.Config)
+	client, err := cfg.NewServiceClient("cdn", "")
 	if err != nil {
 		return diag.Errorf("error creating CDN client: %s", err)
 	}
@@ -3071,8 +3063,8 @@ func resourceCdnDomainUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		migrateOpts := config.MigrateResourceOpts{
 			ResourceId:   d.Id(),
 			ResourceType: "cdn",
-			RegionId:     region,
-			ProjectId:    cfg.GetProjectID(region),
+			RegionId:     "",
+			ProjectId:    d.Get("enterprise_project_id").(string),
 		}
 		if err := cfg.MigrateEnterpriseProject(ctx, d, migrateOpts); err != nil {
 			return diag.FromErr(err)
@@ -3205,13 +3197,11 @@ func waitingForCdnDomainStatusOffline(ctx context.Context, client *golangsdk.Ser
 
 func resourceCdnDomainDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg     = meta.(*config.Config)
-		region  = cfg.GetRegion(d)
-		product = "cdn"
-		epsID   = cfg.GetEnterpriseProjectID(d)
+		cfg   = meta.(*config.Config)
+		epsID = cfg.GetEnterpriseProjectID(d)
 	)
 
-	client, err := cfg.NewServiceClient(product, region)
+	client, err := cfg.NewServiceClient("cdn", "")
 	if err != nil {
 		return diag.Errorf("error creating CDN client: %s", err)
 	}
