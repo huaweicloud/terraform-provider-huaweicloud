@@ -2699,6 +2699,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_evsv3_volume_transfer_accepter": evs.ResourceV3VolumeTransferAccepter(),
 			"huaweicloud_evs_unsubscribe_prepaid_volume": evs.ResourceUnsubscribePrepaidVolume(),
 			"huaweicloud_evs_volumes_batch_expand":       evs.ResourceVolumesBatchExpand(),
+			"huaweicloud_evs_recycle_bin_policy":         evs.ResourceRecycleBinPolicy(),
 
 			"huaweicloud_fgs_application":                    fgs.ResourceApplication(),
 			"huaweicloud_fgs_async_invoke_configuration":     fgs.ResourceAsyncInvokeConfiguration(),
