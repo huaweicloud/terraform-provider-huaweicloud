@@ -2810,6 +2810,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_file_download":                                  hss.ResourceFileDownload(),
 			"huaweicloud_hss_ignore_failed_pcc":                              hss.ResourceIgnoreFailedPCC(),
 			"huaweicloud_hss_antivirus_create_virus_scan_task":               hss.ResourceCreateVirusScanTask(),
+			"huaweicloud_hss_app_whitelist_policy_process":                   hss.ResourceAppWhitelistPolicyProcess(),
 
 			"huaweicloud_identity_access_key":            iam.ResourceIdentityKey(),
 			"huaweicloud_identity_acl":                   iam.ResourceIdentityACL(),
