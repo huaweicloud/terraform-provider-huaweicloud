@@ -2379,6 +2379,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_compute_template":                   ecs.ResourceComputeTemplate(),
 			"huaweicloud_compute_instance":                   ecs.ResourceComputeInstance(),
+			"huaweicloud_compute_instance_redeploy":          ecs.ResourceComputeInstanceRedeploy(),
 			"huaweicloud_compute_interface_attach":           ecs.ResourceComputeInterfaceAttach(),
 			"huaweicloud_compute_keypair":                    ResourceComputeKeypairV2(),
 			"huaweicloud_compute_servergroup":                ecs.ResourceComputeServerGroup(),
