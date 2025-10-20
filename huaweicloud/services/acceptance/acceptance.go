@@ -610,6 +610,7 @@ var (
 	HW_ECS_LAUNCH_TEMPLATE_ID = os.Getenv("HW_ECS_LAUNCH_TEMPLATE_ID")
 	HW_ECS_ID                 = os.Getenv("HW_ECS_ID")
 	HW_ECS_ROOT_PWD           = os.Getenv("HW_ECS_ROOT_PWD")
+	HW_ECS_SCHEDULED_EVENT_ID = os.Getenv("HW_ECS_SCHEDULED_EVENT_ID")
 
 	HW_IOTDA_ACCESS_ADDRESS      = os.Getenv("HW_IOTDA_ACCESS_ADDRESS")
 	HW_IOTDA_BATCHTASK_FILE_PATH = os.Getenv("HW_IOTDA_BATCHTASK_FILE_PATH")
@@ -3282,6 +3283,13 @@ func TestAccPreCheckECSID(t *testing.T) {
 func TestAccPreCheckECSAccount(t *testing.T) {
 	if HW_ECS_ID == "" || HW_ECS_ROOT_PWD == "" {
 		t.Skip("HW_ECS_ID, HW_ECS_ROOT_PWD must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckECSScheduledEventId(t *testing.T) {
+	if HW_ECS_SCHEDULED_EVENT_ID == "" {
+		t.Skip("HW_ECS_SCHEDULED_EVENT_ID must be set for the acceptance test")
 	}
 }
 

@@ -2393,6 +2393,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_compute_os_reinstall":               ecs.ResourceComputeOsReinstall(),
 			"huaweicloud_compute_os_change":                  ecs.ResourceComputeOsChange(),
 			"huaweicloud_compute_password_delete":            ecs.ResourceComputePasswordDelete(),
+			"huaweicloud_compute_scheduled_event_accept":     ecs.ResourceComputeScheduledEventAccept(),
 
 			"huaweicloud_coc_script":                        coc.ResourceScript(),
 			"huaweicloud_coc_script_execute":                coc.ResourceScriptExecute(),
