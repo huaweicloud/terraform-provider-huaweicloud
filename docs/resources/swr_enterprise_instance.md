@@ -104,6 +104,10 @@ In addition to all arguments above, the following attributes are exported:
 
 * `subnet_name` - Indicates the subnet name.
 
+* `enable_domain_name` - Indicates whether the doamin name management is enabled.
+
+* `enable_combination_retention` - Indicates whether the retention rule supports combination retention.
+
 * `created_at` - Indicates the creation time.
 
 * `expires_at` - Indicates the expired time.
