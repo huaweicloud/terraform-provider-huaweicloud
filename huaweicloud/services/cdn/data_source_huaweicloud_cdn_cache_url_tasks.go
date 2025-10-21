@@ -145,15 +145,13 @@ func buildCacheUrlTasksQueryParams(d *schema.ResourceData) string {
 func resourceCacheUrlTasksRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg     = meta.(*config.Config)
-		region  = cfg.GetRegion(d)
-		product = "cdn"
 		httpUrl = "v1.0/cdn/contentgateway/url-tasks"
 		offset  = 0
 		result  = make([]interface{}, 0)
 		mErr    *multierror.Error
 	)
 
-	client, err := cfg.NewServiceClient(product, region)
+	client, err := cfg.NewServiceClient("cdn", "")
 	if err != nil {
 		return diag.Errorf("error creating CDN client: %s", err)
 	}

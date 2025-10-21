@@ -96,14 +96,12 @@ func buildCertificateQueryParams(conf *config.Config, d *schema.ResourceData) st
 func resourceDomainCertificatesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		conf         = meta.(*config.Config)
-		region       = conf.GetRegion(d)
 		mErr         *multierror.Error
 		httpUrl      = "v1.0/cdn/domains/https-certificate-info"
-		product      = "cdn"
 		currentTotal = 1
 		rst          = make([]interface{}, 0)
 	)
-	client, err := conf.NewServiceClient(product, region)
+	client, err := conf.NewServiceClient("cdn", "")
 	if err != nil {
 		return diag.Errorf("error creating CDN client: %s", err)
 	}

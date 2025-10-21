@@ -97,12 +97,10 @@ func DataSourceStatistics() *schema.Resource {
 func resourceStatisticsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		conf    = meta.(*config.Config)
-		region  = conf.GetRegion(d)
 		mErr    *multierror.Error
 		httpUrl = "v1.0/cdn/statistics/domain-location-stats"
-		product = "cdn"
 	)
-	client, err := conf.NewServiceClient(product, region)
+	client, err := conf.NewServiceClient("cdn", "")
 	if err != nil {
 		return diag.Errorf("error creating CDN client: %s", err)
 	}

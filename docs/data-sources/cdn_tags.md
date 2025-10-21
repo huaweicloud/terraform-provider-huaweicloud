@@ -24,8 +24,6 @@ data "huaweicloud_cdn_domain_tags" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String) Specifies the region where the domain tags are located.
-
 * `resource_id` - (Required, String) Specifies the ID of the domain to query tags.
 
 ## Attribute Reference

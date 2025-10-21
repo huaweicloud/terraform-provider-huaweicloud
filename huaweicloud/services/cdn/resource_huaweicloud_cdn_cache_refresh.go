@@ -134,11 +134,9 @@ func buildCacheRefreshBodyParams(d *schema.ResourceData) interface{} {
 func resourceCacheRefreshCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg           = meta.(*config.Config)
-		region        = cfg.GetRegion(d)
-		product       = "cdn"
 		createHttpUrl = "v1.0/cdn/content/refresh-tasks"
 	)
-	client, err := cfg.NewServiceClient(product, region)
+	client, err := cfg.NewServiceClient("cdn", "")
 	if err != nil {
 		return diag.Errorf("error creating CDN client: %s", err)
 	}
@@ -239,12 +237,10 @@ func GetCacheDetailById(client *golangsdk.ServiceClient, id string) (interface{}
 
 func resourceCacheRefreshRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg     = meta.(*config.Config)
-		region  = cfg.GetRegion(d)
-		product = "cdn"
-		mErr    *multierror.Error
+		cfg  = meta.(*config.Config)
+		mErr *multierror.Error
 	)
-	client, err := cfg.NewServiceClient(product, region)
+	client, err := cfg.NewServiceClient("cdn", "")
 	if err != nil {
 		return diag.Errorf("error creating CDN client: %s", err)
 	}

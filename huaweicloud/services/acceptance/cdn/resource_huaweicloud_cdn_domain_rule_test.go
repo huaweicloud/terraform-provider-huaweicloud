@@ -13,12 +13,8 @@ import (
 )
 
 func getCdnDomainRuleFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
-	var (
-		domainName = state.Primary.Attributes["name"]
-		region     = acceptance.HW_REGION_NAME
-	)
-
-	client, err := cfg.NewServiceClient("cdn", region)
+	domainName := state.Primary.Attributes["name"]
+	client, err := cfg.NewServiceClient("cdn", "")
 	if err != nil {
 		return nil, fmt.Errorf("error creating CDN client: %s", err)
 	}
