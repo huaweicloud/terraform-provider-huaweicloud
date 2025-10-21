@@ -39,6 +39,7 @@ var enterpriseInstanceNonUpdatableParams = []string{
 // @API SWR POST /v2/{project_id}/{resource_type}/{resource_id}/tags/create
 // @API SWR DELETE /v2/{project_id}/{resource_type}/{resource_id}/tags/delete
 // @API SWR GET /v2/{project_id}/{resource_type}/{resource_id}/tags
+// @API SWR GET /v2/{project_id}/instances/{instance_id}/feature-gates
 func ResourceSwrEnterpriseInstance() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceSwrEnterpriseInstanceCreate,
@@ -220,6 +221,16 @@ func ResourceSwrEnterpriseInstance() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `Indicates the range of available subnets for the subnet.`,
+			},
+			"enable_domain_name": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Indicates whether the doamin name management is enabled.`,
+			},
+			"enable_combination_retention": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Indicates whether the retention rule supports combination retention.`,
 			},
 			"statistics": {
 				Type:        schema.TypeList,
@@ -540,6 +551,16 @@ func resourceSwrEnterpriseInstanceRead(_ context.Context, d *schema.ResourceData
 		)
 	}
 
+	featureGates, err := getSwrEnterpriseInstanceFeatureGates(client, d)
+	if err != nil {
+		log.Printf("error retrieving SWR instance feature gates: %s", err)
+	} else {
+		mErr = multierror.Append(mErr,
+			d.Set("enable_domain_name", utils.PathSearch("enableDomainName", featureGates, nil)),
+			d.Set("enable_combination_retention", utils.PathSearch("enableCombinationRetention", featureGates, nil)),
+		)
+	}
+
 	if err := utils.SetResourceTagsToState(d, client, "instances", d.Id()); err != nil {
 		mErr = multierror.Append(mErr, err)
 	}
@@ -549,6 +570,27 @@ func resourceSwrEnterpriseInstanceRead(_ context.Context, d *schema.ResourceData
 
 func getSwrEnterpriseInstanceConfiguration(client *golangsdk.ServiceClient, d *schema.ResourceData) (interface{}, error) {
 	httpUrl := "v2/{project_id}/instances/{instance_id}/configurations"
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{instance_id}", d.Id())
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+	getRespBody, err := utils.FlattenResponse(getResp)
+	if err != nil {
+		return nil, err
+	}
+
+	return getRespBody, nil
+}
+
+func getSwrEnterpriseInstanceFeatureGates(client *golangsdk.ServiceClient, d *schema.ResourceData) (interface{}, error) {
+	httpUrl := "v2/{project_id}/instances/{instance_id}/feature-gates"
 	getPath := client.Endpoint + httpUrl
 	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
 	getPath = strings.ReplaceAll(getPath, "{instance_id}", d.Id())
