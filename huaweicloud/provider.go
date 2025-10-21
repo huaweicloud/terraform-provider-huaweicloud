@@ -849,6 +849,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_compute_password":                ecs.DataSourceEcsComputePassword(),
 			"huaweicloud_compute_supply_recommendations":  ecs.DataSourceEcsSupplyRecommendations(),
 			"huaweicloud_compute_recycle_bin_servers":     ecs.DataSourceEcsComputeRecycleBinServers(),
+			"huaweicloud_compute_scheduled_events":        ecs.DataSourceEcsComputeScheduledEvents(),
 
 			// CodeArts
 			"huaweicloud_codearts_deploy_groups":                         codeartsdeploy.DataSourceCodeartsDeployGroups(),
