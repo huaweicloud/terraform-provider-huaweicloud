@@ -1177,6 +1177,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_evsv3_quotas":                   evs.DataSourceEvsV3Quotas(),
 			"huaweicloud_evs_recycle_bin_policy":         evs.DataSourceRecycleBinPolicy(),
 			"huaweicloud_evs_recycle_bin_volumes_detail": evs.DataSourceRecycleBinVolumesDetail(),
+			"huaweicloud_evs_recycle_bin_volume_detail":  evs.DataSourceRecycleBinVolumeDetail(),
 
 			"huaweicloud_fgs_applications":                fgs.DataSourceApplications(),
 			"huaweicloud_fgs_application_templates":       fgs.DataSourceApplicationTemplates(),
