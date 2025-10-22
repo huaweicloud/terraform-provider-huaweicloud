@@ -2459,7 +2459,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_cse_microservice_instance":             cse.ResourceMicroserviceInstance(),
 			"huaweicloud_cse_nacos_namespace":                   cse.ResourceNacosNamespace(),
 
-			"huaweicloud_cpcs_app": dew.ResourceCpcsApp(),
+			"huaweicloud_cpcs_app_access_key": dew.ResourceCpcsAppAccessKey(),
+			"huaweicloud_cpcs_app":            dew.ResourceCpcsApp(),
 
 			"huaweicloud_csms_event":                        dew.ResourceCsmsEvent(),
 			"huaweicloud_csms_secret":                       dew.ResourceSecret(),
