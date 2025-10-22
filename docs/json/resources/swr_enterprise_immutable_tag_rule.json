@@ -1,0 +1,147 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_swr_enterprise_immutable_tag_rule": {
+          "block": {
+            "attributes": {
+              "action": {
+                "type": "string",
+                "description": "Specifies the policy action.",
+                "optional": true
+              },
+              "disabled": {
+                "type": "bool",
+                "description": "Specifies whether the policy rule is disabled.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "immutable_rule_id": {
+                "type": "string",
+                "description": "Indicates the policy ID",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the enterprise instance ID.",
+                "required": true
+              },
+              "namespace_id": {
+                "type": "number",
+                "description": "Indicates the namespace ID",
+                "computed": true
+              },
+              "namespace_name": {
+                "type": "string",
+                "description": "Specifies the namespace name.",
+                "required": true
+              },
+              "priority": {
+                "type": "number",
+                "description": "Specifies the priority.",
+                "optional": true,
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region in which to create the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "template": {
+                "type": "string",
+                "description": "Specifies the template type.",
+                "optional": true
+              }
+            },
+            "block_types": {
+              "scope_selectors": {
+                "block": {
+                  "attributes": {
+                    "key": {
+                      "type": "string",
+                      "description": "Specifies the repository selector key.",
+                      "required": true
+                    }
+                  },
+                  "block_types": {
+                    "value": {
+                      "block": {
+                        "attributes": {
+                          "decoration": {
+                            "type": "string",
+                            "description": "Specifies the selector matching type.",
+                            "required": true
+                          },
+                          "extras": {
+                            "type": "string",
+                            "description": "Specifies the extra infos.",
+                            "optional": true
+                          },
+                          "kind": {
+                            "type": "string",
+                            "description": "Specifies the matching type.",
+                            "required": true
+                          },
+                          "pattern": {
+                            "type": "string",
+                            "description": "Specifies the pattern.",
+                            "required": true
+                          }
+                        },
+                        "description": "Specifies the repository selector value."
+                      },
+                      "nesting_mode": "list",
+                      "min_items": 1
+                    }
+                  },
+                  "description": "Specifies the repository selectors."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              },
+              "tag_selectors": {
+                "block": {
+                  "attributes": {
+                    "decoration": {
+                      "type": "string",
+                      "description": "Specifies the selector matching type.",
+                      "required": true
+                    },
+                    "extras": {
+                      "type": "string",
+                      "description": "Specifies the extra infos.",
+                      "optional": true
+                    },
+                    "kind": {
+                      "type": "string",
+                      "description": "Specifies the matching type.",
+                      "required": true
+                    },
+                    "pattern": {
+                      "type": "string",
+                      "description": "Specifies the pattern.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the repository version selector."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "SWR",
+            "name": "Software Repository for Container",
+            "catalog": "Containers",
+            "name_cn": "容器镜像服务",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

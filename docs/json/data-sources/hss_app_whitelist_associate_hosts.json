@@ -1,0 +1,93 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_app_whitelist_associate_hosts": {
+          "block": {
+            "attributes": {
+              "apply_status": {
+                "type": "string",
+                "optional": true
+              },
+              "asset_value": {
+                "type": "string",
+                "optional": true
+              },
+              "data_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "apply_status": "bool",
+                      "asset_value": "string",
+                      "event_num": "number",
+                      "host_id": "string",
+                      "host_name": "string",
+                      "intercept": "bool",
+                      "learning_status": "string",
+                      "os_type": "string",
+                      "policy_id": "string",
+                      "policy_name": "string",
+                      "policy_type": "string",
+                      "private_ip": "string",
+                      "public_ip": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "host_name": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "learning_status": {
+                "type": "string",
+                "optional": true
+              },
+              "os_type": {
+                "type": "string",
+                "optional": true
+              },
+              "policy_id": {
+                "type": "string",
+                "optional": true
+              },
+              "policy_name": {
+                "type": "string",
+                "optional": true
+              },
+              "private_ip": {
+                "type": "string",
+                "optional": true
+              },
+              "public_ip": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

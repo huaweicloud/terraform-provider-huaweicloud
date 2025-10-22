@@ -1,0 +1,98 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_app_whitelist_policies": {
+          "block": {
+            "attributes": {
+              "data_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "abnormal_info_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "abnormal_description": "string",
+                            "abnormal_type": "number"
+                          }
+                        ]
+                      ],
+                      "auto_confirm": "bool",
+                      "auto_detect": "bool",
+                      "default_policy": "bool",
+                      "dir_list": [
+                        "list",
+                        "string"
+                      ],
+                      "effect_host_num": "number",
+                      "file_extension_list": [
+                        "list",
+                        "string"
+                      ],
+                      "host_id_list": [
+                        "list",
+                        "string"
+                      ],
+                      "intercept": "bool",
+                      "learning_days": "number",
+                      "learning_status": "string",
+                      "malicious_num": "number",
+                      "not_effect_host_num": "number",
+                      "policy_id": "string",
+                      "policy_name": "string",
+                      "policy_type": "string",
+                      "specified_dir": "bool",
+                      "suspicious_num": "number",
+                      "trust_num": "number",
+                      "unknown_num": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "intercept": {
+                "type": "string",
+                "optional": true
+              },
+              "learning_status": {
+                "type": "string",
+                "optional": true
+              },
+              "policy_name": {
+                "type": "string",
+                "optional": true
+              },
+              "policy_type": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

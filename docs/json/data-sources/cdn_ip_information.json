@@ -35,11 +35,6 @@
                 "type": "string",
                 "description": "The list of IP addresses to be queried.",
                 "required": true
-              },
-              "region": {
-                "type": "string",
-                "description": "The region where the queried IP attribution information are located.",
-                "computed": true
               }
             }
           },

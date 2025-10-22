@@ -1,0 +1,43 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cdn_domain_batch_copy": {
+          "block": {
+            "attributes": {
+              "config_list": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The configuration items to copy.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "source_domain": {
+                "type": "string",
+                "description": "The source domain whose configuration will be copied.",
+                "required": true
+              },
+              "target_domains": {
+                "type": "string",
+                "description": "The target domain names to which configurations will be copied.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "CDN",
+            "name": "Content Delivery Network",
+            "catalog": "Content Delivery & Edge Computing",
+            "name_cn": "内容分发网络",
+            "catalog_cn": "CDN与智能边缘"
+          }
+        }
+      }
+    }
+  }
+}

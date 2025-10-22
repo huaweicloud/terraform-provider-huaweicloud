@@ -1,0 +1,73 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cdn_top_url_statistics": {
+          "block": {
+            "attributes": {
+              "domain_name": {
+                "type": "string",
+                "description": "The list of queried domain names.",
+                "required": true
+              },
+              "end_time": {
+                "type": "string",
+                "description": "The end time of the query range, in RFC3339 format.",
+                "required": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "The ID of the enterprise project to which the domains belong.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "service_area": {
+                "type": "string",
+                "description": "The service area of the query.",
+                "optional": true,
+                "computed": true
+              },
+              "start_time": {
+                "type": "string",
+                "description": "The start time of the query range, in RFC3339 format.",
+                "required": true
+              },
+              "stat_type": {
+                "type": "string",
+                "description": "The statistical type of the query.",
+                "required": true
+              },
+              "statistics": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "end_time": "string",
+                      "start_time": "string",
+                      "stat_type": "string",
+                      "url": "string",
+                      "value": "number"
+                    }
+                  ]
+                ],
+                "description": "The list of TOP100 URL statistics that matched filter parameters.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CDN",
+            "name": "Content Delivery Network",
+            "catalog": "Content Delivery & Edge Computing",
+            "name_cn": "内容分发网络",
+            "catalog_cn": "CDN与智能边缘"
+          }
+        }
+      }
+    }
+  }
+}

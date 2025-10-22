@@ -1,0 +1,52 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_compute_availability_zones": {
+          "block": {
+            "attributes": {
+              "availability_zones": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "alias": "string",
+                      "availability_zone_id": "string",
+                      "az_group_ids": [
+                        "list",
+                        "string"
+                      ],
+                      "category": "number",
+                      "mode": "string",
+                      "public_border_group": "string",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of availability zones.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "ECS",
+            "name": "Elastic Cloud Server",
+            "catalog": "Compute",
+            "name_cn": "弹性云服务器",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

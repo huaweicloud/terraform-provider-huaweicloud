@@ -217,6 +217,10 @@
                       "type": "number",
                       "optional": true
                     },
+                    "market_type": {
+                      "type": "string",
+                      "optional": true
+                    },
                     "max_pods": {
                       "type": "number",
                       "optional": true
@@ -242,6 +246,10 @@
                       "optional": true
                     },
                     "security_reinforcement_type": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "spot_price": {
                       "type": "string",
                       "optional": true
                     },

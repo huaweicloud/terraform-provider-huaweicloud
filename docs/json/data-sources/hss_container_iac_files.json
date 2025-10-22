@@ -1,0 +1,83 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_container_iac_files": {
+          "block": {
+            "attributes": {
+              "cicd_id": {
+                "type": "string",
+                "optional": true
+              },
+              "cicd_name": {
+                "type": "string",
+                "optional": true
+              },
+              "data_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cicd_id": "string",
+                      "cicd_name": "string",
+                      "file_id": "string",
+                      "file_name": "string",
+                      "file_type": "string",
+                      "first_scan_time": "number",
+                      "last_scan_time": "number",
+                      "risk_num": "number",
+                      "risky": "bool",
+                      "scan_type": "string",
+                      "upload_file_time": "number"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "file_id": {
+                "type": "string",
+                "optional": true
+              },
+              "file_name": {
+                "type": "string",
+                "optional": true
+              },
+              "file_type": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "risky": {
+                "type": "bool",
+                "optional": true
+              },
+              "scan_type": {
+                "type": "string",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

@@ -255,6 +255,11 @@
                       "optional": true,
                       "computed": true
                     },
+                    "market_type": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
                     "max_pods": {
                       "type": "number",
                       "optional": true,
@@ -286,6 +291,11 @@
                       "computed": true
                     },
                     "security_reinforcement_type": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true
+                    },
+                    "spot_price": {
                       "type": "string",
                       "optional": true,
                       "computed": true

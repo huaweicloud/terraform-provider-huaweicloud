@@ -1,0 +1,276 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_compute_recycle_bin_servers": {
+          "block": {
+            "attributes": {
+              "all_tenants": {
+                "type": "string",
+                "description": "Specifies whether query ECSs for all tenants.",
+                "optional": true
+              },
+              "availability_zone": {
+                "type": "string",
+                "description": "Specifies the availability zone.",
+                "optional": true
+              },
+              "expect_fields": {
+                "type": "string",
+                "description": "Specifies the controls the query output.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "ip_address": {
+                "type": "string",
+                "description": "Specifies the IP address.",
+                "optional": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the ECS name, which is fuzzy-matched.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "servers": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "auto_terminate_time": "string",
+                      "config_drive": "string",
+                      "cpu_options": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "hw_cpu_threads": "number"
+                          }
+                        ]
+                      ],
+                      "created": "string",
+                      "description": "string",
+                      "enterprise_project_id": "string",
+                      "flavor": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "asic_accelerators": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "count": "number",
+                                  "memory_mb": "number",
+                                  "name": "string"
+                                }
+                              ]
+                            ],
+                            "disk": "string",
+                            "gpus": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "count": "number",
+                                  "memory_mb": "number",
+                                  "name": "string"
+                                }
+                              ]
+                            ],
+                            "id": "string",
+                            "name": "string",
+                            "ram": "string",
+                            "vcpus": "string"
+                          }
+                        ]
+                      ],
+                      "host_id": "string",
+                      "host_status": "string",
+                      "hypervisor": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "csd_hypervisor": "string",
+                            "hypervisor_type": "string"
+                          }
+                        ]
+                      ],
+                      "id": "string",
+                      "image": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string"
+                          }
+                        ]
+                      ],
+                      "key_name": "string",
+                      "locked": "bool",
+                      "metadata": [
+                        "map",
+                        "string"
+                      ],
+                      "name": "string",
+                      "network_interfaces": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "association": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "public_ip_address": "string"
+                                }
+                              ]
+                            ],
+                            "ip_addresses": [
+                              "list",
+                              "string"
+                            ],
+                            "ipv6_addresses": [
+                              "list",
+                              "string"
+                            ],
+                            "port_id": "string",
+                            "primary": "bool",
+                            "subnet_id": "string"
+                          }
+                        ]
+                      ],
+                      "os_dcf_disk_config": "string",
+                      "os_ext_az_availability_zone": "string",
+                      "os_ext_srv_attr_host": "string",
+                      "os_ext_srv_attr_hostname": "string",
+                      "os_ext_srv_attr_hypervisor_hostname": "string",
+                      "os_ext_srv_attr_instance_name": "string",
+                      "os_ext_srv_attr_kernel_id": "string",
+                      "os_ext_srv_attr_launch_index": "number",
+                      "os_ext_srv_attr_ramdisk_id": "string",
+                      "os_ext_srv_attr_reservation_id": "string",
+                      "os_ext_srv_attr_root_device_name": "string",
+                      "os_ext_srv_attr_user_data": "string",
+                      "os_ext_sts_power_state": "number",
+                      "os_ext_sts_task_state": "string",
+                      "os_ext_sts_vm_state": "string",
+                      "os_extended_volumes_volumes_attached": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "boot_index": "string",
+                            "delete_on_termination": "string",
+                            "device": "string",
+                            "id": "string"
+                          }
+                        ]
+                      ],
+                      "os_scheduler_hints": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "dedicated_host_id": [
+                              "list",
+                              "string"
+                            ],
+                            "group": [
+                              "list",
+                              "string"
+                            ],
+                            "tenancy": [
+                              "list",
+                              "string"
+                            ]
+                          }
+                        ]
+                      ],
+                      "os_srv_usg_launched_at": "string",
+                      "os_srv_usg_terminated_at": "string",
+                      "progress": "number",
+                      "security_groups": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "id": "string",
+                            "name": "string"
+                          }
+                        ]
+                      ],
+                      "security_options": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "secure_boot_enabled": "bool",
+                            "tpm_enabled": "bool"
+                          }
+                        ]
+                      ],
+                      "status": "string",
+                      "sys_tags": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "key": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ],
+                      "tags": [
+                        "list",
+                        "string"
+                      ],
+                      "updated": "string",
+                      "user_id": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the ECS information.",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the queries ECSs with tags containing the specified value.",
+                "optional": true
+              },
+              "tags_key": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the queries ECSs with tags containing the specified key.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "ECS",
+            "name": "Elastic Cloud Server",
+            "catalog": "Compute",
+            "name_cn": "弹性云服务器",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

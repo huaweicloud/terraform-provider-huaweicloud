@@ -1,0 +1,85 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cpcs_app_access_key": {
+          "block": {
+            "attributes": {
+              "access_key": {
+                "type": "string",
+                "description": "Specifies the access key AK. If omitted, the system will automatically generate it.",
+                "optional": true,
+                "computed": true,
+                "sensitive": true
+              },
+              "app_id": {
+                "type": "string",
+                "description": "Specifies the application ID to which the access key belongs.",
+                "required": true
+              },
+              "app_name": {
+                "type": "string",
+                "description": "The name of the application to which the access key belongs.",
+                "computed": true
+              },
+              "create_time": {
+                "type": "number",
+                "description": "The creation time of the access key, UNIX timestamp in milliseconds.",
+                "computed": true
+              },
+              "download_time": {
+                "type": "number",
+                "description": "The time when the access key was downloaded, UNIX timestamp in milliseconds.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_downloaded": {
+                "type": "bool",
+                "description": "Whether the access key has been downloaded.",
+                "computed": true
+              },
+              "is_imported": {
+                "type": "bool",
+                "description": "Whether the access key is imported.",
+                "computed": true
+              },
+              "key_name": {
+                "type": "string",
+                "description": "Specifies the access key name.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to create the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "secret_key": {
+                "type": "string",
+                "description": "Specifies the access key SK. If omitted, the system will automatically generate it.",
+                "optional": true,
+                "computed": true,
+                "sensitive": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies the status of the access key.",
+                "optional": true,
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CPCS",
+            "name": "Data Encryption Workshop CPCS",
+            "catalog": "Security & Compliance",
+            "name_cn": "密码安全中心-云平台密码系统服务",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

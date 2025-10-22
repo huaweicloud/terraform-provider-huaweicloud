@@ -20,6 +20,10 @@
                 "type": "string",
                 "computed": true
               },
+              "delete_propagation_policy": {
+                "type": "string",
+                "optional": true
+              },
               "generation": {
                 "type": "number",
                 "computed": true

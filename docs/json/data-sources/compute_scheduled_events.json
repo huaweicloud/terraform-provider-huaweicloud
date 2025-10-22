@@ -1,0 +1,116 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_compute_scheduled_events": {
+          "block": {
+            "attributes": {
+              "event_id": {
+                "type": "string",
+                "description": "Specifies the event ID.",
+                "optional": true
+              },
+              "events": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "description": "string",
+                      "execute_options": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "device": "string",
+                            "executor": "string",
+                            "migrate_policy": "string",
+                            "resize_target_flavor_id": "string",
+                            "serial_number": "string",
+                            "wwn": "string"
+                          }
+                        ]
+                      ],
+                      "finish_time": "string",
+                      "id": "string",
+                      "instance_id": "string",
+                      "not_after": "string",
+                      "not_before": "string",
+                      "not_before_deadline": "string",
+                      "publish_time": "string",
+                      "source": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "host_scheduled_event_id": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "start_time": "string",
+                      "state": "string",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the event list.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the instance ID.",
+                "optional": true
+              },
+              "publish_since": {
+                "type": "string",
+                "description": "Specifies the start time of publishing an event. The value is filtered by time range.",
+                "optional": true
+              },
+              "publish_until": {
+                "type": "string",
+                "description": "Specifies the end time of publishing an event. The value is filtered by time range.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "state": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the event status.",
+                "optional": true
+              },
+              "type": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the event type.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "ECS",
+            "name": "Elastic Cloud Server",
+            "catalog": "Compute",
+            "name_cn": "弹性云服务器",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

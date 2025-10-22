@@ -1,0 +1,97 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cdn_certificate_associate_domains": {
+          "block": {
+            "attributes": {
+              "access_origin_way": {
+                "type": "number",
+                "description": "The origin protocol configuration.",
+                "optional": true,
+                "default": 2
+              },
+              "cert_name": {
+                "type": "string",
+                "description": "The certificate name.",
+                "optional": true
+              },
+              "certificate": {
+                "type": "string",
+                "description": "The SSL certificate content in PEM format.",
+                "optional": true,
+                "sensitive": true
+              },
+              "certificate_type": {
+                "type": "number",
+                "description": "The certificate type.",
+                "optional": true,
+                "default": 0
+              },
+              "domain_names": {
+                "type": "string",
+                "description": "The list of domain names to associate with the certificate.",
+                "required": true
+              },
+              "force_redirect_https": {
+                "type": "number",
+                "description": "Whether to enable HTTPS force redirect.",
+                "optional": true,
+                "default": 0
+              },
+              "http2": {
+                "type": "number",
+                "description": "The HTTP/2 protocol switch.",
+                "optional": true,
+                "default": 0
+              },
+              "https_switch": {
+                "type": "number",
+                "description": "The HTTPS certificate configuration switch.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "private_key": {
+                "type": "string",
+                "description": "The SSL certificate private key content in PEM format.",
+                "optional": true,
+                "sensitive": true
+              }
+            },
+            "block_types": {
+              "force_redirect_config": {
+                "block": {
+                  "attributes": {
+                    "redirect_type": {
+                      "type": "string",
+                      "description": "The redirect type.",
+                      "optional": true
+                    },
+                    "switch": {
+                      "type": "number",
+                      "description": "The force redirect switch.",
+                      "required": true
+                    }
+                  },
+                  "description": "The force redirect configuration."
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "CDN",
+            "name": "Content Delivery Network",
+            "catalog": "Content Delivery & Edge Computing",
+            "name_cn": "内容分发网络",
+            "catalog_cn": "CDN与智能边缘"
+          }
+        }
+      }
+    }
+  }
+}

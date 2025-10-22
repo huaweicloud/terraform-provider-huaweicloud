@@ -1,0 +1,131 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_swr_enterprise_retention_policies": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the enterprise instance ID.",
+                "required": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the trigger name.",
+                "optional": true
+              },
+              "namespace_id": {
+                "type": "string",
+                "description": "Specifies the namespace ID.",
+                "optional": true
+              },
+              "policies": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "algorithm": "string",
+                      "enabled": "bool",
+                      "id": "number",
+                      "name": "string",
+                      "namespace_id": "number",
+                      "namespace_name": "string",
+                      "rules": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "action": "string",
+                            "disabled": "bool",
+                            "id": "number",
+                            "params": [
+                              "map",
+                              "string"
+                            ],
+                            "priority": "number",
+                            "repo_scope_mode": "string",
+                            "scope_selectors": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "key": "string",
+                                  "value": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "decoration": "string",
+                                        "extras": "string",
+                                        "kind": "string",
+                                        "pattern": "string"
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ],
+                            "tag_selectors": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "decoration": "string",
+                                  "extras": "string",
+                                  "kind": "string",
+                                  "pattern": "string"
+                                }
+                              ]
+                            ],
+                            "template": "string"
+                          }
+                        ]
+                      ],
+                      "trigger": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "trigger_settings": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "cron": "string"
+                                }
+                              ]
+                            ],
+                            "type": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "Indicates the policies.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "SWR",
+            "name": "Software Repository for Container",
+            "catalog": "Containers",
+            "name_cn": "容器镜像服务",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

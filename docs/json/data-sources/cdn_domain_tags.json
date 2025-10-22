@@ -9,11 +9,6 @@
                 "type": "string",
                 "computed": true
               },
-              "region": {
-                "type": "string",
-                "description": "The region where the domain tags are located.",
-                "computed": true
-              },
               "resource_id": {
                 "type": "string",
                 "description": "The ID of the domain to query tags.",

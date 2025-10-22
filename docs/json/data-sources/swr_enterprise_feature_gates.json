@@ -1,0 +1,45 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_swr_enterprise_feature_gates": {
+          "block": {
+            "attributes": {
+              "cer_available": {
+                "type": "bool",
+                "description": "Indicates whether the SWR enterprise feature is enabled.",
+                "computed": true
+              },
+              "enable_enterprise": {
+                "type": "bool",
+                "description": "Indicates whether the enterprise project is enabled.",
+                "computed": true
+              },
+              "enable_user_def_obs": {
+                "type": "bool",
+                "description": "Indicates whether the OBS bucket is enabled.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "SWR",
+            "name": "Software Repository for Container",
+            "catalog": "Containers",
+            "name_cn": "容器镜像服务",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

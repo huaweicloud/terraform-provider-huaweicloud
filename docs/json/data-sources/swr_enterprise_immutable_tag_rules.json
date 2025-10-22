@@ -1,0 +1,91 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_swr_enterprise_immutable_tag_rules": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the enterprise instance ID.",
+                "required": true
+              },
+              "namespace_id": {
+                "type": "string",
+                "description": "Specifies the enterprise instance namespace ID.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "rules": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "action": "string",
+                      "disabled": "bool",
+                      "id": "number",
+                      "namespace_id": "number",
+                      "namespace_name": "string",
+                      "priority": "number",
+                      "scope_selectors": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "key": "string",
+                            "value": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "decoration": "string",
+                                  "extras": "string",
+                                  "kind": "string",
+                                  "pattern": "string"
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "tag_selectors": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "decoration": "string",
+                            "extras": "string",
+                            "kind": "string",
+                            "pattern": "string"
+                          }
+                        ]
+                      ],
+                      "template": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the immutable tag rules.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "SWR",
+            "name": "Software Repository for Container",
+            "catalog": "Containers",
+            "name_cn": "容器镜像服务",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

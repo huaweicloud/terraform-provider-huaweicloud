@@ -1,0 +1,89 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_evs_recycle_bin_volume_detail": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "volume": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "attachments": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "attached_at": "string",
+                            "attachment_id": "string",
+                            "device": "string",
+                            "host_name": "string",
+                            "id": "string",
+                            "server_id": "string",
+                            "volume_id": "string"
+                          }
+                        ]
+                      ],
+                      "availability_zone": "string",
+                      "bootable": "string",
+                      "created_at": "string",
+                      "dedicated_storage_id": "string",
+                      "dedicated_storage_name": "string",
+                      "description": "string",
+                      "enterprise_project_id": "string",
+                      "id": "string",
+                      "metadata": [
+                        "map",
+                        "string"
+                      ],
+                      "multiattach": "bool",
+                      "name": "string",
+                      "plan_delete_at": "string",
+                      "pre_deleted_at": "string",
+                      "service_type": "string",
+                      "size": "number",
+                      "status": "string",
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "updated_at": "string",
+                      "volume_image_metadata": [
+                        "map",
+                        "string"
+                      ],
+                      "volume_type": "string",
+                      "wwn": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "volume_id": {
+                "type": "string",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "EVS",
+            "name": "Elastic Volume Service",
+            "catalog": "Storage",
+            "name_cn": "云硬盘",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}

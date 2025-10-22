@@ -1,0 +1,53 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_compute_auto_launch_group_instances": {
+          "block": {
+            "attributes": {
+              "auto_launch_group_id": {
+                "type": "string",
+                "description": "Specifies the ID of the auto launch group.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instances": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "availability_zone_id": "string",
+                      "flavor_id": "string",
+                      "id": "string",
+                      "name": "string",
+                      "sell_mode": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of the instance created by the auto launch group.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "ECS",
+            "name": "Elastic Cloud Server",
+            "catalog": "Compute",
+            "name_cn": "弹性云服务器",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

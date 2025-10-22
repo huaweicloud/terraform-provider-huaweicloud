@@ -1,0 +1,66 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cpcs_app": {
+          "block": {
+            "attributes": {
+              "app_name": {
+                "type": "string",
+                "description": "Specifies the application name.",
+                "required": true
+              },
+              "create_time": {
+                "type": "number",
+                "description": "The creation time of the application, UNIX timestamp in milliseconds.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the application description.",
+                "optional": true,
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to create the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "description": "Specifies the ID of the subnet to which the application belongs.",
+                "required": true
+              },
+              "subnet_name": {
+                "type": "string",
+                "description": "Specifies the name of the subnet to which the application belongs.",
+                "required": true
+              },
+              "vpc_id": {
+                "type": "string",
+                "description": "Specifies the ID of the VPC to which the application belongs.",
+                "required": true
+              },
+              "vpc_name": {
+                "type": "string",
+                "description": "Specifies the name of the VPC to which the application belongs.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "CPCS",
+            "name": "Data Encryption Workshop CPCS",
+            "catalog": "Security & Compliance",
+            "name_cn": "密码安全中心-云平台密码系统服务",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

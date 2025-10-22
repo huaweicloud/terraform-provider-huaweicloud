@@ -1,0 +1,65 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_hss_kubernetes_services": {
+          "block": {
+            "attributes": {
+              "cluster_name": {
+                "type": "string",
+                "optional": true
+              },
+              "enterprise_project_id": {
+                "type": "string",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "optional": true
+              },
+              "namespace": {
+                "type": "string",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "service_info_list": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cluster_ip": "string",
+                      "cluster_name": "string",
+                      "cluster_type": "string",
+                      "creation_timestamp": "number",
+                      "endpoint_name": "string",
+                      "id": "string",
+                      "name": "string",
+                      "namespace": "string",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "HSS",
+            "name": "Host Security Service",
+            "catalog": "Security & Compliance",
+            "name_cn": "企业主机安全",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

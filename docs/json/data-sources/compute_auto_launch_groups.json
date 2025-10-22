@@ -1,0 +1,64 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_compute_auto_launch_groups": {
+          "block": {
+            "attributes": {
+              "auto_launch_groups": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "id": "string",
+                      "name": "string",
+                      "status": "string",
+                      "task_state": "string",
+                      "type": "string",
+                      "valid_since": "string",
+                      "valid_until": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of auto launch groups.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the auto launch group.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "valid_since": {
+                "type": "string",
+                "description": "Specifies the request start time.",
+                "optional": true
+              },
+              "valid_until": {
+                "type": "string",
+                "description": "Specifies the request end time.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "ECS",
+            "name": "Elastic Cloud Server",
+            "catalog": "Compute",
+            "name_cn": "弹性云服务器",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}

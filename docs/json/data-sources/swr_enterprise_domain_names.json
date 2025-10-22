@@ -1,0 +1,63 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_swr_enterprise_domain_names": {
+          "block": {
+            "attributes": {
+              "domain_name": {
+                "type": "string",
+                "description": "Specifies the domain name.",
+                "optional": true
+              },
+              "domain_name_infos": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "certificate_id": "string",
+                      "created_at": "string",
+                      "domain_name": "string",
+                      "type": "string",
+                      "uid": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the domain name infos.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the enterprise instance ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "uid": {
+                "type": "string",
+                "description": "Specifies the domain name ID.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "SWR",
+            "name": "Software Repository for Container",
+            "catalog": "Containers",
+            "name_cn": "容器镜像服务",
+            "catalog_cn": "容器"
+          }
+        }
+      }
+    }
+  }
+}

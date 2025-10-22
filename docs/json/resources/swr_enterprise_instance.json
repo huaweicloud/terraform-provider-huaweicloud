@@ -40,6 +40,16 @@
                 "description": "Specifies the description.",
                 "optional": true
               },
+              "enable_combination_retention": {
+                "type": "bool",
+                "description": "Indicates whether the retention rule supports combination retention.",
+                "computed": true
+              },
+              "enable_domain_name": {
+                "type": "bool",
+                "description": "Indicates whether the doamin name management is enabled.",
+                "computed": true
+              },
               "encrypt_type": {
                 "type": "string",
                 "description": "Specifies the encrypt type.",

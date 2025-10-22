@@ -1,0 +1,139 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_compute_resize_flavors": {
+          "block": {
+            "attributes": {
+              "flavors": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "disk": "string",
+                      "extra_specs": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "cond_compute": "string",
+                            "cond_compute_live_resizable": "string",
+                            "cond_network": "string",
+                            "cond_operation_az": "string",
+                            "cond_operation_charge": "string",
+                            "cond_operation_charge_stop": "string",
+                            "cond_operation_roles": "string",
+                            "cond_operation_status": "string",
+                            "cond_spot_operation_az": "string",
+                            "cond_spot_operation_status": "string",
+                            "cond_storage": "string",
+                            "cond_storage_type": "string",
+                            "ecs_generation": "string",
+                            "ecs_instance_architecture": "string",
+                            "ecs_performancetype": "string",
+                            "ecs_virtualization_env_types": "string",
+                            "extra_spec_io_persistent_grant": "string",
+                            "hpet_support": "string",
+                            "hw_numa_nodes": "string",
+                            "info_asic_accelerators": "string",
+                            "info_cpu_name": "string",
+                            "info_features": "string",
+                            "info_gpu_name": "string",
+                            "info_gpus": "string",
+                            "instance_vnic_instance_bandwidth": "string",
+                            "instance_vnic_max_count": "string",
+                            "instance_vnic_type": "string",
+                            "network_interface_traffic_mirroring_supported": "string",
+                            "pci_passthrough_alias": "string",
+                            "pci_passthrough_enable_gpu": "string",
+                            "pci_passthrough_gpu_specs": "string",
+                            "quota_gpu": "string",
+                            "quota_local_disk": "string",
+                            "quota_max_pps": "string",
+                            "quota_max_rate": "string",
+                            "quota_min_rate": "string",
+                            "quota_nvme_ssd": "string",
+                            "quota_sub_network_interface_max_num": "string",
+                            "quota_vif_max_num": "string",
+                            "resource_type": "string",
+                            "security_enclave_supported": "string"
+                          }
+                        ]
+                      ],
+                      "id": "string",
+                      "links": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "href": "string",
+                            "rel": "string",
+                            "type": "string"
+                          }
+                        ]
+                      ],
+                      "name": "string",
+                      "os_flavor_access_is_public": "bool",
+                      "os_flv_disabled_disabled": "bool",
+                      "os_flv_ext_data_ephemeral": "number",
+                      "ram": "number",
+                      "rxtx_cap": "string",
+                      "rxtx_factor": "number",
+                      "rxtx_quota": "string",
+                      "swap": "string",
+                      "vcpus": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the ECS flavors.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_uuid": {
+                "type": "string",
+                "description": "Specifies the target ECS ID in UUID format.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "sort_dir": {
+                "type": "string",
+                "description": "Specifies the sorting of ECS flavors.",
+                "optional": true
+              },
+              "sort_key": {
+                "type": "string",
+                "description": "Specifies the field for sorting.",
+                "optional": true
+              },
+              "source_flavor_id": {
+                "type": "string",
+                "description": "Specifies the source flavor ID.",
+                "optional": true
+              },
+              "source_flavor_name": {
+                "type": "string",
+                "description": "Specifies the source flavor name.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "ECS",
+            "name": "Elastic Cloud Server",
+            "catalog": "Compute",
+            "name_cn": "弹性云服务器",
+            "catalog_cn": "计算"
+          }
+        }
+      }
+    }
+  }
+}
