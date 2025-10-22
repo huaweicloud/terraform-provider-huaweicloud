@@ -610,6 +610,7 @@ var (
 	HW_EVS_RECYCLE_BIN_VOLUME_ID    = os.Getenv("HW_EVS_RECYCLE_BIN_VOLUME_ID")
 
 	HW_ECS_LAUNCH_TEMPLATE_ID = os.Getenv("HW_ECS_LAUNCH_TEMPLATE_ID")
+	HW_ECS_LAUNCH_GROUP_ID    = os.Getenv("HW_ECS_LAUNCH_GROUP_ID")
 	HW_ECS_ID                 = os.Getenv("HW_ECS_ID")
 	HW_ECS_ROOT_PWD           = os.Getenv("HW_ECS_ROOT_PWD")
 	HW_ECS_SCHEDULED_EVENT_ID = os.Getenv("HW_ECS_SCHEDULED_EVENT_ID")
@@ -3285,6 +3286,13 @@ func TestAccPreCheckAKAndSK(t *testing.T) {
 func TestAccPreCheckECSLaunchTemplateID(t *testing.T) {
 	if HW_ECS_LAUNCH_TEMPLATE_ID == "" {
 		t.Skip("HW_ECS_LAUNCH_TEMPLATE_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckECSLaunchGroupID(t *testing.T) {
+	if HW_ECS_LAUNCH_GROUP_ID == "" {
+		t.Skip("HW_ECS_LAUNCH_GROUP_ID must be set for the acceptance test")
 	}
 }
 
