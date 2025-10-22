@@ -108,6 +108,10 @@ func ResourceV2Deployment() *schema.Resource {
 					},
 				},
 			},
+			"delete_propagation_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"api_version": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -819,6 +823,7 @@ func resourceV2DeploymentRead(_ context.Context, d *schema.ResourceData, meta in
 		d.Set("progress_deadline_seconds", int(utils.PathSearch("spec.progressDeadlineSeconds", resp, float64(0)).(float64))),
 		d.Set("selector", flattenLabelSelector(utils.PathSearch("spec.selector", resp, nil))),
 		d.Set("template", flattenSpecTemplate(utils.PathSearch("spec.template", resp, nil))),
+		d.Set("delete_propagation_policy", d.Get("delete_propagation_policy")),
 		d.Set("strategy", flattenSpecStrategy(utils.PathSearch("spec.strategy", resp, nil))),
 		d.Set("progress_deadline_seconds", int(utils.PathSearch("spec.progressDeadlineSeconds", resp, float64(0)).(float64))),
 		d.Set("status", flattenDeploymentStatus(utils.PathSearch("status", resp, nil))),
@@ -1165,6 +1170,13 @@ func resourceV2DeploymentDelete(ctx context.Context, d *schema.ResourceData, met
 		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
+	if v, ok := d.GetOk("delete_propagation_policy"); ok {
+		deleteV2DeploymentOpt.JSONBody = map[string]interface{}{
+			"kind":              "DeleteOptions",
+			"apiVersion":        "v1",
+			"propagationPolicy": v.(string),
+		}
+	}
 	_, err = client.Request("DELETE", deleteV2DeploymentPath, &deleteV2DeploymentOpt)
 	if err != nil {
 		return diag.Errorf("error deleting CCI v2 Deployment: %s", err)
