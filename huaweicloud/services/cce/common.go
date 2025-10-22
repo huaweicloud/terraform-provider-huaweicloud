@@ -71,22 +71,10 @@ func resourceNodeExtendParamsSchema(conflictList []string) *schema.Schema {
 				"market_type": {
 					Type:     schema.TypeString,
 					Optional: true,
-					Description: utils.SchemaDesc(
-						"",
-						utils.SchemaDescInput{
-							Internal: true,
-						},
-					),
 				},
 				"spot_price": {
 					Type:     schema.TypeString,
 					Optional: true,
-					Description: utils.SchemaDesc(
-						"",
-						utils.SchemaDescInput{
-							Internal: true,
-						},
-					),
 				},
 			},
 		},
@@ -163,23 +151,11 @@ func resourceNodePoolExtendParamsSchema(conflictList []string) *schema.Schema {
 					Type:     schema.TypeString,
 					Optional: true,
 					Computed: true,
-					Description: utils.SchemaDesc(
-						"",
-						utils.SchemaDescInput{
-							Internal: true,
-						},
-					),
 				},
 				"spot_price": {
 					Type:     schema.TypeString,
 					Optional: true,
 					Computed: true,
-					Description: utils.SchemaDesc(
-						"",
-						utils.SchemaDescInput{
-							Internal: true,
-						},
-					),
 				},
 			},
 		},
