@@ -35,6 +35,10 @@ func ResourceV2HPA() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceV2HPAImportState,
 		},
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(10 * time.Minute),
+			Delete: schema.DefaultTimeout(10 * time.Minute),
+		},
 
 		CustomizeDiff: config.FlexibleForceNew(hpaNonUpdatableParams),
 
@@ -1161,10 +1165,6 @@ func refreshCreateOrUpdateStatus(client *golangsdk.ServiceClient, ns, name strin
 		status := utils.PathSearch("status.conditions[?type=='ScalingActive'].status|[0]", resp, "").(string)
 		if status == "True" {
 			return resp, "Completed", nil
-		}
-		if status == "False" {
-			message := utils.PathSearch("status.conditions[?type=='ScalingActive'].message|[0]", resp, "").(string)
-			return resp, "ERROR", fmt.Errorf("error waiting for the status: %s", message)
 		}
 
 		return resp, "Pending", nil
