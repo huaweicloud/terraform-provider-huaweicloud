@@ -9,7 +9,9 @@ description: ""
 
 Add a node to a CCE cluster.
 
-## Basic Usage
+## Example Usage
+
+### Basic Usage
 
 ```hcl
 variable "cluster_id" {}
@@ -48,7 +50,7 @@ resource "huaweicloud_cce_node" "node" {
 }
 ```
 
-## Node with Eip
+### Node with Eip
 
 ```hcl
 variable "cluster_id" {}
@@ -93,7 +95,7 @@ resource "huaweicloud_cce_node" "mynode" {
 }
 ```
 
-## Node with Existing Eip
+### Node with Existing Eip
 
 ```hcl
 variable "cluster_id" {}
@@ -147,7 +149,7 @@ resource "huaweicloud_cce_node" "mynode" {
 }
 ```
 
-## Node with storage configuration
+### Node with storage configuration
 
 ```hcl
 variable "cluster_id" {}
@@ -241,6 +243,50 @@ resource "huaweicloud_cce_node" "mynode" {
         lvm_path    = "/workspace"
       }
     }
+  }
+}
+```
+
+### Spot Node
+
+```hcl
+variable "cluster_id" {}
+variable "node_name" {}
+variable "keypair_name" {}
+
+data "huaweicloud_availability_zones" "myaz" {}
+
+data "huaweicloud_compute_flavors" "myflavors" {
+  availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
+  performance_type  = "normal"
+  cpu_core_count    = 2
+  memory_size       = 4
+}
+
+resource "huaweicloud_kps_keypair" "mykp" {
+  name       = var.keypair_name
+  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDAjpC1hwiOCCmKEWxJ4qzTTsJbKzndLo1BCz5PcwtUnflmU+gHJtWMZKpuEGVi29h0A/+ydKek1O18k10Ff+4tyFjiHDQAT9+OfgWf7+b1yK+qDip3X1C0UPMbwHlTfSGWLGZquwhvEFx9k3h/M+VtMvwR1lJ9LUyTAImnNjWG7TAIPmui30HvM2UiFEmqkr4ijq45MyX2+fLIePLRIFuu1p4whjHAQYufqyno3BS48icQb4p6iVEZPo4AE2o9oIyQvj2mx4dk5Y8CgSETOZTYDOR3rU2fZTRDRgPJDH9FWvQjF5tA0p3d9CoWWd2s6GKKbfoUIi8R/Db1BSPJwkqB jrp-hp-pc"
+}
+
+resource "huaweicloud_cce_node" "node" {
+  cluster_id        = var.cluster_id
+  name              = var.node_name
+  flavor_id         = data.huaweicloud_compute_flavors.myflavors.ids[0]
+  availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
+  key_pair          = huaweicloud_kps_keypair.mykp.name
+
+  root_volume {
+    size       = 40
+    volumetype = "SATA"
+  }
+  data_volumes {
+    size       = 100
+    volumetype = "SATA"
+  }
+
+  extend_params {
+    market_type = "spot"
+    spot_price  = "0.83"
   }
 }
 ```
@@ -442,6 +488,11 @@ The `extend_params` block supports:
 
 * `security_reinforcement_type` - (Optional, String, NonUpdatable) Specifies the security reinforcement type.
   The value can be: **null** or **cybersecurity**.
+
+* `market_type` - (Optional, String, NonUpdatable) Specifies the market type. When creating a spot node,
+  this parameter should be set to **spot**.
+
+* `spot_price` - (Optional, String, NonUpdatable) Specifies the highest price per hour a user accepts for a spot node.
 
 The `selectors` block supports:
 

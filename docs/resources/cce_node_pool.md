@@ -44,7 +44,7 @@ resource "huaweicloud_cce_node_pool" "node_pool" {
 }
 ```
 
-## Node pool with storage configuration
+### Node pool with storage configuration
 
 ```hcl
 variable "cluster_id"
@@ -249,6 +249,44 @@ resource "huaweicloud_cce_node_pool" "node_pool" {
         enable             = true
       }
     }
+  }
+}
+```
+
+### Spot Node Pool
+
+```hcl
+variable "cluster_id" {}
+variable "key_pair" {}
+variable "availability_zone" {}
+
+resource "huaweicloud_cce_node_pool" "node_pool" {
+  cluster_id               = var.cluster_id
+  name                     = "testpool"
+  os                       = "EulerOS 2.5"
+  initial_node_count       = 2
+  flavor_id                = "s3.large.4"
+  availability_zone        = var.availability_zone
+  key_pair                 = var.keypair
+  scall_enable             = true
+  min_node_count           = 1
+  max_node_count           = 10
+  scale_down_cooldown_time = 100
+  priority                 = 1
+  type                     = "vm"
+
+  root_volume {
+    size       = 40
+    volumetype = "SAS"
+  }
+  data_volumes {
+    size       = 100
+    volumetype = "SAS"
+  }
+
+  extend_params {
+    market_type = "spot"
+    spot_price  = "0.83"
   }
 }
 ```
@@ -473,6 +511,11 @@ The `extend_params` block supports:
 
 * `security_reinforcement_type` - (Optional, String, NonUpdatable) Specifies the security reinforcement type.
   The value can be: **null** or **cybersecurity**.
+
+* `market_type` - (Optional, String, NonUpdatable) Specifies the market type. When creating a spot node pool,
+  this parameter should be set to **spot**.
+
+* `spot_price` - (Optional, String, NonUpdatable) Specifies the highest price per hour a user accepts for a spot node.
 
 The `selectors` block supports:
 
