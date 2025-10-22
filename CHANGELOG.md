@@ -1,5 +1,60 @@
 # CHANGELOG
 
+## 1.79.2 (October 22, 2025)
+
+* **New Resource Source:**
+  + `huaweicloud_cdn_certificate_associate_domains` [GH-8061]
+  + `huaweicloud_cdn_domain_batch_copy` [GH-8076]
+  + `huaweicloud_compute_instance_redeploy` [GH-8100]
+  + `huaweicloud_compute_recycle_bin_server_delete` [GH-8080]
+  + `huaweicloud_compute_recycle_bin_server_recover` [GH-8080]
+  + `huaweicloud_compute_scheduled_event_accept` [GH-8103]
+  + `huaweicloud_compute_scheduled_event_update` [GH-8108]
+  + `huaweicloud_cpcs_app_access_key` [GH-8124]
+  + `huaweicloud_cpcs_app` [GH-8115]
+  + `huaweicloud_evs_recycle_bin_policy` [GH-8116]
+  + `huaweicloud_evs_recycle_bin_volume_delete` [GH-8120]
+  + `huaweicloud_hss_app_whitelist_policy_process` [GH-8105]
+  + `huaweicloud_hss_container_network_policy_sync` [GH-8099]
+  + `huaweicloud_swr_enterprise_immutable_tag_rule` [GH-8107]
+  + `huaweicloud_swr_enterprise_retention_policy_execute` [GH-8083]
+  + `huaweicloud_swr_enterprise_retention_policy` [GH-8091]
+
+* **New Data Source:**
+  + `huaweicloud_cdn_top_referrer_statistics` [GH-8056]
+  + `huaweicloud_cdn_top_url_statistics` [GH-8056]
+  + `huaweicloud_compute_auto_launch_group_instances` [GH-8117]
+  + `huaweicloud_compute_auto_launch_groups` [GH-8117]
+  + `huaweicloud_compute_availability_zones` [GH-8117]
+  + `huaweicloud_compute_recycle_bin_servers` [GH-8117]
+  + `huaweicloud_compute_resize_flavors` [GH-8117]
+  + `huaweicloud_compute_scheduled_events` [GH-8117]
+  + `huaweicloud_cpcs_apps` [GH-8115]
+  + `huaweicloud_evs_recycle_bin_policy` [GH-8116]
+  + `huaweicloud_evs_recycle_bin_volume_detail` [GH-8118]
+  + `huaweicloud_evs_recycle_bin_volumes_detail` [GH-8116]
+  + `huaweicloud_hss_antivirus_pay_per_scan_free_quotas` [GH-8085]
+  + `huaweicloud_hss_app_whitelist_associate_hosts` [GH-8089]
+  + `huaweicloud_hss_app_whitelist_optional_hosts` [GH-8089]
+  + `huaweicloud_hss_app_whitelist_policies` [GH-8073]
+  + `huaweicloud_hss_app_whitelist_policy_process_extend` [GH-8105]
+  + `huaweicloud_hss_asset_kernel_module_hosts` [GH-8064]
+  + `huaweicloud_hss_asset_kernel_module_statistics` [GH-8067]
+  + `huaweicloud_hss_asset_overview_status_container_protection` [GH-8071]
+  + `huaweicloud_hss_asset_process_detail` [GH-8095]
+  + `huaweicloud_hss_asset_process_statistics` [GH-8082]
+  + `huaweicloud_hss_baseline_white_lists` [GH-8071]
+  + `huaweicloud_hss_container_iac_files` [GH-8071]
+  + `huaweicloud_hss_files_change_hosts` [GH-8101]
+  + `huaweicloud_hss_kubernetes_pod_detail` [GH-8096]
+  + `huaweicloud_hss_kubernetes_services` [GH-8094]
+  + `huaweicloud_hss_webtamper_host_management_hosts` [GH-8084]
+  + `huaweicloud_swr_enterprise_domain_names` [GH-8122]
+  + `huaweicloud_swr_enterprise_feature_gates` [GH-8112]
+  + `huaweicloud_swr_enterprise_immutable_tag_rules` [GH-8107]
+  + `huaweicloud_swr_enterprise_retention_policies` [GH-8091]
+  + `huaweicloud_swr_enterprise_retention_policy_execution_records` [GH-8091]
+
 ## 1.79.1 (October 14, 2025)
 
 * **New Resource Source:**
