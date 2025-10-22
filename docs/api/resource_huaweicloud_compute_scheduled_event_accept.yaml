@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_compute_scheduled_event_accept
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: ECS
+paths:
+    /v3/{project_id}/instance-scheduled-events/{id}/actions/accept:
+        POST:
+            tag: ECS

@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_cdn_top_referrer_statistics
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CDN
+paths:
+    /v1.0/cdn/statistics/top-refers:
+        GET:
+            tag: CDN

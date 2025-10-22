@@ -17,6 +17,12 @@ paths:
     /v1/{project_id}/cloudservers/{server_id}/os-interface:
         GET:
             tag: ECS
+    /v1/{project_id}/cloudservers/{server_id}/os-interface/{port_id}:
+        PUT:
+            tag: ECS
+    /v1/{project_id}/cloudservers/{server_id}/os-interface/{port_id}/change-network-interface:
+        POST:
+            tag: ECS
     /v1/{project_id}/jobs/{job_id}:
         GET:
             tag: ECS

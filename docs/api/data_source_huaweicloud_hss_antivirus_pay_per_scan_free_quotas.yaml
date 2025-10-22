@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_hss_antivirus_pay_per_scan_free_quotas
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: HSS
+paths:
+    /v5/{project_id}/antivirus/pay-per-scan/free-quotas:
+        GET:
+            tag: HSS

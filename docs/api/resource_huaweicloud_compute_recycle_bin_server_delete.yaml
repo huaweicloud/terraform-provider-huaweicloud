@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_compute_recycle_bin_server_delete
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: ECS
+paths:
+    /v1/{project_id}/recycle-bin/cloudservers/{server_id}:
+        DELETE:
+            tag: ECS

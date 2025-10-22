@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_hss_app_whitelist_policy_process
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: HSS
+paths:
+    /v5/{project_id}/app/{policy_id}/process:
+        PUT:
+            tag: HSS

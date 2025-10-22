@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_compute_recycle_bin_servers
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: ECS
+paths:
+    /v1/{project_id}/recycle-bin/cloudservers:
+        GET:
+            tag: ECS

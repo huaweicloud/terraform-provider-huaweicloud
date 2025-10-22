@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cdn_certificate_associate_domains
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CDN
+paths:
+    /v1.0/cdn/domains/config-https-info:
+        PUT:
+            tag: CDN

@@ -1,0 +1,18 @@
+info:
+    version: ""
+    title: resource_huaweicloud_compute_recycle_policy
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: ECS
+paths:
+    /v1/{project_id}/recycle-bin:
+        GET:
+            tag: ECS
+        PUT:
+            tag: ECS
+    /v1/{project_id}/recycle-bin/policy:
+        PUT:
+            tag: ECS

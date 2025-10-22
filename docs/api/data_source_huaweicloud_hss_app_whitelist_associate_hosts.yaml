@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_hss_app_whitelist_associate_hosts
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: HSS
+paths:
+    /v5/{project_id}/app/host:
+        GET:
+            tag: HSS

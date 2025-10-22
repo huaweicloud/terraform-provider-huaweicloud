@@ -37,6 +37,9 @@ paths:
             tag: SWR
         PUT:
             tag: SWR
+    /v2/{project_id}/instances/{instance_id}/feature-gates:
+        GET:
+            tag: SWR
     /v2/{project_id}/instances/{instance_id}/statistics:
         GET:
             tag: SWR

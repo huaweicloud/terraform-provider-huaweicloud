@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_compute_scheduled_event_update
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: ECS
+paths:
+    /v3/{project_id}/instance-scheduled-events/{id}:
+        PUT:
+            tag: ECS

@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cdn_domain_batch_copy
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: CDN
+paths:
+    /v1.0/cdn/configuration/domains/batch-copy:
+        POST:
+            tag: CDN

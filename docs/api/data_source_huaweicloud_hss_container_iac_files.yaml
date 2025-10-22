@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_hss_container_iac_files
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: HSS
+paths:
+    /v5/{project_id}/container/iac/files:
+        GET:
+            tag: HSS

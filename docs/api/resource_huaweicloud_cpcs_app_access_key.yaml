@@ -1,0 +1,24 @@
+info:
+    version: ""
+    title: resource_huaweicloud_cpcs_app_access_key
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DEW
+paths:
+    /v1/{project_id}/dew/cpcs/apps/{app_id}/access-keys:
+        GET:
+            tag: DEW
+        POST:
+            tag: DEW
+    /v1/{project_id}/dew/cpcs/apps/{app_id}/access-keys/{access_key_id}:
+        DELETE:
+            tag: DEW
+    /v1/{project_id}/dew/cpcs/apps/{app_id}/access-keys/disable:
+        POST:
+            tag: DEW
+    /v1/{project_id}/dew/cpcs/apps/{app_id}/access-keys/enable:
+        POST:
+            tag: DEW
