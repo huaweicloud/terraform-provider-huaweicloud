@@ -107,7 +107,7 @@ func DataSourceCpcsApps() *schema.Resource {
 }
 
 func buildDataSourceCpcsAppsQueryParams(d *schema.ResourceData, pageNum int) string {
-	rst := ""
+	rst := fmt.Sprintf("?page_num=%d", pageNum)
 
 	if v, ok := d.GetOk("app_name"); ok {
 		rst += fmt.Sprintf("&app_name=%v", v)
@@ -125,24 +125,18 @@ func buildDataSourceCpcsAppsQueryParams(d *schema.ResourceData, pageNum int) str
 		rst += fmt.Sprintf("&sort_dir=%v", v)
 	}
 
-	if pageNum > 0 {
-		rst += fmt.Sprintf("&page_num=%d", pageNum)
-	}
-
-	if len(rst) > 0 {
-		rst = "?" + rst[1:]
-	}
-
 	return rst
 }
 
+// The first page of page_num is `1`. Because of the quality issues of the API, we need to add a quantitative comparison
+// of the value of `total_num`.
 func dataSourceCpcsAppsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg     = meta.(*config.Config)
 		region  = cfg.GetRegion(d)
 		httpUrl = "v1/{project_id}/dew/cpcs/apps"
 		product = "kms"
-		pageNum = 0
+		pageNum = 1
 		allApps = make([]interface{}, 0)
 	)
 
@@ -173,9 +167,14 @@ func dataSourceCpcsAppsRead(_ context.Context, d *schema.ResourceData, meta inte
 		if len(results) == 0 {
 			break
 		}
-
 		allApps = append(allApps, results...)
-		pageNum += len(results)
+
+		totalNum := int(utils.PathSearch("total_num", respBody, float64(0)).(float64))
+		if len(allApps) >= totalNum {
+			break
+		}
+
+		pageNum++
 	}
 
 	generateId, err := uuid.GenerateUUID()
