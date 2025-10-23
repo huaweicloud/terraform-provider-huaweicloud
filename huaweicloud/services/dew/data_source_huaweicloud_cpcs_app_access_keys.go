@@ -106,8 +106,8 @@ func DataSourceCpcsAppAccessKeys() *schema.Resource {
 	}
 }
 
-func buildDataSourceCpcsAppAccessKeysQueryParams(d *schema.ResourceData) string {
-	rst := ""
+func buildDataSourceCpcsAppAccessKeysQueryParams(d *schema.ResourceData, pageNum int) string {
+	rst := fmt.Sprintf("?page_num=%d", pageNum)
 
 	if v, ok := d.GetOk("key_name"); ok {
 		rst += fmt.Sprintf("&key_name=%v", v)
@@ -121,20 +121,19 @@ func buildDataSourceCpcsAppAccessKeysQueryParams(d *schema.ResourceData) string 
 		rst += fmt.Sprintf("&sort_dir=%v", v)
 	}
 
-	if len(rst) > 0 {
-		rst = "?" + rst[1:]
-	}
-
 	return rst
 }
 
-// When calling the API using `page_num`, the API will report a strange error, so the data source will temporarily ignore paging.
+// The first page of page_num is `1`. Because of the quality issues of the API, we need to add a quantitative comparison
+// of the value of `total_num`.
 func dataSourceCpcsAppAccessKeysRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg     = meta.(*config.Config)
-		region  = cfg.GetRegion(d)
-		httpUrl = "v1/{project_id}/dew/cpcs/apps/{app_id}/access-keys"
-		product = "kms"
+		cfg           = meta.(*config.Config)
+		region        = cfg.GetRegion(d)
+		httpUrl       = "v1/{project_id}/dew/cpcs/apps/{app_id}/access-keys"
+		product       = "kms"
+		pageNum       = 1
+		allAccessKeys = make([]interface{}, 0)
 	)
 
 	client, err := cfg.NewServiceClient(product, region)
@@ -145,19 +144,33 @@ func dataSourceCpcsAppAccessKeysRead(_ context.Context, d *schema.ResourceData, 
 	requestPath := client.Endpoint + httpUrl
 	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
 	requestPath = strings.ReplaceAll(requestPath, "{app_id}", d.Get("app_id").(string))
-	requestPath += buildDataSourceCpcsAppAccessKeysQueryParams(d)
 	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 	}
 
-	resp, err := client.Request("GET", requestPath, &requestOpt)
-	if err != nil {
-		return diag.Errorf("error retrieving DEW CPCS app access keys: %s", err)
-	}
+	for {
+		requestPathWithPageNum := requestPath + buildDataSourceCpcsAppAccessKeysQueryParams(d, pageNum)
+		resp, err := client.Request("GET", requestPathWithPageNum, &requestOpt)
+		if err != nil {
+			return diag.Errorf("error retrieving DEW CPCS app access keys: %s", err)
+		}
 
-	respBody, err := utils.FlattenResponse(resp)
-	if err != nil {
-		return diag.Errorf("error flattening DEW CPCS app access keys response: %s", err)
+		respBody, err := utils.FlattenResponse(resp)
+		if err != nil {
+			return diag.Errorf("error flattening DEW CPCS app access keys response: %s", err)
+		}
+
+		results := utils.PathSearch("result", respBody, make([]interface{}, 0)).([]interface{})
+		if len(results) == 0 {
+			break
+		}
+		allAccessKeys = append(allAccessKeys, results...)
+
+		totalNum := int(utils.PathSearch("total_num", respBody, float64(0)).(float64))
+		if len(allAccessKeys) >= totalNum {
+			break
+		}
+		pageNum++
 	}
 
 	generateId, err := uuid.GenerateUUID()
@@ -166,10 +179,9 @@ func dataSourceCpcsAppAccessKeysRead(_ context.Context, d *schema.ResourceData, 
 	}
 	d.SetId(generateId)
 
-	accessKeys := utils.PathSearch("result", respBody, make([]interface{}, 0)).([]interface{})
 	mErr := multierror.Append(
 		d.Set("region", region),
-		d.Set("access_keys", flattenCpcsAppAccessKeysResponseBody(accessKeys)),
+		d.Set("access_keys", flattenCpcsAppAccessKeysResponseBody(allAccessKeys)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
