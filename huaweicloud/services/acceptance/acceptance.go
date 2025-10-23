@@ -421,6 +421,9 @@ var (
 	// The repository of SWR image tag
 	HW_SWR_REPOSITORY = os.Getenv("HW_SWR_REPOSITORY")
 
+	HW_SCM_CERTIFICATE_ID          = os.Getenv("HW_SCM_CERTIFICATE_ID")
+	HW_SCM_CERTIFICATE_DOMAIN_NAME = os.Getenv("HW_SCM_CERTIFICATE_DOMAIN_NAME")
+
 	// The ID of the CBR vault
 	HW_IMS_VAULT_ID = os.Getenv("HW_IMS_VAULT_ID")
 	// The ID of the CBR backup
@@ -2420,6 +2423,20 @@ func TestAccPreCheckSwrOrigination(t *testing.T) {
 func TestAccPreCheckSwrRepository(t *testing.T) {
 	if HW_SWR_REPOSITORY == "" {
 		t.Skip("HW_SWR_REPOSITORY must be set for SWR image tags tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckScmCertificateId(t *testing.T) {
+	if HW_SCM_CERTIFICATE_ID == "" {
+		t.Skip("HW_SCM_CERTIFICATE_ID must be set for tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckScmCertificateDomainName(t *testing.T) {
+	if HW_SCM_CERTIFICATE_DOMAIN_NAME == "" {
+		t.Skip("HW_SCM_CERTIFICATE_DOMAIN_NAME must be set for tests")
 	}
 }
 
