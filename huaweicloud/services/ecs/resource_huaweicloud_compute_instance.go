@@ -1,7 +1,6 @@
 package ecs
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -27,7 +26,6 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
-	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/helper/hashcode"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
@@ -294,9 +292,8 @@ func ResourceComputeInstance() *schema.Resource {
 				},
 			},
 			"scheduler_hints": {
-				Type:     schema.TypeSet,
+				Type:     schema.TypeList,
 				Optional: true,
-				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"group": {
@@ -314,16 +311,14 @@ func ResourceComputeInstance() *schema.Resource {
 						"tenancy": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
+							Computed: true,
 						},
 						"deh_id": {
 							Type:     schema.TypeString,
 							Optional: true,
-							ForceNew: true,
 						},
 					},
 				},
-				Set: resourceComputeSchedulerHintsHash,
 			},
 			"user_data": {
 				Type:     schema.TypeString,
@@ -693,7 +688,7 @@ func resourceComputeInstanceCreate(ctx context.Context, d *schema.ResourceData, 
 		createOpts.MetaData = &metadata
 	}
 
-	schedulerHintsRaw := d.Get("scheduler_hints").(*schema.Set).List()
+	schedulerHintsRaw := d.Get("scheduler_hints").([]interface{})
 	if len(schedulerHintsRaw) > 0 {
 		if m, ok := schedulerHintsRaw[0].(map[string]interface{}); ok {
 			schedulerHints := buildInstanceSchedulerHints(m)
@@ -959,14 +954,18 @@ func resourceComputeInstanceRead(_ context.Context, d *schema.ResourceData, meta
 
 	// set scheduler_hints
 	osHints := server.OsSchedulerHints
-	if len(osHints.Group) > 0 {
-		schedulerHints := make([]map[string]interface{}, len(osHints.Group))
-		for i, v := range osHints.Group {
-			schedulerHints[i] = map[string]interface{}{
-				"group": v,
-			}
+	if len(osHints.Group) > 0 || len(osHints.Tenancy) > 0 || len(osHints.DedicatedHostID) > 0 {
+		schedulerHint := make(map[string]interface{})
+		if len(osHints.Group) > 0 {
+			schedulerHint["group"] = osHints.Group[0]
 		}
-		d.Set("scheduler_hints", schedulerHints)
+		if len(osHints.Tenancy) > 0 {
+			schedulerHint["tenancy"] = osHints.Tenancy[0]
+		}
+		if len(osHints.DedicatedHostID) > 0 {
+			schedulerHint["deh_id"] = osHints.DedicatedHostID[0]
+		}
+		d.Set("scheduler_hints", []map[string]interface{}{schedulerHint})
 	}
 
 	// Set instance tags
@@ -1308,6 +1307,13 @@ func resourceComputeInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 		}
 	}
 
+	if d.HasChanges("scheduler_hints.0.deh_id") {
+		err = updateInstanceDehId(ctx, d, ecsClient)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	return resourceComputeInstanceRead(ctx, d, meta)
 }
 
@@ -1444,6 +1450,66 @@ func buildUpdateInstanceNetworkSecgroupOpts(d *schema.ResourceData) []map[string
 	}
 
 	return bodyParams
+}
+
+func updateInstanceDehId(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
+	httpUrl := "v1/{project_id}/cloudservers/{server_id}/migrate"
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+	updatePath = strings.ReplaceAll(updatePath, "{server_id}", d.Id())
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         buildUpdateInstanceDehIdOpts(d),
+	}
+	updateResp, err := client.Request("POST", updatePath, &updateOpt)
+	if err != nil {
+		return fmt.Errorf("error udpating ECS dedicated host ID: %s", err)
+	}
+
+	updateRespBody, err := utils.FlattenResponse(updateResp)
+	if err != nil {
+		return err
+	}
+	jobID := utils.PathSearch("job_id", updateRespBody, "").(string)
+	if jobID == "" {
+		return errors.New("unable to find the job ID from the API response")
+	}
+
+	// Wait for job status become `SUCCESS`.
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"SUCCESS"},
+		Refresh:      getJobRefreshFunc(client, jobID),
+		Timeout:      d.Timeout(schema.TimeoutUpdate),
+		Delay:        10 * time.Second,
+		PollInterval: 10 * time.Second,
+	}
+	_, err = stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return fmt.Errorf("error waiting for ECS dedicated host ID updated: %s", err)
+	}
+
+	return nil
+}
+
+func buildUpdateInstanceDehIdOpts(d *schema.ResourceData) map[string]interface{} {
+	bodyParam := map[string]interface{}{
+		"migrate": nil,
+	}
+	schedulerHintsRaw := d.Get("scheduler_hints").([]interface{})
+	if len(schedulerHintsRaw) > 0 {
+		if m, ok := schedulerHintsRaw[0].(map[string]interface{}); ok {
+			dedicatedHostId := m["deh_id"]
+			if dedicatedHostId != nil && len(dedicatedHostId.(string)) > 0 {
+				bodyParam["migrate"] = map[string]interface{}{
+					"dedicated_host_id": dedicatedHostId,
+				}
+			}
+		}
+	}
+
+	return bodyParam
 }
 
 func resourceComputeInstanceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -1817,28 +1883,6 @@ func getVpcID(d *schema.ResourceData, client *golangsdk.ServiceClient) (string, 
 	}
 
 	return subnet.VPC_ID, nil
-}
-
-func resourceComputeSchedulerHintsHash(v interface{}) int {
-	var buf bytes.Buffer
-	m, ok := v.(map[string]interface{})
-	if !ok {
-		return 0
-	}
-
-	if m["group"] != nil {
-		buf.WriteString(fmt.Sprintf("%s-", m["group"].(string)))
-	}
-
-	if m["tenancy"] != nil {
-		buf.WriteString(fmt.Sprintf("%s-", m["tenancy"].(string)))
-	}
-
-	if m["deh_id"] != nil {
-		buf.WriteString(fmt.Sprintf("%s-", m["deh_id"].(string)))
-	}
-
-	return hashcode.String(buf.String())
 }
 
 func waitForServerTargetState(ctx context.Context, client *golangsdk.ServiceClient, instanceID string, pending, target []string,

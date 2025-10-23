@@ -500,12 +500,11 @@ The `scheduler_hints` block supports:
 * `group` - (Optional, String, ForceNew) Specifies a UUID of a Server Group.
   The instance will be placed into that group. Changing this creates a new instance.
 
-* `tenancy` - (Optional, String, ForceNew) Specifies the tenancy specifies whether the ECS is to be created on a
-  Dedicated Host
-  (DeH) or in a shared pool. Changing this creates a new instance.
+* `tenancy` - (Optional, String) Specifies the tenancy specifies whether the ECS is to be created on a Dedicated Host(DeH)
+  or in a shared pool. Value options: **share**, **dedicate**.
 
-* `deh_id` - (Optional, String, ForceNew) Specifies the ID of DeH.
-  This parameter takes effect only when the value of tenancy is dedicated. Changing this creates a new instance.
+* `deh_id` - (Optional, String) Specifies the ID of DeH. This parameter takes effect only when the value of tenancy is
+  **dedicated**.
 
 <a name="enclave_options"></a>
 The `enclave_options` block supports:
