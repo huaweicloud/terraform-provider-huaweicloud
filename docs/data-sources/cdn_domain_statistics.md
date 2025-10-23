@@ -2,23 +2,27 @@
 subcategory: Content Delivery Network (CDN)
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_cdn_domain_statistics"
-description: ""
+description: |-
+  Use this data source to get the statistics of CDN domain within HuaweiCloud.
 ---
 
 # huaweicloud_cdn_domain_statistics
 
-Use this data source to get the statistics of CDN domain.
+Use this data source to get the statistics of CDN domain within HuaweiCloud.
 
 ## Example Usage
 
 ```hcl
 variable "domain_name" {}
+variable "action" {}
+variable "start_time" {}
+variable "end_time" {}
 
 data "huaweicloud_cdn_domain_statistics" "test" {
-  domain_name = "terraform.test.huaweicloud.com"
-  action      = "location_detail"
-  start_time  = 1662019200000
-  end_time    = 1662021000000
+  domain_name = var.domain_name
+  action      = var.action
+  start_time  = var.start_time
+  end_time    = var.end_time
   stat_type   = "req_num"
 }
 ```
@@ -31,9 +35,7 @@ The following arguments are supported:
   Domain names are separated by commas (,), for example, `www.test1.com,www.test2.com`.
   The value all indicates that all domain names under your account are queried.
 
-* `action` - (Required, String) Specifies the action name. Possible values are: **location_summary** and **location_detail**.
-
-* `stat_type` - (Required, String) The statistic type.
+* `stat_type` - (Required, String) Specifies the statistic type.
 
   For network resource consumption statistics, the value can be:
   + **bw**: bandwidth
@@ -51,6 +53,11 @@ The following arguments are supported:
   + **status_code_3xx**: details of status code 3xx.
   + **status_code_4xx**: details of status code 4xx.
   + **status_code_5xx**: details of status code 5xx.
+
+* `action` - (Required, String) Specifies the action name.  
+  The valid values are as follows:
+  + **location_summary**
+  + **location_detail**
 
 * `start_time` - (Required, Int) Specifies the start timestamp of the query.
   The timestamp must be set to a multiple of 5 minutes.
@@ -70,10 +77,11 @@ The following arguments are supported:
   + If the value of interval is `86,400`, set this parameter to 00:00:00 (GMT+08:00),
     for example, 1631376000000, which means 2021-09-12 00:00:00.
 
-* `interval` - (Optional, Int) Specifies the query time interval, in seconds, the value can be,
-  + **300**(5 minutes): Maximum query span 2 days
-  + **3600**(1 hour): Maximum query span 7 days
-  + **86400**(1 day): Maximum query span 31 days
+* `interval` - (Optional, Int) Specifies the query time interval, in seconds.  
+  The vaild values are as follows:
+  + **300**(`5` minutes): Maximum query span `2` days
+  + **3,600**(`1` hour): Maximum query span `7` days
+  + **86,400**(`1` day): Maximum query span `31` days
 
   The default is the minimum interval for the corresponding time span.
 
@@ -92,7 +100,7 @@ The following arguments are supported:
   The value all indicates all carrier codes.
   See the [carriers](https://support.huaweicloud.com/intl/en-us/api-cdn/cdn_02_0075.html) for values.
 
-* `enterprise_project_id` - (Optional, String) Specifies the enterprise project that the resource belongs to.
+* `enterprise_project_id` - (Optional, String) Specifies the ID of the enterprise project to which the resource belongs.
   This parameter is valid only when the enterprise project function is enabled.
   The value all indicates all projects. This parameter is mandatory when you use an IAM user.
 

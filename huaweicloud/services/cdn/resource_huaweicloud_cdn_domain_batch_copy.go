@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -27,6 +28,10 @@ func ResourceDomainBatchCopy() *schema.Resource {
 		DeleteContext: resourceDomainBatchCopyDelete,
 
 		CustomizeDiff: config.FlexibleForceNew(domainBatchCopyNonUpdatableParams),
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(30 * time.Minute),
+		},
 
 		Schema: map[string]*schema.Schema{
 			// Required parameters.
@@ -128,6 +133,13 @@ func resourceDomainBatchCopyCreate(ctx context.Context, d *schema.ResourceData, 
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
 	d.SetId(randomUUID)
+
+	domainNameList := strings.Split(d.Get("target_domains").(string), ",")
+	epsID := cfg.GetEnterpriseProjectID(d)
+	if err := waitingForCdnDomainListStatusOnline(ctx, client, domainNameList, epsID,
+		d.Timeout(schema.TimeoutCreate)); err != nil {
+		return diag.Errorf("error waiting for domain (%s) to become online: %s", d.Id(), err)
+	}
 
 	return resourceDomainBatchCopyRead(ctx, d, meta)
 }

@@ -1,8 +1,3 @@
-// ---------------------------------------------------------------
-// *** AUTO GENERATED CODE ***
-// @Product CDN
-// ---------------------------------------------------------------
-
 package cdn
 
 import (
@@ -24,61 +19,66 @@ import (
 func DataSourceBillingOption() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceBillingOptionRead,
+
 		Schema: map[string]*schema.Schema{
+			// Required parameters
 			"product_type": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: `Specifies the product mode.`,
+				Description: `The product mode.`,
 			},
+
+			// Optional parameters
 			"service_area": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				Description: `Specifies the service area.`,
+				Description: `The service area.`,
 			},
 			"status": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				Description: `Specifies the billing option status.`,
+				Description: `The billing option status.`,
 			},
+
+			// Attributes
 			"charge_mode": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Indicates the billing option.`,
+				Description: `The billing option.`,
 			},
 			"created_at": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `The creation time.`,
+				Description: `The creation time, in RFC3339 format.`,
 			},
 			"effective_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Indicates the effective time of the option.`,
+				Description: `The effective time, in RFC3339 format.`,
 			},
 		},
 	}
 }
 
 func buildDataSourceBillingOptionQueryParams(d *schema.ResourceData) string {
-	queryParams := fmt.Sprintf("?product_type=%v", d.Get("product_type"))
+	res := "?"
+
+	res = fmt.Sprintf("%sproduct_type=%v", res, d.Get("product_type"))
+
 	if v, ok := d.GetOk("service_area"); ok {
-		queryParams = fmt.Sprintf("%s&service_area=%v", queryParams, v)
+		res = fmt.Sprintf("%s&service_area=%v", res, v)
 	}
 	if v, ok := d.GetOk("status"); ok {
-		queryParams = fmt.Sprintf("%s&status=%v", queryParams, v)
+		res = fmt.Sprintf("%s&status=%v", res, v)
 	}
 
-	return queryParams
+	return res
 }
 
 func dataSourceBillingOptionRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	var (
-		cfg  = meta.(*config.Config)
-		mErr *multierror.Error
-	)
-
+	cfg := meta.(*config.Config)
 	client, err := cfg.NewServiceClient("cdn", "")
 	if err != nil {
 		return diag.Errorf("error creating CDN client: %s", err)
@@ -93,7 +93,7 @@ func dataSourceBillingOptionRead(_ context.Context, d *schema.ResourceData, meta
 
 	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return diag.Errorf("error retrieving CDN billing option: %s", err)
+		return diag.Errorf("error retrieving billing option: %s", err)
 	}
 
 	getRespBody, err := utils.FlattenResponse(getResp)
@@ -110,18 +110,17 @@ func dataSourceBillingOptionRead(_ context.Context, d *schema.ResourceData, meta
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-
 	d.SetId(generateUUID)
 
-	mErr = multierror.Append(
-		mErr,
+	mErr := multierror.Append(
 		d.Set("product_type", utils.PathSearch("product_type", result, nil)),
 		d.Set("service_area", utils.PathSearch("service_area", result, nil)),
 		d.Set("status", utils.PathSearch("status", result, nil)),
 		d.Set("charge_mode", utils.PathSearch("charge_mode", result, nil)),
-		d.Set("created_at", flattenCreatedAt(result)),
-		d.Set("effective_time", flattenEffectiveTime(result)),
+		d.Set("created_at", utils.FormatTimeStampRFC3339(
+			int64(utils.PathSearch("create_time", result, float64(0)).(float64))/1000, false)),
+		d.Set("effective_time", utils.FormatTimeStampRFC3339(
+			int64(utils.PathSearch("effective_time", result, float64(0)).(float64))/1000, false)),
 	)
-
 	return diag.FromErr(mErr.ErrorOrNil())
 }

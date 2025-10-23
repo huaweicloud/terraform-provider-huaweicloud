@@ -3,12 +3,12 @@ subcategory: "Content Delivery Network (CDN)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_cdn_analytics"
 description: |-
-  Use this data source to get CDN domain statistics.
+  Use this data source to get CDN domain statistics within HuaweiCloud.
 ---
 
 # huaweicloud_cdn_analytics
 
-Use this data source to get CDN domain statistics.
+Use this data source to get CDN domain statistics within HuaweiCloud.
 
 ## Example Usage
 
@@ -31,34 +31,35 @@ data "huaweicloud_cdn_analytics" "test" {
 
 The following arguments are supported:
 
-* `action` - (Required, String) Specifies the action name. Possible values are **summary** and **detail**.
+* `action` - (Required, String) Specifies the action name.  
+  The valid values are as follows:
   + **summary**: querying summary data.
   + **detail**: querying data details.
 
-* `start_time` - (Required, Int) Specifies the start timestamp of the query, in millisecond. This parameter must be
-  specified together with the end timestamp. The query interval is left-closed and right-open.
+* `start_time` - (Required, Int) Specifies the start timestamp of the query, in millisecond.  
+  This parameter must be specified together with the end timestamp. The query interval is left-closed and right-open.
   + If the value of **interval** is `300`, set this parameter to a multiple of `5` minutes, for example, `1631240100000`,
     which means `2021-09-10 10:15:00`.
-  + If the value of **interval** is `3600`, set this parameter to a multiple of `1` hour, for example, `1631239200000`,
+  + If the value of **interval** is `3,600`, set this parameter to a multiple of `1` hour, for example, `1631239200000`,
     which means `2021-09-10 10:00:00`.
-  + If the value of **interval** is `86400`, set this parameter to `00:00:00` (GMT+08:00), for example, `1631203200000`,
+  + If the value of **interval** is `86,400`, set this parameter to `00:00:00` (GMT+08:00), for example, `1631203200000`,
     which means `2021-09-10 00:00:00`.
 
-* `end_time` - (Required, Int) Specifies the end timestamp of the query, in millisecond. This parameter must be
-  specified together with the start timestamp. The query interval is left-closed and right-open.
+* `end_time` - (Required, Int) Specifies the end timestamp of the query, in millisecond.  
+  This parameter must be specified together with the start timestamp. The query interval is left-closed and right-open.
   + If the value of **interval** is `300`, set this parameter to a multiple of `5` minutes, for example, `1631243700000`,
     which means `2021-09-10 11:15:00`.
-  + If the value of **interval** is `3600`, set this parameter to a multiple of `1` hour, for example, `1631325600000`,
+  + If the value of **interval** is `3,600`, set this parameter to a multiple of `1` hour, for example, `1631325600000`,
     which means `2021-09-11 10:00:00`.
-  + If the value of **interval** is `86400`, set this parameter to `00:00:00` (GMT+08:00), for example, `1631376000000`,
+  + If the value of **interval** is `86,400`, set this parameter to `00:00:00` (GMT+08:00), for example, `1631376000000`,
     which means `2021-09-12 00:00:00`.
 
 * `domain_name` - (Required, String) Specifies the domain name list. Use commas (,) to separate multiple domain names,
   for example, `www.test1.com,www.test2.com`. **all** indicates that all domain names are queried. If no data is
   available for a domain name within the query period, no information about the domain name is returned.
 
-* `stat_type` - (Required, String) Specifies the data indicator type for querying CDN statistics. Use commas (,) to
-  separate multiple types.
+* `stat_type` - (Required, String) Specifies the data indicator type for querying CDN statistics.  
+  Use commas (,) to separate multiple types.
   + Network resource consumption statistics: **bw** (bandwidth), **flux** (traffic), **bs_bw** (retrieval bandwidth),
     **bs_flux** (retrieval traffic)
 
@@ -78,18 +79,25 @@ The following arguments are supported:
     **bs_status_code_5xx** (details of retrieval status code 5xx).
     **status_code** and **bs_status_code** cannot be queried at the same time.
 
-* `interval` - (Optional, Int) Specifies the query interval, in seconds. The value can be `300` (`5` minutes),
-  `3600` (`1` hour), or `86400` (`1` day). If this parameter is not specified, the system uses the smallest value
-  corresponding to the queried time span by default.
+* `interval` - (Optional, Int) Specifies the query interval, in seconds.
+  If this parameter is not specified, the system uses the smallest value corresponding to the queried time span by
+  default.
+  The valid values are as follows:
+  + **300**(`5` minutes): Maximum query span `2` days
+  + **3,600**(`1` hour): Maximum query span `7` days
+  + **86,400**(`1` day): Maximum query span `31` days
 
-* `group_by` - (Optional, String) Specifies the data grouping mode. This parameter can be set to **domain**.
-  By default, data is not grouped.
+* `group_by` - (Optional, String) Specifies the data grouping mode.  
+  This parameter can be set to **domain**. By default, data is not grouped.
 
-* `service_area` - (Optional, String) Specifies the service area. The options are **mainland_china** (Chinese mainland)
-  and **outside_mainland_china** (outside the Chinese mainland). Defaults to **mainland_china**.
-  This parameter is invalid for querying content retrieval metrics.
+* `service_area` - (Optional, String) Specifies the service area.  
+  The valid values are as follows:
+  + **mainland_china**：Chinese mainland.
+  + **outside_mainland_china**: outside the Chinese mainland.
 
-* `enterprise_project_id` - (Optional, String) Specifies the ID of the enterprise project that the resource belongs to.
+  Defaults to **mainland_china**.
+
+* `enterprise_project_id` - (Optional, String) Specifies the ID of the enterprise project to which the resource belongs.
   This parameter is valid only for enterprise users. The value **all** indicates all projects.
   This parameter is mandatory when you are an IAM user.
 
@@ -99,5 +107,5 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The data source ID.
 
-* `result` - Indicated the data organized according to the specified grouping mode. The value of this field is a
-  string in standard object format.
+* `result` - The data organized according to the specified grouping mode.  
+  The value of this field is a string in standard object format.

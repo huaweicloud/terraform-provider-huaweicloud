@@ -731,13 +731,13 @@ func Provider() *schema.Provider {
 			"huaweicloud_ccm_private_certificate_export": ccm.DataSourcePrivateCertificateExport(),
 
 			"huaweicloud_cdn_domain_statistics":       cdn.DataSourceStatistics(),
-			"huaweicloud_cdn_domains":                 cdn.DataSourceCdnDomains(),
+			"huaweicloud_cdn_domains":                 cdn.DataSourceDomains(),
 			"huaweicloud_cdn_domain_certificates":     cdn.DataSourceDomainCertificates(),
 			"huaweicloud_cdn_cache_url_tasks":         cdn.DataSourceCacheUrlTasks(),
 			"huaweicloud_cdn_cache_history_tasks":     cdn.DataSourceCacheHistoryTasks(),
 			"huaweicloud_cdn_billing_option":          cdn.DataSourceBillingOption(),
-			"huaweicloud_cdn_logs":                    cdn.DataSourceCdnLogs(),
-			"huaweicloud_cdn_analytics":               cdn.DataSourceCdnAnalytics(),
+			"huaweicloud_cdn_logs":                    cdn.DataSourceLogs(),
+			"huaweicloud_cdn_analytics":               cdn.DataSourceAnalytics(),
 			"huaweicloud_cdn_domain_tags":             cdn.DataSourceDomainTags(),
 			"huaweicloud_cdn_ip_information":          cdn.DataSourceIpInformation(),
 			"huaweicloud_cdn_quotas":                  cdn.DataSourceQuotas(),
@@ -2345,8 +2345,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_cdm_job":            cdm.ResourceCdmJob(),
 			"huaweicloud_cdm_link":           cdm.ResourceCdmLink(),
 
-			"huaweicloud_cdn_domain":                        cdn.ResourceCdnDomain(),
-			"huaweicloud_cdn_domain_rule":                   cdn.ResourceCdnDomainRule(),
+			"huaweicloud_cdn_domain":                        cdn.ResourceDomain(),
+			"huaweicloud_cdn_domain_rule":                   cdn.ResourceDomainRule(),
 			"huaweicloud_cdn_billing_option":                cdn.ResourceBillingOption(),
 			"huaweicloud_cdn_cache_preheat":                 cdn.ResourceCachePreheat(),
 			"huaweicloud_cdn_cache_refresh":                 cdn.ResourceCacheRefresh(),
@@ -3585,7 +3585,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_networking_vip_v2":           vpc.ResourceNetworkingVip(),
 			"huaweicloud_networking_vip_associate_v2": vpc.ResourceNetworkingVIPAssociateV2(),
 			"huaweicloud_fgs_function_v2":             fgs.ResourceFgsFunction(),
-			"huaweicloud_cdn_domain_v1":               cdn.ResourceCdnDomain(),
+			"huaweicloud_cdn_domain_v1":               cdn.ResourceDomain(),
 			"huaweicloud_scm_certificate":             ccm.ResourceCertificateImport(),
 
 			// Deprecated
