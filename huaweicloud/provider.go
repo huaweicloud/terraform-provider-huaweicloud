@@ -2725,6 +2725,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_evs_volumes_batch_expand":       evs.ResourceVolumesBatchExpand(),
 			"huaweicloud_evs_recycle_bin_policy":         evs.ResourceRecycleBinPolicy(),
 			"huaweicloud_evs_recycle_bin_volume_delete":  evs.ResourceRecycleBinVolumeDelete(),
+			"huaweicloud_evs_recycle_bin_volume_revert":  evs.ResourceRecycleBinVolumeRevert(),
 
 			"huaweicloud_fgs_application":                    fgs.ResourceApplication(),
 			"huaweicloud_fgs_async_invoke_configuration":     fgs.ResourceAsyncInvokeConfiguration(),
