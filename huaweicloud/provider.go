@@ -1289,6 +1289,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_hss_app_whitelist_optional_hosts":               hss.DataSourceAppWhitelistOptionalHosts(),
 			"huaweicloud_hss_app_whitelist_policies":                     hss.DataSourceAppWhitelistPolicies(),
 			"huaweicloud_hss_app_whitelist_policy_process_extend":        hss.DataSourceAppWhitelistPolicyProcessExtend(),
+			"huaweicloud_hss_asset_app_change_history":                   hss.DataSourceAssetAppChangeHistory(),
 			"huaweicloud_hss_asset_apps":                                 hss.DataSourceAssetApps(),
 			"huaweicloud_hss_asset_assign_task":                          hss.DataSourceAssetAssignTask(),
 			"huaweicloud_hss_asset_kernel_module_hosts":                  hss.DataSourceAssetKernelModuleHosts(),
