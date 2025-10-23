@@ -1,13 +1,10 @@
-// ---------------------------------------------------------------
-// *** AUTO GENERATED CODE ***
-// @Product CDN
-// ---------------------------------------------------------------
-
 package cdn
 
 import (
 	"context"
 	"fmt"
+	"strconv"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
@@ -23,148 +20,152 @@ import (
 // @API CDN GET /v1.0/cdn/historytasks
 func DataSourceCacheHistoryTasks() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: resourceCacheHistoryTasksRead,
+		ReadContext: dataSourceCacheHistoryTasksRead,
+
 		Schema: map[string]*schema.Schema{
+			// Optional parameters
 			"enterprise_project_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specifies the ID of the enterprise project to which the resource belongs.`,
+				Description: `The ID of the enterprise project to which the resource belongs.`,
 			},
 			"status": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specifies the task status.`,
+				Description: `The task status.`,
 			},
 			"start_date": {
 				Type:        schema.TypeInt,
 				Optional:    true,
-				Description: `Specifies the query start time.`,
+				Description: `The query start time.`,
 			},
 			"end_date": {
 				Type:        schema.TypeInt,
 				Optional:    true,
-				Description: `Specifies the query end time.`,
+				Description: `The query end time.`,
 			},
 			"order_field": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specifies the field used for sorting.`,
+				Description: `The field used for sorting.`,
 			},
 			"order_type": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specifies the sorting type.`,
+				Description: `The sorting type.`,
 			},
 			"file_type": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specifies the file type.`,
+				Description: `The file type.`,
 			},
 			"task_type": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: `Specifies the task type.`,
+				Description: `The task type.`,
 			},
+
+			// Attributes
 			"tasks": {
 				Type:        schema.TypeList,
-				Elem:        cacheHistoryTasksSchema(),
 				Computed:    true,
-				Description: `The history task list.`,
+				Elem:        cacheHistoryTasksSchema(),
+				Description: `The list of history tasks that matched filter parameters.`,
 			},
 		},
 	}
 }
 
 func cacheHistoryTasksSchema() *schema.Resource {
-	sc := schema.Resource{
+	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Indicates the task ID.`,
+				Description: `The task ID.`,
 			},
 			"status": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Indicates the task result.`,
+				Description: `The task result.`,
 			},
 			"processing": {
 				Type:        schema.TypeInt,
 				Computed:    true,
-				Description: `Indicates the number of URLs that are being processed.`,
+				Description: `The number of URLs that are being processed.`,
 			},
 			"succeed": {
 				Type:        schema.TypeInt,
 				Computed:    true,
-				Description: `Indicates the number of URLs processed.`,
+				Description: `The number of URLs processed.`,
 			},
 			"failed": {
 				Type:        schema.TypeInt,
 				Computed:    true,
-				Description: `Indicates the number of URLs that failed to be processed.`,
+				Description: `The number of URLs that failed to be processed.`,
 			},
 			"total": {
 				Type:        schema.TypeInt,
 				Computed:    true,
-				Description: `Indicates the total number of URLs in the task.`,
+				Description: `The total number of URLs in the task.`,
 			},
 			"task_type": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Indicates the task type.`,
+				Description: `The task type.`,
 			},
 			"created_at": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Indicates the time when the task was created.`,
+				Description: `The creation time, in RFC3339 format.`,
 			},
 			"file_type": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Indicates the file type.`,
+				Description: `The file type.`,
 			},
 		},
 	}
-	return &sc
 }
 
 func buildHistoryTaskQueryParams(d *schema.ResourceData, cfg *config.Config) string {
-	queryParams := "?page_size=10000"
+	res := ""
+
 	if epsId := cfg.GetEnterpriseProjectID(d); epsId != "" {
-		queryParams = fmt.Sprintf("%s&enterprise_project_id=%s", queryParams, epsId)
+		res = fmt.Sprintf("%s&enterprise_project_id=%s", res, epsId)
 	}
 	if v, ok := d.GetOk("status"); ok {
-		queryParams = fmt.Sprintf("%s&status=%v", queryParams, v)
+		res = fmt.Sprintf("%s&status=%v", res, v)
 	}
 	if v, ok := d.GetOk("start_date"); ok {
-		queryParams = fmt.Sprintf("%s&start_date=%v", queryParams, v)
+		res = fmt.Sprintf("%s&start_date=%v", res, v)
 	}
 	if v, ok := d.GetOk("end_date"); ok {
-		queryParams = fmt.Sprintf("%s&end_date=%v", queryParams, v)
+		res = fmt.Sprintf("%s&end_date=%v", res, v)
 	}
 	if v, ok := d.GetOk("order_field"); ok {
-		queryParams = fmt.Sprintf("%s&order_field=%v", queryParams, v)
+		res = fmt.Sprintf("%s&order_field=%v", res, v)
 	}
 	if v, ok := d.GetOk("order_type"); ok {
-		queryParams = fmt.Sprintf("%s&order_type=%v", queryParams, v)
+		res = fmt.Sprintf("%s&order_type=%v", res, v)
 	}
 	if v, ok := d.GetOk("file_type"); ok {
-		queryParams = fmt.Sprintf("%s&file_type=%v", queryParams, v)
+		res = fmt.Sprintf("%s&file_type=%v", res, v)
 	}
 	if v, ok := d.GetOk("task_type"); ok {
-		queryParams = fmt.Sprintf("%s&task_type=%v", queryParams, v)
+		res = fmt.Sprintf("%s&task_type=%v", res, v)
 	}
 
-	return queryParams
+	return res
 }
 
-func resourceCacheHistoryTasksRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceCacheHistoryTasksRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg        = meta.(*config.Config)
-		httpUrl    = "v1.0/cdn/historytasks"
+		httpUrl    = "v1.0/cdn/historytasks?page_size={page_size}"
 		pageNumber = 1
+		pageSize   = 10000
 		result     = make([]interface{}, 0)
-		mErr       *multierror.Error
 	)
 
 	client, err := cfg.NewServiceClient("cdn", "")
@@ -173,6 +174,7 @@ func resourceCacheHistoryTasksRead(_ context.Context, d *schema.ResourceData, me
 	}
 
 	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{page_size}", strconv.Itoa(pageSize))
 	getPath += buildHistoryTaskQueryParams(d, cfg)
 	getOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -183,7 +185,7 @@ func resourceCacheHistoryTasksRead(_ context.Context, d *schema.ResourceData, me
 		currentPath := fmt.Sprintf("%s&page_number=%v", getPath, pageNumber)
 		resp, err := client.Request("GET", currentPath, &getOpt)
 		if err != nil {
-			return diag.Errorf("error retrieving CDN cache history tasks: %s", err)
+			return diag.Errorf("error querying cache history tasks: %s", err)
 		}
 
 		respBody, err := utils.FlattenResponse(resp)
@@ -203,22 +205,18 @@ func resourceCacheHistoryTasksRead(_ context.Context, d *schema.ResourceData, me
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-
 	d.SetId(generateUUID)
 
-	mErr = multierror.Append(
-		mErr,
+	mErr := multierror.Append(
 		d.Set("tasks", flattenCacheHistoryTasks(result)),
 	)
-
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
 func flattenCacheHistoryTasks(tasks []interface{}) []interface{} {
-	rst := make([]interface{}, 0, len(tasks))
+	result := make([]interface{}, 0, len(tasks))
 	for _, v := range tasks {
-		createdAt := utils.PathSearch("create_time", v, float64(0)).(float64)
-		rst = append(rst, map[string]interface{}{
+		result = append(result, map[string]interface{}{
 			"id":         utils.PathSearch("id", v, nil),
 			"status":     utils.PathSearch("status", v, nil),
 			"processing": utils.PathSearch("processing", v, nil),
@@ -226,10 +224,11 @@ func flattenCacheHistoryTasks(tasks []interface{}) []interface{} {
 			"failed":     utils.PathSearch("failed", v, nil),
 			"total":      utils.PathSearch("total", v, nil),
 			"task_type":  utils.PathSearch("task_type", v, nil),
-			"created_at": utils.FormatTimeStampRFC3339(int64(createdAt)/1000, false),
-			"file_type":  utils.PathSearch("file_type", v, nil),
+			"created_at": utils.FormatTimeStampRFC3339(
+				int64(utils.PathSearch("create_time", v, float64(0)).(float64))/1000, false),
+			"file_type": utils.PathSearch("file_type", v, nil),
 		})
 	}
 
-	return rst
+	return result
 }

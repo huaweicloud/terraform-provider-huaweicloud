@@ -16,7 +16,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-var cdnCertificateAssociateDomainsNonUpdatableParams = []string{"domain_names", "https_switch", "access_origin_way",
+var certificateAssociateDomainsNonUpdatableParams = []string{"domain_names", "https_switch", "access_origin_way",
 	"force_redirect_https", "force_redirect_config", "http2", "cert_name", "certificate", "private_key", "certificate_type"}
 
 // @API CDN PUT /v1.0/cdn/domains/config-https-info
@@ -27,7 +27,7 @@ func ResourceCertificateAssociateDomains() *schema.Resource {
 		UpdateContext: resourceCertificateAssociateDomainsUpdate,
 		DeleteContext: resourceCertificateAssociateDomainsDelete,
 
-		CustomizeDiff: config.FlexibleForceNew(cdnCertificateAssociateDomainsNonUpdatableParams),
+		CustomizeDiff: config.FlexibleForceNew(certificateAssociateDomainsNonUpdatableParams),
 
 		Schema: map[string]*schema.Schema{
 			// Required parameters.
@@ -132,21 +132,19 @@ func buildForceRedirectConfig(redirectConfigs []interface{}) map[string]interfac
 }
 
 func buildCertificateAssociateDomainsBodyParams(d *schema.ResourceData) map[string]interface{} {
-	bodyParams := map[string]interface{}{
-		"domain_name":           d.Get("domain_names"),
-		"https_switch":          d.Get("https_switch"),
-		"access_origin_way":     utils.ValueIgnoreEmpty(d.Get("access_origin_way")),
-		"force_redirect_https":  utils.ValueIgnoreEmpty(d.Get("force_redirect_https")),
-		"force_redirect_config": buildForceRedirectConfig(d.Get("force_redirect_config").([]interface{})),
-		"http2":                 utils.ValueIgnoreEmpty(d.Get("http2")),
-		"cert_name":             utils.ValueIgnoreEmpty(d.Get("cert_name")),
-		"certificate":           utils.ValueIgnoreEmpty(d.Get("certificate")),
-		"private_key":           utils.ValueIgnoreEmpty(d.Get("private_key")),
-		"certificate_type":      utils.ValueIgnoreEmpty(d.Get("certificate_type")),
-	}
-
 	return map[string]interface{}{
-		"https": bodyParams,
+		"https": map[string]interface{}{
+			"domain_name":           d.Get("domain_names"),
+			"https_switch":          d.Get("https_switch"),
+			"access_origin_way":     utils.ValueIgnoreEmpty(d.Get("access_origin_way")),
+			"force_redirect_https":  utils.ValueIgnoreEmpty(d.Get("force_redirect_https")),
+			"force_redirect_config": buildForceRedirectConfig(d.Get("force_redirect_config").([]interface{})),
+			"http2":                 utils.ValueIgnoreEmpty(d.Get("http2")),
+			"cert_name":             utils.ValueIgnoreEmpty(d.Get("cert_name")),
+			"certificate":           utils.ValueIgnoreEmpty(d.Get("certificate")),
+			"private_key":           utils.ValueIgnoreEmpty(d.Get("private_key")),
+			"certificate_type":      utils.ValueIgnoreEmpty(d.Get("certificate_type")),
+		},
 	}
 }
 

@@ -27,14 +27,15 @@ var domainRuleNonUpdatableParams = []string{"name"}
 
 // Please apply for whitelist permission before using this resource.
 // The API used by this resource is an offline document and has no official website. So no documentation is provided yet.
-func ResourceCdnDomainRule() *schema.Resource {
+func ResourceDomainRule() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceCdnDomainRuleCreate,
-		ReadContext:   resourceCdnDomainRuleRead,
-		UpdateContext: resourceCdnDomainRuleUpdate,
-		DeleteContext: resourceCdnDomainRuleDelete,
+		CreateContext: resourceDomainRuleCreate,
+		ReadContext:   resourceDomainRuleRead,
+		UpdateContext: resourceDomainRuleUpdate,
+		DeleteContext: resourceDomainRuleDelete,
+
 		Importer: &schema.ResourceImporter{
-			StateContext: resourceCdnDomainRuleImportState,
+			StateContext: resourceDomainRuleImportState,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -49,28 +50,27 @@ func ResourceCdnDomainRule() *schema.Resource {
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "Specifies the domain name.",
+				Description: "The domain name.",
 			},
 			"rules": {
-				Type:        schema.TypeSet,
-				Required:    true,
-				Description: "Specifies a list of rules.",
+				Type:     schema.TypeSet,
+				Required: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: "Specifies the rule name. The valid length is limit from `1` to `50`.",
+							Description: "The rule name. The valid length is limit from `1` to `50`.",
 						},
 						"status": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: "Specifies the rule status. Valid values are **on** and **off**.",
+							Description: "The rule status. Valid values are **on** and **off**.",
 						},
 						"priority": {
 							Type:        schema.TypeInt,
 							Required:    true,
-							Description: `Specifies the rule priority. The valid value is limit from 1 to 100.`,
+							Description: `The rule priority. The valid value is limit from 1 to 100.`,
 						},
 						"conditions": ruleConditions(),
 						"actions":    ruleActions(),
@@ -80,6 +80,7 @@ func ResourceCdnDomainRule() *schema.Resource {
 						},
 					},
 				},
+				Description: "The list of rules.",
 			},
 			"enable_force_new": {
 				Type:         schema.TypeString,
@@ -592,7 +593,7 @@ func updateCdnDomainRule(client *golangsdk.ServiceClient, d *schema.ResourceData
 	return utils.FlattenResponse(resp)
 }
 
-func resourceCdnDomainRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDomainRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg        = meta.(*config.Config)
 		domainName = d.Get("name").(string)
@@ -623,7 +624,7 @@ func resourceCdnDomainRuleCreate(ctx context.Context, d *schema.ResourceData, me
 		return diag.Errorf("error waiting for CDN domain (%s) to become online in create operation: %s", domainName, err)
 	}
 
-	return resourceCdnDomainRuleRead(ctx, d, meta)
+	return resourceDomainRuleRead(ctx, d, meta)
 }
 
 // When the domain name does not exist, the API response status code is still `200`.
@@ -855,7 +856,7 @@ func flattenDomainRuleAttribute(respBody interface{}) []interface{} {
 	return rst
 }
 
-func resourceCdnDomainRuleRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDomainRuleRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg        = meta.(*config.Config)
 		domainName = d.Get("name").(string)
@@ -877,7 +878,7 @@ func resourceCdnDomainRuleRead(_ context.Context, d *schema.ResourceData, meta i
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func resourceCdnDomainRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDomainRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.NewServiceClient("cdn", "")
 	if err != nil {
@@ -901,10 +902,10 @@ func resourceCdnDomainRuleUpdate(ctx context.Context, d *schema.ResourceData, me
 	if err := waitingForCdnDomainStatusOnline(ctx, client, d, d.Timeout(schema.TimeoutUpdate), cfg); err != nil {
 		return diag.Errorf("error waiting for CDN domain (%s) to become online in update operation: %s", d.Id(), err)
 	}
-	return resourceCdnDomainRuleRead(ctx, d, meta)
+	return resourceDomainRuleRead(ctx, d, meta)
 }
 
-func resourceCdnDomainRuleDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDomainRuleDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.NewServiceClient("cdn", "")
 	if err != nil {
@@ -940,7 +941,7 @@ func resourceCdnDomainRuleDelete(ctx context.Context, d *schema.ResourceData, me
 	return nil
 }
 
-func resourceCdnDomainRuleImportState(_ context.Context, d *schema.ResourceData,
+func resourceDomainRuleImportState(_ context.Context, d *schema.ResourceData,
 	_ interface{}) ([]*schema.ResourceData, error) {
 	return []*schema.ResourceData{d}, d.Set("name", d.Id())
 }
