@@ -89,6 +89,13 @@ The following arguments are supported:
 * `template` - (Required, List) Specifies the template of the CCI deployment.
   The [template](#template) structure is documented below.
 
+* `delete_propagation_policy` - (Optional, String) Where and how garbage collection will be performed.
+   The default policy is decided by the existing finalizer set in the metadata.finalizers
+   and the resource-specific default policy.
+   - `Orphan`: orphan the dependents.
+   - `Background`: allow the garbage collector to delete the dependents in the background.
+   - `Foreground`: a cascading policy that deletes all dependents in the foreground.
+
 * `min_ready_seconds` - (Optional, Int) Specifies the min ready seconds of the CCI deployment.
 
 * `progress_deadline_seconds` - (Optional, Int) Specifies the progress deadline seconds of the CCI deployment.
