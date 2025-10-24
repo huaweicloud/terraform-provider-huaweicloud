@@ -53,6 +53,10 @@ func DataSourceKeypairs() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"type": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"scope": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -67,6 +71,10 @@ func DataSourceKeypairs() *schema.Resource {
 						},
 						"is_managed": {
 							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"frozen_state": {
+							Type:     schema.TypeString,
 							Computed: true,
 						},
 					},
@@ -180,11 +188,13 @@ func flattenKeypairs(keypairs []interface{}) []interface{} {
 	result := make([]interface{}, 0, len(keypairs))
 	for _, v := range keypairs {
 		result = append(result, map[string]interface{}{
-			"name":        utils.PathSearch("name", v, nil),
-			"public_key":  utils.PathSearch("public_key", v, nil),
-			"fingerprint": utils.PathSearch("fingerprint", v, nil),
-			"is_managed":  utils.PathSearch("is_key_protection", v, nil),
-			"scope":       flattenDatasourceScopeAttribute(utils.PathSearch("scope", v, "").(string)),
+			"name":         utils.PathSearch("name", v, nil),
+			"type":         utils.PathSearch("type", v, nil),
+			"public_key":   utils.PathSearch("public_key", v, nil),
+			"fingerprint":  utils.PathSearch("fingerprint", v, nil),
+			"is_managed":   utils.PathSearch("is_key_protection", v, nil),
+			"scope":        flattenDatasourceScopeAttribute(utils.PathSearch("scope", v, "").(string)),
+			"frozen_state": utils.PathSearch("frozen_state", v, nil),
 		})
 	}
 

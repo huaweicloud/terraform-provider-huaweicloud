@@ -48,6 +48,8 @@ The `keypairs` block supports:
 
 * `name` - Indicates the name of the keypair.
 
+* `type` - Indicates the type of the keypair. The value can be **ssh** or **x509**.
+
 * `scope` - Indicates the scope of keypair. The value can be **account**or **user**.
 
 * `public_key` - Indicates the imported OpenSSH-formatted public key.
@@ -55,3 +57,16 @@ The `keypairs` block supports:
 * `fingerprint` - Indicates the fingerprint information about a keypair.
 
 * `is_managed` - Indicates whether the private key is managed by HuaweiCloud.
+
+* `frozen_state` - Indicates the frozen state of the keypair. Valid values are:
+  + **0**: Normal state
+  + **1**: General freeze
+  + **2**: Police freeze
+  + **3**: General freeze and police freeze
+  + **4**: Violation freeze
+  + **5**: General freeze and violation freeze
+  + **6**: Police freeze and violation freeze
+  + **7**: General freeze, police freeze and violation freeze
+  + **8**: Unverified identity freeze
+  + **9**: General freeze and unverified identity freeze
+  + **10**: Police freeze and unverified identity freeze
