@@ -927,6 +927,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cpcs_apps":            dew.DataSourceCpcsApps(),
 			"huaweicloud_cpcs_app_access_keys": dew.DataSourceCpcsAppAccessKeys(),
 
+			"huaweicloud_csms_agencies":                 dew.DataSourceAgencies(),
 			"huaweicloud_csms_events":                   dew.DataSourceDewCsmsEvents(),
 			"huaweicloud_csms_secrets":                  dew.DataSourceDewCsmsSecrets(),
 			"huaweicloud_csms_secret_version":           dew.DataSourceDewCsmsSecret(),
