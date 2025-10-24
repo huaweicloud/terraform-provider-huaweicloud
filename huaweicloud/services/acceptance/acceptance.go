@@ -685,9 +685,10 @@ var (
 	HW_HSS_ANTIVIRUS_ENABLED                  = os.Getenv("HW_HSS_ANTIVIRUS_ENABLED")
 	HW_HSS_CLUSTER_RISK_ID                    = os.Getenv("HW_HSS_CLUSTER_RISK_ID")
 	// The vulnerability ID
-	HW_HSS_VUL_ID    = os.Getenv("HW_HSS_VUL_ID")
-	HW_HSS_POLICY_ID = os.Getenv("HW_HSS_POLICY_ID")
-	HW_HSS_DOMAIN    = os.Getenv("HW_HSS_DOMAIN")
+	HW_HSS_VUL_ID      = os.Getenv("HW_HSS_VUL_ID")
+	HW_HSS_POLICY_ID   = os.Getenv("HW_HSS_POLICY_ID")
+	HW_HSS_DOMAIN      = os.Getenv("HW_HSS_DOMAIN")
+	HW_HSS_IAC_FILE_ID = os.Getenv("HW_HSS_IAC_FILE_ID")
 
 	HW_DDM_INSTANCE_ID = os.Getenv("HW_DDM_INSTANCE_ID")
 	HW_DDM_PROCESS_ID  = os.Getenv("HW_DDM_PROCESS_ID")
@@ -3555,6 +3556,13 @@ func TestAccPreCheckHSSPolicyId(t *testing.T) {
 func TestAccPreCheckHSSDomain(t *testing.T) {
 	if HW_HSS_DOMAIN == "" {
 		t.Skip("HW_HSS_DOMAIN must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckHSSIACFileId(t *testing.T) {
+	if HW_HSS_IAC_FILE_ID == "" {
+		t.Skip("HW_HSS_IAC_FILE_ID must be set for the acceptance test")
 	}
 }
 
