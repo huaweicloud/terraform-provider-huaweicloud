@@ -42,7 +42,6 @@ func ResourcePermissionSet() *schema.Resource {
 
 		CustomizeDiff: config.MergeDefaultTags(),
 
-		Description: "schema: Internal",
 		Schema: map[string]*schema.Schema{
 			"instance_id": {
 				Type:     schema.TypeString,

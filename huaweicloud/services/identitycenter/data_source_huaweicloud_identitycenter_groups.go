@@ -27,7 +27,6 @@ func DataSourceIdentityCenterGroups() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourceIdentityCenterGroupsRead,
 
-		Description: "schema: Internal",
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,

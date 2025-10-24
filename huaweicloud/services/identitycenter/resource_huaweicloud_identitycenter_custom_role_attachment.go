@@ -34,7 +34,6 @@ func ResourceCustomRoleAttachment() *schema.Resource {
 			StateContext: resourceCustomRoleAttachmentImport,
 		},
 
-		Description: "schema: Internal",
 		Schema: map[string]*schema.Schema{
 			"instance_id": {
 				Type:        schema.TypeString,

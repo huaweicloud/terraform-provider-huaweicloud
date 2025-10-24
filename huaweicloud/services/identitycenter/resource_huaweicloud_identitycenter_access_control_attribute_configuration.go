@@ -30,7 +30,6 @@ func ResourceAccessControlAttributeConfiguration() *schema.Resource {
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 
-		Description: "schema: Internal",
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
