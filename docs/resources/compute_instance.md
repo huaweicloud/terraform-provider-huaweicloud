@@ -318,10 +318,16 @@ The following arguments are supported:
 * `delete_eip_on_termination` - (Optional, Bool) Specifies whether the EIP is released when the instance is terminated.
   Defaults to *true*.
 
+* `include_data_disks_on_update` - (Optional, Bool) Specifies whether to change the billing modes of all pay-per-use data
+  disks to yearly/monthly. Defaults to **false**.
+
+* `include_publicips_on_update` - (Optional, Bool) Specifies whether to change the billing modes of EIPs that are exclusive
+  and billed by bandwidth to yearly/monthly. Defaults to **false**.
+
 * `enterprise_project_id` - (Optional, String) Specifies a unique id in UUID format of enterprise project.
 
-* `charging_mode` - (Optional, String, ForceNew) Specifies the charging mode of the instance. Valid values are *prePaid*,
-  *postPaid* and *spot*, defaults to *postPaid*. Changing this creates a new instance.
+* `charging_mode` - (Optional, String) Specifies the charging mode of the instance. Valid values are **prePaid**,
+  **postPaid** and **spot**, defaults to **postPaid**.
 
   -> **NOTE:** Spot price ECSs are suitable for stateless, fault-tolerant instances that are not sensitive to
   interruptions because they can be reclaimed suddenly. When the market price is higher than the maximum price
@@ -329,17 +335,15 @@ The following arguments are supported:
   Do not use a spot ECS for inflexible or long-term workloads. For more details, see the differences between
   the [billing modes](https://support.huaweicloud.com/intl/en-us/productdesc-ecs/ecs_01_0065.html).
 
-* `period_unit` - (Optional, String, ForceNew) Specifies the charging period unit of the instance.
-  Valid values are *month* and *year*. This parameter is mandatory if `charging_mode` is set to *prePaid*.
-  Changing this creates a new instance.
+* `period_unit` - (Optional, String) Specifies the charging period unit of the instance.
+  Valid values are **month** and **year**. This parameter is mandatory if `charging_mode` is set to **prePaid**.
 
-* `period` - (Optional, Int, ForceNew) Specifies the charging period of the instance.
-  If `period_unit` is set to *month* , the value ranges from 1 to 9. If `period_unit` is set to *year*, the value
-  ranges from 1 to 3. This parameter is mandatory if `charging_mode` is set to *prePaid*. Changing this creates a
-  new resource.
+* `period` - (Optional, Int) Specifies the charging period of the instance.
+  If `period_unit` is set to **month** , the value ranges from 1 to 9. If `period_unit` is set to **year**, the value
+  ranges from 1 to 3. This parameter is mandatory if `charging_mode` is set to **prePaid**.
 
-* `auto_renew` - (Optional, String) Specifies whether auto renew is enabled.
-  Valid values are *true* and *false*. Defaults to *false*.
+* `auto_renew` - (Optional, String) Specifies whether auto-renew is enabled.
+  Valid values are **true** and **false**. Defaults to **false**.
 
 * `spot_maximum_price` - (Optional, String, ForceNew) Specifies the highest price per hour you accept for a spot ECS.
   This parameter takes effect only when `charging_mode` is set to *spot*. If the price is not specified,
