@@ -37,10 +37,12 @@ func TestAccDataKpsKeypairs_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(resourceName, "keypairs.0.name"),
+					resource.TestCheckResourceAttrSet(resourceName, "keypairs.0.type"),
 					resource.TestCheckResourceAttrSet(resourceName, "keypairs.0.public_key"),
 					resource.TestCheckResourceAttrSet(resourceName, "keypairs.0.scope"),
 					resource.TestCheckResourceAttrSet(resourceName, "keypairs.0.fingerprint"),
 					resource.TestCheckResourceAttrSet(resourceName, "keypairs.0.is_managed"),
+					resource.TestCheckResourceAttrSet(resourceName, "keypairs.0.frozen_state"),
 
 					dcByName.CheckResourceExists(),
 					resource.TestCheckOutput("is_name_filter_useful", "true"),
