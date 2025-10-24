@@ -35,7 +35,6 @@ func ResourceSystemPolicyAttachment() *schema.Resource {
 			StateContext: resourceSystemPolicyAttachmentImport,
 		},
 
-		Description: "schema: Internal",
 		Schema: map[string]*schema.Schema{
 			"instance_id": {
 				Type:     schema.TypeString,

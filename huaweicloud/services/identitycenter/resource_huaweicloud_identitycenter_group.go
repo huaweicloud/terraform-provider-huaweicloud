@@ -21,10 +21,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API IdentityStore POST /v1/identity-stores/{identity_store_id}/groups
-// @API IdentityStore DELETE /v1/identity-stores/{identity_store_id}/groups/{group_id}
-// @API IdentityStore GET /v1/identity-stores/{identity_store_id}/groups/{group_id}
-// @API IdentityStore PUT /v1/identity-stores/{identity_store_id}/groups/{group_id}
+// @API IdentityCenter POST /v1/identity-stores/{identity_store_id}/groups
+// @API IdentityCenter DELETE /v1/identity-stores/{identity_store_id}/groups/{group_id}
+// @API IdentityCenter GET /v1/identity-stores/{identity_store_id}/groups/{group_id}
+// @API IdentityCenter PUT /v1/identity-stores/{identity_store_id}/groups/{group_id}
 func ResourceIdentityCenterGroup() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceIdentityCenterGroupCreate,
@@ -35,7 +35,6 @@ func ResourceIdentityCenterGroup() *schema.Resource {
 			StateContext: resourceIdentityCenterGroupImportState,
 		},
 
-		Description: "schema: Internal",
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,

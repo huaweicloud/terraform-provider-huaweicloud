@@ -28,7 +28,7 @@ resource "huaweicloud_identitycenter_provision_permission_set" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String) Specifies the region in which to query the resource.
+* `region` - (Optional, String, ForceNew) Specifies the region in which to query the resource.
   If omitted, the provider-level region will be used.
 
 * `instance_id` - (Required, String, NonUpdatable) Specifies the ID of an IAM Identity Center instance.

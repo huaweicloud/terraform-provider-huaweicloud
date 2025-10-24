@@ -39,7 +39,7 @@ The following arguments are supported:
 * `permission_set_id` - (Required, String, ForceNew) Specifies the ID of the IAM Identity Center permission set.
   Changing this parameter will create a new resource.
 
-* `policy_ids` - (Required, String) Specifies an array of IAM managed system policies/roles to be attached to
+* `policy_ids` - (Required, List) Specifies an array of IAM managed system policies/roles to be attached to
   the permission set.
 
 ## Attribute Reference

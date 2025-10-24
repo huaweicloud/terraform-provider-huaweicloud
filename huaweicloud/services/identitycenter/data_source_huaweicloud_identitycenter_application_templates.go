@@ -19,7 +19,6 @@ func DataSourceIdentityCenterApplicationTemplates() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourceIdentityCenterApplicationTemplatesRead,
 
-		Description: "schema: Internal",
 		Schema: map[string]*schema.Schema{
 			"application_id": {
 				Type:     schema.TypeString,
@@ -56,23 +55,19 @@ func DataSourceIdentityCenterApplicationTemplates() *schema.Resource {
 						},
 						"response_config": {
 							Type:     schema.TypeString,
-							Optional: true,
 							Computed: true,
 						},
 						"response_schema_config": {
 							Type:     schema.TypeString,
-							Optional: true,
 							Computed: true,
 						},
 						"security_config": {
 							Type:     schema.TypeList,
-							Optional: true,
 							Computed: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"ttl": {
 										Type:     schema.TypeString,
-										Optional: true,
 										Computed: true,
 									},
 								},
@@ -80,39 +75,32 @@ func DataSourceIdentityCenterApplicationTemplates() *schema.Resource {
 						},
 						"service_provider_config": {
 							Type:     schema.TypeList,
-							Optional: true,
 							Computed: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"audience": {
 										Type:     schema.TypeString,
-										Optional: true,
 										Computed: true,
 									},
 									"require_request_signature": {
 										Type:     schema.TypeBool,
-										Optional: true,
 										Computed: true,
 									},
 									"consumers": {
 										Type:     schema.TypeList,
-										Optional: true,
 										Computed: true,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"location": {
 													Type:     schema.TypeString,
-													Optional: true,
 													Computed: true,
 												},
 												"binding": {
 													Type:     schema.TypeString,
-													Optional: true,
 													Computed: true,
 												},
 												"default_value": {
 													Type:     schema.TypeBool,
-													Optional: true,
 													Computed: true,
 												},
 											},
@@ -120,7 +108,6 @@ func DataSourceIdentityCenterApplicationTemplates() *schema.Resource {
 									},
 									"start_url": {
 										Type:     schema.TypeString,
-										Optional: true,
 										Computed: true,
 									},
 								},

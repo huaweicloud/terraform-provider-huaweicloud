@@ -40,7 +40,6 @@ func ResourceProvisionPermissionSet() *schema.Resource {
 
 		CustomizeDiff: config.FlexibleForceNew(provisionPermissionSetNonUpdatableParams),
 
-		Description: "schema: Internal",
 		Schema: map[string]*schema.Schema{
 			"region": {
 				Type:     schema.TypeString,
