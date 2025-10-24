@@ -930,6 +930,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cpcs_images":          dew.DataSourceCpcsImages(),
 
 			"huaweicloud_csms_events":                   dew.DataSourceDewCsmsEvents(),
+			"huaweicloud_csms_function_templates":       dew.DataSourceCsmsFunctionTemplates(),
 			"huaweicloud_csms_secrets":                  dew.DataSourceDewCsmsSecrets(),
 			"huaweicloud_csms_secret_version":           dew.DataSourceDewCsmsSecret(),
 			"huaweicloud_csms_secret_versions":          dew.DataSourceDewCsmsSecretVersions(),
