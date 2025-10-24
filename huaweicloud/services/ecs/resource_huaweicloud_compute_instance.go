@@ -53,6 +53,8 @@ var (
 // @API ECS GET /v1/{project_id}/cloudservers/{server_id}/block_device/{volume_id}
 // @API ECS GET /v1/{project_id}/jobs/{job_id}
 // @API ECS POST /v1/{project_id}/cloudservers/{server_id}/changevpc
+// @API ECS POST /v1/{project_id}/cloudservers/{server_id}/migrate
+// @API ECS POST /v1/{project_id}/cloudservers/actions/change-charge-mode
 // @API IMS GET /v2/cloudimages
 // @API EVS POST /v2.1/{project_id}/cloudvolumes/{volume_id}/action
 // @API EVS GET /v2/{project_id}/cloudvolumes/{volume_id}
@@ -352,6 +354,14 @@ func ResourceComputeInstance() *schema.Resource {
 				Optional: true,
 				Default:  true,
 			},
+			"include_data_disks_on_update": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
+			"include_publicips_on_update": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
 
 			"eip_id": {
 				Type:          schema.TypeString,
@@ -415,16 +425,26 @@ func ResourceComputeInstance() *schema.Resource {
 			"charging_mode": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				Computed: true,
 				ValidateFunc: validation.StringInSlice([]string{
 					"prePaid", "postPaid", "spot",
 				}, false),
 			},
-			"period_unit": common.SchemaPeriodUnit(nil),
-			"period":      common.SchemaPeriod(nil),
-			"auto_renew":  common.SchemaAutoRenewUpdatable(nil),
-			"auto_pay":    common.SchemaAutoPay(nil),
+			"period_unit": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				RequiredWith: []string{"period"},
+				ValidateFunc: validation.StringInSlice([]string{
+					"month", "year",
+				}, false),
+			},
+			"period": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				RequiredWith: []string{"period_unit"},
+			},
+			"auto_renew": common.SchemaAutoRenewUpdatable(nil),
+			"auto_pay":   common.SchemaAutoPay(nil),
 
 			"spot_maximum_price": {
 				Type:          schema.TypeString,
@@ -1057,8 +1077,26 @@ func resourceComputeInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 	if err != nil {
 		return diag.Errorf("error creating compute V1.1 client: %s", err)
 	}
+	bssClient, err := cfg.BssV2Client(region)
+	if err != nil {
+		return diag.Errorf("error creating BSS v2 client: %s", err)
+	}
 
 	serverID := d.Id()
+	if d.HasChange("charging_mode") {
+		if d.Get("charging_mode").(string) != "prePaid" {
+			return diag.Errorf("error updating the charging mode of the ECS instance (%s): %s", d.Id(),
+				"only support change to pre-paid")
+		}
+		if err = updateInstanceChargingMode(ctx, d, ecsClient, bssClient); err != nil {
+			return diag.FromErr(err)
+		}
+	} else if d.HasChange("auto_renew") {
+		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), serverID); err != nil {
+			return diag.Errorf("error updating the auto-renew of the instance (%s): %s", serverID, err)
+		}
+	}
+
 	if d.HasChanges("name", "description", "user_data") {
 		var updateOpts cloudservers.UpdateOpts
 		updateOpts.Name = d.Get("name").(string)
@@ -1222,10 +1260,6 @@ func resourceComputeInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 		}
 
 		if strings.EqualFold(d.Get("charging_mode").(string), "prePaid") {
-			bssClient, err := cfg.BssV2Client(region)
-			if err != nil {
-				return diag.Errorf("error creating BSS v2 client: %s", err)
-			}
 			err = common.WaitOrderComplete(ctx, bssClient, resp.OrderID, d.Timeout(schema.TimeoutUpdate))
 			if err != nil {
 				return diag.Errorf("The order (%s) is not completed while extending system disk (%s) size: %v",
@@ -1275,16 +1309,6 @@ func resourceComputeInstanceUpdate(ctx context.Context, d *schema.ResourceData, 
 		action := d.Get("power_action").(string)
 		if err = doPowerAction(ecsClient, d, action); err != nil {
 			return diag.Errorf("Doing power action (%s) for instance (%s) failed: %s", action, serverID, err)
-		}
-	}
-
-	if d.HasChange("auto_renew") {
-		bssClient, err := cfg.BssV2Client(region)
-		if err != nil {
-			return diag.Errorf("error creating BSS V2 client: %s", err)
-		}
-		if err = common.UpdateAutoRenew(bssClient, d.Get("auto_renew").(string), serverID); err != nil {
-			return diag.Errorf("error updating the auto-renew of the instance (%s): %s", serverID, err)
 		}
 	}
 
@@ -1450,6 +1474,54 @@ func buildUpdateInstanceNetworkSecgroupOpts(d *schema.ResourceData) []map[string
 	}
 
 	return bodyParams
+}
+
+func updateInstanceChargingMode(ctx context.Context, d *schema.ResourceData, client, bssClient *golangsdk.ServiceClient) error {
+	httpUrl := "v1/{project_id}/cloudservers/actions/change-charge-mode"
+	updatePath := client.Endpoint + httpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+
+	updateOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		JSONBody:         buildUpdateInstanceChargingMode(d),
+	}
+	updateResp, err := client.Request("POST", updatePath, &updateOpt)
+	if err != nil {
+		return fmt.Errorf("error udpating ECS charging mode: %s", err)
+	}
+
+	updateRespBody, err := utils.FlattenResponse(updateResp)
+	if err != nil {
+		return err
+	}
+	orderId := utils.PathSearch("order_id", updateRespBody, "").(string)
+	if orderId == "" {
+		return errors.New("order_id is not found in the API response")
+	}
+
+	err = common.WaitOrderComplete(ctx, bssClient, orderId, d.Timeout(schema.TimeoutUpdate))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func buildUpdateInstanceChargingMode(d *schema.ResourceData) map[string]interface{} {
+	bodyParam := map[string]interface{}{
+		"server_ids":  []string{d.Id()},
+		"charge_mode": "prePaid",
+		"prepaid_options": map[string]interface{}{
+			"include_data_disks": d.Get("include_data_disks_on_update"),
+			"include_publicips":  d.Get("include_publicips_on_update"),
+			"period_type":        d.Get("period_unit"),
+			"period_num":         d.Get("period"),
+			"auto_pay":           true,
+			"auto_renew":         d.Get("auto_renew"),
+		},
+	}
+
+	return bodyParam
 }
 
 func updateInstanceDehId(ctx context.Context, d *schema.ResourceData, client *golangsdk.ServiceClient) error {
