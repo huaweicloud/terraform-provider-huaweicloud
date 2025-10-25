@@ -1,12 +1,8 @@
-// ---------------------------------------------------------------
-// *** AUTO GENERATED CODE ***
-// @Product CDN
-// ---------------------------------------------------------------
-
 package cdn
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/hashicorp/go-multierror"
@@ -30,30 +26,33 @@ func ResourceBillingOption() *schema.Resource {
 		DeleteContext: resourceBillingOptionDelete,
 
 		Schema: map[string]*schema.Schema{
+			// Required parameters
 			"charge_mode": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: `Specifies the billing option.`,
+				Description: `The billing option.`,
 			},
 			"product_type": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: `Specifies the product mode.`,
+				Description: `The product mode.`,
 			},
 			"service_area": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: `Specifies the service area.`,
+				Description: `The service area.`,
 			},
+
+			// Attributes
 			"created_at": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `The creation time.`,
+				Description: `The creation time, in RFC3339 format.`,
 			},
 			"effective_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `The effective time of the option.`,
+				Description: `The effective time, in RFC3339 format.`,
 			},
 			"status": {
 				Type:        schema.TypeString,
@@ -97,21 +96,20 @@ func resourceBillingOptionCreate(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	if err := changeBillingOption(client, d); err != nil {
-		return diag.Errorf("error modifying CDN billing option in creation operation: %s", err)
+		return diag.Errorf("error modifying billing option in creation operation: %s", err)
 	}
 
 	generateUUID, err := uuid.GenerateUUID()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-
 	d.SetId(generateUUID)
 
 	return resourceBillingOptionRead(ctx, d, meta)
 }
 
 func buildBillingOptionQueryParams(productType string) string {
-	return fmt.Sprintf("?product_type=%v", productType)
+	return fmt.Sprintf(`?product_type=%v`, productType)
 }
 
 func GetBillingOptionDetail(client *golangsdk.ServiceClient, productType string) (interface{}, error) {
@@ -126,7 +124,7 @@ func GetBillingOptionDetail(client *golangsdk.ServiceClient, productType string)
 	if err != nil {
 		// The billing model is always valuable and there is no need to pay attention to scenarios where resource does
 		// not exist.
-		return nil, fmt.Errorf("error retrieving CDN billing option: %s", err)
+		return nil, fmt.Errorf("error querying billing option: %s", err)
 	}
 
 	getRespBody, err := utils.FlattenResponse(getResp)
@@ -136,18 +134,13 @@ func GetBillingOptionDetail(client *golangsdk.ServiceClient, productType string)
 
 	result := utils.PathSearch("result[0]", getRespBody, nil)
 	if result == nil {
-		return nil, fmt.Errorf("error retrieving CDN billing option: result is not found in API response")
+		return nil, errors.New("error retrieving billing option: result is not found in API response")
 	}
-
 	return result, nil
 }
 
 func resourceBillingOptionRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	var (
-		cfg  = meta.(*config.Config)
-		mErr *multierror.Error
-	)
-
+	cfg := meta.(*config.Config)
 	client, err := cfg.NewServiceClient("cdn", "")
 	if err != nil {
 		return diag.Errorf("error creating CDN client: %s", err)
@@ -158,22 +151,17 @@ func resourceBillingOptionRead(_ context.Context, d *schema.ResourceData, meta i
 		return diag.FromErr(err)
 	}
 
-	mErr = multierror.Append(
-		mErr,
+	mErr := multierror.Append(
 		d.Set("product_type", utils.PathSearch("product_type", result, nil)),
 		d.Set("service_area", utils.PathSearch("service_area", result, nil)),
-		d.Set("created_at", flattenCreatedAt(result)),
-		d.Set("effective_time", flattenEffectiveTime(result)),
+		d.Set("created_at", utils.FormatTimeStampRFC3339(
+			int64(utils.PathSearch("create_time", result, float64(0)).(float64))/1000, false)),
+		d.Set("effective_time", utils.FormatTimeStampRFC3339(
+			int64(utils.PathSearch("effective_time", result, float64(0)).(float64))/1000, false)),
 		d.Set("status", utils.PathSearch("status", result, nil)),
 		d.Set("current_charge_mode", utils.PathSearch("charge_mode", result, nil)),
 	)
-
 	return diag.FromErr(mErr.ErrorOrNil())
-}
-
-func flattenEffectiveTime(result interface{}) string {
-	effectiveTime := utils.PathSearch("effective_time", result, float64(0)).(float64)
-	return utils.FormatTimeStampRFC3339(int64(effectiveTime)/1000, false)
 }
 
 func resourceBillingOptionUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -184,7 +172,7 @@ func resourceBillingOptionUpdate(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	if err := changeBillingOption(client, d); err != nil {
-		return diag.Errorf("error modifying CDN billing option in update operation: %s", err)
+		return diag.Errorf("error modifying billing option in update operation: %s", err)
 	}
 
 	return resourceBillingOptionRead(ctx, d, meta)

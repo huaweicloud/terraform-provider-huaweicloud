@@ -51,10 +51,12 @@ The following arguments are supported:
   The valid values are as follows:
   + **mainland_china**: mainland China
   + **outside_mainland_china**: outside mainland China
-  + **global**: global (default)
+  + **global**: global
 
-* `enterprise_project_id` - (Optional, String) Specifies the ID of the enterprise project to which the domains
-  belong.
+  Defaults to **global**.
+
+* `enterprise_project_id` - (Optional, String) Specifies the ID of the enterprise project to which the resource
+  belongs.
 
 ## Attribute Reference
 

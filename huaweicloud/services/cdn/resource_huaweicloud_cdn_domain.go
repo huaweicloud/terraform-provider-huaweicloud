@@ -3,6 +3,7 @@ package cdn
 import (
 	"context"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -917,14 +918,15 @@ var clientCert = schema.Schema{
 // @API CDN GET /v1.1/cdn/configuration/domains/{domain_name}/configs
 // @API CDN POST /v1.0/cdn/configuration/tags/batch-delete
 // @API CDN POST /v1.0/cdn/configuration/tags
-func ResourceCdnDomain() *schema.Resource {
+func ResourceDomain() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceCdnDomainCreate,
-		ReadContext:   resourceCdnDomainRead,
-		UpdateContext: resourceCdnDomainUpdate,
-		DeleteContext: resourceCdnDomainDelete,
+		CreateContext: resourceDomainCreate,
+		ReadContext:   resourceDomainRead,
+		UpdateContext: resourceDomainUpdate,
+		DeleteContext: resourceDomainDelete,
+
 		Importer: &schema.ResourceImporter{
-			StateContext: resourceCDNDomainImportState,
+			StateContext: resourceDomainImportState,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -1055,8 +1057,9 @@ func ResourceCdnDomain() *schema.Resource {
 				Description: "schema: Required",
 			},
 			"enterprise_project_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The enterprise project that the resource belongs.`,
 			},
 			"configs": {
 				Type:     schema.TypeList,
@@ -1356,7 +1359,7 @@ func waitingForCdnDomainStatusOnline(ctx context.Context, client *golangsdk.Serv
 	return err
 }
 
-func resourceCdnDomainCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDomainCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg     = meta.(*config.Config)
 		httpUrl = "v1.0/cdn/domains"
@@ -1399,7 +1402,7 @@ func resourceCdnDomainCreate(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error waiting for CDN domain (%s) creation to become online: %s", d.Id(), err)
 	}
 
-	return resourceCdnDomainUpdate(ctx, d, meta)
+	return resourceDomainUpdate(ctx, d, meta)
 }
 
 func analyseFunctionEnabledStatus(enabledStatus string) bool {
@@ -2194,7 +2197,7 @@ func flattenConfigAttributes(configResp interface{}, d *schema.ResourceData) []m
 	return []map[string]interface{}{configsAttrs}
 }
 
-func resourceCdnDomainRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDomainRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg        = meta.(*config.Config)
 		domainName = getDomainName(d)
@@ -2237,6 +2240,9 @@ func resourceCdnDomainRead(_ context.Context, d *schema.ResourceData, meta inter
 		d.Set("tags", tags),
 		d.Set("domain_name", utils.PathSearch("domain.domain_name", domainResp, nil)),
 	)
+	// what for
+	log.Printf(`what for: { domain_id: %[1]v, domain_name: %[2]v, domain_status: %[3]v }`,
+		d.Get("id"), d.Get("name"), d.Get("domain_status"))
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
@@ -3035,7 +3041,7 @@ func updateCdnDomainTags(client *golangsdk.ServiceClient, d *schema.ResourceData
 	return nil
 }
 
-func resourceCdnDomainUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDomainUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.NewServiceClient("cdn", "")
 	if err != nil {
@@ -3071,7 +3077,7 @@ func resourceCdnDomainUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		}
 	}
 
-	return resourceCdnDomainRead(ctx, d, meta)
+	return resourceDomainRead(ctx, d, meta)
 }
 
 func deleteCdnDomain(client *golangsdk.ServiceClient, d *schema.ResourceData, epsID string) error {
@@ -3195,7 +3201,7 @@ func waitingForCdnDomainStatusOffline(ctx context.Context, client *golangsdk.Ser
 	return err
 }
 
-func resourceCdnDomainDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDomainDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg   = meta.(*config.Config)
 		epsID = cfg.GetEnterpriseProjectID(d)
@@ -3205,6 +3211,10 @@ func resourceCdnDomainDelete(ctx context.Context, d *schema.ResourceData, meta i
 	if err != nil {
 		return diag.Errorf("error creating CDN client: %s", err)
 	}
+
+	// what for
+	log.Printf(`what for: { id: %[1]v, name: %[2]v, status: %[3]v }`,
+		d.Get("id"), d.Get("name"), d.Get("domain_status"))
 
 	if d.Get("domain_status").(string) == "online" {
 		// make sure the status has changed to offline before deleting it.
@@ -3232,7 +3242,7 @@ func resourceCdnDomainDelete(ctx context.Context, d *schema.ResourceData, meta i
 	return nil
 }
 
-func resourceCDNDomainImportState(_ context.Context, d *schema.ResourceData,
+func resourceDomainImportState(_ context.Context, d *schema.ResourceData,
 	_ interface{}) ([]*schema.ResourceData, error) {
 	return []*schema.ResourceData{d}, d.Set("domain_name", d.Id())
 }
