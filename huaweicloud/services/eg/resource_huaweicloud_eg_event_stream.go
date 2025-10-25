@@ -279,7 +279,7 @@ func buildEventStreamSource(eventSources []interface{}) interface{} {
 			utils.PathSearch("kafka", newSource, "").(string))),
 		"source_mobile_rocketmq": utils.ValueIgnoreEmpty(unmarshalJsonFormatParamster("mobile RocketMQ configuration",
 			utils.PathSearch("mobile_rocketmq", newSource, "").(string))),
-		"sourcesource_community_rocketmq_kafka": utils.ValueIgnoreEmpty(unmarshalJsonFormatParamster("community RocketMQ configuration",
+		"source_community_rocketmq_kafka": utils.ValueIgnoreEmpty(unmarshalJsonFormatParamster("community RocketMQ configuration",
 			utils.PathSearch("community_rocketmq", newSource, "").(string))),
 		"source_dms_rocketmq": utils.ValueIgnoreEmpty(unmarshalJsonFormatParamster("DMS RocketMQ configuration",
 			utils.PathSearch("dms_rocketmq", newSource, "").(string))),
