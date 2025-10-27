@@ -1,0 +1,10 @@
+vpc_name                             = "tf_test_kafka_instance"
+subnet_name                          = "tf_test_kafka_instance"
+security_group_name                  = "tf_test_kafka_instance"
+security_group_rule_remote_ip_prefix = "your_client_ip_address"
+instance_name                        = "tf_test_kafka_instance"
+bandwidth_name                       = "tf_test_kafka_instance_bandwidth"
+instance_access_user_name            = "admin"
+instance_access_user_password        = "yourInstanceAccessPassword!"
+instance_enabled_mechanisms          = ["SCRAM-SHA-512"]
+instance_public_sasl_ssl_enable      = true
