@@ -325,6 +325,7 @@ var (
 	HW_KMS_KEY_CIPHER_TEXT     = os.Getenv("HW_KMS_KEY_CIPHER_TEXT")
 	HW_KMS_KEY_CIPHER_TEXT_LEN = os.Getenv("HW_KMS_KEY_CIPHER_TEXT_LEN")
 	HW_KMS_KEY_MESSAGE         = os.Getenv("HW_KMS_KEY_MESSAGE")
+	HW_KMS_KEY_PRIMARY_REGION  = os.Getenv("HW_KMS_KEY_PRIMARY_REGION")
 
 	HW_MULTI_ACCOUNT_ENVIRONMENT            = os.Getenv("HW_MULTI_ACCOUNT_ENVIRONMENT")
 	HW_ORGANIZATIONS_OPEN                   = os.Getenv("HW_ORGANIZATIONS_OPEN")
@@ -2048,6 +2049,13 @@ func TestAccPreCheckKmsKeyCiphertext(t *testing.T) {
 func TestAccPreCheckKmsKeyMessage(t *testing.T) {
 	if HW_KMS_KEY_MESSAGE == "" {
 		t.Skip("HW_KMS_KEY_MESSAGE must be set for acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckKmsKeyPrimaryRegion(t *testing.T) {
+	if HW_KMS_KEY_PRIMARY_REGION == "" {
+		t.Skip("HW_KMS_KEY_PRIMARY_REGION must be set for acceptance tests.")
 	}
 }
 
