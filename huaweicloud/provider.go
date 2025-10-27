@@ -2950,10 +2950,11 @@ func Provider() *schema.Provider {
 			"huaweicloud_kms_datakey_without_plaintext": dew.ResourceKmsDatakeyWithoutPlaintext(),
 			"huaweicloud_kms_cancel_key_deletion":       dew.ResourceKmsCancelKeyDeletion(),
 
-			"huaweicloud_kps_keypair_disassociate": dew.ResourceKpsKeypairDisassociate(),
-			"huaweicloud_kps_keypair_associate":    dew.ResourceKpsKeypairAssociate(),
-			"huaweicloud_kps_failed_tasks_delete":  dew.ResourceKpsFailedTasksDelete(),
-			"huaweicloud_kps_failed_task_delete":   dew.ResourceKpsFailedTaskDelete(),
+			"huaweicloud_kps_keypair_disassociate":     dew.ResourceKpsKeypairDisassociate(),
+			"huaweicloud_kps_keypair_associate":        dew.ResourceKpsKeypairAssociate(),
+			"huaweicloud_kps_failed_tasks_delete":      dew.ResourceKpsFailedTasksDelete(),
+			"huaweicloud_kps_batch_export_private_key": dew.ResourceKpsBatchExportPrivateKey(),
+			"huaweicloud_kps_failed_task_delete":       dew.ResourceKpsFailedTaskDelete(),
 
 			"huaweicloud_lb_certificate":  lb.ResourceCertificateV2(),
 			"huaweicloud_lb_l7policy":     lb.ResourceL7PolicyV2(),
