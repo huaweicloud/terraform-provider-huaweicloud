@@ -51,7 +51,7 @@ func TestAccCachePreheat_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testCachePreheat_basic(),
+				Config: testAccCachePreheat_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "urls.0", acceptance.HW_CDN_DOMAIN_URL),
@@ -69,7 +69,7 @@ func TestAccCachePreheat_basic(t *testing.T) {
 	})
 }
 
-func testCachePreheat_basic() string {
+func testAccCachePreheat_basic() string {
 	return fmt.Sprintf(`
 resource "huaweicloud_cdn_cache_preheat" "test" {
   urls                  = ["%[1]s"]

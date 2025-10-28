@@ -9,7 +9,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceCdnQuotas_basic(t *testing.T) {
+func TestAccDataQuotas_basic(t *testing.T) {
 	var (
 		dcName = "data.huaweicloud_cdn_quotas.test"
 		dc     = acceptance.InitDataSourceCheck(dcName)
@@ -22,7 +22,7 @@ func TestAccDataSourceCdnQuotas_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceCdnQuotas_basic,
+				Config: testAccDataQuotas_basic,
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestMatchResourceAttr(dcName, "quotas.#", regexp.MustCompile("^[1-9]([0-9]*)?$")),
@@ -36,4 +36,4 @@ func TestAccDataSourceCdnQuotas_basic(t *testing.T) {
 	})
 }
 
-const testAccDataSourceCdnQuotas_basic = `data "huaweicloud_cdn_quotas" "test" {}`
+const testAccDataQuotas_basic = `data "huaweicloud_cdn_quotas" "test" {}`

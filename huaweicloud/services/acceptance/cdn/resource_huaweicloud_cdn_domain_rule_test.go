@@ -12,7 +12,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/cdn"
 )
 
-func getCdnDomainRuleFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
+func getDomainRuleFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	domainName := state.Primary.Attributes["name"]
 	client, err := cfg.NewServiceClient("cdn", "")
 	if err != nil {
@@ -23,7 +23,7 @@ func getCdnDomainRuleFunc(cfg *config.Config, state *terraform.ResourceState) (i
 }
 
 // This test case requires opening the CDN whitelist before it can be called.
-func TestAccCdnDomainRule_basic(t *testing.T) {
+func TestAccDomainRule_basic(t *testing.T) {
 	var (
 		obj          interface{}
 		resourceName = "huaweicloud_cdn_domain_rule.test"
@@ -32,7 +32,7 @@ func TestAccCdnDomainRule_basic(t *testing.T) {
 	rc := acceptance.InitResourceCheck(
 		resourceName,
 		&obj,
-		getCdnDomainRuleFunc,
+		getDomainRuleFunc,
 	)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -44,7 +44,7 @@ func TestAccCdnDomainRule_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCdnDomainRule_basic(),
+				Config: testAccDomainRule_basic_step1(),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", acceptance.HW_CDN_DOMAIN_NAME),
@@ -64,7 +64,7 @@ func TestAccCdnDomainRule_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccCdnDomainRule_basic_update(),
+				Config: testAccDomainRule_basic_step2(),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", acceptance.HW_CDN_DOMAIN_NAME),
@@ -75,13 +75,13 @@ func TestAccCdnDomainRule_basic(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
-				ImportStateIdFunc: testCDNDomainRuleImportState(resourceName),
+				ImportStateIdFunc: testDomainRuleImportState(resourceName),
 			},
 		},
 	})
 }
 
-func testAccCdnDomainRule_basic() string {
+func testAccDomainRule_basic_step1() string {
 	return fmt.Sprintf(`
 resource "huaweicloud_cdn_domain_rule" "test" {
   name = "%s"
@@ -134,7 +134,7 @@ resource "huaweicloud_cdn_domain_rule" "test" {
 `, acceptance.HW_CDN_DOMAIN_NAME)
 }
 
-func testAccCdnDomainRule_basic_update() string {
+func testAccDomainRule_basic_step2() string {
 	return fmt.Sprintf(`
 resource "huaweicloud_cdn_domain_rule" "test" {
   name = "%s"
@@ -324,7 +324,7 @@ resource "huaweicloud_cdn_domain_rule" "test" {
 `, acceptance.HW_CDN_DOMAIN_NAME)
 }
 
-func testCDNDomainRuleImportState(name string) resource.ImportStateIdFunc {
+func testDomainRuleImportState(name string) resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
 		rs, ok := s.RootModule().Resources[name]
 		if !ok {

@@ -10,7 +10,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccCdnCertificateAssociateDomains_basic(t *testing.T) {
+func TestAccCertificateAssociateDomains_basic(t *testing.T) {
 	var (
 		name = acceptance.RandomAccResourceName()
 	)
@@ -26,18 +26,18 @@ func TestAccCdnCertificateAssociateDomains_basic(t *testing.T) {
 		CheckDestroy: nil,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCdnCertificateAssociateDomains_basic_step1(name),
+				Config: testAccCertificateAssociateDomains_basic_step1(name),
 				Check:  resource.ComposeTestCheckFunc(),
 			},
 			{
-				Config:      testAccCdnCertificateAssociateDomains_basic_step2(),
+				Config:      testAccCertificateAssociateDomains_basic_step2(),
 				ExpectError: regexp.MustCompile("error associating certificate with domains"),
 			},
 		},
 	})
 }
 
-func testAccCdnCertificateAssociateDomains_basic_step1(name string) string {
+func testAccCertificateAssociateDomains_basic_step1(name string) string {
 	return fmt.Sprintf(`
 resource "huaweicloud_cdn_certificate_associate_domains" "test" {
   domain_names = "%[1]s"
@@ -51,7 +51,7 @@ resource "huaweicloud_cdn_certificate_associate_domains" "test" {
 		acceptance.HW_CCM_PRIVATE_KEY_PATH)
 }
 
-func testAccCdnCertificateAssociateDomains_basic_step2() string {
+func testAccCertificateAssociateDomains_basic_step2() string {
 	return fmt.Sprintf(`
 resource "huaweicloud_cdn_certificate_associate_domains" "test_with_invalid_cert" {
   domain_names = "%[1]s"

@@ -14,7 +14,7 @@ import (
 // HW_CDN_START_TIME: Configure the start timestamp for querying domain name statistical data (in milliseconds).
 // HW_CDN_END_TIME: Configure the end timestamp for querying domain name statistical data (in milliseconds).
 // HW_CDN_STAT_TYPE: Configure the indicator type for querying statistical data. Use commas to separate multiple types.
-func TestAccDataSourceCdnAnalytics_basic(t *testing.T) {
+func TestAccDataAnalytics_basic(t *testing.T) {
 	dataSource := "data.huaweicloud_cdn_analytics.test"
 	dc := acceptance.InitDataSourceCheck(dataSource)
 
@@ -27,7 +27,7 @@ func TestAccDataSourceCdnAnalytics_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceDataSourceCdnAnalytics_basic(),
+				Config: testAccDataAnalytics_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(dataSource, "result"),
@@ -37,7 +37,7 @@ func TestAccDataSourceCdnAnalytics_basic(t *testing.T) {
 	})
 }
 
-func testDataSourceDataSourceCdnAnalytics_basic() string {
+func testAccDataAnalytics_basic() string {
 	return fmt.Sprintf(`
 data "huaweicloud_cdn_analytics" "test" {
   domain_name = "%[1]s"

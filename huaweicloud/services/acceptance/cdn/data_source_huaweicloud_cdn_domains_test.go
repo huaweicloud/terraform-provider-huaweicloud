@@ -9,7 +9,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDatasourceCDNDomains_basic(t *testing.T) {
+func TestAccDataDomains_basic(t *testing.T) {
 	var (
 		rName      = "data.huaweicloud_cdn_domains.test"
 		dc         = acceptance.InitDataSourceCheck(rName)
@@ -23,7 +23,7 @@ func TestAccDatasourceCDNDomains_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDatasourceDomains_basic(domainName),
+				Config: testAccDataDomains_basic(domainName),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(rName, "domains.0.id"),
@@ -47,9 +47,9 @@ func TestAccDatasourceCDNDomains_basic(t *testing.T) {
 	})
 }
 
-func testAccDatasourceDomains_basic(domainName string) string {
+func testAccDataDomains_basic(domainName string) string {
 	return fmt.Sprintf(`
-%s
+%[1]s
 
 data "huaweicloud_cdn_domains" "test" {
   depends_on = [huaweicloud_cdn_domain.test]
@@ -64,7 +64,7 @@ locals {
 output "domain_id_filter_is_useful" {
   value = length(data.huaweicloud_cdn_domains.domain_id_filter.domains) > 0 && alltrue(
     [for v in data.huaweicloud_cdn_domains.domain_id_filter.domains[*].id : v == local.domain_id]
-  )  
+  )
 }
 
 data "huaweicloud_cdn_domains" "name_filter" {
@@ -76,7 +76,7 @@ locals {
 output "name_filter_is_useful" {
   value = length(data.huaweicloud_cdn_domains.name_filter.domains) > 0 && alltrue(
     [for v in data.huaweicloud_cdn_domains.name_filter.domains[*].name : v == local.name]
-  )  
+  )
 }
 
 data "huaweicloud_cdn_domains" "type_filter" {
@@ -88,7 +88,7 @@ locals {
 output "type_filter_is_useful" {
   value = length(data.huaweicloud_cdn_domains.type_filter.domains) > 0 && alltrue(
     [for v in data.huaweicloud_cdn_domains.type_filter.domains[*].type : v == local.type]
-  )  
+  )
 }
 
 data "huaweicloud_cdn_domains" "service_area_filter" {
@@ -99,8 +99,9 @@ locals {
 }
 output "service_area_filter_is_useful" {
   value = length(data.huaweicloud_cdn_domains.service_area_filter.domains) > 0 && alltrue(
-    [for v in data.huaweicloud_cdn_domains.service_area_filter.domains[*].service_area : v == local.service_area]
-  )  
+    [for v in data.huaweicloud_cdn_domains.service_area_filter.domains[*].service_area 
+	: v == local.service_area]
+  )
 }
 
 data "huaweicloud_cdn_domains" "domain_status_filter" {
@@ -111,8 +112,9 @@ locals {
 }
 output "domain_status_filter_is_useful" {
   value = length(data.huaweicloud_cdn_domains.domain_status_filter.domains) > 0 && alltrue(
-    [for v in data.huaweicloud_cdn_domains.domain_status_filter.domains[*].domain_status : v == local.domain_status]
-  )  
+    [for v in data.huaweicloud_cdn_domains.domain_status_filter.domains[*].domain_status 
+	: v == local.domain_status]
+  )
 }
 
 data "huaweicloud_cdn_domains" "enterprise_project_id_filter" {
@@ -123,8 +125,9 @@ locals {
 }
 output "enterprise_project_id_filter_is_useful" {
   value = length(data.huaweicloud_cdn_domains.enterprise_project_id_filter.domains) > 0 && alltrue(
-    [for v in data.huaweicloud_cdn_domains.enterprise_project_id_filter.domains[*].enterprise_project_id : v == local.enterprise_project_id]
-  )  
+    [for v in data.huaweicloud_cdn_domains.enterprise_project_id_filter.domains[*].enterprise_project_id 
+	: v == local.enterprise_project_id]
+  )
 }
-`, testAccDomain_basic(domainName))
+`, testAccDomain_basic_step1(domainName))
 }

@@ -9,7 +9,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDatasourceStatistics_basic(t *testing.T) {
+func TestAccDataStatistics_basic(t *testing.T) {
 	rName := "data.huaweicloud_cdn_domain_statistics.test"
 	dc := acceptance.InitDataSourceCheck(rName)
 
@@ -22,7 +22,7 @@ func TestAccDatasourceStatistics_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDatasourceStatistics_basic(),
+				Config: testAccDataStatistics_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "result", "{}"),
@@ -32,7 +32,7 @@ func TestAccDatasourceStatistics_basic(t *testing.T) {
 	})
 }
 
-func testAccDatasourceStatistics_basic() string {
+func testAccDataStatistics_basic() string {
 	return fmt.Sprintf(`
 data "huaweicloud_cdn_domain_statistics" "test" {
   domain_name           = "%[1]s"

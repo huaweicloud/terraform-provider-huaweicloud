@@ -10,7 +10,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceCacheHistoryTasks_basic(t *testing.T) {
+func TestAccDataCacheHistoryTasks_basic(t *testing.T) {
 	var (
 		rName = "data.huaweicloud_cdn_cache_history_tasks.test"
 		dc    = acceptance.InitDataSourceCheck(rName)
@@ -24,7 +24,7 @@ func TestAccDataSourceCacheHistoryTasks_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceCacheHistoryTasks_basic(),
+				Config: testAccDataCacheHistoryTasks_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(rName, "tasks.0.id"),
@@ -38,15 +38,10 @@ func TestAccDataSourceCacheHistoryTasks_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(rName, "tasks.0.file_type"),
 
 					resource.TestCheckOutput("enterprise_project_id_filter_is_useful", "true"),
-
 					resource.TestCheckOutput("status_filter_is_useful", "true"),
-
 					resource.TestCheckOutput("date_filter_is_useful", "true"),
-
 					resource.TestCheckOutput("order_filter_is_useful", "true"),
-
 					resource.TestCheckOutput("file_type_filter_is_useful", "true"),
-
 					resource.TestCheckOutput("task_type_filter_is_useful", "true"),
 				),
 			},
@@ -55,7 +50,7 @@ func TestAccDataSourceCacheHistoryTasks_basic(t *testing.T) {
 }
 
 // To test the filtering parameters related to sorting, at least `3` resources need to be created.
-func testDataSourceCacheHistoryTasks_base() string {
+func testAccDataCacheHistoryTasks_base() string {
 	return fmt.Sprintf(`
 resource "huaweicloud_cdn_cache_preheat" "test" {
   count = 3
@@ -66,7 +61,7 @@ resource "huaweicloud_cdn_cache_preheat" "test" {
 `, acceptance.HW_CDN_DOMAIN_URL)
 }
 
-func testAccDataSourceCacheHistoryTasks_basic() string {
+func testAccDataCacheHistoryTasks_basic() string {
 	now := time.Now()
 	startDate := now.Add(-1 * time.Hour).UnixMilli()
 	endDate := now.Add(time.Hour).UnixMilli()
@@ -171,5 +166,5 @@ output "task_type_filter_is_useful" {
     [for v in data.huaweicloud_cdn_cache_history_tasks.task_type_filter.tasks[*].task_type : v == local.task_type]
   )
 }
-`, testDataSourceCacheHistoryTasks_base(), startDate, endDate)
+`, testAccDataCacheHistoryTasks_base(), startDate, endDate)
 }

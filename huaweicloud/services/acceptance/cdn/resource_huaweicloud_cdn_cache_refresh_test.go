@@ -51,7 +51,7 @@ func TestAccCacheRefresh_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testCacheRefresh_basic(),
+				Config: testAccCacheRefresh_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "urls.0", acceptance.HW_CDN_DOMAIN_URL),
@@ -71,7 +71,7 @@ func TestAccCacheRefresh_basic(t *testing.T) {
 	})
 }
 
-func testCacheRefresh_basic() string {
+func testAccCacheRefresh_basic() string {
 	return fmt.Sprintf(`
 resource "huaweicloud_cdn_cache_refresh" "test" {
   urls                  = ["%[1]s"]

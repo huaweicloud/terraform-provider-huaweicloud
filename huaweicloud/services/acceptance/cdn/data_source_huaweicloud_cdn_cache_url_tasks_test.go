@@ -10,7 +10,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
 )
 
-func TestAccDataSourceCacheUrlTasks_basic(t *testing.T) {
+func TestAccDataCacheUrlTasks_basic(t *testing.T) {
 	var (
 		rName = "data.huaweicloud_cdn_cache_url_tasks.test"
 		dc    = acceptance.InitDataSourceCheck(rName)
@@ -24,7 +24,7 @@ func TestAccDataSourceCacheUrlTasks_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceCacheUrlTasks_basic(),
+				Config: testAccDataCacheUrlTasks_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(rName, "tasks.0.id"),
@@ -47,7 +47,7 @@ func TestAccDataSourceCacheUrlTasks_basic(t *testing.T) {
 	})
 }
 
-func testAccDataSourceCacheUrlTasks_basic() string {
+func testAccDataCacheUrlTasks_basic() string {
 	now := time.Now()
 	startTime := now.Add(-1 * time.Hour).UnixMilli()
 	endTime := now.Add(time.Hour).UnixMilli()
@@ -131,5 +131,5 @@ output "file_type_filter_is_useful" {
     [for v in data.huaweicloud_cdn_cache_url_tasks.file_type_filter.tasks[*].file_type : v == local.file_type]
   )
 }
-`, testCachePreheat_basic(), startTime, endTime)
+`, testAccCachePreheat_basic(), startTime, endTime)
 }

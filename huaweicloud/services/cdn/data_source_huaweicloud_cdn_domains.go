@@ -303,7 +303,7 @@ func flattenListDomainsBody(domains []interface{}) []interface{} {
 func datasourceDomainsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg        = meta.(*config.Config)
-		httpUrl    = "v1.0/cdn/domains?pageSize={page_size}"
+		httpUrl    = "v1.0/cdn/domains?page_size={page_size}"
 		pageNumber = 1
 		pageSize   = 10
 		result     = make([]interface{}, 0)
