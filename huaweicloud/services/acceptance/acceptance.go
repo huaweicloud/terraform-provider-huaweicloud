@@ -135,16 +135,18 @@ var (
 
 	HW_DBSS_INSATNCE_ID = os.Getenv("HW_DBSS_INSATNCE_ID")
 
-	HW_DEW_ENABLE_FLAG      = os.Getenv("HW_DEW_ENABLE_FLAG")
-	HW_KPS_KEY_FILE_PATH    = os.Getenv("HW_KPS_KEY_FILE_PATH")
-	HW_KPS_KEYPAIR_NAME_1   = os.Getenv("HW_KPS_KEYPAIR_NAME_1")
-	HW_KPS_KEYPAIR_NAME_2   = os.Getenv("HW_KPS_KEYPAIR_NAME_2")
-	HW_KPS_KEYPAIR_KEY_1    = os.Getenv("HW_KPS_KEYPAIR_KEY_1")
-	HW_KPS_KEYPAIR_SSH_PORT = os.Getenv("HW_KPS_KEYPAIR_SSH_PORT")
-	HW_KPS_ENABLE_FLAG      = os.Getenv("HW_KPS_ENABLE_FLAG")
-	HW_KPS_FAILED_TASK_ID   = os.Getenv("HW_KPS_FAILED_TASK_ID")
-	HW_CSMS_TASK_ID         = os.Getenv("HW_CSMS_TASK_ID")
-	HW_CSMS_SECRET_ID       = os.Getenv("HW_CSMS_SECRET_ID")
+	HW_DEW_ENABLE_FLAG           = os.Getenv("HW_DEW_ENABLE_FLAG")
+	HW_KPS_KEY_FILE_PATH         = os.Getenv("HW_KPS_KEY_FILE_PATH")
+	HW_KPS_KEYPAIR_NAME_1        = os.Getenv("HW_KPS_KEYPAIR_NAME_1")
+	HW_KPS_KEYPAIR_NAME_2        = os.Getenv("HW_KPS_KEYPAIR_NAME_2")
+	HW_KPS_KEYPAIR_KEY_1         = os.Getenv("HW_KPS_KEYPAIR_KEY_1")
+	HW_KPS_KEYPAIR_SSH_PORT      = os.Getenv("HW_KPS_KEYPAIR_SSH_PORT")
+	HW_KPS_ENABLE_FLAG           = os.Getenv("HW_KPS_ENABLE_FLAG")
+	HW_KPS_PUBLIC_KEY_FILE_PATH  = os.Getenv("HW_KPS_PUBLIC_KEY_FILE_PATH")
+	HW_KPS_PRIVATE_KEY_FILE_PATH = os.Getenv("HW_KPS_PRIVATE_KEY_FILE_PATH")
+	HW_KPS_FAILED_TASK_ID        = os.Getenv("HW_KPS_FAILED_TASK_ID")
+	HW_CSMS_TASK_ID              = os.Getenv("HW_CSMS_TASK_ID")
+	HW_CSMS_SECRET_ID            = os.Getenv("HW_CSMS_SECRET_ID")
 
 	HW_DEST_REGION          = os.Getenv("HW_DEST_REGION")
 	HW_DEST_PROJECT_ID      = os.Getenv("HW_DEST_PROJECT_ID")
@@ -2078,6 +2080,13 @@ func TestAccPreCheckKpsKeyPair(t *testing.T) {
 func TestAccPreCheckKpsEnable(t *testing.T) {
 	if HW_KPS_ENABLE_FLAG == "" {
 		t.Skip("HW_KPS_ENABLE_FLAG must be set for acceptance tests.")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckKpsKeyFilePath(t *testing.T) {
+	if HW_KPS_PUBLIC_KEY_FILE_PATH == "" || HW_KPS_PRIVATE_KEY_FILE_PATH == "" {
+		t.Skip("HW_KPS_PUBLIC_KEY_FILE_PATH or HW_KPS_PRIVATE_KEY_FILE_PATH must be set for acceptance tests.")
 	}
 }
 
