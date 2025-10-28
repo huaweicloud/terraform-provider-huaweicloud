@@ -20,20 +20,32 @@ data "huaweicloud_cdn_cache_url_tasks" "test" {}
 
 The following arguments are supported:
 
-* `start_time` - (Optional, Int) Specifies the start timestamp, in milliseconds. The default value is 00:00 of the
-  current day.
+* `start_time` - (Optional, Int) Specifies the start timestamp, in milliseconds.  
+  The default value is 00:00 of the current day.
 
-* `end_time` - (Optional, Int) Specifies the end timestamp, in milliseconds. The default value is 00:00 of the next day.
+* `end_time` - (Optional, Int) Specifies the end timestamp, in milliseconds.  
+  The default value is 00:00 of the next day.
 
 * `url` - (Optional, String) Specifies the refresh or preheat URL.
 
-* `task_type` - (Optional, String) Specifies the task type. Possible values: **REFRESH** (cache refresh) and
-  **PREHEATING** (cache preheat).
+* `task_type` - (Optional, String) Specifies the task type.  
+  The valid values are as follows:
+  + **REFRESH**: cache refresh.
+  + **PREHEATING**: cache preheat.
 
-* `status` - (Optional, String) Specifies the URL status. Possible values: **processing**, **succeed**, **failed**,
-  **waiting**, **refreshing**, and **preheating**.
+* `status` - (Optional, String) Specifies the URL status.  
+  The valid values are as follows:
+  + **processing**
+  + **succeed**
+  + **failed**
+  + **waiting**
+  + **refreshing**
+  + **preheating**
 
-* `file_type` - (Optional, String) Specifies the file type. Possible values: **file** and **directory**.
+* `file_type` - (Optional, String) Specifies the file type.
+  The valid values are as follows:
+  + **file**
+  + **directory**
 
 ## Attribute Reference
 
@@ -41,27 +53,38 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The data source ID.
 
-* `tasks` - The list of URL task information. The [tasks](#CacheUrlTasks_tasks) structure is documented below.
+* `tasks` - The list of URL task information that matched filter parameters.
+  The [tasks](#cdn_cache_url_tasks) structure is documented below.
 
-<a name="CacheUrlTasks_tasks"></a>
+<a name="cdn_cache_url_tasks"></a>
 The `tasks` block supports:
 
-* `id` - Indicates the URL ID.
+* `id` - The URL ID.
 
-* `url` - Indicates the URL.
+* `url` - The URL.
 
-* `status` - Indicates the URL status. Possible values: **processing**, **succeed**, **failed**, **waiting**,
-  **refreshing**, and **preheating**.
+* `status` - The URL status.
+  + **processing**
+  + **succeed**
+  + **failed**
+  + **waiting**
+  + **refreshing**
+  + **preheating**
 
-* `task_type` - Indicates the task type. Possible values: **REFRESH** (cache refresh) and **PREHEATING** (cache preheat).
+* `task_type` - The task type.
+  + **REFRESH**: cache refresh.
+  + **PREHEATING**: cache preheat.
 
-* `mode` - Indicates the directory refresh mode. Possible values: **all** (refresh all resources in the directory) and
-  **detect_modify_refresh** (refresh changed resources in the directory).
+* `mode` - The directory refresh mode.
+  + **all**: refresh all resources in the directory.
+  + **detect_modify_refresh**: refresh changed resources in the directory.
 
-* `task_id` - Indicates the task ID.
+* `task_id` - The task ID.
 
-* `modify_time` - Indicates the modification time.
+* `modify_time` - The modification time, in RFC3339 format.
 
-* `created_at` - Indicates the creation time.
+* `created_at` - The creation time, in RFC3339 format.
 
-* `file_type` - Indicates the file type. Possible values: **file** and **directory**.
+* `file_type` - The file type.
+  + **file**
+  + **directory**

@@ -25,10 +25,10 @@ data "huaweicloud_cdn_ip_information" "test" {
 The following arguments are supported:
 
 * `ips` - (Required, String) Specifies the list of IP addresses to be queried.  
-  The maximum number of IPs that can be queried is 20, and multiple IPs are separated by commas (,).
+  The maximum number of IPs that can be queried is `20`, and multiple IPs are separated by commas (,).
 
-* `enterprise_project_id` - (Optional, String) Specifies the ID of the enterprise project to which the IP attribution
-  information belongs.
+* `enterprise_project_id` - (Optional, String) Specifies the ID of the enterprise project to which the resource
+  belongs.
 
 ## Attribute Reference
 
@@ -45,7 +45,6 @@ The `information` block supports:
 * `ip` - The IP address to be queried.
 
 * `belongs` - Whether the IP belongs to CDN nodes.  
-  The valid values are as follows:
   + **true**
   + **false**
 

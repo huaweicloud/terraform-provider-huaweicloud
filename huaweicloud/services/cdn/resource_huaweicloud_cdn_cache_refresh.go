@@ -1,8 +1,3 @@
-// ---------------------------------------------------------------
-// *** AUTO GENERATED CODE ***
-// @Product CDN
-// ---------------------------------------------------------------
-
 package cdn
 
 import (
@@ -15,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
@@ -23,51 +19,56 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
+var cacheRefreshNonUpdatableParams = []string{"urls", "enterprise_project_id", "type", "mode", "zh_url_encode"}
+
 // @API CDN POST /v1.0/cdn/content/refresh-tasks
 // @API CDN GET /v1.0/cdn/historytasks/{history_tasks_id}/detail
 func ResourceCacheRefresh() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceCacheRefreshCreate,
 		ReadContext:   resourceCacheRefreshRead,
+		UpdateContext: resourceCacheRefreshUpdate,
 		DeleteContext: resourceCacheRefreshDelete,
+
+		CustomizeDiff: config.FlexibleForceNew(cacheRefreshNonUpdatableParams),
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(5 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
+			// Required parameters
 			"urls": {
 				Type:        schema.TypeSet,
 				Required:    true,
-				ForceNew:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: `Specifies the URLs that need to be refreshed.`,
+				Description: `The URLs that need to be refreshed.`,
 			},
+
+			// Optional parameters
 			"enterprise_project_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
-				Description: `Specifies the enterprise project ID.`,
+				Description: `The enterprise project ID to which the resource belongs.`,
 			},
 			"type": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
-				ForceNew:    true,
-				Description: `Specifies the refresh type.`,
+				Description: `The refresh type.`,
 			},
 			"mode": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
-				Description: `Specifies the directory refresh mode.`,
+				Description: `The directory refresh mode.`,
 			},
 			"zh_url_encode": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				ForceNew:    true,
-				Description: `Specifies whether to encode Chinese characters in URLs before cache refresh.`,
+				Description: `Whether to encode Chinese characters in URLs before cache refresh.`,
 			},
+
+			// Attributes
 			"status": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -76,7 +77,7 @@ func ResourceCacheRefresh() *schema.Resource {
 			"created_at": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `The creation time.`,
+				Description: `The creation time, in RFC3339 format.`,
 			},
 			"processing": {
 				Type:        schema.TypeInt,
@@ -98,12 +99,21 @@ func ResourceCacheRefresh() *schema.Resource {
 				Computed:    true,
 				Description: `The total number of URLs in historical tasks.`,
 			},
+
+			// Internal parameters.
+			"enable_force_new": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"true", "false"}, false),
+				Description:  utils.SchemaDesc("", utils.SchemaDescInput{Internal: true}),
+			},
 		},
 	}
 }
 
 func buildCacheQueryParams(d *schema.ResourceData) string {
 	queryParams := ""
+
 	if v, ok := d.GetOk("enterprise_project_id"); ok {
 		queryParams = fmt.Sprintf("%s?enterprise_project_id=%v", queryParams, v)
 	}
@@ -113,35 +123,29 @@ func buildCacheQueryParams(d *schema.ResourceData) string {
 
 func buildCacheRefreshBodyParams(d *schema.ResourceData) interface{} {
 	refreshTaskMap := map[string]interface{}{
-		"urls": utils.ExpandToStringList(d.Get("urls").(*schema.Set).List()),
-	}
-	if v, ok := d.GetOk("type"); ok {
-		refreshTaskMap["type"] = v
-	}
-	if v, ok := d.GetOk("mode"); ok {
-		refreshTaskMap["mode"] = v
-	}
-	if v, ok := d.GetOk("zh_url_encode"); ok {
-		refreshTaskMap["zh_url_encode"] = v
-	}
-	bodyParams := map[string]interface{}{
-		"refresh_task": refreshTaskMap,
+		"urls":          utils.ExpandToStringList(d.Get("urls").(*schema.Set).List()),
+		"type":          utils.ValueIgnoreEmpty(d.Get("type")),
+		"mode":          utils.ValueIgnoreEmpty(d.Get("mode")),
+		"zh_url_encode": utils.ValueIgnoreEmpty(d.Get("zh_url_encode")),
 	}
 
-	return bodyParams
+	return map[string]interface{}{
+		"refresh_task": utils.RemoveNil(refreshTaskMap),
+	}
 }
 
 func resourceCacheRefreshCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg           = meta.(*config.Config)
-		createHttpUrl = "v1.0/cdn/content/refresh-tasks"
+		cfg     = meta.(*config.Config)
+		httpUrl = "v1.0/cdn/content/refresh-tasks"
 	)
+
 	client, err := cfg.NewServiceClient("cdn", "")
 	if err != nil {
 		return diag.Errorf("error creating CDN client: %s", err)
 	}
 
-	createPath := client.Endpoint + createHttpUrl
+	createPath := client.Endpoint + httpUrl
 	createPath += buildCacheQueryParams(d)
 	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
@@ -151,7 +155,7 @@ func resourceCacheRefreshCreate(ctx context.Context, d *schema.ResourceData, met
 
 	createResp, err := client.Request("POST", createPath, &createOpt)
 	if err != nil {
-		return diag.Errorf("error creating CDN cache refresh: %s", err)
+		return diag.Errorf("error creating cache refresh: %s", err)
 	}
 
 	createRespBody, err := utils.FlattenResponse(createResp)
@@ -161,15 +165,13 @@ func resourceCacheRefreshCreate(ctx context.Context, d *schema.ResourceData, met
 
 	refreshTaskId := utils.PathSearch("refresh_task", createRespBody, "").(string)
 	if refreshTaskId == "" {
-		return diag.Errorf("error creating CDN cache refresh: ID is not found in API response")
+		return diag.Errorf("error creating cache refresh: ID is not found in API response")
 	}
-
 	d.SetId(refreshTaskId)
 
 	if err = waitingForCacheCreateCompleted(ctx, client, refreshTaskId, d.Timeout(schema.TimeoutCreate)); err != nil {
-		return diag.Errorf("error waiting for CDN cache refresh (%s) creation to completed: %s", refreshTaskId, err)
+		return diag.Errorf("error waiting for cache refresh (%s) creation to completed: %s", refreshTaskId, err)
 	}
-
 	return resourceCacheRefreshRead(ctx, d, meta)
 }
 
@@ -210,7 +212,7 @@ func GetCacheDetailById(client *golangsdk.ServiceClient, id string) (interface{}
 
 	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving CDN cache detail: %s", err)
+		return nil, fmt.Errorf("error retrieving cache detail: %s", err)
 	}
 
 	getRespBody, err := utils.FlattenResponse(getResp)
@@ -235,36 +237,6 @@ func GetCacheDetailById(client *golangsdk.ServiceClient, id string) (interface{}
 	return getRespBody, nil
 }
 
-func resourceCacheRefreshRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	var (
-		cfg  = meta.(*config.Config)
-		mErr *multierror.Error
-	)
-	client, err := cfg.NewServiceClient("cdn", "")
-	if err != nil {
-		return diag.Errorf("error creating CDN client: %s", err)
-	}
-
-	getRespBody, err := GetCacheDetailById(client, d.Id())
-	if err != nil {
-		return common.CheckDeletedDiag(d, err, "CDN cache refresh")
-	}
-
-	mErr = multierror.Append(
-		mErr,
-		d.Set("urls", flattenCacheUrls(utils.PathSearch("urls", getRespBody, make([]interface{}, 0)).([]interface{}))),
-		d.Set("type", utils.PathSearch("file_type", getRespBody, nil)),
-		d.Set("status", utils.PathSearch("status", getRespBody, nil)),
-		d.Set("created_at", flattenCreatedAt(getRespBody)),
-		d.Set("processing", utils.PathSearch("processing", getRespBody, float64(0)).(float64)),
-		d.Set("succeed", utils.PathSearch("succeed", getRespBody, float64(0)).(float64)),
-		d.Set("failed", utils.PathSearch("failed", getRespBody, float64(0)).(float64)),
-		d.Set("total", utils.PathSearch("total", getRespBody, float64(0)).(float64)),
-	)
-
-	return diag.FromErr(mErr.ErrorOrNil())
-}
-
 func flattenCacheUrls(urlsResp []interface{}) []string {
 	result := make([]string, 0, len(urlsResp))
 	for _, v := range urlsResp {
@@ -277,9 +249,34 @@ func flattenCacheUrls(urlsResp []interface{}) []string {
 	return result
 }
 
-func flattenCreatedAt(getRespBody interface{}) string {
-	createdAt := utils.PathSearch("create_time", getRespBody, float64(0)).(float64)
-	return utils.FormatTimeStampRFC3339(int64(createdAt)/1000, false)
+func resourceCacheRefreshRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	client, err := cfg.NewServiceClient("cdn", "")
+	if err != nil {
+		return diag.Errorf("error creating CDN client: %s", err)
+	}
+
+	getRespBody, err := GetCacheDetailById(client, d.Id())
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, "CDN cache refresh")
+	}
+
+	mErr := multierror.Append(
+		d.Set("urls", flattenCacheUrls(utils.PathSearch("urls", getRespBody, make([]interface{}, 0)).([]interface{}))),
+		d.Set("type", utils.PathSearch("file_type", getRespBody, nil)),
+		d.Set("status", utils.PathSearch("status", getRespBody, nil)),
+		d.Set("created_at", utils.FormatTimeStampRFC3339(
+			int64(utils.PathSearch("create_time", getRespBody, float64(0)).(float64))/1000, false)),
+		d.Set("processing", utils.PathSearch("processing", getRespBody, float64(0)).(float64)),
+		d.Set("succeed", utils.PathSearch("succeed", getRespBody, float64(0)).(float64)),
+		d.Set("failed", utils.PathSearch("failed", getRespBody, float64(0)).(float64)),
+		d.Set("total", utils.PathSearch("total", getRespBody, float64(0)).(float64)),
+	)
+	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func resourceCacheRefreshUpdate(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
+	return nil
 }
 
 func resourceCacheRefreshDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {

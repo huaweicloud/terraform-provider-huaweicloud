@@ -3,12 +3,12 @@ subcategory: "Content Delivery Network (CDN)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_cdn_logs"
 description: |-
-  Use this datasource to get the list of CDN logs.
+  Use this datasource to get the list of CDN logs within HuaweiCloud.
 ---
 
 # huaweicloud_cdn_logs
 
-Use this datasource to get the list of CDN logs.
+Use this datasource to get the list of CDN logs within HuaweiCloud.
 
 ## Example Usage
 
@@ -32,10 +32,11 @@ The following arguments are supported:
 
 * `end_time` - (Optional, Int) Specifies the end time for querying logs (excluding the end time point).
   The value is the millisecond timestamp of the hour. The maximum time span between the start time and
-  end time is 30 days.
+  end time is `30` days.
   If this parameter is left empty, the start time plus one day is used by default.
 
-* `enterprise_project_id` - (Optional, String) Specifies the enterprise project ID to which the domain name belongs.
+* `enterprise_project_id` - (Optional, String) Specifies the ID of the enterprise project to which the resource
+  belongs.  
   This parameter is valid only when the enterprise project function is enabled.
   The value **all** indicates all enterprise projects.
   This parameter is mandatory when you use an IAM user to call this API.
@@ -46,11 +47,10 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The data source ID.
 
-* `logs` - The list of Logs.
+* `logs` - The list of logs that matched filter parameters.
+  The [logs](#cdn_logs_struct) structure is documented below.
 
-  The [logs](#logs_struct) structure is documented below.
-
-<a name="logs_struct"></a>
+<a name="cdn_logs_struct"></a>
 The `logs` block supports:
 
 * `domain_name` - The domain name to which the log belongs.

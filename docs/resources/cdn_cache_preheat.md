@@ -26,23 +26,19 @@ resource "huaweicloud_cdn_cache_preheat" "test" {
 
 The following arguments are supported:
 
-* `urls` - (Required, List, ForceNew) Specifies the URLs that need to be preheated.
+* `urls` - (Required, List, NonUpdatable) Specifies the URLs that need to be preheated.
   A URL must start with `http://` or `https://` and must contain the accelerated domain name.
   A URL can contain up to `4,096` characters. Enter up to `1,000` URLs and separate them by commas (,).
 
-  Changing this parameter will create a new resource.
-
-* `enterprise_project_id` - (Optional, String, ForceNew) Specifies the enterprise project ID to which the accelerated
-  domain name belongs. This parameter is only valid for enterprise users and is required when using Sub-account.
+* `enterprise_project_id` - (Optional, String, NonUpdatable) Specifies the ID of the enterprise project to which the
+  resource belongs.  
+  This parameter is only valid for enterprise users and is required when using sub-account.
   The value **all** represents all enterprise projects.
 
-  Changing this parameter will create a new resource.
-
-* `zh_url_encode` - (Optional, Bool, ForceNew) Specifies whether to encode Chinese characters in URLs before cache preheat.
+* `zh_url_encode` - (Optional, Bool, NonUpdatable) Specifies whether to encode Chinese characters in URLs before cache
+  preheat.  
   The value **false** indicates disabled, and **true** indicates enabled. After enabled, cache is preheated only for
   transcode URLs. Defaults to **false**.
-
-  Changing this parameter will create a new resource.
 
 ## Attribute Reference
 
@@ -50,9 +46,11 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The resource ID.
 
-* `status` - The task execution result. Possible values: **task_done** (successful) and **task_inprocess** (processing).
+* `status` - The task execution result.
+  + **task_done**: successful.
+  + **task_inprocess**: processing.
 
-* `created_at` - The creation time.
+* `created_at` - The creation time, in RFC3339 format.
 
 * `processing` - The number of URLs that are being processed.
 

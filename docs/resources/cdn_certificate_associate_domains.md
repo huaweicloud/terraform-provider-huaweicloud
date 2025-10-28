@@ -68,21 +68,27 @@ The following arguments are supported:
 * `access_origin_way` - (Optional, Int, NonUpdatable) The origin protocol configuration.  
   The valid values are as follows:
   + **1**: Protocol follow
-  + **2**: HTTP protocol (default)
+  + **2**: HTTP protocol
   + **3**: HTTPS protocol
+
+  Defaults to **2**.
 
 * `force_redirect_https` - (Optional, Int, NonUpdatable) Whether to enable HTTPS force redirect.  
   The valid values are as follows:
-  + **0**: Disable (default)
+  + **0**: Disable
   + **1**: Enable
+
+  Defaults to **0**.
 
 * `force_redirect_config` - (Optional, List, NonUpdatable) The force redirect configuration.  
   The [force_redirect_config](#cdn_force_redirect_config)structure is documented below.
 
 * `http2` - (Optional, Int, NonUpdatable) The HTTP/2 protocol switch.  
   The valid values are as follows:
-  + **0**: Disable (default)
+  + **0**: Disable
   + **1**: Enable
+
+  Defaults to **0**.
 
 * `cert_name` - (Optional, String, NonUpdatable) The certificate name.
 
@@ -92,8 +98,10 @@ The following arguments are supported:
 
 * `certificate_type` - (Optional, Int, NonUpdatable) The certificate type.  
   The valid values are as follows:
-  + **0**: Free certificate (default)
+  + **0**: Free certificate
   + **1**: Paid certificate
+
+  Defaults to **0**.
 
 <a name="cdn_force_redirect_config"></a>
 The `force_redirect_config` block supports:

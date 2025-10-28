@@ -11,7 +11,7 @@ description: |-
 Use this data source to get the TOP100 URL statistics of CDN domain within HuaweiCloud.
 
 -> The statistic data is obtained by scanning the service's offline logs and is subject
-   to a delay of at least 6 hours.
+   to a delay of at least `6` hours.
 
 ## Example Usage
 
@@ -51,10 +51,12 @@ The following arguments are supported:
   The valid values are as follows:
   + **mainland_china**: mainland China
   + **outside_mainland_china**: outside mainland China
-  + **global**: global (default)
+  + **global**: global
 
-* `enterprise_project_id` - (Optional, String) Specifies the ID of the enterprise project to which the domains
-  belong.
+  Defaults to **global**.
+
+* `enterprise_project_id` - (Optional, String) Specifies the ID of the enterprise project to which the resource
+  belongs.
 
 ## Attribute Reference
 

@@ -917,14 +917,15 @@ var clientCert = schema.Schema{
 // @API CDN GET /v1.1/cdn/configuration/domains/{domain_name}/configs
 // @API CDN POST /v1.0/cdn/configuration/tags/batch-delete
 // @API CDN POST /v1.0/cdn/configuration/tags
-func ResourceCdnDomain() *schema.Resource {
+func ResourceDomain() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceCdnDomainCreate,
-		ReadContext:   resourceCdnDomainRead,
-		UpdateContext: resourceCdnDomainUpdate,
-		DeleteContext: resourceCdnDomainDelete,
+		CreateContext: resourceDomainCreate,
+		ReadContext:   resourceDomainRead,
+		UpdateContext: resourceDomainUpdate,
+		DeleteContext: resourceDomainDelete,
+
 		Importer: &schema.ResourceImporter{
-			StateContext: resourceCDNDomainImportState,
+			StateContext: resourceDomainImportState,
 		},
 
 		Timeouts: &schema.ResourceTimeout{
@@ -1055,8 +1056,9 @@ func ResourceCdnDomain() *schema.Resource {
 				Description: "schema: Required",
 			},
 			"enterprise_project_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The enterprise project that the resource belongs.`,
 			},
 			"configs": {
 				Type:     schema.TypeList,
@@ -1317,46 +1319,7 @@ func ReadCdnDomainDetail(client *golangsdk.ServiceClient, domainName, epsID stri
 	return utils.FlattenResponse(getResp)
 }
 
-func waitingForCdnDomainStatusOnline(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
-	timeout time.Duration, cfg *config.Config) error {
-	var (
-		domainName       = d.Get("name").(string)
-		epsID            = cfg.GetEnterpriseProjectID(d)
-		unexpectedStatus = []string{"offline", "configure_failed", "check_failed", "deleting"}
-	)
-
-	stateConf := &resource.StateChangeConf{
-		Pending: []string{"PENDING"},
-		Target:  []string{"COMPLETED"},
-		Refresh: func() (interface{}, string, error) {
-			domainResp, err := ReadCdnDomainDetail(client, domainName, epsID)
-			if err != nil {
-				return nil, "ERROR", err
-			}
-
-			domainStatus := utils.PathSearch("domain.domain_status", domainResp, "").(string)
-			if domainStatus == "" {
-				return nil, "ERROR", fmt.Errorf("error retrieving CDN domain: domain_status is not found in API response")
-			}
-
-			if domainStatus == "online" {
-				return domainResp, "COMPLETED", nil
-			}
-
-			if utils.StrSliceContains(unexpectedStatus, domainStatus) {
-				return domainResp, domainStatus, nil
-			}
-			return domainResp, "PENDING", nil
-		},
-		Timeout:      timeout,
-		Delay:        20 * time.Second,
-		PollInterval: 20 * time.Second,
-	}
-	_, err := stateConf.WaitForStateContext(ctx)
-	return err
-}
-
-func resourceCdnDomainCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDomainCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg     = meta.(*config.Config)
 		httpUrl = "v1.0/cdn/domains"
@@ -1395,11 +1358,12 @@ func resourceCdnDomainCreate(ctx context.Context, d *schema.ResourceData, meta i
 	}
 	d.SetId(id)
 
-	if err := waitingForCdnDomainStatusOnline(ctx, client, d, d.Timeout(schema.TimeoutCreate), cfg); err != nil {
+	if err := waitingForCdnDomainStatusOnline(ctx, client, d.Get("name").(string), cfg.GetEnterpriseProjectID(d),
+		d.Timeout(schema.TimeoutCreate)); err != nil {
 		return diag.Errorf("error waiting for CDN domain (%s) creation to become online: %s", d.Id(), err)
 	}
 
-	return resourceCdnDomainUpdate(ctx, d, meta)
+	return resourceDomainUpdate(ctx, d, meta)
 }
 
 func analyseFunctionEnabledStatus(enabledStatus string) bool {
@@ -2194,7 +2158,7 @@ func flattenConfigAttributes(configResp interface{}, d *schema.ResourceData) []m
 	return []map[string]interface{}{configsAttrs}
 }
 
-func resourceCdnDomainRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDomainRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg        = meta.(*config.Config)
 		domainName = getDomainName(d)
@@ -3035,7 +2999,7 @@ func updateCdnDomainTags(client *golangsdk.ServiceClient, d *schema.ResourceData
 	return nil
 }
 
-func resourceCdnDomainUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDomainUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	client, err := cfg.NewServiceClient("cdn", "")
 	if err != nil {
@@ -3048,7 +3012,8 @@ func resourceCdnDomainUpdate(ctx context.Context, d *schema.ResourceData, meta i
 			return diag.Errorf("error updating CDN domain configs settings: %s", err)
 		}
 
-		if err := waitingForCdnDomainStatusOnline(ctx, client, d, d.Timeout(schema.TimeoutUpdate), cfg); err != nil {
+		if err := waitingForCdnDomainStatusOnline(ctx, client, d.Get("name").(string), cfg.GetEnterpriseProjectID(d),
+			d.Timeout(schema.TimeoutUpdate)); err != nil {
 			return diag.Errorf("error waiting for CDN domain (%s) update to become online: %s", d.Id(), err)
 		}
 	}
@@ -3071,7 +3036,7 @@ func resourceCdnDomainUpdate(ctx context.Context, d *schema.ResourceData, meta i
 		}
 	}
 
-	return resourceCdnDomainRead(ctx, d, meta)
+	return resourceDomainRead(ctx, d, meta)
 }
 
 func deleteCdnDomain(client *golangsdk.ServiceClient, d *schema.ResourceData, epsID string) error {
@@ -3195,7 +3160,7 @@ func waitingForCdnDomainStatusOffline(ctx context.Context, client *golangsdk.Ser
 	return err
 }
 
-func resourceCdnDomainDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDomainDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg   = meta.(*config.Config)
 		epsID = cfg.GetEnterpriseProjectID(d)
@@ -3232,7 +3197,7 @@ func resourceCdnDomainDelete(ctx context.Context, d *schema.ResourceData, meta i
 	return nil
 }
 
-func resourceCDNDomainImportState(_ context.Context, d *schema.ResourceData,
+func resourceDomainImportState(_ context.Context, d *schema.ResourceData,
 	_ interface{}) ([]*schema.ResourceData, error) {
 	return []*schema.ResourceData{d}, d.Set("domain_name", d.Id())
 }
