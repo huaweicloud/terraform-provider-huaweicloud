@@ -420,6 +420,8 @@ var (
 	HW_SWR_ORGANIZATION = os.Getenv("HW_SWR_ORGANIZATION")
 	// The repository of SWR image tag
 	HW_SWR_REPOSITORY = os.Getenv("HW_SWR_REPOSITORY")
+	// The signature task is sign with image exist
+	HW_SWR_SIGNATURE_WITH_IAMGE_ENABLED = os.Getenv("HW_SWR_SIGNATURE_WITH_IAMGE_ENABLED")
 
 	HW_SCM_CERTIFICATE_ID          = os.Getenv("HW_SCM_CERTIFICATE_ID")
 	HW_SCM_CERTIFICATE_DOMAIN_NAME = os.Getenv("HW_SCM_CERTIFICATE_DOMAIN_NAME")
@@ -2423,6 +2425,13 @@ func TestAccPreCheckSwrOrigination(t *testing.T) {
 func TestAccPreCheckSwrRepository(t *testing.T) {
 	if HW_SWR_REPOSITORY == "" {
 		t.Skip("HW_SWR_REPOSITORY must be set for SWR image tags tests")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckSwrSignatureWithImageEnabled(t *testing.T) {
+	if HW_SWR_SIGNATURE_WITH_IAMGE_ENABLED == "" {
+		t.Skip("HW_SWR_SIGNATURE_WITH_IAMGE_ENABLED must be set for SWR image signature tests")
 	}
 }
 
