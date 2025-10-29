@@ -2953,8 +2953,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_kms_sign":                      dew.ResourceKmsSign(),
 			"huaweicloud_kms_verify_sign":               dew.ResourceKmsVerifySign(),
 			"huaweicloud_kms_key":                       dew.ResourceKmsKey(),
+			"huaweicloud_kms_key_update_primary_region": dew.ResourceKeyUpdatePrimaryRegion(),
 			"huaweicloud_kms_rsa_datakey_pair":          dew.ResourceRsaDatakeyPair(),
-			"huaweicloud_kps_keypair":                   dew.ResourceKeypair(),
 			"huaweicloud_kms_grant":                     dew.ResourceKmsGrant(),
 			"huaweicloud_kms_alias":                     dew.ResourceKmsAlias(),
 			"huaweicloud_kms_alias_associate":           dew.ResourceKmsAliasAssociate(),
@@ -2966,6 +2966,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_kms_datakey_without_plaintext": dew.ResourceKmsDatakeyWithoutPlaintext(),
 			"huaweicloud_kms_cancel_key_deletion":       dew.ResourceKmsCancelKeyDeletion(),
 
+			"huaweicloud_kps_keypair":                  dew.ResourceKeypair(),
 			"huaweicloud_kps_keypair_disassociate":     dew.ResourceKpsKeypairDisassociate(),
 			"huaweicloud_kps_keypair_associate":        dew.ResourceKpsKeypairAssociate(),
 			"huaweicloud_kps_failed_tasks_delete":      dew.ResourceKpsFailedTasksDelete(),
