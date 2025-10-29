@@ -833,6 +833,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_coc_change_sub_tickets":                coc.DataSourceCocChangeSubTickets(),
 			"huaweicloud_coc_issue_tickets":                     coc.DataSourceCocIssueTickets(),
 			"huaweicloud_coc_alarm_action_histories":            coc.DataSourceCocAlarmActionHistories(),
+			"huaweicloud_coc_cloud_vendor_accounts":             coc.DataSourceCocCloudVendorAccounts(),
 
 			"huaweicloud_compute_quotas":                      ecs.DataSourceEcsComputeQuotas(),
 			"huaweicloud_compute_availability_zones":          ecs.DataSourceEcsComputeAvailabilityZones(),
@@ -2458,6 +2459,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_coc_alarm_action":                  coc.ResourceAlarmAction(),
 			"huaweicloud_coc_alarm_clear":                   coc.ResourceAlarmClear(),
 			"huaweicloud_coc_alarm_linked_incident":         coc.ResourceAlarmLinkedIncident(),
+			"huaweicloud_coc_cloud_vendor_account":          coc.ResourceCloudVendorAccount(),
 
 			"huaweicloud_cph_server":         cph.ResourceCphServer(),
 			"huaweicloud_cph_adb_command":    cph.ResourceAdbCommand(),
