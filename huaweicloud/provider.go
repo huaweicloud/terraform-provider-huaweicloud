@@ -1809,6 +1809,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_swr_enterprise_feature_gates":                      swrenterprise.DataSourceSwrEnterpriseFeatureGates(),
 			"huaweicloud_swr_enterprise_instances":                          swrenterprise.DataSourceSwrEnterpriseInstances(),
 			"huaweicloud_swr_enterprise_namespaces":                         swrenterprise.DataSourceSwrEnterpriseNamespaces(),
+			"huaweicloud_swr_enterprise_repositories":                       swrenterprise.DataSourceSwrEnterpriseRepositories(),
 			"huaweicloud_swr_enterprise_immutable_tag_rules":                swrenterprise.DataSourceSwrEnterpriseImmutableTagRules(),
 			"huaweicloud_swr_enterprise_triggers":                           swrenterprise.DataSourceSwrEnterpriseTriggers(),
 			"huaweicloud_swr_enterprise_long_term_credentials":              swrenterprise.DataSourceSwrEnterpriseLongTermCredentials(),
