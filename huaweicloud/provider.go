@@ -1822,9 +1822,12 @@ func Provider() *schema.Provider {
 			"huaweicloud_swr_enterprise_sub_resources_filter":               swrenterprise.DataSourceSwrEnterpriseSubResourcesFilter(),
 			"huaweicloud_swr_enterprise_retention_policies":                 swrenterprise.DataSourceSwrEnterpriseRetentionPolicies(),
 			"huaweicloud_swr_enterprise_retention_policy_execution_records": swrenterprise.DataSourceSwrEnterpriseRetentionPolicyExecutionRecords(),
-			//nolint:revive
-			"huaweicloud_swr_enterprise_image_signature_policy_execution_records":      swrenterprise.DataSourceSwrEnterpriseImageSignaturePolicyExecutionRecords(),
+			// nolint:revive
+			"huaweicloud_swr_enterprise_image_signature_policy_execution_records": swrenterprise.DataSourceSwrEnterpriseImageSignaturePolicyExecutionRecords(),
+			// nolint:revive
 			"huaweicloud_swr_enterprise_image_signature_policy_execution_record_tasks": swrenterprise.DataSourceSwrEnterpriseImageSignaturePolicyExecutionRecordTasks(),
+			// nolint:revive
+			"huaweicloud_swr_enterprise_image_signature_policy_execution_record_sub_tasks": swrenterprise.DataSourceSwrEnterpriseImageSignaturePolicyExecutionRecordSubTasks(),
 
 			"huaweicloud_tms_resource_types":      tms.DataSourceResourceTypes(),
 			"huaweicloud_tms_resource_instances":  tms.DataSourceResourceInstances(),
