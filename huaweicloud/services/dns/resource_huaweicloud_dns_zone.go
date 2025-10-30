@@ -155,10 +155,15 @@ func ResourceDNSZone() *schema.Resource {
 				Description: `Indicates the DNSSEC infos.`,
 			},
 			"masters": {
-				Type:        schema.TypeSet,
-				Computed:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: `The list of the masters of the DNS server.`,
+				Type:     schema.TypeSet,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Description: utils.SchemaDesc(
+					`The list of the masters of the DNS server.`,
+					utils.SchemaDescInput{
+						Deprecated: true,
+					},
+				),
 			},
 		},
 	}

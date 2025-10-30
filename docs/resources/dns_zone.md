@@ -124,8 +124,6 @@ In addition to all arguments above, the following attributes are exported:
 * `dnssec_infos` - Indicates the DNSSEC infos.
   The [dnssec_infos](#attrblock--dnssec_infos) structure is documented below.
 
-* `masters` - The list of the masters of the DNS server.
-
 <a name="attrblock--dnssec_infos"></a>
 The `dnssec_infos` block supports:
 
