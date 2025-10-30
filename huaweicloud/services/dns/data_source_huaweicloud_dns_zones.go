@@ -26,6 +26,12 @@ func DataSourceZones() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
+				Description: utils.SchemaDesc(
+					`The region where the zones are located.`,
+					utils.SchemaDescInput{
+						Deprecated: true,
+					},
+				),
 			},
 			"zone_type": {
 				Type:        schema.TypeString,
@@ -194,11 +200,16 @@ func zoneRouterSchema() *schema.Resource {
 func resourceZonesRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg         = meta.(*config.Config)
-		region      = cfg.GetRegion(d)
+		region      = ""
 		mErr        *multierror.Error
 		listHttpUrl = "v2/zones"
-		dnsProduct  = "dns_region"
+		dnsProduct  = "dns"
 	)
+	if v, ok := d.GetOk("region"); ok {
+		region = v.(string)
+		cfg.RegionClient = true
+	}
+
 	client, err := cfg.NewServiceClient(dnsProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating DNS client: %s", err)

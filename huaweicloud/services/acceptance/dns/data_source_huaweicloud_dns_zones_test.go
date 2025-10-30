@@ -182,7 +182,7 @@ output "is_name_fuzzy_filter_useful" {
 
 # Filter by zone name (exact search).
 locals {
-  zone_name = huaweicloud_dns_zone.test.0.name
+  zone_name = try(huaweicloud_dns_zone.test.0.name, "")
 }
 
 data "huaweicloud_dns_zones" "filter_by_name_exact" {
@@ -291,8 +291,8 @@ data "huaweicloud_dns_zones" "filter_by_sort_desc" {
 
 locals {
   sort_desc_filter_result = data.huaweicloud_dns_zones.filter_by_sort_desc.zones
-  sort_asc_first_name     = data.huaweicloud_dns_zones.filter_by_sort_asc.zones[0].name
-  sort_desc_last_name     = data.huaweicloud_dns_zones.filter_by_sort_desc.zones[length(local.sort_desc_filter_result) - 1].name
+  sort_asc_first_name     = try(data.huaweicloud_dns_zones.filter_by_sort_asc.zones[0].name, "")
+  sort_desc_last_name     = try(data.huaweicloud_dns_zones.filter_by_sort_desc.zones[length(local.sort_desc_filter_result) - 1].name, "")
 }
 
 output "sort_filter_is_useful" {

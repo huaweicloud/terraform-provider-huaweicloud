@@ -25,9 +25,6 @@ data "huaweicloud_dns_zones" "test" {
 
 The following arguments are supported:
 
-* `region` - (Optional, String) Specifies the region in which to query the data source.
-  If omitted, the provider-level region will be used.
-
 * `zone_type` - (Required, String) Specifies the zone type. The value can be **public** or **private**.
 
 * `zone_id` - (Optional, String) Specifies the ID of the zone.
