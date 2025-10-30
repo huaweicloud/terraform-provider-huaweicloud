@@ -1,0 +1,186 @@
+package dew
+
+import (
+	"context"
+	"fmt"
+	"strings"
+
+	"github.com/hashicorp/go-multierror"
+	"github.com/hashicorp/go-uuid"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
+	"github.com/chnsz/golangsdk"
+
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
+)
+
+// @API DEW GET /v1/{project_id}/dew/cpcs/cluster/{cluster_id}/access-keys
+func DataSourceCpcsClusterAccessKeys() *schema.Resource {
+	return &schema.Resource{
+		ReadContext: dataSourceCpcsClusterAccessKeysRead,
+
+		Schema: map[string]*schema.Schema{
+			"region": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `Specifies the region in which to query the resource.`,
+			},
+			"cluster_id": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: `Specifies the cluster ID.`,
+			},
+			"app_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the application name.`,
+			},
+			"sort_key": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the sort attribute.`,
+			},
+			"sort_dir": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the sort direction.`,
+			},
+			"access_keys": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: `The list of the access keys.`,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"access_key_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The access key ID.`,
+						},
+						"status": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The status of the access key.`,
+						},
+						"app_name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The application name.`,
+						},
+						"access_key": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The access key value.`,
+						},
+						"key_name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The access key name.`,
+						},
+						"create_time": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: `The creation time of the access key.`,
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func buildDataSourceCpcsClusterAccessKeysQueryParams(d *schema.ResourceData, pageNum int) string {
+	rst := fmt.Sprintf("?page_num=%d", pageNum)
+
+	if v, ok := d.GetOk("app_name"); ok {
+		rst += fmt.Sprintf("&app_name=%v", v)
+	}
+
+	if v, ok := d.GetOk("sort_key"); ok {
+		rst += fmt.Sprintf("&sort_key=%v", v)
+	}
+
+	if v, ok := d.GetOk("sort_dir"); ok {
+		rst += fmt.Sprintf("&sort_dir=%v", v)
+	}
+
+	return rst
+}
+
+func dataSourceCpcsClusterAccessKeysRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v1/{project_id}/dew/cpcs/cluster/{cluster_id}/access-keys"
+		product = "kms"
+		pageNum = 1
+		allKeys = make([]interface{}, 0)
+	)
+
+	client, err := cfg.NewServiceClient(product, region)
+	if err != nil {
+		return diag.Errorf("error creating DEW client: %s", err)
+	}
+
+	requestPath := client.Endpoint + httpUrl
+	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+	requestPath = strings.ReplaceAll(requestPath, "{cluster_id}", d.Get("cluster_id").(string))
+	requestOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+	}
+
+	for {
+		requestPathWithPageNum := requestPath + buildDataSourceCpcsClusterAccessKeysQueryParams(d, pageNum)
+		resp, err := client.Request("GET", requestPathWithPageNum, &requestOpt)
+		if err != nil {
+			return diag.Errorf("error retrieving DEW CPCS cluster access keys: %s", err)
+		}
+
+		respBody, err := utils.FlattenResponse(resp)
+		if err != nil {
+			return diag.Errorf("error flattening DEW CPCS cluster access keys response: %s", err)
+		}
+
+		results := utils.PathSearch("result", respBody, make([]interface{}, 0)).([]interface{})
+		if len(results) == 0 {
+			break
+		}
+		allKeys = append(allKeys, results...)
+		pageNum++
+	}
+
+	generateId, err := uuid.GenerateUUID()
+	if err != nil {
+		return diag.Errorf("error generating UUID: %s", err)
+	}
+	d.SetId(generateId)
+
+	mErr := multierror.Append(
+		d.Set("region", region),
+		d.Set("access_keys", flattenCpcsClusterAccessKeysResponseBody(allKeys)),
+	)
+
+	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func flattenCpcsClusterAccessKeysResponseBody(respArray []interface{}) []interface{} {
+	if len(respArray) == 0 {
+		return nil
+	}
+
+	result := make([]interface{}, 0, len(respArray))
+	for _, v := range respArray {
+		result = append(result, map[string]interface{}{
+			"access_key_id": utils.PathSearch("access_key_id", v, nil),
+			"status":        utils.PathSearch("status", v, nil),
+			"app_name":      utils.PathSearch("app_name", v, nil),
+			"access_key":    utils.PathSearch("access_key", v, nil),
+			"key_name":      utils.PathSearch("key_name", v, nil),
+			"create_time":   utils.PathSearch("create_time", v, nil),
+		})
+	}
+
+	return result
+}

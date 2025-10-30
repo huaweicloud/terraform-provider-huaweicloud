@@ -148,6 +148,8 @@ var (
 	HW_CSMS_TASK_ID              = os.Getenv("HW_CSMS_TASK_ID")
 	HW_CSMS_SECRET_ID            = os.Getenv("HW_CSMS_SECRET_ID")
 
+	HW_CPCS_CLUSTER_ID = os.Getenv("HW_CPCS_CLUSTER_ID")
+
 	HW_DEST_REGION          = os.Getenv("HW_DEST_REGION")
 	HW_DEST_PROJECT_ID      = os.Getenv("HW_DEST_PROJECT_ID")
 	HW_DEST_PROJECT_ID_TEST = os.Getenv("HW_DEST_PROJECT_ID_TEST")
@@ -4103,6 +4105,13 @@ func TestAccPrecheckDewFlag(t *testing.T) {
 func TestAccPrecheckCsmsTask(t *testing.T) {
 	if HW_CSMS_TASK_ID == "" {
 		t.Skip("HW_CSMS_TASK_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPrecheckCpcsClusterId(t *testing.T) {
+	if HW_CPCS_CLUSTER_ID == "" {
+		t.Skip("HW_CPCS_CLUSTER_ID must be set for the acceptance test")
 	}
 }
 
