@@ -1,5 +1,56 @@
 # CHANGELOG
 
+## 1.80.0 (October 30, 2025)
+
+* **New Resource Source:**
+  + `huaweicloud_coc_cloud_vendor_account` [GH-8158]
+  + `huaweicloud_coc_cloud_vendor_user_resources_sync` [GH-8163]
+  + `huaweicloud_csms_agency` [GH-8139]
+  + `huaweicloud_dms_kafka_consumer_group_topic_batch_delete` [GH-8047]
+  + `huaweicloud_dns_zone_authorization_verify` [GH-8183]
+  + `huaweicloud_dns_zone_authorization` [GH-8183]
+  + `huaweicloud_evs_recycle_bin_volume_revert` [GH-8119]
+  + `huaweicloud_hss_antivirus_create_pay_per_scan_task` [GH-8159]
+  + `huaweicloud_hss_antivirus_pay_per_scan_switch_status` [GH-8071]
+  + `huaweicloud_hss_modify_webtamper_protection_policy` [GH-8137]
+  + `huaweicloud_kms_ec_datakey_pair` [GH-8165]
+  + `huaweicloud_kms_generate_mac` [GH-8174]
+  + `huaweicloud_kms_key_update_primary_region` [GH-8174]
+  + `huaweicloud_kms_rsa_datakey_pair` [GH-8174]
+  + `huaweicloud_kms_verify_mac` [GH-8174]
+  + `huaweicloud_kps_batch_export_private_key` [GH-8149]
+  + `huaweicloud_kps_batch_import_keypair` [GH-8155]
+  + `huaweicloud_rds_sql_statistics_view_reset` [GH-8152]
+  + `huaweicloud_swr_enterprise_domain_name` [GH-8122]
+
+* **New Data Source:**
+  + `huaweicloud_coc_cloud_vendor_accounts` [GH-8158]
+  + `huaweicloud_compute_appendable_volume_quota` [GH-8143]
+  + `huaweicloud_cpcs_app_access_keys` [GH-8173]
+  + `huaweicloud_cpcs_associations` [GH-8180]
+  + `huaweicloud_cpcs_availability_zones` [GH-8173]
+  + `huaweicloud_cpcs_cluster_access_keys` [GH-8173]
+  + `huaweicloud_cpcs_clusters` [GH-8172]
+  + `huaweicloud_cpcs_images` [GH-8173]
+  + `huaweicloud_cpcs_resource_infos` [GH-8180]
+  + `huaweicloud_csms_agencies` [GH-8142]
+  + `huaweicloud_csms_function_templates` [GH-8140]
+  + `huaweicloud_dms_kafka_consumer_group_members` [GH-8032]
+  + `huaweicloud_dns_zone_nameservers` [GH-8167]
+  + `huaweicloud_hss_antivirus_pay_per_scan_hosts` [GH-8175]
+  + `huaweicloud_hss_asset_app_change_history` [GH-8123]
+  + `huaweicloud_hss_asset_website_hosts` [GH-8106]
+  + `huaweicloud_hss_cluster_protect_policies` [GH-8151]
+  + `huaweicloud_hss_container_cluster_statistics` [GH-8134]
+  + `huaweicloud_hss_container_iac_file_risks` [GH-8147]
+  + `huaweicloud_hss_container_network_info` [GH-8169]
+  + `huaweicloud_rds_sql_statistics` [GH-8152]
+  + `huaweicloud_swr_enterprise_image_signature_policy_execution_record_sub_tasks` [GH-8164]
+  + `huaweicloud_swr_enterprise_image_signature_policy_execution_record_tasks` [GH-8157]
+  + `huaweicloud_swr_enterprise_instance_audit_logs` [GH-8171]
+  + `huaweicloud_swr_enterprise_namespace_repositories` [GH-8170]
+  + `huaweicloud_swr_enterprise_repositories` [GH-8166]
+
 ## 1.79.2 (October 22, 2025)
 
 * **New Resource Source:**
