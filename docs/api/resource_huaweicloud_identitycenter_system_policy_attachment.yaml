@@ -1,0 +1,19 @@
+info:
+    version: ""
+    title: resource_huaweicloud_identitycenter_system_policy_attachment
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: IdentityCenter
+paths:
+    /v1/instances/{instance_id}/permission-sets/{permission_set_id}/attach-managed-role:
+        POST:
+            tag: IdentityCenter
+    /v1/instances/{instance_id}/permission-sets/{permission_set_id}/detach-managed-role:
+        POST:
+            tag: IdentityCenter
+    /v1/instances/{instance_id}/permission-sets/{permission_set_id}/managed-roles:
+        GET:
+            tag: IdentityCenter

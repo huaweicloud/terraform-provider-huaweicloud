@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_rds_sql_statistics
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: RDS
+paths:
+    /v3/{project_id}/instances/{instance_id}/sql-statistics:
+        GET:
+            tag: RDS

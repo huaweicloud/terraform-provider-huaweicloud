@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_kms_generate_mac
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DEW
+paths:
+    /v1.0/{project_id}/kms/generate-mac:
+        POST:
+            tag: DEW

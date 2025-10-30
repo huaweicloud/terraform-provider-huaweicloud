@@ -1,0 +1,20 @@
+info:
+    version: ""
+    title: resource_huaweicloud_identitycenter_group
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: IdentityCenter
+paths:
+    /v1/identity-stores/{identity_store_id}/groups:
+        POST:
+            tag: IdentityCenter
+    /v1/identity-stores/{identity_store_id}/groups/{group_id}:
+        DELETE:
+            tag: IdentityCenter
+        GET:
+            tag: IdentityCenter
+        PUT:
+            tag: IdentityCenter

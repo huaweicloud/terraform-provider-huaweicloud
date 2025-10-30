@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_dns_zone_authorization_verify
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DNS
+paths:
+    /v2/authorize-txtrecord/{id}/verify:
+        POST:
+            tag: DNS

@@ -1,0 +1,18 @@
+info:
+    version: ""
+    title: resource_huaweicloud_apm_aksk
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: APM
+paths:
+    /v1/apm2/access-keys:
+        GET:
+            tag: APM
+        POST:
+            tag: APM
+    /v1/apm2/access-keys/{ak}:
+        DELETE:
+            tag: APM

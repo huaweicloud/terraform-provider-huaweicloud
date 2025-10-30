@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_hss_antivirus_create_pay_per_scan_task
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: HSS
+paths:
+    /v5/{project_id}/antivirus/pay-per-scan/tasks:
+        POST:
+            tag: HSS

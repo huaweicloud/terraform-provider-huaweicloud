@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_swr_enterprise_namespace_repositories
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: SWR
+paths:
+    /v2/{project_id}/instances/{instance_id}/namespaces/{namespace_name}/repositories:
+        GET:
+            tag: SWR

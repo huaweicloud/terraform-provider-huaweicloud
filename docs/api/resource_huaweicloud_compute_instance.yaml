@@ -34,6 +34,9 @@ paths:
     /v1/{project_id}/cloudservers/{server_id}/metadata/{key}:
         DELETE:
             tag: ECS
+    /v1/{project_id}/cloudservers/{server_id}/migrate:
+        POST:
+            tag: ECS
     /v1/{project_id}/cloudservers/{server_id}/os-reset-password:
         PUT:
             tag: ECS
@@ -41,6 +44,9 @@ paths:
         POST:
             tag: ECS
     /v1/{project_id}/cloudservers/action:
+        POST:
+            tag: ECS
+    /v1/{project_id}/cloudservers/actions/change-charge-mode:
         POST:
             tag: ECS
     /v1/{project_id}/cloudservers/delete:

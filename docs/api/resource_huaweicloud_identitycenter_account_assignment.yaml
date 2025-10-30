@@ -1,0 +1,22 @@
+info:
+    version: ""
+    title: resource_huaweicloud_identitycenter_account_assignment
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: IdentityCenter
+paths:
+    /v1/instances/{instance_id}/account-assignments:
+        GET:
+            tag: IdentityCenter
+    /v1/instances/{instance_id}/account-assignments/create:
+        POST:
+            tag: IdentityCenter
+    /v1/instances/{instance_id}/account-assignments/creation-status/{request_id}:
+        GET:
+            tag: IdentityCenter
+    /v1/instances/{instance_id}/account-assignments/delete:
+        POST:
+            tag: IdentityCenter

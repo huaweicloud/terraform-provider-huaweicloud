@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_kps_batch_import_keypair
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DEW
+paths:
+    /v3/{project_id}/keypairs/batch-import:
+        POST:
+            tag: DEW

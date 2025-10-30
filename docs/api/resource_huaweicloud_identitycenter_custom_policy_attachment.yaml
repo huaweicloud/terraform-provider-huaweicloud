@@ -1,0 +1,17 @@
+info:
+    version: ""
+    title: resource_huaweicloud_identitycenter_custom_policy_attachment
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: IdentityCenter
+paths:
+    /v1/instances/{instance_id}/permission-sets/{permission_set_id}/custom-policy:
+        DELETE:
+            tag: IdentityCenter
+        GET:
+            tag: IdentityCenter
+        PUT:
+            tag: IdentityCenter

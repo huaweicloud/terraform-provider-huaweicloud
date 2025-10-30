@@ -1,0 +1,19 @@
+info:
+    version: ""
+    title: resource_huaweicloud_lts_dashboard
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: LTS
+paths:
+    /v2/{project_id}/dashboard:
+        DELETE:
+            tag: LTS
+    /v2/{project_id}/dashboards:
+        GET:
+            tag: LTS
+    /v2/{project_id}/lts/template-dashboard:
+        POST:
+            tag: LTS

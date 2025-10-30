@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_kps_batch_export_private_key
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DEW
+paths:
+    /v3/{project_id}/keypairs/private-key/batch-export:
+        POST:
+            tag: DEW

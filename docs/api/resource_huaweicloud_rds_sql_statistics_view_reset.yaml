@@ -1,0 +1,16 @@
+info:
+    version: ""
+    title: resource_huaweicloud_rds_sql_statistics_view_reset
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: RDS
+paths:
+    /v3/{project_id}/instances:
+        GET:
+            tag: RDS
+    /v3/{project_id}/instances/{instance_id}/sql-statistics/reset:
+        POST:
+            tag: RDS

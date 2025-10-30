@@ -1,0 +1,29 @@
+info:
+    version: ""
+    title: resource_huaweicloud_identitycenter_permission_set
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: IdentityCenter
+paths:
+    /v1/instances/{instance_id}/permission-sets:
+        POST:
+            tag: IdentityCenter
+    /v1/instances/{instance_id}/permission-sets/{id}:
+        DELETE:
+            tag: IdentityCenter
+        GET:
+            tag: IdentityCenter
+        PUT:
+            tag: IdentityCenter
+    /v1/instances/{resource_type}/{resource_id}/tags:
+        GET:
+            tag: IdentityCenter
+    /v1/instances/{resource_type}/{resource_id}/tags/create:
+        POST:
+            tag: IdentityCenter
+    /v1/instances/{resource_type}/{resource_id}/tags/delete:
+        POST:
+            tag: IdentityCenter

@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: data_source_huaweicloud_koogallery_assets
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: KooGallery
+paths:
+    /api/mkp-openapi-public/v1/asset/deployed-object:
+        GET:
+            tag: KooGallery
