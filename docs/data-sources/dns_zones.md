@@ -96,8 +96,6 @@ The `zones` block supports:
 
 * `record_num` - The number of record sets in the zone.
 
-* `masters` - The master DNS servers, from which the slave servers get DNS information.
-
 * `tags` - The key/value pairs to associate with the zone.
 
 * `routers` - The list of VPCs associated with the zone. This attribute is only valid when `zone_type` is **private**.

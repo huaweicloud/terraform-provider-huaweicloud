@@ -142,10 +142,15 @@ func zoneSchema() *schema.Resource {
 				Description: `The number of record sets in the zone.`,
 			},
 			"masters": {
-				Type:        schema.TypeList,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Computed:    true,
-				Description: `The master DNS servers, from which the slave servers get DNS information.`,
+				Type:     schema.TypeList,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The master DNS servers, from which the slave servers get DNS information.`,
+					utils.SchemaDescInput{
+						Deprecated: true,
+					},
+				),
 			},
 			"routers": {
 				Type:        schema.TypeList,
