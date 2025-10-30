@@ -149,6 +149,7 @@ var (
 	HW_CSMS_SECRET_ID            = os.Getenv("HW_CSMS_SECRET_ID")
 
 	HW_CPCS_CLUSTER_ID = os.Getenv("HW_CPCS_CLUSTER_ID")
+	HW_CPCS_APP_ID     = os.Getenv("HW_CPCS_APP_ID")
 
 	HW_DEST_REGION          = os.Getenv("HW_DEST_REGION")
 	HW_DEST_PROJECT_ID      = os.Getenv("HW_DEST_PROJECT_ID")
@@ -4114,6 +4115,13 @@ func TestAccPrecheckCsmsTask(t *testing.T) {
 func TestAccPrecheckCpcsClusterId(t *testing.T) {
 	if HW_CPCS_CLUSTER_ID == "" {
 		t.Skip("HW_CPCS_CLUSTER_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPrecheckCpcsAppClusterAssociation(t *testing.T) {
+	if HW_CPCS_APP_ID == "" || HW_CPCS_CLUSTER_ID == "" {
+		t.Skip("HW_CPCS_APP_ID and HW_CPCS_CLUSTER_ID must be set for the acceptance test")
 	}
 }
 
